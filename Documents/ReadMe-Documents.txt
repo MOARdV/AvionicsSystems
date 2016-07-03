@@ -1,0 +1,13 @@
+﻿This directory contains multiple text files that are used to organize the
+documentation for Avionics Systems.  They are not authorative or final
+documents - those will show up eventually under GameData/AvionicsSystems/PluginData.
+You can consider this an off-site backup of my electronic scratchpad.
+
+All text files (.txt extension) in this directory are considered
+
+Copyright (c) 2016 MOARdV
+All Rights Reserved
+
+You are permitted to make copies of these documents (such as through GitHub
+forks or downloads for off-line review), but please do not otherwise distribute
+them, as they are considered in-progress drafts.

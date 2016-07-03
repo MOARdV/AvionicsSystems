@@ -1,0 +1,55 @@
+﻿Persistent Variables in Avionics Systems
+
+User-defined variables are a key element of custom and complex IVA designs.
+Based on RasterPropMonitor experience, there are several use patterns with
+persistent variables:
+
+Toggle Variable
+
+For basic switches, a simple on/off persistent is used to maintain state
+from session to session.  In RPM, the default is to use the name
+"switch%PROPID%_%MODULEID%".  A user-supplied name may also be used
+for cases where the persistent value is used by multiple props in the
+vessel (such as console backlights).  For all of these uses, the counter is only a
+0 or 1 value, and all it needs is a toggle method.
+
+Numeric Variable
+
+In JSINumericInput, the persistent variable is manipulated by adding or
+subtracting a value (with the option for automatic repeating).
+
+
+Global Variable
+
+For performance and logic reasons, most persistent variables were per-pod,
+meaning that duplicate variables in different pods had different values.
+Some values could be forced to global, but user control of it was awkward.
+
+Avionics Systems Implementation
+
+fc.TogglePersistent(persistentName)
+
+Toggles the named persistent between 0 and 1.  If the persistent doesn't exist,
+it is created and set to 1.  If the persistent is a string, it is converted to
+a number (if possible) and then toggled; if it can not be toggled, the
+name is returned.  Returns the new value.
+
+fc.SetPersistent(persistentName, value)
+
+Sets the named persistent to the value specified.  Created if it doesn't exist.
+Returns the new value.
+
+fc.GetPersistent(persistentName)
+
+Returns the current value of the persistent.  If it doesn't exist, the
+persistentName is returned, instead.
+
+fc.AddPersistent(persistentName, amount)
+
+Adds 'amount' to the named persistent value.  Returns the new sum.  If the
+persistent doesn't exist, it is treated as 'zero'.
+
+TODO: Global Variables - methods named by inserting 'Global' between the verb
+and noun (eg, AddGlobalPersistent).
+
+TODO: String manipulation
