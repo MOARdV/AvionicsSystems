@@ -144,6 +144,35 @@ INT_LIGHT
 in boolean mode.
 
 
+MODEL_SCALE
+
+This action is used to scale a transform (and its children).  It supports Boolean Mode, Threshold Mode,
+and Blend Mode.
+
+MODEL_SCALE
+{
+	name = Warning Plate Cover
+	transform = CoverLoc
+	startScale = 0, 0, 0
+	endScale = 0, 0, -0.9
+	variable = fc.GetRCS()
+	//range = 0.5, 1.5
+	//blend = true
+}
+
+'name': Optional.  Default '(anonymous)'.  A name for the action.
+'transform': Required.  The name of the transform that will be scaled.
+'startScale': Required.  A Vector3 showing how much should be added to the
+transform's scale when the variable is out of range.
+'endScale': Required.  A Vec3 showing how much should be added to the transform's
+scale when the variable is in range.
+'variable': Required.  The name of the variable script to evaluate.
+'range': Optional.  When present, the Model Scale operates in Threshold Mode.  When absent, it operates
+in Boolean Mode.
+'blend': Optional. Default false.  Ignored if 'range' is not present.  When true, the transform is linearly
+interpolated between startScale and endScale based on where in the range the variable falls.
+
+
 TEXTURE_SHIFT
 
 This action is used to shift the texture coordinates attached to a specified
