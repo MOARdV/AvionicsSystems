@@ -1,0 +1,8 @@
+﻿The Config File for Avionics Systems may contain the following options.  All values are optional,
+with defaults as described.
+
+VerboseLogging - Default False.  Used to enable verbose message logging for diagnostic purposes.
+
+PowerResource - Default "ElectricCharge".  Allows a player to specify a different resource type for power,
+so that the fc.HasPower() method will check the correct resource for modded installations that do not use
+"ElectricCharge".

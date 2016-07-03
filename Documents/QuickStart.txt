@@ -1,0 +1,27 @@
+﻿MOARdV's Avionics Systems Quick Start Guide
+
+1) Read the FAQ.  Seriously.  I will not provide answers to questions that are
+answered in the FAQ.  Asking one of those questions tells me you didn't bother
+looking at even that documentation.
+
+1a) If you have a previous installation of Avionics Systems and you want to
+preserve your config file, back up GameData/AvionicsSystems/PluginData/as.cfg.
+
+2) Delete any existing GameData/AvionicsSystems directory.  I recommend this
+approach over copying over an existing installation because sometimes I move
+files around, and having multiple copies could have side-effects (bugs).
+
+3) Unzip the GameData directory in this zip file into your GameData directory.
+The only directory in this zip file's GameData directory is the AvionicsSystems
+directory, so telling it to overwrite the existing folder is safe (refer to step
+2 above).
+
+3a) If you backed up your config file, restore it now by overwriting the config
+file that was in the zip file.
+
+4) (Optional) Download and install Module Manager from
+http://forum.kerbalspaceprogram.com/index.php?/topic/50533-112-module-manager-2625-may-19th-where-the-singularity-started/ .
+
+Avionics Systems does not require MM to function, but most IVAs use MM to replace
+an existing IVA with an updated one.  There is a good chance you've installed
+MM already, so make sure you have the current version.
