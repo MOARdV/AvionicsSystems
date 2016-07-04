@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4F66C4FC-D095-4D30-A0FE-01EDD2BAF6A8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AvionicsSystems</RootNamespace>
+    <AssemblyName>AvionicsSystems</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\Games\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\..\..\Games\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="KSPAssets">
+      <HintPath>..\..\..\Games\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\KSPAssets.dll</HintPath>
+    </Reference>
+    <Reference Include="KSPUtil">
+      <HintPath>..\..\..\Games\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\KSPUtil.dll</HintPath>
+    </Reference>
+    <Reference Include="MoonSharp.Interpreter">
+      <HintPath>..\..\..\Games\Steam\steamapps\common\Kerbal Space Program\GameData\MOARdV\AvionicsSystem\MoonSharp.Interpreter.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\Games\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\..\Games\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\UnityEngine.UI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Source\MASActionAnimationPlayer.cs" />
+    <Compile Include="Source\MASActionAudioPlayer.cs" />
+    <Compile Include="Source\MASActionColliderEvent.cs" />
+    <Compile Include="Source\MASActionColorShift.cs" />
+    <Compile Include="Source\MASActionIntLight.cs" />
+    <Compile Include="Source\MASActionModelScale.cs" />
+    <Compile Include="Source\MASActionTextLabel.cs" />
+    <Compile Include="Source\MASActionTextureShift.cs" />
+    <Compile Include="Source\MASActionTriggerEvent.cs" />
+    <Compile Include="Source\MASComponent.cs" />
+    <Compile Include="Source\MASFlightComputerFlash.cs" />
+    <Compile Include="Source\MASFlightComputerPersistent.cs" />
+    <Compile Include="Source\MASFlightComputerProxy.cs" />
+    <Compile Include="Source\MASFlightComputerVariable.cs" />
+    <Compile Include="Source\MASLoader.cs" />
+    <Compile Include="Source\MASFlightComputer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Source\MASVesselComputer.cs" />
+    <Compile Include="Source\IMASAction.cs" />
+    <Compile Include="Source\MdVTextMesh.cs" />
+    <Compile Include="Source\Utility.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Documents\FormattedRichText.txt" />
+    <Content Include="Documents\MASComponent.txt" />
+    <Content Include="Documents\ConfigFile.txt" />
+    <Content Include="Documents\FAQ.txt" />
+    <Content Include="Documents\Introduction.txt" />
+    <Content Include="Documents\License.txt" />
+    <Content Include="Documents\Persistent.txt" />
+    <Content Include="Documents\PortingRPM.txt" />
+    <Content Include="Documents\QuickStart.txt" />
+    <Content Include="Documents\ReadMe-Documents.txt" />
+    <Content Include="Documents\ToDo.txt" />
+    <Content Include="Documents\UnderTheHood.txt" />
+    <Content Include="Documents\Variables.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy $(TargetPath) "D:\Games\Steam\steamapps\common\Kerbal Space Program\GameData\AvionicsSystems"
+copy $(TargetPath) $(SolutionDir)GameData\AvionicsSystems\</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
