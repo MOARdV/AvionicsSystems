@@ -1,0 +1,103 @@
+﻿TODO:
+
+Major components that need to be ported or handled somehow.
+
+Non-prop modules:
+
+* InternalCameraTargetHelper
+
+* JSIExternalCameraSelector
+
+* JSIRadar
+
+* JSISetInternalCameraFOV
+
+Prop Modules
+
+* RasterPropMonitor - the big one...
+
+  + Callback System for variables, so the callback flags a "this text needs updated".  Being able to flag per-row would be even better.
+  + Look into custom UnityEngine.Font for RPM-style fonts so there can be a single text rendering path.
+
+* Page setup should take advantage of DynValue.Tuple (http://www.moonsharp.org/dynvalue.html)
+so there's a single Lua call with multi-return instead of multiple single-value calls.
+
+JSIVariableAnimator / JSICallbackAnimator components
+
+* animation (JSIVariableAnimator set to a specific position)
+
+* exterior animation
+
+- play animation (JSIActionGroupSwitch). complete.
+
+- color shift. complete: Boolean Mode, Threshold Mode, Blend Mode, flash (for Boolean and Threshold).
+
+* rotation
+
+* translation
+
+* scale
+
+* texture shift.  Static shift is complete.  Dynamic shift is still open
+
+* texture scale
+
+- alarm sound. complete: can play audio when the variable transitions into range, out of range, both, or looping (into range).
+
+* resource consumption
+
+Handlers (non-prop control stuff)
+
+* JSI bridge modules (plugins)
+
+* JSIGraphingBackground
+
+* JSIHeadsUpDisplay
+
+* JSIOdometer
+
+* JSIPrimaryFlightDisplay
+
+* JSISteerableCamera
+
+* JSIVariableGraph
+
+* MFD pages (JSITargeMenu, MechJebRPM)
+
+* RPM extensions (SCANsat, VesselView, DPAI background handlers; FAR variables)
+
+* RPM interop?  Talk to RPM about some data (maybe to ease adoption of AS).
+
+Support Components
+- Some of this will be tricky, since it's code imported from GPL projects.  I
+may have to do some learnin' and write the replacement functionality on my own.
+
+* SIFormatter
+
+* OrbitExtensions
+
+* Protractor
+
+* Resources
+
+* AeroExtensions
+
+* CelestialBodyExtensions
+
+Design Research
+
+* Use coroutines (or threads?!?) for some continual-refinement processing (eg, landing location estimator).
+
+* Rudimentary parser that can identify identical variables (eg, 'fc.GetRCS() * 2' and 'fc.GetRCS()*2'; even
+better, also '2*fc.GetRCS()'), to eliminate duplicate values caused by inconsistent use of whitespace and
+ordering.
+
+* Can the persistents be flagged somehow in the FixedUpdate polling?  They're only updated through
+specific methods, so I can reduce overhead by moving all persistent variable tests out of the update
+list.
+
+* Is WaitForFixedUpdate the right coroutine yield to use?  Should I use WaitForSeconds with a time interval
+of whatever the update delta is?  Also remember - the WaitForSeconds accounts for timewarp already.
+
+* Create a "standard library" of methods for the Lua environment?  Partially depends on relearning how to pass
+functions as parameters, so there can be things like "DoThisIfThereIsPower(function-to-do)".

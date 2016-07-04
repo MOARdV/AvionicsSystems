@@ -1,0 +1,2 @@
+﻿Avionics Systems uses Formatted Rich Text as originally defined in RasterPropMonitor.
+

@@ -1,0 +1,61 @@
+﻿Under the Hood
+
+Or, theory of operation.
+
+Data Sources
+
+Two modules are responsible for providing most of the data: the
+MASFlightComputer and the MASVesselComputer.
+
+The MASFlightComputer is analogous to the RasterPropMonitorComputer module in
+RasterPropMonitor: it exists per-part, and all props in a given part route
+their queries through that flight computer.  Data that is unique per-part
+is tracked by the MASFlightComputer.  This includes local crew data and
+persistent (user-defined) variables.
+
+The MASFlightComputer also manages variable updates.  Under the default
+configuration, every FixedUpdate the MASFlightComputer calls all registered
+variable scripts to refresh their values.  For variables that change, all
+registered data sinks are notified by a callback system of the new value of
+the variable.
+
+The MoonSharp Lua Script class is instantiated per-MASFlightComputer.
+
+By using a notification system, Avionics Systems reduces the number of modules
+polling values in Update or FixedUpdate.  It also allows the data sinks to
+respond immediately to changed variables, where the original RPM
+JSIVariableAnimator module could conceivably be several frames behind the
+variable change, which gave the impression of laggy behavior.
+
+MASVesselComputer is implemented as a VesselModule.  Like MASFlightComputer,
+it is active every FixedUpdate, during which time it recomputes vessel-specific
+values (heading, pitch, yaw, and so on).  Using a VesselModule allows all
+vessel-wide parameters to be computed once, instead of once per
+MASFlightComputer.  The MASVesselComputer also manages lists of modules in a
+vessel, such as ModuleDeployableSolarPanel.  These lists are updated when the
+craft changes.  They provide a fast way to track some particular data and
+specific capabilities in Avionics Systems.
+
+The MASVesselComputer is also responsible for saving and restoring persistent
+variables inside the save file (persistent.sfs).  These variables are collected
+from all MASFlightComputer nodes in the craft, and saved using the MASFC's
+unique identifier so that the right values are dispatched to the right flight
+computers at load time.
+
+From a scripting point of view, there is only the MASFlightComputer, accessed
+using 'fc.'.  It automatically routes vessel-specific queries to the
+MASVesselComputer.
+
+The data sources are partitioned between MASFlightComputer and MASVesselComputer
+for two reasons: first, many persistent variables should be unique per pod;
+making them per-vessel means a switch in one place can affect behavior in other
+places (which would be weird in cases of docked spacecraft turning on and off
+controls in other spacecraft).  Second, the Vessel a part belongs to can and
+does change when docking or undocking.  All of the data stored in the
+VesselModule is effectively lost in one of the craft when two docked craft
+separate; merging two databases of persistents is a big mess (which pod's
+persistent value gets priority when they disagree?).
+
+In addition to the two core data sources, there are plugin data sources.  These
+sources are wrappers to code that communicates with other mods, such as getting
+flaps settings from FAR or parachute status from RealChute.

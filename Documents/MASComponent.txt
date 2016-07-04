@@ -173,6 +173,71 @@ in Boolean Mode.
 interpolated between startScale and endScale based on where in the range the variable falls.
 
 
+TEXT_LABEL
+
+The Text Label action is used to display text.  The text can be static (text that is generated once,
+and then never altered), or it can be dynamic.  In addition, the text can be configured several
+different ways to switch between emissive and non-emissive modes.  There are many configuration options
+available for a Text Label.
+
+The Text Label supports Boolean Mode, Threshold Mode, Blend Mode, and Static Mode.
+
+TEXT_LABEL
+{
+	name = Name Plate
+	transform = IndicatorNameObj
+	fontSize = 2.3
+	//oneshot = true
+	font = InconsolataGo-Bold
+	alignment = Center
+	anchor = MiddleCenter
+	transformOffset = 0.0087,-0.0015
+	emissive = active
+	//emissive = always
+	variable = fc.GetPersistent("MOARdV_Backlight")
+	//range = 0.5, 1.5
+	//blend = true
+	//lineSpacing = 1.0
+	flashRate = 1.0
+	activeColor = COLOR_MOARdV_BacklightColor
+	passiveColor = COLOR_MOARdV_UnlitText
+	text = RCS
+}
+
+'name': Optional.  Default '(anonymous)'.  A name for the action.
+'transform': Required.  The transform in the prop where you want to apply the text.
+'fontSize': Required.  How large the text should be in arbitrary units.
+'oneshot': Optional.  Default false.  If true, 'text' is considered immutable, meaning that
+is will never be updated after its initial value is determined.  If no variables are included
+in 'text', it automatically is treated as immutable, so this parameter is only needed for
+text that consumes variables that you know won't need updated after initialization.
+'font': Required.  The name of the font to use.  Supported fonts include system fonts (which
+may not be on every computer), Arial, Inconsolata-Go, <-TODO->
+'alignment': Optional.  Default 'Left'.  Controls horizontal justification of the text.  Valid
+options are 'Left', 'Right', and 'Center'.
+'anchor': Optional.  Default 'UpperLeft'.  Controls vertical justification of the text. <-TODO->
+'transformOffset': Optional.  Default (0, 0).  Allows the text to be displaced from the
+specified transform.
+'emissive': Optional.  Default 'active' or 'always'.  <-TODO->
+'variable': Optional.  Required if activeColor is defined.  The variable that controls text color
+and emissive properties.
+'range': Optional.  Ignored if 'variable' is not present.  When 'range' is present, the text color
+operates in threshold mode.  When absent, it operates in Boolean Mode.
+'blend': Optional.  Default false.  Ignored if 'range' is missing.  Allows the text to blend
+smoothly between 'activeColor' and 'passiveColor'.
+'lineSpacing': Optional.  Default 1.0.  Scaled line-to-line spacing on multi-line text.
+'flashRate': Optional. Default 0.0.  Ignored if 'blend' is true.  Sets the flash rate of the text
+when the controlling variable is in range.  Provides 1/2 of the duty cycle of the flash (so a
+flashRate of 0.5 means "on for 0.5 seconds, off for 0.5 seconds").
+'activeColor': Optional.  Required is 'variable' is defined.  Defines the color of the text when
+the variable is in range.
+'passiveColor': Required.  Defines the default color of the text if 'variable' is not defined, and
+the color of the text when 'variable' is defined and it is out of range.
+'text': Formatted rich text (see Formatted Rich Text).
+
+If 'variable' and 'activeColor' are omitted, the Text Label operates in Static Mode.
+
+
 TEXTURE_SHIFT
 
 This action is used to shift the texture coordinates attached to a specified

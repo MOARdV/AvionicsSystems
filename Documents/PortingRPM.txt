@@ -1,0 +1,114 @@
+﻿Porting from RasterPropMonitor
+
+There's quite a bit of work involved in importing props from RasterPropMonitor.
+The following are some guidelines:
+
+
+RasterPropMonitorComputer:
+
+This module was semi-required in RPM.  It could be omitted from a part, and
+RPM would install it as needed.  Its analogue is MASFlightComputer, which is
+mandatory for any part that contains an Avionics Systems-enabled IVA.
+
+Within the RPMC config, there were several options.  Those options and their
+alternatives are discussed below.
+
+'storedStrings' - storedStrings provided a way to specify strings in RPM that
+could be accessed using the STOREDSTRING_# variable, which returned a string
+value.  These feature has been replaced with the AS_PERSISTENT persistent
+variable initializer (see MASFlightComputer's config options).
+
+'triggeredEvents' - this feature provided a way to trigger events when certain
+conditions were met.  It has been replaced with the TRIGGER_EVENT option in
+ASAction.
+
+Per-pod color overrides (RPM_COLOROVERRIDE) - The color override block can
+be copied from RasterPropMonitorComputer and pasted into ASConfig.  ASConfig
+will read and use the overrides with no additional effort.
+
+
+RPM Global Configs:
+
+RPM supported a number of customization options for IVA makers.  Many of those
+were centered on custom variables (CUSTOM_, MATH_, MAPPED_).  There were also
+global color definitions.
+
+Avionics Systems will read and use the global color definitions, so no actions
+need to be taken there.
+
+The various custom variables need to be converted to Lua scripts referenced in
+AS_LUA config nodes.  This method will allow for much better control of the variables,
+and significantly more flexibility using them.
+
+
+Prop Modules:
+
+The many prop modules in RasterPropMonitor have been replaced primarily with
+ASComponent.  Instead of (potentially) several modules needing to be added to each
+prop, now a single module is added with multiple components (called generically
+ASAction).  The mapping of RPM modules to ASAction is described below:
+
+JSIActionGroupSwitch: Use COLLIDER_EVENT for the click action, ANIMATION_PLAYER for
+the animation that is played for the click.  Sounds are managed by AUDIO_PLAYER.
+
+Some additional detail:
+
+The 'dummy' action uses 'fc.TogglePersistent("NAME")', where NAME is replaced with
+the persistent variable (still in quotes, eg 'fc.TogglePersistent("MOARdV_Backlight")').  For dummy
+variables, use 'fc.TogglePersistent("%AUTOID%")', and 'fc.GetPersistent("%AUTOID")'
+for animations controlled by the persistent.
+
+The 'plugin' action uses the appropriate plugin methods, such as 'realchute.ToggleArmParachute()'.
+
+The 'transfer' action needs to be written as a custom Lua script (which also provides
+much more flexibility in how the transfer works).
+
+The 'intlight' action uses INT_LIGHT ASAction.
+
+The other built-in actions all have equivalent 'fc.' accessor functions.
+
+JSICallbackAnimator:
+(animation)
+(color)
+(rotation)
+(translation)
+(scale)
+(texture shift)
+(texture scale)
+(threshold)
+(flashing)
+(alarm)
+
+JSIInternalEVAHatch: Use COLLIDER_EVENT with an 'onClick' of 'fc.EvaCurrentKerbal()'.
+
+JSIInternalFlagDecal: Not ported.
+
+JSILabel:
+
+JSINavBall:
+
+JSINumericInput:
+
+JSIOdometer:
+
+JSIPropIDFinder: Not ported.
+
+JSIPropTextureShift: Use TEXTURE_SHIFT.
+
+JSISelectivelyVisibleProp: Not ported.
+
+JSISwitchableVariableLabel:
+
+JSIVariableAnimator:
+
+JSIVariableLabel:
+(animation)
+(color)
+(rotation)
+(translation)
+(scale)
+(texture shift)
+(texture scale)
+(threshold)
+(flashing)
+(alarm)
