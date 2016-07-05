@@ -261,7 +261,7 @@ namespace AvionicsSystems
         private string EvaluateImmutableVariables(string text, MASFlightComputer comp)
         {
             string[] staticText = text.Split(VariableListSeparator, StringSplitOptions.RemoveEmptyEntries);
-            if(staticText.Length == 1)
+            if (staticText.Length == 1)
             {
                 return text;
             }
@@ -307,7 +307,7 @@ namespace AvionicsSystems
             {
                 if (textRow[i].variable != null)
                 {
-                    for(int var=0; var<textRow[i].variable.Length; ++var)
+                    for (int var = 0; var < textRow[i].variable.Length; ++var)
                     {
                         comp.UnregisterOnVariableChange(textRow[i].variable[var].name, textRow[i].callback);
                         textRow[i].variable[var] = null;
@@ -385,7 +385,7 @@ namespace AvionicsSystems
                     colorInvalidated = false;
                 }
             }
-            catch(Exception e) 
+            catch (Exception e)
             {
                 Utility.LogErrorMessage(this, "Trapped exception:");
                 Utility.LogErrorMessage(this, e.ToString());
@@ -466,6 +466,21 @@ namespace AvionicsSystems
                         if ((tagText.Length == 9 || tagText.Length == 7) && tagText[0] == '#')
                         {
                             charIndex += nextBracket + 1;
+                        }
+                        else if (tagText.Length > 2 && tagText[0] == '@')
+                        {
+                            // Valid nudge tags are [@x<number>] or [@y<number>] so the conditions for them is that
+                            // the next symbol is @ and there are at least three, one designating the axis.
+                            float coord;
+                            if (float.TryParse(tagText.Substring(2), out coord))
+                            {
+                                // Only consume the symbols if they parse.
+                                charIndex += nextBracket + 1;
+                            }
+                            else //If it didn't parse, skip over it.
+                            {
+                                break;
+                            }
                         }
                         else if (tagText == "[")
                         {
@@ -591,6 +606,8 @@ namespace AvionicsSystems
                 xPos += xAnchor;
 
                 Color32 fontColor = color;
+                float xOffset = 0.0f;
+                float yOffset = 0.0f;
 
                 int stringLength = textRow[line].formattedData.Length;
                 for (int charIndex = 0; charIndex < stringLength; charIndex++)
@@ -612,6 +629,33 @@ namespace AvionicsSystems
                             // Valid color tags are [#rrggbbaa] or [#rrggbb].
                             fontColor = XKCDColors.ColorTranslator.FromHtml(tagText);
                             charIndex += nextBracket + 1;
+                        }
+                        else if (tagText.Length > 2 && tagText[0] == '@')
+                        {
+                            // Valid nudge tags are [@x<number>] or [@y<number>] so the conditions for them is that
+                            // the next symbol is @ and there are at least three, one designating the axis.
+                            float coord;
+                            if (float.TryParse(tagText.Substring(2), out coord))
+                            {
+                                switch (tagText[1])
+                                {
+                                    case 'X':
+                                    case 'x':
+                                        xOffset = coord;
+                                        break;
+                                    case 'Y':
+                                    case 'y':
+                                        yOffset = coord;
+                                        break;
+                                }
+
+                                // Only consume the symbols if they parse.
+                                charIndex += nextBracket + 1;
+                            }
+                            else //If it didn't parse, skip over it.
+                            {
+                                break;
+                            }
                         }
                         else if (tagText == "[")
                         {
@@ -661,28 +705,28 @@ namespace AvionicsSystems
                                 triangles[charWritten * 6 + 4] = arrayIndex + 1;
                                 triangles[charWritten * 6 + 5] = arrayIndex + 3;
 
-                                vertices[arrayIndex] = new Vector3(characterSize * (float)(xPos + charInfo.minX), characterSize * (float)(yPos + charInfo.maxY), 0.0f);
+                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + charInfo.minX) + xOffset), characterSize * ((float)(yPos + charInfo.maxY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
                                 uv[arrayIndex] = charInfo.uvTopLeft;
 
                                 ++arrayIndex;
 
-                                vertices[arrayIndex] = new Vector3(characterSize * (float)(xPos + charInfo.maxX), characterSize * (float)(yPos + charInfo.maxY), 0.0f);
+                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + charInfo.maxX) + xOffset), characterSize * ((float)(yPos + charInfo.maxY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
                                 uv[arrayIndex] = charInfo.uvTopRight;
 
                                 ++arrayIndex;
 
-                                vertices[arrayIndex] = new Vector3(characterSize * (float)(xPos + charInfo.minX), characterSize * (float)(yPos + charInfo.minY), 0.0f);
+                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + charInfo.minX) + xOffset), characterSize * ((float)(yPos + charInfo.minY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
                                 uv[arrayIndex] = charInfo.uvBottomLeft;
 
                                 ++arrayIndex;
 
-                                vertices[arrayIndex] = new Vector3(characterSize * (float)(xPos + charInfo.maxX), characterSize * (float)(yPos + charInfo.minY), 0.0f);
+                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + charInfo.maxX) + xOffset), characterSize * ((float)(yPos + charInfo.minY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
                                 uv[arrayIndex] = charInfo.uvBottomRight;
@@ -935,7 +979,7 @@ namespace AvionicsSystems
                     }
                     else
                     {
-                        for (int i = 0; i < variable.Length; ++i )
+                        for (int i = 0; i < variable.Length; ++i)
                         {
                             evals[i] = (variable[i].IsString()) ? (object)variable[i].String() : (object)variable[i].Value();
                         }

@@ -87,7 +87,9 @@ docking alignment or altimeter strips.  Nudges reset at the end of a row of text
 
 With Label Text in a MASComponent, the nudge moves the text by an amount based on
 the resolution of the underlying font, but the distance is affected by scaling and
-other factors, so it may require some tuning to position it correctly.
+other factors, so it may require some tuning to position it correctly.  Note that
+the nudge tags do not affect text alignment computations, so results may not be
+ideal with center-justified or right-justified text that uses x-nudges.
 
 Text Style tags [b][/b] and [i][/i]
 
