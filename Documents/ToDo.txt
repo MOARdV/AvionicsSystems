@@ -19,14 +19,11 @@ Prop Modules
   + Callback System for variables, so the callback flags a "this text needs updated".  Being able to flag per-row would be even better.
   + Look into custom UnityEngine.Font for RPM-style fonts so there can be a single text rendering path.
 
-* Page setup should take advantage of DynValue.Tuple (http://www.moonsharp.org/dynvalue.html)
-so there's a single Lua call with multi-return instead of multiple single-value calls.
-
 JSIVariableAnimator / JSICallbackAnimator components
 
 * animation (JSIVariableAnimator set to a specific position)
 
-* exterior animation
+* exterior animation - Bobcat used this; does alexustas?
 
 - play animation (JSIActionGroupSwitch). complete.
 
@@ -36,9 +33,9 @@ JSIVariableAnimator / JSICallbackAnimator components
 
 * translation
 
-* scale
+- scale. complete: can use Boolean, Threshold, and Blend.
 
-* texture shift.  Static shift is complete.  Dynamic shift is still open
+- texture shift.  complete: Static, Boolean, Threshold, and Blend.
 
 * texture scale
 
@@ -64,13 +61,14 @@ Handlers (non-prop control stuff)
 
 * MFD pages (JSITargeMenu, MechJebRPM)
 
-* RPM extensions (SCANsat, VesselView, DPAI background handlers; FAR variables)
+* RPM extension bridges (SCANsat, VesselView, DPAI background handlers; FAR variables)
 
 * RPM interop?  Talk to RPM about some data (maybe to ease adoption of AS).
+Persistents might be helpful.
 
 Support Components
-- Some of this will be tricky, since it's code imported from GPL projects.  I
-may have to do some learnin' and write the replacement functionality on my own.
+- Some of this will be tricky, since it's code from GPL projects.  I may have
+to do some learnin' and write the replacement functionality on my own.
 
 * SIFormatter
 
@@ -97,7 +95,13 @@ specific methods, so I can reduce overhead by moving all persistent variable tes
 list.
 
 * Is WaitForFixedUpdate the right coroutine yield to use?  Should I use WaitForSeconds with a time interval
-of whatever the update delta is?  Also remember - the WaitForSeconds accounts for timewarp already.
+of whatever the update delta is?
 
-* Create a "standard library" of methods for the Lua environment?  Partially depends on relearning how to pass
-functions as parameters, so there can be things like "DoThisIfThereIsPower(function-to-do)".
+* Create a "standard library" of methods for the Lua environment, so there can be things
+like "DoThisIfThereIsPower(function-to-do)".
+
+StdLib ideas:
+
+Clamp(value, min, max)
+
+Map(value, min, max, mappedMin, mappedMax)

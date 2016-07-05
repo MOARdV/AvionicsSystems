@@ -1,2 +1,113 @@
-﻿Avionics Systems uses Formatted Rich Text as originally defined in RasterPropMonitor.
+﻿Avionics Systems uses Formatted Rich Text as originally defined in RasterPropMonitor
+with some minor changes.
 
+BASIC TEXT
+
+Static or unchanging text such as might be used for labels on controls and instruments
+may be listed directly:
+
+(in a config file)
+text = RCS
+
+This will evaluate to the text "RCS".
+
+VARIABLE TEXT
+
+Text may contain variables that are evaluated, allowing for changing text.  This
+text might be used for digital displays, or for monitors.  Text expressed in this
+way follows the C# standards for formatting, with some extensions to the formatting
+string, as detailed below.
+
+To separate the formatting text from the variable list, the token '$&$' is inserted
+at the end of the formatting string, before the variable list:
+
+Altitude: {0:#####0.0}m $&$ fc.GetAltitude()
+
+Because variables in MAS are evaluated as snippets of Lua, the RasterPropMonitor convention
+of separating variables with spaces has been replaced with using a comma ',':
+
+Ap: {0:#####0.0}km / Pe: {1:#####0.0}km $&$ fc.GetApoapsis() / 1000, fc.GetPeriapsis() / 1000
+
+Note in this case that in addition to using two variables, we are also converting the Ap
+and Pe from meters to km.  Lua allows us to include mathematical expressions in our
+variables.
+
+MULTILINE TEXT
+
+Monitor pages can use layout info stored in text files, like RasterPropMonitor
+page definition files.  In a page definition file, the text rows use the end-of-lines
+to separate rows of text.  In an inline text definition, such as the TEXT_LABEL action
+of a MASComponent, end-of-line doesn't work.  Instead the token '$$$' may be used to
+indicate a new line.  Note that this token is translated directly into a new line
+character, so the following would not work:
+
+ ALT: {0:#####.0}m $$$ RALT: {1:#####.0}m $&$ fc.GetAltitude(), fc.GetRadarAltitude()
+
+That text would be converted to
+
+ ALT: {0:#####.0}m 
+RALT: {1:#####.0}m $&$ fc.GetAltitude(), fc.GetRadarAltitude()
+
+which will generate a string formatting exception, since there is no variable on the first row.
+Instead, the text needs to be defined as 
+
+ ALT: {0:#####.0}m $&$ fc.GetAltitude() $$$ RALT: {0:#####.0}m $&$ fc.GetRadarAltitude()
+
+RICH TEXT
+
+Text may include expressions that allow for additional effects.  These expressions are
+enclosed in square brackets '[' and ']'.  Rich Text is processed after variables have
+been evaluated, so it is possible (and common) to use variables inside rich text
+tags.
+
+Color tags [#rrggbb(aa)]
+
+Text color can be changed on the fly by using the color tag.  Colors are expressed as
+hexadecimal RGB or RGBA sequences, similar to how colors are often expressed within HTML
+pages.  For instance,
+
+This is [#ff0000]RED[#ffffff] text.
+
+will display "This is" in the default text color, "RED" in red, and "text." in white.
+Once a color token has been used, it is applied until another color token is found,
+or the text reaches the end of the line.  The alpha values are optional, and they
+default to 255 (ff) if they are omitted.  There is no option to reset the color to
+the default text color within a line of text once it's been changed.
+
+X and Y nudge tags [@x#] and [@y#]
+
+Text position can be changed using nudge tags.  On an MFD (MASMonitor), a nudge moves
+the text by a number of pixels
+from its default position (the position the character would have been drawn at using
+[@x0][@y0]).  Positive X values move the text to the right, negative values to the
+left.  Positive Y moves the text down, negative moves up.  Using [@x0][@y0] moves the
+text back to its normal position [[MOARdV TODO - double check this]].  Since variables are permitted,
+one common technique is to use nudges to move text on a monitor, such as cues for
+docking alignment or altimeter strips.  Nudges reset at the end of a row of text.
+
+With Label Text in a MASComponent, the nudge moves the text by an amount based on
+the resolution of the underlying font, but the distance is affected by scaling and
+other factors, so it may require some tuning to position it correctly.
+
+Text Style tags [b][/b] and [i][/i]
+
+These tags allow the use of bold or italic font styles for fonts that support
+those styles.  Like the other nudges, these modifiers reset at the end of the
+row of text.  However, they can be terminated early using an HTTP-style token.
+
+This text is [b]bold[/b] [i][b]and[/b] italic[/i].
+
+Style tags do not nest: the text after "[b][b][/b]" will not be bold.  Open and
+close bold and italic tags can be intermingled - "[b]B[i]BI[/b]I[/i]" is perfectly
+legal.
+
+--- TODO: other RPM nudges ---
+
+Superscript and subscript tags [sup][/sup] and [sub][/sub]
+- easy to implement
+
+Half-width and double-width tags [hw][/hw] and [dw][/dw]
+- easy to implement
+
+Font select tags [font#]
+- not easy to implement (need multiple materials / Font classes)
