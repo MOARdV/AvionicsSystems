@@ -20,11 +20,11 @@ variable initializer (see MASFlightComputer's config options).
 
 'triggeredEvents' - this feature provided a way to trigger events when certain
 conditions were met.  It has been replaced with the TRIGGER_EVENT option in
-ASAction.
+MASComponent.
 
 Per-pod color overrides (RPM_COLOROVERRIDE) - The color override block can
-be copied from RasterPropMonitorComputer and pasted into ASConfig.  ASConfig
-will read and use the overrides with no additional effort.
+be copied from RasterPropMonitorComputer and pasted into MASFlightComputer.
+MASFlightComputer will read and use the overrides with no additional effort.
 
 
 RPM Global Configs:
@@ -44,9 +44,9 @@ and significantly more flexibility using them.
 Prop Modules:
 
 The many prop modules in RasterPropMonitor have been replaced primarily with
-ASComponent.  Instead of (potentially) several modules needing to be added to each
+MASComponent.  Instead of (potentially) several modules needing to be added to each
 prop, now a single module is added with multiple components (called generically
-ASAction).  The mapping of RPM modules to ASAction is described below:
+MASAction).  The mapping of RPM modules to MASAction is described below:
 
 JSIActionGroupSwitch: Use COLLIDER_EVENT for the click action, ANIMATION_PLAYER for
 the animation that is played for the click.  Sounds are managed by AUDIO_PLAYER.
@@ -55,7 +55,7 @@ Some additional detail:
 
 The 'dummy' action uses 'fc.TogglePersistent("NAME")', where NAME is replaced with
 the persistent variable (still in quotes, eg 'fc.TogglePersistent("MOARdV_Backlight")').  For dummy
-variables, use 'fc.TogglePersistent("%AUTOID%")', and 'fc.GetPersistent("%AUTOID")'
+variables, use 'fc.TogglePersistent("%AUTOID%")', and 'fc.GetPersistent("%AUTOID%")'
 for animations controlled by the persistent.
 
 The 'plugin' action uses the appropriate plugin methods, such as 'realchute.ToggleArmParachute()'.
@@ -63,7 +63,7 @@ The 'plugin' action uses the appropriate plugin methods, such as 'realchute.Togg
 The 'transfer' action needs to be written as a custom Lua script (which also provides
 much more flexibility in how the transfer works).
 
-The 'intlight' action uses INT_LIGHT ASAction.
+The 'intlight' action uses INT_LIGHT MASAction.
 
 The other built-in actions all have equivalent 'fc.' accessor functions.
 
@@ -83,7 +83,7 @@ JSIInternalEVAHatch: Use COLLIDER_EVENT with an 'onClick' of 'fc.EvaCurrentKerba
 
 JSIInternalFlagDecal: Not ported.
 
-JSILabel:
+JSILabel: Uses TEXT_LABEL, which provides more flexibility.
 
 JSINavBall:
 
