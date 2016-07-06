@@ -101,6 +101,7 @@ COLOR_SHIFT
 	//range = 0.5, 1.5
 	//blend = true
 	//flashRate = 0.5
+	//colorName = _EmissiveColor
 }
 
 'name': Optional.  Default '(anonymous)'.  A name for the action.
@@ -117,6 +118,8 @@ interpolated between passiveColor and activeColor based on where in the range th
 'flashRate': Optional.  Default 0.0.  Ignored if 'blend' is enabled.  Specifies one-half of the duty
 cycle for a blinking light (in other words, a flashRate of 0.5 means the light is on 0.5 seconds, and then
 off for 0.5 seconds).
+'colorName': Optional.  Default '_EmissiveColor'.  Controls which color this Color Shift action will alter.
+Known working values are '_Color' (diffuse) and '_EmissiveColor'.
 
 An alternate mode for COLOR_SHIFT is a one-time color change.  If 'variable' is omitted, the 'passiveColor'
 is applied one time at startup, but the component has no further effect.  This is useful for changing the
@@ -171,6 +174,62 @@ scale when the variable is in range.
 in Boolean Mode.
 'blend': Optional. Default false.  Ignored if 'range' is not present.  When true, the transform is linearly
 interpolated between startScale and endScale based on where in the range the variable falls.
+
+
+ROTATION
+
+The Rotation action is used to rotation part of a prop.  This feature is useful for indicator needles and
+dial gauges.  Rotations may be Static (single rotation during initialization), Boolean, Threshold,
+or Blended.
+
+When in Blended Mode, Rotations can have their movement limited by 'cycleRate', which indicates how many seconds the
+animation should require to cycle from startRotation to endRotation.  This capability may be used to simulate
+mechanical limitations of instruments, for instance.
+
+In addition, if 'longPath' is set to true, the rotation will take the longer of the two direct routes between
+'startRotation' and 'endRotation'.  This allows for instruments where a needle rotates more than 180 degrees
+from its start position to its end position.  This applies only in Blended Mode.
+
+One last feature of Blend Mode rotations is the option to specify a 'modulo'.  When defined, the variable is
+modulated by the 'modulo' value, which allows rotating needles (such as altimeters or clocks) to rotate around
+a face multiple times, but return to the zero position without having to "unwind" back to it.  For instance,
+if an altimeter is configured with a range of 0 to 100000 meters, the "hundreds" needle has to circle the gauge
+100 times to go from the minimum value to the maximum value.  If the altimeter is configured so it resets to
+zero outside the atmosphere, the "hundreds" hand would circle dozens of times to reach the zero position.
+
+TODO: better explanation - that's still murky.
+
+ROTATION
+{
+	name = Right Arrow
+	transform = ArrowRightLoc
+	startRotation = 0,0,0
+	endRotation = -43.57964,0,0
+	variable = fc.GetThrottle()
+	range = 0.0, 1.0
+	blend = true
+	cycleRate = 1.0
+	//longPath = true
+	//modulo = 1000
+}
+
+'name': Optional.  Default '(anonymous)'.  A name for the action.
+'transform': Required.  The name of the transforms that contain lights.
+'startRotation': Required.  The Euler angles of the initial rotation position.  This value is
+used for Static mode, as well as the other modes for values out of range.
+'endRotation': Required.  The Euler angles of the final rotation position.  This value may be
+omitted for Static mode.
+'variable': Required.  The name of the variable script to evaluate.
+'range': Optional.  When present, the Rotation operates in Threshold Mode.  When absent, it operates
+in Boolean Mode.
+'blend': Optional. Default false.  Ignored if 'range' is not present.  When true, the transform is spherically
+interpolated between startRotation and endRotation based on where in the range the variable falls.
+'longPath': Optional.  Default false.  Ignored if 'blend' is not true.  When true, the rotation
+will take the longer route to cycle from the start to the end position, instead of the shortest possible
+route.
+'modulo': Optional.  Default 0.0.  Ignored if 'blend' is not true.  When set to a positive value, modulo
+allows for a variable to cycle a rotation repeatedly around a circle without requiring it to animate the
+entire transition (such as looping repeatedly).
 
 
 TEXT_LABEL
