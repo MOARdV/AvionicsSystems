@@ -136,6 +136,13 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Engine
+        public double GetThrottle()
+        {
+            return fc.vessel.ctrlState.mainThrottle;
+        }
+        #endregion
+
         #region Gear
         public double GetGear()
         {
