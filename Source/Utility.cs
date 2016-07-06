@@ -106,6 +106,10 @@ namespace AvionicsSystems
             {
                 return new MASActionModelScale(config, prop, comp);
             }
+            else if(config.name == "ROTATION")
+            {
+                return new MASActionRotation(config, prop, comp);
+            }
             else if (config.name == "TEXT_LABEL")
             {
                 return new MASActionTextLabel(config, prop, comp);

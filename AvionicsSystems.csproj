@@ -62,6 +62,7 @@
     <Compile Include="Source\MASActionColorShift.cs" />
     <Compile Include="Source\MASActionIntLight.cs" />
     <Compile Include="Source\MASActionModelScale.cs" />
+    <Compile Include="Source\MASActionRotation.cs" />
     <Compile Include="Source\MASActionTextLabel.cs" />
     <Compile Include="Source\MASActionTextureShift.cs" />
     <Compile Include="Source\MASActionTriggerEvent.cs" />
