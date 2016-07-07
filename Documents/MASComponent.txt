@@ -211,6 +211,7 @@ ROTATION
 	cycleRate = 1.0
 	//longPath = true
 	//modulo = 1000
+	//speed = 1.0
 }
 
 'name': Optional.  Default '(anonymous)'.  A name for the action.
@@ -230,6 +231,10 @@ route.
 'modulo': Optional.  Default 0.0.  Ignored if 'blend' is not true.  When set to a positive value, modulo
 allows for a variable to cycle a rotation repeatedly around a circle without requiring it to animate the
 entire transition (such as looping repeatedly).
+'speed': Optional.  Default 0.0.  Ignored if 'blend' is not true, or if speed is not positive.  The speed
+parameter describes how quickly the animation can go from 'startRotation' to 'endRotation', in seconds.
+Thus, numbers larger than one are faster, while smaller numbers are slower.  If 'modulo' is also valid,
+'speed' represents how quickly the Rotation can complete a single circuit.
 
 
 TEXT_LABEL

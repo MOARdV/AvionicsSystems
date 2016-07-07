@@ -23,25 +23,35 @@
  * 
  ****************************************************************************/
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
 namespace AvionicsSystems
 {
+    /// <summary>
+    /// MASActionRotation rotates part of a prop around a specified axis given
+    /// in Euler angles.
+    /// </summary>
     class MASActionRotation : IMASAction
     {
         private string name = "(anonymous)";
         private string variableName;
         private MASFlightComputer.Variable range1, range2;
         private Quaternion startRotation, endRotation;
+        private MASFlightComputer comp;
         private Transform transform;
         private readonly bool blend;
         private readonly bool rangeMode;
         private readonly bool modulo;
+        private readonly bool rateLimited;
         private readonly float moduloValue;
+        private readonly float speed;
+        private bool coroutineActive = false;
         private bool currentState = false;
         private float currentBlend = 0.0f;
+        private float goalBlend = 0.0f;
 
         internal MASActionRotation(ConfigNode config, InternalProp prop, MASFlightComputer comp)
         {
@@ -71,7 +81,7 @@ namespace AvionicsSystems
 
             Vector3 endRotation = Vector3.zero;
             bool hasRotationEnd = config.TryGetValue("endRotation", ref endRotation);
-            if(!hasRotationEnd)
+            if (!hasRotationEnd)
             {
                 endRotation = Vector3.zero;
             }
@@ -92,9 +102,24 @@ namespace AvionicsSystems
                 blend = false;
                 config.TryGetValue("blend", ref blend);
 
-                if(blend)
+                if (blend)
                 {
                     config.TryGetValue("longPath", ref useLongPath);
+
+                    float modulo = 0.0f;
+                    if (config.TryGetValue("modulo", ref modulo) && modulo > 0.0f)
+                    {
+                        this.modulo = true;
+                        this.moduloValue = modulo;
+                    }
+
+                    float speed = 0.0f;
+                    if (config.TryGetValue("speed", ref speed) && speed > 0.0f)
+                    {
+                        this.comp = comp;
+                        this.rateLimited = true;
+                        this.speed = speed;
+                    }
                 }
             }
             else
@@ -111,7 +136,7 @@ namespace AvionicsSystems
                     throw new ArgumentException("Invalid or missing 'variable' in ROTATION " + name);
                 }
             }
-            else if(!string.IsNullOrEmpty(variableName))
+            else if (!string.IsNullOrEmpty(variableName))
             {
                 if (!hasRotationEnd)
                 {
@@ -137,11 +162,12 @@ namespace AvionicsSystems
                 // path. I allow the slerp to be unbounded, and I scale the blended range
                 // by 16/7 to make sure that a blend of 1.0 has the same rotation.
                 //
-                // I use less than 1/2 because if I use exactly 1/2, it is unclear
-                // which way the rotation should go if it rotates from 0 to 360 degrees.
-                // a start of 0 and end of 360 may be identical to a start of 360 and an
-                // end of 0, even though the rotation goes "up" in the first case and
-                // "down" in the second.
+                // I use less than 1/2 because if I use exactly 1/2, it does not work
+                // for the case of rotation 0 to 360 degrees: regardless of if I use
+                // a start of 0 and end of 360, or the other way around, the midpoint
+                // is 180.  Since the quaternions for 0 and 360 are the same, there's
+                // no sense of which way the rotation should go.  Tracing less than half
+                // the circle leaves a sense of the intended direction of the rotation.
                 if (useLongPath)
                 {
                     this.endRotation = this.transform.localRotation * Quaternion.Euler(Vector3.Lerp(startRotation, endRotation, 0.4375f));
@@ -169,6 +195,56 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Apply rate limitations to the blend.
+        /// </summary>
+        /// <param name="newBlend">New intended blend position</param>
+        /// <returns>Rate-limited blend position</returns>
+        private float RateLimitBlend(float newBlend)
+        {
+            float difference = Mathf.Abs(newBlend - currentBlend);
+            float maxDelta = TimeWarp.deltaTime * speed;
+
+            if (difference > maxDelta)
+            {
+                // Limit modulo?
+                bool wrapAround = modulo && (difference > 0.5f);
+                if (wrapAround)
+                {
+                    maxDelta = Mathf.Min(maxDelta, 1.0f - difference);
+                    maxDelta = -maxDelta;
+                }
+
+                if (newBlend < currentBlend)
+                {
+                    newBlend = currentBlend - maxDelta;
+                }
+                else
+                {
+                    newBlend = currentBlend + maxDelta;
+                }
+
+                if (wrapAround)
+                {
+                    if (newBlend < 0.0f)
+                    {
+                        newBlend += 1.0f;
+                    }
+                    else if (newBlend > 1.0f)
+                    {
+                        newBlend -= 1.0f;
+                    }
+                }
+
+                if (!coroutineActive)
+                {
+                    comp.StartCoroutine(TimedRotationCoroutine());
+                }
+            }
+
+            return newBlend;
+        }
+
+        /// <summary>
         /// Handle a changed value
         /// </summary>
         /// <param name="newValue"></param>
@@ -176,13 +252,44 @@ namespace AvionicsSystems
         {
             if (blend)
             {
-                float newBlend = Mathf.Lerp((float)range1.SafeValue(), (float)range2.SafeValue(), (float)newValue);
+                float newBlend;
+
+                if (modulo)
+                {
+                    float lowValue = (float)range1.SafeValue();
+                    float highValue = (float)range2.SafeValue();
+                    if (highValue < lowValue)
+                    {
+                        float tmp = lowValue;
+                        lowValue = highValue;
+                        highValue = tmp;
+                    }
+
+                    newBlend = Mathf.InverseLerp(lowValue, highValue, (float)newValue);
+                    float range = Mathf.Abs(highValue - lowValue);
+                    if (range > 0.0f)
+                    {
+                        float modDivRange = moduloValue / range;
+                        newBlend = (newBlend % (modDivRange)) / modDivRange;
+                    }
+                }
+                else
+                {
+                    newBlend = Mathf.Lerp((float)range1.SafeValue(), (float)range2.SafeValue(), (float)newValue);
+                }
 
                 if (!Mathf.Approximately(newBlend, currentBlend))
                 {
+                    if (rateLimited)
+                    {
+                        goalBlend = newBlend;
+
+                        newBlend = RateLimitBlend(newBlend);
+                    }
+
                     currentBlend = newBlend;
 
-                    Quaternion newRotation = Quaternion.SlerpUnclamped(startRotation, endRotation, currentBlend*2.285714286f);
+                    Quaternion newRotation = Quaternion.SlerpUnclamped(startRotation, endRotation, currentBlend * 2.285714286f);
                     transform.localRotation = newRotation;
                 }
             }
@@ -201,6 +308,26 @@ namespace AvionicsSystems
                     transform.localRotation = (currentState) ? endRotation : startRotation;
                 }
             }
+        }
+
+        /// <summary>
+        /// Coroutine to manage rate-limited rotations (those that can't snap into
+        /// position due to restraints in their configurations).
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator TimedRotationCoroutine()
+        {
+            coroutineActive = true;
+            while (!Mathf.Approximately(goalBlend, currentBlend))
+            {
+                yield return new WaitForFixedUpdate();
+
+                currentBlend = RateLimitBlend(goalBlend);
+
+                Quaternion newRotation = Quaternion.SlerpUnclamped(startRotation, endRotation, currentBlend * 2.285714286f);
+                transform.localRotation = newRotation;
+            }
+            coroutineActive = false;
         }
 
         /// <summary>
@@ -230,6 +357,7 @@ namespace AvionicsSystems
             {
                 comp.UnregisterNumericVariable(variableName, VariableCallback);
             }
+            this.comp = null;
             transform = null;
         }
     }
