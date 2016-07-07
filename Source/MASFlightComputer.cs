@@ -341,6 +341,7 @@ namespace AvionicsSystems
                 UserData.RegisterType<MASFlightComputerProxy>();
                 script.Globals["fc"] = fcProxy;
                 fcProxy.vc = MASVesselComputer.Instance(parentVesselId);
+                fcProxy.vessel = vessel;
 
                 // TODO: Add MAS script
 
@@ -392,6 +393,7 @@ namespace AvionicsSystems
                 // TODO: Do something different if parentVesselID != vessel.id?
                 parentVesselId = vessel.id;
                 fcProxy.vc = MASVesselComputer.Instance(parentVesselId);
+                fcProxy.vessel = vessel;
                 UpdateLocalCrew();
             }
         }

@@ -76,6 +76,7 @@ namespace AvionicsSystems
     {
         private MASFlightComputer fc;
         internal MASVesselComputer vc;
+        internal Vessel vessel;
 
         [MoonSharpHidden]
         public MASFlightComputerProxy(MASFlightComputer fc)
@@ -86,6 +87,8 @@ namespace AvionicsSystems
         ~MASFlightComputerProxy()
         {
             fc = null;
+            vc = null;
+            vessel = null;
         }
 
         #region Action Groups
@@ -98,7 +101,7 @@ namespace AvionicsSystems
             }
             else
             {
-                return (fc.vessel.ActionGroups[ags[(int)groupID]]) ? 1.0 : 0.0;
+                return (vessel.ActionGroups[ags[(int)groupID]]) ? 1.0 : 0.0;
             }
         }
 
@@ -106,7 +109,7 @@ namespace AvionicsSystems
         {
             if (groupID >= 0.0 && groupID <= 9.0)
             {
-                fc.vessel.ActionGroups.SetGroup(ags[(int)groupID], active);
+                vessel.ActionGroups.SetGroup(ags[(int)groupID], active);
             }
         }
 
@@ -114,49 +117,127 @@ namespace AvionicsSystems
         {
             if (groupID >= 0.0 && groupID <= 9.0)
             {
-                fc.vessel.ActionGroups.ToggleGroup(ags[(int)groupID]);
+                vessel.ActionGroups.ToggleGroup(ags[(int)groupID]);
             }
+        }
+        #endregion
+
+        #region Altitudes
+        /// <summary>
+        /// Returns the vessel's altitude above the datum (sea level where
+        /// applicable), in meters.
+        /// </summary>
+        /// <returns></returns>
+        public double GetAltitude()
+        {
+            return vc.altitudeASL;
+        }
+
+        /// <summary>
+        /// Returns altitude above datum (or sea level) for vessels in an
+        /// atmosphere.  Returns 0 otherwise.  Altitude in meters.
+        /// </summary>
+        /// <returns></returns>
+        public double GetAltitudeAtmospheric()
+        {
+            if (vc.mainBody.atmosphere)
+            {
+                return (vc.altitudeASL < vc.mainBody.atmosphereDepth) ? vc.altitudeASL : 0.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the distance from the lowest point of the craft to the
+        /// surface of the planet.  Ocean is treated as surface for this
+        /// purpose.  Precision reporting sets in at 500m (until then, it
+        /// reports the same as GetTerrainAltitude(false)).  Distance in
+        /// meters.
+        /// </summary>
+        /// <returns></returns>
+        public double GetAltitudeBottom()
+        {
+            return vc.altitudeBottom;
+        }
+
+        /// <summary>
+        /// Returns the height above the terrain, optionally treating the ocean
+        /// surface as ground.  Altitude in meters.
+        /// </summary>
+        /// <param name="ignoreOcean">When false, returns height above sea level
+        /// if over the ocean; when true, always returns ground height.</param>
+        /// <returns></returns>
+        public double GetAltitudeTerrain(bool ignoreOcean)
+        {
+            return (ignoreOcean) ? vc.altitudeTerrain : Math.Min(vc.altitudeASL, vc.altitudeTerrain);
+        }
+        #endregion
+
+        #region Atmosphere
+        /// <summary>
+        /// Returns the static atmospheric pressure in standard atmospheres.
+        /// </summary>
+        /// <returns></returns>
+        public double GetStaticPressureAtm()
+        {
+            return vessel.staticPressurekPa * PhysicsGlobals.KpaToAtmospheres;
+        }
+
+        /// <summary>
+        /// Returns the static atmospheric pressure in kiloPascals.
+        /// </summary>
+        /// <returns></returns>
+        public double GetStaticPressureKPa()
+        {
+            return vessel.staticPressurekPa;
         }
         #endregion
 
         #region Brakes
         public double GetBrakes()
         {
-            return (fc.vessel.ActionGroups[KSPActionGroup.Brakes]) ? 1.0 : 0.0;
+            return (vessel.ActionGroups[KSPActionGroup.Brakes]) ? 1.0 : 0.0;
         }
 
         public void SetBrakes(bool active)
         {
-            fc.vessel.ActionGroups.SetGroup(KSPActionGroup.Brakes, active);
+            vessel.ActionGroups.SetGroup(KSPActionGroup.Brakes, active);
         }
 
         public void ToggleBrakes()
         {
-            fc.vessel.ActionGroups.ToggleGroup(KSPActionGroup.Brakes);
+            vessel.ActionGroups.ToggleGroup(KSPActionGroup.Brakes);
         }
         #endregion
 
         #region Engine
+        /// <summary>
+        /// Returns the current main throttle setting, from 0.0 to 1.0.
+        /// </summary>
+        /// <returns></returns>
         public double GetThrottle()
         {
-            return fc.vessel.ctrlState.mainThrottle;
+            return vessel.ctrlState.mainThrottle;
         }
         #endregion
 
         #region Gear
         public double GetGear()
         {
-            return (fc.vessel.ActionGroups[KSPActionGroup.Gear]) ? 1.0 : 0.0;
+            return (vessel.ActionGroups[KSPActionGroup.Gear]) ? 1.0 : 0.0;
         }
 
         public void SetGear(bool active)
         {
-            fc.vessel.ActionGroups.SetGroup(KSPActionGroup.Gear, active);
+            vessel.ActionGroups.SetGroup(KSPActionGroup.Gear, active);
         }
 
         public void ToggleGear()
         {
-            fc.vessel.ActionGroups.ToggleGroup(KSPActionGroup.Gear);
+            vessel.ActionGroups.ToggleGroup(KSPActionGroup.Gear);
         }
         #endregion
 
@@ -185,34 +266,34 @@ namespace AvionicsSystems
         #region RCS
         public double GetRCS()
         {
-            return (fc.vessel.ActionGroups[KSPActionGroup.RCS]) ? 1.0 : 0.0;
+            return (vessel.ActionGroups[KSPActionGroup.RCS]) ? 1.0 : 0.0;
         }
 
         public void SetRCS(bool active)
         {
-            fc.vessel.ActionGroups.SetGroup(KSPActionGroup.RCS, active);
+            vessel.ActionGroups.SetGroup(KSPActionGroup.RCS, active);
         }
 
         public void ToggleRCS()
         {
-            fc.vessel.ActionGroups.ToggleGroup(KSPActionGroup.RCS);
+            vessel.ActionGroups.ToggleGroup(KSPActionGroup.RCS);
         }
         #endregion RCS
 
         #region SAS
         public double GetSAS()
         {
-            return (fc.vessel.ActionGroups[KSPActionGroup.SAS]) ? 1.0 : 0.0;
+            return (vessel.ActionGroups[KSPActionGroup.SAS]) ? 1.0 : 0.0;
         }
 
         public void SetSAS(bool active)
         {
-            fc.vessel.ActionGroups.SetGroup(KSPActionGroup.SAS, active);
+            vessel.ActionGroups.SetGroup(KSPActionGroup.SAS, active);
         }
 
         public void ToggleSAS()
         {
-            fc.vessel.ActionGroups.ToggleGroup(KSPActionGroup.SAS);
+            vessel.ActionGroups.ToggleGroup(KSPActionGroup.SAS);
         }
         #endregion
     }
