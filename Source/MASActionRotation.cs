@@ -112,6 +112,10 @@ namespace AvionicsSystems
                         this.modulo = true;
                         this.moduloValue = modulo;
                     }
+                    else
+                    {
+                        this.modulo = false;
+                    }
 
                     float speed = 0.0f;
                     if (config.TryGetValue("speed", ref speed) && speed > 0.0f)
@@ -266,16 +270,17 @@ namespace AvionicsSystems
                     }
 
                     newBlend = Mathf.InverseLerp(lowValue, highValue, (float)newValue);
-                    float range = Mathf.Abs(highValue - lowValue);
+                    float range = highValue - lowValue;
                     if (range > 0.0f)
                     {
+                        float wasBlend = newBlend;
                         float modDivRange = moduloValue / range;
                         newBlend = (newBlend % (modDivRange)) / modDivRange;
                     }
                 }
                 else
                 {
-                    newBlend = Mathf.Lerp((float)range1.SafeValue(), (float)range2.SafeValue(), (float)newValue);
+                    newBlend = Mathf.InverseLerp((float)range1.SafeValue(), (float)range2.SafeValue(), (float)newValue);
                 }
 
                 if (!Mathf.Approximately(newBlend, currentBlend))
