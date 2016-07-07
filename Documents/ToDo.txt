@@ -29,6 +29,8 @@ JSIVariableAnimator / JSICallbackAnimator components
 
 - color shift. complete: Boolean Mode, Threshold Mode, Blend Mode, flash (for Boolean and Threshold).
 
+* dynamic color.  new feature: use a Lua script to return the color, instead of having passiveColor and activeColor.
+
 * rotation
 
 * translation
