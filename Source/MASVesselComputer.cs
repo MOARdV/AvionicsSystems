@@ -56,6 +56,8 @@ namespace AvionicsSystems
         /// </summary>
         private bool vesselActive;
 
+        internal CelestialBody mainBody;
+
         /// <summary>
         /// Returns the MASVesselComputer attached to the specified computer.
         /// </summary>
@@ -100,6 +102,7 @@ namespace AvionicsSystems
         {
             if (vesselActive)
             {
+                UpdateAltitudes();
                 //Utility.LogMessage(this, "FixedUpdate for {0}", vessel.id);
             }
         }
@@ -119,7 +122,13 @@ namespace AvionicsSystems
                 return;
             }
 
+            mainBody = vessel.mainBody;
+
             vesselId = vessel.id;
+
+            GameEvents.onVesselChange.Add(onVesselChange);
+            GameEvents.onVesselSOIChanged.Add(onVesselSOIChanged);
+            GameEvents.onVesselWasModified.Add(onVesselWasModified);
 
             if (knownModules.ContainsKey(vesselId))
             {
@@ -145,10 +154,15 @@ namespace AvionicsSystems
 
             Utility.LogMessage(this, "OnDestroy for {0}", vesselId);
 
+            GameEvents.onVesselChange.Remove(onVesselChange);
+            GameEvents.onVesselSOIChanged.Remove(onVesselSOIChanged);
+            GameEvents.onVesselWasModified.Remove(onVesselWasModified);
+
             knownModules.Remove(vesselId);
 
             vesselId = Guid.Empty;
             vessel = null;
+            mainBody = null;
         }
 
         /// <summary>
@@ -175,15 +189,15 @@ namespace AvionicsSystems
 
                 ConfigNode[] persistentNodes = node.GetNodes();
                 Utility.LogMessage(this, "Found {0} child nodes and {1} fc", persistentNodes.Length, knownFc.Count);
-                
+
                 // Yes, this is a horribly inefficient nested loop.  Except that
                 // it should be uncommon to have more than a small number of pods
                 // in most configurations.
-                for(int nodeIdx=persistentNodes.Length-1; nodeIdx>=0; --nodeIdx)
+                for (int nodeIdx = persistentNodes.Length - 1; nodeIdx >= 0; --nodeIdx)
                 {
-                    for(int fcIdx = knownFc.Count-1; fcIdx >=0; --fcIdx)
+                    for (int fcIdx = knownFc.Count - 1; fcIdx >= 0; --fcIdx)
                     {
-                        if(knownFc[fcIdx] != null)
+                        if (knownFc[fcIdx] != null)
                         {
                             if (knownFc[fcIdx].LoadPersistents(persistentNodes[nodeIdx]))
                             {
@@ -206,13 +220,13 @@ namespace AvionicsSystems
                 base.OnSave(node);
                 Utility.LogMessage(this, "OnSave for {0}", vessel.id);
 
-                for (int partIdx = vessel.parts.Count-1; partIdx >=0 ; --partIdx)
+                for (int partIdx = vessel.parts.Count - 1; partIdx >= 0; --partIdx)
                 {
                     MASFlightComputer fc = MASFlightComputer.Instance(vessel.parts[partIdx]);
                     if (fc != null)
                     {
                         ConfigNode saveNode = fc.SavePersistents();
-                        if(saveNode != null)
+                        if (saveNode != null)
                         {
                             node.AddNode(saveNode);
                         }
@@ -245,12 +259,67 @@ namespace AvionicsSystems
 
         #endregion
 
+        #region Vessel Data
+        internal double altitudeASL;
+        internal double altitudeTerrain;
+        private double altitudeBottom_;
+        internal double altitudeBottom
+        {
+            get
+            {
+                // This is expensive to compute, so we
+                // don't until we're close to the ground,
+                // and never until it's requested.
+                if (altitudeBottom_ < 0.0)
+                {
+                    altitudeBottom_ = Math.Min(altitudeASL, altitudeTerrain);
+
+                    // Precision isn't *that* important ... until we get close.
+                    if (altitudeBottom_ < 500.0)
+                    {
+                        double lowestPoint = altitudeASL;
+
+                        for (int i = vessel.parts.Count - 1; i >= 0; --i)
+                        {
+                            if (vessel.parts[i].collider != null)
+                            {
+                                Vector3d bottomPoint = vessel.parts[i].collider.ClosestPointOnBounds(mainBody.position);
+                                double partBottomAlt = mainBody.GetAltitude(bottomPoint);
+                                lowestPoint = Math.Min(lowestPoint, partBottomAlt);
+                            }
+                        }
+                        lowestPoint -= altitudeASL;
+                        altitudeBottom_ += lowestPoint;
+
+                        altitudeBottom_ = Math.Max(0.0, altitudeBottom_);
+                    }
+                }
+
+                return altitudeBottom_;
+            }
+        }
+        void UpdateAltitudes()
+        {
+            altitudeASL = vessel.altitude;
+            altitudeTerrain = vessel.terrainAltitude;
+            altitudeBottom_ = -1.0;
+        }
+        #endregion
+
         #region GameEvent Callbacks
         private void onVesselChange(Vessel who)
         {
             if (who.id == vesselId)
             {
                 vesselActive = (vessel.GetCrewCount() > 0);
+            }
+        }
+
+        private void onVesselSOIChanged(GameEvents.HostedFromToAction<Vessel, CelestialBody> what)
+        {
+            if (what.host.id == vesselId)
+            {
+                mainBody = what.to;
             }
         }
 
