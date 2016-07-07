@@ -33,7 +33,7 @@ namespace AvionicsSystems
     /// used in Avionics Systems.  As such, it's entirely concerned with keeping
     /// tabs on data, but not much else.
     /// </summary>
-    internal class MASVesselComputer : VesselModule
+    internal partial class MASVesselComputer : VesselModule
     {
         /// <summary>
         /// We use this dictionary to quickly fetch the vessel module for a
@@ -102,6 +102,9 @@ namespace AvionicsSystems
         {
             if (vesselActive)
             {
+                // Conditionally updates per-module tables.
+                UpdateModuleData();
+
                 UpdateAltitudes();
                 //Utility.LogMessage(this, "FixedUpdate for {0}", vessel.id);
             }
@@ -138,6 +141,7 @@ namespace AvionicsSystems
             knownModules[vesselId] = this;
 
             vesselActive = (vessel.GetCrewCount() > 0);
+            UpdateModuleData();
 
             Utility.LogMessage(this, "OnAwake for {0}", vesselId);
         }
@@ -312,6 +316,7 @@ namespace AvionicsSystems
             if (who.id == vesselId)
             {
                 vesselActive = (vessel.GetCrewCount() > 0);
+                InvalidateModules();
             }
         }
 
@@ -328,6 +333,7 @@ namespace AvionicsSystems
             if (who.id == vesselId)
             {
                 vesselActive = (vessel.GetCrewCount() > 0);
+                InvalidateModules();
             }
         }
 
