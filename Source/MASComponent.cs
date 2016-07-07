@@ -99,7 +99,7 @@ namespace AvionicsSystems
             try
             {
                 MASFlightComputer comp = MASFlightComputer.Instance(internalProp.part);
-                Utility.LogMessage(this, "OnDestroy()");
+
                 for (int i = 0; i < actions.Count; ++i)
                 {
                     actions[i].ReleaseResources(comp);
