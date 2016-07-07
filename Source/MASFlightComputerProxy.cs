@@ -214,6 +214,53 @@ namespace AvionicsSystems
         #endregion
 
         #region Engine
+
+        /// <summary>
+        /// Returns the current fuel flow in grams/second
+        /// </summary>
+        /// <returns></returns>
+        public double GetFuelFlow()
+        {
+            return vc.currentEngineFuelFlow;
+        }
+
+        /// <summary>
+        /// Return the current specific impulse in seconds.
+        /// </summary>
+        /// <returns></returns>
+        public double GetIsp()
+        {
+            return vc.currentIsp;
+        }
+
+        /// <summary>
+        /// Returns the maximum fuel flow in grams/second
+        /// </summary>
+        /// <returns></returns>
+        public double GetMaxFuelFlow()
+        {
+            return vc.maxEngineFuelFlow;
+        }
+
+        /// <summary>
+        /// Returns the maximum specific impulse in seconds.
+        /// </summary>
+        /// <returns></returns>
+        public double GetMaxIsp()
+        {
+            return vc.maxIsp;
+        }
+
+        /// <summary>
+        /// Returns the maximum thrust in kN for the current altitude.
+        /// </summary>
+        /// <param name="useThrottleLimits">Apply throttle limits?</param>
+        /// <returns></returns>
+        public double GetMaxThrustkN(bool useThrottleLimits)
+        {
+            return (useThrottleLimits) ? vc.currentLimitedThrust : vc.currentMaxThrust;
+        }
+
         /// <summary>
         /// Returns the current main throttle setting, from 0.0 to 1.0.
         /// </summary>
@@ -221,6 +268,31 @@ namespace AvionicsSystems
         public double GetThrottle()
         {
             return vessel.ctrlState.mainThrottle;
+        }
+
+        /// <summary>
+        /// Returns the current thrust output, from 0.0 to 1.0.
+        /// </summary>
+        /// <returns></returns>
+        public double GetThrust(bool useThrottleLimits)
+        {
+            if (vc.currentThrust > 0.0f)
+            {
+                return vc.currentThrust / ((useThrottleLimits) ? vc.currentLimitedThrust : vc.currentMaxThrust);
+            }
+            else
+            {
+                return 0.0f;
+            }
+        }
+
+        /// <summary>
+        /// Returns the current thrust in kiloNewtons
+        /// </summary>
+        /// <returns></returns>
+        public double GetThrustkN()
+        {
+            return vc.currentThrust;
         }
         #endregion
 
