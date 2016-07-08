@@ -106,7 +106,7 @@ namespace AvionicsSystems
             {
                 return new MASActionModelScale(config, prop, comp);
             }
-            else if(config.name == "ROTATION")
+            else if (config.name == "ROTATION")
             {
                 return new MASActionRotation(config, prop, comp);
             }
@@ -126,6 +126,27 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Look up the ConfigNode for the named AS_PAGE.
+        /// </summary>
+        /// <param name="pageName">Name of the requested page configuration.</param>
+        /// <returns>The ConfigNode, or null if it wasn't found.</returns>
+        internal static ConfigNode GetPageConfigNode(string pageName)
+        {
+            ConfigNode[] asPageNodes = GameDatabase.Instance.GetConfigNodes("AS_PAGE");
+
+            for (int nodeIdx = asPageNodes.Length - 1; nodeIdx >= 0; --nodeIdx)
+            {
+                string nodeName = string.Empty;
+                if (asPageNodes[nodeIdx].TryGetValue("name", ref nodeName) && nodeName == pageName)
+                {
+                    return asPageNodes[nodeIdx];
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Find the ConfigNode corresponding to a particular module.
         /// </summary>
         /// <param name="propName">Name of the prop</param>
@@ -135,7 +156,7 @@ namespace AvionicsSystems
         {
             ConfigNode[] dbNodes = GameDatabase.Instance.GetConfigNodes("PROP");
 
-            for (int nodeIdx = 0; nodeIdx < dbNodes.Length; ++nodeIdx)
+            for (int nodeIdx = dbNodes.Length - 1; nodeIdx >= 0; --nodeIdx)
             {
                 if (dbNodes[nodeIdx].GetValue("name") == propName)
                 {
