@@ -8,7 +8,13 @@ questions):
 Please follow these basic troubleshooting steps before asking for help on the
 forum:
 
-1) Did you use CKAN to install?  Due to past problems with CKAN, I do not
+1) Are you on the current version of Kerbal Space Program?  Are you using the
+latest version of Avionics Systems?  Are your other plugin mods up to date?
+Incorrect versions cause problems that are not always obvious in-game.  I
+do not support prior versions of KSP, nor do I provide support for prior
+versions of Avionics Systems.
+
+2) Did you use CKAN to install?  Due to past problems with CKAN, I do not
 support installation via CKAN.  Any CKAN metadata for this mod was created
 by a third party without prior consultation with me, and it may be incomplete
 or incorrect.  Please uninstall MAS through CKAN and install the mod
@@ -16,11 +22,11 @@ manually.  The QuickStart file contains the short list of instructions
 for installing this mod.  If you do not know how to install a mod
 manually, check on the KSP forum for instructions.
 
-2) If the problem persists with a correct manual installation, please follow
+3) If the problem persists with a correct manual installation, please follow
 the troubleshooting tips at
 http://forum.kerbalspaceprogram.com/index.php?/topic/83212-how-to-get-support-read-first/
 
-3) If you followed these tips, you should have seen information about
+4) If you followed these tips, you should have seen information about
 The Logs.  Provide those logs, and contact me either on the forum or on
 GitHub.  No logs = no support.
 
@@ -32,10 +38,10 @@ there is no guarantee of correctness or completeness in that data.  Any CKAN
 installation problems must go to the CKAN forum thread.
 
 I may change my mind about CKAN at a later date, but that decision will be
-based on CKAN stepping up and improving processes and policies so that modders
-are not left with the support burden for botched CKAN installs.  There have
-been steps in that direction recently.  I plan to wait and see if the
-changes are sustained.
+based on CKAN demonstrating commitment to improved processes and policies so
+that modders are not left with the support burden for botched CKAN installs.
+There have been steps in that direction recently, but I want to see if it
+is sustained.
 
 * What about RasterPropMonitor?
 
@@ -51,7 +57,9 @@ to too small a number to keep it running.
 
 RPM is GPL, so another author could fork the repo and keep adding features
 to it if desired.  I am willing to accept pull requests for additional RPM
-features.
+features, but I don't plan on expending a great deal of effort to support
+such new features going forward - any work beyond basic maintenance will
+be the responsibility of those authors.
 
 * What about all the RPM props?
 

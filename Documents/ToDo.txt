@@ -102,6 +102,9 @@ of whatever the update delta is?
 * Create a "standard library" of methods for the Lua environment, so there can be things
 like "DoThisIfThereIsPower(function-to-do)".
 
+* User-defined fonts - Unity.Font has ways to add user-defined fonts based on bitmaps and character maps.
+Use that instead of the RPM system of a texture + text file with manual mapping.
+
 StdLib ideas:
 
 Clamp(value, min, max)
