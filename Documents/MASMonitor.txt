@@ -1,0 +1,94 @@
+﻿The MASMonitor prop module powers monitor displays, ranging from simple single-line
+digital readouts to full-featured MFDs.  MASMonitor is more complex to set up than
+a MASComponent, since it entails a render texture and multiple pages.
+
+MODULE
+{
+  name = MASMonitor
+
+  screenTransform = FlatMon40x10Screen
+  //layer = _Emissive
+  screenSize = 512, 512
+  font = InconsolataGo-Bold
+  fontSize = 16, 32
+  textColor = 255, 255, 255, 255
+  backgroundColor = 0, 0, 32, 255
+
+  page = Standby_Page
+  page = Orbit_Page
+  ...
+}
+
+The configuration parameters are
+
+'screenTransform': Required.  The name of the transform in the prop that contains a screen display.
+'layer': Optional.  Defaults to '_Emissive'.  A space-separated list of the layers in 'screenTransform'
+that will be rendered to.
+'screenSize': Required.  The width and height of the render texture that the monitor will use.
+'font': Required.  The name of the font (bundled, system, or user) that is used for rendering text.
+-TODO: Comma-separated list, and support multiple fonts-
+'fontSize': Required.  The width and height of the text that is rendered on the monitor, in screen
+pixel size.  All texts will be fixed-width, even if the referenced font is not.
+'textColor': Required.  The default color of text rendered on the screen.  Colors may be overridden
+with tags (see Formatted Rich Text).
+'backgroundColor': Required.  The color the monitor will be cleared to before rendering.
+'page': Required.  One or more entries referring to named pages that are displayed on the monitor.
+Pages may be omitted, in which case the monitor won't do anything.  The first listed page is the
+default page that is visible when first entering IVA.
+
+
+AS_PAGE
+{
+  name = Standby_Page
+  
+  ...
+}
+
+Monitor pages are defined in config files using the AS_PAGE node type.  Each page must have a
+name.  A page may have one or more nodes inside it describing the page layout (text, graphical
+objects, etc).  These nodes are layered during rendering, with the first node listed being
+the farthest from the camera.  If a page has no nodes, it will result in a completely blank
+page.
+
+Individual nodes may be optionally disabled and enabled by querying a variable, in much the way
+that MASComponent actions use variables.  Page nodes only support the Boolean and Threshold Modes.
+
+Because fonts are treated as fixed-width, there is the possibility that scaling problems will
+cause unusually-wide characters to be compressed horizontally, which may hinder readability.
+This problem may be worse if the [hw] tag is used with those fonts.
+
+
+TEXT
+
+A Text node renders text.  This text may be static (unchanging) data, or it may use variables.
+Simple text can be defined in the Text node using a 'text' field, while complex or multi-line
+text residing in a separate file may referenced with a 'textfile' field.  All text supports
+Formatted Rich Text.
+
+These text nodes are not as complex as a Text Label - there are no controls for alignment,
+font size, anchors, etc.
+
+TEXT
+{
+  name = Important Text
+  text = Hello, world!
+  //textfile = AvionicsSystems/Sample/helloworld.txt
+  //position = 0,0
+  //variable = fc.GetRCS()
+  //range = 0.5, 1.5
+}
+
+'name': Optional.  Default '(anonymous)'.  A name for the action.
+'text': Required if there is not a 'textfile' entry.  Text that is displayed for
+this node, similar to a Text Label action in MASComponent.
+'textfile': Required if there is not a 'text' entry; ignored if there is a
+'text' field.  Refers to a text file that contains the text that will be rendered.
+The 'textfile' is usually the better choice for multi-line text.
+'position': Optional.  Default (0, 0).  An offset from the upper-left corner for
+the text being rendered.  The offset is in units of character columns and rows,
+not pixels.
+'variable': Optional.  When present, the variable will control whether this text
+is rendered or not.
+'range': Optional.  Ignored if 'variable' is not present.  When present, the
+'variable' operates in Threshold Mode; when absent, the 'variable' operates in
+Boolean Mode.

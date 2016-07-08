@@ -1,0 +1,231 @@
+﻿/*****************************************************************************
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 MOARdV
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ * 
+ ****************************************************************************/
+using System;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+
+namespace AvionicsSystems
+{
+    public class MASMonitor : InternalModule
+    {
+        [KSPField]
+        public string screenTransform = string.Empty;
+
+        [KSPField]
+        public string layer = "_Emissive";
+
+        [KSPField]
+        public Vector2 screenSize = Vector2.zero;
+        private int screenWidth, screenHeight;
+
+        [KSPField]
+        public Vector2 fontSize = Vector2.zero;
+
+        [KSPField]
+        public string font = string.Empty;
+
+        [KSPField]
+        public string textColor;
+        private Color32 textColor_;
+
+        [KSPField]
+        public string backgroundColor;
+        private Color32 backgroundColor_;
+
+        private RenderTexture screen;
+        private GameObject screenSpace;
+        private Camera screenCamera;
+        //private Dictionary<string, MASPage> pages = new Dictionary<string, MASPage>();
+
+        private bool initialized = false;
+
+        internal static readonly float maxDepth = 1.5f;
+        internal static readonly int drawingLayer = 17;
+
+        /// <summary>
+        /// Startup, initialize, configure, etc.
+        /// </summary>
+        public void Start()
+        {
+            if (HighLogic.LoadedSceneIsFlight)
+            {
+                try
+                {
+                    MASFlightComputer comp = MASFlightComputer.Instance(internalProp.part);
+
+                    if (string.IsNullOrEmpty(screenTransform))
+                    {
+                        throw new ArgumentException("Missing 'transform' in MASMonitor");
+                    }
+
+                    if (string.IsNullOrEmpty(layer))
+                    {
+                        throw new ArgumentException("Missing 'layer' in MASMonitor");
+                    }
+
+                    if (string.IsNullOrEmpty(font))
+                    {
+                        throw new ArgumentException("Missing 'font' in MASMonitor");
+                    }
+
+                    if (string.IsNullOrEmpty(textColor))
+                    {
+                        throw new ArgumentException("Missing 'textColor' in MASMonitor");
+                    }
+                    else
+                    {
+                        textColor_ = Utility.ParseColor32(textColor, comp);
+                    }
+
+                    if (string.IsNullOrEmpty(backgroundColor))
+                    {
+                        throw new ArgumentException("Missing 'backgroundColor' in MASMonitor");
+                    }
+                    else
+                    {
+                        backgroundColor_ = Utility.ParseColor32(backgroundColor, comp);
+                    }
+
+                    if (screenSize.x <= 0.0f || screenSize.y <= 0.0f)
+                    {
+                        throw new ArgumentException("Invalid 'screenSize' in MASMonitor");
+                    }
+
+                    if (fontSize.x <= 0.0f || fontSize.y <= 0.0f)
+                    {
+                        throw new ArgumentException("Invalid 'fontSize' in MASMonitor");
+                    }
+
+                    screenWidth = (int)screenSize.x;
+                    screenHeight = (int)screenSize.y;
+                    screen = new RenderTexture(screenWidth, screenHeight, 24, RenderTextureFormat.ARGB32);
+
+                    screenSpace = new GameObject();
+                    screenSpace.gameObject.transform.parent = internalProp.gameObject.transform;
+                    screenSpace.name = "MASMonitor-" + screenSpace.GetInstanceID();
+                    screenSpace.layer = drawingLayer;
+                    screenSpace.SetActive(true);
+
+                    screenCamera = screenSpace.AddComponent<Camera>();
+                    screenCamera.enabled = true; // Enable = "auto-draw"
+                    //screenCamera.enabled = false;
+                    screenCamera.orthographic = true;
+                    screenCamera.aspect = screenSize.x / screenSize.y;
+                    screenCamera.eventMask = 0;
+                    screenCamera.farClipPlane = maxDepth + 0.5f;
+                    screenCamera.orthographicSize = screenSize.x * 0.5f;
+                    screenCamera.cullingMask = 1 << drawingLayer;
+                    screenCamera.transparencySortMode = TransparencySortMode.Orthographic;
+                    screenCamera.transform.position = Vector3.zero;
+                    screenCamera.transform.LookAt(new Vector3(0.0f, 0.0f, maxDepth), Vector3.up);
+                    screenCamera.backgroundColor = backgroundColor_;
+                    screenCamera.clearFlags = CameraClearFlags.SolidColor;
+                    screenCamera.targetTexture = screen;
+
+                    Material screenMat = internalProp.FindModelTransform(screenTransform).GetComponent<Renderer>().material;
+                    //screenMat.shader = MASLoader.shaders["MOARdV/Monitor"]; // JSI/DisplayShader
+                    string[] layers = layer.Split();
+                    for (int i = layers.Length - 1; i >= 0; --i)
+                    {
+                        screenMat.SetTexture(layers[i].Trim(), screen);
+                    }
+
+                    if (!screen.IsCreated())
+                    {
+                        screen.Create();
+                    }
+
+                    ConfigNode moduleConfig = Utility.GetPropModuleConfigNode(internalProp.propName, moduleID);
+                    if (moduleConfig == null)
+                    {
+                        throw new ArgumentNullException("No ConfigNode found for MASMonitor in " + internalProp.propName + "!");
+                    }
+
+                    string[] pages = moduleConfig.GetValues("page");
+                    int numPages = pages.Length;
+                    for (int i = 0; i < numPages; ++i)
+                    {
+                        pages[i] = pages[i].Trim();
+                        ConfigNode pageConfig = Utility.GetPageConfigNode(pages[i]);
+                        if (pageConfig == null)
+                        {
+                            throw new ArgumentException("No ConfigNode found for page " + pages[i] + " in MASMonitor in " + internalProp.propName + "!");
+                        }
+
+                        Utility.LogMessage(this, "Page = {0}", pages[i]);
+                        // Parse the page node
+                    }
+                    initialized = true;
+                    Utility.LogMessage(this, "Configuration complete in prop #{0} ({1}) with {2} pages", internalProp.propID, internalProp.propName, numPages);
+                }
+                catch (Exception e)
+                {
+                    Utility.LogErrorMessage(this, "Failed to configure prop #{0} ({1})", internalProp.propID, internalProp.propName);
+                    Utility.LogErrorMessage(this, e.ToString());
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tear things down
+        /// </summary>
+        public void OnDestroy()
+        {
+            if (screen != null)
+            {
+                screen.Release();
+                screen = null;
+            }
+
+            if (initialized)
+            {
+                screenSpace = null;
+                screenCamera = null;
+            }
+        }
+
+        /// <summary>
+        /// Update time.  Once I figure out how to make the camera render
+        /// without manual trigger, this ought to go away.  Even if I set
+        /// enable to true, it's not currently autorendering.  Probably because
+        /// I didn't attach it to anything.
+        /// </summary>
+        //public override void OnUpdate()
+        //{
+        //    if (initialized)
+        //    {
+        //        //if (!screen.IsCreated())
+        //        //{
+        //        //    screen.Create();
+        //        //    screenCamera.enabled = true;
+        //        //}
+
+        //        // TODO: How do I make this camera do its thing automagically?
+        //        screenCamera.Render();
+        //    }
+        //}
+    }
+}

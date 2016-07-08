@@ -74,6 +74,7 @@
     <Compile Include="Source\MASLoader.cs" />
     <Compile Include="Source\MASFlightComputer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Source\MASMonitor.cs" />
     <Compile Include="Source\MASVesselComputer.cs" />
     <Compile Include="Source\IMASAction.cs" />
     <Compile Include="Source\MASVesselComputerModules.cs" />
@@ -87,6 +88,7 @@
     <Content Include="Documents\FAQ.txt" />
     <Content Include="Documents\Introduction.txt" />
     <Content Include="Documents\License.txt" />
+    <Content Include="Documents\MASMonitor.txt" />
     <Content Include="Documents\Persistent.txt" />
     <Content Include="Documents\PortingRPM.txt" />
     <Content Include="Documents\QuickStart.txt" />
