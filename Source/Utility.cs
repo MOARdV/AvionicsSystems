@@ -74,58 +74,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Create an IASAction-based object from a ConfigNode
-        /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
-        internal static IMASSubComponent CreateAction(ConfigNode config, InternalProp prop, MASFlightComputer comp)
-        {
-            LogMessage(config, "Node {0} being parsed", config.name);
-
-            if (config.name == "ANIMATION_PLAYER")
-            {
-                return new MASActionAnimationPlayer(config, prop, comp);
-            }
-            else if (config.name == "AUDIO_PLAYER")
-            {
-                return new MASActionAudioPlayer(config, prop, comp);
-            }
-            else if (config.name == "COLOR_SHIFT")
-            {
-                return new MASActionColorShift(config, prop, comp);
-            }
-            else if (config.name == "COLLIDER_EVENT")
-            {
-                return new MASActionColliderEvent(config, prop, comp);
-            }
-            else if (config.name == "INT_LIGHT")
-            {
-                return new MASActionIntLight(config, prop, comp);
-            }
-            else if (config.name == "MODEL_SCALE")
-            {
-                return new MASActionModelScale(config, prop, comp);
-            }
-            else if (config.name == "ROTATION")
-            {
-                return new MASActionRotation(config, prop, comp);
-            }
-            else if (config.name == "TEXT_LABEL")
-            {
-                return new MASActionTextLabel(config, prop, comp);
-            }
-            else if (config.name == "TEXTURE_SHIFT")
-            {
-                return new MASActionTextureShift(config, prop, comp);
-            }
-            else
-            {
-                LogMessage(config, "Unrecognized ASComponent child node {0} found", config.name);
-                return null;
-            }
-        }
-
-        /// <summary>
         /// Look up the ConfigNode for the named AS_PAGE.
         /// </summary>
         /// <param name="pageName">Name of the requested page configuration.</param>

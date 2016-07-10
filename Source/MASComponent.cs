@@ -40,6 +40,58 @@ namespace AvionicsSystems
         private List<IMASSubComponent> actions = new List<IMASSubComponent>();
 
         /// <summary>
+        /// Create an IASAction-based object from a ConfigNode
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        private static IMASSubComponent CreateAction(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        {
+            Utility.LogMessage(config, "Node {0} being parsed", config.name);
+
+            if (config.name == "ANIMATION_PLAYER")
+            {
+                return new MASActionAnimationPlayer(config, prop, comp);
+            }
+            else if (config.name == "AUDIO_PLAYER")
+            {
+                return new MASActionAudioPlayer(config, prop, comp);
+            }
+            else if (config.name == "COLOR_SHIFT")
+            {
+                return new MASActionColorShift(config, prop, comp);
+            }
+            else if (config.name == "COLLIDER_EVENT")
+            {
+                return new MASActionColliderEvent(config, prop, comp);
+            }
+            else if (config.name == "INT_LIGHT")
+            {
+                return new MASActionIntLight(config, prop, comp);
+            }
+            else if (config.name == "MODEL_SCALE")
+            {
+                return new MASActionModelScale(config, prop, comp);
+            }
+            else if (config.name == "ROTATION")
+            {
+                return new MASActionRotation(config, prop, comp);
+            }
+            else if (config.name == "TEXT_LABEL")
+            {
+                return new MASActionTextLabel(config, prop, comp);
+            }
+            else if (config.name == "TEXTURE_SHIFT")
+            {
+                return new MASActionTextureShift(config, prop, comp);
+            }
+            else
+            {
+                Utility.LogMessage(config, "Unrecognized MASComponent child node {0} found", config.name);
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Configure this module and its children.
         /// </summary>
         public void Start()
@@ -67,7 +119,7 @@ namespace AvionicsSystems
                 ConfigNode[] actionNodes = moduleConfig.GetNodes();
                 for (int i = 0; i < actionNodes.Length; ++i)
                 {
-                    IMASSubComponent action = Utility.CreateAction(actionNodes[i], internalProp, comp);
+                    IMASSubComponent action = CreateAction(actionNodes[i], internalProp, comp);
                     if (action != null)
                     {
                         ++persistentNodes;
