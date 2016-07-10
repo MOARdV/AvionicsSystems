@@ -30,7 +30,7 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
-    internal class MASActionColorShift : IMASAction
+    internal class MASActionColorShift : IMASSubComponent
     {
         private string name = "(anonymous)";
         private string variableName;
@@ -49,7 +49,7 @@ namespace AvionicsSystems
 
         internal MASActionColorShift(ConfigNode config, InternalProp prop, MASFlightComputer comp)
         {
-            if(!config.TryGetValue("name", ref name))
+            if (!config.TryGetValue("name", ref name))
             {
                 name = "(anonymous)";
             }
@@ -200,15 +200,6 @@ namespace AvionicsSystems
         public string Name()
         {
             return name;
-        }
-
-        /// <summary>
-        /// Return if the action is persistent
-        /// </summary>
-        /// <returns></returns>
-        public bool Persistent()
-        {
-            return true;
         }
 
         /// <summary>

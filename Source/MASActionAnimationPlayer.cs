@@ -29,7 +29,7 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
-    internal class MASActionAnimationPlayer : IMASAction
+    internal class MASActionAnimationPlayer : IMASSubComponent
     {
         private string name = "(anonymous)";
         private string variableName = string.Empty;
@@ -156,15 +156,6 @@ namespace AvionicsSystems
         public string Name()
         {
             return name;
-        }
-
-        /// <summary>
-        /// Return if the action is persistent
-        /// </summary>
-        /// <returns></returns>
-        public bool Persistent()
-        {
-            return true;
         }
 
         /// <summary>

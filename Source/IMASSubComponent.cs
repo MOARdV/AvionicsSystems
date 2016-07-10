@@ -25,19 +25,13 @@
 
 namespace AvionicsSystems
 {
-    internal interface IMASAction
+    internal interface IMASSubComponent
     {
         /// <summary>
-        /// Optional name reported for this action.
+        /// Optional name reported for this subcomponent.
         /// </summary>
         /// <returns>Supplied name or "(anonymous)"</returns>
         string Name();
-
-        /// <summary>
-        /// Is this a persistent action, or should it be discarded?
-        /// </summary>
-        /// <returns>true if ASComponent should keep a reference</returns>
-        bool Persistent();
 
         /// <summary>
         /// Release any resources obtained during the lifetime of this object.

@@ -34,7 +34,7 @@ namespace AvionicsSystems
     /// of the two endpoints are added to the model's initial localScale, so
     /// a value of 0,0,0 will use the original scale untouched.
     /// </summary>
-    class MASActionModelScale : IMASAction
+    class MASActionModelScale : IMASSubComponent
     {
         private string name = "(anonymous)";
         private string variableName = string.Empty;
@@ -164,15 +164,6 @@ namespace AvionicsSystems
         public string Name()
         {
             return name;
-        }
-
-        /// <summary>
-        /// Return if the action is persistent
-        /// </summary>
-        /// <returns></returns>
-        public bool Persistent()
-        {
-            return true;
         }
 
         /// <summary>

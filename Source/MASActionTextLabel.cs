@@ -30,7 +30,7 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
-    class MASActionTextLabel : IMASAction
+    class MASActionTextLabel : IMASSubComponent
     {
         private string name = "(anonymous)";
         private string variableName = string.Empty;
@@ -262,7 +262,7 @@ namespace AvionicsSystems
                     throw new ArgumentException("Invalid or missing 'variable' in TEXT_LABEL " + name);
                 }
             }
-            else if(!usesMulticolor)
+            else if (!usesMulticolor)
             {
                 throw new ArgumentException("Invalid or missing 'activeColor' in TEXT_LABEL " + name);
             }
@@ -315,7 +315,7 @@ namespace AvionicsSystems
             }
 
             bool immutable = false;
-            if(!config.TryGetValue("oneshot", ref immutable))
+            if (!config.TryGetValue("oneshot", ref immutable))
             {
                 immutable = false;
             }
@@ -429,15 +429,6 @@ namespace AvionicsSystems
         public string Name()
         {
             return name;
-        }
-
-        /// <summary>
-        /// Return if the action is persistent
-        /// </summary>
-        /// <returns></returns>
-        public bool Persistent()
-        {
-            return true;
         }
 
         /// <summary>

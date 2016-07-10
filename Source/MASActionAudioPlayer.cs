@@ -30,7 +30,7 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
-    internal class MASActionAudioPlayer : IMASAction
+    internal class MASActionAudioPlayer : IMASSubComponent
     {
         private string name = "(anonymous)";
         private string variableName = string.Empty;
@@ -69,9 +69,9 @@ namespace AvionicsSystems
 
             //Try Load audio
             AudioClip clip = GameDatabase.Instance.GetAudioClip(sound);
-            if(clip == null)
+            if (clip == null)
             {
-                throw new ArgumentException("Unable to load 'sound' "+sound+" in AUDIO_PLAYER " + name);
+                throw new ArgumentException("Unable to load 'sound' " + sound + " in AUDIO_PLAYER " + name);
             }
 
             string playbackTrigger = string.Empty;
@@ -203,15 +203,6 @@ namespace AvionicsSystems
         public string Name()
         {
             return name;
-        }
-
-        /// <summary>
-        /// Return if the action is persistent
-        /// </summary>
-        /// <returns></returns>
-        public bool Persistent()
-        {
-            return true;
         }
 
         /// <summary>

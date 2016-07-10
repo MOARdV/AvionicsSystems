@@ -29,7 +29,7 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
-    internal class MASActionIntLight : IMASAction
+    internal class MASActionIntLight : IMASSubComponent
     {
         private string name = "(anonymous)";
         private string variableName = string.Empty;
@@ -137,15 +137,6 @@ namespace AvionicsSystems
         public string Name()
         {
             return name;
-        }
-
-        /// <summary>
-        /// Return if the action is persistent
-        /// </summary>
-        /// <returns></returns>
-        public bool Persistent()
-        {
-            return controlledLights != null;
         }
 
         /// <summary>

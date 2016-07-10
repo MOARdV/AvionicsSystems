@@ -34,7 +34,7 @@ namespace AvionicsSystems
     /// for a specified transform.  This allows multiple props to use a texture
     /// atlas in some places, reducing the need to make multiple textures.
     /// </summary>
-    internal class MASActionTextureShift : IMASAction
+    internal class MASActionTextureShift : IMASSubComponent
     {
         private string name = "(anonymous)";
         private string variableName = string.Empty;
@@ -198,15 +198,6 @@ namespace AvionicsSystems
         public string Name()
         {
             return name;
-        }
-
-        /// <summary>
-        /// Return if the action is persistent
-        /// </summary>
-        /// <returns></returns>
-        public bool Persistent()
-        {
-            return true;
         }
 
         /// <summary>

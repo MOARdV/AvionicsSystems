@@ -78,7 +78,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        internal static IMASAction CreateAction(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        internal static IMASSubComponent CreateAction(ConfigNode config, InternalProp prop, MASFlightComputer comp)
         {
             LogMessage(config, "Node {0} being parsed", config.name);
 

@@ -35,7 +35,7 @@ namespace AvionicsSystems
     /// particular range (either > 0 for Boolean, or between specified range
     /// values).
     /// </summary>
-    class MASActionTriggerEvent : IMASAction
+    class MASActionTriggerEvent : IMASSubComponent
     {
         private string name = "(anonymous)";
         private string variableName;
@@ -110,12 +110,12 @@ namespace AvionicsSystems
             if (newState != currentState)
             {
                 currentState = newState;
-                
+
                 if (currentState)
                 {
                     triggerEvent();
 
-                    if(autoRepeat)
+                    if (autoRepeat)
                     {
                         comp.StartCoroutine(RepeatEvent());
                     }
@@ -132,7 +132,7 @@ namespace AvionicsSystems
         {
             yield return new WaitForFixedUpdate();
 
-            while(currentState)
+            while (currentState)
             {
                 triggerEvent();
                 yield return new WaitForFixedUpdate();
@@ -146,15 +146,6 @@ namespace AvionicsSystems
         public string Name()
         {
             return name;
-        }
-
-        /// <summary>
-        /// Return if the action is persistent
-        /// </summary>
-        /// <returns></returns>
-        public bool Persistent()
-        {
-            return true;
         }
 
         /// <summary>

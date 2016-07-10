@@ -35,7 +35,7 @@ namespace AvionicsSystems
     /// auto-repeating the onClick event (once per FixedUpdate), and it can
     /// support transient actions using onClick and onRelease.
     /// </summary>
-    class MASActionColliderEvent : IMASAction
+    class MASActionColliderEvent : IMASSubComponent
     {
         private string name = "(anonymous)";
         private ButtonObject buttonObject;
@@ -151,15 +151,6 @@ namespace AvionicsSystems
         public string Name()
         {
             return name;
-        }
-
-        /// <summary>
-        /// Return if the action is persistent
-        /// </summary>
-        /// <returns></returns>
-        public bool Persistent()
-        {
-            return true;
         }
 
         /// <summary>

@@ -34,7 +34,7 @@ namespace AvionicsSystems
     /// MASActionRotation rotates part of a prop around a specified axis given
     /// in Euler angles.
     /// </summary>
-    class MASActionRotation : IMASAction
+    class MASActionRotation : IMASSubComponent
     {
         private string name = "(anonymous)";
         private string variableName;
@@ -342,15 +342,6 @@ namespace AvionicsSystems
         public string Name()
         {
             return name;
-        }
-
-        /// <summary>
-        /// Return if the action is persistent
-        /// </summary>
-        /// <returns></returns>
-        public bool Persistent()
-        {
-            return true;
         }
 
         /// <summary>

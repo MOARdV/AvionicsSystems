@@ -37,7 +37,7 @@ namespace AvionicsSystems
     /// </summary>
     internal class MASComponent : InternalModule
     {
-        private List<IMASAction> actions = new List<IMASAction>();
+        private List<IMASSubComponent> actions = new List<IMASSubComponent>();
 
         /// <summary>
         /// Configure this module and its children.
@@ -63,26 +63,19 @@ namespace AvionicsSystems
                     throw new ArgumentNullException("No ConfigNode found!");
                 }
 
-                int persistentNodes = 0, transientNodes = 0;
+                int persistentNodes = 0;//, transientNodes = 0;
                 ConfigNode[] actionNodes = moduleConfig.GetNodes();
                 for (int i = 0; i < actionNodes.Length; ++i)
                 {
-                    IMASAction action = Utility.CreateAction(actionNodes[i], internalProp, comp);
+                    IMASSubComponent action = Utility.CreateAction(actionNodes[i], internalProp, comp);
                     if (action != null)
                     {
-                        if (action.Persistent())
-                        {
-                            ++persistentNodes;
-                            actions.Add(action);
-                        }
-                        else
-                        {
-                            ++transientNodes;
-                        }
+                        ++persistentNodes;
+                        actions.Add(action);
                     }
                 }
 
-                Utility.LogMessage(this, "Configuration complete in prop #{0} ({1}): {2} persistent nodes created, {3} transient nodes", internalProp.propID, internalProp.propName, persistentNodes, transientNodes);
+                Utility.LogMessage(this, "Configuration complete in prop #{0} ({1}): {2} persistent nodes created", internalProp.propID, internalProp.propName, persistentNodes);
             }
             catch (Exception e)
             {
