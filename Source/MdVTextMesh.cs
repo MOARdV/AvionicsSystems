@@ -92,6 +92,9 @@ namespace AvionicsSystems
         private int fontSize;
         private float characterSize = 1.0f;
         private float lineSpacing = 1.0f;
+        private int fixedAdvance = 0;
+        private int fixedLineSpacing = 0;
+        private bool boundedText = false;
         private bool richText;
         private bool invalidated;
         private bool colorInvalidated;
@@ -121,7 +124,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Set the font and fontSize
+        /// Set the font and fontSize for auto-scaled text
         /// </summary>
         /// <param name="font"></param>
         /// <param name="fontSize"></param>
@@ -129,6 +132,23 @@ namespace AvionicsSystems
         {
             this.font = font;
             this.fontSize = fontSize;
+            boundedText = false;
+            meshRenderer.material.mainTexture = font.material.mainTexture;
+            invalidated = true;
+        }
+
+        /// <summary>
+        /// Set the font and define the bounding box for characters (in pixels)
+        /// </summary>
+        /// <param name="font"></param>
+        /// <param name="fontDimensions"></param>
+        public void SetFont(Font font, Vector2 fontDimensions)
+        {
+            this.font = font;
+            this.fontSize = font.fontSize;
+            this.fixedAdvance = (int)fontDimensions.x;
+            this.fixedLineSpacing = (int)fontDimensions.y;
+            boundedText = true;
             meshRenderer.material.mainTexture = font.material.mainTexture;
             invalidated = true;
         }
@@ -228,7 +248,7 @@ namespace AvionicsSystems
                             string[] variables = rowText[1].Split(',');
                             tr.variable = new MASFlightComputer.Variable[variables.Length];
                             tr.evals = new object[variables.Length];
-                            tr.callback = () => { Utility.LogMessage(tr, "row {0} invalidated", i); invalidated = true; tr.rowInvalidated = true; };
+                            tr.callback = () => { invalidated = true; tr.rowInvalidated = true; };
                             for (int var = 0; var < tr.variable.Length; ++var)
                             {
                                 tr.variable[var] = comp.RegisterOnVariableChange(variables[var], tr.callback);
@@ -246,7 +266,11 @@ namespace AvionicsSystems
                     }
                 }
 
-                if (richText)
+                if (boundedText)
+                {
+                    GenerateRichBoundedText();
+                }
+                else if (richText)
                 {
                     GenerateRichText();
                 }
@@ -258,6 +282,13 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// This method is used to evaluate text flagged as immutable one time
+        /// at initialization.
+        /// </summary>
+        /// <param name="text">Text to evaluate</param>
+        /// <param name="comp">The owning flight computer</param>
+        /// <returns></returns>
         private string EvaluateImmutableVariables(string text, MASFlightComputer comp)
         {
             string[] staticText = text.Split(VariableListSeparator, StringSplitOptions.RemoveEmptyEntries);
@@ -333,7 +364,7 @@ namespace AvionicsSystems
         public void Update()
         {
             //+++ HACK
-            invalidated = true;
+            //invalidated = true;
             //--- HACK
             try
             {
@@ -351,6 +382,10 @@ namespace AvionicsSystems
                         textRow[i].EvaluateVariables();
                     }
 
+                    if (boundedText)
+                    {
+                        GenerateRichBoundedText();
+                    }
                     if (richText)
                     {
                         GenerateRichText();
@@ -430,6 +465,293 @@ namespace AvionicsSystems
         }
 
         #region Mesh Regeneration
+        private void GenerateRichBoundedText()
+        {
+            // State tracking
+            bool bold = false;
+            bool italic = false;
+            //size = something.
+
+            // Determine text length
+            int maxVerts = 0;
+            int numTextRows = textRow.Length;
+            for (int line = 0; line < numTextRows; ++line)
+            {
+                textRow[line].textLength = 0;
+
+                int stringLength = textRow[line].formattedData.Length;
+                for (int charIndex = 0; charIndex < stringLength; charIndex++)
+                {
+                    bool escapedBracket = false;
+                    // We will continue parsing bracket pairs until we're out of bracket pairs,
+                    // since all of them -- except the escaped bracket tag --
+                    // consume characters and change state without actually generating any output.
+                    while (charIndex < stringLength && textRow[line].formattedData[charIndex] == '[')
+                    {
+                        // If there's no closing bracket, we stop parsing and go on to printing.
+                        int nextBracket = textRow[line].formattedData.IndexOf(']', charIndex) - charIndex;
+                        if (nextBracket < 1)
+                            break;
+                        // Much easier to parse it this way, although I suppose more expensive.
+                        string tagText = textRow[line].formattedData.Substring(charIndex + 1, nextBracket - 1).Trim();
+                        if ((tagText.Length == 9 || tagText.Length == 7) && tagText[0] == '#')
+                        {
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText.Length > 2 && tagText[0] == '@')
+                        {
+                            // Valid nudge tags are [@x<number>] or [@y<number>] so the conditions for them is that
+                            // the next symbol is @ and there are at least three, one designating the axis.
+                            float coord;
+                            if (float.TryParse(tagText.Substring(2), out coord))
+                            {
+                                // Only consume the symbols if they parse.
+                                charIndex += nextBracket + 1;
+                            }
+                            else //If it didn't parse, skip over it.
+                            {
+                                break;
+                            }
+                        }
+                        else if (tagText == "[")
+                        {
+                            // We got a "[[]" which means an escaped opening bracket.
+                            escapedBracket = true;
+                            charIndex += nextBracket;
+                            break;
+                        }
+                        else if (tagText == "b")
+                        {
+                            bold = true;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "i")
+                        {
+                            italic = true;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "/b")
+                        {
+                            bold = false;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "/i")
+                        {
+                            italic = false;
+                            charIndex += nextBracket + 1;
+                        }
+                        else // Else we didn't recognise anything so it's not a tag.
+                        {
+                            break;
+                        }
+                    }
+
+                    if (charIndex < stringLength)
+                    {
+                        FontStyle style = GetFontStyle(bold, italic);
+                        font.RequestCharactersInTexture(escapedBracket ? "[" : textRow[line].formattedData[charIndex].ToString(), fontSize, style);
+                        CharacterInfo charInfo;
+                        if (font.GetCharacterInfo(textRow[line].formattedData[charIndex], out charInfo, 0, style))
+                        {
+                            textRow[line].textLength += fixedAdvance;
+                            maxVerts += 4;
+                        }
+                    }
+                }
+            }
+
+            if (maxVerts == 0)
+            {
+                meshRenderer.gameObject.SetActive(false);
+                return;
+            }
+
+            meshRenderer.gameObject.SetActive(true);
+
+            Vector3[] vertices = new Vector3[maxVerts];
+            Color32[] colors32 = new Color32[maxVerts];
+            Vector4[] tangents = new Vector4[maxVerts];
+            Vector2[] uv = new Vector2[maxVerts];
+
+            int triLength =maxVerts + maxVerts / 2;
+            int[] triangles = new int[triLength];
+            for (int idx = 0; idx < triLength; ++idx)
+            {
+                triangles.SetValue(0, idx);
+            }
+
+            int charWritten = 0;
+            int arrayIndex = 0;
+            int yPos = -fixedLineSpacing;
+            int xAnchor = 0;
+
+            for (int line = 0; line < numTextRows; ++line)
+            {
+                int xPos = xAnchor;
+
+                Color32 fontColor = color;
+                float xOffset = 0.0f;
+                float yOffset = 0.0f;
+
+                int stringLength = textRow[line].formattedData.Length;
+                for (int charIndex = 0; charIndex < stringLength; charIndex++)
+                {
+                    bool escapedBracket = false;
+                    // We will continue parsing bracket pairs until we're out of bracket pairs,
+                    // since all of them -- except the escaped bracket tag --
+                    // consume characters and change state without actually generating any output.
+                    while (charIndex < stringLength && textRow[line].formattedData[charIndex] == '[')
+                    {
+                        // If there's no closing bracket, we stop parsing and go on to printing.
+                        int nextBracket = textRow[line].formattedData.IndexOf(']', charIndex) - charIndex;
+                        if (nextBracket < 1)
+                            break;
+                        // Much easier to parse it this way, although I suppose more expensive.
+                        string tagText = textRow[line].formattedData.Substring(charIndex + 1, nextBracket - 1).Trim();
+                        if ((tagText.Length == 9 || tagText.Length == 7) && tagText[0] == '#')
+                        {
+                            // Valid color tags are [#rrggbbaa] or [#rrggbb].
+                            fontColor = XKCDColors.ColorTranslator.FromHtml(tagText);
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText.Length > 2 && tagText[0] == '@')
+                        {
+                            // Valid nudge tags are [@x<number>] or [@y<number>] so the conditions for them is that
+                            // the next symbol is @ and there are at least three, one designating the axis.
+                            float coord;
+                            if (float.TryParse(tagText.Substring(2), out coord))
+                            {
+                                switch (tagText[1])
+                                {
+                                    case 'X':
+                                    case 'x':
+                                        xOffset = coord;
+                                        break;
+                                    case 'Y':
+                                    case 'y':
+                                        yOffset = coord;
+                                        break;
+                                }
+
+                                // Only consume the symbols if they parse.
+                                charIndex += nextBracket + 1;
+                            }
+                            else //If it didn't parse, skip over it.
+                            {
+                                break;
+                            }
+                        }
+                        else if (tagText == "[")
+                        {
+                            // We got a "[[]" which means an escaped opening bracket.
+                            escapedBracket = true;
+                            charIndex += nextBracket;
+                            break;
+                        }
+                        else if (tagText == "b")
+                        {
+                            bold = true;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "i")
+                        {
+                            italic = true;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "/b")
+                        {
+                            bold = false;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "/i")
+                        {
+                            italic = false;
+                            charIndex += nextBracket + 1;
+                        }
+                        else // Else we didn't recognise anything so it's not a tag.
+                        {
+                            break;
+                        }
+                    }
+
+                    if (charIndex < stringLength)
+                    {
+                        FontStyle style = GetFontStyle(bold, italic);
+                        CharacterInfo charInfo;
+                        if (font.GetCharacterInfo(escapedBracket ? '[' : textRow[line].formattedData[charIndex], out charInfo, 0, style))
+                        {
+                            if (charInfo.minX != charInfo.maxX && charInfo.minY != charInfo.maxY)
+                            {
+                                // TODO: Tune this
+                                int minX = Math.Max(charInfo.minX, 0);
+                                int maxX = Math.Min(charInfo.maxX, fixedAdvance);
+                                int minY = charInfo.minY;// Math.Max(charInfo.minY, 0);
+                                int maxY = charInfo.maxY;// Math.Min(charInfo.maxY, (int)characterBound.y);
+                                triangles[charWritten * 6 + 0] = arrayIndex + 0;
+                                triangles[charWritten * 6 + 1] = arrayIndex + 3;
+                                triangles[charWritten * 6 + 2] = arrayIndex + 2;
+                                triangles[charWritten * 6 + 3] = arrayIndex + 0;
+                                triangles[charWritten * 6 + 4] = arrayIndex + 1;
+                                triangles[charWritten * 6 + 5] = arrayIndex + 3;
+
+                                // TODO: make this work correctly by centering the
+                                // characters and clamping to the width.
+                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + minX) + xOffset), characterSize * ((float)(yPos + maxY) + yOffset), 0.0f);
+                                colors32[arrayIndex] = fontColor;
+                                tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+                                uv[arrayIndex] = charInfo.uvTopLeft;
+
+                                ++arrayIndex;
+
+                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + maxX) + xOffset), characterSize * ((float)(yPos + maxY) + yOffset), 0.0f);
+                                colors32[arrayIndex] = fontColor;
+                                tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+                                uv[arrayIndex] = charInfo.uvTopRight;
+
+                                ++arrayIndex;
+
+                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + minX) + xOffset), characterSize * ((float)(yPos + minY) + yOffset), 0.0f);
+                                colors32[arrayIndex] = fontColor;
+                                tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+                                uv[arrayIndex] = charInfo.uvBottomLeft;
+
+                                ++arrayIndex;
+
+                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + maxX) + xOffset), characterSize * ((float)(yPos + minY) + yOffset), 0.0f);
+                                colors32[arrayIndex] = fontColor;
+                                tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+                                uv[arrayIndex] = charInfo.uvBottomRight;
+
+                                ++arrayIndex;
+                                ++charWritten;
+                                                                
+                                //if(charIndex == 0)
+                                //{
+                                //    Utility.LogMessage(this,
+                                //        "char bound {0} to {1}", vertices[arrayIndex-2], vertices[arrayIndex-3]);
+                                //}
+
+                            }
+                            xPos += fixedAdvance;
+                        }
+                    }
+                }
+
+                yPos -= fixedLineSpacing;
+            }
+
+            meshFilter.mesh.Clear();
+            meshFilter.mesh.vertices = vertices;
+            meshFilter.mesh.colors32 = colors32;
+            meshFilter.mesh.tangents = tangents;
+            meshFilter.mesh.uv = uv;
+            meshFilter.mesh.triangles = triangles;
+            meshFilter.mesh.RecalculateNormals();
+            meshFilter.mesh.Optimize();
+            // Can't hide mesh with (true), or we can't edit colors later.
+            meshFilter.mesh.UploadMeshData(false);
+        }
+
         /// <summary>
         /// Convert a text using control sequences ([b], [i], [#rrggbb(aa)], [size]).
         /// </summary>
@@ -441,7 +763,7 @@ namespace AvionicsSystems
             //size = something.
 
             // Determine text length
-            int maxTextLength = 0;
+            //int maxTextLength = 0;
             int maxVerts = 0;
             int numTextRows = textRow.Length;
             for (int line = 0; line < numTextRows; ++line)
@@ -528,10 +850,10 @@ namespace AvionicsSystems
                     }
                 }
 
-                if (textRow[line].textLength > maxTextLength)
-                {
-                    maxTextLength = textRow[line].textLength;
-                }
+                //if (textRow[line].textLength > maxTextLength)
+                //{
+                //    maxTextLength = textRow[line].textLength;
+                //}
             }
 
             if (maxVerts == 0)
@@ -760,7 +1082,7 @@ namespace AvionicsSystems
         /// </summary>
         private void GenerateText()
         {
-            int maxTextLength = 0;
+            //int maxTextLength = 0;
             int maxVerts = 0;
             int numTextRows = textRow.Length;
             for (int line = 0; line < numTextRows; ++line)
@@ -778,10 +1100,10 @@ namespace AvionicsSystems
                         textRow[line].textLength += charInfo.advance;
                     }
                 }
-                if (textRow[line].textLength > maxTextLength)
-                {
-                    maxTextLength = textRow[line].textLength;
-                }
+                //if (textRow[line].textLength > maxTextLength)
+                //{
+                //    maxTextLength = textRow[line].textLength;
+                //}
             }
 
             if (maxVerts == 0)
