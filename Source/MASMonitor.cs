@@ -49,7 +49,7 @@ namespace AvionicsSystems
 
         [KSPField]
         public string textColor;
-        private Color32 textColor_;
+        internal Color32 textColor_;
 
         [KSPField]
         public string backgroundColor;
@@ -58,12 +58,16 @@ namespace AvionicsSystems
         private RenderTexture screen;
         private GameObject screenSpace;
         private Camera screenCamera;
-        //private Dictionary<string, MASPage> pages = new Dictionary<string, MASPage>();
+        private Dictionary<string, MASPage> page = new Dictionary<string, MASPage>();
+        private MASPage currentPage;
+        internal Font defaultFont;
 
         private bool initialized = false;
 
-        internal static readonly float maxDepth = 1.5f;
-        internal static readonly int drawingLayer = 17;
+        internal static readonly float maxDepth = 1.0f - depthDelta;
+        internal static readonly float minDepth = 0.5f;
+        internal static readonly float depthDelta = 0.03125f;
+        internal static readonly int drawingLayer = 30; // Pick a layer KSP isn't using.
 
         /// <summary>
         /// Startup, initialize, configure, etc.
@@ -121,21 +125,26 @@ namespace AvionicsSystems
 
                     screenWidth = (int)screenSize.x;
                     screenHeight = (int)screenSize.y;
-                    screen = new RenderTexture(screenWidth, screenHeight, 24, RenderTextureFormat.ARGB32);
 
                     screenSpace = new GameObject();
-                    screenSpace.gameObject.transform.parent = internalProp.gameObject.transform;
                     screenSpace.name = "MASMonitor-" + screenSpace.GetInstanceID();
                     screenSpace.layer = drawingLayer;
+                    screenSpace.transform.position = Vector3.zero;
                     screenSpace.SetActive(true);
+
+                    screen = new RenderTexture(screenWidth, screenHeight, 24, RenderTextureFormat.ARGB32);
+                    if (!screen.IsCreated())
+                    {
+                        screen.Create();
+                    }
 
                     screenCamera = screenSpace.AddComponent<Camera>();
                     screenCamera.enabled = true; // Enable = "auto-draw"
-                    //screenCamera.enabled = false;
                     screenCamera.orthographic = true;
                     screenCamera.aspect = screenSize.x / screenSize.y;
                     screenCamera.eventMask = 0;
-                    screenCamera.farClipPlane = maxDepth + 0.5f;
+                    screenCamera.farClipPlane = 1.03125f;
+                    screenCamera.nearClipPlane = 0.03125f;
                     screenCamera.orthographicSize = screenSize.x * 0.5f;
                     screenCamera.cullingMask = 1 << drawingLayer;
                     screenCamera.transparencySortMode = TransparencySortMode.Orthographic;
@@ -146,17 +155,13 @@ namespace AvionicsSystems
                     screenCamera.targetTexture = screen;
 
                     Material screenMat = internalProp.FindModelTransform(screenTransform).GetComponent<Renderer>().material;
-                    //screenMat.shader = MASLoader.shaders["MOARdV/Monitor"]; // JSI/DisplayShader
                     string[] layers = layer.Split();
                     for (int i = layers.Length - 1; i >= 0; --i)
                     {
                         screenMat.SetTexture(layers[i].Trim(), screen);
                     }
 
-                    if (!screen.IsCreated())
-                    {
-                        screen.Create();
-                    }
+                    defaultFont = MASLoader.GetFont(font.Trim());
 
                     ConfigNode moduleConfig = Utility.GetPropModuleConfigNode(internalProp.propName, moduleID);
                     if (moduleConfig == null)
@@ -175,9 +180,21 @@ namespace AvionicsSystems
                             throw new ArgumentException("No ConfigNode found for page " + pages[i] + " in MASMonitor in " + internalProp.propName + "!");
                         }
 
-                        Utility.LogMessage(this, "Page = {0}", pages[i]);
                         // Parse the page node
+                        MASPage newPage = new MASPage(pageConfig, internalProp, comp, this, screenSpace.transform);
+                        if (i == 0)
+                        {
+                            currentPage = newPage;
+                            currentPage.EnablePage(true);
+                        }
+                        else
+                        {
+                            newPage.EnablePage(false);
+                        }
+                        page.Add(pages[i], newPage);
+                        Utility.LogMessage(this, "Page = {0}", pages[i]);
                     }
+                    //HackWalkTransforms(screenSpace.transform, 0);
                     initialized = true;
                     Utility.LogMessage(this, "Configuration complete in prop #{0} ({1}) with {2} pages", internalProp.propID, internalProp.propName, numPages);
                 }
@@ -186,6 +203,22 @@ namespace AvionicsSystems
                     Utility.LogErrorMessage(this, "Failed to configure prop #{0} ({1})", internalProp.propID, internalProp.propName);
                     Utility.LogErrorMessage(this, e.ToString());
                 }
+            }
+        }
+
+        private static void HackWalkTransforms(Transform transform, int p)
+        {
+            StringBuilder sb = new StringBuilder(p + 3);
+            for (int i = 0; i < p; ++i)
+            {
+                sb.Append(" ");
+            }
+            sb.Append("+");
+            sb.Append(transform.name);
+            Utility.LogMessage(transform, "{0} @ ({1:0.0}, {2:0.0}, {3:0.000}) face ({4:0.0}, {5:0.0}, {6:0.0})", sb.ToString(), transform.position.x, transform.position.y, transform.position.z, transform.eulerAngles.x, transform.eulerAngles.y, transform.eulerAngles.z);
+            for(int i=0; i<transform.childCount; ++i)
+            {
+                HackWalkTransforms(transform.GetChild(i), p + 1);
             }
         }
 
@@ -202,28 +235,24 @@ namespace AvionicsSystems
 
             if (initialized)
             {
+                MASFlightComputer comp = MASFlightComputer.Instance(internalProp.part);
+
+                foreach (var value in page.Values)
+                {
+                    value.ReleaseResources(comp);
+                }
+                page.Clear();
+
+                GameObject.DestroyObject(screenSpace);
                 screenSpace = null;
                 screenCamera = null;
             }
         }
 
-        /// <summary>
-        /// Update time.  Once I figure out how to make the camera render
-        /// without manual trigger, this ought to go away.  Even if I set
-        /// enable to true, it's not currently autorendering.  Probably because
-        /// I didn't attach it to anything.
-        /// </summary>
         //public override void OnUpdate()
         //{
         //    if (initialized)
         //    {
-        //        //if (!screen.IsCreated())
-        //        //{
-        //        //    screen.Create();
-        //        //    screenCamera.enabled = true;
-        //        //}
-
-        //        // TODO: How do I make this camera do its thing automagically?
         //        screenCamera.Render();
         //    }
         //}
