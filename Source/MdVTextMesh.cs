@@ -465,6 +465,10 @@ namespace AvionicsSystems
         }
 
         #region Mesh Regeneration
+        /// <summary>
+        /// Generate a forced fixed-size text, enabling the various rich character
+        /// features.  Intended for use with MASMonitor.
+        /// </summary>
         private void GenerateRichBoundedText()
         {
             // State tracking
@@ -724,13 +728,6 @@ namespace AvionicsSystems
 
                                 ++arrayIndex;
                                 ++charWritten;
-                                                                
-                                //if(charIndex == 0)
-                                //{
-                                //    Utility.LogMessage(this,
-                                //        "char bound {0} to {1}", vertices[arrayIndex-2], vertices[arrayIndex-3]);
-                                //}
-
                             }
                             xPos += fixedAdvance;
                         }
@@ -763,7 +760,6 @@ namespace AvionicsSystems
             //size = something.
 
             // Determine text length
-            //int maxTextLength = 0;
             int maxVerts = 0;
             int numTextRows = textRow.Length;
             for (int line = 0; line < numTextRows; ++line)
@@ -849,11 +845,6 @@ namespace AvionicsSystems
                         }
                     }
                 }
-
-                //if (textRow[line].textLength > maxTextLength)
-                //{
-                //    maxTextLength = textRow[line].textLength;
-                //}
             }
 
             if (maxVerts == 0)
@@ -1082,7 +1073,6 @@ namespace AvionicsSystems
         /// </summary>
         private void GenerateText()
         {
-            //int maxTextLength = 0;
             int maxVerts = 0;
             int numTextRows = textRow.Length;
             for (int line = 0; line < numTextRows; ++line)
@@ -1100,10 +1090,6 @@ namespace AvionicsSystems
                         textRow[line].textLength += charInfo.advance;
                     }
                 }
-                //if (textRow[line].textLength > maxTextLength)
-                //{
-                //    maxTextLength = textRow[line].textLength;
-                //}
             }
 
             if (maxVerts == 0)
