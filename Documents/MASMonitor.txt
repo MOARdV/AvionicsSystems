@@ -73,6 +73,9 @@ TEXT
   name = Important Text
   text = Hello, world!
   //textfile = AvionicsSystems/Sample/helloworld.txt
+  //font = InconsolataGo-Bold
+  //fontSize = 16, 32
+  //textColor = 0, 255, 0, 255
   //position = 0,0
   //variable = fc.GetRCS()
   //range = 0.5, 1.5
@@ -84,6 +87,13 @@ this node, similar to a Text Label action in MASComponent.
 'textfile': Required if there is not a 'text' entry; ignored if there is a
 'text' field.  Refers to a text file that contains the text that will be rendered.
 The 'textfile' is usually the better choice for multi-line text.
+'font': Optional. A comma separated list of fonts that will be used for rendering
+this text.  The first font is the default font.  If this parameter is omitted,
+the font listed in MASMonitor is used.
+'fontSize': Optional.  The width and height of this text as rendered on the
+screen.  If it is omitted, the default fromn MASMonitor is used.
+'textColor': Optional.  The default text color for this text.  If the entry is
+omitted, the default found in MASMonitor is used.
 'position': Optional.  Default (0, 0).  An offset from the upper-left corner for
 the text being rendered.  The offset is in units of character columns and rows,
 not pixels.
