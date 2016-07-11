@@ -66,7 +66,7 @@ namespace AvionicsSystems
 
         internal static readonly float maxDepth = 1.0f - depthDelta;
         internal static readonly float minDepth = 0.5f;
-        internal static readonly float depthDelta = 0.03125f;
+        internal static readonly float depthDelta = 0.015625f;
         internal static readonly int drawingLayer = 30; // Pick a layer KSP isn't using.
 
         /// <summary>
@@ -143,8 +143,8 @@ namespace AvionicsSystems
                     screenCamera.orthographic = true;
                     screenCamera.aspect = screenSize.x / screenSize.y;
                     screenCamera.eventMask = 0;
-                    screenCamera.farClipPlane = 1.03125f;
-                    screenCamera.nearClipPlane = 0.03125f;
+                    screenCamera.farClipPlane = 1.0f + depthDelta;
+                    screenCamera.nearClipPlane = depthDelta;
                     screenCamera.orthographicSize = screenSize.x * 0.5f;
                     screenCamera.cullingMask = 1 << drawingLayer;
                     screenCamera.transparencySortMode = TransparencySortMode.Orthographic;
