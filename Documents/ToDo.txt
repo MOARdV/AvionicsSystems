@@ -110,3 +110,7 @@ StdLib ideas:
 Clamp(value, min, max)
 
 Map(value, min, max, mappedMin, mappedMax)
+
+fc.AddPersistentClamped("name", delta, min, max)
+
+fc.AddPersistentWrap("name", detla, min, max)
