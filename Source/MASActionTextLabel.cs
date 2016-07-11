@@ -112,7 +112,7 @@ namespace AvionicsSystems
 
             textObj = offsetTransform.gameObject.AddComponent<MdVTextMesh>();
 
-            Font font = MASLoader.LoadFont(fontName.Trim());
+            Font font = MASLoader.GetFont(fontName.Trim());
             if (font == null)
             {
                 throw new ArgumentNullException("Unable to load font " + fontName + " in TEXTURE_LABEL " + name);

@@ -86,7 +86,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="fontName"></param>
         /// <returns></returns>
-        internal static Font LoadFont(string fontName)
+        internal static Font GetFont(string fontName)
         {
             if(fonts.ContainsKey(fontName))
             {
