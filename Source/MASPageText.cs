@@ -36,6 +36,10 @@ namespace AvionicsSystems
 
         private GameObject meshObject;
         private MdVTextMesh textObj;
+        private string variableName;
+        private MASFlightComputer.Variable range1, range2;
+        private readonly bool rangeMode;
+        private bool currentState;
 
         internal MASPageText(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
@@ -88,6 +92,29 @@ namespace AvionicsSystems
                 position = Vector2.Scale(position, fontSize);
             }
 
+            if (config.TryGetValue("variable", ref variableName))
+            {
+                variableName = variableName.Trim();
+            }
+
+            string range = string.Empty;
+            if (config.TryGetValue("range", ref range))
+            {
+                string[] ranges = range.Split(',');
+                if (ranges.Length != 2)
+                {
+                    throw new ArgumentException("Incorrect number of values in 'range' in TEXT " + name);
+                }
+                range1 = comp.GetVariable(ranges[0]);
+                range2 = comp.GetVariable(ranges[1]);
+
+                rangeMode = true;
+            }
+            else
+            {
+                rangeMode = false;
+            }
+
             // Set up our text.
             meshObject = new GameObject();
             meshObject.name = pageRoot.gameObject.name + "-MASPageText-" + name + "-" + depth.ToString();
@@ -118,6 +145,33 @@ namespace AvionicsSystems
 
             // text, immutable, preserveWhitespace, comp
             textObj.SetText(text, false, true, comp);
+
+            if (!string.IsNullOrEmpty(variableName))
+            {
+                // Disable the mesh if we're in variable mode
+                meshObject.SetActive(false);
+                comp.RegisterNumericVariable(variableName, VariableCallback);
+            }
+        }
+
+        /// <summary>
+        /// Handle a changed value
+        /// </summary>
+        /// <param name="newValue"></param>
+        private void VariableCallback(double newValue)
+        {
+            if (rangeMode)
+            {
+                newValue = (newValue.Between(range1.SafeValue(), range2.SafeValue())) ? 1.0 : 0.0;
+            }
+
+            bool newState = (newValue > 0.0);
+
+            if (newState != currentState)
+            {
+                currentState = newState;
+                meshObject.SetActive(currentState);
+            }
         }
 
         /// <summary>
@@ -136,6 +190,10 @@ namespace AvionicsSystems
         {
             UnityEngine.GameObject.Destroy(meshObject);
             meshObject = null;
+            if (!string.IsNullOrEmpty(variableName))
+            {
+                comp.UnregisterNumericVariable(variableName, VariableCallback);
+            }
         }
     }
 }
