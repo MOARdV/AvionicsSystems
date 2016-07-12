@@ -280,9 +280,6 @@ namespace AvionicsSystems
 
             // We now know everything we need to create a Font
             Font newFont = new Font(name);
-            //newFont.dynamic = true;
-            //newFont.fontSize = (int)fontSize.y;
-            //newFont.lineHeight = (int)fontSize.y;
             newFont.material = new Material(shaders["MOARdV/TextMesh"]);
             newFont.material.mainTexture = fontTex;
 

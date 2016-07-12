@@ -86,7 +86,7 @@ namespace AvionicsSystems
         internal void ReleaseResources(MASFlightComputer comp)
         {
             int numComponents = component.Count;
-            for(int i=0; i<numComponents; ++i)
+            for (int i = 0; i < numComponents; ++i)
             {
                 component[i].ReleaseResources(comp);
             }

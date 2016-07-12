@@ -577,7 +577,7 @@ namespace AvionicsSystems
             Vector4[] tangents = new Vector4[maxVerts];
             Vector2[] uv = new Vector2[maxVerts];
 
-            int triLength =maxVerts + maxVerts / 2;
+            int triLength = maxVerts + maxVerts / 2;
             int[] triangles = new int[triLength];
             for (int idx = 0; idx < triLength; ++idx)
             {

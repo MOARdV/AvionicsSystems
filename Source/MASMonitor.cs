@@ -216,7 +216,7 @@ namespace AvionicsSystems
             sb.Append("+");
             sb.Append(transform.name);
             Utility.LogMessage(transform, "{0} @ ({1:0.0}, {2:0.0}, {3:0.000}) face ({4:0.0}, {5:0.0}, {6:0.0})", sb.ToString(), transform.position.x, transform.position.y, transform.position.z, transform.eulerAngles.x, transform.eulerAngles.y, transform.eulerAngles.z);
-            for(int i=0; i<transform.childCount; ++i)
+            for (int i = 0; i < transform.childCount; ++i)
             {
                 HackWalkTransforms(transform.GetChild(i), p + 1);
             }
