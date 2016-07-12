@@ -24,6 +24,7 @@
  ****************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using UnityEngine;
 
@@ -57,6 +58,7 @@ namespace AvionicsSystems
                 }
 
                 // Load text
+                text = string.Join(Environment.NewLine, File.ReadAllLines(KSPUtil.ApplicationRootPath + "GameData/" + textfile.Trim(), Encoding.UTF8));
             }
 
             string localFonts = string.Empty;
