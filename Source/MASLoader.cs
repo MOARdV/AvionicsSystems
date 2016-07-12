@@ -88,11 +88,11 @@ namespace AvionicsSystems
         /// <returns></returns>
         internal static Font GetFont(string fontName)
         {
-            if(fonts.ContainsKey(fontName))
+            if (fonts.ContainsKey(fontName))
             {
                 return fonts[fontName];
             }
-            else if(systemFonts == null)
+            else if (systemFonts == null)
             {
                 systemFonts = Font.GetOSInstalledFontNames();
             }
@@ -218,8 +218,114 @@ namespace AvionicsSystems
                 }
                 yield return new WaitForEndOfFrame();
             }
-
             yield return null;
+        }
+
+        /// <summary>
+        /// Tries to load a font based on a config-reference bitmap.
+        /// </summary>
+        /// <param name="node"></param>
+        private void LoadBitmapFont(ConfigNode node)
+        {
+            // TODO: Meaningful error messages
+
+            // All nodes are required
+            string name = string.Empty;
+            if (!node.TryGetValue("name", ref name))
+            {
+                Utility.LogErrorMessage(this, "No name in bitmap font");
+                return;
+            }
+
+            string texName = string.Empty;
+            if (!node.TryGetValue("texture", ref texName))
+            {
+                Utility.LogErrorMessage(this, "No texture in bitmap font");
+                return;
+            }
+
+            string fontDefinitionName = string.Empty;
+            if (!node.TryGetValue("fontDefinition", ref fontDefinitionName))
+            {
+                Utility.LogErrorMessage(this, "No fontDefinition in bitmap font");
+                return;
+            }
+
+            Vector2 fontSize = Vector2.zero;
+            if (!node.TryGetValue("fontSize", ref fontSize))
+            {
+                Utility.LogErrorMessage(this, "No fontSize in bitmap font");
+                return;
+            }
+            if (fontSize.x <= 0 || fontSize.y <= 0)
+            {
+                Utility.LogErrorMessage(this, "invalid font sizein bitmap font");
+                return;
+            }
+
+            Texture2D fontTex = GameDatabase.Instance.GetTexture(texName, false);
+            if (fontTex == null)
+            {
+                // Font doesn't exist
+                Utility.LogErrorMessage(this, "Can't load texture {0}", texName);
+                return;
+            }
+
+            string fontDefinition = File.ReadAllLines(KSPUtil.ApplicationRootPath + "GameData/" + fontDefinitionName, Encoding.UTF8)[0];
+            if (string.IsNullOrEmpty(fontDefinition))
+            {
+                Utility.LogErrorMessage(this, "Can't open font definition file {0}", fontDefinitionName);
+                return;
+            }
+
+            // We now know everything we need to create a Font
+            Font newFont = new Font(name);
+            //newFont.dynamic = true;
+            //newFont.fontSize = (int)fontSize.y;
+            //newFont.lineHeight = (int)fontSize.y;
+            newFont.material = new Material(shaders["MOARdV/TextMesh"]);
+            newFont.material.mainTexture = fontTex;
+
+            int charWidth = (int)fontSize.x;
+            int charHeight = (int)fontSize.y;
+            int numCharacters = fontDefinition.Length;
+            CharacterInfo[] charInfo = new CharacterInfo[numCharacters];
+            int charsPerRow = fontTex.width / charWidth;
+            int rowsInImage = fontTex.height / charHeight;
+            Vector2 uv = new Vector2(fontSize.x / (float)fontTex.width, fontSize.y / (float)fontTex.height);
+            int charIndex = 0;
+            for (int row = 0; row < rowsInImage; ++row)
+            {
+                for (int column = 0; column < charsPerRow; ++column)
+                {
+                    charInfo[charIndex].advance = charWidth;
+                    charInfo[charIndex].bearing = 0;
+                    charInfo[charIndex].glyphHeight = charHeight;
+                    charInfo[charIndex].glyphWidth = charWidth;
+                    charInfo[charIndex].index = fontDefinition[charIndex];
+                    charInfo[charIndex].maxX = charWidth;
+                    charInfo[charIndex].maxY = charHeight;
+                    charInfo[charIndex].minX = 0;
+                    charInfo[charIndex].minY = 0;
+                    charInfo[charIndex].size = 0;
+                    charInfo[charIndex].style = FontStyle.Normal;
+                    charInfo[charIndex].uvBottomLeft = new Vector2(column * uv.x, (rowsInImage - row - 1) * uv.y);
+                    charInfo[charIndex].uvBottomRight = new Vector2((column + 1) * uv.x, (rowsInImage - row - 1) * uv.y);
+                    charInfo[charIndex].uvTopLeft = new Vector2(column * uv.x, (rowsInImage - row) * uv.y);
+                    charInfo[charIndex].uvTopRight = new Vector2((column + 1) * uv.x, (rowsInImage - row) * uv.y);
+                    ++charIndex;
+                    if (charIndex >= numCharacters)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            newFont.characterInfo = charInfo;
+
+            Utility.LogMessage(this, "Adding bitmap font {0} with {1} characters", name, numCharacters);
+
+            fonts[name] = newFont;
         }
 
         /// <summary>
@@ -263,7 +369,8 @@ namespace AvionicsSystems
             // the only one in the array, but I expect that to change as other
             // mods use asset bundles (maybe none of the mods I have load this
             // early).
-            for (int i = 0; i < loadedBundles.Count; ++i)
+            int bundleCount = loadedBundles.Count;
+            for (int i = 0; i < bundleCount; ++i)
             {
                 Shader[] foundShaders = null;
                 Font[] foundFonts = null;
@@ -304,9 +411,18 @@ namespace AvionicsSystems
                         }
                         shaders[foundShaders[j].name] = foundShaders[j];
                     }
+
                     for (int j = 0; j < foundFonts.Length; ++j)
                     {
                         fonts[foundFonts[j].name] = foundFonts[j];
+                    }
+
+                    // User fonts.  We put them here to make sure that internal
+                    // shaders exist already.
+                    ConfigNode[] masBitmapFont = GameDatabase.Instance.GetConfigNodes("MAS_BITMAP_FONT");
+                    for (int masFontIdx = 0; masFontIdx < masBitmapFont.Length; ++masFontIdx)
+                    {
+                        LoadBitmapFont(masBitmapFont[masFontIdx]);
                     }
                     return;
                 }
