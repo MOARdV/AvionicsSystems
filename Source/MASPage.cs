@@ -43,7 +43,7 @@ namespace AvionicsSystems
             }
             else
             {
-                throw new ArgumentException("Unrecognized AS_PAGE component " + config.name); ;
+                throw new ArgumentException("Unrecognized MAS_PAGE component " + config.name); ;
             }
         }
 

@@ -74,13 +74,13 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Look up the ConfigNode for the named AS_PAGE.
+        /// Look up the ConfigNode for the named MAS_PAGE.
         /// </summary>
         /// <param name="pageName">Name of the requested page configuration.</param>
         /// <returns>The ConfigNode, or null if it wasn't found.</returns>
         internal static ConfigNode GetPageConfigNode(string pageName)
         {
-            ConfigNode[] asPageNodes = GameDatabase.Instance.GetConfigNodes("AS_PAGE");
+            ConfigNode[] asPageNodes = GameDatabase.Instance.GetConfigNodes("MAS_PAGE");
 
             for (int nodeIdx = asPageNodes.Length - 1; nodeIdx >= 0; --nodeIdx)
             {

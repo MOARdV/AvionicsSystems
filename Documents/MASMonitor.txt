@@ -37,14 +37,14 @@ Pages may be omitted, in which case the monitor won't do anything.  The first li
 default page that is visible when first entering IVA.
 
 
-AS_PAGE
+MAS_PAGE
 {
   name = Standby_Page
   
   ...
 }
 
-Monitor pages are defined in config files using the AS_PAGE node type.  Each page must have a
+Monitor pages are defined in config files using the MAS_PAGE node type.  Each page must have a
 name.  A page may have one or more nodes inside it describing the page layout (text, graphical
 objects, etc).  These nodes are layered during rendering, with the first node listed being
 the farthest from the camera.  If a page has no nodes, it will result in a completely blank
