@@ -99,6 +99,7 @@ namespace AvionicsSystems
         private bool invalidated;
         private bool colorInvalidated;
         private InternalProp internalProp;
+        private bool configured = false;
 
         private static readonly string[] VariableListSeparator = { "$&$" };
         //private static readonly string[] MangledLineSeparator = { "$$$" };
@@ -175,6 +176,7 @@ namespace AvionicsSystems
         /// <param name="comp"></param>
         public void SetText(string text, bool immutable, bool preserveWhitespace, MASFlightComputer comp, InternalProp internalProp)
         {
+            configured = false;
             // Do some up-front processing:
             this.internalProp = internalProp;
 
@@ -244,10 +246,17 @@ namespace AvionicsSystems
                         string[] rowText = textRows[i].Split(VariableListSeparator, StringSplitOptions.RemoveEmptyEntries);
 
                         TextRow tr = new TextRow();
-                        tr.formatString = (preserveWhitespace) ? rowText[0] : rowText[0].Trim();
+                        if (rowText.Length == 0)
+                        {
+                            tr.formatString = string.Empty;
+                        }
+                        else
+                        {
+                            tr.formatString = (preserveWhitespace) ? rowText[0] : rowText[0].Trim();
+                        }
                         if (rowText.Length > 1)
                         {
-                            string[] variables = rowText[1].Split(',');
+                            string[] variables = rowText[1].Split(';');
                             tr.variable = new MASFlightComputer.Variable[variables.Length];
                             tr.evals = new object[variables.Length];
                             tr.callback = () => { invalidated = true; tr.rowInvalidated = true; };
@@ -255,7 +264,6 @@ namespace AvionicsSystems
                             {
                                 tr.variable[var] = comp.RegisterOnVariableChange(variables[var], internalProp, tr.callback);
                             }
-                            // TODO: Wire up the callback system
                             tr.rowInvalidated = true;
                             tr.EvaluateVariables();
                         }
@@ -281,6 +289,7 @@ namespace AvionicsSystems
                     GenerateText();
                 }
                 invalidated = false;
+                configured = true;
             }
         }
 
@@ -300,7 +309,7 @@ namespace AvionicsSystems
             }
             else
             {
-                string[] variables = staticText[1].Split(',');
+                string[] variables = staticText[1].Split(';');
                 TextRow tr = new TextRow();
                 tr.formatString = staticText[0];
                 tr.variable = new MASFlightComputer.Variable[variables.Length];
@@ -366,9 +375,11 @@ namespace AvionicsSystems
         /// </summary>
         public void Update()
         {
-            //+++ HACK
-            //invalidated = true;
-            //--- HACK
+            if (configured == false)
+            {
+                return;
+            }
+
             try
             {
                 if (invalidated)
