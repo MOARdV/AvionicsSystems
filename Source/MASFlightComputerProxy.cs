@@ -137,7 +137,7 @@ namespace AvionicsSystems
         /// applicable), in meters.
         /// </summary>
         /// <returns></returns>
-        public double GetAltitude()
+        public double Altitude()
         {
             return vc.altitudeASL;
         }
@@ -147,7 +147,7 @@ namespace AvionicsSystems
         /// atmosphere.  Returns 0 otherwise.  Altitude in meters.
         /// </summary>
         /// <returns></returns>
-        public double GetAltitudeAtmospheric()
+        public double AltitudeAtmospheric()
         {
             if (vc.mainBody.atmosphere)
             {
@@ -167,7 +167,7 @@ namespace AvionicsSystems
         /// meters.
         /// </summary>
         /// <returns></returns>
-        public double GetAltitudeBottom()
+        public double AltitudeBottom()
         {
             return vc.altitudeBottom;
         }
@@ -179,7 +179,7 @@ namespace AvionicsSystems
         /// <param name="ignoreOcean">When false, returns height above sea level
         /// if over the ocean; when true, always returns ground height.</param>
         /// <returns></returns>
-        public double GetAltitudeTerrain(bool ignoreOcean)
+        public double AltitudeTerrain(bool ignoreOcean)
         {
             return (ignoreOcean) ? vc.altitudeTerrain : Math.Min(vc.altitudeASL, vc.altitudeTerrain);
         }
@@ -322,6 +322,37 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Lights
+        public double GetLights()
+        {
+            return (vessel.ActionGroups[KSPActionGroup.Light]) ? 1.0 : 0.0;
+        }
+
+        public void SetLights(bool active)
+        {
+            vessel.ActionGroups.SetGroup(KSPActionGroup.Light, active);
+        }
+
+        public void ToggleLights()
+        {
+            vessel.ActionGroups.ToggleGroup(KSPActionGroup.Light);
+        }
+        #endregion
+
+        #region Orientation
+        public double Heading()
+        {
+            return 0.0;
+        }
+        public double Pitch()
+        {
+            return 0.0;
+        }
+        public double Roll()
+        {
+            return 0.0;
+        }
+        #endregion
         #region Persistent Vars
         public object AddPersistent(string persistentName, double amount)
         {
@@ -412,6 +443,33 @@ namespace AvionicsSystems
         public void ToggleSAS()
         {
             vessel.ActionGroups.ToggleGroup(KSPActionGroup.SAS);
+        }
+        #endregion
+
+        #region Speed, Velocity, and Acceleration
+        public double Acceleration()
+        {
+            return 0.0;
+        }
+        public double HorizontalVelocity()
+        {
+            return 0.0;
+        }
+        public double OrbitSpeed()
+        {
+            return 0.0;
+        }
+        public double SpeedDisplayMode()
+        {
+            return 0.0;
+        }
+        public double SurfaceSpeed()
+        {
+            return 0.0;
+        }
+        public double VerticalSpeed()
+        {
+            return 0.0;
         }
         #endregion
     }
