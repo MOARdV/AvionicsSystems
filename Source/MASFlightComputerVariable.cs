@@ -125,7 +125,7 @@ namespace AvionicsSystems
                         this.isString = true;
                     }
 
-                    if(double.IsNaN(this.doubleValue) || double.IsInfinity(this.doubleValue))
+                    if (double.IsNaN(this.doubleValue) || double.IsInfinity(this.doubleValue))
                     {
                         this.safeValue = 0.0;
                         this.isString = true;
@@ -188,6 +188,7 @@ namespace AvionicsSystems
             internal void Evaluate(Script script)
             {
                 double oldValue = safeValue;
+                string oldString = stringValue;
                 try
                 {
                     value = script.Call(evaluator);
@@ -208,6 +209,14 @@ namespace AvionicsSystems
                         numericCallbacks.Invoke(safeValue);
                     }
                     catch { }
+                    try
+                    {
+                        changeCallbacks.Invoke();
+                    }
+                    catch { }
+                }
+                else if (oldString != stringValue)
+                {
                     try
                     {
                         changeCallbacks.Invoke();
