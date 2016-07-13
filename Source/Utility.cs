@@ -95,6 +95,26 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Find the ConfigNode corresponding to a particular module in a part.
+        /// </summary>
+        /// <param name="part">The part to search</param>
+        /// <param name="moduleName">Name of the module</param>
+        /// <returns></returns>
+        internal static ConfigNode GetPartModuleConfigNode(Part part, string moduleName)
+        {
+            ConfigNode[] moduleConfigs = part.partInfo.partConfig.GetNodes("MODULE");
+            for (int i = 0; i < moduleConfigs.Length; ++i)
+            {
+                if (moduleConfigs[i].GetValue("name") == moduleName)
+                {
+                    return moduleConfigs[i];
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Find the ConfigNode corresponding to a particular module.
         /// </summary>
         /// <param name="propName">Name of the prop</param>
