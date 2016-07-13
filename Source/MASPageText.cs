@@ -107,8 +107,8 @@ namespace AvionicsSystems
                 {
                     throw new ArgumentException("Incorrect number of values in 'range' in TEXT " + name);
                 }
-                range1 = comp.GetVariable(ranges[0]);
-                range2 = comp.GetVariable(ranges[1]);
+                range1 = comp.GetVariable(ranges[0], prop);
+                range2 = comp.GetVariable(ranges[1], prop);
 
                 rangeMode = true;
             }
@@ -146,13 +146,13 @@ namespace AvionicsSystems
             textObj.material.SetFloat(Shader.PropertyToID("_EmissiveFactor"), 1.0f);
 
             // text, immutable, preserveWhitespace, comp
-            textObj.SetText(text, false, true, comp);
+            textObj.SetText(text, false, true, comp, prop);
 
             if (!string.IsNullOrEmpty(variableName))
             {
                 // Disable the mesh if we're in variable mode
                 meshObject.SetActive(false);
-                comp.RegisterNumericVariable(variableName, VariableCallback);
+                comp.RegisterNumericVariable(variableName, prop, VariableCallback);
             }
         }
 
@@ -188,13 +188,13 @@ namespace AvionicsSystems
         /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp)
+        public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
             UnityEngine.GameObject.Destroy(meshObject);
             meshObject = null;
             if (!string.IsNullOrEmpty(variableName))
             {
-                comp.UnregisterNumericVariable(variableName, VariableCallback);
+                comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
             }
         }
     }

@@ -98,6 +98,7 @@ namespace AvionicsSystems
         private bool richText;
         private bool invalidated;
         private bool colorInvalidated;
+        private InternalProp internalProp;
 
         private static readonly string[] VariableListSeparator = { "$&$" };
         //private static readonly string[] MangledLineSeparator = { "$$$" };
@@ -172,9 +173,10 @@ namespace AvionicsSystems
         /// <param name="immutable"></param>
         /// <param name="preserveWhitespace"></param>
         /// <param name="comp"></param>
-        public void SetText(string text, bool immutable, bool preserveWhitespace, MASFlightComputer comp)
+        public void SetText(string text, bool immutable, bool preserveWhitespace, MASFlightComputer comp, InternalProp internalProp)
         {
             // Do some up-front processing:
+            this.internalProp = internalProp;
 
             // If there's no text, disable this object.
             if (string.IsNullOrEmpty(text))
@@ -219,7 +221,7 @@ namespace AvionicsSystems
 
                         if (textRows[i].Contains(VariableListSeparator[0]))
                         {
-                            tr.formatString = tr.formattedData = EvaluateImmutableVariables(textRows[i], comp);
+                            tr.formatString = tr.formattedData = EvaluateImmutableVariables(textRows[i], comp, internalProp);
                         }
                         else
                         {
@@ -251,7 +253,7 @@ namespace AvionicsSystems
                             tr.callback = () => { invalidated = true; tr.rowInvalidated = true; };
                             for (int var = 0; var < tr.variable.Length; ++var)
                             {
-                                tr.variable[var] = comp.RegisterOnVariableChange(variables[var], tr.callback);
+                                tr.variable[var] = comp.RegisterOnVariableChange(variables[var], internalProp, tr.callback);
                             }
                             // TODO: Wire up the callback system
                             tr.rowInvalidated = true;
@@ -289,7 +291,7 @@ namespace AvionicsSystems
         /// <param name="text">Text to evaluate</param>
         /// <param name="comp">The owning flight computer</param>
         /// <returns></returns>
-        private string EvaluateImmutableVariables(string text, MASFlightComputer comp)
+        private string EvaluateImmutableVariables(string text, MASFlightComputer comp, InternalProp internalProp)
         {
             string[] staticText = text.Split(VariableListSeparator, StringSplitOptions.RemoveEmptyEntries);
             if (staticText.Length == 1)
@@ -305,7 +307,7 @@ namespace AvionicsSystems
                 tr.evals = new object[variables.Length];
                 for (int var = 0; var < tr.variable.Length; ++var)
                 {
-                    tr.variable[var] = comp.GetVariable(variables[var]);
+                    tr.variable[var] = comp.GetVariable(variables[var], internalProp);
                 }
                 tr.rowInvalidated = true;
                 tr.EvaluateVariables();
@@ -340,13 +342,14 @@ namespace AvionicsSystems
                 {
                     for (int var = 0; var < textRow[i].variable.Length; ++var)
                     {
-                        comp.UnregisterOnVariableChange(textRow[i].variable[var].name, textRow[i].callback);
+                        comp.UnregisterOnVariableChange(textRow[i].variable[var].name, internalProp, textRow[i].callback);
                         textRow[i].variable[var] = null;
                     }
                     textRow[i].variable = null;
                     textRow[i].callback = null;
                 }
             }
+            internalProp = null;
             comp = null;
 
             Destroy(meshFilter);

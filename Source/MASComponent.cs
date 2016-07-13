@@ -147,7 +147,7 @@ namespace AvionicsSystems
 
                 for (int i = 0; i < actions.Count; ++i)
                 {
-                    actions[i].ReleaseResources(comp);
+                    actions[i].ReleaseResources(comp, internalProp);
                 }
             }
             catch { }

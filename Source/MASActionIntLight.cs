@@ -89,8 +89,8 @@ namespace AvionicsSystems
                 {
                     throw new ArgumentException("Incorrect number of values in 'range' in INT_LIGHT " + name);
                 }
-                range1 = comp.GetVariable(ranges[0]);
-                range2 = comp.GetVariable(ranges[1]);
+                range1 = comp.GetVariable(ranges[0], prop);
+                range2 = comp.GetVariable(ranges[1], prop);
                 rangeMode = true;
             }
             else
@@ -104,7 +104,7 @@ namespace AvionicsSystems
                 controlledLights[i].enabled = currentState;
             }
 
-            comp.RegisterNumericVariable(variableName, VariableCallback);
+            comp.RegisterNumericVariable(variableName, prop, VariableCallback);
         }
 
         /// <summary>
@@ -142,9 +142,9 @@ namespace AvionicsSystems
         /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp)
+        public void ReleaseResources(MASFlightComputer comp, InternalProp prop)
         {
-            comp.UnregisterNumericVariable(variableName, VariableCallback);
+            comp.UnregisterNumericVariable(variableName, prop, VariableCallback);
         }
     }
 }

@@ -98,8 +98,8 @@ namespace AvionicsSystems
                 {
                     throw new ArgumentException("Incorrect number of values in 'range' in TEXTURE_SHIFT " + name);
                 }
-                range1 = comp.GetVariable(ranges[0]);
-                range2 = comp.GetVariable(ranges[1]);
+                range1 = comp.GetVariable(ranges[0], prop);
+                range2 = comp.GetVariable(ranges[1], prop);
                 rangeMode = true;
 
                 blend = false;
@@ -111,7 +111,7 @@ namespace AvionicsSystems
                 rangeMode = false;
             }
 
-            comp.RegisterNumericVariable(variableName, VariableCallback);
+            comp.RegisterNumericVariable(variableName, prop, VariableCallback);
         }
 
         /// <summary>
@@ -169,11 +169,11 @@ namespace AvionicsSystems
         /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp)
+        public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
             if (!string.IsNullOrEmpty(variableName))
             {
-                comp.UnregisterNumericVariable(variableName, VariableCallback);
+                comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
             }
             transform = null;
         }

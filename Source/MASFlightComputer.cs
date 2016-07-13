@@ -106,20 +106,39 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Convert a name to a 
+        /// </summary>
+        /// <param name="initialName"></param>
+        /// <param name="prop">Prop that is associated with the variable request; 
+        /// null indicates "Do not condition this variable"</param>
+        /// <returns></returns>
+        private string ConditionVariableName(string initialName, InternalProp prop)
+        {
+            if (prop == null)
+            {
+                return initialName;
+            }
+            else
+            {
+                return initialName.Trim();
+            }
+        }
+
+        /// <summary>
         /// Register an object to receive on-changed callback notification for
         /// a variable
         /// </summary>
         /// <param name="variableName"></param>
         /// <param name="callback"></param>
-        internal void RegisterNumericVariable(string variableName, Action<double> callback)
+        internal void RegisterNumericVariable(string variableName, InternalProp prop, Action<double> callback)
         {
-            variableName = variableName.Trim();
+            variableName = ConditionVariableName(variableName, prop);
             if (variableName.Length < 1)
             {
                 throw new ArgumentException("RegisterNumericVariable called with empty variableName");
             }
 
-            Variable v = GetVariable(variableName);
+            Variable v = GetVariable(variableName, prop);
 
             if (v.mutable)
             {
@@ -134,25 +153,31 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="variableName"></param>
         /// <param name="callback"></param>
-        internal void UnregisterNumericVariable(string variableName, Action<double> callback)
+        internal void UnregisterNumericVariable(string variableName, InternalProp prop, Action<double> callback)
         {
-            variableName = variableName.Trim();
+            variableName = ConditionVariableName(variableName, prop);
             if (variables.ContainsKey(variableName))
             {
                 variables[variableName].numericCallbacks -= callback;
             }
         }
 
-        internal Variable RegisterOnVariableChange(string variableName, Action callback)
+        /// <summary>
+        /// Register a callback to notify the recipient that the variable has changed.
+        /// </summary>
+        /// <param name="variableName"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        internal Variable RegisterOnVariableChange(string variableName, InternalProp prop, Action callback)
         {
-            variableName = variableName.Trim();
+            variableName = ConditionVariableName(variableName, prop);
             if (variableName.Length < 1)
             {
                 throw new ArgumentException("RegisterOnVariableChange called with empty variableName");
             }
 
             Utility.LogMessage(this, "RegisterOnVariableChange {0}", variableName);
-            Variable v = GetVariable(variableName);
+            Variable v = GetVariable(variableName, null);
 
             if (v.mutable)
             {
@@ -162,9 +187,14 @@ namespace AvionicsSystems
             return v;
         }
 
-        internal void UnregisterOnVariableChange(string variableName, Action callback)
+        /// <summary>
+        /// Unregister an on-change callback.
+        /// </summary>
+        /// <param name="variableName"></param>
+        /// <param name="callback"></param>
+        internal void UnregisterOnVariableChange(string variableName, InternalProp prop, Action callback)
         {
-            variableName = variableName.Trim();
+            variableName = ConditionVariableName(variableName, prop);
             if (variables.ContainsKey(variableName))
             {
                 variables[variableName].changeCallbacks -= callback;
@@ -176,9 +206,9 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="variableName"></param>
         /// <returns></returns>
-        internal Variable GetVariable(string variableName)
+        internal Variable GetVariable(string variableName, InternalProp prop)
         {
-            variableName = variableName.Trim();
+            variableName = ConditionVariableName(variableName, prop);
             if (variableName.Length < 1)
             {
                 throw new ArgumentException("Trying to GetVariable with empty variableName");
@@ -236,9 +266,9 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="actionName"></param>
         /// <returns></returns>
-        internal Action GetAction(string actionName)
+        internal Action GetAction(string actionName, InternalProp prop)
         {
-            actionName = actionName.Trim();
+            actionName = ConditionVariableName(actionName, prop);
 
             if (actions.ContainsKey(actionName))
             {
@@ -364,6 +394,8 @@ namespace AvionicsSystems
                 // Initialize persistent vars ... note that save game values have
                 // already been restored, so check if the persistent already exists,
                 // first.
+                
+
                 GameEvents.onVesselWasModified.Add(onVesselChanged);
                 GameEvents.onVesselChange.Add(onVesselChanged);
                 GameEvents.onVesselCrewWasModified.Add(onVesselChanged);

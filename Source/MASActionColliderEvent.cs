@@ -136,11 +136,11 @@ namespace AvionicsSystems
 
             if (!string.IsNullOrEmpty(clickEvent))
             {
-                buttonObject.onClick = comp.GetAction(clickEvent);
+                buttonObject.onClick = comp.GetAction(clickEvent, prop);
             }
             if (!string.IsNullOrEmpty(releaseEvent))
             {
-                buttonObject.onRelease = comp.GetAction(releaseEvent);
+                buttonObject.onRelease = comp.GetAction(releaseEvent, prop);
             }
         }
 
@@ -156,7 +156,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp)
+        public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
             if (buttonObject != null)
             {

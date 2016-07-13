@@ -55,6 +55,10 @@ namespace AvionicsSystems
         public string backgroundColor;
         private Color32 backgroundColor_;
 
+        [KSPField]
+        public string monitorID;
+        private MASFlightComputer.Variable pageSelector;
+
         private RenderTexture screen;
         private GameObject screenSpace;
         private Camera screenCamera;
@@ -195,6 +199,8 @@ namespace AvionicsSystems
                         Utility.LogMessage(this, "Page = {0}", pages[i]);
                     }
                     //HackWalkTransforms(screenSpace.transform, 0);
+                    string variableName = "fc.GetPersistent(\"" + monitorID.Trim() +"\")";
+                    pageSelector = comp.RegisterOnVariableChange(variableName, internalProp, PageChanged);
                     initialized = true;
                     Utility.LogMessage(this, "Configuration complete in prop #{0} ({1}) with {2} pages", internalProp.propID, internalProp.propName, numPages);
                 }
@@ -237,9 +243,11 @@ namespace AvionicsSystems
             {
                 MASFlightComputer comp = MASFlightComputer.Instance(internalProp.part);
 
+                comp.UnregisterOnVariableChange(pageSelector.name, internalProp, PageChanged);
+
                 foreach (var value in page.Values)
                 {
-                    value.ReleaseResources(comp);
+                    value.ReleaseResources(comp, internalProp);
                 }
                 page.Clear();
 
@@ -256,5 +264,24 @@ namespace AvionicsSystems
         //        screenCamera.Render();
         //    }
         //}
+
+        /// <summary>
+        /// Callback fired when our variable changes.
+        /// </summary>
+        private void PageChanged()
+        {
+            try
+            {
+                MASPage newPage = page[pageSelector.String()];
+
+                currentPage.EnablePage(false);
+                currentPage = newPage;
+                currentPage.EnablePage(true);
+            }
+            catch
+            {
+                Utility.LogErrorMessage(this, "Unable to switch to page '" + pageSelector.String() + "'");
+            }
+        }
     }
 }

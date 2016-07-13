@@ -67,8 +67,8 @@ namespace AvionicsSystems
                 {
                     throw new ArgumentException("Incorrect number of values in 'range' in TRIGGER_EVENT " + name);
                 }
-                range1 = comp.GetVariable(ranges[0]);
-                range2 = comp.GetVariable(ranges[1]);
+                range1 = comp.GetVariable(ranges[0], prop);
+                range2 = comp.GetVariable(ranges[1], prop);
                 rangeMode = true;
             }
             else
@@ -88,10 +88,10 @@ namespace AvionicsSystems
                 throw new ArgumentException("Invalid or missing 'event' in TRIGGER_EVENT " + name);
             }
 
-            triggerEvent = comp.GetAction(triggerEventName);
+            triggerEvent = comp.GetAction(triggerEventName, prop);
 
             this.comp = comp;
-            comp.RegisterNumericVariable(variableName, VariableCallback);
+            comp.RegisterNumericVariable(variableName, prop, VariableCallback);
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp)
+        public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
             this.comp = null;
             range1 = null;

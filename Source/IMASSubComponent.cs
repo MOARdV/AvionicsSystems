@@ -36,6 +36,6 @@ namespace AvionicsSystems
         /// <summary>
         /// Release any resources obtained during the lifetime of this object.
         /// </summary>
-        void ReleaseResources(MASFlightComputer comp);
+        void ReleaseResources(MASFlightComputer comp, InternalProp prop);
     }
 }

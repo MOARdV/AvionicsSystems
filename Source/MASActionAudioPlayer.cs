@@ -132,8 +132,8 @@ namespace AvionicsSystems
                 {
                     throw new ArgumentException("Incorrect number of values in 'range' in AUDIO_PLAYER " + name);
                 }
-                range1 = comp.GetVariable(ranges[0]);
-                range2 = comp.GetVariable(ranges[1]);
+                range1 = comp.GetVariable(ranges[0], prop);
+                range2 = comp.GetVariable(ranges[1], prop);
                 rangeMode = true;
             }
             else
@@ -145,7 +145,7 @@ namespace AvionicsSystems
 
             GameEvents.OnCameraChange.Add(OnCameraChange);
 
-            comp.RegisterNumericVariable(variableName, VariableCallback);
+            comp.RegisterNumericVariable(variableName, prop, VariableCallback);
         }
 
         /// <summary>
@@ -208,10 +208,10 @@ namespace AvionicsSystems
         /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp)
+        public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
             GameEvents.OnCameraChange.Remove(OnCameraChange);
-            comp.UnregisterNumericVariable(variableName, VariableCallback);
+            comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
             audioSource.Stop();
             audioSource.clip = null;
             audioSource = null;

@@ -83,12 +83,12 @@ namespace AvionicsSystems
         /// Notify children to release resources prior to being freed.
         /// </summary>
         /// <param name="comp"></param>
-        internal void ReleaseResources(MASFlightComputer comp)
+        internal void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
             int numComponents = component.Count;
             for (int i = 0; i < numComponents; ++i)
             {
-                component[i].ReleaseResources(comp);
+                component[i].ReleaseResources(comp, internalProp);
             }
             component.Clear();
         }
