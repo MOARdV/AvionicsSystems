@@ -61,11 +61,6 @@ namespace AvionicsSystems
         static private string[] systemFonts;
 
         /// <summary>
-        /// String format provider for custom string formats.
-        /// </summary>
-        static public MASStringFormatter formatter = new MASStringFormatter();
-
-        /// <summary>
         /// Dictionary of all shaders found in the asset bundle.
         /// </summary>
         static public Dictionary<string, Shader> shaders = new Dictionary<string, Shader>();

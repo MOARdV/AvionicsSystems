@@ -41,6 +41,8 @@ namespace AvionicsSystems
     /// </summary>
     public class MdVTextMesh : MonoBehaviour
     {
+        static private MASStringFormatter formatter = new MASStringFormatter();
+
         private TextAlignment alignment_ = TextAlignment.Left;
         public TextAlignment alignment
         {
@@ -1306,7 +1308,7 @@ namespace AvionicsSystems
                             evals[i] = (variable[i].IsString()) ? (object)variable[i].String() : (object)variable[i].Value();
                         }
 
-                        formattedData = string.Format(formatString, evals);
+                        formattedData = string.Format(formatter, formatString, evals);
                     }
                     rowInvalidated = false;
                 }
