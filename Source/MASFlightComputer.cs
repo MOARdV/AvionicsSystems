@@ -114,13 +114,23 @@ namespace AvionicsSystems
         /// <returns></returns>
         private string ConditionVariableName(string initialName, InternalProp prop)
         {
+            initialName = initialName.Trim();
             if (prop == null)
             {
                 return initialName;
             }
             else
             {
-                return initialName.Trim();
+                if (initialName.Contains("%AUTOID%"))
+                {
+                    string replacementString = string.Format("PROP-{0}-{1}", prop.propName, prop.propID);
+                    initialName = initialName.Replace("%AUTOID%", replacementString);
+                }
+                if (initialName.Contains("%PROPID%"))
+                {
+                    initialName = initialName.Replace("%PROPID%", prop.propID.ToString());
+                }
+                return initialName;
             }
         }
 
