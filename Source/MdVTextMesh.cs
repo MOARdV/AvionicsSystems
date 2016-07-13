@@ -649,7 +649,7 @@ namespace AvionicsSystems
                                         break;
                                     case 'Y':
                                     case 'y':
-                                        yOffset = coord;
+                                        yOffset = -coord;
                                         break;
                                 }
 
@@ -974,7 +974,7 @@ namespace AvionicsSystems
                                         break;
                                     case 'Y':
                                     case 'y':
-                                        yOffset = coord;
+                                        yOffset = -coord;
                                         break;
                                 }
 
