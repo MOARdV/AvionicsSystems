@@ -26,6 +26,7 @@ using MoonSharp.Interpreter;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 
 namespace AvionicsSystems
 {
@@ -90,6 +91,14 @@ namespace AvionicsSystems
             vc = null;
             vessel = null;
         }
+
+        #region Unassigned Region
+        public double GetGForce()
+        {
+            // TODO: Implement this.
+            return 1.0;
+        }
+        #endregion
 
         #region Action Groups
         private static readonly KSPActionGroup[] ags = { KSPActionGroup.Custom10, KSPActionGroup.Custom01, KSPActionGroup.Custom02, KSPActionGroup.Custom03, KSPActionGroup.Custom04, KSPActionGroup.Custom05, KSPActionGroup.Custom06, KSPActionGroup.Custom07, KSPActionGroup.Custom08, KSPActionGroup.Custom09 };
@@ -335,6 +344,35 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Random
+        /// <summary>
+        /// Return a random number in the range of [0, 1]
+        /// </summary>
+        /// <returns></returns>
+        public double GetRandom()
+        {
+            return UnityEngine.Random.value;
+        }
+
+        /// <summary>
+        /// Return an approximation of a normal distribution with a mean and
+        /// standard deviation as specified.  The actual result falls in the
+        /// range of (-7, +7) for a standard deviation of 1.
+        /// </summary>
+        /// <param name="mean"></param>
+        /// <param name="stdDev"></param>
+        /// <returns></returns>
+        public double GetRandomNormal(double mean, double stdDev)
+        {
+            // Box-Muller method tweaked to prevent a 0 in u: for a stddev of 1
+            // the range is (-7, 7).
+            float u = UnityEngine.Random.Range(0.0009765625f, 1.0f);
+            float v = UnityEngine.Random.Range(0.0f, 2.0f * Mathf.PI);
+            double x = Mathf.Sqrt(-2.0f * Mathf.Log(u)) * Mathf.Cos(v) * stdDev;
+            return x + mean;
+        }
+        #endregion
+
         #region RCS
         public double GetRCS()
         {
@@ -351,6 +389,14 @@ namespace AvionicsSystems
             vessel.ActionGroups.ToggleGroup(KSPActionGroup.RCS);
         }
         #endregion RCS
+
+        #region Resources
+        public double GetPowered()
+        {
+            // TODO: Implement this...
+            return 1.0;
+        }
+        #endregion
 
         #region SAS
         public double GetSAS()
