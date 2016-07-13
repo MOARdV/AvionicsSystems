@@ -402,7 +402,7 @@ namespace AvionicsSystems
                     {
                         GenerateRichBoundedText();
                     }
-                    if (richText)
+                    else if (richText)
                     {
                         GenerateRichText();
                     }
