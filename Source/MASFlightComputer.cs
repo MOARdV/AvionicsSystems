@@ -394,7 +394,50 @@ namespace AvionicsSystems
                 // Initialize persistent vars ... note that save game values have
                 // already been restored, so check if the persistent already exists,
                 // first.
-                
+                // Also restore named color per-part overrides
+                try
+                {
+                    ConfigNode myNode = Utility.GetPartModuleConfigNode(part, typeof(MASFlightComputer).Name);
+                    ConfigNode persistentSeed = myNode.GetNode("PERSISTENT_VARIABLES");
+                    if (persistentSeed != null)
+                    {
+                        var values = persistentSeed.values;
+                        int valueCount = values.Count;
+                        for (int i = 0; i < valueCount; ++i)
+                        {
+                            var persistentVal = values[i];
+
+                            if (!persistentVars.ContainsKey(persistentVal.name))
+                            {
+                                double doubleVal;
+                                if (double.TryParse(persistentVal.value, out doubleVal))
+                                {
+                                    persistentVars[persistentVal.name] = doubleVal;
+                                }
+                                else
+                                {
+                                    persistentVars[persistentVal.name] = persistentVal.value;
+                                }
+                            }
+                        }
+                    }
+
+                    ConfigNode overrideColorNodes = myNode.GetNode("RPM_COLOROVERRIDE");
+                    ConfigNode[] colorConfig = overrideColorNodes.GetNodes("COLORDEFINITION");
+                    for (int defIdx = 0; defIdx < colorConfig.Length; ++defIdx)
+                    {
+                        if (colorConfig[defIdx].HasValue("name") && colorConfig[defIdx].HasValue("color"))
+                        {
+                            string name = "COLOR_" + (colorConfig[defIdx].GetValue("name").Trim());
+                            Color32 color = ConfigNode.ParseColor32(colorConfig[defIdx].GetValue("color").Trim());
+                            namedColors[name] = color;
+                        }
+                    }
+                }
+                catch
+                {
+
+                }
 
                 GameEvents.onVesselWasModified.Add(onVesselChanged);
                 GameEvents.onVesselChange.Add(onVesselChanged);
