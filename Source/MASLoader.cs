@@ -37,6 +37,9 @@ namespace AvionicsSystems
 {
     /// <summary>
     /// MASLoader loads data at startup.
+    /// 
+    /// It is also the generic bucket for global data, since it's loading the
+    /// fonts, colors, scripts, and everything else anyway.
     /// </summary>
     [KSPAddon(KSPAddon.Startup.MainMenu, true)]
     public class MASLoader : MonoBehaviour
@@ -46,9 +49,21 @@ namespace AvionicsSystems
         /// </summary>
         static public string asVersion;
 
+        /// <summary>
+        /// Fonts that have been loaded (AssetBundle fonts, user bitmap fonts,
+        /// or system fonts).
+        /// </summary>
         static public Dictionary<string, Font> fonts = new Dictionary<string, Font>();
 
+        /// <summary>
+        /// List of the known system fonts.
+        /// </summary>
         static private string[] systemFonts;
+
+        /// <summary>
+        /// String format provider for custom string formats.
+        /// </summary>
+        static public MASStringFormatter formatter = new MASStringFormatter();
 
         /// <summary>
         /// Dictionary of all shaders found in the asset bundle.
