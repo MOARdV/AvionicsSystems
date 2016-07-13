@@ -186,7 +186,6 @@ namespace AvionicsSystems
                 throw new ArgumentException("RegisterOnVariableChange called with empty variableName");
             }
 
-            Utility.LogMessage(this, "RegisterOnVariableChange {0}", variableName);
             Variable v = GetVariable(variableName, null);
 
             if (v.mutable)
