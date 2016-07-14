@@ -201,6 +201,12 @@ namespace AvionicsSystems
                     //HackWalkTransforms(screenSpace.transform, 0);
                     string variableName = "fc.GetPersistent(\"" + monitorID.Trim() +"\")";
                     pageSelector = comp.RegisterOnVariableChange(variableName, internalProp, PageChanged);
+                    if (!string.IsNullOrEmpty(pageSelector.String()) && page.ContainsKey(pageSelector.String()))
+                    {
+                        currentPage.EnablePage(false);
+                        currentPage = page[pageSelector.String()];
+                        currentPage.EnablePage(true);
+                    }
                     initialized = true;
                     Utility.LogMessage(this, "Configuration complete in prop #{0} ({1}) with {2} pages", internalProp.propID, internalProp.propName, numPages);
                 }
