@@ -340,19 +340,61 @@ namespace AvionicsSystems
         #endregion
 
         #region Orientation
+        /// <summary>
+        /// Return heading relative to the surface in degrees [0, 360)
+        /// </summary>
+        /// <returns></returns>
         public double Heading()
         {
-            return 0.0;
+            return vc.heading;
         }
+
+        /// <summary>
+        /// Return pitch relative to the surface [-90, 90]
+        /// </summary>
+        /// <returns></returns>
         public double Pitch()
         {
-            return 0.0;
+            return vc.pitch;
         }
+
+        /// <summary>
+        /// Returns the pitch rate of the vessel in degrees/sec
+        /// </summary>
+        /// <returns></returns>
+        public double PitchRate()
+        {
+            return -vessel.angularVelocity.z * Mathf.Rad2Deg;
+        }
+
+        /// <summary>
+        /// Return roll relative to the surface. [-180, 180]
+        /// </summary>
+        /// <returns></returns>
         public double Roll()
         {
-            return 0.0;
+            return vc.roll;
+        }
+
+        /// <summary>
+        /// Returns the roll rate of the vessel in degrees/sec
+        /// </summary>
+        /// <returns></returns>
+        public double RollRate()
+        {
+            return -vessel.angularVelocity.y * Mathf.Rad2Deg;
+        }
+
+        /// <summary>
+        /// Returns the yaw rate of the vessel in degrees/sec
+        /// </summary>
+        /// <returns></returns>
+        public double YawRate()
+        {
+            return -vessel.angularVelocity.x * Mathf.Rad2Deg;
         }
         #endregion
+
         #region Persistent Vars
         public object AddPersistent(string persistentName, double amount)
         {
@@ -451,25 +493,74 @@ namespace AvionicsSystems
         {
             return 0.0;
         }
-        public double HorizontalVelocity()
+
+        /// <summary>
+        /// Measure of the surface speed of the vessel after removing the
+        /// vertical component, in m/s.
+        /// </summary>
+        /// <returns></returns>
+        public double HorizontalSpeed()
         {
-            return 0.0;
+            double speedHorizontal;
+            if (Math.Abs(vessel.verticalSpeed) < Math.Abs(vessel.srfSpeed))
+            {
+                speedHorizontal = Math.Sqrt(vessel.srfSpeed * vessel.srfSpeed - vessel.verticalSpeed * vessel.verticalSpeed);
+            }
+            else
+            {
+                speedHorizontal = 0.0;
+            }
+
+            return speedHorizontal;
         }
+
+        /// <summary>
+        /// Return the orbital speed of the vessel in m/s
+        /// </summary>
+        /// <returns></returns>
         public double OrbitSpeed()
         {
-            return 0.0;
+            return vessel.obt_speed;
         }
+
+        /// <summary>
+        /// Returns +1 if the KSP automatic speed display is set to "Orbit",
+        /// +0 if it's "Surface", and -1 if it's "Target".
+        /// </summary>
+        /// <returns></returns>
         public double SpeedDisplayMode()
         {
-            return 0.0;
+            var displayMode = FlightGlobals.speedDisplayMode;
+            if(displayMode == FlightGlobals.SpeedDisplayModes.Orbit)
+            {
+                return 1.0;
+            }
+            else if(displayMode == FlightGlobals.SpeedDisplayModes.Surface)
+            {
+                return 0.0;
+            }
+            else
+            {
+                return -1.0;
+            }
         }
+
+        /// <summary>
+        /// Return the surface-relative speed of the vessel in m/s.
+        /// </summary>
+        /// <returns></returns>
         public double SurfaceSpeed()
         {
-            return 0.0;
+            return vessel.srfSpeed;
         }
+
+        /// <summary>
+        /// Returns the vertical speed of the vessel in m/s.
+        /// </summary>
+        /// <returns></returns>
         public double VerticalSpeed()
         {
-            return 0.0;
+            return vessel.verticalSpeed;
         }
         #endregion
     }
