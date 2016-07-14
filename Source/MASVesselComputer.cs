@@ -59,14 +59,17 @@ namespace AvionicsSystems
         private bool vesselActive;
 
         /// <summary>
+        /// A copy of the navBall to easily deduce flight information.
+        /// </summary>
+        private NavBall navBall;
+
+
+        /// <summary>
         /// What world / star are we orbiting?
         /// </summary>
         internal CelestialBody mainBody;
 
-        /// <summary>
-        /// A copy of the navBall to easily deduce flight information.
-        /// </summary>
-        private NavBall navBall;
+        internal double universalTime;
 
         /// <summary>
         /// Returns the MASVesselComputer attached to the specified computer.
@@ -112,11 +115,15 @@ namespace AvionicsSystems
         {
             if (vesselActive)
             {
+                Utility.LogMessage(this, "lat/lon = {0}, {1}", KSPUtil.PrintLatitude(vessel.latitude), KSPUtil.PrintLongitude(vessel.longitude));
+                universalTime = Planetarium.GetUniversalTime();
+
                 // Conditionally updates per-module tables.
                 UpdateModuleData();
 
                 UpdateAttitude();
                 UpdateAltitudes();
+                UpdateManeuverNode();
                 //Utility.LogMessage(this, "FixedUpdate for {0}", vessel.id);
             }
         }
@@ -316,7 +323,6 @@ namespace AvionicsSystems
                 return altitudeBottom_;
             }
         }
-
         void UpdateAltitudes()
         {
             altitudeASL = vessel.altitude;
@@ -366,6 +372,61 @@ namespace AvionicsSystems
             {
                 surfaceAttitude.z = -surfaceAttitude.z;
             }
+        }
+
+        private ManeuverNode node;
+        private double nodeDV = -1.0;
+        internal double maneuverNodeDeltaV
+        {
+            get
+            {
+                if (nodeDV < 0.0)
+                {
+                    if (node != null && vessel.orbit != null)
+                    {
+                        nodeDV = node.GetBurnVector(vessel.orbit).magnitude;
+                    }
+                    else
+                    {
+                        nodeDV = 0.0;
+                    }
+                }
+
+                return nodeDV;
+            }
+        }
+        internal bool maneuverNodeValid
+        {
+            get
+            {
+                return node != null;
+            }
+        }
+        internal double maneuverNodeTime
+        {
+            get
+            {
+                if (node != null)
+                {
+                    return (universalTime - node.UT);
+                }
+                else
+                {
+                    return 0.0;
+                }
+            }
+        }
+        void UpdateManeuverNode()
+        {
+            if (vessel.patchedConicSolver != null)
+            {
+                node = vessel.patchedConicSolver.maneuverNodes.Count > 0 ? vessel.patchedConicSolver.maneuverNodes[0] : null;
+            }
+            else
+            {
+                node = null;
+            }
+            nodeDV = -1.0;
         }
         #endregion
 
