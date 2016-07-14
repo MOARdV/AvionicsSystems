@@ -188,25 +188,24 @@ namespace AvionicsSystems
                         MASPage newPage = new MASPage(pageConfig, internalProp, comp, this, screenSpace.transform);
                         if (i == 0)
                         {
+                            // Select the default page as the current page
                             currentPage = newPage;
-                            currentPage.EnablePage(true);
                         }
-                        else
-                        {
-                            newPage.EnablePage(false);
-                        }
+
+                        newPage.EnablePage(false);
+
                         page.Add(pages[i], newPage);
                         Utility.LogMessage(this, "Page = {0}", pages[i]);
                     }
                     //HackWalkTransforms(screenSpace.transform, 0);
                     string variableName = "fc.GetPersistent(\"" + monitorID.Trim() +"\")";
                     pageSelector = comp.RegisterOnVariableChange(variableName, internalProp, PageChanged);
+                    // See if we have a saved page to restore.
                     if (!string.IsNullOrEmpty(pageSelector.String()) && page.ContainsKey(pageSelector.String()))
                     {
-                        currentPage.EnablePage(false);
                         currentPage = page[pageSelector.String()];
-                        currentPage.EnablePage(true);
                     }
+                    currentPage.EnablePage(true);
                     initialized = true;
                     Utility.LogMessage(this, "Configuration complete in prop #{0} ({1}) with {2} pages", internalProp.propID, internalProp.propName, numPages);
                 }
