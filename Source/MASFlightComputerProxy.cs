@@ -339,6 +339,36 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Maneuver Node
+        /// <summary>
+        /// Delta-V of the scheduled node, or 0 if there is no node.
+        /// </summary>
+        /// <returns></returns>
+        public double ManeuverNodeDV()
+        {
+            return vc.maneuverNodeDeltaV;
+        }
+
+        /// <summary>
+        /// Returns 1 if there is a valid maneuver node; 0 otherwise
+        /// </summary>
+        /// <returns></returns>
+        public double ManeuverNodeExists()
+        {
+            return (vc.maneuverNodeValid) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns time in seconds until the maneuver node; 0 if no node is
+        /// valid.
+        /// </summary>
+        /// <returns></returns>
+        public double ManeuverNodeTime()
+        {
+            return vc.maneuverNodeTime;
+        }
+        #endregion
+
         #region Orientation
         /// <summary>
         /// Return heading relative to the surface in degrees [0, 360)
