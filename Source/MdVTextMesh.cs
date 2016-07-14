@@ -495,6 +495,7 @@ namespace AvionicsSystems
             // Determine text length
             int maxVerts = 0;
             int numTextRows = textRow.Length;
+            float widthScaling = 1.0f;
             for (int line = 0; line < numTextRows; ++line)
             {
                 textRow[line].textLength = 0;
@@ -558,6 +559,26 @@ namespace AvionicsSystems
                         else if (tagText == "/i")
                         {
                             italic = false;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "hw")
+                        {
+                            widthScaling = 0.5f;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "dw")
+                        {
+                            widthScaling = 2.0f;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "/hw")
+                        {
+                            widthScaling = 1.0f;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "/dw")
+                        {
+                            widthScaling = 1.0f;
                             charIndex += nextBracket + 1;
                         }
                         else // Else we didn't recognise anything so it's not a tag.
@@ -688,6 +709,26 @@ namespace AvionicsSystems
                             italic = false;
                             charIndex += nextBracket + 1;
                         }
+                        else if (tagText == "hw")
+                        {
+                            widthScaling = 0.5f;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "dw")
+                        {
+                            widthScaling = 2.0f;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "/hw")
+                        {
+                            widthScaling = 1.0f;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "/dw")
+                        {
+                            widthScaling = 1.0f;
+                            charIndex += nextBracket + 1;
+                        }
                         else // Else we didn't recognise anything so it's not a tag.
                         {
                             break;
@@ -716,28 +757,28 @@ namespace AvionicsSystems
 
                                 // TODO: make this work correctly by centering the
                                 // characters and clamping to the width.
-                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + minX) + xOffset), characterSize * ((float)(yPos + maxY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (minX * widthScaling)) + xOffset), characterSize * ((float)(yPos + maxY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
                                 uv[arrayIndex] = charInfo.uvTopLeft;
 
                                 ++arrayIndex;
 
-                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + maxX) + xOffset), characterSize * ((float)(yPos + maxY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (maxX * widthScaling)) + xOffset), characterSize * ((float)(yPos + maxY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
                                 uv[arrayIndex] = charInfo.uvTopRight;
 
                                 ++arrayIndex;
 
-                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + minX) + xOffset), characterSize * ((float)(yPos + minY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (minX * widthScaling)) + xOffset), characterSize * ((float)(yPos + minY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
                                 uv[arrayIndex] = charInfo.uvBottomLeft;
 
                                 ++arrayIndex;
 
-                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + maxX) + xOffset), characterSize * ((float)(yPos + minY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (maxX * widthScaling)) + xOffset), characterSize * ((float)(yPos + minY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
                                 uv[arrayIndex] = charInfo.uvBottomRight;
@@ -745,7 +786,7 @@ namespace AvionicsSystems
                                 ++arrayIndex;
                                 ++charWritten;
                             }
-                            xPos += fixedAdvance;
+                            xPos += (int)(fixedAdvance * widthScaling);
                         }
                     }
                 }
@@ -778,6 +819,7 @@ namespace AvionicsSystems
             // Determine text length
             int maxVerts = 0;
             int numTextRows = textRow.Length;
+            float widthScaling = 1.0f;
             for (int line = 0; line < numTextRows; ++line)
             {
                 textRow[line].textLength = 0;
@@ -841,6 +883,26 @@ namespace AvionicsSystems
                         else if (tagText == "/i")
                         {
                             italic = false;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "hw")
+                        {
+                            widthScaling = 0.5f;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "dw")
+                        {
+                            widthScaling = 2.0f;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "/hw")
+                        {
+                            widthScaling = 1.0f;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "/dw")
+                        {
+                            widthScaling = 1.0f;
                             charIndex += nextBracket + 1;
                         }
                         else // Else we didn't recognise anything so it's not a tag.
@@ -1013,6 +1075,26 @@ namespace AvionicsSystems
                             italic = false;
                             charIndex += nextBracket + 1;
                         }
+                        else if (tagText == "hw")
+                        {
+                            widthScaling = 0.5f;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "dw")
+                        {
+                            widthScaling = 2.0f;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "/hw")
+                        {
+                            widthScaling = 1.0f;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "/dw")
+                        {
+                            widthScaling = 1.0f;
+                            charIndex += nextBracket + 1;
+                        }
                         else // Else we didn't recognise anything so it's not a tag.
                         {
                             break;
@@ -1034,28 +1116,28 @@ namespace AvionicsSystems
                                 triangles[charWritten * 6 + 4] = arrayIndex + 1;
                                 triangles[charWritten * 6 + 5] = arrayIndex + 3;
 
-                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + charInfo.minX) + xOffset), characterSize * ((float)(yPos + charInfo.maxY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (charInfo.minX) * widthScaling) + xOffset), characterSize * ((float)(yPos + charInfo.maxY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
                                 uv[arrayIndex] = charInfo.uvTopLeft;
 
                                 ++arrayIndex;
 
-                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + charInfo.maxX) + xOffset), characterSize * ((float)(yPos + charInfo.maxY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (charInfo.maxX) * widthScaling) + xOffset), characterSize * ((float)(yPos + charInfo.maxY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
                                 uv[arrayIndex] = charInfo.uvTopRight;
 
                                 ++arrayIndex;
 
-                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + charInfo.minX) + xOffset), characterSize * ((float)(yPos + charInfo.minY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (charInfo.minX) * widthScaling) + xOffset), characterSize * ((float)(yPos + charInfo.minY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
                                 uv[arrayIndex] = charInfo.uvBottomLeft;
 
                                 ++arrayIndex;
 
-                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + charInfo.maxX) + xOffset), characterSize * ((float)(yPos + charInfo.minY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (charInfo.maxX) * widthScaling) + xOffset), characterSize * ((float)(yPos + charInfo.minY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
                                 uv[arrayIndex] = charInfo.uvBottomRight;
@@ -1063,7 +1145,7 @@ namespace AvionicsSystems
                                 ++arrayIndex;
                                 ++charWritten;
                             }
-                            xPos += charInfo.advance;
+                            xPos += (int)(charInfo.advance * widthScaling);
                         }
                     }
                 }
