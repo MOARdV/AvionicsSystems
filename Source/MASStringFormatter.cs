@@ -178,7 +178,7 @@ namespace AvionicsSystems
                             case 'Y':
                             // Fall through
                             case 'y':
-                                formatData[parameterCount] = Math.Abs(vals[4]);
+                                formatData[parameterCount] = Math.Abs(vals[4] + (calendarAdjust ? 1 : 0));
                                 break;
                             case 'D':
                                 formatData[parameterCount] = Math.Abs(vals[3] + daysPerYear * vals[4]);
@@ -290,7 +290,7 @@ namespace AvionicsSystems
                     case 's':
                         formatData[parameterCount] = Math.Abs(vals[0]);
                         break;
-                    case 'f': 
+                    case 'f':
                         double fracV = Math.Abs(value) - Math.Floor(Math.Abs(value));
                         fracV = fracV * Math.Pow(10.0, charCount);
                         formatData[parameterCount] = Math.Floor(fracV);
@@ -308,7 +308,7 @@ namespace AvionicsSystems
         private static readonly string siPrefixes = " kMGTPEZY";
 
         /// <summary>
-        /// Apply SI prefix formatting for any variable >= 1000
+        /// Append SI prefix for any variable >= 1000
         /// </summary>
         /// <param name="formatSpecification"></param>
         /// <param name="value"></param>
@@ -318,70 +318,19 @@ namespace AvionicsSystems
             int siChar = 0;
             if (value >= 1000.0 || value <= -1000.0)
             {
-                bool isNegative = (value < 0.0);
                 siChar = (int)(Math.Log10(Math.Abs(value))) / 3;
                 siChar = Math.Min(siChar, 8);
 
                 value /= Math.Pow(10.0, (siChar * 3));
             }
 
-            int formatLength = formatSpecification.Length;
-            bool foundDecimal = false;
-            bool zeroPrefix = false;
-            int units = 0;
-            int frac = 0;
-            char[] chars = formatSpecification.ToCharArray();
-
-            if (chars[3] == '0')
-            {
-                zeroPrefix = true;
-            }
-
-            for (int i = 3; i < formatLength; ++i)
-            {
-                if (chars[i] == '.')
-                {
-                    foundDecimal = true;
-                }
-                else if (char.IsDigit(chars[i]))
-                {
-                    if (foundDecimal)
-                    {
-                        frac = frac * 10;
-                        frac += (int)(chars[i]) - (int)('0');
-                    }
-                    else
-                    {
-                        units = units * 10;
-                        units += (int)(chars[i]) - (int)('0');
-                    }
-                }
-            }
-            if (units > 1)
-            {
-                --units;
-            }
-
             sb.Remove(0, sb.Length);
             sb.Append("{0:");
-            if (zeroPrefix)
-            {
-                sb.Append('0', units);
-            }
-            else
-            {
-                sb.Append('#', units - 1);
-                sb.Append('0');
-            }
-            if (foundDecimal)
-            {
-                sb.Append('.');
-                sb.Append('0', frac);
-            }
-            sb.Append("}{1}");
+            sb.Append(formatSpecification.Substring(3));
+            sb.Append('}');
+            sb.Append(siPrefixes[siChar]);
 
-            string formatString = sb.ToString();
-            return string.Format(formatString, value, siPrefixes[siChar]);
+            return string.Format(sb.ToString(), value);
         }
 
         /// <summary>
