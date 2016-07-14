@@ -22,9 +22,11 @@
  * DEALINGS IN THE SOFTWARE.
  * 
  ****************************************************************************/
+using KSP.UI.Screens.Flight;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 
 namespace AvionicsSystems
 {
@@ -56,7 +58,15 @@ namespace AvionicsSystems
         /// </summary>
         private bool vesselActive;
 
+        /// <summary>
+        /// What world / star are we orbiting?
+        /// </summary>
         internal CelestialBody mainBody;
+
+        /// <summary>
+        /// A copy of the navBall to easily deduce flight information.
+        /// </summary>
+        private NavBall navBall;
 
         /// <summary>
         /// Returns the MASVesselComputer attached to the specified computer.
@@ -105,6 +115,7 @@ namespace AvionicsSystems
                 // Conditionally updates per-module tables.
                 UpdateModuleData();
 
+                UpdateAttitude();
                 UpdateAltitudes();
                 //Utility.LogMessage(this, "FixedUpdate for {0}", vessel.id);
             }
@@ -124,6 +135,8 @@ namespace AvionicsSystems
                 Utility.LogErrorMessage(this, "OnAwake: Failed to get a valid vessel");
                 return;
             }
+
+            navBall = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.NavBall>();
 
             mainBody = vessel.mainBody;
 
@@ -167,6 +180,7 @@ namespace AvionicsSystems
             vesselId = Guid.Empty;
             vessel = null;
             mainBody = null;
+            navBall = null;
         }
 
         /// <summary>
@@ -302,11 +316,56 @@ namespace AvionicsSystems
                 return altitudeBottom_;
             }
         }
+
         void UpdateAltitudes()
         {
             altitudeASL = vessel.altitude;
-            altitudeTerrain = vessel.terrainAltitude;
+            altitudeTerrain = vessel.altitude - vessel.terrainAltitude;
             altitudeBottom_ = -1.0;
+        }
+
+        private Vector3 surfaceAttitude;
+        internal float heading
+        {
+            get
+            {
+                return surfaceAttitude.y;
+            }
+        }
+        internal float pitch
+        {
+            get
+            {
+                return surfaceAttitude.x;
+            }
+        }
+        internal float roll
+        {
+            get
+            {
+                return surfaceAttitude.z;
+            }
+        }
+        void UpdateAttitude()
+        {
+            surfaceAttitude = Quaternion.Inverse(navBall.relativeGymbal).eulerAngles;
+            if (surfaceAttitude.x > 180.0f)
+            {
+                surfaceAttitude.x = 360.0f - surfaceAttitude.x;
+            }
+            else
+            {
+                surfaceAttitude.x = -surfaceAttitude.x;
+            }
+
+            if (surfaceAttitude.z > 180.0f)
+            {
+                surfaceAttitude.z = 360.0f - surfaceAttitude.z;
+            }
+            else
+            {
+                surfaceAttitude.z = -surfaceAttitude.z;
+            }
         }
         #endregion
 
