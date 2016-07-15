@@ -63,12 +63,6 @@ namespace AvionicsSystems
                 throw new ArgumentException("Unable to find 'texture' " + textureName + " for IMAGE " + name);
             }
 
-            string localFonts = string.Empty;
-            if (!config.TryGetValue("font", ref localFonts))
-            {
-                localFonts = string.Empty;
-            }
-
             Vector2 position = Vector2.zero;
             if (!config.TryGetValue("position", ref position))
             {
