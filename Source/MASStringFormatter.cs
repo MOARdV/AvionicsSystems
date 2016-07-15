@@ -105,8 +105,70 @@ namespace AvionicsSystems
             {
                 return FormatMET(formatSpecification, value);
             }
+            if (formatSpecification.StartsWith("LAT") || formatSpecification.StartsWith("LON"))
+            {
+                return FormatLatLon(formatSpecification, value);
+            }
 
             return DefaultFormat(formatSpecification, arg, formatProvider);
+        }
+
+        /// <summary>
+        /// Convert a value into either a latitude or longitude display
+        /// </summary>
+        /// <param name="formatSpecification"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private static string FormatLatLon(string formatSpecification, double value)
+        {
+            bool latitude = (formatSpecification[1] == 'A');
+            bool zeroPad = (formatSpecification.Length >= 4 && formatSpecification[3] == '0');
+            bool negative = (value < 0.0);
+
+            float degrees;
+            if (latitude == true)
+            {
+                degrees = Mathf.Clamp(Mathf.Abs((float)value), 0.0f, 90.0f);
+            }
+            else
+            {
+                degrees = Mathf.Clamp(Mathf.Abs((float)value), 0.0f, 180.0f);
+            }
+
+            float minutes = (degrees - Mathf.Floor(degrees)) * 60.0f;
+            degrees = Mathf.Floor(degrees);
+            float seconds = (minutes - Mathf.Floor(minutes)) * 60.0f;
+            minutes = Mathf.Floor(minutes);
+
+            string result;
+            if (zeroPad)
+            {
+                if (latitude)
+                {
+                    result = string.Format("{0:00}° {1:00}' {2:00}\" {3}",
+                        degrees, minutes, seconds, (negative) ? 'S' : 'N');
+                }
+                else
+                {
+                    result = string.Format("{0:000}° {1:00}' {2:00}\" {3}",
+                        degrees, minutes, seconds, (negative) ? 'W' : 'E');
+                }
+            }
+            else
+            {
+                if (latitude)
+                {
+                    result = string.Format("{0:#0}° {1:00}' {2:00}\" {3}",
+                        degrees, minutes, seconds, (negative) ? 'S' : 'N');
+                }
+                else
+                {
+                    result = string.Format("{0:##0}° {1:00}' {2:00}\" {3}",
+                        degrees, minutes, seconds, (negative) ? 'W' : 'E');
+                }
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -116,7 +178,7 @@ namespace AvionicsSystems
         /// <param name="formatSpecification"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        private string FormatMET(string formatSpecification, double value)
+        private static string FormatMET(string formatSpecification, double value)
         {
             // vals contains an array of integer values: s, m, h, d, y
             // All of them are negative if the input is negative.
