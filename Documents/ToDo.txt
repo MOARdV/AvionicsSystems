@@ -48,7 +48,7 @@ JSIVariableAnimator / JSICallbackAnimator components
 
 Handlers (non-prop control stuff)
 
-* JSI bridge modules (plugins)
+* IJSI modules (plugins)
 
 * JSIGraphingBackground
 
@@ -56,7 +56,9 @@ Handlers (non-prop control stuff)
 
 * JSIOdometer
 
-* JSIPrimaryFlightDisplay
+* JSIPrimaryFlightDisplay: Replace with MASPageNavBall, which will have a single camera,
+render texture, and model.  That way, only one is actually ever rendered, into a rentex,
+and all each page does is display that rentex (with all of the options of an IMAGE node).
 
 * JSISteerableCamera
 
@@ -85,7 +87,7 @@ to do some learnin' and write the replacement functionality on my own.
   * s, ss = as above, but for seconds
   * + = insert appropriate degree - minute - second character if it immediately follows d, m, or s
   * N, S, E, W = Replace with N/S or E/W as appropriate.
- * KDT, MET:
+ + KDT, MET: Done
   * + = Prefix with '+' or '-'
   * - = Prefix with '-' for negative, nothing for positive.
   * y = years (pad per character)
@@ -97,7 +99,7 @@ to do some learnin' and write the replacement functionality on my own.
   * S = seconds (same pattern)
   * f = fractions of a second
   * all other characters are passed through unchanged
- * BAR: Does this make sense given the ability to draw actual bar graphs?
+ * BAR: Does this make sense given the ability to draw actual bar graphs?  I think it still has utility.
   * BAR[<bar character>[<empty character>[<trailer character>]]],<total length>[,<minimum>[,<maximum>]]
 
 * OrbitExtensions

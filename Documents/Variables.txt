@@ -22,7 +22,7 @@ These tokens are replaced by the processor as follows:
 
 %AUTOID% - Generates a per-pod unique id for use in persistent variables.
 
-%MODULEID% - Inserts the module ID (index) of the ASComponent
+%MODULEID% - Inserts the module ID (index) of the ASComponent (TBD)
 
 %PROPID% - Inserts the internalProp.propID (index) where found.
 
