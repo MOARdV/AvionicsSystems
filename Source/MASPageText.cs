@@ -141,8 +141,8 @@ namespace AvionicsSystems
 
             textObj.SetFont(font, fontSize);
             textObj.SetColor(textColor);
-            // The font shader is lighting-aware, but we don't want it to react
-            // to lighting when it's part of a monitor, so force _EmissiveFactor to 1.
+            // We want to use a different shader for monitor displays.
+            textObj.material.shader = MASLoader.shaders["MOARdV/TextMonitor"];
             textObj.material.SetFloat(Shader.PropertyToID("_EmissiveFactor"), 1.0f);
 
             // text, immutable, preserveWhitespace, comp
