@@ -115,7 +115,6 @@ namespace AvionicsSystems
         {
             if (vesselActive)
             {
-                Utility.LogMessage(this, "lat/lon = {0}, {1}", KSPUtil.PrintLatitude(vessel.latitude), KSPUtil.PrintLongitude(vessel.longitude));
                 universalTime = Planetarium.GetUniversalTime();
 
                 // Conditionally updates per-module tables.
