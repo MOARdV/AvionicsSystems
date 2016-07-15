@@ -1,6 +1,12 @@
 ﻿The MASMonitor prop module powers monitor displays, ranging from simple single-line
 digital readouts to full-featured MFDs.  MASMonitor is more complex to set up than
-a MASComponent, since it entails a render texture and multiple pages.
+a MASComponent, since it entails a render texture and multiple pages.  The MASMonitor
+is comparable to the RasterPropMonitor class, but it is substantially more flexible
+in its design.
+
+When placing components in a monitor, the upper left corner is treated as the
+origin (0, 0), and positive Y is "down" on the display.  For graphical components,
+displacement is by pixel, while text displacement is by character (based on the fontSize).
 
 MODULE
 {
@@ -13,6 +19,13 @@ MODULE
   fontSize = 16, 32
   textColor = 255, 255, 255, 255
   backgroundColor = 0, 0, 32, 255
+  monitorID = %AUTOID%
+
+  //++ TODO
+  //variable = blah
+  //range = blah
+  //disabledColor = blah ?
+  //-- TODO
 
   page = Standby_Page
   page = Orbit_Page
@@ -35,6 +48,9 @@ with tags (see Formatted Rich Text).
 'page': Required.  One or more entries referring to named pages that are displayed on the monitor.
 Pages may be omitted, in which case the monitor won't do anything.  The first listed page is the
 default page that is visible when first entering IVA.
+'monitorID': Optional.  Defaults to '%AUTOID%'.  Specifies the name of the persistent variable used
+to contain the current page selection.  Defaulting to %AUTOID% allows on-prop buttons to likewise
+use %AUTOID%, but a unique name might be better for a monitor controlled by props located elsewhere.
 
 
 MAS_PAGE
@@ -58,6 +74,34 @@ cause unusually-wide characters to be compressed horizontally, which may hinder 
 This problem may be worse if the [hw] tag is used with those fonts.
 
 
+IMAGE
+
+An Image node renders an image.  The image's position and size may be specified, including resizing
+the image from its original.
+
+IMAGE
+{
+	name = PFD overlay
+	texture = JSI/RasterPropMonitor/Library/Components/NavBall/StaticMask
+	//position = 128,256
+	//size = 256,256
+	//variable = fc.GetBrakes()
+	//range = 0.5, 1.1
+}
+
+'name': Optional.  Default '(anonymous)'.  A name for the node.
+'texture': Required.  A URI to the texture that will be displayed.
+'position': Optional.  Default (0,0).  The pixel offset from the upper-left
+corner of the page.
+'size': Optional.  Defaults to the native size of the texture.  Specifies the
+desired pixel width and height of the image.
+'variable': Optional.  When present, the variable will control whether this text
+is rendered or not.
+'range': Optional.  Ignored if 'variable' is not present.  When present, the
+'variable' operates in Threshold Mode; when absent, the 'variable' operates in
+Boolean Mode.
+
+
 TEXT
 
 A Text node renders text.  This text may be static (unchanging) data, or it may use variables.
@@ -66,7 +110,7 @@ text residing in a separate file may referenced with a 'textfile' field.  All te
 Formatted Rich Text.
 
 These text nodes are not as complex as a Text Label - there are no controls for alignment,
-font size, anchors, etc.
+font size, anchors, etc.  However, they still support Formatted Rich Text.
 
 TEXT
 {
@@ -81,7 +125,7 @@ TEXT
   //range = 0.5, 1.5
 }
 
-'name': Optional.  Default '(anonymous)'.  A name for the action.
+'name': Optional.  Default '(anonymous)'.  A name for the node.
 'text': Required if there is not a 'textfile' entry.  Text that is displayed for
 this node, similar to a Text Label action in MASComponent.
 'textfile': Required if there is not a 'text' entry; ignored if there is a

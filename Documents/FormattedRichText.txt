@@ -95,7 +95,7 @@ Text Style tags [b][/b] and [i][/i]
 
 These tags allow the use of bold or italic font styles for fonts that support
 those styles.  Like the other nudges, these modifiers reset at the end of the
-row of text.  However, they can be terminated early using an HTTP-style token.
+row of text.  However, they can be terminated early using an HTML-style token.
 
 This text is [b]bold[/b] [i][b]and[/b] italic[/i].
 
@@ -103,13 +103,80 @@ Style tags do not nest: the text after "[b][b][/b]" will not be bold.  Open and
 close bold and italic tags can be intermingled - "[b]B[i]BI[/b]I[/i]" is perfectly
 legal.
 
+Half-width and double-width tags [hw][/hw] and [dw][/dw]
+
+These tags shrink or stretch text horizontally.  Half-width [hw] means each character
+is half as wide as normal, and the character advances 1/2 the amount as well.
+Double-width [dw] means the text is twice as wide.  Each option is terminated using
+an HTML-style closing tag (eg [/hw] or [/dw]).
+
+Since these tags do not follow strict HTML guidelines, either [/hw] or [/dw] will
+cancel either half-width or double-width text.  A [hw] or [dw] tag will override a
+prior [hw] or [dw] tag on the same text row.
+
+Width tags are reset at the end of a line.
+
 --- TODO: other RPM nudges ---
 
 Superscript and subscript tags [sup][/sup] and [sub][/sub]
 - easy to implement
 
-Half-width and double-width tags [hw][/hw] and [dw][/dw]
-- easy to implement
-
 Font select tags [font#]
 - not easy to implement (need multiple materials / Font classes)
+
+CUSTOM FORMATTING
+
+SI Prefixes (SIP)
+
+Numbers may be formatted with SI Prefixes (k, M, G, etc).  The prefixes
+are automatically added to the end of the number, with a blank character ' '
+when there is no prefix.  The formatting string is otherwise treated like a
+regular formatting string:
+
+Format      12.34     123456
+{0:SIP##0}  '12 '     '123k'
+{0:SIP000}  '000 '    '123k'
+{0:SIP0.00} '12.34 '  '123.46k' (due to rounding)
+
+Date Formatting (KDT and MET)
+
+Times may be converted to custom date/time formatting using KDT and MET.  The
+difference between the two formats is in the treatment of the year ('y' and 'Y') and days of the year
+(lower-case 'd'): KDT treats it as a calendar date, with the first year of the
+game identified as Year 1, and the first day of the year identified as Day 1.
+The MET prefix start both at 0.  The two are otherwise identical.  The formatting
+automatically adjusts to Earth time or Kerbin time depending on game settings.
+
+The following reserved characters have special meaning in a date.  All other
+characters are passed through unchanged.  Repeating one of the letters will
+zero pad that field (for Year 1, 'YYYY' will be '0001').
+
+'+': Insert a '+' if the date is positive, or a '-' if it is negative.
+'-': Insert a '-' if the date is negative, or do nothing if it is positive.
+'Y', 'y': Insert the year.
+'D': Insert the number of days, ignoring years (so 400 in Earth days will be 400, not 35).
+'d': Insert the number of days, accounting for years.
+'H': Insert the number of hours, ignoring days and years.
+'h': Insert the number of hours, accounting for days.
+'M': Insert the number of minutes, ignoring hours.
+'m': Insert the number of minutes, accounting for hours.
+'S': Insert the number of seconds, ignoring minutes.
+'s': Insert the number of seconds, accounting for  minutes.
+'f': Insert fractions of a second.
+
+LAT and LON
+
+Treat the variable as either Latitude or Longitude, depending on the prefix.
+If a '0' follows the LAT or LON keyword, degrees are zero padded.  If the value
+is illegal (>90 or <-90 for Lat, >180 or <-180 for Lon), it is clamped to the
+nearest limit.
+
+For Latitude, the format is DD+ MM+ SS+ @.  For Longitude, the format is
+DDD+ MM+ SS+ @.
+
+D = degrees.  If LAT0 or LON0 is used, the degrees are zero padded.  Otherwise,
+they are padded with blanks.
+M = minutes of arc.  Minutes are always zero padded.
+S = seconds of arc.  Seconds are always zero padded.
++ = symbol.  The appropriate symbol °, ', or ".
+@ = The letter N or S for latitude, or E or W for longitude.

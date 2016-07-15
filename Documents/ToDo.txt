@@ -16,8 +16,9 @@ Prop Modules
 
 * RasterPropMonitor - the big one...
 
-  + Callback System for variables, so the callback flags a "this text needs updated".  Being able to flag per-row would be even better.
-  + Look into custom UnityEngine.Font for RPM-style fonts so there can be a single text rendering path.
+  + DONE and IMPLEMENTED: Callback System for variables, so the callback flags a "this text needs updated".  Being able to flag per-row would be even better.
+  + DONE and IMPLEMENTED: Look into custom UnityEngine.Font for RPM-style fonts so there can be a single text rendering path.
+  + Custom formatters.
 
 JSIVariableAnimator / JSICallbackAnimator components
 
@@ -31,7 +32,7 @@ JSIVariableAnimator / JSICallbackAnimator components
 
 * dynamic color.  new feature: use a Lua script to return the color, instead of having passiveColor and activeColor.
 
-* rotation
+- rotation. complete: can use Boolean, Threshold, Blend, and Static.
 
 * translation
 
@@ -72,7 +73,32 @@ Support Components
 - Some of this will be tricky, since it's code from GPL projects.  I may have
 to do some learnin' and write the replacement functionality on my own.
 
-* SIFormatter
+* Custom formatters
+ + SIP: Changed behavior (RPM was: _05.2 -> 5 characters max, 2 after decimal, pad left with zeros, and add a blank after the number but before the character.
+  * Add '=' instead of '_' pad with a blank when there is no prefix character (to keep vertical alignment)
+ - U2K, U2P: Not needed - can be done in the variable directly.
+ - DMS: -- no.  Replace with LAT and LON
+  * d = degrees, no zero padding
+  * dd = degrees, zero padding (per d, so ddd -> 000)
+  * m = minutes, no padding
+  * mm = minutes, zero padding
+  * s, ss = as above, but for seconds
+  * + = insert appropriate degree - minute - second character if it immediately follows d, m, or s
+  * N, S, E, W = Replace with N/S or E/W as appropriate.
+ * KDT, MET:
+  * + = Prefix with '+' or '-'
+  * - = Prefix with '-' for negative, nothing for positive.
+  * y = years (pad per character)
+  * d = days (add 1 for KDT)
+  * D = days (as if there are no years)
+  * h = hours
+  * H = hours (as if there are no days/years)
+  * s = seconds
+  * S = seconds (same pattern)
+  * f = fractions of a second
+  * all other characters are passed through unchanged
+ * BAR: Does this make sense given the ability to draw actual bar graphs?
+  * BAR[<bar character>[<empty character>[<trailer character>]]],<total length>[,<minimum>[,<maximum>]]
 
 * OrbitExtensions
 
@@ -99,11 +125,11 @@ list.
 * Is WaitForFixedUpdate the right coroutine yield to use?  Should I use WaitForSeconds with a time interval
 of whatever the update delta is?
 
++ DONE and IMPLEMENTED: User-defined fonts - Unity.Font has ways to add user-defined fonts based on bitmaps and character maps.
+Use that instead of the RPM system of a texture + text file with manual mapping.
+
 * Create a "standard library" of methods for the Lua environment, so there can be things
 like "DoThisIfThereIsPower(function-to-do)".
-
-* User-defined fonts - Unity.Font has ways to add user-defined fonts based on bitmaps and character maps.
-Use that instead of the RPM system of a texture + text file with manual mapping.
 
 StdLib ideas:
 
