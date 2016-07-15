@@ -105,6 +105,9 @@
     <None Include="Shaders\TextMesh.shader" />
     <None Include="Shaders\TextMonitor.shader" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Examples\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetPath) "D:\Games\Steam\steamapps\common\Kerbal Space Program\GameData\AvionicsSystems"
