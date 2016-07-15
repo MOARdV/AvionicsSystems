@@ -123,25 +123,25 @@ namespace AvionicsSystems
         public void Awake()
         {
             asVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
-            UnityEngine.Debug.Log(String.Format("[ASLoader] Avionics Systems version {0}", asVersion));
+            UnityEngine.Debug.Log(String.Format("[MASLoader] Avionics Systems version {0}", asVersion));
 
             if (KSPAssets.Loaders.AssetLoader.Ready == false)
             {
                 //Utility.LogErrorMessage(this, "Unable to load shaders - AssetLoader is not ready.");
-                throw new Exception("ASLoader: Unable to load shaders - AssetLoader is not ready.");
+                throw new Exception("MASLoader: Unable to load shaders - AssetLoader is not ready.");
             }
 
             KSPAssets.AssetDefinition[] asShaders = KSPAssets.Loaders.AssetLoader.GetAssetDefinitionsWithType("AvionicsSystems/moardvavionicssystems", typeof(Shader));
             if (asShaders == null || asShaders.Length == 0)
             {
                 Utility.LogErrorMessage(this, "Unable to load shaders - No shaders found in AS asset bundle.");
-                throw new Exception("ASLoader: No shaders in asset bundle.");
+                throw new Exception("MASLoader: No shaders in asset bundle.");
             }
 
             if (!GameDatabase.Instance.IsReady())
             {
                 Utility.LogErrorMessage(this, "GameDatabase.IsReady is false");
-                throw new Exception("ASLoader: GameDatabase is not ready.  Unable to continue.");
+                throw new Exception("MASLoader: GameDatabase is not ready.  Unable to continue.");
             }
 
             ConfigNode config = ConfigNode.Load(KSPUtil.ApplicationRootPath + configFileName);
@@ -421,6 +421,12 @@ namespace AvionicsSystems
 
                     for (int j = 0; j < foundFonts.Length; ++j)
                     {
+                        //string[] fnames = foundFonts[j].fontNames;
+                        //Utility.LogMessage(this, "Font '{0}':", foundFonts[j].name);
+                        //for (int fn = 0; fn < fnames.Length; ++fn)
+                        //{
+                        //    Utility.LogMessage(this, "... {0}", fnames[i]);
+                        //}
                         fonts[foundFonts[j].name] = foundFonts[j];
                     }
 
