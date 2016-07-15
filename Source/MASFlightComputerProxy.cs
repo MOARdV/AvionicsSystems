@@ -447,6 +447,26 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Position
+        /// <summary>
+        /// Return the vessel's latitude.
+        /// </summary>
+        /// <returns></returns>
+        public double Latitude()
+        {
+            return vessel.latitude;
+        }
+
+        /// <summary>
+        /// Return the vessel's longitude.
+        /// </summary>
+        /// <returns></returns>
+        public double Longitude()
+        {
+            return vessel.longitude;
+        }
+        #endregion
+
         #region Random
         /// <summary>
         /// Return a random number in the range of [0, 1]
