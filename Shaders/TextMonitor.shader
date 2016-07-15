@@ -18,7 +18,7 @@
 		{
 		Lighting Off
 		Blend One OneMinusSrcAlpha
-		Cull Off
+		Cull Back
 		Fog { Mode Off }
 		ZWrite Off
 		ZTest Always
