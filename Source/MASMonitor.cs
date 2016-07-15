@@ -262,13 +262,20 @@ namespace AvionicsSystems
             }
         }
 
-        //public override void OnUpdate()
-        //{
-        //    if (initialized)
-        //    {
-        //        screenCamera.Render();
-        //    }
-        //}
+        /// <summary>
+        /// Just in case we lose context.
+        /// </summary>
+        public override void OnUpdate()
+        {
+            if (initialized)
+            {
+                if (!screen.IsCreated())
+                {
+                    screen.Create();
+                    screenCamera.targetTexture = screen;
+                }
+            }
+        }
 
         /// <summary>
         /// Callback fired when our variable changes.
