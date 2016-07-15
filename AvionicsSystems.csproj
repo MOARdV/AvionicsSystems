@@ -76,6 +76,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Source\MASMonitor.cs" />
     <Compile Include="Source\MASPage.cs" />
+    <Compile Include="Source\MASPageImage.cs" />
     <Compile Include="Source\MASPageText.cs" />
     <Compile Include="Source\MASStringFormatter.cs" />
     <Compile Include="Source\MASVesselComputer.cs" />
@@ -99,6 +100,10 @@
     <Content Include="Documents\ToDo.txt" />
     <Content Include="Documents\UnderTheHood.txt" />
     <Content Include="Documents\Variables.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\TextMesh.shader" />
+    <None Include="Shaders\TextMonitor.shader" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

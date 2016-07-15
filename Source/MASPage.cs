@@ -41,6 +41,10 @@ namespace AvionicsSystems
             {
                 return new MASPageText(config, prop, comp, monitor, pageRoot, depth);
             }
+            else if(config.name == "IMAGE")
+            {
+                return new MASPageImage(config, prop, comp, monitor, pageRoot, depth);
+            }
             else
             {
                 throw new ArgumentException("Unrecognized MAS_PAGE component " + config.name); ;
