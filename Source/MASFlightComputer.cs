@@ -85,6 +85,11 @@ namespace AvionicsSystems
         /// </summary>
         private Dictionary<string, Action> actions = new Dictionary<string, Action>();
 
+        /// <summary>
+        /// Reference to the current vessel computer.
+        /// </summary>
+        internal MASVesselComputer vc;
+
         #region Internal Interface
         /// <summary>
         /// Return the ASFlightComputer attached to the given part, or null if
@@ -379,7 +384,8 @@ namespace AvionicsSystems
                 fcProxy = new MASFlightComputerProxy(this);
                 UserData.RegisterType<MASFlightComputerProxy>();
                 script.Globals["fc"] = fcProxy;
-                fcProxy.vc = MASVesselComputer.Instance(parentVesselId);
+                vc = MASVesselComputer.Instance(parentVesselId);
+                fcProxy.vc = vc;
                 fcProxy.vessel = vessel;
 
                 // TODO: Add MAS script
@@ -476,7 +482,8 @@ namespace AvionicsSystems
             {
                 // TODO: Do something different if parentVesselID != vessel.id?
                 parentVesselId = vessel.id;
-                fcProxy.vc = MASVesselComputer.Instance(parentVesselId);
+                vc = MASVesselComputer.Instance(parentVesselId);
+                fcProxy.vc = vc;
                 fcProxy.vessel = vessel;
                 UpdateLocalCrew();
             }
