@@ -63,7 +63,6 @@ namespace AvionicsSystems
         /// </summary>
         private NavBall navBall;
 
-
         /// <summary>
         /// What world / star are we orbiting?
         /// </summary>
@@ -351,9 +350,33 @@ namespace AvionicsSystems
                 return surfaceAttitude.z;
             }
         }
+        private readonly Quaternion navballYRotate = Quaternion.Euler(0.0f, 180.0f, 0.0f);
+        private Quaternion navballGimbal;
+        internal Quaternion navBallRotation
+        {
+            get
+            {
+                return navballGimbal;
+            }
+        }
+        /// <summary>
+        /// Because the gimbal is reflected for presentation, we need to
+        /// mirror the value here so the gimbal is correct.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        static Quaternion MirrorXAxis(Quaternion input)
+        {
+            return new Quaternion(input.x, -input.y, -input.z, input.w);
+        }
         void UpdateAttitude()
         {
-            surfaceAttitude = Quaternion.Inverse(navBall.relativeGymbal).eulerAngles;
+            Quaternion relativeGimbal = navBall.relativeGymbal;
+            // We have to do all sorts of voodoo to get the navball
+            // gimbal rotated so the rendered navball behaves the same
+            // as navballs.
+            navballGimbal = navballYRotate * MirrorXAxis(relativeGimbal);
+            surfaceAttitude = Quaternion.Inverse(relativeGimbal).eulerAngles;
             if (surfaceAttitude.x > 180.0f)
             {
                 surfaceAttitude.x = 360.0f - surfaceAttitude.x;
