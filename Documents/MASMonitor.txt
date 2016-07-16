@@ -95,7 +95,40 @@ IMAGE
 corner of the page.
 'size': Optional.  Defaults to the native size of the texture.  Specifies the
 desired pixel width and height of the image.
-'variable': Optional.  When present, the variable will control whether this text
+'variable': Optional.  When present, the variable will control whether this image
+is rendered or not.
+'range': Optional.  Ignored if 'variable' is not present.  When present, the
+'variable' operates in Threshold Mode; when absent, the 'variable' operates in
+Boolean Mode.
+
+
+NAVBALL
+
+A NavBall node is used to render a navball on the monitor.  This can be used to
+create a primary flight display, or, with the right configuration, a 3D spherical
+HUD navigation aid.
+
+NAVBALL
+{
+	name = PFD navball
+	model = JSI/RasterPropMonitor/Library/Components/NavBall/NavBall
+	texture = JSI/RasterPropMonitor/Library/Components/NavBall/NavBall000
+	//position = 256, 256
+	size = 340
+	//variable = fc.GetBrakes()
+	//range = 0.5, 1.5
+}
+
+'name': Optional.  Default '(anonymous)'.  A name for the node.
+'model': Required.  The URI to the navball model.  While this is typically a
+simple sphere, there is no requirement to use a ball for this component.
+'texture': Required.  The texture that is applied to the navball model.
+'position': Optional.  Default the middle of the screen.  A displacement to
+move the navball on the screen.
+'size': Required.  Specifies the pixel width and height of the image.
+Note that the navball is rendered to a square, so using a non-square size here
+will distort the shape of the navball.
+'variable': Optional.  When present, the variable will control whether the navball
 is rendered or not.
 'range': Optional.  Ignored if 'variable' is not present.  When present, the
 'variable' operates in Threshold Mode; when absent, the 'variable' operates in
