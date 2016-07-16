@@ -41,9 +41,13 @@ namespace AvionicsSystems
             {
                 return new MASPageText(config, prop, comp, monitor, pageRoot, depth);
             }
-            else if(config.name == "IMAGE")
+            else if (config.name == "IMAGE")
             {
                 return new MASPageImage(config, prop, comp, monitor, pageRoot, depth);
+            }
+            else if (config.name == "NAVBALL")
+            {
+                return new MASPageNavBall(config, prop, comp, monitor, pageRoot, depth);
             }
             else
             {
