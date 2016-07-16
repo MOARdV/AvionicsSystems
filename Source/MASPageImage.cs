@@ -100,7 +100,7 @@ namespace AvionicsSystems
 
             // Set up our surface.
             imageObject = new GameObject();
-            imageObject.name = pageRoot.gameObject.name + "-MASPageText-" + name + "-" + depth.ToString();
+            imageObject.name = pageRoot.gameObject.name + "-MASPageImage-" + name + "-" + depth.ToString();
             imageObject.layer = pageRoot.gameObject.layer;
             imageObject.transform.parent = pageRoot;
             imageObject.transform.position = pageRoot.position;
