@@ -351,12 +351,20 @@ namespace AvionicsSystems
             }
         }
         private readonly Quaternion navballYRotate = Quaternion.Euler(0.0f, 180.0f, 0.0f);
-        private Quaternion navballGimbal;
-        internal Quaternion navBallRotation
+        private Quaternion navballRelativeGimbal;
+        internal Quaternion navBallRelativeGimbal
         {
             get
             {
-                return navballGimbal;
+                return navballRelativeGimbal;
+            }
+        }
+        private Quaternion navballAttitudeGimbal;
+        internal Quaternion navBallAttitudeGimbal
+        {
+            get
+            {
+                return navballAttitudeGimbal;
             }
         }
         /// <summary>
@@ -375,7 +383,8 @@ namespace AvionicsSystems
             // We have to do all sorts of voodoo to get the navball
             // gimbal rotated so the rendered navball behaves the same
             // as navballs.
-            navballGimbal = navballYRotate * MirrorXAxis(relativeGimbal);
+            navballRelativeGimbal = navballYRotate * MirrorXAxis(relativeGimbal);
+            navballAttitudeGimbal = navBall.attitudeGymbal;
             surfaceAttitude = Quaternion.Inverse(relativeGimbal).eulerAngles;
             if (surfaceAttitude.x > 180.0f)
             {
