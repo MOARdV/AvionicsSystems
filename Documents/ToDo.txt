@@ -56,9 +56,7 @@ Handlers (non-prop control stuff)
 
 * JSIOdometer
 
-* JSIPrimaryFlightDisplay: Replace with MASPageNavBall, which will have a single camera,
-render texture, and model.  That way, only one is actually ever rendered, into a rentex,
-and all each page does is display that rentex (with all of the options of an IMAGE node).
+- JSIPrimaryFlightDisplay: complete.  Replaced with MASPageNavBall.
 
 * JSISteerableCamera
 

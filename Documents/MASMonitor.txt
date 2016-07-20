@@ -114,7 +114,9 @@ NAVBALL
 	model = JSI/RasterPropMonitor/Library/Components/NavBall/NavBall
 	texture = JSI/RasterPropMonitor/Library/Components/NavBall/NavBall000
 	//position = 256, 256
-	size = 340
+	size = 340, 340
+	//opacity = 0.9
+	//color = 0, 255, 0, 200
 	//variable = fc.GetBrakes()
 	//range = 0.5, 1.5
 }
@@ -128,6 +130,11 @@ move the navball on the screen.
 'size': Required.  Specifies the pixel width and height of the image.
 Note that the navball is rendered to a square, so using a non-square size here
 will distort the shape of the navball.
+'opacity': Optional.  Defaults to 1.0.  Controls the alpha value of the navball.
+Setting this value less than one will make the navball partially transparent.
+'color': Optional.  When present, all icon markers will use this color instead
+of stock-default colors.  This option may make the navball harder to read, since
+multiple direction vectors use the same icons.
 'variable': Optional.  When present, the variable will control whether the navball
 is rendered or not.
 'range': Optional.  Ignored if 'variable' is not present.  When present, the

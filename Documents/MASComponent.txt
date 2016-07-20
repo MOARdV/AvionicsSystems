@@ -61,6 +61,38 @@ ANIMATION_PLAYER
 in Boolean Mode.
 
 
+AUDIO_PLAYER
+
+This action plays audio when a variable transitions into or out of a specified range.
+This action can operate in Boolean Mode or Threshold Mode.
+
+The audio can be configured to play in one of four modes:
+
+ON: Play the audio clip once when the variable goes true / in range.
+OFF: Play the audio clip once when the variable goes false / out of range.
+BOTH: Play the audio clip once for any transition (going true or going false).
+LOOP: Loop the audio as long as the variable is true / in range.
+
+AUDIO_PLAYER
+{
+	name = Clicker
+	sound = ASET/ASET_Props/Sounds/tumbleClick01
+	volume = 1.0
+	trigger = BOTH
+	variable = fc.GetPersistent("Backlight")
+	//range = 0.5, 1.5
+}
+
+'name': Optional.  Default '(anonymous)'.  A name for the action.
+'sound': Required.  The URI to the audio clip to play.
+'volume': Optional.  Default 1.0.  The volume at which the audio should be played.
+'trigger': Required.  The conditions under which the audio is played, as explained
+in the text above.
+'variable': Required.  The name of the variable script to evaluate.
+'range': Optional.  When present, the Audio Player operates in Threshold Mode.  When absent, the player operates
+in Boolean Mode.
+
+
 COLLIDER_EVENT
 
 A Collider Event action is used to respond to button presses and releases.
@@ -72,6 +104,9 @@ COLLIDER_EVENT
     onClick = fc.ToggleRCS()
     //onRelease = fc.ToggleRCS()
 	//autoRepeat = true
+	//clickSound = 
+	//releaseSound = 
+	//volume = 
 }
 
 'name': Optional.  Default '(anonymous)'.  A name for the action.
@@ -81,6 +116,12 @@ transform is clicked or released.  If both are present, the switch may be used f
 'autoRepeat': Optional.  Default 'false'.  When set to true, the onClick event
 triggers every FixedUpdate until the button is released.  It is possible to use autoRepeat, onClick, and onRelease
 in the same Collider Event.
+'clickSound': Optional.  When present, plays the specified audio when the click event
+fires.
+'releaseSound': Optional.  When present, plays the specified audio when the release event
+fires.
+'volume': Optional.  Default 1.0.  When clickSound and/or releaseSound are present, adjusts
+the volume of those sounds.
 
 
 COLOR_SHIFT
