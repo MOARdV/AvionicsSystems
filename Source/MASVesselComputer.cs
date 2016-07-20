@@ -122,6 +122,7 @@ namespace AvionicsSystems
                 UpdateAttitude();
                 UpdateAltitudes();
                 UpdateManeuverNode();
+                UpdateTarget();
                 //Utility.LogMessage(this, "FixedUpdate for {0}", vessel.id);
             }
         }
@@ -160,6 +161,10 @@ namespace AvionicsSystems
 
             vesselActive = (vessel.GetCrewCount() > 0);
             UpdateModuleData();
+            UpdateAttitude();
+            UpdateAltitudes();
+            UpdateManeuverNode();
+            UpdateTarget();
 
             Utility.LogMessage(this, "OnAwake for {0}", vesselId);
         }
@@ -186,6 +191,7 @@ namespace AvionicsSystems
             vessel = null;
             mainBody = null;
             navBall = null;
+            activeTarget = null;
         }
 
         /// <summary>
@@ -425,7 +431,8 @@ namespace AvionicsSystems
                 {
                     if (node != null && vessel.orbit != null)
                     {
-                        nodeDV = node.GetBurnVector(vessel.orbit).magnitude;
+                        maneuverVector = node.GetBurnVector(vessel.orbit);
+                        nodeDV = maneuverVector.magnitude;
                     }
                     else
                     {
@@ -434,6 +441,27 @@ namespace AvionicsSystems
                 }
 
                 return nodeDV;
+            }
+        }
+        private Vector3d maneuverVector;
+        internal Vector3d maneuverNodeVector
+        {
+            get
+            {
+                if (nodeDV < 0.0)
+                {
+                    if (node != null && vessel.orbit != null)
+                    {
+                        maneuverVector = node.GetBurnVector(vessel.orbit);
+                        nodeDV = maneuverVector.magnitude;
+                    }
+                    else
+                    {
+                        nodeDV = 0.0;
+                    }
+                }
+
+                return maneuverVector;
             }
         }
         internal bool maneuverNodeValid
@@ -468,6 +496,62 @@ namespace AvionicsSystems
                 node = null;
             }
             nodeDV = -1.0;
+            maneuverVector = Vector3d.zero;
+        }
+
+        public enum TargetType
+        {
+            None,
+            Vessel,
+            DockingPort,
+            CelestialBody,
+            PositionTarget,
+            Asteroid,
+        };
+        internal ITargetable activeTarget = null;
+        internal Vector3d targetDirection;
+        internal TargetType targetType;
+        internal bool targetValid
+        {
+            get
+            {
+                return (activeTarget != null);
+            }
+        }
+        void UpdateTarget()
+        {
+            activeTarget = FlightGlobals.fetch.VesselTarget;
+            if (activeTarget != null)
+            {
+                targetDirection = vessel.GetTransform().position - activeTarget.GetTransform().position;
+
+                if(activeTarget is Vessel)
+                {
+                    targetType = TargetType.Vessel;
+                }
+                else if(activeTarget is CelestialBody)
+                {
+                    targetType = TargetType.CelestialBody;
+                }
+                else if (activeTarget is ModuleDockingNode)
+                {
+                    targetType = TargetType.DockingPort;
+                }
+                else if (activeTarget is PositionTarget)
+                {
+                    targetType = TargetType.PositionTarget;
+                }
+                else
+                {
+                    Utility.LogErrorMessage(this, "UpdateTarget() - unable to classify target {0}", activeTarget.GetType().Name);
+                    targetType = TargetType.None;
+                }
+            }
+            else
+            {
+                targetType = TargetType.None;
+                targetDirection = Vector3d.zero;
+            }
         }
         #endregion
 
