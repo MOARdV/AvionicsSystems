@@ -367,6 +367,11 @@ namespace AvionicsSystems
                 return navballAttitudeGimbal;
             }
         }
+        internal Vector3 up;
+        internal Vector3 prograde;
+        internal Vector3 radialOut;
+        internal Vector3 normal;
+
         /// <summary>
         /// Because the gimbal is reflected for presentation, we need to
         /// mirror the value here so the gimbal is correct.
@@ -403,6 +408,11 @@ namespace AvionicsSystems
             {
                 surfaceAttitude.z = -surfaceAttitude.z;
             }
+
+            up = FlightGlobals.upAxis;
+            prograde = vessel.obt_velocity.normalized;
+            radialOut = Vector3.ProjectOnPlane(up, prograde).normalized;
+            normal = -Vector3.Cross(radialOut, prograde).normalized;
         }
 
         private ManeuverNode node;
