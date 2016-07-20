@@ -39,6 +39,8 @@ namespace AvionicsSystems
 
         private GameObject imageObject;
         private GameObject navballModel;
+        private GameObject[] markers = new GameObject[12];
+        private Material[] markerMaterial = new Material[12];
         private RenderTexture navballRenTex;
         private Camera navballCamera;
         private Material imageMaterial;
@@ -48,6 +50,28 @@ namespace AvionicsSystems
         private readonly bool rangeMode;
         private bool currentState;
         private MASFlightComputer comp;
+        private readonly float navballExtents;
+        private readonly float iconDepth;
+        private readonly float iconAlphaScalar;
+        private static readonly int navballLayer = 29;
+        private static int colorIdx = Shader.PropertyToID("_Color");
+        private readonly Color[] activeMarkerColor = new Color[12];
+
+        enum MarkerId
+        {
+            Prograde,
+            Retrograde,
+            RadialOut,
+            RadialIn,
+            NormalPlus,
+            NormalMinus,
+            ManeuverPlus,
+            ManeuverMinus,
+            TargetPlus,
+            TargetMinus,
+            DockingAlignment,
+            Waypoint
+        }
 
         internal MASPageNavBall(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
@@ -67,16 +91,17 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Unable to find 'model' " + modelName + " for NAVBALL " + name);
             }
-            float navballExtents;
             try
             {
-                Vector3 extents =navballModel.GetComponent<MeshFilter>().mesh.bounds.extents;
+                Vector3 extents = navballModel.GetComponent<MeshFilter>().mesh.bounds.extents;
                 navballExtents = Mathf.Max(extents.x, extents.y) * 1.01f;
             }
             catch
             {
                 navballExtents = 1.0f;
             }
+            iconDepth = 1.4f - navballExtents - 0.01f;
+            iconAlphaScalar = 0.6f / navballExtents;
             //Utility.LogMessage(this, "navballExtents -> {0}", navballExtents);
 
             string textureName = string.Empty;
@@ -104,7 +129,7 @@ namespace AvionicsSystems
             size = size * 0.5f;
 
             float opacity = 1.0f;
-            if(!config.TryGetValue("opacity", ref opacity))
+            if (!config.TryGetValue("opacity", ref opacity))
             {
                 opacity = 1.0f;
             }
@@ -187,7 +212,7 @@ namespace AvionicsSystems
             navballCamera.eventMask = 0;
             navballCamera.farClipPlane = 13.0f;
             navballCamera.orthographicSize = navballExtents;
-            navballCamera.cullingMask = 1 << 29;
+            navballCamera.cullingMask = 1 << navballLayer;
             // TODO: Different shader... clearing to a=0 hides the navball
             navballCamera.backgroundColor = new Color(0.0f, 0.0f, 0.0f, 1.0f);
             //navballCamera.backgroundColor = new Color(0.0f, 0.0f, 0.0f, 0.0f);
@@ -197,9 +222,10 @@ namespace AvionicsSystems
             navballCamera.targetTexture = navballRenTex;
             Camera.onPreRender += CameraPrerender;
 
-            navballModel.layer = 29;
+            navballModel.layer = navballLayer;
             navballModel.transform.parent = imageObject.transform;
             // TODO: this isn't working when the camera is shifted.
+            //navballModel.transform.Translate(new Vector3(position.x, -position.y, 2.4f));
             navballModel.transform.Translate(new Vector3(0.0f, 0.0f, 2.4f));
             Renderer navballRenderer = null;
             navballMaterial = navballModel.GetComponentCached<Renderer>(ref navballRenderer).material;
@@ -208,6 +234,10 @@ namespace AvionicsSystems
             navballMaterial.SetFloat("_Opacity", opacity);
             navballRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             navballModel.SetActive(true);
+
+            InitMarkers(imageObject.transform);
+            //Utility.LogMessage(this, "navball @ {0}, marker[0] @ {1}", navballModel.transform.position, markers[0].transform.position);
+            //Utility.LogMessage(this, "camera @ {0}, extent = {1}, shift ~ {2}", navballCamera.transform.position, navballExtents, -navballExtents - 0.01f);
 
             if (!string.IsNullOrEmpty(variableName))
             {
@@ -221,9 +251,24 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Convert the Z-value of a direction vector into an alpha value for fading icons
+        /// </summary>
+        /// <param name="zValue"></param>
+        /// <returns></returns>
+        private float GetIconAlpha(float zValue)
+        {
+            // Current iconAlphaScalar = 0.6f / navballExtents
+            return Mathf.Clamp01(zValue * iconAlphaScalar + 0.4f);
+        }
+
+        /// <summary>
+        /// Callback called before rendering - we use this to update markers, etc.
+        /// </summary>
+        /// <param name="whichCamera"></param>
         private void CameraPrerender(Camera whichCamera)
         {
-            if(whichCamera == navballCamera)
+            if (whichCamera == navballCamera)
             {
                 if (!navballRenTex.IsCreated())
                 {
@@ -231,8 +276,189 @@ namespace AvionicsSystems
                     navballCamera.targetTexture = navballRenTex;
                     imageMaterial.mainTexture = navballRenTex;
                 }
+                //navballRenTex.DiscardContents();
                 // Apply navball gimbal
-                navballModel.transform.rotation = comp.vc.navBallRotation;
+                navballModel.transform.rotation = comp.vc.navBallRelativeGimbal;
+
+                Quaternion attitudeGimbal = comp.vc.navBallAttitudeGimbal;
+                var speedMode = FlightGlobals.speedDisplayMode;
+                if (speedMode == FlightGlobals.SpeedDisplayModes.Orbit)
+                {
+                    Vector3 prograde = (attitudeGimbal * comp.vc.prograde) * navballExtents;
+                    markers[0].transform.localPosition = new Vector3(prograde.x, prograde.y, iconDepth);
+                    activeMarkerColor[0].a = GetIconAlpha(prograde.z);
+                    markerMaterial[0].SetColor(colorIdx, activeMarkerColor[0]);
+                    markers[1].transform.localPosition = new Vector3(-prograde.x, -prograde.y, iconDepth);
+                    activeMarkerColor[1].a = GetIconAlpha(-prograde.z);
+                    markerMaterial[1].SetColor(colorIdx, activeMarkerColor[1]);
+
+                    Vector3 radialOut = (attitudeGimbal * comp.vc.radialOut) * navballExtents;
+                    markers[2].SetActive(true);
+                    markers[2].transform.localPosition = new Vector3(radialOut.x, radialOut.y, iconDepth);
+                    activeMarkerColor[2].a = GetIconAlpha(radialOut.z);
+                    markerMaterial[2].SetColor(colorIdx, activeMarkerColor[2]);
+                    markers[3].SetActive(true);
+                    markers[3].transform.localPosition = new Vector3(-radialOut.x, -radialOut.y, iconDepth);
+                    activeMarkerColor[3].a = GetIconAlpha(-radialOut.z );
+                    markerMaterial[3].SetColor(colorIdx, activeMarkerColor[3]);
+
+                    Vector3 normal = (attitudeGimbal * comp.vc.normal) * navballExtents;
+                    markers[4].SetActive(true);
+                    markers[4].transform.localPosition = new Vector3(normal.x, normal.y, iconDepth);
+                    activeMarkerColor[4].a = GetIconAlpha(normal.z );
+                    markerMaterial[4].SetColor(colorIdx, activeMarkerColor[4]);
+                    markers[5].SetActive(true);
+                    markers[5].transform.localPosition = new Vector3(-normal.x, -normal.y, iconDepth);
+                    activeMarkerColor[5].a = GetIconAlpha(-normal.z );
+                    markerMaterial[5].SetColor(colorIdx, activeMarkerColor[5]);
+                }
+                else if(speedMode == FlightGlobals.SpeedDisplayModes.Surface)
+                {
+                    Vector3 prograde = (attitudeGimbal * comp.vessel.srf_velocity.normalized) * navballExtents;
+                    markers[0].transform.localPosition = new Vector3(prograde.x, prograde.y, iconDepth);
+                    activeMarkerColor[0].a = GetIconAlpha( prograde.z );
+                    markerMaterial[0].SetColor(colorIdx, activeMarkerColor[0]);
+                    markers[1].transform.localPosition = new Vector3(-prograde.x, -prograde.y, iconDepth);
+                    activeMarkerColor[1].a = GetIconAlpha(-prograde.z );
+                    markerMaterial[1].SetColor(colorIdx, activeMarkerColor[1]);
+                    for (int i = 2; i < 6; ++i)
+                    {
+                        markers[i].SetActive(false);
+                    }
+                }
+                else
+                {
+                    // TODO:
+                    Vector3 prograde = (attitudeGimbal * comp.vc.prograde) * navballExtents;
+                    markers[0].transform.localPosition = new Vector3(prograde.x, prograde.y, iconDepth);
+                    activeMarkerColor[0].a = GetIconAlpha(prograde.z );
+                    markerMaterial[0].SetColor(colorIdx, activeMarkerColor[0]);
+                    markers[1].transform.localPosition = new Vector3(-prograde.x, -prograde.y, iconDepth);
+                    activeMarkerColor[1].a = GetIconAlpha(-prograde.z);
+                    markerMaterial[1].SetColor(colorIdx, activeMarkerColor[1]);
+                    for (int i = 2; i < 6; ++i)
+                    {
+                        markers[i].SetActive(false);
+                    }
+                }
+
+                // Maneuver +/-
+                // Target +/-
+                // Docking Port
+                // Waypoint
+
+                //Utility.LogMessage(this, "[0] -> {0}", markers[0].transform.position);
+
+                //Utility.LogMessage(this, "[1] -> {0}", markers[1].transform.position);
+            }
+        }
+
+        private static readonly Vector2[] markerUV =
+        {
+            new Vector2(0.0f / 3.0f, 2.0f / 3.0f), // Prograde
+            new Vector2(1.0f / 3.0f, 2.0f / 3.0f), // Retrograde
+            new Vector2(0.0f / 3.0f, 2.0f / 3.0f), // RadialOut
+            new Vector2(1.0f / 3.0f, 1.0f / 3.0f), // RadialIn
+            new Vector2(0.0f / 3.0f, 1.0f / 3.0f), // NormalPlus
+            new Vector2(1.0f / 3.0f, 0.0f / 3.0f), // NormalMinus
+            new Vector2(2.0f / 3.0f, 0.0f / 3.0f), // ManeuverPlus
+            new Vector2(1.0f / 3.0f, 2.0f / 3.0f), // ManeuverMinus
+            new Vector2(2.0f / 3.0f, 1.0f / 3.0f), // TargetPlus
+            new Vector2(2.0f / 3.0f, 2.0f / 3.0f), // TargetMinus
+            new Vector2(0.0f / 3.0f, 2.0f / 3.0f), // DockingAlignment
+            new Vector2(0.0f / 3.0f, 2.0f / 3.0f), // Waypoint
+        };
+        private static readonly Color[] markerColor =
+        {
+            XKCDColors.LimeGreen,
+            XKCDColors.LimeGreen,
+            XKCDColors.Cyan,
+            XKCDColors.Cyan,
+            XKCDColors.HotMagenta,
+            XKCDColors.HotMagenta,
+            XKCDColors.Magenta,
+            XKCDColors.Magenta,
+            XKCDColors.Magenta,
+            XKCDColors.Magenta,
+            XKCDColors.Red,
+            XKCDColors.Red,
+        };
+        private GameObject MakeMarker(Transform rootTransform, Shader displayShader, Texture maneuverTexture, int markerIdx)
+        {
+            GameObject newMarker = new GameObject();
+            newMarker.layer = navballLayer;
+            newMarker.transform.parent = rootTransform;
+            newMarker.transform.localPosition = new Vector3(0.0f, 0.0f, iconDepth);
+
+            Material markerMaterial = new Material(displayShader);
+            markerMaterial.mainTexture = maneuverTexture;
+            markerMaterial.SetColor(colorIdx, markerColor[markerIdx]);
+
+            MeshFilter meshFilter = newMarker.AddComponent<MeshFilter>();
+            MeshRenderer meshRenderer = newMarker.AddComponent<MeshRenderer>();
+            meshRenderer.material = markerMaterial;
+            this.markerMaterial[markerIdx] = markerMaterial;
+
+            Vector2 uv0 = markerUV[markerIdx];
+            Vector2 uv1 = uv0 + new Vector2(1.0f / 3.0f, 1.0f/3.0f);
+            // Half-extents based on centered position.  * 0.15 to scale
+            // relative to the navball
+            float markerExtents = navballExtents * 0.18f;
+            //float markerExtents = navballExtents * 0.5f * 0.15f;
+            Mesh mesh = new Mesh();
+            mesh.vertices = new[]
+                {
+                    new Vector3(-markerExtents, markerExtents, 0.0f),
+                    new Vector3(markerExtents, markerExtents, 0.0f),
+                    new Vector3(-markerExtents, -markerExtents, 0.0f),
+                    new Vector3(markerExtents, -markerExtents, 0.0f),
+                };
+            mesh.colors32 = new Color32[]
+                {
+                    XKCDColors.White,
+                    XKCDColors.White,
+                    XKCDColors.White,
+                    XKCDColors.White,
+                };
+            mesh.uv = new[]
+                {
+                    new Vector2(uv0.x, uv1.y),
+                    uv1,
+                    uv0,
+                    new Vector2(uv1.x, uv0.y),
+                };
+            mesh.triangles = new[] 
+                {
+                    0, 3, 2,
+                    0, 1, 3
+                };
+            mesh.RecalculateBounds();
+            mesh.Optimize();
+            mesh.UploadMeshData(true);
+            meshFilter.mesh = mesh;
+
+            newMarker.SetActive(true);
+
+            return newMarker;
+        }
+
+        private void InitMarkers(Transform rootTransform)
+        {
+            // marker is ~15% width of ball
+            Shader displayShader = MASLoader.shaders["MOARdV/TextMonitor"];//Shader.Find("KSP/Alpha/Unlit Transparent");
+            Texture2D maneuverTexture = GameDatabase.Instance.GetTexture("Squad/Props/IVANavBall/ManeuverNode_vectors", false);
+            //float iconDepth = 2.4f - navballExtents - 0.01f;
+            //float iconDepth = 1.4f - navballExtents - 0.01f;
+            //Utility.LogMessage(this, "InitMarkers - rootTransform = {0}, iconDepth = {1}", rootTransform.position.z, iconDepth);
+            //float iconDepth = -navballExtents - 0.01f;
+
+            int markerCount = 6;//markers.Length
+            for (int markerId = 0; markerId < markerCount; ++markerId)
+            {
+                markers[markerId] = MakeMarker(rootTransform, displayShader, maneuverTexture, markerId);
+                markers[markerId].transform.localPosition = new Vector3(markerId * 0.5f, 0.0f, iconDepth);
+                activeMarkerColor[markerId] = markerColor[markerId];
+                //Utility.LogMessage(this, "- markers{1} = {0}", markers[markerId].transform.position.z, markerId);
             }
         }
 
