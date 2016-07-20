@@ -103,6 +103,15 @@ namespace AvionicsSystems
         private InternalProp internalProp;
         private bool configured = false;
 
+        // To avoid piles of garbage creation, keep the local arrays here so
+        // we do not allocate them every update.  Intentionally set their sizes
+        // to zero to trigger a reallocation on first use.
+        Vector3[] vertices = new Vector3[0];
+        Color32[] colors32 = new Color32[0];
+        Vector4[] tangents = new Vector4[0];
+        Vector2[] uv = new Vector2[0];
+        int[] triangles = new int[0];
+
         private static readonly string[] VariableListSeparator = { "$&$" };
         //private static readonly string[] MangledLineSeparator = { "$$$" };
         private static readonly string[] LineSeparator = { Environment.NewLine };
@@ -422,10 +431,10 @@ namespace AvionicsSystems
                     }
                     else
                     {
-                        if (meshFilter.mesh.colors32.Length > 0)
+                        int colorsLength = colors32.Length;
+                        if (colorsLength > 0)
                         {
-                            Color32[] colors32 = new Color32[meshFilter.mesh.colors32.Length];
-                            for (int i = colors32.Length - 1; i >= 0; --i)
+                            for (int i = colorsLength - 1; i >= 0; --i)
                             {
                                 colors32[i] = color;
                             }
@@ -609,16 +618,15 @@ namespace AvionicsSystems
 
             meshRenderer.gameObject.SetActive(true);
 
-            Vector3[] vertices = new Vector3[maxVerts];
-            Color32[] colors32 = new Color32[maxVerts];
-            Vector4[] tangents = new Vector4[maxVerts];
-            Vector2[] uv = new Vector2[maxVerts];
-
-            int triLength = maxVerts + maxVerts / 2;
-            int[] triangles = new int[triLength];
-            for (int idx = 0; idx < triLength; ++idx)
+            if (vertices.Length < maxVerts)
             {
-                triangles.SetValue(0, idx);
+                vertices = new Vector3[maxVerts];
+                colors32 = new Color32[maxVerts];
+                tangents = new Vector4[maxVerts];
+                uv = new Vector2[maxVerts];
+
+                int triLength = maxVerts + maxVerts / 2;
+                triangles = new int[triLength];
             }
 
             int charWritten = 0;
@@ -794,6 +802,11 @@ namespace AvionicsSystems
                 yPos -= fixedLineSpacing;
             }
 
+            int triangleLength = triangles.Length;
+            for (int i = charWritten * 6; i < triangleLength; ++i)
+            {
+                triangles[i] = 0;
+            }
             meshFilter.mesh.Clear();
             meshFilter.mesh.vertices = vertices;
             meshFilter.mesh.colors32 = colors32;
@@ -933,15 +946,15 @@ namespace AvionicsSystems
 
             meshRenderer.gameObject.SetActive(true);
 
-            Vector3[] vertices = new Vector3[maxVerts];
-            Color32[] colors32 = new Color32[maxVerts];
-            Vector4[] tangents = new Vector4[maxVerts];
-            Vector2[] uv = new Vector2[maxVerts];
-
-            int[] triangles = new int[maxVerts + maxVerts / 2];
-            for (int idx = 0; idx < triangles.Length; ++idx)
+            if (vertices.Length < maxVerts)
             {
-                triangles.SetValue(0, idx);
+                vertices = new Vector3[maxVerts];
+                colors32 = new Color32[maxVerts];
+                tangents = new Vector4[maxVerts];
+                uv = new Vector2[maxVerts];
+
+                int triLength = maxVerts + maxVerts / 2;
+                triangles = new int[triLength];
             }
 
             int charWritten = 0;
@@ -1153,6 +1166,11 @@ namespace AvionicsSystems
                 yPos -= lineAdvance;
             }
 
+            int triangleLength = triangles.Length;
+            for (int i = charWritten * 6; i < triangleLength; ++i)
+            {
+                triangles[i] = 0;
+            }
             meshFilter.mesh.Clear();
             meshFilter.mesh.vertices = vertices;
             meshFilter.mesh.colors32 = colors32;
@@ -1199,17 +1217,15 @@ namespace AvionicsSystems
 
             meshRenderer.gameObject.SetActive(true);
 
-            Vector3[] vertices = new Vector3[maxVerts];
-            Color32[] colors32 = new Color32[maxVerts];
-            Vector4[] tangents = new Vector4[maxVerts];
-            Vector2[] uv = new Vector2[maxVerts];
-
-            int triCount = maxVerts + maxVerts / 2;
-            int[] triangles = new int[triCount];
-            for (int idx = 0; idx < triCount; ++idx)
+            if (vertices.Length < maxVerts)
             {
-                //triangles
-                triangles.SetValue(0, idx); // ???
+                vertices = new Vector3[maxVerts];
+                colors32 = new Color32[maxVerts];
+                tangents = new Vector4[maxVerts];
+                uv = new Vector2[maxVerts];
+
+                int triLength = maxVerts + maxVerts / 2;
+                triangles = new int[triLength];
             }
 
             int charWritten = 0;
@@ -1313,6 +1329,11 @@ namespace AvionicsSystems
                 yPos -= lineAdvance;
             }
 
+            int triangleLength = triangles.Length;
+            for (int i = charWritten * 6; i < triangleLength; ++i)
+            {
+                triangles[i] = 0;
+            }
             meshFilter.mesh.Clear();
             meshFilter.mesh.vertices = vertices;
             meshFilter.mesh.colors32 = colors32;
