@@ -76,6 +76,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Source\MASMonitor.cs" />
     <Compile Include="Source\MASPage.cs" />
+    <Compile Include="Source\MASPageHorizontalStrip.cs" />
     <Compile Include="Source\MASPageImage.cs" />
     <Compile Include="Source\MASPageNavBall.cs" />
     <Compile Include="Source\MASPageText.cs" />
