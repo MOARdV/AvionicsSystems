@@ -120,6 +120,15 @@ namespace AvionicsSystems
         private string ConditionVariableName(string initialName, InternalProp prop)
         {
             initialName = initialName.Trim();
+            double numeric;
+            if (double.TryParse(initialName, out numeric))
+            {
+                // If the variable is a numeric constant, we want to
+                // canonicalize it so we don't create multiple variables that
+                // all have the same value, eg "0" and "0.0" and "0.00"
+                initialName = string.Format("{0:R}", numeric);
+            }
+
             if (prop == null)
             {
                 return initialName;
