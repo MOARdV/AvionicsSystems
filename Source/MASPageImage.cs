@@ -36,7 +36,6 @@ namespace AvionicsSystems
     internal class MASPageImage : IMASSubComponent
     {
         private string name = "(anonymous)";
-        private string text = string.Empty;
 
         private GameObject imageObject;
         private Material imageMaterial;

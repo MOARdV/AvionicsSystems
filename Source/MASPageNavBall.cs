@@ -35,7 +35,6 @@ namespace AvionicsSystems
     internal class MASPageNavBall : IMASSubComponent
     {
         private string name = "(anonymous)";
-        private string text = string.Empty;
 
         private GameObject imageObject;
         private GameObject navballModel;
@@ -148,7 +147,7 @@ namespace AvionicsSystems
                 string[] ranges = range.Split(',');
                 if (ranges.Length != 2)
                 {
-                    throw new ArgumentException("Incorrect number of values in 'range' in TEXT " + name);
+                    throw new ArgumentException("Incorrect number of values in 'range' in NAVBALL " + name);
                 }
                 range1 = comp.GetVariable(ranges[0], prop);
                 range2 = comp.GetVariable(ranges[1], prop);
