@@ -80,6 +80,7 @@
     <Compile Include="Source\MASPageImage.cs" />
     <Compile Include="Source\MASPageNavBall.cs" />
     <Compile Include="Source\MASPageText.cs" />
+    <Compile Include="Source\MASPageVerticalStrip.cs" />
     <Compile Include="Source\MASStringFormatter.cs" />
     <Compile Include="Source\MASVesselComputer.cs" />
     <Compile Include="Source\IMASSubComponent.cs" />

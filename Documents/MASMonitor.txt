@@ -74,6 +74,50 @@ cause unusually-wide characters to be compressed horizontally, which may hinder 
 This problem may be worse if the [hw] tag is used with those fonts.
 
 
+HORIZONTAL_STRIP
+
+A Horizontal Strip node renders part of a texture in response to a variable input.  It can be
+used for a virtual compass instrument or other applications.  The full height of the source
+texture is always displayed in a horizontal strip, but only a portion of the width is visible
+at any given time.
+
+HORIZONTAL_STRIP
+{
+	name = Heading
+	texture = JSI/RasterPropMonitor/Library/Components/NavBall/hdg2
+	position = 448,20
+	size = 128,24
+	input = fc.Heading()
+	inputRange = 0, 360
+	displayRange = 0,1024
+	displayWidth = 128
+	//variable = fc.GetBrakes()
+	//range = 0.5, 1.1
+}
+
+'name': Optional.  Default '(anonymous)'.  A name for the node.
+'texture': Required.  The texture that will be used for the horizontal strip.
+'position': Required.  The location on the monitor where the upper-left corner
+of the strip will be placed.
+'size': Required.  The size of displayed portion of the strip.
+'input': Required.  The variable that will be used to control the strip.
+'inputRange': Required.  The range of values that will affect the position of
+the displayed strip.  The result of 'input' is clamped to this range.
+'displayRange': Required.  Controls how the 'inputRange' is mapped to texture
+locations.  Lists the position in pixels for the lower and upper bound of
+the displayed image.  For instance, in the above example, when heading is 0,
+the 0 pixel location is in the center of the strip.  When the heading is 180,
+the 512 pixel is visible.
+'displayWidth': Required.  The width of the visible portion of 'texture', in
+pixels as measured on the texture.  Eg, if the texture is 512 pixels wide, and
+you want the 25% of it visible, you would use 'displayWidth = 128'.
+'variable': Optional.  When present, the variable will control whether this strip
+is rendered or not.
+'range': Optional.  Ignored if 'variable' is not present.  When present, the
+'variable' operates in Threshold Mode; when absent, the 'variable' operates in
+Boolean Mode.
+
+
 IMAGE
 
 An Image node renders an image.  The image's position and size may be specified, including resizing
@@ -182,6 +226,49 @@ omitted, the default found in MASMonitor is used.
 the text being rendered.  The offset is in units of character columns and rows,
 not pixels.
 'variable': Optional.  When present, the variable will control whether this text
+is rendered or not.
+'range': Optional.  Ignored if 'variable' is not present.  When present, the
+'variable' operates in Threshold Mode; when absent, the 'variable' operates in
+Boolean Mode.
+
+
+VERTICAL_STRIP
+
+A Vertical Strip node renders part of a texture in response to a variable input.  It can be
+used for a aircraft VSI and altitude strips on a HUD or other applications.  The full width of the source
+texture is always displayed in a vertical strip, but only a portion of the height is visible
+at any given time.
+
+VERTICAL_STRIP
+{
+	name = VSI
+	texture = JSI/RasterPropMonitor/Library/Components/HUD/leftscale
+	position = 86,64
+	size = 64,320
+	input = fc.PseudoLog10(fc.VerticalSpeed())
+	inputRange = -5, 5
+	displayRange = 1845,208
+	displayWidth = 640
+	//variable = fc.GetBrakes()
+	//range = 0.5, 1.1
+}
+
+'name': Optional.  Default '(anonymous)'.  A name for the node.
+'texture': Required.  The texture that will be used for the horizontal strip.
+'position': Required.  The location on the monitor where the upper-left corner
+of the strip will be placed.
+'size': Required.  The size of displayed portion of the strip.
+'input': Required.  The variable that will be used to control the strip.
+'inputRange': Required.  The range of values that will affect the position of
+the displayed strip.  The result of 'input' is clamped to this range.
+'displayRange': Required.  Controls how the 'inputRange' is mapped to texture
+locations.  Lists the position in pixels for the lower and upper bound of
+the displayed image.  Pixels count up from the top of the image (the top of the
+image is '0', the bottom is whatever the height of the image is).
+'displayHeight': Required.  The height of the visible portion of 'texture', in
+pixels as measured on the texture.  Eg, if the texture is 512 pixels tall, and
+you want the 25% of it visible, you would use 'displayHeight = 128'.
+'variable': Optional.  When present, the variable will control whether this strip
 is rendered or not.
 'range': Optional.  Ignored if 'variable' is not present.  When present, the
 'variable' operates in Threshold Mode; when absent, the 'variable' operates in

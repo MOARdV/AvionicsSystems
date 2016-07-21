@@ -53,9 +53,13 @@ namespace AvionicsSystems
             {
                 return new MASPageNavBall(config, prop, comp, monitor, pageRoot, depth);
             }
+            else if (config.name == "VERTICAL_STRIP")
+            {
+                return new MASPageVerticalStrip(config, prop, comp, monitor, pageRoot, depth);
+            }
             else
             {
-                throw new ArgumentException("Unrecognized MAS_PAGE component " + config.name); ;
+                throw new ArgumentException("Unrecognized MAS_PAGE component " + config.name);
             }
         }
 
