@@ -98,6 +98,20 @@ namespace AvionicsSystems
             // TODO: Implement this.
             return 1.0;
         }
+
+        /// <summary>
+        /// Apply a log10-like curve to the value.
+        /// </summary>
+        /// <param name="sourceValue"></param>
+        /// <returns></returns>
+        public double PseudoLog10(double sourceValue)
+        {
+            if (Math.Abs(sourceValue) <= 1.0)
+            {
+                return sourceValue;
+            }
+            return (1.0f + Math.Log10(Math.Abs(sourceValue))) * Math.Sign(sourceValue);
+        }
         #endregion
 
         #region Action Groups
