@@ -415,7 +415,7 @@ namespace AvionicsSystems
                 surfaceAttitude.z = -surfaceAttitude.z;
             }
 
-            up = FlightGlobals.upAxis;
+            up = vessel.upAxis;
             prograde = vessel.obt_velocity.normalized;
             radialOut = Vector3.ProjectOnPlane(up, prograde).normalized;
             normal = -Vector3.Cross(radialOut, prograde).normalized;
