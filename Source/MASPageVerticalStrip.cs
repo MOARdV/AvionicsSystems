@@ -113,7 +113,7 @@ namespace AvionicsSystems
             }
             texelWidth = mainTexture.texelSize.y;
             float textureSpan = displayHeight * texelWidth;
-            textureOffset = textureSpan * -0.5f;
+            textureOffset = textureSpan * 0.5f;
 
             if (config.TryGetValue("variable", ref variableName))
             {
@@ -140,7 +140,7 @@ namespace AvionicsSystems
 
             // Set up our display surface.
             imageObject = new GameObject();
-            imageObject.name = pageRoot.gameObject.name + "-MASPageHorizontalStrip-" + name + "-" + depth.ToString();
+            imageObject.name = pageRoot.gameObject.name + "-MASPageVerticalStrip-" + name + "-" + depth.ToString();
             imageObject.layer = pageRoot.gameObject.layer;
             imageObject.transform.parent = pageRoot;
             imageObject.transform.position = pageRoot.position;
