@@ -61,7 +61,12 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Unable to find 'texture' " + textureName + " for VERTICAL_STRIP " + name);
             }
-            mainTexture.wrapMode = TextureWrapMode.Repeat;
+            bool wrapMode = false;
+            if (!config.TryGetValue("wrap", ref wrapMode))
+            {
+                wrapMode = false;
+            }
+            mainTexture.wrapMode = (wrapMode) ?  TextureWrapMode.Repeat : TextureWrapMode.Clamp;
 
             Vector2 position = Vector2.zero;
             if (!config.TryGetValue("position", ref position))
