@@ -111,7 +111,10 @@ namespace AvionicsSystems
             {
                 return sourceValue;
             }
-            return (1.0f + Math.Log10(absValue)) * Math.Sign(sourceValue);
+            else
+            {
+                return (1.0f + Math.Log10(absValue)) * Math.Sign(sourceValue);
+            }
         }
         #endregion
 
@@ -202,10 +205,18 @@ namespace AvionicsSystems
 
         #region Atmosphere
         /// <summary>
+        /// Returns the atmospheric density.
+        /// </summary>
+        /// <returns></returns>
+        public double AtmosphericDensity()
+        {
+            return vessel.atmDensity;
+        }
+        /// <summary>
         /// Returns the static atmospheric pressure in standard atmospheres.
         /// </summary>
         /// <returns></returns>
-        public double GetStaticPressureAtm()
+        public double StaticPressureAtm()
         {
             return vessel.staticPressurekPa * PhysicsGlobals.KpaToAtmospheres;
         }
@@ -214,7 +225,7 @@ namespace AvionicsSystems
         /// Returns the static atmospheric pressure in kiloPascals.
         /// </summary>
         /// <returns></returns>
-        public double GetStaticPressureKPa()
+        public double StaticPressureKPa()
         {
             return vessel.staticPressurekPa;
         }
@@ -381,6 +392,25 @@ namespace AvionicsSystems
         public double ManeuverNodeTime()
         {
             return vc.maneuverNodeTime;
+        }
+        #endregion
+
+        #region Mass
+        /// <summary>
+        /// Returns the mass of the vessel
+        /// </summary>
+        /// <param name="wetMass">wet mass if true, dry mass otherwise</param>
+        /// <returns></returns>
+        public double Mass(bool wetMass)
+        {
+            if (wetMass)
+            {
+                return vessel.totalMass;
+            }
+            else
+            {
+                return 1.0;
+            }
         }
         #endregion
 
@@ -560,6 +590,18 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Compute equivalent airspeed.
+        /// 
+        /// https://en.wikipedia.org/wiki/Equivalent_airspeed
+        /// </summary>
+        /// <returns></returns>
+        public double EquivalentAirspeed()
+        {
+            double densityRatio = vessel.atmDensity / 1.225;
+            return vessel.srfSpeed * Math.Sqrt(densityRatio);
+        }
+
+        /// <summary>
         /// Measure of the surface speed of the vessel after removing the
         /// vertical component, in m/s.
         /// </summary>
@@ -580,6 +622,17 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the indicated airspeed in m/s.
+        /// </summary>
+        /// <returns></returns>
+        public double IndicatedAirspeed()
+        {
+            double densityRatio = vessel.atmDensity / 1.225;
+            double pressureRatio = Utility.StagnationPressure(vc.mainBody.atmosphereAdiabaticIndex, vessel.mach);
+            return vessel.srfSpeed * Math.Sqrt(densityRatio) * pressureRatio;
+        }
+
+        /// <summary>
         /// Return the orbital speed of the vessel in m/s
         /// </summary>
         /// <returns></returns>
@@ -596,11 +649,11 @@ namespace AvionicsSystems
         public double SpeedDisplayMode()
         {
             var displayMode = FlightGlobals.speedDisplayMode;
-            if(displayMode == FlightGlobals.SpeedDisplayModes.Orbit)
+            if (displayMode == FlightGlobals.SpeedDisplayModes.Orbit)
             {
                 return 1.0;
             }
-            else if(displayMode == FlightGlobals.SpeedDisplayModes.Surface)
+            else if (displayMode == FlightGlobals.SpeedDisplayModes.Surface)
             {
                 return 0.0;
             }
