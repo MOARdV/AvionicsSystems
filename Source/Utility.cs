@@ -183,5 +183,20 @@ namespace AvionicsSystems
                 return ConfigNode.ParseColor32(colorString);
             }
         }
+
+        /// <summary>
+        /// Computes Stagnation Pressure using gamma (ratio of specific heats)
+        /// and Mach number.
+        /// Per https://en.wikipedia.org/wiki/Stagnation_pressure
+        /// </summary>
+        /// <param name="gamma">Ratio of specific heats (CelestialBody.atmosphereAdiabaticIndex)</param>
+        /// <param name="M">Mach number (Vessel.mach)</param>
+        /// <returns></returns>
+        internal static double StagnationPressure(double gamma, double M)
+        {
+            double term = 1.0 + 0.5 * (gamma - 1.0) * M * M;
+            return Math.Pow(term, gamma / (gamma - 1.0));
+        }
+
     }
 }
