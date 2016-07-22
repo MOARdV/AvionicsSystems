@@ -106,11 +106,12 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double PseudoLog10(double sourceValue)
         {
-            if (Math.Abs(sourceValue) <= 1.0)
+            double absValue = Math.Abs(sourceValue);
+            if (absValue <= 1.0)
             {
                 return sourceValue;
             }
-            return (1.0f + Math.Log10(Math.Abs(sourceValue))) * Math.Sign(sourceValue);
+            return (1.0f + Math.Log10(absValue)) * Math.Sign(sourceValue);
         }
         #endregion
 
