@@ -74,6 +74,56 @@ cause unusually-wide characters to be compressed horizontally, which may hinder 
 This problem may be worse if the [hw] tag is used with those fonts.
 
 
+HORIZON
+
+The Horizon node renders an artificial horizon, such as would be found on aircraft.  It is
+not intended to replace a navball for full 3D positional data, since it only provides visual
+roll and pitch cues.  Note that both the pitch and roll variables *are* user configurable,
+so there is no requirement to use this feature strictly for those flight parameters.
+
+The texture is treated like a Vertical Strip with the additional feature of being able to
+rotate the texture around the center of its displayed area.  Texture coordinates are clamped, so for best
+results, the texture should have a one pixel wide border of whatever the background color
+should be.
+
+HORIZON
+{
+	name = horizon
+	texture = JSI/RasterPropMonitor/Library/Components/HUD/ladder
+	position = 0,0
+	size = 256, 256
+	pitch = fc.Pitch()
+	pitchRange = -90, 90
+	displayPitchRange = 1536,512
+	roll = fc.Roll()
+	rollRange = -180,180
+	displayRollRange = -180,180
+	//variable = fc.GetBrakes()
+	//range = 0.5, 1.1
+}
+
+'name': Optional.  Default '(anonymous)'.  A name for the node.
+'texture': Required.  The texture that will be used for the horizon.
+'position': Required.  The location on the monitor where the center
+of the horizon will be placed.
+'size': Required.  The size of displayed portion of the horizon.
+'pitch': Required.  The variable that controls vertical texture movement.
+'pitchRange': Required.  The range of values that will affect the horizon
+pitch.  Values outside this range are clamped to this range.
+'displayPitchRange': Required.  The pixel offsets from the top of the texture
+that correspond to the first and second 'pitchRange' values.
+'roll': Required.  The variable that controls texture roll.
+'rollRange': Required.  The range of valid roll values.  Values outside this
+range are clamped to this range.
+'displayRollRange': Required.  The range that the texture will be rotated.
+Maximum values should stay between [-180, +180] for a normal horizon.
+'variable': Optional.  When present, the variable will control whether the horizon
+is rendered or not.
+'range': Optional.  Ignored if 'variable' is not present.  When present, the
+'variable' operates in Threshold Mode; when absent, the 'variable' operates in
+Boolean Mode.
+
+
 HORIZONTAL_STRIP
 
 A Horizontal Strip node renders part of a texture in response to a variable input.  It can be

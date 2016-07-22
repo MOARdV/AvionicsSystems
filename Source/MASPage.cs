@@ -37,9 +37,9 @@ namespace AvionicsSystems
 
         private static IMASSubComponent CreatePageComponent(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
-            if (config.name == "TEXT")
+            if (config.name == "HORIZON")
             {
-                return new MASPageText(config, prop, comp, monitor, pageRoot, depth);
+                return new MASPageHorizon(config, prop, comp, monitor, pageRoot, depth);
             }
             else if (config.name == "HORIZONTAL_STRIP")
             {
@@ -52,6 +52,10 @@ namespace AvionicsSystems
             else if (config.name == "NAVBALL")
             {
                 return new MASPageNavBall(config, prop, comp, monitor, pageRoot, depth);
+            }
+            else if (config.name == "TEXT")
+            {
+                return new MASPageText(config, prop, comp, monitor, pageRoot, depth);
             }
             else if (config.name == "VERTICAL_STRIP")
             {

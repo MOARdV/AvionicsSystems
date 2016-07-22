@@ -18,7 +18,7 @@ Prop Modules
 
   + DONE and IMPLEMENTED: Callback System for variables, so the callback flags a "this text needs updated".  Being able to flag per-row would be even better.
   + DONE and IMPLEMENTED: Look into custom UnityEngine.Font for RPM-style fonts so there can be a single text rendering path.
-  + Custom formatters.
+  + Custom formatters.  Replaced or updated most of them.
 
 JSIVariableAnimator / JSICallbackAnimator components
 
@@ -52,11 +52,11 @@ Handlers (non-prop control stuff)
 
 * JSIGraphingBackground
 
-* JSIHeadsUpDisplay
+- JSIHeadsUpDisplay: complete (except cropping shader) as MASPageHorizon ('HORIZON').
 
 * JSIOdometer
 
-- JSIPrimaryFlightDisplay: complete.  Replaced with MASPageNavBall.
+- JSIPrimaryFlightDisplay: complete.  Replaced with MASPageNavBall ('NAVBALL').
 
 * JSISteerableCamera
 
@@ -139,4 +139,4 @@ Map(value, min, max, mappedMin, mappedMax)
 
 fc.AddPersistentClamped("name", delta, min, max)
 
-fc.AddPersistentWrap("name", detla, min, max)
+fc.AddPersistentWrap("name", delta, min, max)
