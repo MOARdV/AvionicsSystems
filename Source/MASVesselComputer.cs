@@ -327,11 +327,15 @@ namespace AvionicsSystems
                 return altitudeBottom_;
             }
         }
+        internal double apoapsis;
+        internal double periapsis;
         void UpdateAltitudes()
         {
             altitudeASL = vessel.altitude;
             altitudeTerrain = vessel.altitude - vessel.terrainAltitude;
             altitudeBottom_ = -1.0;
+            apoapsis = vessel.orbit.ApA;
+            periapsis = vessel.orbit.PeA;
         }
 
         private Vector3 surfaceAttitude;

@@ -414,6 +414,26 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Orbit Parameters
+        /// <summary>
+        /// Returns the orbit's apoapsis (from datum) in meters.
+        /// </summary>
+        /// <returns></returns>
+        public double Apoapsis()
+        {
+            return vc.apoapsis;
+        }
+
+        /// <summary>
+        /// Returns the orbits periapsis (from datum) in meters.
+        /// </summary>
+        /// <returns></returns>
+        public double Periapsis()
+        {
+            return vc.periapsis;
+        }
+        #endregion
+
         #region Orientation
         /// <summary>
         /// Return heading relative to the surface in degrees [0, 360)
