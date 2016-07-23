@@ -71,6 +71,11 @@ namespace AvionicsSystems
         private MASFlightComputerProxy fcProxy;
 
         /// <summary>
+        /// Instance of the FAR proxy class.
+        /// </summary>
+        private MASIFAR farProxy;
+
+        /// <summary>
         /// Have we initialized?
         /// </summary>
         private bool initialized = false;
@@ -351,6 +356,7 @@ namespace AvionicsSystems
         {
             script = null;
             fcProxy = null;
+            farProxy = null;
             if (initialized)
             {
                 Utility.LogMessage(this, "OnDestroy for {0}", flightComputerId);
@@ -393,9 +399,14 @@ namespace AvionicsSystems
                 fcProxy = new MASFlightComputerProxy(this);
                 UserData.RegisterType<MASFlightComputerProxy>();
                 script.Globals["fc"] = fcProxy;
+                farProxy = new MASIFAR(vessel);
+                UserData.RegisterType<MASIFAR>();
+                script.Globals["far"] = farProxy;
+
                 vc = MASVesselComputer.Instance(parentVesselId);
                 fcProxy.vc = vc;
                 fcProxy.vessel = vessel;
+                farProxy.vessel = vessel;
 
                 // TODO: Add MAS script
 
@@ -494,6 +505,7 @@ namespace AvionicsSystems
                 vc = MASVesselComputer.Instance(parentVesselId);
                 fcProxy.vc = vc;
                 fcProxy.vessel = vessel;
+                farProxy.vessel = vessel;
                 UpdateLocalCrew();
             }
         }
