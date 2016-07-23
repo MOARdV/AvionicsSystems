@@ -31,6 +31,7 @@ namespace AvionicsSystems
     {
         internal static readonly string[] NewLine = { Environment.NewLine };
 
+        #region Message Logging
         /// <summary>
         /// Log a message
         /// </summary>
@@ -71,6 +72,26 @@ namespace AvionicsSystems
         internal static void LogErrorMessage(object who, string format, params object[] values)
         {
             UnityEngine.Debug.LogError(String.Format("[" + who.GetType().Name + "] " + format, values));
+        }
+        #endregion
+
+        /// <summary>
+        /// Returns true if the value falls between the two extents (order independent)
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="extent1"></param>
+        /// <param name="extent2"></param>
+        /// <returns></returns>
+        internal static bool Between(this double value, double extent1, double extent2)
+        {
+            if (extent1 < extent2)
+            {
+                return (value >= extent1 && value <= extent2);
+            }
+            else
+            {
+                return (value <= extent1 && value >= extent2);
+            }
         }
 
         /// <summary>
@@ -144,22 +165,33 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns true if the value falls between the two extents (order ignored)
+        /// Search through loaded assemblies to find the specified Type that's
+        /// in the specified assemlby.
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="extent1"></param>
-        /// <param name="extent2"></param>
+        /// <param name="assemblyName"></param>
+        /// <param name="fullTypeName"></param>
         /// <returns></returns>
-        internal static bool Between(this double value, double extent1, double extent2)
+        internal static Type GetExportedType(string assemblyName, string fullTypeName)
         {
-            if (extent1 < extent2)
+            int assyCount = AssemblyLoader.loadedAssemblies.Count;
+            for (int assyIndex = 0; assyIndex < assyCount; ++assyIndex )
             {
-                return (value >= extent1 && value <= extent2);
+                AssemblyLoader.LoadedAssembly assy = AssemblyLoader.loadedAssemblies[assyIndex];
+                if(assy.name == assemblyName)
+                {
+                    Type[] exportedTypes = assy.assembly.GetExportedTypes();
+                    int typeCount = exportedTypes.Length;
+                    for(int typeIndex = 0; typeIndex < typeCount; ++typeIndex)
+                    {
+                        if(exportedTypes[typeIndex].FullName == fullTypeName)
+                        {
+                            return exportedTypes[typeIndex];
+                        }
+                    }
+                }
             }
-            else
-            {
-                return (value <= extent1 && value >= extent2);
-            }
+                
+            return null;
         }
 
         /// <summary>
