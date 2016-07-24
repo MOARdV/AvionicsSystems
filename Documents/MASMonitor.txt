@@ -141,6 +141,7 @@ HORIZONTAL_STRIP
 	inputRange = 0, 360
 	displayRange = 0,1024
 	displayWidth = 128
+	//wrap = false
 	//variable = fc.GetBrakes()
 	//range = 0.5, 1.1
 }
@@ -161,6 +162,9 @@ the 512 pixel is visible.
 'displayWidth': Required.  The width of the visible portion of 'texture', in
 pixels as measured on the texture.  Eg, if the texture is 512 pixels wide, and
 you want the 25% of it visible, you would use 'displayWidth = 128'.
+'wrap': Optional.  Default false.  When true, indicates that the texture is expected to
+wrap around (like a continuous ribbon).  When false, the texture coordinates are
+clamped to the ends of the texture.
 'variable': Optional.  When present, the variable will control whether this strip
 is rendered or not.
 'range': Optional.  Ignored if 'variable' is not present.  When present, the
@@ -190,6 +194,55 @@ corner of the page.
 'size': Optional.  Defaults to the native size of the texture.  Specifies the
 desired pixel width and height of the image.
 'variable': Optional.  When present, the variable will control whether this image
+is rendered or not.
+'range': Optional.  Ignored if 'variable' is not present.  When present, the
+'variable' operates in Threshold Mode; when absent, the 'variable' operates in
+Boolean Mode.
+
+
+LINE_GRAPH
+
+A Line Graph node is used to visualize numeric data using a line graph.  The
+graph updates regularly, with the x-axis representing time (at one second per
+pixel) and the y-axis representing the data being tracked (with the value per
+pixel defined by the sourceRange and graph size).
+
+Note that the width of the graph and the sample rate affect the memory and
+performance of this node: the node tracks a number of samples equal to the
+width divided by the sample rate, and once the graph is full, the older values
+are moved in memory.  Many detailed graphs may cause some lag.
+
+LINE_GRAPH
+{
+	name = Atmosphere Altitude
+	position = 16, 16
+	size = 480, 240
+	source = fc.Altitude()
+	sourceRange = 0, fc.AtmosphereTop()
+	sourceColor = 0,160,182,255
+	sampleRate = 1
+	borderWidth = 2
+	borderColor = 0, 80, 91,255
+	//variable = fc.GetBrakes()
+	//range = 0.5, 1.5
+}
+
+'name': Optional.  Default '(anonymous)'.  A name for the node.
+'position': Required.  The pixel offset from the upper-left
+corner of the page for this graph.
+'size': Required.  Specifies the desired pixel width and height of the graph.
+'source': Required.  The variable that will be graphed.
+'sourceRange': Required.  The values for the bottom and top of the y-axis.
+'sourceColor': Required.  The color of the line graph.
+'sampleRate': Required.  How frequently the variable will be sampled.  Values
+below 1 will be clamped to 1.
+'borderWidth': Optional.  Required if 'borderColor' is present.  The width in pixels
+for a border surrounding the graph area.  This border is placed outside the region
+specified by 'position' and 'size'.  In the above example, the border is 2 pixels
+wide, which means it is in x-position 14-16 and 496-498.
+'borderColor': Optional.  Required if 'borderWidth' is present.  The color of the
+graph's border.
+'variable': Optional.  When present, the variable will control whether this graph
 is rendered or not.
 'range': Optional.  Ignored if 'variable' is not present.  When present, the
 'variable' operates in Threshold Mode; when absent, the 'variable' operates in
@@ -299,6 +352,7 @@ VERTICAL_STRIP
 	inputRange = -5, 5
 	displayRange = 1845,208
 	displayWidth = 640
+	//wrap = false
 	//variable = fc.GetBrakes()
 	//range = 0.5, 1.1
 }
@@ -318,6 +372,9 @@ image is '0', the bottom is whatever the height of the image is).
 'displayHeight': Required.  The height of the visible portion of 'texture', in
 pixels as measured on the texture.  Eg, if the texture is 512 pixels tall, and
 you want the 25% of it visible, you would use 'displayHeight = 128'.
+'wrap': Optional.  Default false.  When true, indicates that the texture is expected to
+wrap around (like a continuous ribbon).  When false, the texture coordinates are
+clamped to the ends of the texture.
 'variable': Optional.  When present, the variable will control whether this strip
 is rendered or not.
 'range': Optional.  Ignored if 'variable' is not present.  When present, the

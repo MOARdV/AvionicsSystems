@@ -48,9 +48,9 @@ JSIVariableAnimator / JSICallbackAnimator components
 
 Handlers (non-prop control stuff)
 
-* IJSI modules (plugins)
+* IJSI modules (plugins) -> MASI (Avionics Systems Interface)
 
-* JSIGraphingBackground
+* JSIGraphingBackground - does bar graphs / virtual indicator lamps
 
 - JSIHeadsUpDisplay: complete (except cropping shader) as MASPageHorizon ('HORIZON').
 
@@ -60,9 +60,9 @@ Handlers (non-prop control stuff)
 
 * JSISteerableCamera
 
-* JSIVariableGraph
+- JSIVariableGraph: complete as MASPageLineGraph ('LINE_GRAPH').
 
-* MFD pages (JSITargeMenu, MechJebRPM)
+* Interactive MFD pages (JSITargeMenu, MechJebRPM)
 
 * RPM extension bridges (SCANsat, VesselView, DPAI background handlers; FAR variables)
 

@@ -49,6 +49,10 @@ namespace AvionicsSystems
             {
                 return new MASPageImage(config, prop, comp, monitor, pageRoot, depth);
             }
+            else if (config.name == "LINE_GRAPH")
+            {
+                return new MASPageLineGraph(config, prop, comp, monitor, pageRoot, depth);
+            }
             else if (config.name == "NAVBALL")
             {
                 return new MASPageNavBall(config, prop, comp, monitor, pageRoot, depth);
