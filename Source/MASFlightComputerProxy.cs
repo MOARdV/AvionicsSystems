@@ -205,6 +205,16 @@ namespace AvionicsSystems
 
         #region Atmosphere
         /// <summary>
+        /// Returns the altitude of the top of atmosphere, or 0 if there is no
+        /// atmo.  Altitude in meters.
+        /// </summary>
+        /// <returns></returns>
+        public double AtmosphereTop()
+        {
+            return vc.mainBody.atmosphereDepth;
+        }
+
+        /// <summary>
         /// Returns the atmospheric density.
         /// </summary>
         /// <returns></returns>
