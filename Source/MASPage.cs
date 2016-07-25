@@ -65,6 +65,10 @@ namespace AvionicsSystems
             {
                 return new MASPageText(config, prop, comp, monitor, pageRoot, depth);
             }
+            else if (config.name == "VERTICAL_BAR")
+            {
+                return new MASPageVerticalBar(config, prop, comp, monitor, pageRoot, depth);
+            }
             else if (config.name == "VERTICAL_STRIP")
             {
                 return new MASPageVerticalStrip(config, prop, comp, monitor, pageRoot, depth);

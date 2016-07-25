@@ -386,6 +386,56 @@ is rendered or not.
 Boolean Mode.
 
 
+VERTICAL_BAR
+
+A Vertical Bar node renders a bar graph that grows or shrinks vertically in
+response to the source variable.  The bar graph may be a solid color, or it may
+use a texture.
+
+VERTICAL_BAR
+{
+	name = VSI
+	position = 256, 272
+	size = 32, 128
+	source = fc.PseudoLog10(fc.VerticalSpeed())
+	sourceRange = -5, 5
+	sourceColor = 64,192,64,255
+	anchor = Middle
+	//texture = AvionicsSystems/Textures/horiz_bargraph
+	borderWidth = 2.5
+	borderColor = 64, 255, 64,255
+	//variable = fc.GetBrakes()
+	//range = 0.5, 1.1
+}
+
+'name': Optional.  Default '(anonymous)'.  A name for the node.
+'position': Required.  The location on the monitor where the upper-left corner
+of the bar graph will be placed.
+'size': Required.  The size of the graph.
+'source': Required.  The variable that will be graphed.
+'sourceRange': Required.  The values for the bottom and top ends of the bar.
+'sourceColor': Optional.  Defaults to white.  The color of the bar graph.
+'texture': Optional.  When present, the named texture is drawn so it will fill the
+graph's area.  Color textures may be used - the sourceColor is multiplied by the texture
+color in that case.  If no texture is provided, the graph is treated as a solid color.
+'anchor': Optional.  Defaults to 'Bottom'.  Defines the anchor of the bar graph.  'Bottom'
+means the bottom side of the region, in which case the graph grows towards the top.
+'Top' means the opposite: the graph starts on the top and it grows to the bottom.
+'Middle' mwans the graph starts in the center, and it grows to the bottom if the source
+value is below 1/2 of the range, or it grows to the top if the source value is above
+1/2 of the range.
+'borderWidth': Optional.  Required if 'borderColor' is present.  The width in pixels
+for a border surrounding the graph area.  This border is placed outside the region
+specified by 'position' and 'size'.
+'borderColor': Optional.  Required if 'borderWidth' is present.  The color of the
+graph's border.
+'variable': Optional.  When present, the variable will control whether this strip
+is rendered or not.
+'range': Optional.  Ignored if 'variable' is not present.  When present, the
+'variable' operates in Threshold Mode; when absent, the 'variable' operates in
+Boolean Mode.
+
+
 VERTICAL_STRIP
 
 A Vertical Strip node renders part of a texture in response to a variable input.  It can be
