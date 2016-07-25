@@ -235,6 +235,25 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Temporary worker method to set positions for the LineRenderer.
+        /// Unity docs say there's a SetPositions method for that class, but
+        /// it is not in Unity 5.2.4f; hopefully KSP 1.2's new Unity flavor
+        /// will include it.
+        /// </summary>
+        /// <param name="lineRenderer"></param>
+        /// <param name="numVertices"></param>
+        /// <param name="graphPoints"></param>
+        internal static void SetPositions(LineRenderer lineRenderer, int numVertices, Vector3[] graphPoints)
+        {
+            lineRenderer.SetVertexCount(numVertices);
+            for (int i = 0; i < numVertices; ++i)
+            {
+                lineRenderer.SetPosition(i, graphPoints[i]);
+            }
+        }
+
+
+        /// <summary>
         /// Computes Stagnation Pressure using gamma (ratio of specific heats)
         /// and Mach number.
         /// Per https://en.wikipedia.org/wiki/Stagnation_pressure

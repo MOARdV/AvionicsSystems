@@ -173,13 +173,13 @@ namespace AvionicsSystems
                 float halfWidth = borderWidth * 0.5f;
                 Vector3[] borderPoints = new Vector3[]
                 {
-                    new Vector3(-halfWidth, halfWidth, 0.0f),
-                    new Vector3(size.x + halfWidth, halfWidth, 0.0f),
+                    new Vector3(-halfWidth, -halfWidth, 0.0f),
+                    new Vector3(size.x + halfWidth, -halfWidth, 0.0f),
                     new Vector3(size.x + halfWidth, size.y + halfWidth, 0.0f),
                     new Vector3(-halfWidth, size.y+halfWidth, 0.0f),
-                    new Vector3(-halfWidth, halfWidth, 0.0f)
+                    new Vector3(-halfWidth, -halfWidth, 0.0f)
                 };
-                SetPositions(lineRenderer, borderPoints.Length, borderPoints);
+                Utility.SetPositions(lineRenderer, borderPoints.Length, borderPoints);
             }
 
             graphObject = new GameObject();
@@ -222,24 +222,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Temporary worker method to set positions for the LineRenderer.
-        /// Unity docs say there's a SetPositions method for that class, but
-        /// it is not in Unity 5.2.4f; hopefully KSP 1.2's new Unity flavor
-        /// will include it.
-        /// </summary>
-        /// <param name="lineRenderer"></param>
-        /// <param name="numVertices"></param>
-        /// <param name="graphPoints"></param>
-        private static void SetPositions(LineRenderer lineRenderer, int numVertices, Vector3[] graphPoints)
-        {
-            lineRenderer.SetVertexCount(numVertices);
-            for (int i = 0; i < numVertices; ++i)
-            {
-                lineRenderer.SetPosition(i, graphPoints[i]);
-            }
-        }
-
-        /// <summary>
         /// Coroutine that samples data.
         /// </summary>
         /// <returns></returns>
@@ -263,7 +245,7 @@ namespace AvionicsSystems
                     }
                     graphPoints[maxSamples - 1] = new Vector3((maxSamples - 1) * sampleRate, newSample, 0.0f);
                 }
-                SetPositions(lineRenderer, currentSample, graphPoints);
+                Utility.SetPositions(lineRenderer, currentSample, graphPoints);
 
                 yield return new WaitForSeconds(sampleRate);
             }
