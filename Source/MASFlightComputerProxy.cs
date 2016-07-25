@@ -642,6 +642,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the magnitude g-forces currently affecting the craft, in gees.
+        /// </summary>
+        /// <returns></returns>
+        public double GForce()
+        {
+            return vessel.geeForce_immediate;
+        }
+
+        /// <summary>
         /// Measure of the surface speed of the vessel after removing the
         /// vertical component, in m/s.
         /// </summary>
