@@ -273,7 +273,7 @@ NAVBALL
 simple sphere, there is no requirement to use a ball for this component.
 'texture': Required.  The texture that is applied to the navball model.
 'position': Optional.  Default the middle of the screen.  A displacement to
-move the navball on the screen.
+move the navball on the screen.  The 'position' is the center of the navball.
 'size': Required.  Specifies the pixel width and height of the image.
 Note that the navball is rendered to a square, so using a non-square size here
 will distort the shape of the navball.
