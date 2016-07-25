@@ -41,6 +41,10 @@ namespace AvionicsSystems
             {
                 return new MASPageHorizon(config, prop, comp, monitor, pageRoot, depth);
             }
+            else if (config.name == "HORIZONTAL_BAR")
+            {
+                return new MASPageHorizontalBar(config, prop, comp, monitor, pageRoot, depth);
+            }
             else if (config.name == "HORIZONTAL_STRIP")
             {
                 return new MASPageHorizontalStrip(config, prop, comp, monitor, pageRoot, depth);

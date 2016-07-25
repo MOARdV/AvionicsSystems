@@ -78,6 +78,7 @@
     <Compile Include="Source\MASMonitor.cs" />
     <Compile Include="Source\MASPage.cs" />
     <Compile Include="Source\MASPageHorizon.cs" />
+    <Compile Include="Source\MASPageHorizontalBar.cs" />
     <Compile Include="Source\MASPageHorizontalStrip.cs" />
     <Compile Include="Source\MASPageImage.cs" />
     <Compile Include="Source\MASPageLineGraph.cs" />

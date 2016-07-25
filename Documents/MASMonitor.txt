@@ -124,6 +124,57 @@ is rendered or not.
 Boolean Mode.
 
 
+HORIZONTAL_BAR
+
+A Horizontal Bar node renders a bar graph that grows or shrinks horizontally in
+response to the source variable.  The bar graph may be a solid color, or it may
+use a texture.
+
+HORIZONTAL_BAR
+{
+	name = G-Forces
+	position = 16, 272
+	size = 128, 32
+	source = fc.GForce()
+	sourceRange = 0, 5
+	sourceColor = 192,192,128,255 // Optional, may be white for texture application.  Or not.
+	//texture = AvionicsSystems/Textures/horiz_bargraph
+	anchor = Left
+	borderWidth = 2
+	borderColor = 128, 64, 64,255
+	//variable = fc.GetBrakes()
+	//range = 0.5, 1.1
+}
+
+'name': Optional.  Default '(anonymous)'.  A name for the node.
+'position': Required.  The location on the monitor where the upper-left corner
+of the bar graph will be placed.
+'size': Required.  The size of the graph.
+'source': Required.  The variable that will be graphed.
+'sourceRange': Required.  The values for the left and right ends of the bar.
+'sourceColor': Optional.  Defaults to white.  The color of the bar graph.
+'texture': Optional.  When present, the named texture is drawn so it will fill the
+graphs area.  Color textures may be used - the sourceColor is multiplied by the texture
+color in that case.  If no texture is provided, the graph is treated as a solid color/
+'anchor': Optional.  Defaults to 'Left'.  Defines the anchor of the bar graph.  'Left'
+means the left side of the region, in which case the graph grows towards the right.
+'Right' means the opposite: the graph starts on the right and it grows to the left.
+'Middle' mwans the graph starts in the center, and it grows to the left if the source
+value is below 1/2 of the range, or it grows to the right if the source value is above
+1/2 of the range.
+'borderWidth': Optional.  Required if 'borderColor' is present.  The width in pixels
+for a border surrounding the graph area.  This border is placed outside the region
+specified by 'position' and 'size'.  In the above example, the border is 2 pixels
+wide, which means it is in x-position 14-16 and 496-498.
+'borderColor': Optional.  Required if 'borderWidth' is present.  The color of the
+graph's border.
+'variable': Optional.  When present, the variable will control whether this strip
+is rendered or not.
+'range': Optional.  Ignored if 'variable' is not present.  When present, the
+'variable' operates in Threshold Mode; when absent, the 'variable' operates in
+Boolean Mode.
+
+
 HORIZONTAL_STRIP
 
 A Horizontal Strip node renders part of a texture in response to a variable input.  It can be
