@@ -49,6 +49,7 @@ namespace AvionicsSystems
             internal MASActionColliderEvent parent;
             internal Action onClick;
             internal Action onRelease;
+            internal AudioSource audioSource;
             private bool buttonState = false;
             internal bool autoRepeat = false;
 
@@ -60,7 +61,16 @@ namespace AvionicsSystems
                 if (onClick != null)
                 {
                     onClick();
-                    buttonState = true;
+
+                    if (audioSource != null && buttonState == false)
+                    {
+                        audioSource.Play();
+                    }
+
+                    if (onRelease != null)
+                    {
+                        buttonState = true;
+                    }
 
                     if (autoRepeat)
                     {
@@ -129,10 +139,66 @@ namespace AvionicsSystems
             {
                 autoRepeat = false;
             }
+            else
+            {
+                if (string.IsNullOrEmpty(releaseEvent))
+                {
+                    throw new ArgumentException("'onRelease' must be defined to use 'autoRepeat' in COLLIDER_EVENT " + name);
+                }
+            }
+
+            float volume = -1.0f;
+            if (config.TryGetValue("volume", ref volume))
+            {
+                volume = Mathf.Clamp01(volume);
+            }
+            else
+            {
+                volume = -1.0f;
+            }
+
+            string sound = string.Empty;
+            if (!config.TryGetValue("sound", ref sound) || string.IsNullOrEmpty(sound))
+            {
+                sound = string.Empty;
+            }
+
+            AudioClip clip = null;
+            if (string.IsNullOrEmpty(sound) == (volume >= 0.0f))
+            {
+                throw new ArgumentException("Only one of 'sound' or 'volume' found in COLLIDER_EVENT " + name);
+            }
+
+            if (volume >= 0.0f)
+            {
+                //Try Load audio
+                clip = GameDatabase.Instance.GetAudioClip(sound);
+                if (clip == null)
+                {
+                    throw new ArgumentException("Unable to load 'sound' " + sound + " in COLLIDER_EVENT " + name);
+                }
+            }
 
             buttonObject = tr.gameObject.AddComponent<ButtonObject>();
             buttonObject.parent = this;
             buttonObject.autoRepeat = autoRepeat;
+
+            if (clip != null)
+            {
+                AudioSource audioSource = tr.gameObject.AddComponent<AudioSource>();
+                audioSource.clip = clip;
+                audioSource.Stop();
+                audioSource.volume = GameSettings.SHIP_VOLUME * volume;
+                audioSource.rolloffMode = AudioRolloffMode.Logarithmic;
+                audioSource.maxDistance = 8.0f;
+                audioSource.minDistance = 2.0f;
+                audioSource.dopplerLevel = 0.0f;
+                audioSource.panStereo = 0.0f;
+                audioSource.playOnAwake = false;
+                audioSource.loop = false;
+                audioSource.pitch = 1.0f;
+                buttonObject.audioSource = audioSource;
+            }
 
             if (!string.IsNullOrEmpty(clickEvent))
             {

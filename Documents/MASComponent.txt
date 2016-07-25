@@ -104,8 +104,7 @@ COLLIDER_EVENT
     onClick = fc.ToggleRCS()
     //onRelease = fc.ToggleRCS()
 	//autoRepeat = true
-	//clickSound = 
-	//releaseSound = 
+	//sound = 
 	//volume = 
 }
 
@@ -116,12 +115,9 @@ transform is clicked or released.  If both are present, the switch may be used f
 'autoRepeat': Optional.  Default 'false'.  When set to true, the onClick event
 triggers every FixedUpdate until the button is released.  It is possible to use autoRepeat, onClick, and onRelease
 in the same Collider Event.
-'clickSound': Optional.  When present, plays the specified audio when the click event
+'sound': Optional.  Required if 'volume' is present.  When present, plays the specified audio when the click event
 fires.
-'releaseSound': Optional.  When present, plays the specified audio when the release event
-fires.
-'volume': Optional.  Default 1.0.  When clickSound and/or releaseSound are present, adjusts
-the volume of those sounds.
+'volume': Optional.  Required if 'sound' is present.  Adjusts the volume of the click sound.
 
 
 COLOR_SHIFT
