@@ -205,6 +205,16 @@ namespace AvionicsSystems
 
         #region Atmosphere
         /// <summary>
+        /// Returns the atmospheric depth as reported by the KSP atmosphere
+        /// gauge, a number ranging between 0 and 1.
+        /// </summary>
+        /// <returns></returns>
+        public double AtmosphereDepth()
+        {
+            return vc.atmosphereDepth;
+        }
+
+        /// <summary>
         /// Returns the altitude of the top of atmosphere, or 0 if there is no
         /// atmo.  Altitude in meters.
         /// </summary>

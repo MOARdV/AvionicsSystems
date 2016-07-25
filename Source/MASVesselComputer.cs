@@ -59,7 +59,12 @@ namespace AvionicsSystems
         private bool vesselActive;
 
         /// <summary>
-        /// A copy of the navBall to easily deduce flight information.
+        /// A reference of the linear gauge used for atmospheric depth.
+        /// </summary>
+        private KSP.UI.Screens.LinearGauge atmosphereDepthGauge;
+
+        /// <summary>
+        /// A reference of the navBall to easily deduce flight information.
         /// </summary>
         private NavBall navBall;
 
@@ -144,6 +149,9 @@ namespace AvionicsSystems
 
             navBall = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.NavBall>();
 
+            LinearAtmosphereGauge linearAtmosGauge = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.LinearAtmosphereGauge>();
+            atmosphereDepthGauge = linearAtmosGauge.gauge;
+
             mainBody = vessel.mainBody;
 
             vesselId = vessel.id;
@@ -189,6 +197,7 @@ namespace AvionicsSystems
 
             vesselId = Guid.Empty;
             vessel = null;
+            atmosphereDepthGauge = null;
             mainBody = null;
             navBall = null;
             activeTarget = null;
@@ -325,6 +334,13 @@ namespace AvionicsSystems
                 }
 
                 return altitudeBottom_;
+            }
+        }
+        internal double atmosphereDepth
+        {
+            get
+            {
+                return Mathf.Clamp01(atmosphereDepthGauge.Value);
             }
         }
         internal double apoapsis;
