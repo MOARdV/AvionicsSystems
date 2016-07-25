@@ -37,6 +37,7 @@ namespace AvionicsSystems
         private string name = "(anonymous)";
 
         private GameObject imageObject;
+        private GameObject cameraObject;
         private GameObject navballModel;
         private GameObject[] markers = new GameObject[12];
         private Material[] markerMaterial = new Material[12];
@@ -203,7 +204,13 @@ namespace AvionicsSystems
             imageMaterial.mainTexture = navballRenTex;
             meshRenderer.material = imageMaterial;
 
-            navballCamera = imageObject.AddComponent<Camera>();
+            //cameraObject
+            cameraObject = new GameObject();
+            cameraObject.name = pageRoot.gameObject.name + "-MASPageNavBallCamera-" + name + "-" + depth.ToString();
+            cameraObject.layer = pageRoot.gameObject.layer;
+            cameraObject.transform.parent = pageRoot;
+            cameraObject.transform.position = pageRoot.position;
+            navballCamera = cameraObject.AddComponent<Camera>();
             navballCamera.enabled = true;
             navballCamera.orthographic = true;
             navballCamera.aspect = 1.0f;
@@ -216,15 +223,13 @@ namespace AvionicsSystems
             //navballCamera.backgroundColor = new Color(0.0f, 0.0f, 0.0f, 0.0f);
             navballCamera.clearFlags = CameraClearFlags.SolidColor;
             navballCamera.transparencySortMode = TransparencySortMode.Orthographic;
-            navballCamera.transform.LookAt(navballCamera.transform.position + new Vector3(0.0f, 0.0f, 1.0f), Vector3.up);
             navballCamera.targetTexture = navballRenTex;
             Camera.onPreRender += CameraPrerender;
 
             navballModel.layer = navballLayer;
-            navballModel.transform.parent = imageObject.transform;
+            navballModel.transform.parent = cameraObject.transform;
             // TODO: this isn't working when the camera is shifted.  Camera needs
             // to be on a separate GO than the display.
-            //navballModel.transform.Translate(new Vector3(position.x, -position.y, 2.4f));
             navballModel.transform.Translate(new Vector3(0.0f, 0.0f, 2.4f));
             Renderer navballRenderer = null;
             navballMaterial = navballModel.GetComponentCached<Renderer>(ref navballRenderer).material;
@@ -233,20 +238,21 @@ namespace AvionicsSystems
             navballMaterial.SetFloat("_Opacity", opacity);
             navballRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             navballModel.SetActive(true);
+            navballCamera.transform.LookAt(navballModel.transform, Vector3.up);
 
-            InitMarkers(imageObject.transform);
-            //Utility.LogMessage(this, "navball @ {0}, marker[0] @ {1}", navballModel.transform.position, markers[0].transform.position);
-            //Utility.LogMessage(this, "camera @ {0}, extent = {1}, shift ~ {2}", navballCamera.transform.position, navballExtents, -navballExtents - 0.01f);
+            InitMarkers(cameraObject.transform);
 
             if (!string.IsNullOrEmpty(variableName))
             {
                 // Disable the mesh if we're in variable mode
                 imageObject.SetActive(false);
+                cameraObject.SetActive(false);
                 comp.RegisterNumericVariable(variableName, prop, VariableCallback);
             }
             else
             {
                 imageObject.SetActive(true);
+                cameraObject.SetActive(true);
             }
         }
 
@@ -512,6 +518,7 @@ namespace AvionicsSystems
             {
                 currentState = newState;
                 imageObject.SetActive(currentState);
+                cameraObject.SetActive(currentState);
             }
         }
 
@@ -532,12 +539,14 @@ namespace AvionicsSystems
             Camera.onPreRender -= CameraPrerender;
             UnityEngine.GameObject.Destroy(imageObject);
             imageObject = null;
-            UnityEngine.GameObject.Destroy(imageMaterial);
+            UnityEngine.Object.Destroy(imageMaterial);
             imageMaterial = null;
             UnityEngine.GameObject.Destroy(navballModel);
             navballModel = null;
-            UnityEngine.GameObject.Destroy(navballMaterial);
+            UnityEngine.Object.Destroy(navballMaterial);
             navballMaterial = null;
+            UnityEngine.GameObject.Destroy(cameraObject);
+            cameraObject = null;
             if (!string.IsNullOrEmpty(variableName))
             {
                 comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
