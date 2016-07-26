@@ -49,27 +49,17 @@ namespace AvionicsSystems
         /// <returns></returns>
         internal object AddPersistent(string persistentName, double amount)
         {
+            double v;
             if (persistentVars.ContainsKey(persistentName))
             {
                 object o = persistentVars[persistentName];
                 if (o is double)
                 {
-                    double v = (double)o + amount;
-                    persistentVars[persistentName] = v;
-
-                    return v;
+                    v = (double)o;
                 }
                 else
                 {
-                    double v;
-                    if (double.TryParse(o as string, out v))
-                    {
-                        v += amount;
-                        persistentVars[persistentName] = v;
-
-                        return v;
-                    }
-                    else
+                    if (!double.TryParse(o as string, out v))
                     {
                         return persistentName;
                     }
@@ -77,10 +67,113 @@ namespace AvionicsSystems
             }
             else
             {
-                persistentVars[persistentName] = amount;
-
-                return amount;
+                v = 0.0;
             }
+
+            v += amount;
+            persistentVars[persistentName] = v;
+            return v;
+        }
+
+        /// <summary>
+        /// Add an amount to a persistent variable, but clamp it to the specified range.
+        /// </summary>
+        /// <param name="persistentName"></param>
+        /// <param name="amount"></param>
+        /// <param name="minValue"></param>
+        /// <param name="maxValue"></param>
+        /// <returns></returns>
+        internal object AddPersistentClamped(string persistentName, double amount, double minValue, double maxValue)
+        {
+            double v;
+            if (persistentVars.ContainsKey(persistentName))
+            {
+                object o = persistentVars[persistentName];
+                if (o is double)
+                {
+                    v = (double)o;
+                }
+                else
+                {
+                    if (!double.TryParse(o as string, out v))
+                    {
+                        return persistentName;
+                    }
+                }
+            }
+            else
+            {
+                v = 0.0;
+            }
+
+            v += amount;
+            v = v.Clamp(minValue, maxValue);
+            persistentVars[persistentName] = v;
+            return v;
+        }
+
+        /// <summary>
+        /// Add an amount to a persistent variable, wrapping it between the two extents.
+        /// </summary>
+        /// <param name="persistentName"></param>
+        /// <param name="amount"></param>
+        /// <param name="extent1"></param>
+        /// <param name="extent2"></param>
+        /// <returns></returns>
+        internal object AddPersistentWrapped(string persistentName, double amount, double extent1, double extent2)
+        {
+            double v;
+            if (persistentVars.ContainsKey(persistentName))
+            {
+                object o = persistentVars[persistentName];
+                if (o is double)
+                {
+                    v = (double)o;
+                }
+                else
+                {
+                    if (!double.TryParse(o as string, out v))
+                    {
+                        return persistentName;
+                    }
+                }
+            }
+            else
+            {
+                v = 0.0;
+            }
+
+            double minValue, maxValue;
+            if (extent1 < extent2)
+            {
+                minValue = extent1;
+                maxValue = extent2;
+            }
+            else
+            {
+                minValue = extent2;
+                maxValue = extent1;
+            }
+
+            v += amount;
+            double range = maxValue - minValue;
+            if (range > 0.0)
+            {
+                // untested!
+                double iLerp = (v - minValue) / range;
+                if (iLerp < 0.0)
+                {
+                    iLerp = 1.0 - (Math.Abs(iLerp) % 1.0);
+                }
+                else if (iLerp > 1.0)
+                {
+                    iLerp = iLerp % 1.0;
+                }
+                v = minValue + iLerp * range;
+            }
+
+            persistentVars[persistentName] = v;
+            return v;
         }
 
         /// <summary>

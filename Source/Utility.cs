@@ -96,6 +96,27 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Clamp a double between two extents
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="extent1"></param>
+        /// <param name="extent2"></param>
+        /// <returns></returns>
+        internal static double Clamp(this double value, double extent1, double extent2)
+        {
+            if (extent1 < extent2)
+            {
+                value = Math.Max(Math.Min(value, extent2), extent1);
+            }
+            else
+            {
+                value = Math.Max(Math.Min(value, extent1), extent2);
+            }
+
+            return value;
+        }
+
+        /// <summary>
         /// Look up the ConfigNode for the named MAS_PAGE.
         /// </summary>
         /// <param name="pageName">Name of the requested page configuration.</param>

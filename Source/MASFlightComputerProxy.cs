@@ -511,21 +511,73 @@ namespace AvionicsSystems
         #endregion
 
         #region Persistent Vars
+        /// <summary>
+        /// Add an amount to a persistent (converting it to numeric as needed).
+        /// </summary>
+        /// <param name="persistentName"></param>
+        /// <param name="amount"></param>
+        /// <returns></returns>
         public object AddPersistent(string persistentName, double amount)
         {
             return fc.AddPersistent(persistentName, amount);
         }
 
+        /// <summary>
+        /// Add an amount to a persistent, converting it to a number if needed,
+        /// and clamp the result between 'minValue' and 'maxValue'
+        /// </summary>
+        /// <param name="persistentName"></param>
+        /// <param name="amount"></param>
+        /// <param name="minValue"></param>
+        /// <param name="maxValue"></param>
+        /// <returns></returns>
+        public object AddPersistentClamped(string persistentName, double amount, double minValue, double maxValue)
+        {
+            return fc.AddPersistentClamped(persistentName, amount, minValue, maxValue);
+        }
+
+        /// <summary>
+        /// Add an amount to a persistent, converting to a number if needed,
+        /// and wrap the value between 'minValue' and 'maxValue'
+        /// </summary>
+        /// <param name="persistentName"></param>
+        /// <param name="amount"></param>
+        /// <param name="minValue"></param>
+        /// <param name="maxValue"></param>
+        /// <returns></returns>
+        public object AddPersistentWrapped(string persistentName, double amount, double minValue, double maxValue)
+        {
+            return fc.AddPersistentWrapped(persistentName, amount, minValue, maxValue);
+        }
+
+        /// <summary>
+        /// Return the persistent value (as a string or number, depending on
+        /// its current state).
+        /// </summary>
+        /// <param name="persistentName"></param>
+        /// <returns></returns>
         public object GetPersistent(string persistentName)
         {
             return fc.GetPersistent(persistentName);
         }
 
+        /// <summary>
+        /// Set a persistent to either a string or numeric value.
+        /// </summary>
+        /// <param name="persistentName"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public object SetPersistent(string persistentName, object value)
         {
             return fc.SetPersistent(persistentName, value);
         }
 
+        /// <summary>
+        /// Toggle a persistent between 0 and 1 (converting it to a number if
+        /// needed).
+        /// </summary>
+        /// <param name="persistentName"></param>
+        /// <returns></returns>
         public object TogglePersistent(string persistentName)
         {
             return fc.TogglePersistent(persistentName);
@@ -582,16 +634,27 @@ namespace AvionicsSystems
         #endregion
 
         #region RCS
+        /// <summary>
+        /// Returns 1 if RCS is on, 0 otherwise.
+        /// </summary>
+        /// <returns></returns>
         public double GetRCS()
         {
             return (vessel.ActionGroups[KSPActionGroup.RCS]) ? 1.0 : 0.0;
         }
 
+        /// <summary>
+        /// Set the state of RCS.
+        /// </summary>
+        /// <param name="active"></param>
         public void SetRCS(bool active)
         {
             vessel.ActionGroups.SetGroup(KSPActionGroup.RCS, active);
         }
 
+        /// <summary>
+        /// Toggle RCS off-to-on or vice versa.
+        /// </summary>
         public void ToggleRCS()
         {
             vessel.ActionGroups.ToggleGroup(KSPActionGroup.RCS);
@@ -607,16 +670,27 @@ namespace AvionicsSystems
         #endregion
 
         #region SAS
+        /// <summary>
+        /// Returns 1 if SAS is on, 0 otherwise.
+        /// </summary>
+        /// <returns></returns>
         public double GetSAS()
         {
             return (vessel.ActionGroups[KSPActionGroup.SAS]) ? 1.0 : 0.0;
         }
 
+        /// <summary>
+        /// Set the SAS state to on or off per the parameter.
+        /// </summary>
+        /// <param name="active"></param>
         public void SetSAS(bool active)
         {
             vessel.ActionGroups.SetGroup(KSPActionGroup.SAS, active);
         }
 
+        /// <summary>
+        /// Toggles SAS on-to-off or vice-versa
+        /// </summary>
         public void ToggleSAS()
         {
             vessel.ActionGroups.ToggleGroup(KSPActionGroup.SAS);

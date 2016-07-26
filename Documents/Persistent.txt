@@ -7,7 +7,7 @@ persistent variables:
 Toggle Variable
 
 For basic switches, a simple on/off persistent is used to maintain state
-from session to session.  In RPM, the default is to use the name
+from session to session.  In RPM, the default was to use the name
 "switch%PROPID%_%MODULEID%".  A user-supplied name may also be used
 for cases where the persistent value is used by multiple props in the
 vessel (such as console backlights).  For all of these uses, the counter is only a
@@ -27,27 +27,37 @@ Some values could be forced to global, but user control of it was awkward.
 
 Avionics Systems Implementation
 
-fc.TogglePersistent(persistentName)
+A persistent variable in MAS can be one of two types: a number or a string.
+MAS will convert from one to the other where applicable (such as AddPersistent
+or GetPersistentNumber, below).
 
-Toggles the named persistent between 0 and 1.  If the persistent doesn't exist,
-it is created and set to 1.  If the persistent is a string, it is converted to
-a number (if possible) and then toggled; if it can not be toggled, the
-name is returned.  Returns the new value.
+fc.AddPersistent(persistentName, amount)
 
-fc.SetPersistent(persistentName, value)
+Adds 'amount' to the named persistent value.  Returns the new sum.  If the
+persistent doesn't exist, it is treated as 'zero'.
 
-Sets the named persistent to the value specified.  Created if it doesn't exist.
-Returns the new value.
+fc.AddPersistentClamped(persistentName, amount, minValue, maxValue)
+
+Adds 'amount' to the named persistent value and clamps it to the range
+[minValue, maxValue].  Returns the new clamped sum.  If the
+persistent doesn't exist, it is treated as 'zero'.
 
 fc.GetPersistent(persistentName)
 
 Returns the current value of the persistent.  If it doesn't exist, the
 persistentName is returned, instead.
 
-fc.AddPersistent(persistentName, amount)
+fc.SetPersistent(persistentName, value)
 
-Adds 'amount' to the named persistent value.  Returns the new sum.  If the
-persistent doesn't exist, it is treated as 'zero'.
+Sets the named persistent to the value specified.  Created if it doesn't exist.
+Returns the new value.
+
+fc.TogglePersistent(persistentName)
+
+Toggles the named persistent between 0 and 1.  If the persistent doesn't exist,
+it is created and set to 1.  If the persistent is a string, it is converted to
+a number (if possible) and then toggled; if it can not be toggled, the
+name is returned.  Returns the new value.
 
 TODO: Global Variables - methods named by inserting 'Global' between the verb
 and noun (eg, AddGlobalPersistent).
