@@ -81,6 +81,11 @@ namespace AvionicsSystems
         private bool initialized = false;
 
         /// <summary>
+        /// Has there been an addition or subtraction to the mutable variables list?
+        /// </summary>
+        private bool mutableVariablesChanged = false;
+
+        /// <summary>
         /// Dictionary of known RasterPropComputer-compatible named colors.
         /// </summary>
         private Dictionary<string, Color32> namedColors = new Dictionary<string, Color32>();
@@ -164,7 +169,7 @@ namespace AvionicsSystems
             variableName = ConditionVariableName(variableName, prop);
             if (variableName.Length < 1)
             {
-                throw new ArgumentException("RegisterNumericVariable called with empty variableName");
+                throw new ArgumentException("[MASFlightComputer] RegisterNumericVariable called with empty variableName");
             }
 
             Variable v = GetVariable(variableName, prop);
@@ -202,7 +207,7 @@ namespace AvionicsSystems
             variableName = ConditionVariableName(variableName, prop);
             if (variableName.Length < 1)
             {
-                throw new ArgumentException("RegisterOnVariableChange called with empty variableName");
+                throw new ArgumentException("[MASFlightComputer] RegisterOnVariableChange called with empty variableName");
             }
 
             Variable v = GetVariable(variableName, null);
@@ -239,7 +244,7 @@ namespace AvionicsSystems
             variableName = ConditionVariableName(variableName, prop);
             if (variableName.Length < 1)
             {
-                throw new ArgumentException("Trying to GetVariable with empty variableName");
+                throw new ArgumentException("[MASFlightComputer] Trying to GetVariable with empty variableName");
             }
 
             Variable v = null;
@@ -253,7 +258,8 @@ namespace AvionicsSystems
                 variables.Add(variableName, v);
                 if (v.mutable)
                 {
-                    mutableVariables.Add(v);
+                    mutableVariablesList.Add(v);
+                    mutableVariablesChanged = true;
                 }
                 Utility.LogMessage(this, "Adding new variable '{0}'", variableName);
             }
@@ -285,7 +291,7 @@ namespace AvionicsSystems
                 }
             }
 
-            throw new ArgumentException("Unknown named color '" + namedColor + "'.");
+            throw new ArgumentException("[MASFlightComputer] Unknown named color '" + namedColor + "'.");
         }
 
         /// <summary>
@@ -339,9 +345,17 @@ namespace AvionicsSystems
         /// </summary>
         public void FixedUpdate()
         {
-            if (initialized) // Change this to "is active vessel"
+            if (initialized) // TODO: Change this to "is active vessel"
             {
-                int count = mutableVariables.Count;
+                // Realistically, this block of code won't be triggered very
+                // often.
+                if (mutableVariablesChanged)
+                {
+                    mutableVariables = mutableVariablesList.ToArray();
+                    mutableVariablesChanged = false;
+                }
+
+                int count = mutableVariables.Length;
                 for (int i = 0; i < count; ++i)
                 {
                     mutableVariables[i].Evaluate(script);

@@ -39,9 +39,15 @@ namespace AvionicsSystems
 
         /// <summary>
         /// List of variables that change (as opposed to constants).
-        /// TODO: Make this a list so iteration is cheaper.
         /// </summary>
-        private List<Variable> mutableVariables = new List<Variable>();
+        private List<Variable> mutableVariablesList = new List<Variable>();
+
+        /// <summary>
+        /// Because a List is more expensive to traverse than an array, and
+        /// because we are going to iterate over the mutable variables
+        /// *A*LOT*, we keep an array that we really iterate over.
+        /// </summary>
+        private Variable[] mutableVariables = new Variable[0];
 
         /// <summary>
         /// The Variable is a wrapper class to manage a single variable (as
