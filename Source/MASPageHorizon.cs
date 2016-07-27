@@ -182,23 +182,35 @@ namespace AvionicsSystems
             imageObject.transform.position = pageRoot.position;
             imageObject.transform.Translate(position.x, -position.y, depth);
 
+            // Determine the extents of the horizon in clip coordinates for
+            // feeding the shader.
+            Vector4 clipCoords = new Vector4(
+                position.x - size.x * 0.5f, position.y - size.y * 0.5f,
+                position.x + size.x * 0.5f, position.y + size.y * 0.5f
+                );
+
+            clipCoords.x /= monitor.screenSize.x * 0.5f;
+            clipCoords.y /= monitor.screenSize.y * 0.5f;
+            clipCoords.z /= monitor.screenSize.x * 0.5f;
+            clipCoords.w /= monitor.screenSize.y * 0.5f;
+
             // add renderer stuff
             MeshFilter meshFilter = imageObject.AddComponent<MeshFilter>();
             MeshRenderer meshRenderer = imageObject.AddComponent<MeshRenderer>();
             Mesh mesh = new Mesh();
             mesh.vertices = new[]
                 {
-                    new Vector3(-size.x*0.5f, size.y*0.5f, depth),
-                    new Vector3(size.x*0.5f, size.y*0.5f, depth),
-                    new Vector3(-size.x*0.5f, -size.y*0.5f, depth),
-                    new Vector3(size.x*0.5f, -size.y*0.5f, depth),
+                    new Vector3(-size.x*0.75f, size.y*0.75f, depth),
+                    new Vector3(size.x*0.75f, size.y*0.75f, depth),
+                    new Vector3(-size.x*0.75f, -size.y*0.75f, depth),
+                    new Vector3(size.x*0.75f, -size.y*0.75f, depth),
                 };
             mesh.uv = new[]
                 {
-                    new Vector2(0.0f, 1.0f),
-                    Vector2.one,
-                    Vector2.zero,
-                    new Vector2(1.0f, 0.0f),
+                    new Vector2(-0.5f, 1.5f),
+                    new Vector2(1.5f, 1.5f),
+                    new Vector2(-0.5f, -0.5f),
+                    new Vector2(1.5f, -0.5f),
                 };
             mesh.triangles = new[] 
                 {
@@ -209,13 +221,12 @@ namespace AvionicsSystems
             mesh.Optimize();
             mesh.UploadMeshData(true);
             meshFilter.mesh = mesh;
-            Shader imageShader = Shader.Find("KSP/Alpha/Unlit Transparent");
-            // imageShader = MASLoader.shaders["MOARdV/CroppedDisplay"];
-            // imageMaterial.SetVector("_CropBound", some vec4)
+            Shader imageShader = MASLoader.shaders["MOARdV/Monitor"];
             imageMaterial = new Material(imageShader);
             imageMaterial.mainTexture = mainTexture;
             imageMaterial.mainTextureScale = textureScale;
             meshRenderer.material = imageMaterial;
+            imageMaterial.SetVector("_ClipCoords", clipCoords);
 
             comp.RegisterNumericVariable(pitchName, prop, PitchCallback);
             comp.RegisterNumericVariable(rollName, prop, RollCallback);
