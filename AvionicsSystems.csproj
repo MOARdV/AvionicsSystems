@@ -110,6 +110,7 @@
     <Content Include="Documents\Variables.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\Monitor.shader" />
     <None Include="Shaders\TextMesh.shader" />
     <None Include="Shaders\TextMonitor.shader" />
   </ItemGroup>

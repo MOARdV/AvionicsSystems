@@ -1,7 +1,7 @@
-﻿// MOARdV/TextMonitor
+﻿// MOARdV/Monitor
 //
-// Pre-multiplied alpha shader for rendering Font or other alpha-channel
-// only textured images on a MASMonitor object.
+// Pre-multiplied alpha shader for rendering textured or non-textured
+// quads on a MASMonitor object.
 //----------------------------------------------------------------------------
 // The MIT License (MIT)
 //
@@ -26,14 +26,14 @@
 // DEALINGS IN THE SOFTWARE.
 //
 //----------------------------------------------------------------------------
-Shader "MOARdV/TextMonitor"
+Shader "MOARdV/Monitor"
 {
 	Properties
 	{
 		_MainTex ("Texture", 2D) = "white" {}
         _Color("_Color", Color) = (1,1,1,1)
-		//_EmissiveFactor ("_EmissiveFactor", Range(0,1)) = 1
 		_ClipCoords ("_ClipCoords", Vector) = (-1, -1, 1, 1)
+		_MainTex_ST ("_MainTex_ST", Vector) = (1, 1, 0, 0)
 	}
 
 	SubShader
@@ -77,7 +77,8 @@ Shader "MOARdV/TextMonitor"
 				float2 normalizedVertex : TEXCOORD1;
 			};
 
-			sampler2D _MainTex;
+			UNITY_DECLARE_TEX2D(_MainTex);
+			float4 _MainTex_ST;
 			float4 _Color;
 			float4 _ClipCoords;
 
@@ -89,7 +90,7 @@ Shader "MOARdV/TextMonitor"
 				float4 transformedVtx = mul(UNITY_MATRIX_MVP, v.vertex);
 				dataOut.vertex = transformedVtx;
 				dataOut.normalizedVertex.xy = transformedVtx.xy / transformedVtx.w;
-				dataOut.texcoord = v.texcoord;
+				dataOut.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
 				dataOut.color.r = v.color.r * _Color.r;
 				dataOut.color.g = v.color.g * _Color.g;
 				dataOut.color.b = v.color.b * _Color.b;
@@ -98,12 +99,16 @@ Shader "MOARdV/TextMonitor"
 				return dataOut;
 			}
 
-			// Apply device-normalized clipping, fetch the alpha from the
+			// Apply device-normalized clipping, fetch the color from the
 			// texture, and write the results.
 			fixed4 frag (v2f_fontshader dataIn) : SV_TARGET
 			{
 				// dataIn.normalizedVertex is in device normalized coordinates.
-				// Apply clipping here.
+				// Apply clipping here.  We only care about clipping in the XY
+				// plane, so _ClipCoords contains the lower-left XY coordinate
+				// in the .xy fields, and the upper-right XY coordinate in the
+				// .zw fields.  Simple subtraction will let us figure out if
+				// the fragment falls inside or outside the coords.
 
 				clip(float4(
 					dataIn.normalizedVertex.x - _ClipCoords.x,
@@ -112,9 +117,9 @@ Shader "MOARdV/TextMonitor"
 					_ClipCoords.w - dataIn.normalizedVertex.y
 					));
 
-				fixed4 diffuse = tex2D(_MainTex, dataIn.texcoord);
+				fixed4 diffuse = UNITY_SAMPLE_TEX2D(_MainTex, dataIn.texcoord);
 				diffuse.a *= dataIn.color.a;
-				diffuse.rgb = (dataIn.color.rgb) * diffuse.a;
+				diffuse.rgb *= (dataIn.color.rgb) * diffuse.a;
 				return diffuse;
 			}
 		ENDCG
