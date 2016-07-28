@@ -93,12 +93,6 @@ namespace AvionicsSystems
         }
 
         #region Unassigned Region
-        public double GetGForce()
-        {
-            // TODO: Implement this.
-            return 1.0;
-        }
-
         /// <summary>
         /// Apply a log10-like curve to the value.
         /// </summary>
@@ -120,6 +114,12 @@ namespace AvionicsSystems
 
         #region Action Groups
         private static readonly KSPActionGroup[] ags = { KSPActionGroup.Custom10, KSPActionGroup.Custom01, KSPActionGroup.Custom02, KSPActionGroup.Custom03, KSPActionGroup.Custom04, KSPActionGroup.Custom05, KSPActionGroup.Custom06, KSPActionGroup.Custom07, KSPActionGroup.Custom08, KSPActionGroup.Custom09 };
+
+        /// <summary>
+        /// Get the current state of the specified action group.
+        /// </summary>
+        /// <param name="groupID">A number between 0 and 9 (inclusive)</param>
+        /// <returns>1 if active, 0 if inactive</returns>
         public double GetActionGroup(double groupID)
         {
             if (groupID < 0.0 || groupID > 9.0)
@@ -132,6 +132,11 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Set the specified action group to the requested state.
+        /// </summary>
+        /// <param name="groupID">A number between 0 and 9 (inclusive)</param>
+        /// <param name="active">true or false to set the state.</param>
         public void SetActionGroup(double groupID, bool active)
         {
             if (groupID >= 0.0 && groupID <= 9.0)
@@ -140,6 +145,10 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Toggle the action group.
+        /// </summary>
+        /// <param name="groupID">A number between 0 and 9 (inclusive)</param>
         public void ToggleActionGroup(double groupID)
         {
             if (groupID >= 0.0 && groupID <= 9.0)
@@ -609,7 +618,7 @@ namespace AvionicsSystems
         /// Return a random number in the range of [0, 1]
         /// </summary>
         /// <returns></returns>
-        public double GetRandom()
+        public double Random()
         {
             return UnityEngine.Random.value;
         }
@@ -622,7 +631,7 @@ namespace AvionicsSystems
         /// <param name="mean"></param>
         /// <param name="stdDev"></param>
         /// <returns></returns>
-        public double GetRandomNormal(double mean, double stdDev)
+        public double RandomNormal(double mean, double stdDev)
         {
             // Box-Muller method tweaked to prevent a 0 in u: for a stddev of 1
             // the range is (-7, 7).
@@ -662,7 +671,7 @@ namespace AvionicsSystems
         #endregion RCS
 
         #region Resources
-        public double GetPowered()
+        public double VesselPowered()
         {
             // TODO: Implement this...
             return 1.0;
