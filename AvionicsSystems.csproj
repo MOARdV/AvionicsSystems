@@ -105,6 +105,7 @@
     <Content Include="Documents\PortingRPM.txt" />
     <Content Include="Documents\QuickStart.txt" />
     <Content Include="Documents\ReadMe-Documents.txt" />
+    <Content Include="Documents\Roadmap.txt" />
     <Content Include="Documents\ToDo.txt" />
     <Content Include="Documents\UnderTheHood.txt" />
     <Content Include="Documents\Variables.txt" />

@@ -1,6 +1,6 @@
 ﻿LICENSE
 
-The source code and compiled binary (DLL) for Avionics Systems is covered by
+The source code, shaders, and compiled binary (DLL) for Avionics Systems are covered by
 the MIT License:
 
 Copyright (c) 2016 MOARdV

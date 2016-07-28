@@ -62,7 +62,7 @@ Handlers (non-prop control stuff)
 
 - JSIVariableGraph: complete as MASPageLineGraph ('LINE_GRAPH').
 
-* Interactive MFD pages (JSITargeMenu, MechJebRPM)
+* Interactive MFD pages (JSITargetMenu, MechJebRPM) - a big mess; can I expose an API for this?
 
 * RPM extension bridges (SCANsat, VesselView, DPAI background handlers; FAR variables)
 
@@ -116,7 +116,9 @@ Design Research
 
 * Rudimentary parser that can identify identical variables (eg, 'fc.GetRCS() * 2' and 'fc.GetRCS()*2'; even
 better, also '2*fc.GetRCS()'), to eliminate duplicate values caused by inconsistent use of whitespace and
-ordering.
+ordering.  One step farther: finding the C# methods and reading attributes from them to know which
+variables are actually variable, and which are constant (and, for persistents, maybe a way of knowing
+when they change).
 
 * Can the persistents be flagged somehow in the FixedUpdate polling?  They're only updated through
 specific methods, so I can reduce overhead by moving all persistent variable tests out of the update
@@ -130,6 +132,9 @@ Use that instead of the RPM system of a texture + text file with manual mapping.
 
 * Create a "standard library" of methods for the Lua environment, so there can be things
 like "DoThisIfThereIsPower(function-to-do)".
+
+* Is it cheaper to do a bunch of little Lua queries each FixedUpdate, or can I concatenate
+them into an UpdateAllTheThings call (as a multi-return)?
 
 StdLib ideas:
 
