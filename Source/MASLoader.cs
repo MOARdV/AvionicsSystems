@@ -50,6 +50,11 @@ namespace AvionicsSystems
         static public string asVersion;
 
         /// <summary>
+        /// Name for electric charge (can be overridden in config).
+        /// </summary>
+        static public string ElectricCharge = "ElectricCharge";
+
+        /// <summary>
         /// Fonts that have been loaded (AssetBundle fonts, user bitmap fonts,
         /// or system fonts).
         /// </summary>
@@ -161,6 +166,12 @@ namespace AvionicsSystems
                 {
                     VerboseLogging = logging;
                     Utility.LogMessage(this, "VerboseLogging = {0}", VerboseLogging);
+                }
+
+                string newElectricCharge = string.Empty;
+                if (config.TryGetValue("ElectricCharge", ref newElectricCharge))
+                {
+                    ElectricCharge = newElectricCharge;
                 }
             }
 
