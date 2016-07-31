@@ -121,13 +121,16 @@ namespace AvionicsSystems
             {
                 universalTime = Planetarium.GetUniversalTime();
 
-                // Conditionally updates per-module tables.
+                // First step:
+                PrepareResourceData();
+                
                 UpdateModuleData();
-
                 UpdateAttitude();
                 UpdateAltitudes();
                 UpdateManeuverNode();
                 UpdateTarget();
+                // Last step:
+                ProcessResourceData();
                 //Utility.LogMessage(this, "FixedUpdate for {0}", vessel.id);
             }
         }
@@ -167,12 +170,20 @@ namespace AvionicsSystems
 
             knownModules[vesselId] = this;
 
+            InitResourceData();
+            
             vesselActive = (vessel.GetCrewCount() > 0);
+
+            // First step:
+            PrepareResourceData();
+
             UpdateModuleData();
             UpdateAttitude();
             UpdateAltitudes();
             UpdateManeuverNode();
             UpdateTarget();
+            // Last step:
+            ProcessResourceData();
 
             Utility.LogMessage(this, "OnAwake for {0}", vesselId);
         }
@@ -193,6 +204,7 @@ namespace AvionicsSystems
             GameEvents.onVesselSOIChanged.Remove(onVesselSOIChanged);
             GameEvents.onVesselWasModified.Remove(onVesselWasModified);
 
+            TeardownResourceData();
             knownModules.Remove(vesselId);
 
             vesselId = Guid.Empty;

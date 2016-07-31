@@ -90,6 +90,7 @@
     <Compile Include="Source\MASVesselComputer.cs" />
     <Compile Include="Source\IMASSubComponent.cs" />
     <Compile Include="Source\MASVesselComputerModules.cs" />
+    <Compile Include="Source\MASVesselComputerResources.cs" />
     <Compile Include="Source\MdVTextMesh.cs" />
     <Compile Include="Source\Utility.cs" />
   </ItemGroup>

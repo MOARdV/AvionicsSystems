@@ -197,6 +197,17 @@ namespace AvionicsSystems
                         }
                     }
                 }
+
+                // While we're here, update resources
+                List<PartResource> list = vessel.parts[partIdx].Resources.list;
+
+                if (list != null)
+                {
+                    for (int resourceIdx = list.Count - 1; resourceIdx >= 0; --resourceIdx)
+                    {
+                        AddResource(list[resourceIdx]);
+                    }
+                }
             }
 
             // Transfer the modules to an array, since the array is cheaper to
@@ -215,6 +226,28 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Update per-part data that may change per fixed update.
+        /// </summary>
+        private void UpdatePartData()
+        {
+            for (int partIdx = vessel.parts.Count - 1; partIdx >= 0; --partIdx)
+            {
+                List<PartResource> list = vessel.parts[partIdx].Resources.list;
+
+                if (list != null)
+                {
+                    for (int resourceIdx = list.Count - 1; resourceIdx >= 0; --resourceIdx)
+                    {
+                        AddResource(list[resourceIdx]);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Update per-module data after refreshing the module lists, if needed.
+        /// </summary>
         private void UpdateModuleData()
         {
             if (modulesInvalidated)
@@ -222,6 +255,11 @@ namespace AvionicsSystems
                 RebuildModules();
 
                 modulesInvalidated = false;
+            }
+            else
+            {
+                // We *still* have to iterate over the parts - but just for resource counting.
+                UpdatePartData();
             }
 
             bool requestReset = false;
@@ -232,5 +270,6 @@ namespace AvionicsSystems
                 InvalidateModules();
             }
         }
+
     }
 }

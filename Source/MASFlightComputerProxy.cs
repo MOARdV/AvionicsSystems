@@ -671,10 +671,245 @@ namespace AvionicsSystems
         #endregion RCS
 
         #region Resources
+        /// <summary>
+        /// Returns the total number of resources found on this vessel.
+        /// </summary>
+        /// <returns></returns>
+        public double ResourceCount()
+        {
+            return vc.ResourceCount();
+        }
+
+        /// <summary>
+        /// Returns the current amount of the Nth resource from a name-sorted
+        /// list of resources.
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        public double ResourceCurrent(double resourceId)
+        {
+            return vc.ResourceCurrent((int)resourceId);
+        }
+
+        /// <summary>
+        /// Return the current amount of the named resource, or zero if the
+        /// resource does not exist.
+        /// </summary>
+        /// <param name="resourceName"></param>
+        /// <returns></returns>
+        public double ResourceCurrent(string resourceName)
+        {
+            return vc.ResourceCurrent(resourceName);
+        }
+
+        /// <summary>
+        /// Returns the instantaneous change-per-second of the Nth resource,
+        /// or zero if the Nth resource is invalid.
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        public double ResourceDelta(double resourceId)
+        {
+            return vc.ResourceDelta((int)resourceId);
+        }
+
+        /// <summary>
+        /// Returns the instantaneous change-per-second of the resource, or
+        /// zero if the resource wasn't found.
+        /// </summary>
+        /// <param name="resourceName"></param>
+        /// <returns></returns>
+        public double ResourceDelta(string resourceName)
+        {
+            return vc.ResourceDelta(resourceName);
+        }
+
+        /// <summary>
+        /// Returns the density of the Nth resource, or zero if it is invalid.
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        public double ResourceDensity(double resourceId)
+        {
+            return vc.ResourceDensity((int)resourceId);
+        }
+
+        /// <summary>
+        /// Returns the density of the named resource, or zero if it wasn't found.
+        /// </summary>
+        /// <param name="resourceName"></param>
+        /// <returns></returns>
+        public double ResourceDensity(string resourceName)
+        {
+            return vc.ResourceDensity(resourceName);
+        }
+
+        /// <summary>
+        /// Returns 1 if resourceId is valid (there is a resource with that
+        /// index on the craft).
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        public double ResourceExists(double resourceId)
+        {
+            return vc.ResourceExists((int)resourceId);
+        }
+
+        /// <summary>
+        /// Returns 1 if the named resource is valid (the vessel has storage for
+        /// that resource).
+        /// </summary>
+        /// <param name="resourceName"></param>
+        /// <returns></returns>
+        public double ResourceExists(string resourceName)
+        {
+            return vc.ResourceExists(resourceName);
+        }
+
+        /// <summary>
+        /// Returns the current mass of the Nth resource.
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        public double ResourceMass(double resourceId)
+        {
+            return vc.ResourceMass((int)resourceId);
+        }
+
+        /// <summary>
+        /// Returns the mass of the current resource supply
+        /// in (units).
+        /// </summary>
+        /// <param name="resourceName"></param>
+        /// <returns></returns>
+        public double ResourceMass(string resourceName)
+        {
+            return vc.ResourceMass(resourceName);
+        }
+
+        /// <summary>
+        /// Returns the maximum mass of the Nth resource.
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        public double ResourceMassMax(double resourceId)
+        {
+            return vc.ResourceMassMax((int)resourceId);
+        }
+
+        /// <summary>
+        /// Returns the maximum mass of the resource in (units).
+        /// </summary>
+        /// <param name="resourceName"></param>
+        /// <returns></returns>
+        public double ResourceMassMax(string resourceName)
+        {
+            return vc.ResourceMassMax(resourceName);
+        }
+
+        /// <summary>
+        /// Returns the maximum quantity of the Nth resource.
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        public double ResourceMax(double resourceId)
+        {
+            return vc.ResourceMax((int)resourceId);
+        }
+
+        /// <summary>
+        /// Return the maximum capacity of the resource, or zero if the resource
+        /// doesn't exist.
+        /// </summary>
+        /// <param name="resourceName"></param>
+        /// <returns></returns>
+        public double ResourceMax(string resourceName)
+        {
+            return vc.ResourceMax(resourceName);
+        }
+
+        /// <summary>
+        /// Returns the name of the Nth resource, or an empty string if it doesn't
+        /// exist.
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        public string ResourceName(double resourceId)
+        {
+            return vc.ResourceName((int)resourceId);
+        }
+
+        /// <summary>
+        /// Returns the amount of the Nth resource remaining as a percentage in
+        /// the range [0, 1].
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        public double ResourcePercent(double resourceId)
+        {
+            return vc.ResourcePercent((int)resourceId);
+        }
+
+        /// <summary>
+        /// Returns the amount of the resource remaining as a percentage in the
+        /// range [0, 1].
+        /// </summary>
+        /// <param name="resourceName"></param>
+        /// <returns></returns>
+        public double ResourcePercent(string resourceName)
+        {
+            return vc.ResourcePercent(resourceName);
+        }
+
+        /// <summary>
+        /// Returns the current amount of the Nth resource in the current stage.
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        public double ResourceStageCurrent(double resourceId)
+        {
+            return vc.ResourceCurrent((int)resourceId);
+        }
+
+        /// <summary>
+        /// Returns the amount of the resource remaining in the current stage.
+        /// </summary>
+        /// <param name="resourceName"></param>
+        /// <returns></returns>
+        public double ResourceStageCurrent(string resourceName)
+        {
+            return vc.ResourceStageCurrent(resourceName);
+        }
+
+        /// <summary>
+        /// Returns the max amount of the Nth resource in the current stage.
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        public double ResourceStageMax(double resourceId)
+        {
+            return vc.ResourceStageMax((int)resourceId);
+        }
+
+        /// <summary>
+        /// Returns the maximum amount of the resource in the current stage.
+        /// </summary>
+        /// <param name="resourceName"></param>
+        /// <returns></returns>
+        public double ResourceStageMax(string resourceName)
+        {
+            return vc.ResourceStageMax(resourceName);
+        }
+
+        /// <summary>
+        /// Returns 1 when there is at least 0.0001 units of power available
+        /// to the craft.  By default, 'power' is the ElectricCharge resource,
+        /// but users may change that in the MAS config file.
+        /// </summary>
+        /// <returns></returns>
         public double VesselPowered()
         {
-            // TODO: Implement this...
-            return 1.0;
+            return (vc.ResourceCurrent(MASLoader.ElectricCharge) > 0.0001) ? 1.0 : 0.0;
         }
         #endregion
 
