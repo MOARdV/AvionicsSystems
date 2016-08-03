@@ -84,7 +84,7 @@ namespace AvionicsSystems
             }
             else
             {
-                Utility.LogMessage(config, "Unrecognized MASComponent child node {0} found", config.name);
+                Utility.LogErrorMessage(config, "Unrecognized MASComponent child node {0} found", config.name);
                 return null;
             }
         }
@@ -113,19 +113,19 @@ namespace AvionicsSystems
                     throw new ArgumentNullException("No ConfigNode found!");
                 }
 
-                int persistentNodes = 0;//, transientNodes = 0;
+                int nodeCount = 0;
                 ConfigNode[] actionNodes = moduleConfig.GetNodes();
                 for (int i = 0; i < actionNodes.Length; ++i)
                 {
                     IMASSubComponent action = CreateAction(actionNodes[i], internalProp, comp);
                     if (action != null)
                     {
-                        ++persistentNodes;
+                        ++nodeCount;
                         actions.Add(action);
                     }
                 }
 
-                Utility.LogMessage(this, "Configuration complete in prop #{0} ({1}): {2} persistent nodes created", internalProp.propID, internalProp.propName, persistentNodes);
+                Utility.LogMessage(this, "Configuration complete in prop #{0} ({1}): {2} nodes created", internalProp.propID, internalProp.propName, nodeCount);
             }
             catch (Exception e)
             {
