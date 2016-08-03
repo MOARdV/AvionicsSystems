@@ -24,6 +24,7 @@
  ****************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 namespace AvionicsSystems
@@ -114,6 +115,79 @@ namespace AvionicsSystems
             }
 
             return value;
+        }
+
+        private static StringBuilder strb = new StringBuilder();
+        private static void DumpConfigNode(ConfigNode node, int depth)
+        {
+            strb.Remove(0, strb.Length);
+            if (depth > 0)
+            {
+                strb.Append(' ', depth);
+            }
+            strb.Append('+');
+            strb.Append(' ');
+            strb.Append(node.name);
+            if(!node.HasData)
+            {
+                strb.Append(" - has no data");
+            }
+            LogMessage(strb.ToString());
+            if(!node.HasData)
+            {
+                return;
+            }
+
+            var vals = node.values;
+            if(vals.Count == 0)
+            {
+                strb.Remove(0, strb.Length);
+                if (depth > 0)
+                {
+                    strb.Append(' ', depth);
+                }
+                strb.Append("- No values");
+                LogMessage(strb.ToString());
+            }
+            for(int i=0; i<vals.Count; ++i)
+            {
+                strb.Remove(0, strb.Length);
+                if (depth > 0)
+                {
+                    strb.Append(' ', depth);
+                }
+                strb.Append('-');
+                strb.Append(' ');
+                strb.Append(vals[i].name);
+                strb.Append(" = ");
+                strb.Append(vals[i].value);
+                LogMessage(strb.ToString());
+            }
+
+            var nodes = node.nodes;
+            if(nodes.Count == 0)
+            {
+                strb.Remove(0, strb.Length);
+                if (depth > 0)
+                {
+                    strb.Append(' ', depth);
+                }
+                strb.Append("- No child ConfigNode");
+                LogMessage(strb.ToString());
+            }
+            for(int i=0; i<nodes.Count; ++i)
+            {
+                DumpConfigNode(nodes[i], depth + 1);
+            }
+        }
+
+        /// <summary>
+        /// Debug utility to dump config node and its children to the log.
+        /// </summary>
+        /// <param name="node"></param>
+        internal static void DebugDumpConfigNode(ConfigNode node)
+        {
+            DumpConfigNode(node, 0);
         }
 
         /// <summary>
