@@ -377,6 +377,9 @@ namespace AvionicsSystems
                 GameEvents.onVesselWasModified.Remove(onVesselChanged);
                 GameEvents.onVesselChange.Remove(onVesselChanged);
                 GameEvents.onVesselCrewWasModified.Remove(onVesselChanged);
+
+                Utility.LogMessage(this, "{0} variables created, including {1} mutable variables",
+                    variables.Count, mutableVariables.Length);
             }
         }
 
