@@ -396,6 +396,24 @@ namespace AvionicsSystems
         {
             return vc.currentThrust;
         }
+
+        /// <summary>
+        /// Returns the current thrust-to-weight ratio.
+        /// </summary>
+        /// <returns></returns>
+        public double TWR()
+        {
+            return vc.currentThrust / (vessel.totalMass * vc.surfaceAccelerationFromGravity);
+        }
+
+        /// <summary>
+        /// Returns the maximum thrust-to-weight ratio.
+        /// </summary>
+        /// <returns></returns>
+        public double MaxTWR()
+        {
+            return vc.currentMaxThrust / (vessel.totalMass * vc.surfaceAccelerationFromGravity);
+        }
         #endregion
 
         #region Gear

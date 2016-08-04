@@ -49,6 +49,12 @@ namespace AvionicsSystems
         private Vessel vessel;
 
         /// <summary>
+        /// Local copy of the current orbit.  This is updated per fixed-update
+        /// so we're not querying an indeterminate-cost property of Vessel.
+        /// </summary>
+        private Orbit orbit;
+
+        /// <summary>
         /// A copy of the module's vessel ID, in case vessel is null'd before OnDestroy fires.
         /// </summary>
         private Guid vesselId;
@@ -119,6 +125,7 @@ namespace AvionicsSystems
         {
             if (vesselActive)
             {
+                orbit = vessel.orbit;
                 universalTime = Planetarium.GetUniversalTime();
 
                 // First step:
@@ -129,6 +136,7 @@ namespace AvionicsSystems
                 UpdateAltitudes();
                 UpdateManeuverNode();
                 UpdateTarget();
+                UpdateMisc();
                 // Last step:
                 ProcessResourceData();
                 //Utility.LogMessage(this, "FixedUpdate for {0}", vessel.id);
@@ -146,7 +154,8 @@ namespace AvionicsSystems
 
             if (vessel == null)
             {
-                Utility.LogErrorMessage(this, "OnAwake: Failed to get a valid vessel");
+                // This happens when the vessel module is instantiated outside of flight.
+                //Utility.LogErrorMessage(this, "OnAwake: Failed to get a valid vessel");
                 return;
             }
 
@@ -158,6 +167,7 @@ namespace AvionicsSystems
             mainBody = vessel.mainBody;
 
             vesselId = vessel.id;
+            orbit = vessel.orbit;
 
             GameEvents.onVesselChange.Add(onVesselChange);
             GameEvents.onVesselSOIChanged.Add(onVesselSOIChanged);
@@ -174,16 +184,18 @@ namespace AvionicsSystems
             
             vesselActive = (vessel.GetCrewCount() > 0);
 
+            // TODO: Optimize this better - does any of this really need done if there's no crew?
             // First step:
-            PrepareResourceData();
+            //PrepareResourceData();
 
-            UpdateModuleData();
-            UpdateAttitude();
-            UpdateAltitudes();
-            UpdateManeuverNode();
-            UpdateTarget();
-            // Last step:
-            ProcessResourceData();
+            //UpdateModuleData();
+            //UpdateAttitude();
+            //UpdateAltitudes();
+            //UpdateManeuverNode();
+            //UpdateTarget();
+            //UpdateMisc();
+            //// Last step:
+            //ProcessResourceData();
 
             Utility.LogMessage(this, "OnAwake for {0}", vesselId);
         }
@@ -209,6 +221,7 @@ namespace AvionicsSystems
 
             vesselId = Guid.Empty;
             vessel = null;
+            orbit = null;
             atmosphereDepthGauge = null;
             mainBody = null;
             navBall = null;
@@ -293,6 +306,24 @@ namespace AvionicsSystems
             if (vesselActive)
             {
                 Utility.LogMessage(this, "Start for {0}", vessel.id);
+
+                // All this tells me is the current state of the nodes.  I
+                // don't care about that - I want "is there anything in
+                // that node"?
+                //ConfigNode node = new ConfigNode("dummy");
+                //vessel.ActionGroups.Save(node);
+
+                // First step:
+                PrepareResourceData();
+
+                UpdateModuleData();
+                UpdateAttitude();
+                UpdateAltitudes();
+                UpdateManeuverNode();
+                UpdateTarget();
+                UpdateMisc();
+                // Last step:
+                ProcessResourceData();
             }
         }
 
@@ -362,8 +393,8 @@ namespace AvionicsSystems
             altitudeASL = vessel.altitude;
             altitudeTerrain = vessel.altitude - vessel.terrainAltitude;
             altitudeBottom_ = -1.0;
-            apoapsis = vessel.orbit.ApA;
-            periapsis = vessel.orbit.PeA;
+            apoapsis = orbit.ApA;
+            periapsis = orbit.PeA;
         }
 
         private Vector3 surfaceAttitude;
@@ -451,6 +482,19 @@ namespace AvionicsSystems
             prograde = vessel.obt_velocity.normalized;
             radialOut = Vector3.ProjectOnPlane(up, prograde).normalized;
             normal = -Vector3.Cross(radialOut, prograde).normalized;
+            // TODO: Am I computing normal wrong?
+            // TODO: orbit.GetOrbitNormal() appears to return a vector in the opposite
+            // direction when in the inertial frame of reference, but it's perpendicular
+            // in the rotating reference frame.  Is there a way to always get the inertial
+            // frame?  Or can I get away with working in whatever framework KSP is working
+            // in?
+            //Orbit.SolveClosestApproach();
+            //orbit.GetTimeToPeriapsis();
+            //orbit.timeToAp;
+            //orbit.timeToPe;
+            //orbit.getRelativePositionAtUT();
+            // Trajectory object?
+            //Utility.LogMessage(this, "orb Ap {0:0} / Pe {1:0}, end type {2}", orbit.ApA, orbit.PeA, orbit.patchEndTransition.ToString());
         }
 
         private ManeuverNode node;
@@ -461,9 +505,9 @@ namespace AvionicsSystems
             {
                 if (nodeDV < 0.0)
                 {
-                    if (node != null && vessel.orbit != null)
+                    if (node != null && orbit != null)
                     {
-                        maneuverVector = node.GetBurnVector(vessel.orbit);
+                        maneuverVector = node.GetBurnVector(orbit);
                         nodeDV = maneuverVector.magnitude;
                     }
                     else
@@ -482,9 +526,9 @@ namespace AvionicsSystems
             {
                 if (nodeDV < 0.0)
                 {
-                    if (node != null && vessel.orbit != null)
+                    if (node != null && orbit != null)
                     {
-                        maneuverVector = node.GetBurnVector(vessel.orbit);
+                        maneuverVector = node.GetBurnVector(orbit);
                         nodeDV = maneuverVector.magnitude;
                     }
                     else
@@ -584,6 +628,12 @@ namespace AvionicsSystems
                 targetType = TargetType.None;
                 targetDirection = Vector3d.zero;
             }
+        }
+        internal double surfaceAccelerationFromGravity;
+        private void UpdateMisc()
+        {
+            // Convert to m/2^s
+            surfaceAccelerationFromGravity = orbit.referenceBody.GeeASL * 9.81;
         }
         #endregion
 
