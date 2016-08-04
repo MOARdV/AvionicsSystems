@@ -195,6 +195,34 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Try to force the named persistent to a numeric value, returning 0
+        /// if the persistent doesn't exist, or it can't be converted.
+        /// </summary>
+        /// <param name="persistentName"></param>
+        /// <returns></returns>
+        internal double GetPersistentAsNumber(string persistentName)
+        {
+            if (persistentVars.ContainsKey(persistentName))
+            {
+                object val = persistentVars[persistentName];
+                if (val is double)
+                {
+                    return (double)val;
+                }
+                else
+                {
+                    double result;
+                    if(double.TryParse(val as string, out result))
+                    {
+                        return result;
+                    }
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Unconditionally set the named persistent to the specified value.
         /// </summary>
         /// <param name="persistentName"></param>

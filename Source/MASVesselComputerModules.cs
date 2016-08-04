@@ -35,6 +35,51 @@ namespace AvionicsSystems
 
         private bool modulesInvalidated = true;
 
+        #region Action Groups
+        //---Action Groups
+        private bool[] hasActionGroup = new bool[17];
+
+        /// <summary>
+        /// Returns true if there is at least one action in this action group.
+        /// </summary>
+        /// <param name="ag"></param>
+        /// <returns></returns>
+        internal bool GroupHasActions(KSPActionGroup ag)
+        {
+            int index = -1;
+            for (int ui = (int)ag; ui != 0; ui >>= 1)
+            {
+                ++index;
+            }
+
+            if(index < 0 || index > hasActionGroup.Length)
+            {
+                // Should never happen!
+                throw new ArgumentOutOfRangeException("MASVesselComputer.GroupHasActions() called with invalid action group!");
+            }
+
+            return hasActionGroup[index];
+        }
+
+        /// <summary>
+        /// Sets the indicated action group to true (meaning there is an action)
+        /// </summary>
+        /// <param name="ag"></param>
+        private void SetActionGroup(KSPActionGroup ag)
+        {
+            int index = 0;
+            for (int ui = (int)ag; ui != 0; ui >>= 1)
+            {
+                if ((ui & 0x1) != 0)
+                {
+                    hasActionGroup[index] = true;
+                }
+                ++index;
+            }
+        }
+        #endregion
+
+        #region Engines
         //---Engines
         private List<ModuleEngines> enginesList = new List<ModuleEngines>(8);
         private ModuleEngines[] moduleEngines = new ModuleEngines[0];
@@ -122,11 +167,6 @@ namespace AvionicsSystems
                     }
                 }
 
-                //foreach (Propellant thatResource in me.propellants)
-                //{
-                //    resources.MarkPropellant(thatResource);
-                //}
-
                 if (thatPart.skinMaxTemp - thatPart.skinTemperature < hottestEngine)
                 {
                     hottestEngineTemperature = (float)thatPart.skinTemperature;
@@ -161,13 +201,25 @@ namespace AvionicsSystems
 
             return requestReset;
         }
+        #endregion
 
-
+        #region Modules Management
+        /// <summary>
+        /// Mark modules as potentially invalid to force reiterating over the
+        /// part and module lists.
+        /// </summary>
         private void InvalidateModules()
         {
             modulesInvalidated = true;
         }
 
+        /// <summary>
+        /// Helper method to transfer a list to an array without creating a new
+        /// array (if the existing array is the same size as the list needs).
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sourceList"></param>
+        /// <param name="destArray"></param>
         static void TransferModules<T>(List<T> sourceList, ref T[] destArray)
         {
             if (sourceList.Count != destArray.Length)
@@ -182,18 +234,36 @@ namespace AvionicsSystems
             sourceList.Clear();
         }
 
+        /// <summary>
+        /// Iterate over all of everything to update tracked modules.
+        /// </summary>
         private void RebuildModules()
         {
+            for (int agIndex = hasActionGroup.Length - 1; agIndex >= 0; --agIndex)
+            {
+                hasActionGroup[agIndex] = false;
+            }
+
             // Update the lists of modules
             for (int partIdx = vessel.parts.Count - 1; partIdx >= 0; --partIdx)
             {
-                foreach (PartModule m in vessel.parts[partIdx].Modules)
+                PartModuleList Modules = vessel.parts[partIdx].Modules;
+                for (int moduleIdx = Modules.Count - 1; moduleIdx >= 0; --moduleIdx)
                 {
+                    PartModule m = Modules[moduleIdx];
                     if (m.isEnabled)
                     {
                         if (m is ModuleEngines)
                         {
                             enginesList.Add(m as ModuleEngines);
+                        }
+
+                        foreach (BaseAction ba in m.Actions)
+                        {
+                            if (ba.actionGroup != KSPActionGroup.None)
+                            {
+                                SetActionGroup(ba.actionGroup);
+                            }
                         }
                     }
                 }
@@ -217,7 +287,7 @@ namespace AvionicsSystems
             {
                 invMaxISP = new float[moduleEngines.Length];
             }
-            for(int i=moduleEngines.Length-1; i>=0; --i)
+            for (int i = moduleEngines.Length - 1; i >= 0; --i)
             {
                 // MOARdV TODO: This ignores the velocity ISP curve of jets.
                 float maxIsp, minIsp;
@@ -270,6 +340,6 @@ namespace AvionicsSystems
                 InvalidateModules();
             }
         }
-
+        #endregion
     }
 }

@@ -116,6 +116,24 @@ namespace AvionicsSystems
         private static readonly KSPActionGroup[] ags = { KSPActionGroup.Custom10, KSPActionGroup.Custom01, KSPActionGroup.Custom02, KSPActionGroup.Custom03, KSPActionGroup.Custom04, KSPActionGroup.Custom05, KSPActionGroup.Custom06, KSPActionGroup.Custom07, KSPActionGroup.Custom08, KSPActionGroup.Custom09 };
 
         /// <summary>
+        /// Returns 1 if at least one action is associated with the action
+        /// group.  0 otherwise.
+        /// </summary>
+        /// <param name="groupID"></param>
+        /// <returns></returns>
+        public double ActionGroupHasActions(double groupID)
+        {
+            if (groupID < 0.0 || groupID > 9.0)
+            {
+                return 0.0;
+            }
+            else
+            {
+                return (vc.GroupHasActions(ags[(int)groupID])) ? 1.0 : 0.0;
+            }
+        }
+
+        /// <summary>
         /// Get the current state of the specified action group.
         /// </summary>
         /// <param name="groupID">A number between 0 and 9 (inclusive)</param>
@@ -261,16 +279,36 @@ namespace AvionicsSystems
         #endregion
 
         #region Brakes
+        /// <summary>
+        /// Returns 1 if the brakes action group has at least one action assigned to it.
+        /// </summary>
+        /// <returns></returns>
+        public double BrakesHasActions()
+        {
+            return (vc.GroupHasActions(KSPActionGroup.Brakes)) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the current state of the Brakes action group
+        /// </summary>
+        /// <returns></returns>
         public double GetBrakes()
         {
             return (vessel.ActionGroups[KSPActionGroup.Brakes]) ? 1.0 : 0.0;
         }
 
+        /// <summary>
+        /// Set the brakes to the specified state.
+        /// </summary>
+        /// <param name="active"></param>
         public void SetBrakes(bool active)
         {
             vessel.ActionGroups.SetGroup(KSPActionGroup.Brakes, active);
         }
 
+        /// <summary>
+        /// Toggle the state of the brakes.
+        /// </summary>
         public void ToggleBrakes()
         {
             vessel.ActionGroups.ToggleGroup(KSPActionGroup.Brakes);
@@ -361,16 +399,36 @@ namespace AvionicsSystems
         #endregion
 
         #region Gear
+        /// <summary>
+        /// Returns 1 if there are actions assigned to the landing gear AG.
+        /// </summary>
+        /// <returns></returns>
+        public double GearHasActions()
+        {
+            return (vc.GroupHasActions(KSPActionGroup.Gear)) ? 1.0 : 0.0;
+
+        }
+        /// <summary>
+        /// Returns 1 if the landing gear action group is active.
+        /// </summary>
+        /// <returns></returns>
         public double GetGear()
         {
             return (vessel.ActionGroups[KSPActionGroup.Gear]) ? 1.0 : 0.0;
         }
 
+        /// <summary>
+        /// Set the landing gear action group to the specified state.
+        /// </summary>
+        /// <param name="active"></param>
         public void SetGear(bool active)
         {
             vessel.ActionGroups.SetGroup(KSPActionGroup.Gear, active);
         }
 
+        /// <summary>
+        /// Toggle the landing gear action group
+        /// </summary>
         public void ToggleGear()
         {
             vessel.ActionGroups.ToggleGroup(KSPActionGroup.Gear);
@@ -378,16 +436,36 @@ namespace AvionicsSystems
         #endregion
 
         #region Lights
+        /// <summary>
+        /// Returns 1 if the Lights action group has at least one action assigned to it.
+        /// </summary>
+        /// <returns></returns>
+        public double LightsHasActions()
+        {
+            return (vc.GroupHasActions(KSPActionGroup.Light)) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the Lights action group is active.
+        /// </summary>
+        /// <returns></returns>
         public double GetLights()
         {
             return (vessel.ActionGroups[KSPActionGroup.Light]) ? 1.0 : 0.0;
         }
 
+        /// <summary>
+        /// Set the state of the lights action group.
+        /// </summary>
+        /// <param name="active"></param>
         public void SetLights(bool active)
         {
             vessel.ActionGroups.SetGroup(KSPActionGroup.Light, active);
         }
 
+        /// <summary>
+        /// Toggle the lights action group.
+        /// </summary>
         public void ToggleLights()
         {
             vessel.ActionGroups.ToggleGroup(KSPActionGroup.Light);
@@ -571,6 +649,17 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Return the persistent value as a number.  If it does not exist, or
+        /// it can not be converted to a number, return 0.
+        /// </summary>
+        /// <param name="persistentName"></param>
+        /// <returns></returns>
+        public double GetPersistentAsNumber(string persistentName)
+        {
+            return fc.GetPersistentAsNumber(persistentName);
+        }
+
+        /// <summary>
         /// Set a persistent to either a string or numeric value.
         /// </summary>
         /// <param name="persistentName"></param>
@@ -643,6 +732,15 @@ namespace AvionicsSystems
         #endregion
 
         #region RCS
+        /// <summary>
+        /// Returns 1 if the RCS action group has any actions attached to it.
+        /// </summary>
+        /// <returns></returns>
+        public double RCSHasActions()
+        {
+            return (vc.GroupHasActions(KSPActionGroup.RCS)) ? 1.0 : 0.0;
+        }
+        
         /// <summary>
         /// Returns 1 if RCS is on, 0 otherwise.
         /// </summary>
@@ -914,6 +1012,15 @@ namespace AvionicsSystems
         #endregion
 
         #region SAS
+        /// <summary>
+        /// Returns 1 if the SAS action group has actions assigned to it.
+        /// </summary>
+        /// <returns></returns>
+        public double SASHasActions()
+        {
+            return (vc.GroupHasActions(KSPActionGroup.SAS)) ? 1.0 : 0.0;
+        }
+        
         /// <summary>
         /// Returns 1 if SAS is on, 0 otherwise.
         /// </summary>
