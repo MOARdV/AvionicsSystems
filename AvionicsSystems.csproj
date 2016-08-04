@@ -65,6 +65,7 @@
     <Compile Include="Source\MASActionRotation.cs" />
     <Compile Include="Source\MASActionTextLabel.cs" />
     <Compile Include="Source\MASActionTextureShift.cs" />
+    <Compile Include="Source\MASActionTranslation.cs" />
     <Compile Include="Source\MASActionTriggerEvent.cs" />
     <Compile Include="Source\MASComponent.cs" />
     <Compile Include="Source\MASFlightComputerFlash.cs" />

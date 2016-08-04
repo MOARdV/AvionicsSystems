@@ -82,6 +82,10 @@ namespace AvionicsSystems
             {
                 return new MASActionTextureShift(config, prop, comp);
             }
+            else if (config.name == "TRANSLATION")
+            {
+                return new MASActionTranslation(config, prop, comp);
+            }
             else
             {
                 Utility.LogErrorMessage(config, "Unrecognized MASComponent child node {0} found", config.name);
