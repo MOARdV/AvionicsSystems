@@ -111,6 +111,7 @@ namespace AvionicsSystems
                 rangeMode = false;
             }
 
+            this.transform.localScale = startScale;
             comp.RegisterNumericVariable(variableName, prop, VariableCallback);
         }
 
