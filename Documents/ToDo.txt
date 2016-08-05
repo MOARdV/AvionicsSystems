@@ -34,11 +34,13 @@ JSIVariableAnimator / JSICallbackAnimator components
 
 - rotation. complete: can use Boolean, Threshold, Blend, and Static.
 
-* translation
+- translation. complete: can use Boolean, Threshold, Blend, and Static.
 
 - scale. complete: can use Boolean, Threshold, and Blend.
 
 - texture shift.  complete: Static, Boolean, Threshold, and Blend.
+
+- dynamic texture shift.  complete: User script can return a Vector2 to control the texture shift on the fly.
 
 * texture scale
 
@@ -50,9 +52,9 @@ Handlers (non-prop control stuff)
 
 * IJSI modules (plugins) -> MASI (Avionics Systems Interface)
 
-- JSIGraphingBackground: complete (except 'virtual indicator' mode, which is easy to emulate)
+- JSIGraphingBackground: complete (except 'virtual tablo indicator' mode, which is easy to emulate)
 
-- JSIHeadsUpDisplay: complete (except cropping shader) as MASPageHorizon ('HORIZON').
+- JSIHeadsUpDisplay: complete as MASPageHorizon ('HORIZON').
 
 * JSIOdometer: MAS Issue #3
 
@@ -73,8 +75,8 @@ Support Components
 - Some of this will be tricky, since it's code from GPL projects.  I may have
 to do some learnin' and write the replacement functionality on my own.
 
-* Custom formatters
- + SIP: Changed behavior (RPM was: _05.2 -> 5 characters max, 2 after decimal, pad left with zeros, and add a blank after the number but before the character.
+- Custom formatters: complete
+ - SIP: Changed behavior (RPM was: _05.2 -> 5 characters max, 2 after decimal, pad left with zeros, and add a blank after the number but before the character.
   * Add '=' instead of '_' pad with a blank when there is no prefix character (to keep vertical alignment)
  - U2K, U2P: Not needed - can be done in the variable directly.
  - DMS: -- no.  Replace with LAT and LON
@@ -85,7 +87,7 @@ to do some learnin' and write the replacement functionality on my own.
   * s, ss = as above, but for seconds
   * + = insert appropriate degree - minute - second character if it immediately follows d, m, or s
   * N, S, E, W = Replace with N/S or E/W as appropriate.
- + KDT, MET: Done
+ - KDT, MET: Done
   * + = Prefix with '+' or '-'
   * - = Prefix with '-' for negative, nothing for positive.
   * y = years (pad per character)
@@ -97,7 +99,7 @@ to do some learnin' and write the replacement functionality on my own.
   * S = seconds (same pattern)
   * f = fractions of a second
   * all other characters are passed through unchanged
- * BAR: Does this make sense given the ability to draw actual bar graphs?  No.
+ X BAR: Does this make sense given the ability to draw actual bar graphs?  No.
   * BAR[<bar character>[<empty character>[<trailer character>]]],<total length>[,<minimum>[,<maximum>]]
 
 * OrbitExtensions
@@ -127,14 +129,17 @@ list.
 * Is WaitForFixedUpdate the right coroutine yield to use?  Should I use WaitForSeconds with a time interval
 of whatever the update delta is?
 
-+ DONE and IMPLEMENTED: User-defined fonts - Unity.Font has ways to add user-defined fonts based on bitmaps and character maps.
+- User-defined fonts: DONE and IMPLEMENTED: Unity.Font has ways to add user-defined fonts based on bitmaps and character maps.
 Use that instead of the RPM system of a texture + text file with manual mapping.
+
+* Is it cheaper to do a bunch of little Lua queries each FixedUpdate, or should I concatenate
+them into an UpdateAllTheThings call (as a multi-return)?
+
+* What about skipping Lua entirely for simple cases, like 'fc.GetPersistent("SomeValue")',
+where the Lua code is simple a wrapper for a direct call to fcProxy?
 
 * Create a "standard library" of methods for the Lua environment, so there can be things
 like "DoThisIfThereIsPower(function-to-do)".
-
-* Is it cheaper to do a bunch of little Lua queries each FixedUpdate, or can I concatenate
-them into an UpdateAllTheThings call (as a multi-return)?
 
 StdLib ideas:
 
@@ -142,7 +147,12 @@ Clamp(value, min, max)
 
 Map(value, min, max, mappedMin, mappedMax)
 
+* Still need:
+
 fc.AppendPersistent("name", "string")
+
+fc.GetPersistentAsNumber("name") -> return a number, or 0 if it can't be converted;
+this does not change a string to a number, so that string can still be edited.
 
 fc.RemoveLastCharPersistent("name")
 

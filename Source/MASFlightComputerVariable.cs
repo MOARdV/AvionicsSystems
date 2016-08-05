@@ -193,8 +193,9 @@ namespace AvionicsSystems
             /// <param name="script"></param>
             internal void Evaluate(Script script)
             {
+                DynValue oldDynValue = value;
                 double oldValue = safeValue;
-                string oldString = stringValue;
+                //string oldString = stringValue;
                 try
                 {
                     value = script.Call(evaluator);
@@ -208,20 +209,36 @@ namespace AvionicsSystems
                 }
 
                 safeValue = (double.IsInfinity(doubleValue) || double.IsNaN(doubleValue)) ? 0.0 : doubleValue;
-                if (!Mathf.Approximately((float)oldValue, (float)safeValue))
+
+                DataType type = value.Type;
+                if (type == DataType.Number)
                 {
-                    try
+                    if (!Mathf.Approximately((float)oldValue, (float)safeValue))
                     {
-                        numericCallbacks.Invoke(safeValue);
+                        try
+                        {
+                            numericCallbacks.Invoke(safeValue);
+                        }
+                        catch { }
+                        try
+                        {
+                            changeCallbacks.Invoke();
+                        }
+                        catch { }
                     }
-                    catch { }
-                    try
-                    {
-                        changeCallbacks.Invoke();
-                    }
-                    catch { }
                 }
-                else if (oldString != stringValue)
+                else if (type == DataType.String)
+                {
+                    if (oldDynValue.String != stringValue)
+                    {
+                        try
+                        {
+                            changeCallbacks.Invoke();
+                        }
+                        catch { }
+                    }
+                }
+                else if (!oldDynValue.Equals(value))
                 {
                     try
                     {

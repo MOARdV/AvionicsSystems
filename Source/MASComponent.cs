@@ -62,6 +62,10 @@ namespace AvionicsSystems
             {
                 return new MASActionColliderEvent(config, prop, comp);
             }
+            else if (config.name == "DYNAMIC_TEXTURE_SHIFT")
+            {
+                return new MASActionDynamicTextureShift(config, prop, comp);
+            }
             else if (config.name == "INT_LIGHT")
             {
                 return new MASActionIntLight(config, prop, comp);

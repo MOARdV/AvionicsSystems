@@ -440,6 +440,8 @@ namespace AvionicsSystems
                 realChuteProxy.vc = vc;
                 realChuteProxy.vessel = vessel;
 
+                UserData.RegisterType<MASVector2>();
+
                 // TODO: Add MAS script
 
                 // Add User scripts

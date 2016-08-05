@@ -60,6 +60,7 @@
     <Compile Include="Source\MASActionAudioPlayer.cs" />
     <Compile Include="Source\MASActionColliderEvent.cs" />
     <Compile Include="Source\MASActionColorShift.cs" />
+    <Compile Include="Source\MASActionDynamicTextureShift.cs" />
     <Compile Include="Source\MASActionIntLight.cs" />
     <Compile Include="Source\MASActionModelScale.cs" />
     <Compile Include="Source\MASActionRotation.cs" />
@@ -74,6 +75,7 @@
     <Compile Include="Source\MASFlightComputerVariable.cs" />
     <Compile Include="Source\MASIFAR.cs" />
     <Compile Include="Source\MASIRealChute.cs" />
+    <Compile Include="Source\MASTypes.cs" />
     <Compile Include="Source\MASLoader.cs" />
     <Compile Include="Source\MASFlightComputer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

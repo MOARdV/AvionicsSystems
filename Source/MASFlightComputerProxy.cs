@@ -110,6 +110,17 @@ namespace AvionicsSystems
                 return (1.0f + Math.Log10(absValue)) * Math.Sign(sourceValue);
             }
         }
+
+        /// <summary>
+        /// Returns a Vector2 proxy object initialized to the specified parameters.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public DynValue Vector2(double x, double y)
+        {
+            return UserData.Create(new MASVector2((float)x, (float)y));
+        }
         #endregion
 
         #region Action Groups
