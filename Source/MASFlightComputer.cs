@@ -76,6 +76,11 @@ namespace AvionicsSystems
         private MASIFAR farProxy;
 
         /// <summary>
+        /// Instance of the RealChute proxy class.
+        /// </summary>
+        private MASIRealChute realChuteProxy;
+
+        /// <summary>
         /// Have we initialized?
         /// </summary>
         private bool initialized = false;
@@ -355,6 +360,8 @@ namespace AvionicsSystems
                     mutableVariablesChanged = false;
                 }
 
+                realChuteProxy.Update();
+
                 int count = mutableVariables.Length;
                 for (int i = 0; i < count; ++i)
                 {
@@ -371,6 +378,7 @@ namespace AvionicsSystems
             script = null;
             fcProxy = null;
             farProxy = null;
+            realChuteProxy = null;
             if (initialized)
             {
                 Utility.LogMessage(this, "OnDestroy for {0}", flightComputerId);
@@ -416,14 +424,21 @@ namespace AvionicsSystems
                 fcProxy = new MASFlightComputerProxy(this);
                 UserData.RegisterType<MASFlightComputerProxy>();
                 script.Globals["fc"] = fcProxy;
+
                 farProxy = new MASIFAR(vessel);
                 UserData.RegisterType<MASIFAR>();
                 script.Globals["far"] = farProxy;
+
+                realChuteProxy = new MASIRealChute(vessel);
+                UserData.RegisterType<MASIRealChute>();
+                script.Globals["realchute"] = realChuteProxy;
 
                 vc = MASVesselComputer.Instance(parentVesselId);
                 fcProxy.vc = vc;
                 fcProxy.vessel = vessel;
                 farProxy.vessel = vessel;
+                realChuteProxy.vc = vc;
+                realChuteProxy.vessel = vessel;
 
                 // TODO: Add MAS script
 
@@ -523,6 +538,8 @@ namespace AvionicsSystems
                 fcProxy.vc = vc;
                 fcProxy.vessel = vessel;
                 farProxy.vessel = vessel;
+                realChuteProxy.vc = vc;
+                realChuteProxy.vessel = vessel;
                 UpdateLocalCrew();
             }
         }

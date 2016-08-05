@@ -73,6 +73,7 @@
     <Compile Include="Source\MASFlightComputerProxy.cs" />
     <Compile Include="Source\MASFlightComputerVariable.cs" />
     <Compile Include="Source\MASIFAR.cs" />
+    <Compile Include="Source\MASIRealChute.cs" />
     <Compile Include="Source\MASLoader.cs" />
     <Compile Include="Source\MASFlightComputer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

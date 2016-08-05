@@ -52,7 +52,7 @@ namespace AvionicsSystems
                 ++index;
             }
 
-            if(index < 0 || index > hasActionGroup.Length)
+            if (index < 0 || index > hasActionGroup.Length)
             {
                 // Should never happen!
                 throw new ArgumentOutOfRangeException("MASVesselComputer.GroupHasActions() called with invalid action group!");
@@ -203,6 +203,13 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Parachutes
+        private List<PartModule> realchuteList = new List<PartModule>(8);
+        internal PartModule[] moduleRealChute = new PartModule[0];
+        private List<ModuleParachute> parachuteList = new List<ModuleParachute>(8);
+        internal ModuleParachute[] moduleParachute = new ModuleParachute[0];
+        #endregion
+
         #region Modules Management
         /// <summary>
         /// Mark modules as potentially invalid to force reiterating over the
@@ -250,15 +257,23 @@ namespace AvionicsSystems
                 PartModuleList Modules = vessel.parts[partIdx].Modules;
                 for (int moduleIdx = Modules.Count - 1; moduleIdx >= 0; --moduleIdx)
                 {
-                    PartModule m = Modules[moduleIdx];
-                    if (m.isEnabled)
+                    PartModule module = Modules[moduleIdx];
+                    if (module.isEnabled)
                     {
-                        if (m is ModuleEngines)
+                        if (module is ModuleEngines)
                         {
-                            enginesList.Add(m as ModuleEngines);
+                            enginesList.Add(module as ModuleEngines);
+                        }
+                        else if (module is ModuleParachute)
+                        {
+                            parachuteList.Add(module as ModuleParachute);
+                        }
+                        else if (MASIRealChute.realChuteFound && module.GetType() == MASIRealChute.rcAPI_t)
+                        {
+                            realchuteList.Add(module);
                         }
 
-                        foreach (BaseAction ba in m.Actions)
+                        foreach (BaseAction ba in module.Actions)
                         {
                             if (ba.actionGroup != KSPActionGroup.None)
                             {
@@ -294,6 +309,9 @@ namespace AvionicsSystems
                 moduleEngines[i].atmosphereCurve.FindMinMaxValue(out minIsp, out maxIsp);
                 invMaxISP[i] = 1.0f / maxIsp;
             }
+
+            TransferModules<PartModule>(realchuteList, ref moduleRealChute);
+            TransferModules<ModuleParachute>(parachuteList, ref moduleParachute);
         }
 
         /// <summary>
