@@ -90,7 +90,6 @@ namespace AvionicsSystems
         static MASIFAR()
         {
             farFound = false;
-            UnityEngine.Debug.Log("[MASIFAR] static initializer");
             Type farAPI_t = Utility.GetExportedType("FerramAerospaceResearch", "FerramAerospaceResearch.FARAPI");
             if(farAPI_t != null)
             {
@@ -111,7 +110,6 @@ namespace AvionicsSystems
                 refArea = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), refArea_t);
 
                 farFound = true;
-                UnityEngine.Debug.Log("[MASIFAR] successfully initialized");
             }
         }
         #endregion

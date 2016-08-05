@@ -758,7 +758,7 @@ namespace AvionicsSystems
         {
             return (vc.GroupHasActions(KSPActionGroup.RCS)) ? 1.0 : 0.0;
         }
-        
+
         /// <summary>
         /// Returns 1 if RCS is on, 0 otherwise.
         /// </summary>
@@ -1038,7 +1038,7 @@ namespace AvionicsSystems
         {
             return (vc.GroupHasActions(KSPActionGroup.SAS)) ? 1.0 : 0.0;
         }
-        
+
         /// <summary>
         /// Returns 1 if SAS is on, 0 otherwise.
         /// </summary>
