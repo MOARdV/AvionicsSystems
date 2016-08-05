@@ -165,6 +165,29 @@ this mode, do not include any optional parameters ('range', 'blend', 'flashRate'
 may occur.
 
 
+DYNAMIC_TEXTURE_SHIFT
+
+A Dynamic Texture Shift is a variation of the Texture Shift action (see).  Where a Texture Shift supplies
+either a static UV or a pair of UV endpoints, the Dynamic Texture Shift can use any arbitrary texture
+shift value, as defined by the return value of the user-supplied variable function 'variable'.  This allows
+for greater flexibility in texture shifts, such as switching between multiple UV values depending on 
+conditions.
+
+DYNAMIC_TEXTURE_SHIFT
+{
+	name = Warning Plate color
+	transform = WarningPlate
+	layers = _MainTex _Emissive
+	variable = MOARdVParachuteSafetyTexture()
+}
+'name': Optional.  Default '(anonymous)'.  A name for the action.
+'transform': Required.  The name of the transform whose UV values will be shifted.
+'layers': Optional.  Default '_MainTex'.  A space-delimited list of layers where the texture shift should be applied.
+Known valid options are '_MainTex' and '_Emissive'.
+'variable': Required.  A user-supplied variable that returns a Vector2 (as created using fc.Vector2)
+that provides the UV offset from the initial setting.
+
+
 INT_LIGHT
 
 This action is used to control interior lights.

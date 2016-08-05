@@ -29,18 +29,18 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
+    /// <summary>
+    /// Create an Action that entails a dynamic texture shift - that is, instead
+    /// of a single, static texture shift, or a shift between two endpoints, a
+    /// shift that is completely arbitrary, based on the 'variable' named by the
+    /// component.  Said variable must return a fc.Vector2() value.
+    /// </summary>
     class MASActionDynamicTextureShift : IMASSubComponent
     {
         private string name = "(anonymous)";
-        private string variableName = string.Empty;
         private Material localMaterial = null;
         private MASFlightComputer.Variable variable;
-        //private MASFlightComputer.Variable range1, range2;
         private Vector2 currentUV = Vector2.zero;
-        //private readonly bool blend;
-        //private readonly bool rangeMode;
-        //private bool currentState = false;
-        //private float currentBlend = 0.0f;
         private Vector2[] startUV;
         private string[] layer;
 
@@ -60,6 +60,7 @@ namespace AvionicsSystems
             string layers = "_MainTex";
             config.TryGetValue("layers", ref layers);
 
+            string variableName = string.Empty;
             if (config.TryGetValue("variable", ref variableName))
             {
                 variableName = variableName.Trim();
@@ -82,7 +83,7 @@ namespace AvionicsSystems
             }
 
             variable = comp.RegisterOnVariableChange(variableName, prop, VariableCallback);
-            VariableCallback(); // Must explicitly call to initialize.
+            VariableCallback(); // Must explicitly call to initialize state.
         }
 
         /// <summary>
@@ -119,11 +120,11 @@ namespace AvionicsSystems
         /// </summary>
         public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
-            variable = null;
-            if (!string.IsNullOrEmpty(variableName))
+            if (!string.IsNullOrEmpty(variable.name))
             {
-                comp.UnregisterOnVariableChange(variableName, internalProp, VariableCallback);
+                comp.UnregisterOnVariableChange(variable.name, internalProp, VariableCallback);
             }
+            variable = null;
             UnityEngine.Object.Destroy(localMaterial);
         }
     }
