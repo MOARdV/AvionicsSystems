@@ -56,6 +56,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Source\MASActionAnimation.cs" />
     <Compile Include="Source\MASActionAnimationPlayer.cs" />
     <Compile Include="Source\MASActionAudioPlayer.cs" />
     <Compile Include="Source\MASActionColliderEvent.cs" />

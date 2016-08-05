@@ -46,7 +46,11 @@ namespace AvionicsSystems
         /// <returns></returns>
         private static IMASSubComponent CreateAction(ConfigNode config, InternalProp prop, MASFlightComputer comp)
         {
-            if (config.name == "ANIMATION_PLAYER")
+            if (config.name == "ANIMATION")
+            {
+                return new MASActionAnimation(config, prop, comp);
+            }
+            else if (config.name == "ANIMATION_PLAYER")
             {
                 return new MASActionAnimationPlayer(config, prop, comp);
             }

@@ -1,0 +1,129 @@
+﻿/*****************************************************************************
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 MOARdV
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ * 
+ ****************************************************************************/
+using System;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+
+namespace AvionicsSystems
+{
+    /// <summary>
+    /// Provides an action that can control an animation by blending it between its start and end
+    /// positions.
+    /// </summary>
+    class MASActionAnimation : IMASSubComponent
+    {
+        private string name = "(anonymous)";
+        private string variableName = string.Empty;
+        private string animationName = string.Empty;
+        private Animation animation;
+        private AnimationState animationState;
+        private MASFlightComputer.Variable range1, range2;
+        private float lastPosition = 0.0f;
+
+        internal MASActionAnimation(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        {
+            if (!config.TryGetValue("name", ref name))
+            {
+                name = "(anonymous)";
+            }
+
+            if (!config.TryGetValue("animation", ref animationName) || string.IsNullOrEmpty(animationName))
+            {
+                throw new ArgumentException("Invalid or missing 'animation' in ANIMATION " + name);
+            }
+
+            // Set up the animation.
+            Animation[] animators = prop.FindModelAnimators(animationName);
+            if (animators.Length == 0)
+            {
+                throw new ArgumentException("Unable to find animation " + animationName + " for ANIMATION " + name);
+            }
+            animation = animators[0];
+            animationState = animation[animationName];
+            animationState.wrapMode = WrapMode.Once;
+            animationState.speed = 0.0f;
+
+            if (!config.TryGetValue("variable", ref variableName) || string.IsNullOrEmpty(variableName))
+            {
+                throw new ArgumentException("Invalid or missing 'variable' in ANIMATION " + name);
+            }
+            variableName = variableName.Trim();
+
+            string range = string.Empty;
+            if (config.TryGetValue("range", ref range))
+            {
+                string[] ranges = range.Split(',');
+                if (ranges.Length != 2)
+                {
+                    throw new ArgumentException("Incorrect number of values in 'range' in ANIMATION " + name);
+                }
+                range1 = comp.GetVariable(ranges[0], prop);
+                range2 = comp.GetVariable(ranges[1], prop);
+            }
+            else
+            {
+                throw new ArgumentException("Invalid or missing 'range' in ANIMATION " + name);
+            }
+
+            comp.RegisterNumericVariable(variableName, prop, VariableCallback);
+        }
+
+        /// <summary>
+        /// Variable callback used to update the animation when it is playing.
+        /// </summary>
+        /// <param name="newValue"></param>
+        private void VariableCallback(double newValue)
+        {
+            float newBlend = Mathf.InverseLerp((float)range1.SafeValue(), (float)range2.SafeValue(), (float)newValue);
+
+            if (!Mathf.Approximately(lastPosition, newBlend))
+            {
+                lastPosition = newBlend;
+                animationState.normalizedTime = lastPosition;
+                animation.Play(animationName);
+            }
+        }
+
+        /// <summary>
+        ///  Return the name of the action.
+        /// </summary>
+        /// <returns></returns>
+        public string Name()
+        {
+            return name;
+        }
+
+        /// <summary>
+        /// Release resources
+        /// </summary>
+        public void ReleaseResources(MASFlightComputer comp, InternalProp prop)
+        {
+            comp.UnregisterNumericVariable(variableName, prop, VariableCallback);
+            animationState = null;
+            animation = null;
+        }
+    }
+}
