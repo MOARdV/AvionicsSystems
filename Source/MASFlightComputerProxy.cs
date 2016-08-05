@@ -550,6 +550,28 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Meta
+        /// <summary>
+        /// Recover the vessel if it is recoverable.
+        /// </summary>
+        public void RecoverVessel()
+        {
+            if (vessel.IsRecoverable)
+            {
+                GameEvents.OnVesselRecoveryRequested.Fire(vessel);
+            }
+        }
+
+        /// <summary>
+        /// Returns 1 if the vessel is recoverable, 0 otherwise.
+        /// </summary>
+        /// <returns></returns>
+        public double VesselRecoverable()
+        {
+            return (vessel.IsRecoverable) ? 1.0 : 0.0;
+        }
+        #endregion
+
         #region Orbit Parameters
         /// <summary>
         /// Returns the orbit's apoapsis (from datum) in meters.
