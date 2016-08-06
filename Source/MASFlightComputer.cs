@@ -360,6 +360,7 @@ namespace AvionicsSystems
                     mutableVariablesChanged = false;
                 }
 
+                fcProxy.Update();
                 realChuteProxy.Update();
 
                 int count = mutableVariables.Length;
