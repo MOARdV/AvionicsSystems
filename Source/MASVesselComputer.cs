@@ -130,7 +130,7 @@ namespace AvionicsSystems
 
                 // First step:
                 PrepareResourceData();
-                
+
                 UpdateModuleData();
                 UpdateAttitude();
                 UpdateAltitudes();
@@ -181,7 +181,7 @@ namespace AvionicsSystems
             knownModules[vesselId] = this;
 
             InitResourceData();
-            
+
             vesselActive = (vessel.GetCrewCount() > 0);
 
             // TODO: Optimize this better - does any of this really need done if there's no crew?
@@ -436,10 +436,17 @@ namespace AvionicsSystems
                 return navballAttitudeGimbal;
             }
         }
-        internal Vector3 up;
+        internal Vector3 up; // local world "up"
         internal Vector3 prograde;
+        internal Vector3 surfacePrograde;
         internal Vector3 radialOut;
         internal Vector3 normal;
+
+        // Vessel-relative right, forward, and "top" unit vectors.
+        internal Vector3 right;
+        internal Vector3 forward;
+        internal Vector3 top;
+
 
         /// <summary>
         /// Because the gimbal is reflected for presentation, we need to
@@ -480,8 +487,14 @@ namespace AvionicsSystems
 
             up = vessel.upAxis;
             prograde = vessel.obt_velocity.normalized;
+            surfacePrograde = vessel.srf_velocity.normalized;
             radialOut = Vector3.ProjectOnPlane(up, prograde).normalized;
             normal = -Vector3.Cross(radialOut, prograde).normalized;
+
+            right = vessel.GetTransform().right;
+            forward = vessel.GetTransform().up;
+            top = vessel.GetTransform().forward;
+
             // TODO: Am I computing normal wrong?
             // TODO: orbit.GetOrbitNormal() appears to return a vector in the opposite
             // direction when in the inertial frame of reference, but it's perpendicular
@@ -495,6 +508,27 @@ namespace AvionicsSystems
             //orbit.getRelativePositionAtUT();
             // Trajectory object?
             //Utility.LogMessage(this, "orb Ap {0:0} / Pe {1:0}, end type {2}", orbit.ApA, orbit.PeA, orbit.patchEndTransition.ToString());
+        }
+        internal double GetRelativePitch(Vector3 direction)
+        {
+            // Project the direction vector onto the plane YZ plane
+            Vector3 projectedVector = Vector3.ProjectOnPlane(direction, right);
+            projectedVector.Normalize();
+
+            // Dot the projected vector with the 'top' direction so we can find
+            // the relative pitch.
+            float dotPitch = Vector3.Dot(projectedVector, top);
+            float pitch = Mathf.Asin(dotPitch);
+            if (float.IsNaN(pitch))
+            {
+                pitch = (dotPitch > 0.0f) ? 90.0f : -90.0f;
+            }
+            else
+            {
+                pitch *= Mathf.Rad2Deg;
+            }
+
+            return pitch;
         }
 
         private ManeuverNode node;
@@ -601,11 +635,11 @@ namespace AvionicsSystems
             {
                 targetDirection = vessel.GetTransform().position - activeTarget.GetTransform().position;
 
-                if(activeTarget is Vessel)
+                if (activeTarget is Vessel)
                 {
                     targetType = TargetType.Vessel;
                 }
-                else if(activeTarget is CelestialBody)
+                else if (activeTarget is CelestialBody)
                 {
                     targetType = TargetType.CelestialBody;
                 }
