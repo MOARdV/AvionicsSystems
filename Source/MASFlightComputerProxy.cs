@@ -636,12 +636,109 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Pitch of the vessel relative to the orbit anti-normal vector.
+        /// </summary>
+        /// <returns></returns>
+        public double PitchAntiNormal()
+        {
+            return vc.GetRelativePitch(-vc.normal);
+        }
+
+        public double PitchAntiTarget()
+        {
+            return 0.0;
+        }
+
+        public double PitchManeuver()
+        {
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Pitch of the vessel relative to the orbit normal vector.
+        /// </summary>
+        /// <returns></returns>
+        public double PitchNormal()
+        {
+            return vc.GetRelativePitch(vc.normal);
+        }
+
+        /// <summary>
         /// Returns the pitch rate of the vessel in degrees/sec
         /// </summary>
         /// <returns></returns>
         public double PitchRate()
         {
             return -vessel.angularVelocity.x * Mathf.Rad2Deg;
+        }
+
+        /// <summary>
+        /// Pitch of the vessel relative to the orbital prograde vector.
+        /// </summary>
+        /// <returns></returns>
+        public double PitchPrograde()
+        {
+            return vc.GetRelativePitch(vc.prograde);
+        }
+
+        /// <summary>
+        /// Pitch of the vessel relative to the orbital Radial In vector.
+        /// </summary>
+        /// <returns></returns>
+        public double PitchRadialIn()
+        {
+            return vc.GetRelativePitch(-vc.radialOut);
+        }
+
+        /// <summary>
+        /// Pitch of the vessel relative to the orbital Radial Out vector.
+        /// </summary>
+        /// <returns></returns>
+        public double PitchRadialOut()
+        {
+            return vc.GetRelativePitch(vc.radialOut);
+        }
+
+        /// <summary>
+        /// Pitch of the vessel relative to the orbital retrograde vector.
+        /// </summary>
+        /// <returns></returns>
+        public double PitchRetrograde()
+        {
+            return vc.GetRelativePitch(-vc.prograde);
+        }
+
+        /// <summary>
+        /// Pitch of the vessel relative to the surface prograde vector.
+        /// </summary>
+        /// <returns></returns>
+        public double PitchSurfacePrograde()
+        {
+            return vc.GetRelativePitch(vc.surfacePrograde);
+        }
+
+        /// <summary>
+        /// Pitch of the vessel relative to the surface retrograde vector.
+        /// </summary>
+        /// <returns></returns>
+        public double PitchSurfaceRetrograde()
+        {
+            return vc.GetRelativePitch(-vc.surfacePrograde);
+        }
+
+        public double PitchTarget()
+        {
+            return 0.0;
+        }
+
+        public double PitchTargetPrograde()
+        {
+            return 0.0;
+        }
+
+        public double PitchTargetRetrograde()
+        {
+            return 0.0;
         }
 
         /// <summary>
@@ -662,6 +759,26 @@ namespace AvionicsSystems
             return -vessel.angularVelocity.y * Mathf.Rad2Deg;
         }
 
+        public double YawAntiNormal()
+        {
+            return 0.0;
+        }
+
+        public double YawAntiTarget()
+        {
+            return 0.0;
+        }
+
+        public double YawManeuver()
+        {
+            return 0.0;
+        }
+
+        public double YawNormal()
+        {
+            return 0.0;
+        }
+
         /// <summary>
         /// Returns the yaw rate of the vessel in degrees/sec
         /// </summary>
@@ -669,6 +786,51 @@ namespace AvionicsSystems
         public double YawRate()
         {
             return -vessel.angularVelocity.z * Mathf.Rad2Deg;
+        }
+
+        public double YawPrograde()
+        {
+            return 0.0;
+        }
+
+        public double YawRadialIn()
+        {
+            return 0.0;
+        }
+
+        public double YawRadialOut()
+        {
+            return 0.0;
+        }
+
+        public double YawRetrograde()
+        {
+            return 0.0;
+        }
+
+        public double YawSurfacePrograde()
+        {
+            return 0.0;
+        }
+
+        public double YawSurfaceRetrograde()
+        {
+            return 0.0;
+        }
+
+        public double YawTarget()
+        {
+            return 0.0;
+        }
+
+        public double YawTargetPrograde()
+        {
+            return 0.0;
+        }
+
+        public double YawTargetRetrograde()
+        {
+            return 0.0;
         }
         #endregion
 
@@ -1103,6 +1265,63 @@ namespace AvionicsSystems
         public double GetSAS()
         {
             return (vessel.ActionGroups[KSPActionGroup.SAS]) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns a number representing the SAS mode:
+        /// 0 = StabilityAssist
+        /// 1 = Prograde
+        /// 2 = Retrograde
+        /// 3 = Normal
+        /// 4 = Anti-Normal
+        /// 5 = Radial In
+        /// 6 = Radial Out
+        /// 7 = Target
+        /// 8 = Anti-Target
+        /// 9 = Maneuver Node
+        /// </summary>
+        /// <returns></returns>
+        public double GetSASMode()
+        {
+            double mode;
+            switch (autopilotMode)
+            {
+                case VesselAutopilot.AutopilotMode.StabilityAssist:
+                    mode = 0.0;
+                    break;
+                case VesselAutopilot.AutopilotMode.Prograde:
+                    mode = 1.0;
+                    break;
+                case VesselAutopilot.AutopilotMode.Retrograde:
+                    mode = 2.0;
+                    break;
+                case VesselAutopilot.AutopilotMode.Normal:
+                    mode = 3.0;
+                    break;
+                case VesselAutopilot.AutopilotMode.Antinormal:
+                    mode = 4.0;
+                    break;
+                case VesselAutopilot.AutopilotMode.RadialIn:
+                    mode = 5.0;
+                    break;
+                case VesselAutopilot.AutopilotMode.RadialOut:
+                    mode = 6.0;
+                    break;
+                case VesselAutopilot.AutopilotMode.Target:
+                    mode = 7.0;
+                    break;
+                case VesselAutopilot.AutopilotMode.AntiTarget:
+                    mode = 8.0;
+                    break;
+                case VesselAutopilot.AutopilotMode.Maneuver:
+                    mode = 9.0;
+                    break;
+                default:
+                    mode = 0.0;
+                    break;
+            }
+
+            return mode;
         }
 
         /// <summary>
