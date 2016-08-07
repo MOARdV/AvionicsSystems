@@ -641,7 +641,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double PitchRate()
         {
-            return -vessel.angularVelocity.z * Mathf.Rad2Deg;
+            return -vessel.angularVelocity.x * Mathf.Rad2Deg;
         }
 
         /// <summary>
@@ -668,7 +668,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double YawRate()
         {
-            return -vessel.angularVelocity.x * Mathf.Rad2Deg;
+            return -vessel.angularVelocity.z * Mathf.Rad2Deg;
         }
         #endregion
 
