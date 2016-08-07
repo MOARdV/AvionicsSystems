@@ -108,6 +108,16 @@ namespace AvionicsSystems
 
         #region Unassigned Region
         /// <summary>
+        /// Log messages to the KSP.log.  Messages will be prefixed with
+        /// [MASFlightComputerProxy].
+        /// </summary>
+        /// <param name="message"></param>
+        public void LogMessage(string message)
+        {
+            Utility.LogMessage(this, message);
+        }
+
+        /// <summary>
         /// Apply a log10-like curve to the value.
         /// </summary>
         /// <param name="sourceValue"></param>
