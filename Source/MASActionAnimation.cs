@@ -41,7 +41,7 @@ namespace AvionicsSystems
         private Animation animation;
         private AnimationState animationState;
         private MASFlightComputer.Variable range1, range2;
-        private float lastPosition = 0.0f;
+        private float lastPosition = -1.0f;
 
         internal MASActionAnimation(ConfigNode config, InternalProp prop, MASFlightComputer comp)
         {
