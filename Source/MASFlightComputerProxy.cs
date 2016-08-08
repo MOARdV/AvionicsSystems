@@ -660,9 +660,20 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Pitch of the vessel relative to the next scheduled maneuver vector.
+        /// </summary>
+        /// <returns></returns>
         public double PitchManeuver()
         {
-            return 0.0;
+            if (vc.maneuverNodeValid)
+            {
+                return vc.GetRelativePitch(vc.maneuverNodeVector.normalized);
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
@@ -828,9 +839,20 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Yaw of the vessel relative to the next scheduled maneuver vector.
+        /// </summary>
+        /// <returns></returns>
         public double YawManeuver()
         {
-            return 0.0;
+            if (vc.maneuverNodeValid)
+            {
+                return vc.GetRelativeYaw(vc.maneuverNodeVector.normalized);
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
