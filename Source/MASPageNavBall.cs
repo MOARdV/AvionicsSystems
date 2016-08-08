@@ -352,7 +352,7 @@ namespace AvionicsSystems
                 {
                     markers[8].SetActive(true);
                     markers[9].SetActive(true);
-                    UpdateVectorPair(8, (attitudeGimbal * comp.vc.targetDirection.normalized) * navballExtents);
+                    UpdateVectorPair(8, (attitudeGimbal * comp.vc.targetDisplacement) * navballExtents);
 
                     // Docking Port
                     if (comp.vc.targetType == MASVesselComputer.TargetType.DockingPort)

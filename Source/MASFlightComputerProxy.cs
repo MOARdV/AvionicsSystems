@@ -644,9 +644,20 @@ namespace AvionicsSystems
             return vc.GetRelativePitch(-vc.normal);
         }
 
+        /// <summary>
+        /// Pitch of the vessel relative to the vector pointing away from the target.
+        /// </summary>
+        /// <returns></returns>
         public double PitchAntiTarget()
         {
-            return 0.0;
+            if (vc.activeTarget == null)
+            {
+                return 0.0;
+            }
+            else
+            {
+                return vc.GetRelativePitch(-vc.targetDirection);
+            }
         }
 
         public double PitchManeuver()
@@ -726,19 +737,52 @@ namespace AvionicsSystems
             return vc.GetRelativePitch(-vc.surfacePrograde);
         }
 
+        /// <summary>
+        /// Pitch of the vessel relative to the vector pointing at the target.
+        /// </summary>
+        /// <returns></returns>
         public double PitchTarget()
         {
-            return 0.0;
+            if (vc.activeTarget == null)
+            {
+                return 0.0;
+            }
+            else
+            {
+                return vc.GetRelativePitch(vc.targetDirection);
+            }
         }
 
+        /// <summary>
+        /// Pitch of the vessel relative to the target relative prograde vector.
+        /// </summary>
+        /// <returns></returns>
         public double PitchTargetPrograde()
         {
-            return 0.0;
+            if (vc.activeTarget == null)
+            {
+                return 0.0;
+            }
+            else
+            {
+                return vc.GetRelativePitch(vc.targetRelativeVelocity.normalized);
+            }
         }
 
+        /// <summary>
+        /// Pitch of the vessel relative to the target relative retrograde vector.
+        /// </summary>
+        /// <returns></returns>
         public double PitchTargetRetrograde()
         {
-            return 0.0;
+            if (vc.activeTarget == null)
+            {
+                return 0.0;
+            }
+            else
+            {
+                return vc.GetRelativePitch(-vc.targetRelativeVelocity.normalized);
+            }
         }
 
         /// <summary>
@@ -768,9 +812,20 @@ namespace AvionicsSystems
             return vc.GetRelativeYaw(-vc.normal);
         }
 
+        /// <summary>
+        /// Yaw of the vessel relative to the vector pointing away from the target.
+        /// </summary>
+        /// <returns></returns>
         public double YawAntiTarget()
         {
-            return 0.0;
+            if (vc.activeTarget == null)
+            {
+                return 0.0;
+            }
+            else
+            {
+                return vc.GetRelativeYaw(-vc.targetDirection);
+            }
         }
 
         public double YawManeuver()
@@ -850,19 +905,52 @@ namespace AvionicsSystems
             return vc.GetRelativeYaw(-vc.surfacePrograde);
         }
 
+        /// <summary>
+        /// Yaw of the vessel relative to the vector pointing at the target.
+        /// </summary>
+        /// <returns></returns>
         public double YawTarget()
         {
-            return 0.0;
+            if (vc.activeTarget == null)
+            {
+                return 0.0;
+            }
+            else
+            {
+                return vc.GetRelativeYaw(vc.targetDirection);
+            }
         }
 
+        /// <summary>
+        /// Yaw of the vessel relative to the target relative prograde vector.
+        /// </summary>
+        /// <returns></returns>
         public double YawTargetPrograde()
         {
-            return 0.0;
+            if (vc.activeTarget == null)
+            {
+                return 0.0;
+            }
+            else
+            {
+                return vc.GetRelativeYaw(vc.targetRelativeVelocity.normalized);
+            }
         }
 
+        /// <summary>
+        /// Yaw of the vessel relative to the target relative retrograde vector.
+        /// </summary>
+        /// <returns></returns>
         public double YawTargetRetrograde()
         {
-            return 0.0;
+            if (vc.activeTarget == null)
+            {
+                return 0.0;
+            }
+            else
+            {
+                return vc.GetRelativeYaw(-vc.targetRelativeVelocity.normalized);
+            }
         }
         #endregion
 

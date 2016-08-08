@@ -638,7 +638,9 @@ namespace AvionicsSystems
             Asteroid,
         };
         internal ITargetable activeTarget = null;
-        internal Vector3d targetDirection;
+        internal Vector3d targetDisplacement;
+        internal Vector3 targetDirection;
+        internal Vector3d targetRelativeVelocity;
         internal TargetType targetType;
         internal bool targetValid
         {
@@ -652,7 +654,10 @@ namespace AvionicsSystems
             activeTarget = FlightGlobals.fetch.VesselTarget;
             if (activeTarget != null)
             {
-                targetDirection = vessel.GetTransform().position - activeTarget.GetTransform().position;
+                targetDisplacement = vessel.GetTransform().position - activeTarget.GetTransform().position;
+                targetDirection = targetDisplacement.normalized;
+
+                targetRelativeVelocity = vessel.obt_velocity - activeTarget.GetObtVelocity();
 
                 if (activeTarget is Vessel)
                 {
@@ -679,7 +684,9 @@ namespace AvionicsSystems
             else
             {
                 targetType = TargetType.None;
-                targetDirection = Vector3d.zero;
+                targetDisplacement = Vector3d.zero;
+                targetRelativeVelocity = Vector3d.zero;
+                targetDirection = forward;
             }
         }
         internal double surfaceAccelerationFromGravity;
