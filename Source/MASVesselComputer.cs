@@ -530,6 +530,25 @@ namespace AvionicsSystems
 
             return pitch;
         }
+        internal double GetRelativeYaw(Vector3 direction)
+        {
+            // Project the direction vector onto the plane XZ plane
+            Vector3 projectedVector = Vector3.ProjectOnPlane(direction, top);
+            projectedVector.Normalize();
+
+            // Determine the lateral displacement by dotting the vector with
+            // the 'right' vector...
+            float dotLateral = Vector3.Dot(projectedVector, right);
+            // And the forward/back displacement by dotting with the forward vector.
+            float dotLongitudinal = Vector3.Dot(projectedVector, forward);
+
+            // Taking arc tangent of x/y lets us treat the front of the vessel
+            // as the 0 degree location.
+            float yaw = Mathf.Atan2(dotLateral, dotLongitudinal);
+            yaw *= Mathf.Rad2Deg;
+
+            return yaw;
+        }
 
         private ManeuverNode node;
         private double nodeDV = -1.0;

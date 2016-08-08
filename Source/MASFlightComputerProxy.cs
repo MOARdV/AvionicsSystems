@@ -759,9 +759,13 @@ namespace AvionicsSystems
             return -vessel.angularVelocity.y * Mathf.Rad2Deg;
         }
 
+        /// <summary>
+        /// Yaw of the vessel relative to the orbit's anti-normal vector.
+        /// </summary>
+        /// <returns></returns>
         public double YawAntiNormal()
         {
-            return 0.0;
+            return vc.GetRelativeYaw(-vc.normal);
         }
 
         public double YawAntiTarget()
@@ -774,9 +778,13 @@ namespace AvionicsSystems
             return 0.0;
         }
 
+        /// <summary>
+        /// Yaw of the vessel relative to the orbit's normal vector.
+        /// </summary>
+        /// <returns></returns>
         public double YawNormal()
         {
-            return 0.0;
+            return vc.GetRelativeYaw(vc.normal);
         }
 
         /// <summary>
@@ -788,34 +796,58 @@ namespace AvionicsSystems
             return -vessel.angularVelocity.z * Mathf.Rad2Deg;
         }
 
+        /// <summary>
+        /// Yaw of the vessel relative to the orbital prograde vector.
+        /// </summary>
+        /// <returns></returns>
         public double YawPrograde()
         {
-            return 0.0;
+            return vc.GetRelativeYaw(vc.prograde);
         }
 
+        /// <summary>
+        /// Yaw of the vessel relative to the radial in vector.
+        /// </summary>
+        /// <returns></returns>
         public double YawRadialIn()
         {
-            return 0.0;
+            return vc.GetRelativeYaw(-vc.radialOut);
         }
 
+        /// <summary>
+        /// Yaw of the vessel relative to the radial out vector.
+        /// </summary>
+        /// <returns></returns>
         public double YawRadialOut()
         {
-            return 0.0;
+            return vc.GetRelativeYaw(vc.radialOut);
         }
 
+        /// <summary>
+        /// Yaw of the vessel relative to the orbital retrograde vector.
+        /// </summary>
+        /// <returns></returns>
         public double YawRetrograde()
         {
-            return 0.0;
+            return vc.GetRelativeYaw(-vc.prograde);
         }
 
+        /// <summary>
+        /// Yaw of the vessel relative to the surface prograde vector.
+        /// </summary>
+        /// <returns></returns>
         public double YawSurfacePrograde()
         {
-            return 0.0;
+            return vc.GetRelativeYaw(vc.surfacePrograde);
         }
 
+        /// <summary>
+        /// Yaw of the vessel relative to the surface retrograde vector.
+        /// </summary>
+        /// <returns></returns>
         public double YawSurfaceRetrograde()
         {
-            return 0.0;
+            return vc.GetRelativeYaw(-vc.surfacePrograde);
         }
 
         public double YawTarget()
