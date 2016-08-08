@@ -661,6 +661,23 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the pitch component of the angle between a target docking
+        /// port and a reference (on Vessel) docking port; 0 if the target is
+        /// not a docking port or if the reference transform is not a docking
+        /// port.
+        /// </summary>
+        /// <returns></returns>
+        public double PitchDockingAlignment()
+        {
+            if (vc.targetType == MASVesselComputer.TargetType.DockingPort && vc.targetDockingTransform != null)
+            {
+                return 1.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Pitch of the vessel relative to the next scheduled maneuver vector.
         /// </summary>
         /// <returns></returns>
@@ -797,12 +814,50 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns a number identifying what the current reference transform is:
+        /// 1: The current IVA pod (if in IVA)
+        /// 2: A command pod or probe control part.
+        /// 3: A docking port
+        /// 4: A Grapple Node (Claw)
+        /// 0: Unknown.
+        /// </summary>
+        /// <returns></returns>
+        public double ReferenceTransformType()
+        {
+            switch(vc.referenceTransformType)
+            {
+                case MASVesselComputer.ReferenceType.Unknown:
+                    return 0.0;
+                case MASVesselComputer.ReferenceType.Self:
+                    return 1.0;
+                case MASVesselComputer.ReferenceType.RemoteCommand:
+                    return 2.0;
+                case MASVesselComputer.ReferenceType.DockingPort:
+                    return 3.0;
+                case MASVesselComputer.ReferenceType.Claw:
+                    return 4.0;
+                default:
+                    return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Return roll relative to the surface. [-180, 180]
         /// </summary>
         /// <returns></returns>
         public double Roll()
         {
             return vc.roll;
+        }
+
+        public double RollDockingAlignment()
+        {
+            if (vc.targetType == MASVesselComputer.TargetType.DockingPort && vc.targetDockingTransform != null)
+            {
+                return 1.0;
+            }
+
+            return 0.0;
         }
 
         /// <summary>
@@ -837,6 +892,16 @@ namespace AvionicsSystems
             {
                 return vc.GetRelativeYaw(-vc.targetDirection);
             }
+        }
+
+        public double YawDockingAlignment()
+        {
+            if (vc.targetType == MASVesselComputer.TargetType.DockingPort && vc.targetDockingTransform != null)
+            {
+                return 1.0;
+            }
+
+            return 0.0;
         }
 
         /// <summary>
@@ -1876,6 +1941,39 @@ namespace AvionicsSystems
         public double VerticalSpeed()
         {
             return vessel.verticalSpeed;
+        }
+        #endregion
+
+        #region Target and Rendezvous
+        /// <summary>
+        /// Returns a number identifying the target type.  Valid results are
+        /// 0: No target
+        /// 1: Target is a Vessel
+        /// 2: Target is a Docking Port
+        /// 3: Target is a Celestial Body
+        /// 4: Target is a Waypoint
+        /// 5: Target is an asteroid (not implemented)
+        /// </summary>
+        /// <returns></returns>
+        public double TargetType()
+        {
+            switch (vc.targetType)
+            {
+                case MASVesselComputer.TargetType.None:
+                    return 0.0;
+                case MASVesselComputer.TargetType.Vessel:
+                    return 1.0;
+                case MASVesselComputer.TargetType.DockingPort:
+                    return 2.0;
+                case MASVesselComputer.TargetType.CelestialBody:
+                    return 3.0;
+                case MASVesselComputer.TargetType.PositionTarget:
+                    return 4.0;
+                case MASVesselComputer.TargetType.Asteroid:
+                    return 5.0;
+                default:
+                    return 0.0;
+            }
         }
         #endregion
     }

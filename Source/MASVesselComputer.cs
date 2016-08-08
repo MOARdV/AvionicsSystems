@@ -37,6 +37,15 @@ namespace AvionicsSystems
     /// </summary>
     internal partial class MASVesselComputer : VesselModule
     {
+        internal enum ReferenceType
+        {
+            Unknown,
+            Self,
+            RemoteCommand,
+            DockingPort,
+            Claw
+        };
+
         /// <summary>
         /// We use this dictionary to quickly fetch the vessel module for a
         /// given vessel, so we don't have to repeatedly call GetComponent<Vessel>().
@@ -47,6 +56,16 @@ namespace AvionicsSystems
         /// The Vessel that we're attached to.  This is expected not to change.
         /// </summary>
         private Vessel vessel;
+
+        /// <summary>
+        /// Our current reference transform.
+        /// </summary>
+        internal Transform referenceTransform;
+
+        /// <summary>
+        /// Type of object that the reference transform is attached to.
+        /// </summary>
+        internal ReferenceType referenceTransformType;
 
         /// <summary>
         /// Local copy of the current orbit.  This is updated per fixed-update
@@ -172,6 +191,7 @@ namespace AvionicsSystems
             GameEvents.onVesselChange.Add(onVesselChange);
             GameEvents.onVesselSOIChanged.Add(onVesselSOIChanged);
             GameEvents.onVesselWasModified.Add(onVesselWasModified);
+            GameEvents.onVesselReferenceTransformSwitch.Add(onVesselReferenceTransformSwitch);
 
             if (knownModules.ContainsKey(vesselId))
             {
@@ -215,6 +235,7 @@ namespace AvionicsSystems
             GameEvents.onVesselChange.Remove(onVesselChange);
             GameEvents.onVesselSOIChanged.Remove(onVesselSOIChanged);
             GameEvents.onVesselWasModified.Remove(onVesselWasModified);
+            GameEvents.onVesselReferenceTransformSwitch.Remove(onVesselReferenceTransformSwitch);
 
             TeardownResourceData();
             knownModules.Remove(vesselId);
@@ -312,6 +333,7 @@ namespace AvionicsSystems
                 // that node"?
                 //ConfigNode node = new ConfigNode("dummy");
                 //vessel.ActionGroups.Save(node);
+                UpdateReferenceTransform(vessel.ReferenceTransform);
 
                 // First step:
                 PrepareResourceData();
@@ -397,6 +419,7 @@ namespace AvionicsSystems
             periapsis = orbit.PeA;
         }
 
+        #region Attitudes
         private Vector3 surfaceAttitude;
         internal float heading
         {
@@ -549,7 +572,9 @@ namespace AvionicsSystems
 
             return yaw;
         }
+        #endregion
 
+        #region Maneuver
         private ManeuverNode node;
         private double nodeDV = -1.0;
         internal double maneuverNodeDeltaV
@@ -627,6 +652,7 @@ namespace AvionicsSystems
             nodeDV = -1.0;
             maneuverVector = Vector3d.zero;
         }
+        #endregion
 
         public enum TargetType
         {
@@ -642,6 +668,7 @@ namespace AvionicsSystems
         internal Vector3 targetDirection;
         internal Vector3d targetRelativeVelocity;
         internal TargetType targetType;
+        internal Transform targetDockingTransform; // Docking node transform - valid only for docking port targets.
         internal bool targetValid
         {
             get
@@ -658,6 +685,7 @@ namespace AvionicsSystems
                 targetDirection = targetDisplacement.normalized;
 
                 targetRelativeVelocity = vessel.obt_velocity - activeTarget.GetObtVelocity();
+                targetDockingTransform = null;
 
                 if (activeTarget is Vessel)
                 {
@@ -670,6 +698,7 @@ namespace AvionicsSystems
                 else if (activeTarget is ModuleDockingNode)
                 {
                     targetType = TargetType.DockingPort;
+                    targetDockingTransform = (activeTarget as ModuleDockingNode).GetTransform();
                 }
                 else if (activeTarget is PositionTarget)
                 {
@@ -687,13 +716,58 @@ namespace AvionicsSystems
                 targetDisplacement = Vector3d.zero;
                 targetRelativeVelocity = Vector3d.zero;
                 targetDirection = forward;
+                targetDockingTransform = null;
             }
         }
+
         internal double surfaceAccelerationFromGravity;
         private void UpdateMisc()
         {
             // Convert to m/2^s
             surfaceAccelerationFromGravity = orbit.referenceBody.GeeASL * 9.81;
+        }
+
+        private void UpdateReferenceTransform(Transform newRefXform)
+        {
+            referenceTransform = newRefXform;
+            referenceTransformType = ReferenceType.Unknown;
+
+            // TODO: Can I infer this from newRefXform?  And is it more
+            // efficient to do than this call?
+            Part referencePart = vessel.GetReferenceTransformPart();
+            PartModuleList referenceModules = referencePart.Modules;
+            for (int i = referenceModules.Count - 1; i >= 0; --i)
+            {
+                PartModule rpm = referenceModules[i];
+                if (rpm is ModuleDockingNode)
+                {
+                    referenceTransformType = ReferenceType.DockingPort;
+                    break;
+                }
+                else if (rpm is ModuleGrappleNode)
+                {
+                    referenceTransformType = ReferenceType.Claw;
+                    break;
+                }
+                else if (rpm is ModuleCommand)
+                {
+                    referenceTransformType = ReferenceType.RemoteCommand;
+                    break;
+                }
+            }
+
+            if (referenceTransformType == ReferenceType.RemoteCommand)
+            {
+                // See if it's actually the current IVA command pod.
+                if (CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA)
+                {
+                    Kerbal refKerbal = CameraManager.Instance.IVACameraActiveKerbal;
+                    if (refKerbal != null && refKerbal.InPart == referencePart)
+                    {
+                        referenceTransformType = ReferenceType.Self;
+                    }
+                }
+            }
         }
         #endregion
 
@@ -746,6 +820,15 @@ namespace AvionicsSystems
             {
                 vesselActive = (vessel.GetCrewCount() > 0);
             }
+        }
+
+        private void onVesselReferenceTransformSwitch(Transform fromXform, Transform toXform)
+        {
+            UpdateReferenceTransform(toXform);
+            //Utility.LogMessage(this, "onVesselReferenceTransformSwitch from {0} to {1}; fromMatch = {2}", 
+            //    (fromXform == null) ? "(null)" : fromXform.name,
+            //    (toXform == null) ? "(null)" : toXform.name,
+            //    fromXform == referenceTransform);
         }
         #endregion
     }
