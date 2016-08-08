@@ -80,7 +80,7 @@ namespace AvionicsSystems
         private MASFlightComputer fc;
         internal MASVesselComputer vc;
         internal Vessel vessel;
-        private UIStateToggleButton[] SASbtns=null;
+        private UIStateToggleButton[] SASbtns = null;
 
         private VesselAutopilot.AutopilotMode autopilotMode = VesselAutopilot.AutopilotMode.StabilityAssist;
 
@@ -671,7 +671,23 @@ namespace AvionicsSystems
         {
             if (vc.targetType == MASVesselComputer.TargetType.DockingPort && vc.targetDockingTransform != null)
             {
-                return 1.0;
+                Vector3 projectedVector = Vector3.ProjectOnPlane(-vc.targetDockingTransform.forward, vc.referenceTransform.right);
+                projectedVector.Normalize();
+
+                // Dot the projected vector with the 'top' direction so we can find
+                // the relative pitch.
+                float dotPitch = Vector3.Dot(projectedVector, vc.referenceTransform.forward);
+                float pitch = Mathf.Asin(dotPitch);
+                if (float.IsNaN(pitch))
+                {
+                    pitch = (dotPitch > 0.0f) ? 90.0f : -90.0f;
+                }
+                else
+                {
+                    pitch *= Mathf.Rad2Deg;
+                }
+
+                return pitch;
             }
 
             return 0.0;
@@ -824,7 +840,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double ReferenceTransformType()
         {
-            switch(vc.referenceTransformType)
+            switch (vc.referenceTransformType)
             {
                 case MASVesselComputer.ReferenceType.Unknown:
                     return 0.0;
@@ -850,11 +866,27 @@ namespace AvionicsSystems
             return vc.roll;
         }
 
+        /// <summary>
+        /// Returns the roll angle between the vessel's reference transform and a targeted docking port.
+        /// If the target is not a docking port, returns 0;
+        /// </summary>
+        /// <returns></returns>
         public double RollDockingAlignment()
         {
             if (vc.targetType == MASVesselComputer.TargetType.DockingPort && vc.targetDockingTransform != null)
             {
-                return 1.0;
+                Vector3 projectedVector = Vector3.ProjectOnPlane(vc.targetDockingTransform.up, vc.referenceTransform.up);
+                projectedVector.Normalize();
+
+                float dotLateral = Vector3.Dot(projectedVector, vc.referenceTransform.right);
+                float dotLongitudinal = Vector3.Dot(projectedVector, vc.referenceTransform.forward);
+
+                // Taking arc tangent of x/y lets us treat the front of the vessel
+                // as the 0 degree location.
+                float roll = Mathf.Atan2(dotLateral, dotLongitudinal);
+                roll *= Mathf.Rad2Deg;
+
+                return roll;
             }
 
             return 0.0;
@@ -894,11 +926,30 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Returns the yaw angle between the vessel's reference transform and a targeted docking port.
+        /// If the target is not a docking port, returns 0;
+        /// </summary>
+        /// <returns></returns>
         public double YawDockingAlignment()
         {
             if (vc.targetType == MASVesselComputer.TargetType.DockingPort && vc.targetDockingTransform != null)
             {
-                return 1.0;
+                Vector3 projectedVector = Vector3.ProjectOnPlane(-vc.targetDockingTransform.forward, vc.referenceTransform.forward);
+                projectedVector.Normalize();
+
+                // Determine the lateral displacement by dotting the vector with
+                // the 'right' vector...
+                float dotLateral = Vector3.Dot(projectedVector, vc.referenceTransform.right);
+                // And the forward/back displacement by dotting with the forward vector.
+                float dotLongitudinal = Vector3.Dot(projectedVector, vc.referenceTransform.up);
+
+                // Taking arc tangent of x/y lets us treat the front of the vessel
+                // as the 0 degree location.
+                float yaw = Mathf.Atan2(dotLateral, dotLongitudinal);
+                yaw *= Mathf.Rad2Deg;
+
+                return yaw;
             }
 
             return 0.0;
@@ -1630,11 +1681,11 @@ namespace AvionicsSystems
         {
             var mode = FlightGlobals.speedDisplayMode;
 
-            if(mode == FlightGlobals.SpeedDisplayModes.Orbit)
+            if (mode == FlightGlobals.SpeedDisplayModes.Orbit)
             {
                 return 1.0;
             }
-            else if(mode == FlightGlobals.SpeedDisplayModes.Target)
+            else if (mode == FlightGlobals.SpeedDisplayModes.Target)
             {
                 return -1.0;
             }
