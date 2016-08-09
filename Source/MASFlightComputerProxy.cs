@@ -350,13 +350,80 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Control Input State
+        /// <summary>
+        /// Returns 1 when roll/translation controls are near neutral.
+        /// </summary>
+        /// <returns></returns>
+        public double ControlNeutral()
+        {
+            float netinputs = Math.Abs(vessel.ctrlState.pitch) + Math.Abs(vessel.ctrlState.roll) + Math.Abs(vessel.ctrlState.yaw) + Math.Abs(vessel.ctrlState.X) + Math.Abs(vessel.ctrlState.Y) + Math.Abs(vessel.ctrlState.Z);
+
+            return (netinputs > 0.01) ? 0.0 : 1.0;
+        }
+
+        /// <summary>
+        /// Returns the current pitch control state.
+        /// </summary>
+        /// <returns></returns>
+        public double StickPitch()
+        {
+            return vessel.ctrlState.pitch;
+        }
+
+        /// <summary>
+        /// Returns the current roll control state.
+        /// </summary>
+        /// <returns></returns>
+        public double StickRoll()
+        {
+            return vessel.ctrlState.roll;
+        }
+
+        /// <summary>
+        /// Returns the current X translation state.
+        /// </summary>
+        /// <returns></returns>
+        public double StickTranslationX()
+        {
+            return vessel.ctrlState.X;
+        }
+
+        /// <summary>
+        /// Returns the current Y translation state.
+        /// </summary>
+        /// <returns></returns>
+        public double StickTranslationY()
+        {
+            return vessel.ctrlState.Y;
+        }
+
+        /// <summary>
+        /// Returns the current Z translation state.
+        /// </summary>
+        /// <returns></returns>
+        public double StickTranslationZ()
+        {
+            return vessel.ctrlState.Z;
+        }
+
+        /// <summary>
+        /// Returns the current yaw control state.
+        /// </summary>
+        /// <returns></returns>
+        public double StickYaw()
+        {
+            return vessel.ctrlState.yaw;
+        }
+        #endregion
+
         #region Engine
 
         /// <summary>
         /// Returns the current fuel flow in grams/second
         /// </summary>
         /// <returns></returns>
-        public double GetFuelFlow()
+        public double CurrentFuelFlow()
         {
             return vc.currentEngineFuelFlow;
         }
@@ -365,7 +432,7 @@ namespace AvionicsSystems
         /// Return the current specific impulse in seconds.
         /// </summary>
         /// <returns></returns>
-        public double GetIsp()
+        public double CurrentIsp()
         {
             return vc.currentIsp;
         }
@@ -374,7 +441,7 @@ namespace AvionicsSystems
         /// Returns the maximum fuel flow in grams/second
         /// </summary>
         /// <returns></returns>
-        public double GetMaxFuelFlow()
+        public double MaxFuelFlow()
         {
             return vc.maxEngineFuelFlow;
         }
@@ -383,7 +450,7 @@ namespace AvionicsSystems
         /// Returns the maximum specific impulse in seconds.
         /// </summary>
         /// <returns></returns>
-        public double GetMaxIsp()
+        public double MaxIsp()
         {
             return vc.maxIsp;
         }
@@ -393,7 +460,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="useThrottleLimits">Apply throttle limits?</param>
         /// <returns></returns>
-        public double GetMaxThrustkN(bool useThrottleLimits)
+        public double MaxThrustkN(bool useThrottleLimits)
         {
             return (useThrottleLimits) ? vc.currentLimitedThrust : vc.currentMaxThrust;
         }
@@ -411,7 +478,7 @@ namespace AvionicsSystems
         /// Returns the current thrust output, from 0.0 to 1.0.
         /// </summary>
         /// <returns></returns>
-        public double GetThrust(bool useThrottleLimits)
+        public double CurrentThrust(bool useThrottleLimits)
         {
             if (vc.currentThrust > 0.0f)
             {
@@ -427,7 +494,7 @@ namespace AvionicsSystems
         /// Returns the current thrust in kiloNewtons
         /// </summary>
         /// <returns></returns>
-        public double GetThrustkN()
+        public double CurrentThrustkN()
         {
             return vc.currentThrust;
         }
@@ -436,9 +503,27 @@ namespace AvionicsSystems
         /// Returns the current thrust-to-weight ratio.
         /// </summary>
         /// <returns></returns>
-        public double TWR()
+        public double CurrentTWR()
         {
             return vc.currentThrust / (vessel.totalMass * vc.surfaceAccelerationFromGravity);
+        }
+
+        /// <summary>
+        /// Returns 1 if at least one engine is enabled.
+        /// </summary>
+        /// <returns></returns>
+        public double GetEnginesEnabled()
+        {
+            return (vc.anyEnginesEnabled) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if at least one active gimbal is locked.
+        /// </summary>
+        /// <returns></returns>
+        public double GetGimbalsLocked()
+        {
+            return (vc.anyGimbalsLocked) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -448,6 +533,26 @@ namespace AvionicsSystems
         public double MaxTWR()
         {
             return vc.currentMaxThrust / (vessel.totalMass * vc.surfaceAccelerationFromGravity);
+        }
+
+        /// <summary>
+        /// Turns on/off engines for the current stage
+        /// </summary>
+        public void ToggleEnginesEnabled()
+        {
+            vc.ToggleEnginesEnabled();
+        }
+
+        /// <summary>
+        /// Toggles gimbal lock on/off for the current stage.
+        /// </summary>
+        public void ToggleGimbalLock()
+        {
+            bool newState = !vc.anyGimbalsLocked;
+            for (int i = vc.moduleGimbals.Length - 1; i >= 0; --i)
+            {
+                vc.moduleGimbals[i].gimbalLock = newState;
+            }
         }
         #endregion
 
