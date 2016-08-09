@@ -735,24 +735,30 @@ namespace AvionicsSystems
             // TODO: Can I infer this from newRefXform?  And is it more
             // efficient to do than this call?
             Part referencePart = vessel.GetReferenceTransformPart();
-            PartModuleList referenceModules = referencePart.Modules;
-            for (int i = referenceModules.Count - 1; i >= 0; --i)
+            if (referencePart != null)
             {
-                PartModule rpm = referenceModules[i];
-                if (rpm is ModuleDockingNode)
+                PartModuleList referenceModules = referencePart.Modules;
+                if (referenceModules != null)
                 {
-                    referenceTransformType = ReferenceType.DockingPort;
-                    break;
-                }
-                else if (rpm is ModuleGrappleNode)
-                {
-                    referenceTransformType = ReferenceType.Claw;
-                    break;
-                }
-                else if (rpm is ModuleCommand)
-                {
-                    referenceTransformType = ReferenceType.RemoteCommand;
-                    break;
+                    for (int i = referenceModules.Count - 1; i >= 0; --i)
+                    {
+                        PartModule rpm = referenceModules[i];
+                        if (rpm is ModuleDockingNode)
+                        {
+                            referenceTransformType = ReferenceType.DockingPort;
+                            break;
+                        }
+                        else if (rpm is ModuleGrappleNode)
+                        {
+                            referenceTransformType = ReferenceType.Claw;
+                            break;
+                        }
+                        else if (rpm is ModuleCommand)
+                        {
+                            referenceTransformType = ReferenceType.RemoteCommand;
+                            break;
+                        }
+                    }
                 }
             }
 
