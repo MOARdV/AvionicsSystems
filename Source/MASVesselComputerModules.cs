@@ -109,6 +109,8 @@ namespace AvionicsSystems
             hottestEngineMaxTemperature = 0.0f;
             maxEngineFuelFlow = 0.0f;
             currentEngineFuelFlow = 0.0f;
+            anyEnginesFlameout = false;
+            anyEnginesEnabled = false;
 
             float hottestEngine = float.MaxValue;
             float maxIspContribution = 0.0f;
@@ -201,6 +203,47 @@ namespace AvionicsSystems
 
             return requestReset;
         }
+        internal void ToggleEnginesEnabled()
+        {
+            bool newState = !anyEnginesEnabled;
+            for (int i = moduleEngines.Length - 1; i >= 0; --i)
+            {
+                Part thatPart = moduleEngines[i].part;
+
+                if (thatPart.inverseStage == StageManager.CurrentStage || !newState)
+                {
+                    if (moduleEngines[i].EngineIgnited != newState)
+                    {
+                        if (newState && moduleEngines[i].allowRestart)
+                        {
+                            moduleEngines[i].Activate();
+                        }
+                        else if (moduleEngines[i].allowShutdown)
+                        {
+                            moduleEngines[i].Shutdown();
+                        }
+                    }
+                }
+            }
+        }
+        #endregion
+
+        #region Gimbal
+        private List<ModuleGimbal> gimbalsList = new List<ModuleGimbal>(8);
+        internal ModuleGimbal[] moduleGimbals = new ModuleGimbal[0];
+        internal bool anyGimbalsLocked = false;
+        void UpdateGimbals()
+        {
+            anyGimbalsLocked = false;
+            for (int i = moduleGimbals.Length - 1; i >= 0; --i)
+            {
+                if (moduleGimbals[i].gimbalLock)
+                {
+                    anyGimbalsLocked |= moduleGimbals[i].gimbalLock;
+                    break;
+                }
+            }
+        }
         #endregion
 
         #region Parachutes
@@ -264,6 +307,10 @@ namespace AvionicsSystems
                         {
                             enginesList.Add(module as ModuleEngines);
                         }
+                        else if (module is ModuleGimbal)
+                        {
+                            gimbalsList.Add(module as ModuleGimbal);
+                        }
                         else if (module is ModuleParachute)
                         {
                             parachuteList.Add(module as ModuleParachute);
@@ -312,6 +359,7 @@ namespace AvionicsSystems
 
             TransferModules<PartModule>(realchuteList, ref moduleRealChute);
             TransferModules<ModuleParachute>(parachuteList, ref moduleParachute);
+            TransferModules<ModuleGimbal>(gimbalsList, ref moduleGimbals);
         }
 
         /// <summary>
@@ -352,6 +400,7 @@ namespace AvionicsSystems
 
             bool requestReset = false;
             requestReset |= UpdateEngines();
+            UpdateGimbals();
 
             if (requestReset)
             {
