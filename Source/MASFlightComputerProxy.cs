@@ -1048,7 +1048,7 @@ namespace AvionicsSystems
             }
             else
             {
-                return vc.GetRelativeYaw(-vc.targetDirection);
+                return vc.GetRelativeYaw(vc.targetDirection);
             }
         }
 
@@ -1181,7 +1181,7 @@ namespace AvionicsSystems
             }
             else
             {
-                return vc.GetRelativeYaw(vc.targetDirection);
+                return vc.GetRelativeYaw(-vc.targetDirection);
             }
         }
 
@@ -2246,6 +2246,43 @@ namespace AvionicsSystems
         #endregion
 
         #region Target and Rendezvous
+        /// <summary>
+        /// Clears any targets being tracked.
+        /// </summary>
+        public void ClearTarget()
+        {
+            if (vc.targetValid)
+            {
+                FlightGlobals.fetch.SetVesselTarget((ITargetable)null);
+            }
+        }
+
+        /// <summary>
+        /// Returns the raw angle between the target and the nose of the vessel,
+        /// or 0 if there is no target.
+        /// </summary>
+        /// <returns></returns>
+        public double TargetAngle()
+        {
+            if (vc.targetType > 0)
+            {
+                return Vector3.Angle(vc.forward, vc.targetDirection);
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns 1 if the target is a vessel (vessel or Docking Port); 0 otherwise.
+        /// </summary>
+        /// <returns></returns>
+        public double TargetIsVessel()
+        {
+            return (vc.targetType == MASVesselComputer.TargetType.Vessel || vc.targetType == MASVesselComputer.TargetType.DockingPort) ? 1.0 : 0.0;
+        }
+
         /// <summary>
         /// Returns a number identifying the target type.  Valid results are
         /// 0: No target
