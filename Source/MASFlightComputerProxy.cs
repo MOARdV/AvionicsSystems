@@ -83,6 +83,7 @@ namespace AvionicsSystems
         private UIStateToggleButton[] SASbtns = null;
 
         private VesselAutopilot.AutopilotMode autopilotMode = VesselAutopilot.AutopilotMode.StabilityAssist;
+        private bool vesselPowered;
 
         [MoonSharpHidden]
         public MASFlightComputerProxy(MASFlightComputer fc)
@@ -104,6 +105,7 @@ namespace AvionicsSystems
         internal void Update()
         {
             autopilotMode = vessel.Autopilot.Mode;
+            vesselPowered = (vc.ResourceCurrent(MASLoader.ElectricCharge) > 0.0001);
         }
 
         #region Unassigned Region
@@ -262,6 +264,16 @@ namespace AvionicsSystems
         public double AltitudeTerrain(bool ignoreOcean)
         {
             return (ignoreOcean) ? vc.altitudeTerrain : Math.Min(vc.altitudeASL, vc.altitudeTerrain);
+        }
+
+        /// <summary>
+        /// Returns the terrain height relative to the planet's datum (sea
+        /// level or equivalent).  Height in meters.
+        /// </summary>
+        /// <returns></returns>
+        public double TerrainHeight()
+        {
+            return vessel.terrainAltitude;
         }
         #endregion
 
@@ -435,6 +447,15 @@ namespace AvionicsSystems
         public double CurrentIsp()
         {
             return vc.currentIsp;
+        }
+
+        /// <summary>
+        /// Returns 1 if any active engines are in a flameout condition.
+        /// </summary>
+        /// <returns></returns>
+        public double EngineFlameout()
+        {
+            return (vc.anyEnginesFlameout) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -1370,6 +1391,26 @@ namespace AvionicsSystems
 
         #region Resources
         /// <summary>
+        /// Returns the rate of change in available power (units/sec) for the
+        /// designated "Power" resource; by default, this is ElectricCharge.
+        /// </summary>
+        /// <returns></returns>
+        public double PowerDelta()
+        {
+            return vc.ResourceDelta(MASLoader.ElectricCharge);
+        }
+
+        /// <summary>
+        /// Returns the current percentage of maximum capacity of the resource
+        /// designated as "power" - in a stock installation, this would be
+        /// ElectricCharge.
+        /// </summary>
+        /// <returns></returns>
+        public double PowerPercent()
+        {
+            return vc.ResourcePercent(MASLoader.ElectricCharge);
+        }
+        /// <summary>
         /// Returns the total number of resources found on this vessel.
         /// </summary>
         /// <returns></returns>
@@ -1600,6 +1641,43 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the max amount of the Nth resource in the current stage.
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        public double ResourceStagePercent(double resourceId)
+        {
+            int id = (int)resourceId;
+            double stageMax = vc.ResourceStageMax(id);
+            if(stageMax > 0.0)
+            {
+                return vc.ResourceStageCurrent(id) / stageMax;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the maximum amount of the resource in the current stage.
+        /// </summary>
+        /// <param name="resourceName"></param>
+        /// <returns></returns>
+        public double ResourceStagePercent(string resourceName)
+        {
+            double stageMax = vc.ResourceStageMax(resourceName);
+            if (stageMax > 0.0)
+            {
+                return vc.ResourceStageCurrent(resourceName) / stageMax;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Returns 1 when there is at least 0.0001 units of power available
         /// to the craft.  By default, 'power' is the ElectricCharge resource,
         /// but users may change that in the MAS config file.
@@ -1607,7 +1685,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double VesselPowered()
         {
-            return (vc.ResourceCurrent(MASLoader.ElectricCharge) > 0.0001) ? 1.0 : 0.0;
+            return (vesselPowered) ? 1.0 : 0.0;
         }
         #endregion
 
@@ -2097,6 +2175,73 @@ namespace AvionicsSystems
         public double VerticalSpeed()
         {
             return vessel.verticalSpeed;
+        }
+        #endregion
+
+        #region Staging
+        /// <summary>
+        /// Returns the current stage.
+        /// </summary>
+        /// <returns></returns>
+        public double CurrentStage()
+        {
+            return StageManager.CurrentStage;
+        }
+
+        /// <summary>
+        /// Returns 1 if staging is locked, 0 otherwise.
+        /// </summary>
+        /// <returns></returns>
+        public double GetStageLocked()
+        {
+            return (InputLockManager.IsLocked(ControlTypes.STAGING)) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Sets stage locking to the specified setting (true or false).
+        /// </summary>
+        /// <param name="locked"></param>
+        public void SetStageLocked(bool locked)
+        {
+            if (locked)
+            {
+                InputLockManager.SetControlLock(ControlTypes.STAGING, "manualStageLock");
+            }
+            else
+            {
+                InputLockManager.RemoveControlLock("manualStageLock");
+            }
+        }
+
+        /// <summary>
+        /// Activate the next stage.
+        /// </summary>
+        public void Stage()
+        {
+            if (InputLockManager.IsUnlocked(ControlTypes.STAGING))
+            {
+                StageManager.ActivateNextStage();
+            }
+        }
+
+        /// <summary>
+        /// Can the vessel stage?
+        /// </summary>
+        /// <returns></returns>
+        public double StageReady()
+        {
+            return (StageManager.CanSeparate && InputLockManager.IsUnlocked(ControlTypes.STAGING)) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Toggle the stage lock on or off.  Returns the new state.
+        /// </summary>
+        /// <returns></returns>
+        public double ToggleStageLocked()
+        {
+            bool state = !InputLockManager.IsLocked(ControlTypes.STAGING);
+            SetStageLocked(state);
+            return (state) ? 1.0 : 0.0;
         }
         #endregion
 
