@@ -149,7 +149,7 @@ namespace AvionicsSystems
                     screenCamera.eventMask = 0;
                     screenCamera.farClipPlane = 1.0f + depthDelta;
                     screenCamera.nearClipPlane = depthDelta;
-                    screenCamera.orthographicSize = screenSize.x * 0.5f;
+                    screenCamera.orthographicSize = screenSize.y * 0.5f;
                     screenCamera.cullingMask = 1 << drawingLayer;
                     screenCamera.transparencySortMode = TransparencySortMode.Orthographic;
                     screenCamera.transform.position = Vector3.zero;
