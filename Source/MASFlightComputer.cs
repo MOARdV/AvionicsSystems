@@ -457,7 +457,7 @@ namespace AvionicsSystems
                 }
                 catch (Exception e)
                 {
-                    Utility.LogErrorMessage(this, "Exception caught loading user scripts:");
+                    Utility.ComplainLoudly("User Script Loading error");
                     Utility.LogErrorMessage(this, e.ToString());
                 }
 

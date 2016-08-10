@@ -117,6 +117,17 @@ namespace AvionicsSystems
             return value;
         }
 
+        /// <summary>
+        /// Put something on-screen when an error occurs.
+        /// </summary>
+        /// <param name="message"></param>
+        internal static void ComplainLoudly(string message)
+        {
+            string formattedMessage = String.Format("[AvionicsSystems] INITIALIZATION ERROR: {0}", message);
+            UnityEngine.Debug.LogError(formattedMessage);
+            ScreenMessages.PostScreenMessage("[AvionicsSystems]: INITIALIZATION ERROR, CHECK MESSAGE LOG.", 120, ScreenMessageStyle.UPPER_CENTER);
+        }
+
         private static StringBuilder strb = new StringBuilder();
         private static void DumpConfigNode(ConfigNode node, int depth)
         {
