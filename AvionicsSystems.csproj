@@ -76,6 +76,7 @@
     <Compile Include="Source\MASFlightComputerVariable.cs" />
     <Compile Include="Source\MASIFAR.cs" />
     <Compile Include="Source\MASIRealChute.cs" />
+    <Compile Include="Source\MASNavBall.cs" />
     <Compile Include="Source\MASTypes.cs" />
     <Compile Include="Source\MASLoader.cs" />
     <Compile Include="Source\MASFlightComputer.cs" />
@@ -107,6 +108,7 @@
     <Content Include="Documents\Introduction.txt" />
     <Content Include="Documents\License.txt" />
     <Content Include="Documents\MASMonitor.txt" />
+    <Content Include="Documents\MASNavBall.txt" />
     <Content Include="Documents\Persistent.txt" />
     <Content Include="Documents\PortingRPM.txt" />
     <Content Include="Documents\QuickStart.txt" />
