@@ -71,6 +71,11 @@ namespace AvionicsSystems
         private MASFlightComputerProxy fcProxy;
 
         /// <summary>
+        /// Instance of the Chatterer proxy class.
+        /// </summary>
+        private MASIChatterer chattererProxy;
+
+        /// <summary>
         /// Instance of the FAR proxy class.
         /// </summary>
         private MASIFAR farProxy;
@@ -331,6 +336,7 @@ namespace AvionicsSystems
                         }
                         catch (Exception e)
                         {
+                            Utility.ComplainLoudly("Action " + actionName + " triggered an exception");
                             Utility.LogErrorMessage(this, "Action {0} triggered exception:", actionName);
                             Utility.LogErrorMessage(this, e.ToString());
                         }
@@ -382,6 +388,7 @@ namespace AvionicsSystems
         {
             script = null;
             fcProxy = null;
+            chattererProxy = null;
             farProxy = null;
             realChuteProxy = null;
             if (initialized)
@@ -403,6 +410,8 @@ namespace AvionicsSystems
         {
             if (HighLogic.LoadedSceneIsFlight)
             {
+                Vessel vessel = this.vessel;
+
                 if (string.IsNullOrEmpty(flightComputerId))
                 {
                     fcId = Guid.NewGuid();
@@ -429,6 +438,10 @@ namespace AvionicsSystems
                 fcProxy = new MASFlightComputerProxy(this);
                 UserData.RegisterType<MASFlightComputerProxy>();
                 script.Globals["fc"] = fcProxy;
+
+                chattererProxy = new MASIChatterer();
+                UserData.RegisterType<MASIChatterer>();
+                script.Globals["chatterer"] = chattererProxy;
 
                 farProxy = new MASIFAR(vessel);
                 UserData.RegisterType<MASIFAR>();
@@ -537,13 +550,15 @@ namespace AvionicsSystems
         /// <param name="who">The Vessel being changed</param>
         private void onVesselChanged(Vessel who)
         {
-            if (who.id == vessel.id)
+            if (who.id == this.vessel.id)
             {
                 // TODO: Do something different if parentVesselID != vessel.id?
+                Vessel vessel = this.vessel;
                 parentVesselId = vessel.id;
                 vc = MASVesselComputer.Instance(parentVesselId);
                 fcProxy.vc = vc;
                 fcProxy.vessel = vessel;
+                chattererProxy.UpdateVessel();
                 farProxy.vessel = vessel;
                 realChuteProxy.vc = vc;
                 realChuteProxy.vessel = vessel;

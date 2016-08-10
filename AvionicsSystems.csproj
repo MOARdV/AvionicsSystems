@@ -74,6 +74,7 @@
     <Compile Include="Source\MASFlightComputerPersistent.cs" />
     <Compile Include="Source\MASFlightComputerProxy.cs" />
     <Compile Include="Source\MASFlightComputerVariable.cs" />
+    <Compile Include="Source\MASIChatterer.cs" />
     <Compile Include="Source\MASIFAR.cs" />
     <Compile Include="Source\MASIRealChute.cs" />
     <Compile Include="Source\MASNavBall.cs" />
