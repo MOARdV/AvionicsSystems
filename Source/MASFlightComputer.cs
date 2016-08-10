@@ -174,6 +174,7 @@ namespace AvionicsSystems
             variableName = ConditionVariableName(variableName, prop);
             if (variableName.Length < 1)
             {
+                Utility.ComplainLoudly("RegisterNumericVariable with empty variableName");
                 throw new ArgumentException("[MASFlightComputer] RegisterNumericVariable called with empty variableName");
             }
 
@@ -212,6 +213,7 @@ namespace AvionicsSystems
             variableName = ConditionVariableName(variableName, prop);
             if (variableName.Length < 1)
             {
+                Utility.ComplainLoudly("RegisterOnVariableChange with empty variableName");
                 throw new ArgumentException("[MASFlightComputer] RegisterOnVariableChange called with empty variableName");
             }
 
@@ -249,6 +251,7 @@ namespace AvionicsSystems
             variableName = ConditionVariableName(variableName, prop);
             if (variableName.Length < 1)
             {
+                Utility.ComplainLoudly("GetVariable with empty variableName");
                 throw new ArgumentException("[MASFlightComputer] Trying to GetVariable with empty variableName");
             }
 
@@ -296,6 +299,7 @@ namespace AvionicsSystems
                 }
             }
 
+            Utility.ComplainLoudly("GetNamedColor with unknown named color");
             throw new ArgumentException("[MASFlightComputer] Unknown named color '" + namedColor + "'.");
         }
 

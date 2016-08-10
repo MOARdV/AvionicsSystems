@@ -99,6 +99,7 @@ namespace AvionicsSystems
                     }
                     catch (Exception e)
                     {
+                        Utility.ComplainLoudly("Error creating variable " + name);
                         Utility.LogErrorMessage(this, "Unknown variable '{0}':", name);
                         Utility.LogErrorMessage(this, e.ToString());
                         this.value = null;
