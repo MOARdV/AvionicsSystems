@@ -557,6 +557,8 @@ namespace AvionicsSystems
                 vesselActiveResource[i] = int.MaxValue;
                 resources[i].currentQuantity = 0.0f;
                 resources[i].maxQuantity = 0.0f;
+                resources[i].currentStage = 0.0f;
+                resources[i].maxStage = 0.0f;
             }
         }
 
