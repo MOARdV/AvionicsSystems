@@ -67,13 +67,13 @@ namespace AvionicsSystems
             string transform = string.Empty;
             if (!config.TryGetValue("transform", ref transform))
             {
-                throw new ArgumentException("Missing 'transform' in TEXTURE_LABEL " + name);
+                throw new ArgumentException("Missing 'transform' in TEXT_LABEL " + name);
             }
 
             string passiveColorStr = string.Empty;
             if (!config.TryGetValue("passiveColor", ref passiveColorStr))
             {
-                throw new ArgumentException("Invalid or missing 'passiveColor' in COLOR_SHIFT " + name);
+                throw new ArgumentException("Invalid or missing 'passiveColor' in TEXT_LABEL " + name);
             }
 
             passiveColor = Utility.ParseColor32(passiveColorStr, comp);
@@ -81,18 +81,18 @@ namespace AvionicsSystems
             string fontName = string.Empty;
             if (!config.TryGetValue("font", ref fontName))
             {
-                throw new ArgumentException("Invalid or missing 'font' in TEXTURE_LABEL " + name);
+                throw new ArgumentException("Invalid or missing 'font' in TEXT_LABEL " + name);
             }
 
             string text = string.Empty;
             if (!config.TryGetValue("text", ref text))
             {
-                throw new ArgumentException("Invalid or missing 'text' in TEXTURE_LABEL " + name);
+                throw new ArgumentException("Invalid or missing 'text' in TEXT_LABEL " + name);
             }
 
             if (!config.TryGetValue("fontSize", ref fontSize))
             {
-                throw new ArgumentException("Invalid or missing 'fontSize' in TEXTURE_LABEL " + name);
+                throw new ArgumentException("Invalid or missing 'fontSize' in TEXT_LABEL " + name);
             }
 
             Vector2 transformOffset = Vector2.zero;
@@ -115,7 +115,7 @@ namespace AvionicsSystems
             Font font = MASLoader.GetFont(fontName.Trim());
             if (font == null)
             {
-                throw new ArgumentNullException("Unable to load font " + fontName + " in TEXTURE_LABEL " + name);
+                throw new ArgumentNullException("Unable to load font " + fontName + " in TEXT_LABEL " + name);
             }
 
             float lineSpacing = 1.0f;
