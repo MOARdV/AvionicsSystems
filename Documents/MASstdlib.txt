@@ -1,0 +1,29 @@
+﻿The MAS "standard library" is a collection of useful functions for writing variables
+and custom Lua functions for Avionics Systems.  The methods are all in the Lua
+table 'mas', which is available globally.  The functions are described below, along
+with example use-cases.
+
+mas.ActionAndVariable(action, persistentVariable)
+
+This method will trigger the action specified and it will toggle the value of the
+named persistent variable as a single action.  It returns the new value of the
+persistent variable.
+
+Note that 'action' is a variable, not a function invocation (eg, 'fc.ToggleRCS',
+not 'fc.ToggleRCS()').  The persistentVariable is a string (such as "%AUTOID%").
+
+mas.Between(value, bound1, bound2)
+
+This method returns 1 if `value` is between `bound1` and `bound2` (inclusive).
+It returns 0 otherwise.  The bound variables may be in any order.
+
+mas.BoolToNumber(booleanExpression)
+
+This method returns 1 if booleanExpression is true; it returns 0 otherwise.
+Since variables require a numeric return value, this method provides that
+mechanism.
+
+mas.Clamp(value, bound1, bound2)
+
+Clamps /value/ to the range specified by /bound1/ and /bound2/.  The bounds
+may be in any order.

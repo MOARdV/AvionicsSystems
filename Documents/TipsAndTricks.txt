@@ -2,6 +2,7 @@
 development.  These tips are for IVA makers (specifically, config-file editors), not for
 players in-game.
 
+
 USE CONSISTENT WHITESPACE AND ORDERING
 
 Make sure you always use whitespace consistently in variable names, and that you are consistent
@@ -15,8 +16,21 @@ with all of the extra computational overhead that that entails.
 A future version of MAS may be able to relax this restriction, but it is good practice to use consistent
 ordering and whitespace conventions.
 
+
 TAKE ADVANTAGE OF BOOLEAN MODE WHEN POSSIBLE
 
 Many MASComponent actions support Boolean Mode, where the controlling variable is treated as true
 or false.  Whenever possible, take advantage of that mode, since it requires the least
 computational overhead (is the new number greater than 0 or not?).
+
+USE THE Lua math LIBRARY AND THE mas LIBRARY
+
+Lua's math library provides a fair amount of built-in math capabilities, as described
+here: http://lua-users.org/wiki/MathLibraryTutorial.  One use for this is with
+LED-style displays where there are a limited number of digits.  You can prevent overflow
+by using something like `math.min(fc.ResourceStageCurrent("LiquidFuel"), 9999)` - in
+this example, we're using a 4-segment LED, so we can't display a value larger than 9999.
+
+In addition, the MAS "standard library" provides some handy specialized functions for use
+in variables (and in custom Lua scripts).  Refer to the MAS Standard Library chapter for more
+details.
