@@ -51,6 +51,12 @@ JSIVariableAnimator / JSICallbackAnimator components
 Handlers (non-prop control stuff)
 
 * IJSI modules (plugins) -> MASI (Avionics Systems Interface)
+  - MASIRealChute
+  - MASIFAR (in progress)
+  - MASIChatterer
+  * MASIKAC (Kerbal Alarm Clock)
+  * MASIMechJeb
+  * MASIPilotAssistant
 
 - JSIGraphingBackground: complete (except 'virtual tablo indicator' mode, which is easy to emulate)
 
@@ -66,10 +72,10 @@ Handlers (non-prop control stuff)
 
 * Interactive MFD pages (JSITargetMenu, MechJebRPM) - a big mess; can I expose an API for this?
 
-* RPM extension bridges (SCANsat, VesselView, DPAI background handlers; FAR variables)
+* RPM extension bridges (SCANsat, VesselView, DPAI background handlers; FAR variables <- No.  Incorporate into MASIFAR)
 
 * RPM interop?  Talk to RPM about some data (maybe to ease adoption of AS).
-Persistents might be helpful.
+Persistents might be helpful.  Mostly for development; may not be good to keep around after full development.
 
 Support Components
 - Some of this will be tricky, since it's code from GPL projects.  I may have
