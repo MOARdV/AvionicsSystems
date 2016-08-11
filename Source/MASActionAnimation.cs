@@ -23,6 +23,7 @@
  * 
  ****************************************************************************/
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -38,13 +39,20 @@ namespace AvionicsSystems
         private string name = "(anonymous)";
         private string variableName = string.Empty;
         private string animationName = string.Empty;
+        private MASFlightComputer comp;
         private Animation animation;
         private AnimationState animationState;
         private MASFlightComputer.Variable range1, range2;
-        private float lastPosition = -1.0f;
+        private readonly bool rateLimited = false;
+        private readonly float speed = 0.0f;
+        private float currentBlend = -0.01f;
+        private float goalBlend = 0.0f;
+        private bool coroutineActive = false;
 
         internal MASActionAnimation(ConfigNode config, InternalProp prop, MASFlightComputer comp)
         {
+            this.comp = comp;
+
             if (!config.TryGetValue("name", ref name))
             {
                 name = "(anonymous)";
@@ -82,6 +90,11 @@ namespace AvionicsSystems
                 }
                 range1 = comp.GetVariable(ranges[0], prop);
                 range2 = comp.GetVariable(ranges[1], prop);
+
+                if (config.TryGetValue("speed", ref speed) && speed > 0.0f)
+                {
+                    rateLimited = true;
+                }
             }
             else
             {
@@ -99,12 +112,68 @@ namespace AvionicsSystems
         {
             float newBlend = Mathf.InverseLerp((float)range1.SafeValue(), (float)range2.SafeValue(), (float)newValue);
 
-            if (!Mathf.Approximately(lastPosition, newBlend))
+            if (!Mathf.Approximately(currentBlend, newBlend))
             {
-                lastPosition = newBlend;
-                animationState.normalizedTime = lastPosition;
+                if (rateLimited)
+                {
+                    goalBlend = newBlend;
+
+                    newBlend = RateLimitBlend(newBlend);
+                }
+                currentBlend = newBlend;
+                animationState.normalizedTime = currentBlend;
                 animation.Play(animationName);
             }
+        }
+
+        /// <summary>
+        /// Apply rate limitations to the blend.
+        /// </summary>
+        /// <param name="newBlend">New intended blend position</param>
+        /// <returns>Rate-limited blend position</returns>
+        private float RateLimitBlend(float newBlend)
+        {
+            float difference = Mathf.Abs(newBlend - currentBlend);
+            float maxDelta = TimeWarp.deltaTime * speed;
+
+            if (difference > maxDelta)
+            {
+                if (newBlend < currentBlend)
+                {
+                    newBlend = currentBlend - maxDelta;
+                }
+                else
+                {
+                    newBlend = currentBlend + maxDelta;
+                }
+
+                if (!coroutineActive)
+                {
+                    comp.StartCoroutine(TimedRotationCoroutine());
+                }
+            }
+
+            return newBlend;
+        }
+
+        /// <summary>
+        /// Coroutine to manage rate-limited rotations (those that can't snap into
+        /// position due to restraints in their configurations).
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator TimedRotationCoroutine()
+        {
+            coroutineActive = true;
+            while (!Mathf.Approximately(goalBlend, currentBlend))
+            {
+                yield return new WaitForFixedUpdate();
+
+                currentBlend = RateLimitBlend(goalBlend);
+
+                animationState.normalizedTime = currentBlend;
+                animation.Play(animationName);
+            }
+            coroutineActive = false;
         }
 
         /// <summary>
