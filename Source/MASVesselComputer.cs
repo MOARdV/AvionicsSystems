@@ -188,6 +188,7 @@ namespace AvionicsSystems
             vesselId = vessel.id;
             orbit = vessel.orbit;
 
+            GameEvents.OnCameraChange.Add(onCameraChange);
             GameEvents.onVesselChange.Add(onVesselChange);
             GameEvents.onVesselSOIChanged.Add(onVesselSOIChanged);
             GameEvents.onVesselWasModified.Add(onVesselWasModified);
@@ -232,6 +233,7 @@ namespace AvionicsSystems
 
             Utility.LogMessage(this, "OnDestroy for {0}", vesselId);
 
+            GameEvents.OnCameraChange.Remove(onCameraChange);
             GameEvents.onVesselChange.Remove(onVesselChange);
             GameEvents.onVesselSOIChanged.Remove(onVesselSOIChanged);
             GameEvents.onVesselWasModified.Remove(onVesselWasModified);
@@ -774,10 +776,24 @@ namespace AvionicsSystems
                     }
                 }
             }
+
+            UpdateDockingNode(referencePart);
         }
         #endregion
 
         #region GameEvent Callbacks
+        /// <summary>
+        /// The player changed camera modes.  If we're going from 'outside' to
+        /// 'inside', we can figure out which part we're in, and thus whether
+        /// there are docks available.  To do that, we have to reprocess the
+        /// reference transform.
+        /// </summary>
+        /// <param name="data"></param>
+        private void onCameraChange(CameraManager.CameraMode data)
+        {
+            UpdateReferenceTransform(referenceTransform);
+        }
+
         private void onVesselChange(Vessel who)
         {
             if (who.id == vesselId)
