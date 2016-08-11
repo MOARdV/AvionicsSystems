@@ -489,52 +489,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if any active engines are in a flameout condition.
-        /// </summary>
-        /// <returns></returns>
-        public double EngineFlameout()
-        {
-            return (vc.anyEnginesFlameout) ? 1.0 : 0.0;
-        }
-
-        /// <summary>
-        /// Returns the maximum fuel flow in grams/second
-        /// </summary>
-        /// <returns></returns>
-        public double MaxFuelFlow()
-        {
-            return vc.maxEngineFuelFlow;
-        }
-
-        /// <summary>
-        /// Returns the maximum specific impulse in seconds.
-        /// </summary>
-        /// <returns></returns>
-        public double MaxIsp()
-        {
-            return vc.maxIsp;
-        }
-
-        /// <summary>
-        /// Returns the maximum thrust in kN for the current altitude.
-        /// </summary>
-        /// <param name="useThrottleLimits">Apply throttle limits?</param>
-        /// <returns></returns>
-        public double MaxThrustkN(bool useThrottleLimits)
-        {
-            return (useThrottleLimits) ? vc.currentLimitedThrust : vc.currentMaxThrust;
-        }
-
-        /// <summary>
-        /// Returns the current main throttle setting, from 0.0 to 1.0.
-        /// </summary>
-        /// <returns></returns>
-        public double GetThrottle()
-        {
-            return vessel.ctrlState.mainThrottle;
-        }
-
-        /// <summary>
         /// Returns the current thrust output, from 0.0 to 1.0.
         /// </summary>
         /// <returns></returns>
@@ -569,6 +523,24 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns a count of the number of engines tracked.
+        /// </summary>
+        /// <returns></returns>
+        public double EngineCount()
+        {
+            return vc.moduleEngines.Length;
+        }
+
+        /// <summary>
+        /// Returns 1 if any active engines are in a flameout condition.
+        /// </summary>
+        /// <returns></returns>
+        public double EngineFlameout()
+        {
+            return (vc.anyEnginesFlameout) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Returns 1 if at least one engine is enabled.
         /// </summary>
         /// <returns></returns>
@@ -584,6 +556,43 @@ namespace AvionicsSystems
         public double GetGimbalsLocked()
         {
             return (vc.anyGimbalsLocked) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the current main throttle setting, from 0.0 to 1.0.
+        /// </summary>
+        /// <returns></returns>
+        public double GetThrottle()
+        {
+            return vessel.ctrlState.mainThrottle;
+        }
+
+        /// <summary>
+        /// Returns the maximum fuel flow in grams/second
+        /// </summary>
+        /// <returns></returns>
+        public double MaxFuelFlow()
+        {
+            return vc.maxEngineFuelFlow;
+        }
+
+        /// <summary>
+        /// Returns the maximum specific impulse in seconds.
+        /// </summary>
+        /// <returns></returns>
+        public double MaxIsp()
+        {
+            return vc.maxIsp;
+        }
+
+        /// <summary>
+        /// Returns the maximum thrust in kN for the current altitude.
+        /// </summary>
+        /// <param name="useThrottleLimits">Apply throttle limits?</param>
+        /// <returns></returns>
+        public double MaxThrustkN(bool useThrottleLimits)
+        {
+            return (useThrottleLimits) ? vc.currentLimitedThrust : vc.currentMaxThrust;
         }
 
         /// <summary>
@@ -1371,6 +1380,80 @@ namespace AvionicsSystems
         public double Longitude()
         {
             return vessel.longitude;
+        }
+        #endregion
+
+        #region Power Production
+        /// <summary>
+        /// Returns the number of alternators on the vessel.
+        /// </summary>
+        /// <returns></returns>
+        public double AlternatorCount()
+        {
+            return vc.moduleAlternator.Length;
+        }
+
+        /// <summary>
+        /// Returns the net output of the alternators.
+        /// </summary>
+        /// <returns></returns>
+        public double AlternatorOutput()
+        {
+            return vc.netAlternatorOutput;
+        }
+
+        /// <summary>
+        /// Returns the number of fuel cells on the vessel.
+        /// </summary>
+        /// <returns></returns>
+        public double FuelCellCount()
+        {
+            return vc.moduleFuelCell.Length;
+        }
+
+        /// <summary>
+        /// Returns the net output of installed fuel cells.
+        /// </summary>
+        /// <returns></returns>
+        public double FuelCellOutput()
+        {
+            return vc.netFuelCellOutput;
+        }
+
+        /// <summary>
+        /// Returns the number of generators on the vessel.
+        /// </summary>
+        /// <returns></returns>
+        public double GeneratorCount()
+        {
+            return vc.moduleGenerator.Length;
+        }
+
+        /// <summary>
+        /// Returns the net output of installed generators.
+        /// </summary>
+        /// <returns></returns>
+        public double GeneratorOutput()
+        {
+            return vc.netGeneratorOutput;
+        }
+
+        /// <summary>
+        /// Returns the number of solar panels on the vessel.
+        /// </summary>
+        /// <returns></returns>
+        public double SolarPanelCount()
+        {
+            return vc.moduleSolarPanel.Length;
+        }
+
+        /// <summary>
+        /// Returns the net output of installed solar panels.
+        /// </summary>
+        /// <returns></returns>
+        public double SolarPanelOutput()
+        {
+            return vc.netSolarOutput;
         }
         #endregion
 
