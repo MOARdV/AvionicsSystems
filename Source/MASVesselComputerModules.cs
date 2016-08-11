@@ -185,7 +185,7 @@ namespace AvionicsSystems
         #region Engines
         //---Engines
         private List<ModuleEngines> enginesList = new List<ModuleEngines>(8);
-        private ModuleEngines[] moduleEngines = new ModuleEngines[0];
+        internal ModuleEngines[] moduleEngines = new ModuleEngines[0];
         private float[] invMaxISP = new float[0];
         internal float currentThrust; // current net thrust, kN
         internal float currentLimitedThrust; // Max thrust, accounting for throttle limits, kN
@@ -356,6 +356,89 @@ namespace AvionicsSystems
         internal ModuleParachute[] moduleParachute = new ModuleParachute[0];
         #endregion
 
+        #region Power Production
+        private List<ModuleAlternator> alternatorList = new List<ModuleAlternator>();
+        internal ModuleAlternator[] moduleAlternator = new ModuleAlternator[0];
+        internal List<float> alternatorOutputList = new List<float>();
+        internal float[] alternatorOutput = new float[0];
+        private List<ModuleResourceConverter> fuelCellList = new List<ModuleResourceConverter>();
+        internal ModuleResourceConverter[] moduleFuelCell = new ModuleResourceConverter[0];
+        internal List<float> fuelCellOutputList = new List<float>();
+        internal float[] fuelCellOutput = new float[0];
+        private List<ModuleGenerator> generatorList = new List<ModuleGenerator>();
+        internal ModuleGenerator[] moduleGenerator= new ModuleGenerator[0];
+        internal List<float> generatorOutputList = new List<float>();
+        internal float[] generatorOutput = new float[0];
+        private List<ModuleDeployableSolarPanel> solarPanelList = new List<ModuleDeployableSolarPanel>();
+        internal ModuleDeployableSolarPanel[] moduleSolarPanel = new ModuleDeployableSolarPanel[0];
+        internal bool generatorsActive; // Returns true if at least one generator or fuel cell is active that can be otherwise switched off
+        internal bool solarPanelsDeployable;
+        internal bool solarPanelsRetractable;
+        internal bool solarPanelsMoving; // Returns false if the solar panels are extendable or are retracting
+        internal int solarPanelPosition;
+        internal float netAlternatorOutput;
+        internal float netFuelCellOutput;
+        internal float netGeneratorOutput;
+        internal float netSolarOutput;
+        private void UpdatePower()
+        {
+            netAlternatorOutput = 0.0f;
+            netFuelCellOutput = 0.0f;
+            netGeneratorOutput = 0.0f;
+            netSolarOutput = 0.0f;
+
+            generatorsActive = false;
+            solarPanelsDeployable = false;
+            solarPanelsRetractable = false;
+
+            solarPanelPosition = -1;
+
+            for (int i = moduleGenerator.Length-1; i >=0; --i)
+            {
+                generatorsActive |= (moduleGenerator[i].generatorIsActive && !moduleGenerator[i].isAlwaysActive);
+
+                if (moduleGenerator[i].generatorIsActive)
+                {
+                    float output = moduleGenerator[i].efficiency * generatorOutput[i];
+                    if (moduleGenerator[i].isThrottleControlled)
+                    {
+                        output *= moduleGenerator[i].throttle;
+                    }
+                    netGeneratorOutput += output;
+                }
+            }
+
+            for (int i = moduleFuelCell.Length - 1; i >= 0; --i)
+            {
+                generatorsActive |= (moduleFuelCell[i].IsActivated && !moduleFuelCell[i].AlwaysActive);
+
+                if (moduleFuelCell[i].IsActivated)
+                {
+                    netFuelCellOutput += (float)moduleFuelCell[i].lastTimeFactor * fuelCellOutput[i];
+                }
+            }
+
+            for (int i = moduleAlternator.Length - 1; i >= 0; --i)
+            {
+                // I assume there's only one ElectricCharge output in a given ModuleAlternator
+                netAlternatorOutput += alternatorOutput[i] * moduleAlternator[i].outputRate;
+            }
+
+            for (int i = moduleSolarPanel.Length - 1; i >= 0; --i)
+            {
+                netSolarOutput += moduleSolarPanel[i].flowRate;
+                solarPanelsRetractable |= (moduleSolarPanel[i].useAnimation && moduleSolarPanel[i].retractable && moduleSolarPanel[i].panelState == ModuleDeployableSolarPanel.panelStates.EXTENDED);
+                solarPanelsDeployable |= (moduleSolarPanel[i].useAnimation && moduleSolarPanel[i].panelState == ModuleDeployableSolarPanel.panelStates.RETRACTED);
+                solarPanelsMoving |= (moduleSolarPanel[i].useAnimation && (moduleSolarPanel[i].panelState == ModuleDeployableSolarPanel.panelStates.EXTENDED || moduleSolarPanel[i].panelState == ModuleDeployableSolarPanel.panelStates.EXTENDING));
+
+                if ((solarPanelPosition == -1 || solarPanelPosition == (int)ModuleDeployableSolarPanel.panelStates.BROKEN) && moduleSolarPanel[i].useAnimation)
+                {
+                    solarPanelPosition = (int)moduleSolarPanel[i].panelState;
+                }
+            }
+        }
+        #endregion
+
         #region Modules Management
         /// <summary>
         /// Mark modules as potentially invalid to force reiterating over the
@@ -418,6 +501,50 @@ namespace AvionicsSystems
                         {
                             parachuteList.Add(module as ModuleParachute);
                         }
+                        else if (module is ModuleAlternator)
+                        {
+                            ModuleAlternator alternator = module as ModuleAlternator;
+                            for (int i = 0; i < alternator.outputResources.Count; ++i)
+                            {
+                                if (alternator.outputResources[i].name == MASLoader.ElectricCharge)
+                                {
+                                    alternatorList.Add(alternator);
+                                    alternatorOutputList.Add((float)alternator.outputResources[i].rate);
+                                    break;
+                                }
+                            }
+                        }
+                        else if (module is ModuleDeployableSolarPanel)
+                        {
+                            solarPanelList.Add(module as ModuleDeployableSolarPanel);
+                        }
+                        else if (module is ModuleGenerator)
+                        {
+                            ModuleGenerator generator = module as ModuleGenerator;
+                            for (int i = 0; i < generator.outputList.Count; ++i)
+                            {
+                                if (generator.outputList[i].name == MASLoader.ElectricCharge)
+                                {
+                                    generatorList.Add(generator);
+                                    generatorOutputList.Add((float)generator.outputList[i].rate);
+                                    break;
+                                }
+                            }
+                        }
+                        else if (module is ModuleResourceConverter)
+                        {
+                            ModuleResourceConverter gen = module as ModuleResourceConverter;
+                            ConversionRecipe recipe = gen.Recipe;
+                            for (int i = 0; i < recipe.Outputs.Count; ++i)
+                            {
+                                if (recipe.Outputs[i].ResourceName == "ElectricCharge")
+                                {
+                                    fuelCellList.Add(gen);
+                                    fuelCellOutputList.Add((float)recipe.Outputs[i].Ratio);
+                                    break;
+                                }
+                            }
+                        }
                         else if (MASIRealChute.realChuteFound && module.GetType() == MASIRealChute.rcAPI_t)
                         {
                             realchuteList.Add(module);
@@ -463,8 +590,14 @@ namespace AvionicsSystems
             TransferModules<PartModule>(realchuteList, ref moduleRealChute);
             TransferModules<ModuleParachute>(parachuteList, ref moduleParachute);
             TransferModules<ModuleGimbal>(gimbalsList, ref moduleGimbals);
+            TransferModules<ModuleAlternator>(alternatorList, ref moduleAlternator);
+            TransferModules<float>(alternatorOutputList, ref alternatorOutput);
+            TransferModules<ModuleGenerator>(generatorList, ref moduleGenerator);
+            TransferModules<float>(generatorOutputList, ref generatorOutput);
+            TransferModules<ModuleDeployableSolarPanel>(solarPanelList, ref moduleSolarPanel);
+            TransferModules<ModuleResourceConverter>(fuelCellList, ref moduleFuelCell);
+            TransferModules<float>(fuelCellOutputList, ref fuelCellOutput);
 
-            UpdateDockingNodeState();
         }
 
         /// <summary>
@@ -484,8 +617,6 @@ namespace AvionicsSystems
                     }
                 }
             }
-
-            UpdateDockingNodeState();
         }
 
         /// <summary>
@@ -506,8 +637,10 @@ namespace AvionicsSystems
             }
 
             bool requestReset = false;
+            UpdateDockingNodeState();
             requestReset |= UpdateEngines();
             UpdateGimbals();
+            UpdatePower();
 
             if (requestReset)
             {
