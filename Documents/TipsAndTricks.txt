@@ -1,0 +1,22 @@
+﻿A collection of various tips & tricks (or best practices, if you prefer) collected during
+development.  These tips are for IVA makers (specifically, config-file editors), not for
+players in-game.
+
+USE CONSISTENT WHITESPACE AND ORDERING
+
+Make sure you always use whitespace consistently in variable names, and that you are consistent
+with the order of values when using mathematical expressions in variable names.
+
+Currently, MAS does not know that "2*fc.GetValue()" and "2 * fc.GetValue()" are the same value.  It
+also does not know that "2*fc.GetValue()" and "fc.GetValue()*2" are the same.  Thus, it will create
+a unique variable for each of these configurations, and it will evaluate the same thing three times,
+with all of the extra computational overhead that that entails.
+
+A future version of MAS may be able to relax this restriction, but it is good practice to use consistent
+ordering and whitespace conventions.
+
+TAKE ADVANTAGE OF BOOLEAN MODE WHEN POSSIBLE
+
+Many MASComponent actions support Boolean Mode, where the controlling variable is treated as true
+or false.  Whenever possible, take advantage of that mode, since it requires the least
+computational overhead (is the new number greater than 0 or not?).
