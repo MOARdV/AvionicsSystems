@@ -79,6 +79,109 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Docking
+        // Unlike some of the other sections here, the Dock section focuses on
+        // a single ModuleDockingNode that the vessel computer designates as
+        // the "main" docking node.  We do this because we do NOT want an
+        // undock event, for instance, to disassemble an entire space
+        // station, and we never want to affect more than one docking port with
+        // such transactions.  Code substantially imported from what I wrote for
+        // RasterPropMonitor.
+        internal ModuleDockingNode dockingNode;
+        internal DockingNodeState dockingNodeState = DockingNodeState.UNKNOWN;
+        internal enum DockingNodeState
+        {
+            UNKNOWN,
+            DOCKED,
+            PREATTACHED,
+            READY
+        };
+        private void UpdateDockingNode(Part referencePart)
+        {
+            // Our candidate for docking node.  Called from UpdateReferenceTransform()
+            ModuleDockingNode dockingNode = null;
+
+            if (referencePart != null)
+            {
+                // See if the reference part is a docking port.
+                if (referenceTransformType == ReferenceType.DockingPort)
+                {
+                    // If it's a docking port, this should be all we need to do.
+                    dockingNode = referencePart.FindModuleImplementing<ModuleDockingNode>();
+                }
+                else
+                {
+                    uint shipFlightNumber = 0;
+                    if (referenceTransformType == ReferenceType.Self)
+                    {
+                        // If the reference transform is the current IVA, we need
+                        // to look for another part that has a docking node and the
+                        // same ID as our part.
+                        shipFlightNumber = referencePart.launchID;
+                    }
+                    else
+                    {
+                        if (CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA)
+                        {
+                            Kerbal refKerbal = CameraManager.Instance.IVACameraActiveKerbal;
+                            if (refKerbal != null)
+                            {
+                                shipFlightNumber = refKerbal.InPart.launchID;
+                            }
+                        }
+                    }
+                    
+                    if(shipFlightNumber > 0)
+                    {
+                        List<Part> vesselParts = vessel.Parts;
+                        for (int i=vesselParts.Count-1; i>=0; --i)
+                        {
+                            Part p = vesselParts[i];
+                            if (p.launchID == shipFlightNumber)
+                            {
+                                dockingNode = p.FindModuleImplementing<ModuleDockingNode>();
+                                if(dockingNode != null)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            this.dockingNode = dockingNode;
+        }
+        private void UpdateDockingNodeState()
+        {
+            if (dockingNode != null)
+            {
+                switch (dockingNode.state)
+                {
+                    case "PreAttached":
+                        dockingNodeState = DockingNodeState.PREATTACHED;
+                        break;
+                    case "Docked (docker)":
+                        dockingNodeState = DockingNodeState.DOCKED;
+                        break;
+                    case "Docked (dockee)":
+                        dockingNodeState = DockingNodeState.DOCKED;
+                        break;
+                    case "Ready":
+                        dockingNodeState = DockingNodeState.READY;
+                        break;
+                    default:
+                        dockingNodeState = DockingNodeState.UNKNOWN;
+                        break;
+                }
+            }
+            else
+            {
+                dockingNodeState = DockingNodeState.UNKNOWN;
+            }
+        }
+        #endregion
+
         #region Engines
         //---Engines
         private List<ModuleEngines> enginesList = new List<ModuleEngines>(8);
@@ -360,6 +463,8 @@ namespace AvionicsSystems
             TransferModules<PartModule>(realchuteList, ref moduleRealChute);
             TransferModules<ModuleParachute>(parachuteList, ref moduleParachute);
             TransferModules<ModuleGimbal>(gimbalsList, ref moduleGimbals);
+
+            UpdateDockingNodeState();
         }
 
         /// <summary>
@@ -379,6 +484,8 @@ namespace AvionicsSystems
                     }
                 }
             }
+
+            UpdateDockingNodeState();
         }
 
         /// <summary>

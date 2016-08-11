@@ -429,6 +429,45 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Docking
+        /// <summary>
+        /// Return 1 if the dock is attached to something (either in-flight
+        /// docking or attached in the VAB); return 0 otherwise.
+        /// </summary>
+        /// <returns></returns>
+        public double Docked()
+        {
+            return (vc.dockingNodeState == MASVesselComputer.DockingNodeState.DOCKED || vc.dockingNodeState == MASVesselComputer.DockingNodeState.PREATTACHED) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Return 1 if the dock is ready; return 0 otherwise.
+        /// </summary>
+        /// <returns></returns>
+        public double DockReady()
+        {
+            return (vc.dockingNodeState == MASVesselComputer.DockingNodeState.READY) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Undock / detach (if pre-attached) the active docking node.
+        /// </summary>
+        public void Undock()
+        {
+            if (vc.dockingNode != null)
+            {
+                if (vc.dockingNodeState == MASVesselComputer.DockingNodeState.DOCKED)
+                {
+                    vc.dockingNode.Undock();
+                }
+                else if(vc.dockingNodeState == MASVesselComputer.DockingNodeState.PREATTACHED)
+                {
+                    vc.dockingNode.Decouple();
+                }
+            }
+        }
+        #endregion
+
         #region Engine
 
         /// <summary>
@@ -652,6 +691,18 @@ namespace AvionicsSystems
         #endregion
 
         #region Maneuver Node
+        /// <summary>
+        /// Clear all scheduled maneuver nodes.
+        /// </summary>
+        public void ClearManeuverNode()
+        {
+            if (vessel.patchedConicSolver != null)
+            {
+                // TODO: what is vessel.patchedConicSolver.flightPlan?  And do I care?
+                vessel.patchedConicSolver.maneuverNodes.Clear();
+            }
+        }
+
         /// <summary>
         /// Delta-V of the scheduled node, or 0 if there is no node.
         /// </summary>
@@ -1390,6 +1441,16 @@ namespace AvionicsSystems
         #endregion RCS
 
         #region Resources
+        /// <summary>
+        /// Returns the current level of available power for the designated
+        /// "Power" resource;by default, this is ElectricCharge.
+        /// </summary>
+        /// <returns></returns>
+        public double PowerCurrent()
+        {
+            return vc.ResourceCurrent(MASLoader.ElectricCharge);
+        }
+
         /// <summary>
         /// Returns the rate of change in available power (units/sec) for the
         /// designated "Power" resource; by default, this is ElectricCharge.
