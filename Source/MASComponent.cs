@@ -141,7 +141,9 @@ namespace AvionicsSystems
             }
             catch (Exception e)
             {
-                Utility.LogErrorMessage(this, "Failed to configure prop #{0} ({1})", internalProp.propID, internalProp.propName);
+                string message = string.Format("Failed to configure prop #{0} ({1})", internalProp.propID, internalProp.propName);
+                Utility.ComplainLoudly(message);
+                Utility.LogErrorMessage(this, message);
                 Utility.LogErrorMessage(this, e.ToString());
             }
         }
