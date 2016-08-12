@@ -81,7 +81,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Whether the vessel needs MASVC support (has at least one crew).
         /// </summary>
-        private bool vesselActive;
+        internal bool vesselActive;
 
         /// <summary>
         /// A reference of the linear gauge used for atmospheric depth.

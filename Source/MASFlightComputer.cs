@@ -25,6 +25,7 @@
 using MoonSharp.Interpreter;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 // TODO:
@@ -109,6 +110,9 @@ namespace AvionicsSystems
         /// Reference to the current vessel computer.
         /// </summary>
         internal MASVesselComputer vc;
+
+        private Stopwatch stopwatch = new Stopwatch();
+        long samplecount = 0;
 
         #region Internal Interface
         /// <summary>
@@ -360,7 +364,7 @@ namespace AvionicsSystems
         /// </summary>
         public void FixedUpdate()
         {
-            if (initialized) // TODO: Change this to "is active vessel"
+            if (vc.vesselActive)
             {
                 // Realistically, this block of code won't be triggered very
                 // often.
@@ -373,11 +377,20 @@ namespace AvionicsSystems
                 fcProxy.Update();
                 realChuteProxy.Update();
 
+                // TODO: Add a heuristic to adjust the loop so not all variables
+                // update every fixed update if the average update time is too high.
+                // Need to decide if it's going to be an absolute time (max # ms/update)
+                // or a relative time.
+                // NOTE: 128 "variables" average about 1.7ms/update!  And there's
+                // a LOT of garbage collection going on.
+                stopwatch.Start();
                 int count = mutableVariables.Length;
                 for (int i = 0; i < count; ++i)
                 {
                     mutableVariables[i].Evaluate(script);
                 }
+                stopwatch.Stop();
+                ++samplecount;
             }
         }
 
@@ -400,6 +413,7 @@ namespace AvionicsSystems
 
                 Utility.LogMessage(this, "{0} variables created, including {1} mutable variables",
                     variables.Count, mutableVariables.Length);
+                Utility.LogMessage(this, "MoonSharp time average = {0:0.00}ms/FixedUpdate", (double)(stopwatch.ElapsedMilliseconds) / (double)(samplecount));
             }
         }
 
@@ -430,6 +444,8 @@ namespace AvionicsSystems
 
                 // TODO: Review the CoreModule settings - are they tight enough?
                 script = new Script(CoreModules.Preset_HardSandbox);
+
+                UserData.DefaultAccessMode = InteropAccessMode.Preoptimized;
 
                 // Global State (set up links to the proxy).  Note that we
                 // don't use the proxy system included in MoonSharp, since it

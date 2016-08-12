@@ -89,6 +89,10 @@ namespace AvionicsSystems
                 }
                 else
                 {
+                    // TODO: Can I find a way to parse or analyze the evaluator
+                    // and set up a direct call (bypassing Lua) for very simply
+                    // queries?
+                    // TODO: MoonSharp "hardwiring" - does it help performance?
                     this.value = null;
                     try
                     {
