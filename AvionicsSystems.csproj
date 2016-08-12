@@ -78,6 +78,7 @@
     <Compile Include="Source\MASIFAR.cs" />
     <Compile Include="Source\MASIRealChute.cs" />
     <Compile Include="Source\MASNavBall.cs" />
+    <Compile Include="Source\MASRadar.cs" />
     <Compile Include="Source\MASTypes.cs" />
     <Compile Include="Source\MASLoader.cs" />
     <Compile Include="Source\MASFlightComputer.cs" />
