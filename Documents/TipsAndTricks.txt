@@ -34,3 +34,11 @@ this example, we're using a 4-segment LED, so we can't display a value larger th
 In addition, the MAS "standard library" provides some handy specialized functions for use
 in variables (and in custom Lua scripts).  Refer to the MAS Standard Library chapter for more
 details.
+
+
+USE TEXT MARKUP SPARINGLY IN TEXT THAT ONLY CHANGES COLOR
+
+The various text markup tags (eg [b] and [/b], [@x#], etc) force Avionics System to generate
+the displayed text from scratch every time, even when only the color of the text is being
+changed.  This is much more costly than simply changing the color for non-tagged text.
+It should be avoided for static labels that use color changing whenever possible.
