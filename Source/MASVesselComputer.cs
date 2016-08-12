@@ -61,6 +61,7 @@ namespace AvionicsSystems
         /// Our current reference transform.
         /// </summary>
         internal Transform referenceTransform;
+        private bool refreshReferenceTransform = false;
 
         /// <summary>
         /// Type of object that the reference transform is attached to.
@@ -147,6 +148,14 @@ namespace AvionicsSystems
                 orbit = vessel.orbit;
                 universalTime = Planetarium.GetUniversalTime();
 
+                if (refreshReferenceTransform)
+                {
+                    // GetReferenceTransformPart() seems to be pointing at the
+                    // previous part when the callback fires, so I use this hack
+                    // to manually recompute it here.
+                    UpdateReferenceTransform(referenceTransform);
+                    refreshReferenceTransform = false;
+                }
                 // First step:
                 PrepareResourceData();
 
@@ -336,6 +345,7 @@ namespace AvionicsSystems
                 //ConfigNode node = new ConfigNode("dummy");
                 //vessel.ActionGroups.Save(node);
                 UpdateReferenceTransform(vessel.ReferenceTransform);
+                refreshReferenceTransform = true;
 
                 // First step:
                 PrepareResourceData();
@@ -736,6 +746,8 @@ namespace AvionicsSystems
 
             // TODO: Can I infer this from newRefXform?  And is it more
             // efficient to do than this call?
+            // Actually, it seems like GetReferenceTransformPart() hasn't
+            // updated yet!
             Part referencePart = vessel.GetReferenceTransformPart();
             if (referencePart != null)
             {
@@ -847,6 +859,7 @@ namespace AvionicsSystems
         private void onVesselReferenceTransformSwitch(Transform fromXform, Transform toXform)
         {
             UpdateReferenceTransform(toXform);
+            refreshReferenceTransform = true;
             //Utility.LogMessage(this, "onVesselReferenceTransformSwitch from {0} to {1}; fromMatch = {2}", 
             //    (fromXform == null) ? "(null)" : fromXform.name,
             //    (toXform == null) ? "(null)" : toXform.name,
