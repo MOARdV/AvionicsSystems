@@ -1587,6 +1587,38 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Radar
+        /// <summary>
+        /// Returns 1 if any radars are turned on; 0 otherwise.
+        /// </summary>
+        /// <returns></returns>
+        public double RadarActive()
+        {
+            return (vc.radarActive) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the number of radar modules available on the vessel.
+        /// </summary>
+        /// <returns></returns>
+        public double RadarCount()
+        {
+            return vc.moduleRadar.Length;
+        }
+
+        /// <summary>
+        /// Toggle any installed radar from active to inactive.
+        /// </summary>
+        public void ToggleRadar()
+        {
+            bool state = !vc.radarActive;
+            for(int i=vc.moduleRadar.Length-1; i>=0; --i)
+            {
+                vc.moduleRadar[i].radarEnabled = state;
+            }
+        }
+        #endregion
+
         #region Random
         /// <summary>
         /// Return a random number in the range of [0, 1]

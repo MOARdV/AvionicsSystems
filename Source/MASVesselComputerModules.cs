@@ -479,6 +479,20 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Radar
+        private List<MASRadar> radarList = new List<MASRadar>();
+        internal MASRadar[] moduleRadar = new MASRadar[0];
+        internal bool radarActive;
+        private void UpdateRadars()
+        {
+            radarActive = false;
+            for(int i= moduleRadar.Length-1; i>=0;--i)
+            {
+                radarActive |= moduleRadar[i].radarEnabled;
+            }
+        }
+        #endregion
+
         #region Modules Management
         /// <summary>
         /// Mark modules as potentially invalid to force reiterating over the
@@ -585,6 +599,10 @@ namespace AvionicsSystems
                                 }
                             }
                         }
+                        else if(module is MASRadar)
+                        {
+                            radarList.Add(module as MASRadar);
+                        }
                         else if (MASIRealChute.realChuteFound && module.GetType() == MASIRealChute.rcAPI_t)
                         {
                             realchuteList.Add(module);
@@ -637,7 +655,7 @@ namespace AvionicsSystems
             TransferModules<ModuleDeployableSolarPanel>(solarPanelList, ref moduleSolarPanel);
             TransferModules<ModuleResourceConverter>(fuelCellList, ref moduleFuelCell);
             TransferModules<float>(fuelCellOutputList, ref fuelCellOutput);
-
+            TransferModules<MASRadar>(radarList, ref moduleRadar);
         }
 
         /// <summary>
@@ -681,6 +699,7 @@ namespace AvionicsSystems
             requestReset |= UpdateEngines();
             UpdateGimbals();
             UpdatePower();
+            UpdateRadars();
 
             if (requestReset)
             {
