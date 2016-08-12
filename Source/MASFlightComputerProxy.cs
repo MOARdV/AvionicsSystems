@@ -1439,6 +1439,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns 1 if at least one fuel cell is enabled; 0 otherwise.
+        /// </summary>
+        /// <returns></returns>
+        public double GetFuelCellActive()
+        {
+            return (vc.fuelCellActive) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Returns the number of solar panels on the vessel.
         /// </summary>
         /// <returns></returns>
@@ -1448,12 +1457,114 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns 1 if all solar panels are damaged.
+        /// </summary>
+        /// <returns></returns>
+        public double SolarPanelDamaged()
+        {
+            return (vc.solarPanelPosition == 0) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if at least one solar panel may be deployed.
+        /// </summary>
+        /// <returns></returns>
+        public double SolarPanelDeployable()
+        {
+            return (vc.solarPanelsDeployable) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if at least one solar panel is moving.
+        /// </summary>
+        /// <returns></returns>
+        public double SolarPanelMoving()
+        {
+            return (vc.solarPanelsMoving) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Returns the net output of installed solar panels.
         /// </summary>
         /// <returns></returns>
         public double SolarPanelOutput()
         {
             return vc.netSolarOutput;
+        }
+
+        /// <summary>
+        /// Returns a number representing deployable solar panel position:
+        /// 0 = Broken
+        /// 1 = Retracted
+        /// 2 = Retracting
+        /// 3 = Extending
+        /// 4 = Extended
+        /// 
+        /// If there are multiple panels, the first non-broken panel's state
+        /// is reported; if all panels are broken, the state will be 0.
+        /// </summary>
+        /// <returns></returns>
+        public double SolarPanelPosition()
+        {
+            return vc.solarPanelPosition;
+        }
+
+        /// <summary>
+        /// Returns 1 if at least one solar panels is retractable.
+        /// </summary>
+        /// <returns></returns>
+        public double SolarPanelRetractable()
+        {
+            return (vc.solarPanelsRetractable) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Toggles fuel cells from off to on or vice versa.
+        /// </summary>
+        public void ToggleFuelCellActive()
+        {
+            bool state = !vc.fuelCellActive;
+            for (int i = vc.moduleFuelCell.Length-1; i >=0; --i)
+            {
+                if (!vc.moduleFuelCell[i].AlwaysActive)
+                {
+                    if (state)
+                    {
+                        vc.moduleFuelCell[i].StartResourceConverter();
+                    }
+                    else
+                    {
+                        vc.moduleFuelCell[i].StopResourceConverter();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Deploys / undeploys solar panels.
+        /// </summary>
+        public void ToggleSolarPanel()
+        {
+            if (vc.solarPanelsDeployable)
+            {
+                for (int i = vc.moduleSolarPanel.Length - 1; i >= 0; --i )
+                {
+                    if (vc.moduleSolarPanel[i].useAnimation && vc.moduleSolarPanel[i].panelState == ModuleDeployableSolarPanel.panelStates.RETRACTED)
+                    {
+                        vc.moduleSolarPanel[i].Extend();
+                    }
+                }
+            }
+            else if(vc.solarPanelsRetractable)
+            {
+                for (int i = vc.moduleSolarPanel.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleSolarPanel[i].useAnimation && vc.moduleSolarPanel[i].retractable && vc.moduleSolarPanel[i].panelState == ModuleDeployableSolarPanel.panelStates.EXTENDED)
+                    {
+                        vc.moduleSolarPanel[i].Retract();
+                    }
+                }
+            }
         }
         #endregion
 

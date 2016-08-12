@@ -371,10 +371,11 @@ namespace AvionicsSystems
         internal float[] generatorOutput = new float[0];
         private List<ModuleDeployableSolarPanel> solarPanelList = new List<ModuleDeployableSolarPanel>();
         internal ModuleDeployableSolarPanel[] moduleSolarPanel = new ModuleDeployableSolarPanel[0];
-        internal bool generatorsActive; // Returns true if at least one generator or fuel cell is active that can be otherwise switched off
+        internal bool fuelCellActive;
+        internal bool generatorActive;
         internal bool solarPanelsDeployable;
         internal bool solarPanelsRetractable;
-        internal bool solarPanelsMoving; // Returns false if the solar panels are extendable or are retracting
+        internal bool solarPanelsMoving;
         internal int solarPanelPosition;
         internal float netAlternatorOutput;
         internal float netFuelCellOutput;
@@ -387,15 +388,17 @@ namespace AvionicsSystems
             netGeneratorOutput = 0.0f;
             netSolarOutput = 0.0f;
 
-            generatorsActive = false;
+            fuelCellActive = false;
+            generatorActive = false;
             solarPanelsDeployable = false;
             solarPanelsRetractable = false;
+            solarPanelsMoving = false;
 
             solarPanelPosition = -1;
 
             for (int i = moduleGenerator.Length-1; i >=0; --i)
             {
-                generatorsActive |= (moduleGenerator[i].generatorIsActive && !moduleGenerator[i].isAlwaysActive);
+                generatorActive |= (moduleGenerator[i].generatorIsActive && !moduleGenerator[i].isAlwaysActive);
 
                 if (moduleGenerator[i].generatorIsActive)
                 {
@@ -410,7 +413,7 @@ namespace AvionicsSystems
 
             for (int i = moduleFuelCell.Length - 1; i >= 0; --i)
             {
-                generatorsActive |= (moduleFuelCell[i].IsActivated && !moduleFuelCell[i].AlwaysActive);
+                fuelCellActive |= (moduleFuelCell[i].IsActivated && !moduleFuelCell[i].AlwaysActive);
 
                 if (moduleFuelCell[i].IsActivated)
                 {
@@ -429,12 +432,49 @@ namespace AvionicsSystems
                 netSolarOutput += moduleSolarPanel[i].flowRate;
                 solarPanelsRetractable |= (moduleSolarPanel[i].useAnimation && moduleSolarPanel[i].retractable && moduleSolarPanel[i].panelState == ModuleDeployableSolarPanel.panelStates.EXTENDED);
                 solarPanelsDeployable |= (moduleSolarPanel[i].useAnimation && moduleSolarPanel[i].panelState == ModuleDeployableSolarPanel.panelStates.RETRACTED);
-                solarPanelsMoving |= (moduleSolarPanel[i].useAnimation && (moduleSolarPanel[i].panelState == ModuleDeployableSolarPanel.panelStates.EXTENDED || moduleSolarPanel[i].panelState == ModuleDeployableSolarPanel.panelStates.EXTENDING));
-
-                if ((solarPanelPosition == -1 || solarPanelPosition == (int)ModuleDeployableSolarPanel.panelStates.BROKEN) && moduleSolarPanel[i].useAnimation)
+                solarPanelsMoving |= (moduleSolarPanel[i].useAnimation && (moduleSolarPanel[i].panelState == ModuleDeployableSolarPanel.panelStates.RETRACTING || moduleSolarPanel[i].panelState == ModuleDeployableSolarPanel.panelStates.EXTENDING));
+                /* ModuleDeployableSolarPanel.panelStates = 
+                        RETRACTED = 0,
+                        EXTENDED = 1,
+                        RETRACTING = 2,
+                        EXTENDING = 3,
+                        BROKEN = 4,
+                 * REMAP TO:
+                 * BROKEN = 0
+                 * RETRACTED = 1
+                 * RETRACTING = 2
+                 * EXTENDING = 3
+                 * EXTENDED = 4
+                 */
+                if (solarPanelPosition < 1)
                 {
-                    solarPanelPosition = (int)moduleSolarPanel[i].panelState;
+                    if (moduleSolarPanel[i].useAnimation)
+                    {
+                        switch (moduleSolarPanel[i].panelState)
+                        {
+                            case ModuleDeployableSolarPanel.panelStates.BROKEN:
+                                solarPanelPosition = 0;
+                                break;
+                            case ModuleDeployableSolarPanel.panelStates.RETRACTED:
+                                solarPanelPosition = 1;
+                                break;
+                            case ModuleDeployableSolarPanel.panelStates.RETRACTING:
+                                solarPanelPosition = 2;
+                                break;
+                            case ModuleDeployableSolarPanel.panelStates.EXTENDING:
+                                solarPanelPosition = 3;
+                                break;
+                            case ModuleDeployableSolarPanel.panelStates.EXTENDED:
+                                solarPanelPosition = 4;
+                                break;
+                        }
+                    }
                 }
+            }
+            // If there are no panels, or no deployable panels, set it to RETRACTED
+            if (solarPanelPosition < 0)
+            {
+                solarPanelPosition = 1;
             }
         }
         #endregion
