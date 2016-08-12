@@ -159,7 +159,6 @@ namespace AvionicsSystems
             double range = maxValue - minValue;
             if (range > 0.0)
             {
-                // untested!
                 double iLerp = (v - minValue) / range;
                 if (iLerp < 0.0)
                 {
@@ -168,6 +167,11 @@ namespace AvionicsSystems
                 else if (iLerp > 1.0)
                 {
                     iLerp = iLerp % 1.0;
+                }
+                // The two extents are effectively aliases for one another.
+                if (iLerp == 1.0)
+                {
+                    iLerp = 0.0;
                 }
                 v = minValue + iLerp * range;
             }
