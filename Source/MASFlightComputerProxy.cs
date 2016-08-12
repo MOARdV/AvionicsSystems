@@ -762,6 +762,25 @@ namespace AvionicsSystems
 
         #region Meta
         /// <summary>
+        /// Returns the number of hours per day.
+        /// </summary>
+        /// <returns></returns>
+        public double HoursPerDay()
+        {
+            return (GameSettings.KERBIN_TIME) ? 6.0 : 24.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if KSP is configured for the Kerbin calendar (6 hour days);
+        /// returns 0 for Earth days (24 hour).
+        /// </summary>
+        /// <returns></returns>
+        public double KerbinTime()
+        {
+            return (GameSettings.KERBIN_TIME) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Recover the vessel if it is recoverable.
         /// </summary>
         public void RecoverVessel()
@@ -2567,6 +2586,27 @@ namespace AvionicsSystems
                 default:
                     return 0.0;
             }
+        }
+        #endregion
+
+        #region Time
+        /// <summary>
+        /// Return the current MET (Mission Elapsed Time) for the vessel in
+        /// seconds.
+        /// </summary>
+        /// <returns></returns>
+        public double MET()
+        {
+            return vessel.missionTime;
+        }
+
+        /// <summary>
+        /// Return the current UT (universal time) in seconds.
+        /// </summary>
+        /// <returns></returns>
+        public double UT()
+        {
+            return vc.universalTime;
         }
         #endregion
     }
