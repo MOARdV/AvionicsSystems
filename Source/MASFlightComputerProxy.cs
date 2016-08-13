@@ -149,6 +149,25 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Abort
+        /// <summary>
+        /// Trigger the Abort action group.
+        /// </summary>
+        public void Abort()
+        {
+            vessel.ActionGroups.SetGroup(KSPActionGroup.Abort, true);
+        }
+
+        /// <summary>
+        /// Returns 1 if the Abort action has been triggered.
+        /// </summary>
+        /// <returns></returns>
+        public double GetAbort()
+        {
+            return (vessel.ActionGroups[KSPActionGroup.Abort]) ? 1.0 : 0.0;
+        }
+        #endregion
+
         #region Action Groups
         private static readonly KSPActionGroup[] ags = { KSPActionGroup.Custom10, KSPActionGroup.Custom01, KSPActionGroup.Custom02, KSPActionGroup.Custom03, KSPActionGroup.Custom04, KSPActionGroup.Custom05, KSPActionGroup.Custom06, KSPActionGroup.Custom07, KSPActionGroup.Custom08, KSPActionGroup.Custom09 };
 
