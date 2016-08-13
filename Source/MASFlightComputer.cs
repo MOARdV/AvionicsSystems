@@ -413,7 +413,7 @@ namespace AvionicsSystems
 
                 Utility.LogMessage(this, "{0} variables created, including {1} mutable variables",
                     variables.Count, mutableVariables.Length);
-                Utility.LogMessage(this, "MoonSharp time average = {0:0.00}ms/FixedUpdate", (double)(stopwatch.ElapsedMilliseconds) / (double)(samplecount));
+                Utility.LogMessage(this, "MoonSharp time average = {0:0.00}ms/FixedUpdate", 1000.0 * (double)(stopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency));
             }
         }
 
