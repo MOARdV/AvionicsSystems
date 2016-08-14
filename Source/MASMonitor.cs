@@ -211,6 +211,7 @@ namespace AvionicsSystems
                 }
                 catch (Exception e)
                 {
+                    Utility.ComplainLoudly("MASMonitor configuration failed.");
                     Utility.LogErrorMessage(this, "Failed to configure prop #{0} ({1})", internalProp.propID, internalProp.propName);
                     Utility.LogErrorMessage(this, e.ToString());
                 }
