@@ -109,15 +109,6 @@ namespace AvionicsSystems
         }
 
         #region Unassigned Region
-        /// <summary>
-        /// Log messages to the KSP.log.  Messages will be prefixed with
-        /// [MASFlightComputerProxy].
-        /// </summary>
-        /// <param name="message"></param>
-        public void LogMessage(string message)
-        {
-            Utility.LogMessage(this, message);
-        }
 
         /// <summary>
         /// Apply a log10-like curve to the value.
@@ -781,6 +772,58 @@ namespace AvionicsSystems
 
         #region Meta
         /// <summary>
+        /// Applies some "realism" conditions to the variable to cause it to
+        /// return zero under two general conditions:
+        /// 
+        /// 1) When there is no power available (the config-file-specified
+        /// power variable is below 0.0001), or
+        /// 
+        /// 2) The craft is under high g-loading.  G-loading limits are defined
+        /// in the per-pod config file.  When these limits are exceeded, there
+        /// is a chance (also defined in the config file) of the variable being
+        /// interrupted.  This chance increases as the g-forces exceed the
+        /// threshold using a square-root curve.
+        /// </summary>
+        /// <param name="value">A boolean condition</param>
+        /// <returns>1 if the value is true and the conditions above are not met, 0 otherwise</returns>
+        public double Conditioned(bool value)
+        {
+            if (value && fc.isPowered && UnityEngine.Random.value > fc.disruptionChance)
+            {
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Applies some "realism" conditions to the variable to cause it to
+        /// return zero under two general conditions:
+        /// 
+        /// 1) When there is no power available (the config-file-specified
+        /// power variable is below 0.0001), or
+        /// 
+        /// 2) The craft is under high g-loading.  G-loading limits are defined
+        /// in the per-pod config file.  When these limits are exceeded, there
+        /// is a chance (also defined in the config file) of the variable being
+        /// interrupted.  This chance increases as the g-forces exceed the
+        /// threshold using a square-root curve.
+        /// </summary>
+        /// <param name="value">A numeric value</param>
+        /// <returns>The value if the conditions above are not met.</returns>
+        public double Conditioned(double value)
+        {
+            if (fc.isPowered && UnityEngine.Random.value > fc.disruptionChance)
+            {
+                return value;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the number of hours per day.
         /// </summary>
         /// <returns></returns>
@@ -797,6 +840,16 @@ namespace AvionicsSystems
         public double KerbinTime()
         {
             return (GameSettings.KERBIN_TIME) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Log messages to the KSP.log.  Messages will be prefixed with
+        /// [MASFlightComputerProxy].
+        /// </summary>
+        /// <param name="message"></param>
+        public void LogMessage(string message)
+        {
+            Utility.LogMessage(this, message);
         }
 
         /// <summary>
@@ -2448,6 +2501,8 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double IndicatedAirspeed()
         {
+            // We compute this because this formula is basically what FAR uses; Vessel.indicatedAirSpeed
+            // gives drastically different results while in motion.
             double densityRatio = vessel.atmDensity / 1.225;
             double pressureRatio = Utility.StagnationPressure(vc.mainBody.atmosphereAdiabaticIndex, vessel.mach);
             return vessel.srfSpeed * Math.Sqrt(densityRatio) * pressureRatio;
@@ -2491,6 +2546,15 @@ namespace AvionicsSystems
         public double SurfaceSpeed()
         {
             return vessel.srfSpeed;
+        }
+
+        /// <summary>
+        /// Target-relative speed in m/s.  0 if no target.
+        /// </summary>
+        /// <returns></returns>
+        public double TargetSpeed()
+        {
+            return vc.targetSpeed;
         }
 
         /// <summary>
@@ -2600,12 +2664,31 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the distance to the current target in meters, or 0 if there is no target.
+        /// </summary>
+        /// <returns></returns>
+        public double TargetDistance()
+        {
+            return vc.targetDisplacement.magnitude;
+        }
+
+        /// <summary>
         /// Returns 1 if the target is a vessel (vessel or Docking Port); 0 otherwise.
         /// </summary>
         /// <returns></returns>
         public double TargetIsVessel()
         {
             return (vc.targetType == MASVesselComputer.TargetType.Vessel || vc.targetType == MASVesselComputer.TargetType.DockingPort) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the name of the current target, or an empty string if there
+        /// is no target.
+        /// </summary>
+        /// <returns></returns>
+        public string TargetName()
+        {
+            return vc.targetName;
         }
 
         /// <summary>
