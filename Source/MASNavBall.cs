@@ -98,8 +98,15 @@ namespace AvionicsSystems
         /// </summary>
         public void OnDestroy()
         {
-            MASFlightComputer comp = MASFlightComputer.Instance(internalProp.part);
-            comp.UnregisterNumericVariable(variable, null, VariableCallback);
+            try
+            {
+                // I've seen this get destroyed when the game was exiting, so
+                // there was an instance floating around somewhere for some
+                // reason.  So try/catch to suppress exceptions.
+                MASFlightComputer comp = MASFlightComputer.Instance(internalProp.part);
+                comp.UnregisterNumericVariable(variable, null, VariableCallback);
+            }
+            catch { }
         }
 
         /// <summary>
