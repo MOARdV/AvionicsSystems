@@ -52,6 +52,28 @@ namespace AvionicsSystems
         public string flightComputerId = string.Empty;
 
         /// <summary>
+        /// The maximum g-loading the command pod can sustain without disrupting
+        /// power.
+        /// </summary>
+        [KSPField]
+        public float gLimit = float.MaxValue;
+
+        /// <summary>
+        /// The chance that power is disrupted at (gLimit + 1) Gs.  This number
+        /// scales with G forces.  A 1 represents 100% chance of a power disruption.
+        /// </summary>
+        [KSPField]
+        public float baseDisruptionChance = 0.0f;
+        internal float disruptionChance = 0.0f;
+
+        /// <summary>
+        /// Does the command pod's instruments require power to function?
+        /// </summary>
+        [KSPField]
+        public bool requiresPower = false;
+        internal bool isPowered = true;
+
+        /// <summary>
         /// Our module ID (so each FC can be distinguished in a save file).
         /// </summary>
         private Guid fcId = Guid.Empty;
@@ -376,6 +398,19 @@ namespace AvionicsSystems
 
                 fcProxy.Update();
                 realChuteProxy.Update();
+
+                // Precompute the disruption effects.
+                // TODO: Don't do the string lookup every FixedUpdate...
+                isPowered = (!requiresPower || vc.ResourceCurrent(MASLoader.ElectricCharge) > 0.0001);
+
+                if (vessel.geeForce_immediate > gLimit)
+                {
+                    disruptionChance = baseDisruptionChance * Mathf.Sqrt((float)vessel.geeForce_immediate - gLimit);
+                }
+                else
+                {
+                    disruptionChance = 0.0f;
+                }
 
                 // TODO: Add a heuristic to adjust the loop so not all variables
                 // update every fixed update if the average update time is too high.
