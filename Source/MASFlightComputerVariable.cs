@@ -1,4 +1,5 @@
-﻿/*****************************************************************************
+﻿//#define USE_LEXER
+/*****************************************************************************
  * The MIT License (MIT)
  * 
  * Copyright (c) 2016 MOARdV
@@ -60,7 +61,13 @@ namespace AvionicsSystems
         public class Variable
         {
             public readonly string name;
-            public readonly bool mutable;
+            public bool mutable
+            {
+                get
+                {
+                    return variableType != VariableType.Constant;
+                }
+            }
             //TODO: public readonly bool cacheable;
             public readonly bool valid;
             internal event Action<double> numericCallbacks;
@@ -71,21 +78,152 @@ namespace AvionicsSystems
             private double doubleValue;
             private double safeValue;
             private bool isString;
+            private readonly VariableType variableType = VariableType.Unknown; 
+
+            /// <summary>
+            /// How do we evaluate this variable?
+            /// </summary>
+            public enum VariableType
+            {
+                Unknown,
+                LuaScript,
+                Constant,
+            };
+
+            private static Dictionary<string, int> LexerTokens = new Dictionary<string, int>
+            {
+                {"(", 1},
+                {")", 2},
+                {"-", 3},
+                {".", 4},
+                {"\"", 5}
+            };
 
             public Variable(string name, Script script)
             {
                 this.name = name;
 
                 double value;
+#if USE_LEXER
+                // Lexer experiment
+                Token[] tokens = new Token[0];
+                try
+                {
+                    LexerSettings settings = new LexerSettings();
+                    settings.Symbols = LexerTokens;
+                    Lexer lex = new Lexer(name.Trim(), settings);
+                    List<Token> tokenList = new List<Token>();
+
+                    Utility.LogMessage(this, "Parsing string \"{0}\":", name);
+                    // Reassemble strings.
+                    // Convert '-' + number back to '-number'. <- as a second pass?
+                    // 
+                    bool inQuote = false;
+                    int startPosition = 0;
+                    StringBuilder sb = new StringBuilder();
+                    foreach (var tok in lex)
+                    {
+                        Utility.LogMessage(this, " -{0} / {2} = {1}", tok.Type, tok.Value, tok.Id);
+                        if (inQuote)
+                        {
+                            sb.Append(tok.Text);
+                            if (tok.Type == TokenType.Symbol && tok.Id == 5)
+                            {
+                                tokenList.Add(new Token(TokenType.QuotedString, sb.ToString(), sb.ToString(), 0, startPosition, tok.EndPosition, tok.LineBegin, tok.LineNumber, tok.EndLineBegin, tok.EndLineNumber));
+                                inQuote = false;
+                            }
+                        }
+                        else
+                        {
+                            if(tok.Type == TokenType.Symbol && tok.Id == 5)
+                            {
+                                inQuote = true;
+                                startPosition = tok.StartPosition;
+                                sb.Remove(0, sb.Length);
+                                sb.Append(tok.Text);
+                            }
+                            else
+                            {
+                                tokenList.Add(tok);
+                            }
+                        }
+                    }
+                    if(tokenList.Count > 0)
+                    {
+                        // Second pass - convert '-' + number to '-number'.
+                        for (int i = tokenList.Count-1; i >=1; --i )
+                        {
+                            if (tokenList[i].Type == TokenType.Decimal && tokenList[i-1].Type == TokenType.Symbol && tokenList[i-1].Id == 3)
+                            {
+                                Token dash = tokenList[i - 1];
+                                Token num = tokenList[i];
+                                Decimal newValue = (Decimal)num.Value;
+                                newValue = -newValue;
+                                string newString = newValue.ToString();
+                                tokenList[i - 1] = new Token(TokenType.Decimal, newValue, newString, 0, dash.StartPosition, num.EndPosition, dash.LineBegin, num.LineNumber, num.EndLineBegin, num.EndLineNumber);
+                                tokenList.Remove(tokenList[i]);
+                            }
+                        }
+                        tokens = tokenList.ToArray();
+                        Utility.LogMessage(this, "Parsed:");
+                        for(int i=0; i<tokens.Length; ++i)
+                        {
+                            Utility.LogMessage(this, " -{0} / {2} = {1}", tokens[i].Type, tokens[i].Value, tokens[i].Id);
+                        }
+                    }
+                }
+                catch(Exception e)
+                {
+                    Utility.LogErrorMessage(this, "Oops - {0}", e);
+                }
+
+                if (tokens.Length == 0)
+                {
+                    throw new ArgumentNullException("Parsing variable " + name + " went badly");
+                }
+                StringBuilder newname = new StringBuilder();
+                for(int i=0; i<tokens.Length; ++i)
+                {
+                    if (tokens[i].Type == TokenType.WhiteSpace)
+                    {
+                        newname.Append(' ');
+                    }
+                    else 
+                    {
+                    newname.Append(tokens[i].Text);
+                    }
+                }
+                name = newname.ToString();
+                this.name = name;
+                Utility.LogMessage(this, "Reassembled name = {0}", name);
+                // See if we can process this token list, or if we punt to Lua.
+
+                if (tokens[0].Type == TokenType.Decimal)
+                {
+                    //double.TryParse(tokens[0].Text, out value);
+                    //this.mutable = false;
+                    this.valid = true;
+                    value = (double)(Decimal)tokens[0].Value;
+                    Utility.LogMessage(this, "Found constant number \"{0}\", evaluated to {1}.", tokens[0].Text, value);
+                    this.stringValue = tokens[0].Text;
+                    this.doubleValue = value;
+                    this.safeValue = value;
+                    this.value = DynValue.NewNumber(value);
+                    this.isString = false;
+                    this.variableType = VariableType.Constant;
+                }
+                else 
+#endif
                 if (double.TryParse(name, out value))
                 {
-                    this.mutable = false;
+                    //this.mutable = false;
                     this.valid = true;
                     this.stringValue = value.ToString();
                     this.doubleValue = value;
                     this.safeValue = value;
                     this.value = DynValue.NewNumber(value);
                     this.isString = false;
+                    this.variableType = VariableType.Constant;
                 }
                 else
                 {
@@ -116,39 +254,51 @@ namespace AvionicsSystems
                         {
                             // Not a valid evaluable
                             this.valid = false;
-                            this.mutable = false;
+                            //this.mutable = false;
+                            this.doubleValue = double.NaN;
+                            this.stringValue = name;
+                            this.valid = false;
+                            this.isString = true;
+                            this.variableType = VariableType.LuaScript;
                         }
                         else
                         {
                             this.stringValue = this.value.CastToString();
                             this.doubleValue = this.value.CastToNumber() ?? double.NaN;
                             // TODO: Find a way to convey mutability
-                            this.mutable = true;
+                            //this.mutable = true;
                             this.valid = true;
+
+                            if (double.IsNaN(this.doubleValue) || double.IsInfinity(this.doubleValue))
+                            {
+                                this.safeValue = 0.0;
+                                this.isString = true;
+                            }
+                            else
+                            {
+                                this.safeValue = doubleValue;
+                                this.isString = false;
+                            }
+
+                            this.variableType = VariableType.LuaScript;
                         }
                     }
                     else
                     {
                         this.doubleValue = double.NaN;
                         this.stringValue = name;
-                        this.mutable = false;
+                        //this.mutable = false;
                         this.valid = false;
                         this.isString = true;
-                    }
-
-                    if (double.IsNaN(this.doubleValue) || double.IsInfinity(this.doubleValue))
-                    {
-                        this.safeValue = 0.0;
-                        this.isString = true;
-                    }
-                    else
-                    {
-                        this.safeValue = doubleValue;
-                        this.isString = false;
+                        this.variableType = VariableType.Constant;
                     }
                 }
             }
 
+            /// <summary>
+            /// Are the contents a string?
+            /// </summary>
+            /// <returns></returns>
             public bool IsString()
             {
                 return this.isString;
@@ -156,6 +306,8 @@ namespace AvionicsSystems
 
             /// <summary>
             /// Return the raw DynValue for specialized processing.
+            /// 
+            /// TODO: What about when Func can be put here?
             /// </summary>
             /// <returns></returns>
             public DynValue RawValue()
@@ -198,58 +350,61 @@ namespace AvionicsSystems
             /// <param name="script"></param>
             internal void Evaluate(Script script)
             {
-                DynValue oldDynValue = value;
-                double oldValue = safeValue;
-                //string oldString = stringValue;
-                try
+                if (variableType == VariableType.LuaScript)
                 {
-                    value = script.Call(evaluator);
-                    stringValue = value.CastToString();
-                    doubleValue = value.CastToNumber() ?? double.NaN;
-                }
-                catch
-                {
-                    this.doubleValue = double.NaN;
-                    this.stringValue = name;
-                }
-
-                safeValue = (double.IsInfinity(doubleValue) || double.IsNaN(doubleValue)) ? 0.0 : doubleValue;
-
-                DataType type = value.Type;
-                if (type == DataType.Number)
-                {
-                    if (!Mathf.Approximately((float)oldValue, (float)safeValue))
-                    {
-                        try
-                        {
-                            numericCallbacks.Invoke(safeValue);
-                        }
-                        catch { }
-                        try
-                        {
-                            changeCallbacks.Invoke();
-                        }
-                        catch { }
-                    }
-                }
-                else if (type == DataType.String)
-                {
-                    if (oldDynValue.String != stringValue)
-                    {
-                        try
-                        {
-                            changeCallbacks.Invoke();
-                        }
-                        catch { }
-                    }
-                }
-                else if (!oldDynValue.Equals(value))
-                {
+                    DynValue oldDynValue = value;
+                    double oldValue = safeValue;
+                    //string oldString = stringValue;
                     try
                     {
-                        changeCallbacks.Invoke();
+                        value = script.Call(evaluator);
+                        stringValue = value.CastToString();
+                        doubleValue = value.CastToNumber() ?? double.NaN;
                     }
-                    catch { }
+                    catch
+                    {
+                        this.doubleValue = double.NaN;
+                        this.stringValue = name;
+                    }
+
+                    safeValue = (double.IsInfinity(doubleValue) || double.IsNaN(doubleValue)) ? 0.0 : doubleValue;
+
+                    DataType type = value.Type;
+                    if (type == DataType.Number)
+                    {
+                        if (!Mathf.Approximately((float)oldValue, (float)safeValue))
+                        {
+                            try
+                            {
+                                numericCallbacks.Invoke(safeValue);
+                            }
+                            catch { }
+                            try
+                            {
+                                changeCallbacks.Invoke();
+                            }
+                            catch { }
+                        }
+                    }
+                    else if (type == DataType.String)
+                    {
+                        if (oldDynValue.String != stringValue)
+                        {
+                            try
+                            {
+                                changeCallbacks.Invoke();
+                            }
+                            catch { }
+                        }
+                    }
+                    else if (!oldDynValue.Equals(value))
+                    {
+                        try
+                        {
+                            changeCallbacks.Invoke();
+                        }
+                        catch { }
+                    }
                 }
             }
         }
