@@ -666,6 +666,7 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Target
         public enum TargetType
         {
             None,
@@ -680,12 +681,25 @@ namespace AvionicsSystems
         internal Vector3 targetDirection;
         internal Vector3d targetRelativeVelocity;
         internal TargetType targetType;
+        internal string targetName;
         internal Transform targetDockingTransform; // Docking node transform - valid only for docking port targets.
         internal bool targetValid
         {
             get
             {
                 return (activeTarget != null);
+            }
+        }
+        private double targetCmpSpeed = -1.0;
+        internal double targetSpeed
+        {
+            get
+            {
+                if (targetCmpSpeed < 0.0)
+                {
+                    targetCmpSpeed = targetRelativeVelocity.magnitude;
+                }
+                return targetCmpSpeed;
             }
         }
         void UpdateTarget()
@@ -697,6 +711,7 @@ namespace AvionicsSystems
                 targetDirection = targetDisplacement.normalized;
 
                 targetRelativeVelocity = vessel.obt_velocity - activeTarget.GetObtVelocity();
+                targetCmpSpeed = -1.0;
                 targetDockingTransform = null;
 
                 if (activeTarget is Vessel)
@@ -721,16 +736,21 @@ namespace AvionicsSystems
                     Utility.LogErrorMessage(this, "UpdateTarget() - unable to classify target {0}", activeTarget.GetType().Name);
                     targetType = TargetType.None;
                 }
+
+                targetName = activeTarget.GetName();
             }
             else
             {
+                targetCmpSpeed = 0.0;
                 targetType = TargetType.None;
                 targetDisplacement = Vector3d.zero;
                 targetRelativeVelocity = Vector3d.zero;
                 targetDirection = forward;
                 targetDockingTransform = null;
+                targetName = string.Empty;
             }
         }
+        #endregion
 
         internal double surfaceAccelerationFromGravity;
         private void UpdateMisc()
