@@ -1332,7 +1332,7 @@ namespace AvionicsSystems
             }
             else
             {
-                return vc.GetRelativeYaw(-vc.targetDirection);
+                return vc.GetRelativeYaw(vc.targetDirection);
             }
         }
 
@@ -1779,6 +1779,16 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the maximum capacity of the resource defined as "power" in
+        /// the config.  By default, this is ElectricCharge.
+        /// </summary>
+        /// <returns></returns>
+        public double PowerMax()
+        {
+            return vc.ResourceMax(MASLoader.ElectricCharge);
+        }
+
+        /// <summary>
         /// Returns the current percentage of maximum capacity of the resource
         /// designated as "power" - in a stock installation, this would be
         /// ElectricCharge.
@@ -1788,6 +1798,7 @@ namespace AvionicsSystems
         {
             return vc.ResourcePercent(MASLoader.ElectricCharge);
         }
+
         /// <summary>
         /// Returns the total number of resources found on this vessel.
         /// </summary>
@@ -2540,6 +2551,29 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the component of surface velocity relative to the nose of
+        /// the craft, in m/s.  If the vessel is near vertical, the 'forward'
+        /// vector is treated as the vector that faces 'down' in a horizontal
+        /// cockpit configuration.
+        /// </summary>
+        /// <returns></returns>
+        public double SurfaceForwardSpeed()
+        {
+            return Vector3.Dot(vc.surfacePrograde, vc.surfaceForward);
+        }
+
+        /// <summary>
+        /// Returns the lateral (right/left) component of surface velocity in
+        /// m/s.  This value could become zero at extreme roll orientations.
+        /// Positive values are to the right, negative to the left.
+        /// </summary>
+        /// <returns></returns>
+        public double SurfaceLateralSpeed()
+        {
+            return Vector3.Dot(vc.surfacePrograde, vc.surfaceRight);
+        }
+
+        /// <summary>
         /// Return the surface-relative speed of the vessel in m/s.
         /// </summary>
         /// <returns></returns>
@@ -2673,6 +2707,48 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the displacement between the target vessel and the reference
+        /// transform on the horizontal (reference-transform relative) plane in
+        /// meters, with target to the right = +X and left = -X.
+        /// </summary>
+        /// <returns></returns>
+        public double TargetDistanceX()
+        {
+            return Vector3.Dot(vc.targetDisplacement, vc.referenceTransform.right);
+        }
+
+        /// <summary>
+        /// Returns the displacement between the target vessel and the reference
+        /// transform on the vertical (rt-relative) plane in meters, with target
+        /// up = +Y and down = -Y.
+        /// </summary>
+        /// <returns></returns>
+        public double TargetDistanceY()
+        {
+            //Utility.LogMessage(this, "Tgt displacement = {0,7:0}, {1,7:0}, {2,7:0}",
+            //    Vector3.Dot(vc.targetDisplacement, vc.referenceTransform.right),
+            //    -Vector3.Dot(vc.targetDisplacement, vc.referenceTransform.forward),
+            //    Vector3.Dot(vc.targetDisplacement, vc.referenceTransform.up)
+            //    );
+
+            // The sign is reversed because it appears that the forward vector actually
+            // points down, not up, which also means not having to flip the sign for the
+            // Z axis.
+            return -Vector3.Dot(vc.targetDisplacement, vc.referenceTransform.forward);
+        }
+
+        /// <summary>
+        /// Returns the displacement between the target vessel and the reference
+        /// transform on the Z (fore/aft) axis in meters, with target ahead = +Z
+        /// and behind = -Z
+        /// </summary>
+        /// <returns></returns>
+        public double TargetDistanceZ()
+        {
+            return Vector3.Dot(vc.targetDisplacement, vc.referenceTransform.up);
+        }
+
+        /// <summary>
         /// Returns 1 if the target is a vessel (vessel or Docking Port); 0 otherwise.
         /// </summary>
         /// <returns></returns>
@@ -2720,6 +2796,27 @@ namespace AvionicsSystems
                 default:
                     return 0.0;
             }
+        }
+
+        public double TargetVelocityX()
+        {
+            return Vector3.Dot(vc.targetRelativeVelocity, vc.referenceTransform.right);
+        }
+
+        public double TargetVelocityY()
+        {
+            Utility.LogMessage(this, "Tgt displacement = {0,7:0}, {1,7:0}, {2,7:0}",
+                Vector3.Dot(vc.targetRelativeVelocity, vc.referenceTransform.right),
+                -Vector3.Dot(vc.targetRelativeVelocity, vc.referenceTransform.forward),
+                Vector3.Dot(vc.targetRelativeVelocity, vc.referenceTransform.up)
+                );
+
+            return -Vector3.Dot(vc.targetRelativeVelocity, vc.referenceTransform.forward);
+        }
+
+        public double TargetVelocityZ()
+        {
+            return Vector3.Dot(vc.targetRelativeVelocity, vc.referenceTransform.up);
         }
         #endregion
 
