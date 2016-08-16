@@ -471,7 +471,11 @@ namespace AvionicsSystems
                 return navballAttitudeGimbal;
             }
         }
+        // Surface-relative vectors.
         internal Vector3 up; // local world "up"
+        internal Vector3 surfaceRight; // vessel right projected onto the plane described by "up"
+        internal Vector3 surfaceForward; // vessel forward projected onto the plane described by "up"; special handling when 'forward' is near 'up'.
+
         internal Vector3 prograde;
         internal Vector3 surfacePrograde;
         internal Vector3 radialOut;
@@ -529,6 +533,18 @@ namespace AvionicsSystems
             right = vessel.GetTransform().right;
             forward = vessel.GetTransform().up;
             top = vessel.GetTransform().forward;
+
+            // We base our surface vector off of UP and RIGHT, unless roll is extreme.
+            if (Mathf.Abs(Vector3.Dot(right, up)) > 0.995f)
+            {
+                surfaceRight = Vector3.Cross(forward, up);
+                surfaceForward = Vector3.Cross(up, surfaceRight);
+            }
+            else
+            {
+                surfaceForward = Vector3.Cross(up, right);
+                surfaceRight = Vector3.Cross(surfaceForward, up);
+            }
 
             // TODO: Am I computing normal wrong?
             // TODO: orbit.GetOrbitNormal() appears to return a vector in the opposite
@@ -677,7 +693,7 @@ namespace AvionicsSystems
             Asteroid,
         };
         internal ITargetable activeTarget = null;
-        internal Vector3d targetDisplacement;
+        internal Vector3 targetDisplacement;
         internal Vector3 targetDirection;
         internal Vector3d targetRelativeVelocity;
         internal TargetType targetType;
@@ -707,7 +723,7 @@ namespace AvionicsSystems
             activeTarget = FlightGlobals.fetch.VesselTarget;
             if (activeTarget != null)
             {
-                targetDisplacement = vessel.GetTransform().position - activeTarget.GetTransform().position;
+                targetDisplacement = activeTarget.GetTransform().position - vessel.GetTransform().position;
                 targetDirection = targetDisplacement.normalized;
 
                 targetRelativeVelocity = vessel.obt_velocity - activeTarget.GetObtVelocity();
@@ -743,7 +759,7 @@ namespace AvionicsSystems
             {
                 targetCmpSpeed = 0.0;
                 targetType = TargetType.None;
-                targetDisplacement = Vector3d.zero;
+                targetDisplacement = Vector3.zero;
                 targetRelativeVelocity = Vector3d.zero;
                 targetDirection = forward;
                 targetDockingTransform = null;
