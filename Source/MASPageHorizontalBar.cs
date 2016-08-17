@@ -29,7 +29,7 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
-    class MASPageHorizontalBar : IMASSubComponent
+    class MASPageHorizontalBar : IMASMonitorComponent
     {
         private string name = "(anonymous)";
         private GameObject imageObject;
@@ -328,6 +328,15 @@ namespace AvionicsSystems
                 currentState = newState;
                 imageObject.SetActive(currentState);
             }
+        }
+
+        /// <summary>
+        /// Enable / disable renderer components without disabling game objects.
+        /// </summary>
+        /// <param name="enable"></param>
+        public void EnableRender(bool enable)
+        {
+
         }
 
         /// <summary>

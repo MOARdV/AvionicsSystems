@@ -33,7 +33,7 @@ namespace AvionicsSystems
     /// <summary>
     /// LineGraph renderer.
     /// </summary>
-    internal class MASPageLineGraph : IMASSubComponent
+    internal class MASPageLineGraph : IMASMonitorComponent
     {
         private string name = "(anonymous)";
         private GameObject graphObject;
@@ -269,6 +269,15 @@ namespace AvionicsSystems
                 currentState = newState;
                 graphObject.SetActive(currentState);
             }
+        }
+
+        /// <summary>
+        /// Enable / disable renderer components without disabling game objects.
+        /// </summary>
+        /// <param name="enable"></param>
+        public void EnableRender(bool enable)
+        {
+
         }
 
         /// <summary>

@@ -33,7 +33,7 @@ namespace AvionicsSystems
     /// MASPageImage renders an arbitrary image on the display.  Size and position
     /// are configurable.
     /// </summary>
-    internal class MASPageImage : IMASSubComponent
+    internal class MASPageImage : IMASMonitorComponent
     {
         private string name = "(anonymous)";
 
@@ -166,6 +166,15 @@ namespace AvionicsSystems
                 currentState = newState;
                 imageObject.SetActive(currentState);
             }
+        }
+
+        /// <summary>
+        /// Enable / disable renderer components without disabling game objects.
+        /// </summary>
+        /// <param name="enable"></param>
+        public void EnableRender(bool enable)
+        {
+
         }
 
         /// <summary>

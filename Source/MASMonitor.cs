@@ -74,6 +74,36 @@ namespace AvionicsSystems
         internal static readonly int drawingLayer = 30; // Pick a layer KSP isn't using.
 
         /// <summary>
+        /// We need to disable our page when it's not our turn to draw, which
+        /// also means we need to enable it again to draw.  But we don't want
+        /// to disable the game objects, or they won't update when it's their
+        /// turn in OnUpdate().  So we disable rendering instead.
+        /// </summary>
+        /// <param name="cam"></param>
+        private void EnablePage(Camera cam)
+        {
+            if (cam.Equals(screenCamera))
+            {
+                currentPage.EnableRender(true);
+            }
+        }
+
+        /// <summary>
+        /// We need to disable our page when it's not our turn to draw, which
+        /// also means we need to enable it again to draw.  But we don't want
+        /// to disable the game objects, or they won't update when it's their
+        /// turn in OnUpdate().  So we disable rendering instead.
+        /// </summary>
+        /// <param name="cam"></param>
+        private void DisablePage(Camera cam)
+        {
+            if (cam.Equals(screenCamera))
+            {
+                currentPage.EnableRender(false);
+            }
+        }
+
+        /// <summary>
         /// Startup, initialize, configure, etc.
         /// </summary>
         public void Start()
@@ -141,6 +171,9 @@ namespace AvionicsSystems
                     {
                         screen.Create();
                     }
+
+                    Camera.onPreCull += EnablePage;
+                    Camera.onPostRender += DisablePage;
 
                     screenCamera = screenSpace.AddComponent<Camera>();
                     screenCamera.enabled = true; // Enable = "auto-draw"
@@ -239,6 +272,9 @@ namespace AvionicsSystems
         /// </summary>
         public void OnDestroy()
         {
+            Camera.onPreCull -= EnablePage;
+            Camera.onPostRender -= DisablePage;
+
             if (screen != null)
             {
                 screen.Release();

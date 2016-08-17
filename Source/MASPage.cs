@@ -31,11 +31,11 @@ namespace AvionicsSystems
 {
     internal class MASPage
     {
-        private List<IMASSubComponent> component = new List<IMASSubComponent>();
+        private List<IMASMonitorComponent> component = new List<IMASMonitorComponent>();
         private string name = string.Empty;
         private GameObject pageRoot;
 
-        private static IMASSubComponent CreatePageComponent(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
+        private static IMASMonitorComponent CreatePageComponent(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
             if (config.name == "HORIZON")
             {
@@ -103,12 +103,25 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Enable / disable the page from rendering
+        /// Enable / disable the page from rendering.
         /// </summary>
         /// <param name="enable"></param>
         internal void EnablePage(bool enable)
         {
             pageRoot.SetActive(enable);
+        }
+
+        /// <summary>
+        /// Enable / disable component renderers (without disabling the game objects).
+        /// </summary>
+        /// <param name="enable"></param>
+        internal void EnableRender(bool enable)
+        {
+            int numComponents = component.Count;
+            for (int i = 0; i < numComponents; ++i)
+            {
+                component[i].EnableRender(enable);
+            }
         }
 
         /// <summary>

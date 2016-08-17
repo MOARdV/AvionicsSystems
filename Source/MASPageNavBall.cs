@@ -32,7 +32,7 @@ namespace AvionicsSystems
     /// <summary>
     /// The navball component renders a NavBall for a monitor.
     /// </summary>
-    internal class MASPageNavBall : IMASSubComponent
+    internal class MASPageNavBall : IMASMonitorComponent
     {
         private string name = "(anonymous)";
 
@@ -520,6 +520,15 @@ namespace AvionicsSystems
                 imageObject.SetActive(currentState);
                 cameraObject.SetActive(currentState);
             }
+        }
+
+        /// <summary>
+        /// Enable / disable renderer components without disabling game objects.
+        /// </summary>
+        /// <param name="enable"></param>
+        public void EnableRender(bool enable)
+        {
+
         }
 
         /// <summary>

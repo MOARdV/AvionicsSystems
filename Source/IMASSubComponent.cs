@@ -25,6 +25,15 @@
 
 namespace AvionicsSystems
 {
+    internal interface IMASMonitorComponent:IMASSubComponent
+    {
+        /// <summary>
+        /// Enables / disables rendering components.
+        /// </summary>
+        /// <param name="enable"></param>
+        void EnableRender(bool enable);
+    }
+
     internal interface IMASSubComponent
     {
         /// <summary>

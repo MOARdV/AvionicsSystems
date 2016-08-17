@@ -137,6 +137,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Enable / disable the renderer.
+        /// </summary>
+        /// <param name="enabled"></param>
+        public void SetRenderEnabled(bool enabled)
+        {
+            this.meshRenderer.enabled = enabled;
+        }
+
+        /// <summary>
         /// Set the font and fontSize for auto-scaled text
         /// </summary>
         /// <param name="font"></param>

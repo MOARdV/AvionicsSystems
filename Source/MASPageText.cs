@@ -30,7 +30,7 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
-    internal class MASPageText : IMASSubComponent
+    internal class MASPageText : IMASMonitorComponent
     {
         private string name = "(anonymous)";
         private string text = string.Empty;
@@ -174,6 +174,15 @@ namespace AvionicsSystems
                 currentState = newState;
                 meshObject.SetActive(currentState);
             }
+        }
+
+        /// <summary>
+        /// Enable / disable renderer components without disabling game objects.
+        /// </summary>
+        /// <param name="enable"></param>
+        public void EnableRender(bool enable)
+        {
+            textObj.SetRenderEnabled(enable);
         }
 
         /// <summary>
