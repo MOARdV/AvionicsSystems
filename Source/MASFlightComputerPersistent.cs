@@ -97,7 +97,14 @@ namespace AvionicsSystems
                 {
                     if (!double.TryParse(o as string, out v))
                     {
-                        return persistentName;
+                        if (!string.IsNullOrEmpty(o as string))
+                        {
+                            return persistentName;
+                        }
+                        else
+                        {
+                            v = 0.0;
+                        }
                     }
                 }
             }
@@ -178,6 +185,38 @@ namespace AvionicsSystems
 
             persistentVars[persistentName] = v;
             return v;
+        }
+
+        /// <summary>
+        /// Treat the persistent as a string, and append the string specified.
+        /// maxLength indicates the maximum number of characters the string
+        /// will allow.  Anything after that is truncated.
+        /// </summary>
+        /// <param name="persistentName"></param>
+        /// <param name="addon"></param>
+        /// <param name="maxLength"></param>
+        /// <returns></returns>
+        internal object AppendPersistent(string persistentName, string addon, int maxLength)
+        {
+            if (persistentVars.ContainsKey(persistentName))
+            {
+                object pvo = persistentVars[persistentName];
+
+                // Can this be more efficient?
+                string persistBuffer = pvo.ToString() + addon;
+                if (persistBuffer.Length > maxLength)
+                {
+                    persistBuffer = persistBuffer.Substring(0, maxLength);
+                }
+                persistentVars[persistentName] = persistBuffer;
+                return persistBuffer;
+            }
+            else
+            {
+                persistentVars[persistentName] = addon;
+
+                return addon;
+            }
         }
 
         /// <summary>

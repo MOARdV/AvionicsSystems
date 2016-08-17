@@ -1410,6 +1410,20 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Append the string 'addon' to the persistent variable 'persistentName', but
+        /// only up to the specified maximum length.  If the persistent does not exist,
+        /// it is created.  If it is a numeric value, it is converted to a string.
+        /// </summary>
+        /// <param name="persistentName"></param>
+        /// <param name="addon"></param>
+        /// <param name="maxLength"></param>
+        /// <returns></returns>
+        public object AppendPersistent(string persistentName, string addon, double maxLength)
+        {
+            return fc.AppendPersistent(persistentName, addon, (int)maxLength);
+        }
+
+        /// <summary>
         /// Return the persistent value (as a string or number, depending on
         /// its current state).
         /// </summary>
