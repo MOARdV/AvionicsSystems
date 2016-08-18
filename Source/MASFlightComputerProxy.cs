@@ -110,11 +110,11 @@ namespace AvionicsSystems
             vesselPowered = (vc.ResourceCurrent(MASLoader.ElectricCharge) > 0.0001);
 
             int situation = (int)vessel.situation;
-            for(int i=0; i<0x10; ++i)
+            for (int i = 0; i < 0x10; ++i)
             {
-                if((situation & (1<<1)) != 0)
+                if ((situation & (1 << i)) != 0)
                 {
-                    vesselSituationConverted = situation;
+                    vesselSituationConverted = i;
                     break;
                 }
             }
@@ -482,7 +482,7 @@ namespace AvionicsSystems
                 {
                     vc.dockingNode.Undock();
                 }
-                else if(vc.dockingNodeState == MASVesselComputer.DockingNodeState.PREATTACHED)
+                else if (vc.dockingNodeState == MASVesselComputer.DockingNodeState.PREATTACHED)
                 {
                     vc.dockingNode.Decouple();
                 }
@@ -1680,7 +1680,7 @@ namespace AvionicsSystems
         public void ToggleFuelCellActive()
         {
             bool state = !vc.fuelCellActive;
-            for (int i = vc.moduleFuelCell.Length-1; i >=0; --i)
+            for (int i = vc.moduleFuelCell.Length - 1; i >= 0; --i)
             {
                 if (!vc.moduleFuelCell[i].AlwaysActive)
                 {
@@ -1703,7 +1703,7 @@ namespace AvionicsSystems
         {
             if (vc.solarPanelsDeployable)
             {
-                for (int i = vc.moduleSolarPanel.Length - 1; i >= 0; --i )
+                for (int i = vc.moduleSolarPanel.Length - 1; i >= 0; --i)
                 {
                     if (vc.moduleSolarPanel[i].useAnimation && vc.moduleSolarPanel[i].panelState == ModuleDeployableSolarPanel.panelStates.RETRACTED)
                     {
@@ -1711,7 +1711,7 @@ namespace AvionicsSystems
                     }
                 }
             }
-            else if(vc.solarPanelsRetractable)
+            else if (vc.solarPanelsRetractable)
             {
                 for (int i = vc.moduleSolarPanel.Length - 1; i >= 0; --i)
                 {
@@ -1749,7 +1749,7 @@ namespace AvionicsSystems
         public void ToggleRadar()
         {
             bool state = !vc.radarActive;
-            for(int i=vc.moduleRadar.Length-1; i>=0; --i)
+            for (int i = vc.moduleRadar.Length - 1; i >= 0; --i)
             {
                 vc.moduleRadar[i].radarEnabled = state;
             }
@@ -2103,7 +2103,7 @@ namespace AvionicsSystems
         {
             int id = (int)resourceId;
             double stageMax = vc.ResourceStageMax(id);
-            if(stageMax > 0.0)
+            if (stageMax > 0.0)
             {
                 return vc.ResourceStageCurrent(id) / stageMax;
             }
