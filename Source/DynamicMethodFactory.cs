@@ -27,13 +27,19 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using UnityEngine;
 
 namespace AvionicsSystems
 {
     public delegate object DynamicMethod<T>(T param0);
     public delegate object DynamicMethod<T, U>(T param0, U param1);
+    public delegate object DynamicMethod<T, U, V, W>(T param0, U param1, V param2, W param3);
     public delegate bool DynamicMethodBool<T>(T param0);
     public delegate double DynamicMethodDouble<T>(T param0);
+
+    // Specializations for MechJeb
+    public delegate Vector3d DynamicMethodVec3d<T, U>(T param0, U param1);
+    public delegate Vector3d DynamicMethodVec3d<T, U, V>(T param0, U param1, V param2);
 
     /// <summary>
     /// The DynamicMethodFactory provides a way to generate delegates where one
@@ -236,6 +242,108 @@ namespace AvionicsSystems
             return (DynamicMethod<T, U>)dynam.CreateDelegate(typeof(DynamicMethod<T, U>));
         }
 
+        static internal DynamicMethod<T, U, V, W> CreateFunc<T, U, V, W>(MethodInfo methodInfo)
+        {
+            // Up front validation:
+            ParameterInfo[] parms = methodInfo.GetParameters();
+            if (methodInfo.IsStatic)
+            {
+                if (parms.Length != 4)
+                {
+                    throw new ArgumentException("CreateFunc<T, U, V, W> called with static method that takes " + parms.Length + " parameters");
+                }
+
+                if (typeof(T) != parms[0].ParameterType)
+                {
+                    throw new ArgumentException("CreateFunc<T, U, V, W> parameter [0] mismatch");
+                }
+                if (typeof(U) != parms[1].ParameterType)
+                {
+                    throw new ArgumentException("CreateFunc<T, U, V, W> parameter [1] mismatch");
+                }
+                if (typeof(V) != parms[2].ParameterType)
+                {
+                    throw new ArgumentException("CreateFunc<T, U, V, W> parameter [2] mismatch");
+                }
+                if (typeof(W) != parms[3].ParameterType)
+                {
+                    throw new ArgumentException("CreateFunc<T, U, V, W> parameter [3] mismatch");
+                }
+            }
+            else
+            {
+                if (parms.Length != 3)
+                {
+                    throw new ArgumentException("CreateFunc<T, U, V, W> called with non-static method that takes " + parms.Length + " parameters");
+                }
+                // How do I validate T?
+                //if (typeof(T) != parms[0].ParameterType)
+                //{
+                //    // What to do?
+                //}
+                if (typeof(U) != parms[0].ParameterType)
+                {
+                    throw new ArgumentException("CreateFunc<T, U, V, W> parameter [0] mismatch");
+                }
+                if (typeof(V) != parms[1].ParameterType)
+                {
+                    throw new ArgumentException("CreateFunc<T, U, V, W> parameter [1] mismatch");
+                }
+                if (typeof(W) != parms[2].ParameterType)
+                {
+                    throw new ArgumentException("CreateFunc<T, U, V, W> parameter [2] mismatch");
+                }
+            }
+
+            Type[] _argTypes = { typeof(T), typeof(U), typeof(V), typeof(W) };
+
+            // Create dynamic method and obtain its IL generator to
+            // inject code.
+            DynamicMethod dynam =
+                new DynamicMethod(
+                "", // name - don't care
+                typeof(object), // return type
+                _argTypes, // argument types
+                typeof(DynamicMethodFactory));
+            ILGenerator il = dynam.GetILGenerator();
+
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Ldarg_2);
+            il.Emit(OpCodes.Ldarg_3);
+
+            // Perform actual call.
+            // If method is not final a callvirt is required
+            // otherwise a normal call will be emitted.
+            if (methodInfo.IsFinal)
+            {
+                il.Emit(OpCodes.Call, methodInfo);
+            }
+            else
+            {
+                il.Emit(OpCodes.Callvirt, methodInfo);
+            }
+
+            if (methodInfo.ReturnType != typeof(void))
+            {
+                // If result is of value type it needs to be boxed
+                if (methodInfo.ReturnType.IsValueType)
+                {
+                    il.Emit(OpCodes.Box, methodInfo.ReturnType);
+                }
+            }
+            else
+            {
+                il.Emit(OpCodes.Ldnull);
+            }
+
+            // Emit return opcode.
+            il.Emit(OpCodes.Ret);
+
+
+            return (DynamicMethod<T, U, V, W>)dynam.CreateDelegate(typeof(DynamicMethod<T, U, V, W>));
+        }
+
         /// <summary>
         /// Create a delegate who takes a single typed parameter and returns a
         /// boolean.
@@ -380,6 +488,167 @@ namespace AvionicsSystems
 
 
             return (DynamicMethodDouble<T>)dynam.CreateDelegate(typeof(DynamicMethodDouble<T>));
+        }
+
+        static internal DynamicMethodVec3d<T, U> CreateFuncVec3d<T, U>(MethodInfo methodInfo)
+        {
+            // Up front validation:
+            ParameterInfo[] parms = methodInfo.GetParameters();
+            if (methodInfo.IsStatic)
+            {
+                if (parms.Length != 2)
+                {
+                    throw new ArgumentException("CreateFuncVec3d<T, U, V> called with static method that takes " + parms.Length + " parameters");
+                }
+
+                if (typeof(T) != parms[0].ParameterType)
+                {
+                    throw new ArgumentException("CreateFuncVec3d<T, U, V> parameter [0] mismatch");
+                }
+                if (typeof(U) != parms[1].ParameterType)
+                {
+                    throw new ArgumentException("CreateFuncVec3d<T, U, V> parameter [1] mismatch");
+                }
+            }
+            else
+            {
+                if (parms.Length != 1)
+                {
+                    throw new ArgumentException("CreateFuncVec3d<T, U, V> called with non-static method that takes " + parms.Length + " parameters");
+                }
+                // How do I validate T?
+                //if (typeof(T) != parms[0].ParameterType)
+                //{
+                //    // What to do?
+                //}
+                if (typeof(U) != parms[0].ParameterType)
+                {
+                    throw new ArgumentException("CreateFuncVec3d<T, U, V> parameter [0] mismatch");
+                }
+            }
+
+            if (methodInfo.ReturnType != typeof(Vector3d))
+            {
+                throw new ArgumentException("CreateFuncVec3d<T, U, V> called with method that does not return Vector3d");
+            }
+
+            Type[] _argTypes = { typeof(T), typeof(U) };
+
+            // Create dynamic method and obtain its IL generator to
+            // inject code.
+            DynamicMethod dynam =
+                new DynamicMethod(
+                "", // name - don't care
+                methodInfo.ReturnType, // return type
+                _argTypes, // argument types
+                typeof(DynamicMethodFactory));
+            ILGenerator il = dynam.GetILGenerator();
+
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldarg_1);
+
+            // Perform actual call.
+            // If method is not final a callvirt is required
+            // otherwise a normal call will be emitted.
+            if (methodInfo.IsFinal)
+            {
+                il.Emit(OpCodes.Call, methodInfo);
+            }
+            else
+            {
+                il.Emit(OpCodes.Callvirt, methodInfo);
+            }
+
+            // Emit return opcode.
+            il.Emit(OpCodes.Ret);
+
+
+            return (DynamicMethodVec3d<T, U>)dynam.CreateDelegate(typeof(DynamicMethodVec3d<T, U>));
+        }
+        
+        static internal DynamicMethodVec3d<T, U, V> CreateFuncVec3d<T, U, V>(MethodInfo methodInfo)
+        {
+            // Up front validation:
+            ParameterInfo[] parms = methodInfo.GetParameters();
+            if (methodInfo.IsStatic)
+            {
+                if (parms.Length != 3)
+                {
+                    throw new ArgumentException("CreateFuncVec3d<T, U, V> called with static method that takes " + parms.Length + " parameters");
+                }
+
+                if (typeof(T) != parms[0].ParameterType)
+                {
+                    throw new ArgumentException("CreateFuncVec3d<T, U, V> parameter [0] mismatch");
+                }
+                if (typeof(U) != parms[1].ParameterType)
+                {
+                    throw new ArgumentException("CreateFuncVec3d<T, U, V> parameter [1] mismatch");
+                }
+                if (typeof(V) != parms[2].ParameterType)
+                {
+                    throw new ArgumentException("CreateFuncVec3d<T, U, V> parameter [2] mismatch");
+                }
+            }
+            else
+            {
+                if (parms.Length != 2)
+                {
+                    throw new ArgumentException("CreateFuncVec3d<T, U, V> called with non-static method that takes " + parms.Length + " parameters");
+                }
+                // How do I validate T?
+                //if (typeof(T) != parms[0].ParameterType)
+                //{
+                //    // What to do?
+                //}
+                if (typeof(U) != parms[0].ParameterType)
+                {
+                    throw new ArgumentException("CreateFuncVec3d<T, U, V> parameter [0] mismatch");
+                }
+                if (typeof(V) != parms[1].ParameterType)
+                {
+                    throw new ArgumentException("CreateFuncVec3d<T, U, V> parameter [1] mismatch");
+                }
+            }
+
+            if (methodInfo.ReturnType != typeof(Vector3d))
+            {
+                throw new ArgumentException("CreateFuncVec3d<T, U, V> called with method that does not return Vector3d");
+            }
+
+            Type[] _argTypes = { typeof(T), typeof(U), typeof(V) };
+
+            // Create dynamic method and obtain its IL generator to
+            // inject code.
+            DynamicMethod dynam =
+                new DynamicMethod(
+                "", // name - don't care
+                methodInfo.ReturnType, // return type
+                _argTypes, // argument types
+                typeof(DynamicMethodFactory));
+            ILGenerator il = dynam.GetILGenerator();
+
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Ldarg_2);
+
+            // Perform actual call.
+            // If method is not final a callvirt is required
+            // otherwise a normal call will be emitted.
+            if (methodInfo.IsFinal)
+            {
+                il.Emit(OpCodes.Call, methodInfo);
+            }
+            else
+            {
+                il.Emit(OpCodes.Callvirt, methodInfo);
+            }
+
+            // Emit return opcode.
+            il.Emit(OpCodes.Ret);
+
+
+            return (DynamicMethodVec3d<T, U, V>)dynam.CreateDelegate(typeof(DynamicMethodVec3d<T, U, V>));
         }
     }
 }
