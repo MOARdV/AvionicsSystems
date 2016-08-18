@@ -84,6 +84,7 @@ namespace AvionicsSystems
 
         private VesselAutopilot.AutopilotMode autopilotMode = VesselAutopilot.AutopilotMode.StabilityAssist;
         private bool vesselPowered;
+        private int vesselSituationConverted;
 
         [MoonSharpHidden]
         public MASFlightComputerProxy(MASFlightComputer fc)
@@ -96,6 +97,7 @@ namespace AvionicsSystems
             fc = null;
             vc = null;
             vessel = null;
+            SASbtns = null;
         }
 
         /// <summary>
@@ -106,6 +108,16 @@ namespace AvionicsSystems
         {
             autopilotMode = vessel.Autopilot.Mode;
             vesselPowered = (vc.ResourceCurrent(MASLoader.ElectricCharge) > 0.0001);
+
+            int situation = (int)vessel.situation;
+            for(int i=0; i<0x10; ++i)
+            {
+                if((situation & (1<<1)) != 0)
+                {
+                    vesselSituationConverted = situation;
+                    break;
+                }
+            }
         }
 
         #region Unassigned Region
@@ -632,6 +644,45 @@ namespace AvionicsSystems
             {
                 vc.moduleGimbals[i].gimbalLock = newState;
             }
+        }
+        #endregion
+
+        #region Flight Status
+        /// <summary>
+        /// Returns 1 if the vessel is in a landed state (LANDED, SPLASHED,
+        /// or PRELAUNCH); 0 otherwise
+        /// </summary>
+        /// <returns></returns>
+        public double VesselLanded()
+        {
+            return (vesselSituationConverted < 3) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the vessel is in a flying state (FLYING, SUB_ORBITAL,
+        /// ORBITING, ESCAPING, DOCKED).
+        /// </summary>
+        /// <returns></returns>
+        public double VesselFlying()
+        {
+            return (vesselSituationConverted > 2) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the vessel's situation, based on the KSP variable:
+        /// 0 - LANDED
+        /// 1 - SPLASHED
+        /// 2 - PRELAUNCH
+        /// 3 - FLYING
+        /// 4 - SUB_ORBITAL
+        /// 5 - ORBITING
+        /// 6 - ESCAPING
+        /// 7 - DOCKED
+        /// </summary>
+        /// <returns></returns>
+        public double VesselSituation()
+        {
+            return vesselSituationConverted;
         }
         #endregion
 
