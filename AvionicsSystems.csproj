@@ -56,6 +56,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Source\DynamicMethodFactory.cs" />
     <Compile Include="Source\Lexer.cs" />
     <Compile Include="Source\MASActionAnimation.cs" />
     <Compile Include="Source\MASActionAnimationPlayer.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Source\MASFlightComputerVariable.cs" />
     <Compile Include="Source\MASIChatterer.cs" />
     <Compile Include="Source\MASIFAR.cs" />
+    <Compile Include="Source\MASIMechJeb.cs" />
     <Compile Include="Source\MASIRealChute.cs" />
     <Compile Include="Source\MASNavBall.cs" />
     <Compile Include="Source\MASRadar.cs" />
