@@ -1535,7 +1535,15 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double Longitude()
         {
-            return vessel.longitude;
+            // Convert from [0, 360) to (-180, 180]
+            if (vessel.longitude <= 180.0)
+            {
+                return vessel.longitude;
+            }
+            else
+            {
+                return vessel.longitude - 360.0;
+            }
         }
         #endregion
 
