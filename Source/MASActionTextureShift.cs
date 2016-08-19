@@ -90,6 +90,8 @@ namespace AvionicsSystems
 
                 blend = false;
                 config.TryGetValue("blend", ref blend);
+
+                // TODO: Support rate-limited changes
             }
             else
             {
@@ -145,7 +147,7 @@ namespace AvionicsSystems
         {
             if (blend)
             {
-                float newBlend = Mathf.Lerp((float)range1.SafeValue(), (float)range2.SafeValue(), (float)newValue);
+                float newBlend = Mathf.InverseLerp((float)range1.SafeValue(), (float)range2.SafeValue(), (float)newValue);
 
                 if (!Mathf.Approximately(newBlend, currentBlend))
                 {
