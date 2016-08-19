@@ -78,7 +78,7 @@ namespace AvionicsSystems
             {
                 if (parms.Length != 0)
                 {
-                    throw new ArgumentException("CreateFunc<T, U> called with non-static method that takes " + parms.Length + " parameters");
+                    throw new ArgumentException("CreateFunc<T> called with non-static method that takes " + parms.Length + " parameters");
                 }
                 // How do I validate T?
                 //if (typeof(T) != parms[0].ParameterType)

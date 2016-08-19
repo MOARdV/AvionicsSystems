@@ -40,6 +40,7 @@ namespace AvionicsSystems
         //--- Methods found in ComputerModule
         private static readonly DynamicMethodBool<object> ModuleEnabled;
         private static readonly FieldInfo ModuleUsers;
+        private static readonly FieldInfo Target;
 
         //--- Methods found in EditableDoubleMult
         private static readonly DynamicMethod<object, double> setEditableDoubleMult;
@@ -60,16 +61,27 @@ namespace AvionicsSystems
         private static readonly FieldInfo desiredOrbitAltitude_t;
         private static readonly FieldInfo desiredOrbitInclination_t;
 
-        //--- Methods found in MechJebModuleAscentGuidance
+        //--- Methods found in ModuleAscentGuidance
         private static readonly FieldInfo desiredOrbitInclinationAG_t;
+
+        //--- Methods found in ModuleLandingAutopilot
+        private static readonly DynamicMethod<object, object> LandAtPositionTarget;
+        private static readonly DynamicMethod<object, object> LandUntargeted;
+        private static readonly DynamicMethod<object> StopLanding;
 
         //--- Methods found in ModuleNodeExecutor
         private static readonly DynamicMethod<object> AbortNode;
         private static readonly DynamicMethod<object, object> ExecuteOneNode;
 
-        //--- Methods found in MechJebModuleSmartASS
+        //--- Methods found in ModuleSmartASS
         private static readonly FieldInfo saTarget_t;
         internal static readonly string[] modeNames;
+
+        //--- Methods found in ModuleTargetController
+        private static readonly DynamicMethodBool<object> PositionTargetExists;
+        private static readonly FieldInfo TargetLatitude;
+        private static readonly FieldInfo TargetLongitude;
+        private static readonly DynamicMethod<object> TargetOrbit;
 
         //--- Methods found in UserPool
         private static readonly DynamicMethod<object, object> AddUser;
@@ -84,8 +96,13 @@ namespace AvionicsSystems
         object masterMechJeb;
         object ascentAutopilot;
         object ascentGuidance;
+        object landingAutopilot;
+        object landingGuidance;
+        object landingPrediction;
         object maneuverPlanner;
         object nodeExecutor;
+        object rendezvousAutopilot;
+        object rendezvousAutopilotWindow;
         object smartAss;
 
         private SATarget saTarget;
@@ -119,28 +136,28 @@ namespace AvionicsSystems
         }
         static private Dictionary<int, SATarget> saTargetMap = new Dictionary<int, SATarget>
         {
-            { 0, SATarget.OFF},
+            { 0, SATarget.OFF },
             { 1, SATarget.KILLROT },
-            {2,SATarget.NODE },
-            {3,SATarget.SURFACE },
-            {4,SATarget.PROGRADE },
-            {5,SATarget.RETROGRADE },
-            {6,SATarget.NORMAL_PLUS },
-            {7,SATarget.NORMAL_MINUS},
-            {8,SATarget.RADIAL_PLUS},
-            {9,SATarget.RADIAL_MINUS },
+            { 2,SATarget.NODE },
+            { 3,SATarget.SURFACE },
+            { 4,SATarget.PROGRADE },
+            { 5,SATarget.RETROGRADE },
+            { 6,SATarget.NORMAL_PLUS },
+            { 7,SATarget.NORMAL_MINUS },
+            { 8,SATarget.RADIAL_PLUS },
+            { 9,SATarget.RADIAL_MINUS },
             {10,SATarget.RELATIVE_PLUS },
-            {11,SATarget.RELATIVE_MINUS},
+            {11,SATarget.RELATIVE_MINUS },
             {12,SATarget.TARGET_PLUS },
             {13,SATarget.TARGET_MINUS },
             {14,SATarget.PARALLEL_PLUS },
             {15,SATarget.PARALLEL_MINUS },
-            {16,SATarget.ADVANCED},
+            {16,SATarget.ADVANCED },
             {17,SATarget.AUTO },
-            {18,SATarget.SURFACE_PROGRADE},
-            {19,SATarget.SURFACE_RETROGRADE},
+            {18,SATarget.SURFACE_PROGRADE },
+            {19,SATarget.SURFACE_RETROGRADE },
             {20,SATarget.HORIZONTAL_PLUS },
-            {21,SATarget.HORIZONTAL_MINUS},
+            {21,SATarget.HORIZONTAL_MINUS },
             {22,SATarget.VERTICAL_PLUS }
         };
         #endregion
@@ -169,7 +186,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double AutopilotActive()
         {
-            if (mjAvailable && (ModuleEnabled(ascentAutopilot) || ModuleEnabled(nodeExecutor)))
+            if (mjAvailable && (ModuleEnabled(ascentAutopilot) || ModuleEnabled(landingAutopilot) || ModuleEnabled(nodeExecutor) || ModuleEnabled(rendezvousAutopilot)))
             {
                 return 1.0;
             }
@@ -282,17 +299,6 @@ namespace AvionicsSystems
             if (mjAvailable)
             {
                 object users = ModuleUsers.GetValue(ascentAutopilot);
-                //if (users == null)
-                //{
-                //    throw new NotImplementedException("mjModuleUsers(ap) was null");
-                //}
-
-                //object agPilot = GetComputerModule(activeJeb, "MechJebModuleAscentGuidance");
-                //if (agPilot == null)
-                //{
-                //    JUtil.LogErrorMessage(this, "Unable to fetch MechJebModuleAscentGuidance");
-                //    return;
-                //}
 
                 if (ModuleEnabled(ascentAutopilot))
                 {
@@ -301,6 +307,87 @@ namespace AvionicsSystems
                 else
                 {
                     AddUser(users, ascentGuidance);
+                }
+            }
+        }
+        #endregion
+
+        #region Landing Autopilot and Computer
+        /// <summary>
+        /// Returns 1 if the MechJeb landing autopilot is engaged.
+        /// </summary>
+        /// <returns></returns>
+        public double LandingAutopilotActive()
+        {
+            if (mjAvailable && ModuleEnabled(landingAutopilot))
+            {
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns 1 if the MechJeb landing prediction computer is engaged.
+        /// </summary>
+        /// <returns></returns>
+        public double LandingComputerActive()
+        {
+            if (mjAvailable && ModuleEnabled(landingPrediction))
+            {
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Toggles the MechJeb landing autopilot on/off.
+        /// </summary>
+        public void ToggleLandingAutopilot()
+        {
+            if (mjAvailable)
+            {
+                if (ModuleEnabled(landingAutopilot))
+                {
+                    StopLanding(landingAutopilot);
+                }
+                else
+                {
+                    object target = Target.GetValue(masterMechJeb);
+                    if (PositionTargetExists(target))
+                    {
+                        LandAtPositionTarget(landingAutopilot, landingGuidance);
+                    }
+                    else
+                    {
+                        LandUntargeted(landingAutopilot, landingGuidance);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Toggles the MechJeb landing prediction computer on/off independently
+        /// of the landing autopilot.
+        /// </summary>
+        public void ToggleLandingComputer()
+        {
+            if (mjAvailable)
+            {
+                object users = ModuleUsers.GetValue(landingPrediction);
+
+                if (ModuleEnabled(landingPrediction))
+                {
+                    RemoveUser(users, landingGuidance);
+                }
+                else
+                {
+                    AddUser(users, landingGuidance);
                 }
             }
         }
@@ -406,6 +493,43 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Rendezvous Autopilot
+        /// <summary>
+        /// Returns 1 if the rendezvous autopilot is engaged.
+        /// </summary>
+        /// <returns></returns>
+        public double RendezvousAutopilotActive()
+        {
+            if (mjAvailable && ModuleEnabled(rendezvousAutopilot))
+            {
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Engages / disengages the MechJeb Rendezvous Autopilot
+        /// </summary>
+        public void ToggleRendezvousAutopilot()
+        {
+            if (mjAvailable)
+            {
+                object users = ModuleUsers.GetValue(rendezvousAutopilot);
+                if (ModuleEnabled(rendezvousAutopilot))
+                {
+                    RemoveUser(users, rendezvousAutopilotWindow);
+                }
+                else
+                {
+                    AddUser(users, rendezvousAutopilotWindow);
+                }
+            }
+        }
+        #endregion
+
         #region SmartASS
         /// <summary>
         /// Returns the number of the currently active SASS mode, or zero if MechJeb
@@ -480,7 +604,7 @@ namespace AvionicsSystems
         public double GetSASSModeActive(double mode)
         {
             int mode_i = (int)mode;
-            if(mjAvailable && saTargetMap.ContainsKey(mode_i) && saTarget == saTargetMap[mode_i])
+            if (mjAvailable && saTargetMap.ContainsKey(mode_i) && saTarget == saTargetMap[mode_i])
             {
                 return 1.0;
             }
@@ -571,6 +695,24 @@ namespace AvionicsSystems
                             throw new Exception("MASIMechJeb: Failed to get Ascent Guidance MJ module");
                         }
 
+                        landingAutopilot = GetComputerModule(masterMechJeb, "MechJebModuleLandingAutopilot");
+                        if (ascentGuidance == null)
+                        {
+                            throw new Exception("MASIMechJeb: Failed to get Landing Autopilot MJ module");
+                        }
+
+                        landingGuidance = GetComputerModule(masterMechJeb, "MechJebModuleLandingGuidance");
+                        if (landingGuidance == null)
+                        {
+                            throw new Exception("MASIMechJeb: Failed to get Landing Guidance MJ module");
+                        }
+
+                        landingPrediction = GetComputerModule(masterMechJeb, "MechJebModuleLandingPredictions");
+                        if (landingPrediction == null)
+                        {
+                            throw new Exception("MASIMechJeb: Failed to get Landing Prediction MJ module");
+                        }
+
                         maneuverPlanner = GetComputerModule(masterMechJeb, "MechJebModuleManeuverPlanner");
                         if (maneuverPlanner == null)
                         {
@@ -581,6 +723,18 @@ namespace AvionicsSystems
                         if (nodeExecutor == null)
                         {
                             throw new Exception("MASIMechJeb: Failed to get Node Executor MJ module");
+                        }
+
+                        rendezvousAutopilot = GetComputerModule(masterMechJeb, "MechJebModuleRendezvousAutopilot");
+                        if (rendezvousAutopilot == null)
+                        {
+                            throw new Exception("MASIMechJeb: Failed to get Rendezvous Autopilot MJ module");
+                        }
+
+                        rendezvousAutopilotWindow = GetComputerModule(masterMechJeb, "MechJebModuleRendezvousAutopilotWindow");
+                        if (rendezvousAutopilotWindow == null)
+                        {
+                            throw new Exception("MASIMechJeb: Failed to get Rendezvous Autopilot Window MJ module");
                         }
                     }
 
@@ -638,6 +792,11 @@ namespace AvionicsSystems
                 {
                     return;
                 }
+                Type mjLandingAutopilot_t = Utility.GetExportedType("MechJeb2", "MuMech.MechJebModuleLandingAutopilot");
+                if (mjLandingAutopilot_t == null)
+                {
+                    return;
+                }
                 Type mjNodeExecutor_t = Utility.GetExportedType("MechJeb2", "MuMech.MechJebModuleNodeExecutor");
                 if (mjNodeExecutor_t == null)
                 {
@@ -647,6 +806,11 @@ namespace AvionicsSystems
                 if (mjOrbitalManeuverCalculator_t == null)
                 {
                     throw new ArgumentNullException("mjOrbitalManeuverCalculator_t");
+                }
+                Type mjModuleTargetController_t = Utility.GetExportedType("MechJeb2", "MuMech.MechJebModuleTargetController");
+                if (mjModuleTargetController_t == null)
+                {
+                    throw new ArgumentNullException("mjModuleTargetController_t");
                 }
                 Type mjUserPool_t = Utility.GetExportedType("MechJeb2", "MuMech.UserPool");
                 if (mjUserPool_t == null)
@@ -664,6 +828,11 @@ namespace AvionicsSystems
                 if (GetComputerModule == null)
                 {
                     return;
+                }
+                Target = mjCore_t.GetField("target", BindingFlags.Instance | BindingFlags.Public);
+                if (Target == null)
+                {
+                    throw new ArgumentNullException("Target");
                 }
 
                 //--- ComputerModule
@@ -722,6 +891,26 @@ namespace AvionicsSystems
                     return;
                 }
 
+                //--- ModuleLandingAutopilot
+                MethodInfo mjLandAtPositionTarget = mjLandingAutopilot_t.GetMethod("LandAtPositionTarget", BindingFlags.Instance | BindingFlags.Public);
+                if (mjLandAtPositionTarget == null)
+                {
+                    throw new NotImplementedException("mjLandAtPositionTarget");
+                }
+                LandAtPositionTarget = DynamicMethodFactory.CreateFunc<object, object>(mjLandAtPositionTarget);
+                MethodInfo mjLandUntargeted = mjLandingAutopilot_t.GetMethod("LandUntargeted", BindingFlags.Instance | BindingFlags.Public);
+                if (mjLandUntargeted == null)
+                {
+                    throw new NotImplementedException("mjLandUntargeted");
+                }
+                LandUntargeted = DynamicMethodFactory.CreateFunc<object, object>(mjLandUntargeted);
+                MethodInfo mjStopLanding = mjLandingAutopilot_t.GetMethod("StopLanding", BindingFlags.Instance | BindingFlags.Public);
+                if (mjStopLanding == null)
+                {
+                    throw new NotImplementedException("mjStopLanding");
+                }
+                StopLanding = DynamicMethodFactory.CreateFunc<object>(mjStopLanding);
+
                 //--- ModuleNodeExecutor
                 MethodInfo mjExecuteOneNode = mjNodeExecutor_t.GetMethod("ExecuteOneNode", BindingFlags.Instance | BindingFlags.Public);
                 if (mjExecuteOneNode == null)
@@ -744,6 +933,51 @@ namespace AvionicsSystems
                 }
                 FieldInfo modeTexts_t = mjModuleSmartass_t.GetField("ModeTexts", BindingFlags.Static | BindingFlags.Public);
                 modeNames = (string[])modeTexts_t.GetValue(null);
+
+                //--- ModuleTargetController
+                TargetLongitude = mjModuleTargetController_t.GetField("targetLongitude", BindingFlags.Instance | BindingFlags.Public);
+                if (TargetLongitude == null)
+                {
+                    throw new NotImplementedException("TargetLongitude");
+                }
+                TargetLatitude = mjModuleTargetController_t.GetField("targetLatitude", BindingFlags.Instance | BindingFlags.Public);
+                if (TargetLatitude == null)
+                {
+                    throw new NotImplementedException("TargetLatitude");
+                }
+                PropertyInfo mjPositionTargetExists = mjModuleTargetController_t.GetProperty("PositionTargetExists", BindingFlags.Instance | BindingFlags.Public);
+                MethodInfo mjGetPositionTargetExists = null;
+                if (mjPositionTargetExists != null)
+                {
+                    mjGetPositionTargetExists = mjPositionTargetExists.GetGetMethod();
+                }
+                if (mjGetPositionTargetExists == null)
+                {
+                    throw new NotImplementedException("mjGetPositionTargetExists");
+                }
+                PositionTargetExists = DynamicMethodFactory.CreateFuncBool<object>(mjGetPositionTargetExists);
+                //PropertyInfo mjNormalTargetExists = mjModuleTargetController_t.GetProperty("NormalTargetExists", BindingFlags.Instance | BindingFlags.Public);
+                //MethodInfo mjGetNormalTargetExists = null;
+                //if (mjNormalTargetExists != null)
+                //{
+                //    mjGetNormalTargetExists = mjNormalTargetExists.GetGetMethod();
+                //}
+                //if (mjGetNormalTargetExists == null)
+                //{
+                //    throw new NotImplementedException("mjGetNormalTargetExists");
+                //}
+                //getNormalTargetExists = DynamicMethodDelegateFactory.CreateFuncBool(mjGetNormalTargetExists);
+                PropertyInfo mjTargetOrbit = mjModuleTargetController_t.GetProperty("TargetOrbit", BindingFlags.Instance | BindingFlags.Public); ;
+                MethodInfo mjGetTargetOrbit = null;
+                if (mjTargetOrbit != null)
+                {
+                    mjGetTargetOrbit = mjTargetOrbit.GetGetMethod();
+                }
+                if (mjGetTargetOrbit == null)
+                {
+                    throw new NotImplementedException("mjGetTargetOrbit");
+                }
+                TargetOrbit = DynamicMethodFactory.CreateFunc<object>(mjGetTargetOrbit);
 
                 //--- OrbitalManeuverCalculator
                 MethodInfo deltaVToChangePeriapsis = mjOrbitalManeuverCalculator_t.GetMethod("DeltaVToChangePeriapsis", BindingFlags.Static | BindingFlags.Public);
