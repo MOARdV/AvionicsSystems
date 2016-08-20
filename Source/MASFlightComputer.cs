@@ -391,47 +391,54 @@ namespace AvionicsSystems
         /// </summary>
         public void FixedUpdate()
         {
-            if (vc.vesselActive)
+            try
             {
-                // Realistically, this block of code won't be triggered very
-                // often.
-                if (mutableVariablesChanged)
+                if (vc.vesselActive)
                 {
-                    mutableVariables = mutableVariablesList.ToArray();
-                    mutableVariablesChanged = false;
-                }
+                    // Realistically, this block of code won't be triggered very
+                    // often.
+                    if (mutableVariablesChanged)
+                    {
+                        mutableVariables = mutableVariablesList.ToArray();
+                        mutableVariablesChanged = false;
+                    }
 
-                fcProxy.Update();
-                mjProxy.Update();
-                realChuteProxy.Update();
+                    fcProxy.Update();
+                    mjProxy.Update();
+                    realChuteProxy.Update();
 
-                // Precompute the disruption effects.
-                // TODO: Don't do the string lookup every FixedUpdate...
-                isPowered = (!requiresPower || vc.ResourceCurrent(MASLoader.ElectricCharge) > 0.0001);
+                    // Precompute the disruption effects.
+                    // TODO: Don't do the string lookup every FixedUpdate...
+                    isPowered = (!requiresPower || vc.ResourceCurrent(MASLoader.ElectricCharge) > 0.0001);
 
-                if (vessel.geeForce_immediate > gLimit)
-                {
-                    disruptionChance = baseDisruptionChance * Mathf.Sqrt((float)vessel.geeForce_immediate - gLimit);
-                }
-                else
-                {
-                    disruptionChance = 0.0f;
-                }
+                    if (vessel.geeForce_immediate > gLimit)
+                    {
+                        disruptionChance = baseDisruptionChance * Mathf.Sqrt((float)vessel.geeForce_immediate - gLimit);
+                    }
+                    else
+                    {
+                        disruptionChance = 0.0f;
+                    }
 
-                // TODO: Add a heuristic to adjust the loop so not all variables
-                // update every fixed update if the average update time is too high.
-                // Need to decide if it's going to be an absolute time (max # ms/update)
-                // or a relative time.
-                // NOTE: 128 "variables" average about 1.7ms/update!  And there's
-                // a LOT of garbage collection going on.
-                stopwatch.Start();
-                int count = mutableVariables.Length;
-                for (int i = 0; i < count; ++i)
-                {
-                    mutableVariables[i].Evaluate(script);
+                    // TODO: Add a heuristic to adjust the loop so not all variables
+                    // update every fixed update if the average update time is too high.
+                    // Need to decide if it's going to be an absolute time (max # ms/update)
+                    // or a relative time.
+                    // NOTE: 128 "variables" average about 1.7ms/update!  And there's
+                    // a LOT of garbage collection going on.
+                    stopwatch.Start();
+                    int count = mutableVariables.Length;
+                    for (int i = 0; i < count; ++i)
+                    {
+                        mutableVariables[i].Evaluate(script);
+                    }
+                    stopwatch.Stop();
+                    ++samplecount;
                 }
-                stopwatch.Stop();
-                ++samplecount;
+            }
+            catch(Exception e)
+            {
+                Utility.LogErrorMessage(this, "MASFlightComputer.FixedUpdate exception: {0}", e);
             }
         }
 
