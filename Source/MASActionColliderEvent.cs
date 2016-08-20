@@ -32,7 +32,7 @@ namespace AvionicsSystems
 {
     /// <summary>
     /// The COLLIDER_EVENT manages mouse clicks on colliders.  It can support
-    /// auto-repeating the onClick event (once per FixedUpdate), and it can
+    /// auto-repeating the onClick event, and it can
     /// support transient actions using onClick and onRelease.
     /// </summary>
     class MASActionColliderEvent : IMASSubComponent
@@ -52,6 +52,8 @@ namespace AvionicsSystems
             internal AudioSource audioSource;
             private bool buttonState = false;
             internal bool autoRepeat = false;
+            internal float repeatRate = float.MaxValue;
+            private float repeatCounter;
 
             /// <summary>
             /// Mouse press handler.  Trigger the autorepeat event, if appropriate.
@@ -67,13 +69,10 @@ namespace AvionicsSystems
                         audioSource.Play();
                     }
 
-                    if (onRelease != null)
-                    {
-                        buttonState = true;
-                    }
-
                     if (autoRepeat)
                     {
+                        buttonState = true;
+                        repeatCounter = 0.0f;
                         StartCoroutine(AutoRepeat());
                     }
                 }
@@ -89,7 +88,12 @@ namespace AvionicsSystems
 
                 while (buttonState)
                 {
-                    onClick();
+                    repeatCounter += TimeWarp.fixedDeltaTime;
+                    if (repeatCounter > repeatRate)
+                    {
+                        repeatCounter -= repeatRate;
+                        onClick();
+                    }
                     yield return new WaitForFixedUpdate();
                 }
             }
@@ -99,10 +103,10 @@ namespace AvionicsSystems
             /// </summary>
             public void OnMouseUp()
             {
+                buttonState = false;
                 if (onRelease != null)
                 {
                     onRelease();
-                    buttonState = false;
                 }
             }
         }
@@ -134,17 +138,10 @@ namespace AvionicsSystems
                 throw new ArgumentException("Unable to find transform '" + collider + "' in prop for COLLIDER_EVENT " + name);
             }
 
-            bool autoRepeat;
-            if (!bool.TryParse("autoRepeat", out autoRepeat))
+            float autoRepeat = 0.0f;
+            if (!config.TryGetValue("autoRepeat", ref autoRepeat))
             {
-                autoRepeat = false;
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(releaseEvent))
-                {
-                    throw new ArgumentException("'onRelease' must be defined to use 'autoRepeat' in COLLIDER_EVENT " + name);
-                }
+                autoRepeat = 0.0f;
             }
 
             float volume = -1.0f;
@@ -181,7 +178,8 @@ namespace AvionicsSystems
 
             buttonObject = tr.gameObject.AddComponent<ButtonObject>();
             buttonObject.parent = this;
-            buttonObject.autoRepeat = autoRepeat;
+            buttonObject.autoRepeat = (autoRepeat > 0.0f);
+            buttonObject.repeatRate = autoRepeat;
 
             if (clip != null)
             {
