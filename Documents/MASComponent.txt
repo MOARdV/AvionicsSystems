@@ -103,7 +103,7 @@ COLLIDER_EVENT
     collider = SwitchColider
     onClick = fc.ToggleRCS()
     //onRelease = fc.ToggleRCS()
-	//autoRepeat = true
+	//autoRepeat = 0.1
 	//sound = 
 	//volume = 
 }
@@ -112,8 +112,8 @@ COLLIDER_EVENT
 'transform': Required.  The transform in the prop that contains a collider.
 'onClick', 'onRelease': One or the other is required; both may be present.  A Lua Action to trigger when the prop's
 transform is clicked or released.  If both are present, the switch may be used for momentary events.
-'autoRepeat': Optional.  Default 'false'.  When set to true, the onClick event
-triggers every FixedUpdate until the button is released.  It is possible to use autoRepeat, onClick, and onRelease
+'autoRepeat': Optional.  Default 0.0.  When set to a positive number, the 'onClick' event
+triggers every 'autoRepeat' seconds until the button is released.  It is possible to use autoRepeat, onClick, and onRelease
 in the same Collider Event.
 'sound': Optional.  Required if 'volume' is present.  When present, plays the specified audio when the click event
 fires.
