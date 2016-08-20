@@ -112,14 +112,22 @@ namespace AvionicsSystems
                 systemFonts = Font.GetOSInstalledFontNames();
             }
 
-            if (systemFonts.Contains(fontName))
+            if (!systemFonts.Contains(fontName))
             {
-                return Font.CreateDynamicFontFromOSFont(fontName, 32);
+                // If the font isn't recognized as a system font, fall back to
+                // Arial.  If we do that, check to see if Arial has already
+                // been loaded as a font.
+                fontName = "Arial";
+
+                if (fonts.ContainsKey(fontName))
+                {
+                    return fonts[fontName];
+                }
             }
-            else
-            {
-                return Font.CreateDynamicFontFromOSFont("Arial", 32);
-            }
+
+            Font dynamicFont = Font.CreateDynamicFontFromOSFont(fontName, 32);
+            fonts[fontName] = dynamicFont;
+            return dynamicFont;
         }
 
         /// <summary>
