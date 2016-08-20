@@ -88,10 +88,15 @@ namespace AvionicsSystems
         private static readonly DynamicMethod<object, object> RemoveUser;
 
         //--- Instance variables
-        bool mjAvailable;
+        internal bool mjAvailable;
 
         Vessel vessel;
         Orbit vesselOrbit;
+
+        bool landingPredictionEnabled;
+        double landingAltitude;
+        double landingLatitude;
+        double landingLongitude;
 
         object masterMechJeb;
         object ascentAutopilot;
@@ -335,9 +340,60 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double LandingComputerActive()
         {
-            if (mjAvailable && ModuleEnabled(landingPrediction))
+            if (mjAvailable && landingPredictionEnabled)
             {
                 return 1.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// When the landing prediction computer is engaged, returns the
+        /// predicted altitude of the landing site.  Returns 0 otherwise.
+        /// </summary>
+        /// <returns></returns>
+        public double LandingAltitude()
+        {
+            if (mjAvailable && landingPredictionEnabled)
+            {
+                return landingAltitude;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// When the landing prediction computer is engaged, returns the
+        /// predicted latitude of the landing site.  Returns 0 otherwise.
+        /// </summary>
+        /// <returns></returns>
+        public double LandingLatitude()
+        {
+            if (mjAvailable && landingPredictionEnabled)
+            {
+                return landingLatitude;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// When the landing prediction computer is engaged, returns the
+        /// predicted longitude of the landing site.  Returns 0 otherwise.
+        /// </summary>
+        /// <returns></returns>
+        public double LandingLongitude()
+        {
+            if (mjAvailable && landingPredictionEnabled)
+            {
+                return landingLongitude;
             }
             else
             {
@@ -656,6 +712,21 @@ namespace AvionicsSystems
             {
                 object activeSATarget = saTarget_t.GetValue(smartAss);
                 saTarget = saTargetMap[(int)activeSATarget];
+
+                landingPredictionEnabled = ModuleEnabled(landingPrediction);
+
+                if(landingPredictionEnabled)
+                {
+                    landingAltitude = 0.0;
+                    landingLatitude = 0.0;
+                    landingLongitude = 0.0;
+                }
+                else
+                {
+                    landingAltitude = 0.0;
+                    landingLatitude = 0.0;
+                    landingLongitude = 0.0;
+                }
             }
         }
 

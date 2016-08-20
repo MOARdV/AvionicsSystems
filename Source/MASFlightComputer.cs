@@ -493,10 +493,6 @@ namespace AvionicsSystems
                 // don't use the proxy system included in MoonSharp, since it
                 // creates a proxy object for every single script.Call(), which
                 // means plenty of garbage...
-                fcProxy = new MASFlightComputerProxy(this);
-                UserData.RegisterType<MASFlightComputerProxy>();
-                script.Globals["fc"] = fcProxy;
-
                 chattererProxy = new MASIChatterer();
                 UserData.RegisterType<MASIChatterer>();
                 script.Globals["chatterer"] = chattererProxy;
@@ -512,6 +508,10 @@ namespace AvionicsSystems
                 realChuteProxy = new MASIRealChute(vessel);
                 UserData.RegisterType<MASIRealChute>();
                 script.Globals["realchute"] = realChuteProxy;
+
+                fcProxy = new MASFlightComputerProxy(this, mjProxy);
+                UserData.RegisterType<MASFlightComputerProxy>();
+                script.Globals["fc"] = fcProxy;
 
                 vc = MASVesselComputer.Instance(parentVesselId);
                 fcProxy.vc = vc;

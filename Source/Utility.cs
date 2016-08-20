@@ -139,18 +139,18 @@ namespace AvionicsSystems
             strb.Append('+');
             strb.Append(' ');
             strb.Append(node.name);
-            if(!node.HasData)
+            if (!node.HasData)
             {
                 strb.Append(" - has no data");
             }
             LogMessage(strb.ToString());
-            if(!node.HasData)
+            if (!node.HasData)
             {
                 return;
             }
 
             var vals = node.values;
-            if(vals.Count == 0)
+            if (vals.Count == 0)
             {
                 strb.Remove(0, strb.Length);
                 if (depth > 0)
@@ -160,7 +160,7 @@ namespace AvionicsSystems
                 strb.Append("- No values");
                 LogMessage(strb.ToString());
             }
-            for(int i=0; i<vals.Count; ++i)
+            for (int i = 0; i < vals.Count; ++i)
             {
                 strb.Remove(0, strb.Length);
                 if (depth > 0)
@@ -176,7 +176,7 @@ namespace AvionicsSystems
             }
 
             var nodes = node.nodes;
-            if(nodes.Count == 0)
+            if (nodes.Count == 0)
             {
                 strb.Remove(0, strb.Length);
                 if (depth > 0)
@@ -186,7 +186,7 @@ namespace AvionicsSystems
                 strb.Append("- No child ConfigNode");
                 LogMessage(strb.ToString());
             }
-            for(int i=0; i<nodes.Count; ++i)
+            for (int i = 0; i < nodes.Count; ++i)
             {
                 DumpConfigNode(nodes[i], depth + 1);
             }
@@ -281,24 +281,46 @@ namespace AvionicsSystems
         internal static Type GetExportedType(string assemblyName, string fullTypeName)
         {
             int assyCount = AssemblyLoader.loadedAssemblies.Count;
-            for (int assyIndex = 0; assyIndex < assyCount; ++assyIndex )
+            for (int assyIndex = 0; assyIndex < assyCount; ++assyIndex)
             {
                 AssemblyLoader.LoadedAssembly assy = AssemblyLoader.loadedAssemblies[assyIndex];
-                if(assy.name == assemblyName)
+                if (assy.name == assemblyName)
                 {
                     Type[] exportedTypes = assy.assembly.GetExportedTypes();
                     int typeCount = exportedTypes.Length;
-                    for(int typeIndex = 0; typeIndex < typeCount; ++typeIndex)
+                    for (int typeIndex = 0; typeIndex < typeCount; ++typeIndex)
                     {
-                        if(exportedTypes[typeIndex].FullName == fullTypeName)
+                        if (exportedTypes[typeIndex].FullName == fullTypeName)
                         {
                             return exportedTypes[typeIndex];
                         }
                     }
                 }
             }
-                
+
             return null;
+        }
+
+        /// <summary>
+        /// Constrain longitude to the range (-180, 180].  KSP does not
+        /// appear to normalize the value in Vessel.
+        /// </summary>
+        /// <param name="angle"></param>
+        /// <returns></returns>
+        internal static double NormalizeLongitude(double longitude)
+        {
+            if (longitude > 180.0)
+            {
+                return longitude - 360.0;
+            }
+            else if (longitude <= -180.0)
+            {
+                return longitude + 360.0;
+            }
+            else
+            {
+                return longitude;
+            }
         }
 
         /// <summary>

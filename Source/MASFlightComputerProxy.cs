@@ -79,6 +79,7 @@ namespace AvionicsSystems
     {
         private MASFlightComputer fc;
         internal MASVesselComputer vc;
+        internal MASIMechJeb mjProxy;
         internal Vessel vessel;
         private UIStateToggleButton[] SASbtns = null;
 
@@ -87,15 +88,17 @@ namespace AvionicsSystems
         private int vesselSituationConverted;
 
         [MoonSharpHidden]
-        public MASFlightComputerProxy(MASFlightComputer fc)
+        public MASFlightComputerProxy(MASFlightComputer fc, MASIMechJeb mjProxy)
         {
             this.fc = fc;
+            this.mjProxy = mjProxy;
         }
 
         ~MASFlightComputerProxy()
         {
             fc = null;
             vc = null;
+            mjProxy = null;
             vessel = null;
             SASbtns = null;
         }
@@ -1521,6 +1524,78 @@ namespace AvionicsSystems
 
         #region Position
         /// <summary>
+        /// Returns the predicted altitude of landing.  Automatically uses
+        /// MechJeb if its landing computer is active; otherwise it uses the
+        /// less-accurate built-in Avionics Systems predictor.
+        /// </summary>
+        /// <returns></returns>
+        public double LandingAltitude()
+        {
+            if (mjProxy.LandingComputerActive() > 0.0)
+            {
+                return mjProxy.LandingAltitude();
+            }
+            else
+            {
+                // TODO: Write the lame landing predictor.
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the predicted latitude of landing.  Automatically uses
+        /// MechJeb if its landing computer is active; otherwise it uses the
+        /// less-accurate built-in Avionics Systems predictor.
+        /// </summary>
+        /// <returns></returns>
+        public double LandingLatitude()
+        {
+            if (mjProxy.LandingComputerActive() > 0.0)
+            {
+                return mjProxy.LandingLatitude();
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the predicted longitude of landing.  Automatically uses
+        /// MechJeb if its landing computer is active; otherwise it uses the
+        /// less-accurate built-in Avionics Systems predictor.
+        /// </summary>
+        /// <returns></returns>
+        public double LandingLongitude()
+        {
+            if (mjProxy.LandingComputerActive() > 0.0)
+            {
+                return mjProxy.LandingLongitude();
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns 1 if landing predictions are valid.  Automatically selects
+        /// MechJeb if its landing computer is active.
+        /// </summary>
+        /// <returns></returns>
+        public double LandingPredictorActive()
+        {
+            if (mjProxy.LandingComputerActive() > 0.0)
+            {
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Return the vessel's latitude.
         /// </summary>
         /// <returns></returns>
@@ -1535,15 +1610,8 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double Longitude()
         {
-            // Convert from [0, 360) to (-180, 180]
-            if (vessel.longitude <= 180.0)
-            {
-                return vessel.longitude;
-            }
-            else
-            {
-                return vessel.longitude - 360.0;
-            }
+            // longitude seems to be unnormalized.
+            return Utility.NormalizeLongitude(vessel.longitude);
         }
         #endregion
 
@@ -2828,6 +2896,75 @@ namespace AvionicsSystems
         public double TargetIsVessel()
         {
             return (vc.targetType == MASVesselComputer.TargetType.Vessel || vc.targetType == MASVesselComputer.TargetType.DockingPort) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns whether the latitude / longitude of the target are
+        /// currently valid.  Only vessels, docking ports, and position
+        /// targets will have valid lat/lon.
+        /// </summary>
+        /// <returns></returns>
+        public double TargetLatLonValid()
+        {
+            return (vc.targetType == MASVesselComputer.TargetType.Vessel || vc.targetType == MASVesselComputer.TargetType.DockingPort || vc.targetType == MASVesselComputer.TargetType.PositionTarget) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the altitude of the target, or 0 if there is no target.
+        /// </summary>
+        /// <returns></returns>
+        public double TargetAltitude()
+        {
+            if (vc.activeTarget != null)
+            {
+                return vc.activeTarget.GetOrbit().altitude;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the target latitude for targets that have valid latitudes
+        /// (vessel, docking port, position targets).
+        /// </summary>
+        /// <returns></returns>
+        public double TargetLatitude()
+        {
+            switch (vc.targetType)
+            {
+                case MASVesselComputer.TargetType.Vessel:
+                    return vc.activeTarget.GetVessel().latitude;
+                case MASVesselComputer.TargetType.DockingPort:
+                    return vc.activeTarget.GetVessel().latitude;
+                case MASVesselComputer.TargetType.PositionTarget:
+                    // TODO: Is there a better way to do this?  Can I use GetVessel?
+                    return vessel.mainBody.GetLatitude(vc.activeTarget.GetTransform().position);
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the target longitude for targets that have valid longitudes
+        /// (vessel, docking port, position targets).
+        /// </summary>
+        /// <returns></returns>
+        public double TargetLongitude()
+        {
+            switch (vc.targetType)
+            {
+                case MASVesselComputer.TargetType.Vessel:
+                    return Utility.NormalizeLongitude(vc.activeTarget.GetVessel().longitude);
+                case MASVesselComputer.TargetType.DockingPort:
+                    return Utility.NormalizeLongitude(vc.activeTarget.GetVessel().longitude);
+                case MASVesselComputer.TargetType.PositionTarget:
+                    // TODO: Is there a better way to do this?
+                    return vessel.mainBody.GetLongitude(vc.activeTarget.GetTransform().position);
+            }
+
+            return 0.0;
         }
 
         /// <summary>
