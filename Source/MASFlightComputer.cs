@@ -207,12 +207,12 @@ namespace AvionicsSystems
         /// <param name="callback"></param>
         internal void RegisterNumericVariable(string variableName, InternalProp prop, Action<double> callback)
         {
-            variableName = ConditionVariableName(variableName, prop);
-            if (variableName.Length < 1)
-            {
-                Utility.ComplainLoudly("RegisterNumericVariable with empty variableName");
-                throw new ArgumentException("[MASFlightComputer] RegisterNumericVariable called with empty variableName");
-            }
+            //variableName = ConditionVariableName(variableName, prop);
+            //if (variableName.Length < 1)
+            //{
+            //    Utility.ComplainLoudly("RegisterNumericVariable with empty variableName");
+            //    throw new ArgumentException("[MASFlightComputer] RegisterNumericVariable called with empty variableName");
+            //}
 
             Variable v = GetVariable(variableName, prop);
 
@@ -246,12 +246,12 @@ namespace AvionicsSystems
         /// <returns></returns>
         internal Variable RegisterOnVariableChange(string variableName, InternalProp prop, Action callback)
         {
-            variableName = ConditionVariableName(variableName, prop);
-            if (variableName.Length < 1)
-            {
-                Utility.ComplainLoudly("RegisterOnVariableChange with empty variableName");
-                throw new ArgumentException("[MASFlightComputer] RegisterOnVariableChange called with empty variableName");
-            }
+            //variableName = ConditionVariableName(variableName, prop);
+            //if (variableName.Length < 1)
+            //{
+            //    Utility.ComplainLoudly("RegisterOnVariableChange with empty variableName");
+            //    throw new ArgumentException("[MASFlightComputer] RegisterOnVariableChange called with empty variableName");
+            //}
 
             Variable v = GetVariable(variableName, null);
 
@@ -275,40 +275,6 @@ namespace AvionicsSystems
             {
                 variables[variableName].changeCallbacks -= callback;
             }
-        }
-
-        /// <summary>
-        /// Get the named Variable (for direct access)
-        /// </summary>
-        /// <param name="variableName"></param>
-        /// <returns></returns>
-        internal Variable GetVariable(string variableName, InternalProp prop)
-        {
-            variableName = ConditionVariableName(variableName, prop);
-            if (variableName.Length < 1)
-            {
-                Utility.ComplainLoudly("GetVariable with empty variableName");
-                throw new ArgumentException("[MASFlightComputer] Trying to GetVariable with empty variableName");
-            }
-
-            Variable v = null;
-            if (variables.ContainsKey(variableName))
-            {
-                v = variables[variableName];
-            }
-            else
-            {
-                v = new Variable(variableName, script);
-                variables.Add(variableName, v);
-                if (v.mutable)
-                {
-                    mutableVariablesList.Add(v);
-                    mutableVariablesChanged = true;
-                }
-                Utility.LogMessage(this, "Adding new variable '{0}'", variableName);
-            }
-
-            return v;
         }
 
         /// <summary>
@@ -347,6 +313,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         internal Action GetAction(string actionName, InternalProp prop)
         {
+            // TODO: Lexer / parsing on this.
             actionName = ConditionVariableName(actionName, prop);
 
             if (actions.ContainsKey(actionName))
@@ -426,6 +393,8 @@ namespace AvionicsSystems
                     // or a relative time.
                     // NOTE: 128 "variables" average about 1.7ms/update!  And there's
                     // a LOT of garbage collection going on.
+                    // 229 variables -> 2.6-2.7ms/update, so 70-80 variables per ms on
+                    // a reasonable mid-upper range CPU (3.6GHz).
                     stopwatch.Start();
                     int count = mutableVariables.Length;
                     for (int i = 0; i < count; ++i)

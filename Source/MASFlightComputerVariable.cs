@@ -51,6 +51,40 @@ namespace AvionicsSystems
         private Variable[] mutableVariables = new Variable[0];
 
         /// <summary>
+        /// Get the named Variable (for direct access)
+        /// </summary>
+        /// <param name="variableName"></param>
+        /// <returns></returns>
+        internal Variable GetVariable(string variableName, InternalProp prop)
+        {
+            variableName = ConditionVariableName(variableName, prop);
+            if (variableName.Length < 1)
+            {
+                Utility.ComplainLoudly("GetVariable with empty variableName");
+                throw new ArgumentException("[MASFlightComputer] Trying to GetVariable with empty variableName");
+            }
+
+            Variable v = null;
+            if (variables.ContainsKey(variableName))
+            {
+                v = variables[variableName];
+            }
+            else
+            {
+                v = new Variable(variableName, script);
+                variables.Add(variableName, v);
+                if (v.mutable)
+                {
+                    mutableVariablesList.Add(v);
+                    mutableVariablesChanged = true;
+                }
+                Utility.LogMessage(this, "Adding new variable '{0}'", variableName);
+            }
+
+            return v;
+        }
+
+        /// <summary>
         /// The Variable is a wrapper class to manage a single variable (as
         /// defined by a Lua script or a constant value).  It allows the MAS
         /// Flight Computer to track and update a single instance of a given
@@ -78,7 +112,7 @@ namespace AvionicsSystems
             private double doubleValue;
             private double safeValue;
             private bool isString;
-            private readonly VariableType variableType = VariableType.Unknown; 
+            private readonly VariableType variableType = VariableType.Unknown;
 
             /// <summary>
             /// How do we evaluate this variable?
@@ -135,25 +169,25 @@ namespace AvionicsSystems
                         }
                         else
                         {
-                            if(tok.Type == TokenType.Symbol && tok.Id == 5)
+                            if (tok.Type == TokenType.Symbol && tok.Id == 5)
                             {
                                 inQuote = true;
                                 startPosition = tok.StartPosition;
                                 sb.Remove(0, sb.Length);
                                 sb.Append(tok.Text);
                             }
-                            else
+                            else if(tok.Type != TokenType.WhiteSpace)
                             {
                                 tokenList.Add(tok);
                             }
                         }
                     }
-                    if(tokenList.Count > 0)
+                    if (tokenList.Count > 0)
                     {
                         // Second pass - convert '-' + number to '-number'.
-                        for (int i = tokenList.Count-1; i >=1; --i )
+                        for (int i = tokenList.Count - 1; i >= 1; --i)
                         {
-                            if (tokenList[i].Type == TokenType.Decimal && tokenList[i-1].Type == TokenType.Symbol && tokenList[i-1].Id == 3)
+                            if (tokenList[i].Type == TokenType.Decimal && tokenList[i - 1].Type == TokenType.Symbol && tokenList[i - 1].Id == 3)
                             {
                                 Token dash = tokenList[i - 1];
                                 Token num = tokenList[i];
@@ -166,13 +200,13 @@ namespace AvionicsSystems
                         }
                         tokens = tokenList.ToArray();
                         Utility.LogMessage(this, "Parsed:");
-                        for(int i=0; i<tokens.Length; ++i)
+                        for (int i = 0; i < tokens.Length; ++i)
                         {
                             Utility.LogMessage(this, " -{0} / {2} = {1}", tokens[i].Type, tokens[i].Value, tokens[i].Id);
                         }
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Utility.LogErrorMessage(this, "Oops - {0}", e);
                 }
@@ -182,7 +216,7 @@ namespace AvionicsSystems
                     throw new ArgumentNullException("Parsing variable " + name + " went badly");
                 }
                 StringBuilder newname = new StringBuilder();
-                for(int i=0; i<tokens.Length; ++i)
+                for (int i = 0; i < tokens.Length; ++i)
                 {
                     if (tokens[i].Type == TokenType.WhiteSpace)
                     {
@@ -190,7 +224,11 @@ namespace AvionicsSystems
                     }
                     else 
                     {
-                    newname.Append(tokens[i].Text);
+                        if (i > 1 && tokens[i].Type == TokenType.Identifier && tokens[i - 1].Type == TokenType.Identifier)
+                        {
+                            newname.Append(' ');
+                        }
+                        newname.Append(tokens[i].Text);
                     }
                 }
                 name = newname.ToString();
@@ -201,7 +239,6 @@ namespace AvionicsSystems
                 if (tokens[0].Type == TokenType.Decimal)
                 {
                     //double.TryParse(tokens[0].Text, out value);
-                    //this.mutable = false;
                     this.valid = true;
                     value = (double)(Decimal)tokens[0].Value;
                     Utility.LogMessage(this, "Found constant number \"{0}\", evaluated to {1}.", tokens[0].Text, value);
@@ -212,87 +249,81 @@ namespace AvionicsSystems
                     this.isString = false;
                     this.variableType = VariableType.Constant;
                 }
-                else 
-#endif
-                if (double.TryParse(name, out value))
-                {
-                    //this.mutable = false;
-                    this.valid = true;
-                    this.stringValue = value.ToString();
-                    this.doubleValue = value;
-                    this.safeValue = value;
-                    this.value = DynValue.NewNumber(value);
-                    this.isString = false;
-                    this.variableType = VariableType.Constant;
-                }
                 else
-                {
-                    // TODO: Can I find a way to parse or analyze the evaluator
-                    // and set up a direct call (bypassing Lua) for very simply
-                    // queries?
-                    // TODO: MoonSharp "hardwiring" - does it help performance?
-                    this.value = null;
-                    try
+#endif
+                    if (double.TryParse(name, out value))
                     {
-                        evaluator = script.LoadString("return " + name);
-                        this.value = script.Call(evaluator);
-                        //this.mutable = true;
                         this.valid = true;
+                        this.stringValue = value.ToString();
+                        this.doubleValue = value;
+                        this.safeValue = value;
+                        this.value = DynValue.NewNumber(value);
+                        this.isString = false;
+                        this.variableType = VariableType.Constant;
                     }
-                    catch (Exception e)
+                    else
                     {
-                        Utility.ComplainLoudly("Error creating variable " + name);
-                        Utility.LogErrorMessage(this, "Unknown variable '{0}':", name);
-                        Utility.LogErrorMessage(this, e.ToString());
+                        // TODO: Can I find a way to parse or analyze the evaluator
+                        // and set up a direct call (bypassing Lua) for very simply
+                        // queries?
+                        // TODO: MoonSharp "hardwiring" - does it help performance?
                         this.value = null;
-                        this.valid = false;
-                    }
-
-                    if (this.value != null)
-                    {
-                        if (this.value.IsNil() || this.value.IsVoid())
+                        try
                         {
-                            // Not a valid evaluable
+                            evaluator = script.LoadString("return " + name);
+                            this.value = script.Call(evaluator);
+                            this.valid = true;
+                        }
+                        catch (Exception e)
+                        {
+                            Utility.ComplainLoudly("Error creating variable " + name);
+                            Utility.LogErrorMessage(this, "Unknown variable '{0}':", name);
+                            Utility.LogErrorMessage(this, e.ToString());
+                            this.value = null;
                             this.valid = false;
-                            //this.mutable = false;
+                        }
+
+                        if (this.value != null)
+                        {
+                            if (this.value.IsNil() || this.value.IsVoid())
+                            {
+                                // Not a valid evaluable
+                                this.valid = false;
+                                this.doubleValue = double.NaN;
+                                this.stringValue = name;
+                                this.valid = false;
+                                this.isString = true;
+                                this.variableType = VariableType.LuaScript;
+                            }
+                            else
+                            {
+                                this.stringValue = this.value.CastToString();
+                                this.doubleValue = this.value.CastToNumber() ?? double.NaN;
+                                this.valid = true;
+
+                                if (double.IsNaN(this.doubleValue) || double.IsInfinity(this.doubleValue))
+                                {
+                                    this.safeValue = 0.0;
+                                    this.isString = true;
+                                }
+                                else
+                                {
+                                    this.safeValue = doubleValue;
+                                    this.isString = false;
+                                }
+
+                                this.variableType = VariableType.LuaScript;
+                            }
+                        }
+                        else
+                        {
                             this.doubleValue = double.NaN;
                             this.stringValue = name;
                             this.valid = false;
                             this.isString = true;
-                            this.variableType = VariableType.LuaScript;
-                        }
-                        else
-                        {
-                            this.stringValue = this.value.CastToString();
-                            this.doubleValue = this.value.CastToNumber() ?? double.NaN;
-                            // TODO: Find a way to convey mutability
-                            //this.mutable = true;
-                            this.valid = true;
-
-                            if (double.IsNaN(this.doubleValue) || double.IsInfinity(this.doubleValue))
-                            {
-                                this.safeValue = 0.0;
-                                this.isString = true;
-                            }
-                            else
-                            {
-                                this.safeValue = doubleValue;
-                                this.isString = false;
-                            }
-
-                            this.variableType = VariableType.LuaScript;
+                            this.variableType = VariableType.Constant;
                         }
                     }
-                    else
-                    {
-                        this.doubleValue = double.NaN;
-                        this.stringValue = name;
-                        //this.mutable = false;
-                        this.valid = false;
-                        this.isString = true;
-                        this.variableType = VariableType.Constant;
-                    }
-                }
             }
 
             /// <summary>
@@ -354,7 +385,6 @@ namespace AvionicsSystems
                 {
                     DynValue oldDynValue = value;
                     double oldValue = safeValue;
-                    //string oldString = stringValue;
                     try
                     {
                         value = script.Call(evaluator);
