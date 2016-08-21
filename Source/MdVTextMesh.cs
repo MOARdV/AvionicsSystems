@@ -1417,7 +1417,7 @@ namespace AvionicsSystems
                     {
                         for (int i = 0; i < variable.Length; ++i)
                         {
-                            evals[i] = (variable[i].IsString()) ? (object)variable[i].String() : (object)variable[i].Value();
+                            evals[i] = variable[i].RawValue();
                         }
 
                         formattedData = string.Format(formatter, formatString, evals);

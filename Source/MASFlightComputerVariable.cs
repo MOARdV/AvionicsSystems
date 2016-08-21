@@ -314,7 +314,6 @@ namespace AvionicsSystems
             private string stringValue;
             private double doubleValue;
             private double safeValue;
-            private bool isString;
             private readonly VariableType variableType = VariableType.Unknown;
 
             /// <summary>
@@ -341,8 +340,6 @@ namespace AvionicsSystems
                 this.doubleValue = value;
                 this.safeValue = value;
                 this.rawObject = value;
-                //this.luaValue = DynValue.NewNumber(value);
-                this.isString = false;
                 this.variableType = VariableType.Constant;
             }
 
@@ -359,8 +356,6 @@ namespace AvionicsSystems
                 this.doubleValue = double.NaN;
                 this.safeValue = 0.0;
                 this.rawObject = value;
-                //this.luaValue = DynValue.NewString(value);
-                this.isString = true;
                 this.variableType = VariableType.Constant;
             }
 
@@ -399,8 +394,6 @@ namespace AvionicsSystems
                     this.doubleValue = value;
                     this.safeValue = value;
                     this.rawObject = value;
-                    //this.luaValue = DynValue.NewNumber(value);
-                    this.isString = false;
                     this.variableType = VariableType.Constant;
                 }
                 else
@@ -435,7 +428,6 @@ namespace AvionicsSystems
                             this.stringValue = name;
                             this.rawObject = name;
                             this.valid = false;
-                            this.isString = true;
                             this.variableType = VariableType.LuaScript;
                         }
                         else
@@ -446,7 +438,6 @@ namespace AvionicsSystems
                                 this.doubleValue = luaValue.CastToNumber() ?? double.NaN;
                                 this.safeValue = this.doubleValue;
                                 this.stringValue = this.doubleValue.ToString();
-                                this.isString = false;
                                 this.rawObject = this.doubleValue;
                             }
                             else if(type == DataType.String)
@@ -454,7 +445,6 @@ namespace AvionicsSystems
                                 this.doubleValue = double.NaN;
                                 this.safeValue = 0.0;
                                 this.stringValue = luaValue.String;
-                                this.isString = true;
                                 this.rawObject = this.stringValue;
                             }
                             else
@@ -462,27 +452,9 @@ namespace AvionicsSystems
                                 this.doubleValue = double.NaN;
                                 this.safeValue = 0.0;
                                 this.stringValue = luaValue.CastToString();
-                                this.isString = false;
                                 this.rawObject = luaValue.ToObject();
                             }
-                            /*
-                            stringValue = luaValue.CastToString();
-                            doubleValue = luaValue.CastToNumber() ?? double.NaN;
-                            this.valid = true;
 
-                            if (double.IsNaN(this.doubleValue) || double.IsInfinity(this.doubleValue))
-                            {
-                                this.safeValue = 0.0;
-                                this.rawObject = stringValue;
-                                this.isString = true;
-                            }
-                            else
-                            {
-                                this.safeValue = doubleValue;
-                                this.rawObject = doubleValue;
-                                this.isString = false;
-                            }
-                            */
                             this.valid = true;
                             this.variableType = VariableType.LuaScript;
                         }
@@ -492,31 +464,15 @@ namespace AvionicsSystems
                         this.doubleValue = double.NaN;
                         this.stringValue = name;
                         this.valid = false;
-                        this.isString = true;
                         this.variableType = VariableType.Constant;
                     }
                 }
             }
 
             /// <summary>
-            /// Are the contents a string?
+            /// Return the raw object for customized processing.
             /// </summary>
             /// <returns></returns>
-            public bool IsString()
-            {
-                return this.isString;
-            }
-
-            /// <summary>
-            /// Return the raw DynValue for specialized processing.
-            /// 
-            /// TODO: What about when Func can be put here?
-            /// </summary>
-            /// <returns></returns>
-            //public DynValue RawValue()
-            //{
-            //    return luaValue;
-            //}
             public object RawValue()
             {
                 return rawObject;
@@ -562,14 +518,12 @@ namespace AvionicsSystems
                     doubleValue = (double)value;
                     safeValue = doubleValue;
                     stringValue = doubleValue.ToString();
-                    isString = false;
                 }
                 else if (value is string)
                 {
                     stringValue = value as string;
                     doubleValue = double.NaN;
                     safeValue = 0.0;
-                    isString = true;
                 }
                 else
                 {
