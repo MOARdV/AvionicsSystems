@@ -429,9 +429,11 @@ namespace AvionicsSystems
                 GameEvents.onVesselChange.Remove(onVesselChanged);
                 GameEvents.onVesselCrewWasModified.Remove(onVesselChanged);
 
-                Utility.LogMessage(this, "{0} variables created, including {1} mutable variables",
-                    variables.Count, mutableVariables.Length);
-                Utility.LogMessage(this, "MoonSharp time average = {0:0.00}ms/FixedUpdate", 1000.0 * (double)(stopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency));
+                Utility.LogMessage(this, "{3} variables created: {0} constant variables, {1} native variables, and {2} Lua variables",
+                    constantVariableCount, nativeVariableCount, luaVariableCount, variables.Count);
+                Utility.LogMessage(this, "{0} potential native variables overlooked (fell back to Lua)", skippedNativeVars);
+                double msPerFixedUpdate =1000.0 * (double)(stopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
+                Utility.LogMessage(this, "MoonSharp time average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, (double)mutableVariables.Length / msPerFixedUpdate);
             }
         }
 

@@ -92,7 +92,7 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void VariableCallback()
         {
-            Vector2 newVector = variable.RawValue().ToObject<MASVector2>();
+            Vector2 newVector = (variable.RawValue() is MASVector2) ? (MASVector2)variable.RawValue() : Vector2.zero;
 
             if (newVector != currentUV)
             {
