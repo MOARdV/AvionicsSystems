@@ -275,6 +275,11 @@ namespace AvionicsSystems
             Camera.onPreCull -= EnablePage;
             Camera.onPostRender -= DisablePage;
 
+            if (screenCamera != null)
+            {
+                screenCamera.targetTexture = null;
+            }
+
             if (screen != null)
             {
                 screen.Release();
