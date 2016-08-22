@@ -1,4 +1,5 @@
 ﻿//#define VERBOSE_LEXER
+//#define VERBOSE_PARSING
 /*****************************************************************************
  * The MIT License (MIT)
  * 
@@ -40,6 +41,11 @@ namespace AvionicsSystems
         private Dictionary<string, Variable> variables = new Dictionary<string, Variable>();
 
         /// <summary>
+        /// Converts unformatted strings to canonical formats.
+        /// </summary>
+        private Dictionary<string, string> canonicalVariableName = new Dictionary<string, string>();
+
+        /// <summary>
         /// List of variables that change (as opposed to constants).
         /// </summary>
         private List<Variable> mutableVariablesList = new List<Variable>();
@@ -68,6 +74,26 @@ namespace AvionicsSystems
             {"/", 33}, // division operator
             {"+", 34}, // addition operator
         };
+        // 48 = boolean value (true / false)
+
+        private static bool NativeNamespace(string name)
+        {
+            switch (name)
+            {
+                case "fc":
+                    return true;
+                case "chatterer":
+                    return true;
+                case "far":
+                    return true;
+                case "realchute":
+                    return true;
+                case "mechjeb":
+                    return true;
+            }
+
+            return false;
+        }
 
         /// <summary>
         /// Do the tokens hold the form 'str' + '.' + 'str' + '(' + * + ')'?
@@ -78,15 +104,481 @@ namespace AvionicsSystems
         {
             // Note: tokens length is not verified - that's the responsibility
             // of the caller
-            return (tokens[firstToken + 0].Type == TokenType.Identifier &&
+            if (tokens[firstToken + 0].Type == TokenType.Identifier &&
                 tokens[firstToken + 1].Type == TokenType.Symbol && tokens[firstToken + 1].Id == 1 &&
                 tokens[firstToken + 2].Type == TokenType.Identifier &&
                 tokens[firstToken + 3].Type == TokenType.Symbol && tokens[firstToken + 3].Id == 16 &&
-                tokens[lastToken].Type == TokenType.Symbol && tokens[lastToken].Id == 17);
+                tokens[lastToken].Type == TokenType.Symbol && tokens[lastToken].Id == 17 &&
+                NativeNamespace(tokens[0].Text))
+            {
+                // Must do additional parsing here, in case the tokens are in the form 'fc.blah() * fc.blah2()'
+                int depth = 0;
+                for (int idx = firstToken + 4; idx < lastToken; ++idx )
+                {
+                    if (tokens[idx].Type == TokenType.Symbol && tokens[idx].Id == 16)
+                    {
+                        ++depth;
+                    }
+                    else if (tokens[idx].Type == TokenType.Symbol && tokens[idx].Id == 17)
+                    {
+                        --depth;
+                    }
+
+                    if(depth < 0)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            return false;
+        }
+
+        enum VariableParameterType
+        {
+            UNSUPPORTED,
+            CONST_BOOL,
+            CONST_DOUBLE,
+            CONST_STRING,
+            VARIABLE
+        };
+
+        struct VariableParameter
+        {
+            // Type is the native type of the value for constants, or the
+            // return type of the method.
+            internal VariableParameterType vpType;
+            internal Type valueType;
+            internal bool booleanValue;
+            internal double numericValue;
+            internal string stringValue;
+            internal Variable variableValue;
+        };
+
+        static private Dictionary<string, Type> typeMap = new Dictionary<string, Type>
+        {
+            {"fc", typeof(MASFlightComputerProxy)},
+            {"chatterer", typeof(MASIChatterer)},
+            {"far", typeof(MASIFAR)},
+            {"mechjeb", typeof(MASIMechJeb)},
+            {"realchute", typeof(MASIRealChute)},
+        };
+
+        /// <summary>
+        /// Reassemble the name into its 'canonical' form.
+        /// </summary>
+        /// <param name="tokens"></param>
+        /// <param name="firstIndex"></param>
+        /// <param name="lastIndex"></param>
+        /// <returns></returns>
+        private static string MakeCanonicalName(Token[] tokens, int firstIndex, int lastIndex)
+        {
+            StringBuilder sb = Utility.GetStringBuilder();
+            for(int index = firstIndex; index <= lastIndex; ++index)
+            {
+                sb.Append(tokens[index].Text);
+            }
+
+            return sb.ToString();
         }
 
         /// <summary>
-        /// Get the named Variable (for direct access)
+        /// Parse the parameter list and come up with a proposed arrangement.
+        /// </summary>
+        /// <param name="tokens"></param>
+        /// <param name="firstIndex">First index of the parameter list (after the opening paren)</param>
+        /// <param name="lastIndex">Last index of the parameter list (before the closing paren)</param>
+        /// <returns></returns>
+        private VariableParameter[] TryParseParameters(Token[] tokens, int firstIndex, int lastIndex)
+        {
+            if (firstIndex > lastIndex)
+            {
+                return new VariableParameter[0];
+            }
+            else
+            {
+                int numParameters = 1;
+                // Count the parameters
+                for(int index = firstIndex; index < lastIndex; ++index)
+                {
+                    if (tokens[index].Type == TokenType.Symbol && tokens[index].Id == 18)
+                    {
+                        ++numParameters;
+                    }
+                }
+#if VERBOSE_PARSING
+                Utility.LogMessage(this, "TryParseParameters - found {0} parameters", numParameters);
+#endif
+                VariableParameter[] newParms = new VariableParameter[numParameters];
+                int currentParam = 0;
+                int numTokens;
+                for (int index = firstIndex; index <= lastIndex; ++index)
+                {
+                    if (tokens[index].Type == TokenType.Symbol && tokens[index].Id == 18)
+                    {
+                        numTokens = index - firstIndex;
+#if VERBOSE_PARSING
+                        Utility.LogMessage(this, "index = {0}, firstIndex = {1}, numTokens = {2}", index, firstIndex, numTokens);
+#endif
+                        if (numTokens == 1)
+                        {
+                            if(tokens[firstIndex].Type == TokenType.Number)
+                            {
+#if VERBOSE_PARSING
+                                Utility.LogMessage(this, " Parameter {0} is number", currentParam);
+#endif
+
+                                newParms[currentParam].numericValue = (double)tokens[firstIndex].Value;
+                                newParms[currentParam].valueType = typeof(double);
+                                newParms[currentParam].vpType = VariableParameterType.CONST_DOUBLE;
+                            }
+                            else if(tokens[firstIndex].Type == TokenType.QuotedString)
+                            {
+#if VERBOSE_PARSING
+                                Utility.LogMessage(this, " Parameter {0} is string", currentParam);
+#endif
+
+                                newParms[currentParam].stringValue = tokens[firstIndex].Value.ToString();
+                                newParms[currentParam].stringValue = newParms[currentParam].stringValue.Substring(1, newParms[currentParam].stringValue.Length - 2);
+                                newParms[currentParam].valueType = typeof(string);
+                                newParms[currentParam].vpType = VariableParameterType.CONST_STRING;
+                            }
+                            else if(tokens[firstIndex].Type == TokenType.Keyword && tokens[firstIndex].Id == 48)
+                            {
+#if VERBOSE_PARSING
+                                Utility.LogMessage(this, " Parameter {0} is bool", currentParam);
+#endif
+
+                                newParms[currentParam].booleanValue = (bool)tokens[firstIndex].Value;
+                                newParms[currentParam].valueType = typeof(bool);
+                                newParms[currentParam].vpType = VariableParameterType.CONST_BOOL;
+                            }
+                            else
+                            {
+                                Utility.LogErrorMessage(this, " Parameter {0} is an unexpected value", currentParam);
+                            }
+                        }
+                        else
+                        {
+                            // Variable
+                            string canonName = MakeCanonicalName(tokens, firstIndex, index - 1);
+                            Variable v = GetVariable(canonName, null);
+#if VERBOSE_PARSING
+                            Utility.LogMessage(this, "Looked for child variable {0}: {1}", canonName, (v==null) ? "failed" : "succeeded");
+#endif
+                            if (v == null)
+                            {
+                                newParms = new VariableParameter[1];
+                                newParms[0].vpType = VariableParameterType.UNSUPPORTED;
+                                return newParms;
+                            }
+                            else
+                            {
+                                newParms[currentParam].variableValue = v;
+                                newParms[currentParam].valueType = v.RawValue().GetType();
+                                newParms[currentParam].vpType = VariableParameterType.VARIABLE;
+                            }
+                        }
+                        ++currentParam;
+                        firstIndex = index + 1;
+                    }
+                }
+                numTokens = lastIndex - firstIndex + 1;
+#if VERBOSE_PARSING
+                Utility.LogMessage(this, "lastIndex = {0}, firstIndex = {1}, numTokens = {2}", lastIndex, firstIndex, numTokens);
+#endif
+                if (numTokens == 1)
+                {
+                    if (tokens[firstIndex].Type == TokenType.Number)
+                    {
+#if VERBOSE_PARSING
+                        Utility.LogMessage(this, " Parameter {0} is number", currentParam);
+#endif
+
+                        newParms[currentParam].numericValue = (double)tokens[firstIndex].Value;
+                        newParms[currentParam].valueType = typeof(double);
+                        newParms[currentParam].vpType = VariableParameterType.CONST_DOUBLE;
+                    }
+                    else if (tokens[firstIndex].Type == TokenType.QuotedString)
+                    {
+#if VERBOSE_PARSING
+                        Utility.LogMessage(this, " Parameter {0} is string", currentParam);
+#endif
+
+                        newParms[currentParam].stringValue = tokens[firstIndex].Value.ToString();
+                        newParms[currentParam].stringValue = newParms[currentParam].stringValue.Substring(1, newParms[currentParam].stringValue.Length - 2);
+                        newParms[currentParam].valueType = typeof(string);
+                        newParms[currentParam].vpType = VariableParameterType.CONST_STRING;
+                    }
+                    else if (tokens[firstIndex].Type == TokenType.Keyword && tokens[firstIndex].Id == 48)
+                    {
+#if VERBOSE_PARSING
+                        Utility.LogMessage(this, " Parameter {0} is bool", currentParam);
+#endif
+
+                        newParms[currentParam].booleanValue = (bool)tokens[firstIndex].Value;
+                        newParms[currentParam].valueType = typeof(bool);
+                        newParms[currentParam].vpType = VariableParameterType.CONST_BOOL;
+                    }
+                }
+                else
+                {
+                    // Variable
+                    string canonName = MakeCanonicalName(tokens, firstIndex, lastIndex);
+                    Variable v = GetVariable(canonName, null);
+#if VERBOSE_PARSING
+                    Utility.LogMessage(this, "Looked for child variable {0}: {1}", canonName, (v == null) ? "failed" : "succeeded");
+#endif
+                    if (v == null)
+                    {
+                        newParms = new VariableParameter[1];
+                        newParms[0].vpType = VariableParameterType.UNSUPPORTED;
+                        return newParms;
+                    }
+                    else
+                    {
+                        newParms[currentParam].variableValue = v;
+                        newParms[currentParam].valueType = v.RawValue().GetType();
+                        newParms[currentParam].vpType = VariableParameterType.VARIABLE;
+                    }
+                }
+                return newParms;
+            }
+        }
+
+        /// <summary>
+        /// Find a method with the supplied name within the supplied class (Type)
+        /// with a parameter list that matches the types in the VariableParameter array.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="type"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        private static MethodInfo FindMethod(string name, Type type, VariableParameter[] parameters)
+        {
+            int numParams = parameters.Length;
+            MethodInfo[] methods = type.GetMethods();
+            for (int i = methods.Length - 1; i >= 0; --i)
+            {
+                if (methods[i].Name == name)
+                {
+                    ParameterInfo[] methodParams = methods[i].GetParameters();
+                    if (methodParams.Length == numParams)
+                    {
+                        if (numParams == 0)
+                        {
+                            return methods[i];
+                        }
+                        else
+                        {
+                            bool match = true;
+                            for(int index = 0; index < numParams; ++index)
+                            {
+                                if (methodParams[index].ParameterType != parameters[index].valueType)
+                                {
+                                    match = false;
+                                    break;
+                                }
+                            }
+
+                            if (match)
+                            {
+                                return methods[i];
+                            }
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// See if we can parse the tokens sufficiently to create a delegate
+        /// that allows us to bypass the MoonSharp interpreter.  Returns
+        /// null on failure.
+        /// </summary>
+        /// <param name="tokens"></param>
+        /// <param name="lastToken"></param>
+        /// <returns></returns>
+        private Variable TryCreateNativeVariable(string variableName, Token[] tokens, int lastToken)
+        {
+            Variable newVar = null;
+            if (NativeMethod(tokens, 0, lastToken))
+            {
+#if VERBOSE_PARSING
+                Utility.LogMessage(this, "Native candidate...");
+#endif
+                // This looks promising...  Can we figure out how to construct a variable?
+                VariableParameter[] parameters = TryParseParameters(tokens, 4, lastToken - 1);
+
+                if (parameters.Length == 1 && parameters[0].vpType == VariableParameterType.UNSUPPORTED)
+                {
+#if VERBOSE_PARSING
+                    Utility.LogMessage(this, "... Unsupported component in parameter list");
+#endif
+                    return null;
+                }
+                else
+                {
+                    MethodInfo method = FindMethod(tokens[2].Text, typeMap[tokens[0].Text], parameters);
+                    if (method == null)
+                    {
+                        Utility.LogErrorMessage(this, "... Did not find matching method for '{0}'", tokens[2].Text);
+                    }
+                    else
+                    {
+#if VERBOSE_PARSING
+                        Utility.LogMessage(this, "... Found matching method for '{0}'", tokens[2].Text);
+#endif
+                        object objRef = null;
+                        switch (tokens[0].Text)
+                        {
+                            case "fc":
+                                objRef = fcProxy;
+                                break;
+                            case "far":
+                                objRef = farProxy;
+                                break;
+                            case "chatterer":
+                                objRef = chattererProxy;
+                                break;
+                            case "mechjeb":
+                                objRef = mjProxy;
+                                break;
+                            case "realchute":
+                                objRef = realChuteProxy;
+                                break;
+                        }
+                        if (objRef != null)
+                        {
+                            if (parameters.Length == 0)
+                            {
+                                // No parameters.
+                                DynamicMethod<object> dm = DynamicMethodFactory.CreateFunc<object>(method);
+                                if (dm != null)
+                                {
+                                    newVar = new Variable(variableName, () => { return dm(objRef); });
+#if VERBOSE_PARSING
+                                    Utility.LogMessage(this, "Added native variable \"{0}\"", variableName);
+#endif
+                                }
+                            }
+                            else
+                            {
+                                if (parameters.Length == 1)
+                                {
+                                    if (parameters[0].vpType == VariableParameterType.CONST_BOOL)
+                                    {
+                                        DynamicMethod<object, bool> dm = DynamicMethodFactory.CreateFunc<object, bool>(method);
+                                        bool bValue = parameters[0].booleanValue;
+                                        newVar = new Variable(variableName, () => { return dm(objRef, bValue); });
+#if VERBOSE_PARSING
+                                        Utility.LogMessage(this, "Added native bool variable \"{0}\"", variableName);
+#endif
+                                    }
+                                    else if (parameters[0].vpType == VariableParameterType.CONST_DOUBLE)
+                                    {
+                                        DynamicMethod<object, double> dm = DynamicMethodFactory.CreateFunc<object, double>(method);
+                                        double dValue = parameters[0].numericValue;
+                                        newVar = new Variable(variableName, () => { return dm(objRef, dValue); });
+#if VERBOSE_PARSING
+                                        Utility.LogMessage(this, "Added native double variable \"{0}\"", variableName);
+#endif
+                                    }
+                                    else if (parameters[0].vpType == VariableParameterType.CONST_STRING)
+                                    {
+                                        DynamicMethod<object, string> dm = DynamicMethodFactory.CreateFunc<object, string>(method);
+                                        string sValue = parameters[0].stringValue;
+                                        newVar = new Variable(variableName, () => { return dm(objRef, sValue); });
+#if VERBOSE_PARSING
+                                        Utility.LogMessage(this, "Added native string variable \"{0}\"", variableName);
+#endif
+                                    }
+                                    else if(parameters[0].vpType == VariableParameterType.VARIABLE)
+                                    {
+                                        if (parameters[0].valueType == typeof(bool))
+                                        {
+                                            DynamicMethod<object, bool> dm = DynamicMethodFactory.CreateFunc<object, bool>(method);
+                                            Variable v = parameters[0].variableValue;
+                                            newVar = new Variable(variableName, () => 
+                                            {
+                                                bool bValue = (bool)v.RawValue();
+                                                return dm(objRef, bValue); 
+                                            });
+#if VERBOSE_PARSING
+                                            Utility.LogMessage(this, "Added variable bool variable \"{0}\"", variableName);
+#endif
+                                        }
+                                        else if (parameters[0].valueType == typeof(double))
+                                        {
+                                            DynamicMethod<object, double> dm = DynamicMethodFactory.CreateFunc<object, double>(method);
+                                            Variable v = parameters[0].variableValue;
+                                            newVar = new Variable(variableName, () => 
+                                            { 
+                                                return dm(objRef, v.SafeValue()); 
+                                            });
+#if VERBOSE_PARSING
+                                            Utility.LogMessage(this, "Added variable double variable \"{0}\"", variableName);
+#endif
+                                        }
+                                        else if (parameters[0].valueType == typeof(string))
+                                        {
+                                            DynamicMethod<object, string> dm = DynamicMethodFactory.CreateFunc<object, string>(method);
+                                            Variable v = parameters[0].variableValue;
+                                            newVar = new Variable(variableName, () => 
+                                            { 
+                                                return dm(objRef, v.String()); 
+                                            });
+#if VERBOSE_PARSING
+                                            Utility.LogMessage(this, "Added variable string variable \"{0}\"", variableName);
+#endif
+                                        }
+                                    }
+                                    else 
+                                    {
+                                        Utility.LogErrorMessage(this, "Found unsupported parameter type {0} for variable {1}", parameters[0].vpType, variableName);
+                                    }
+                                }
+                                else
+                                {
+                                    Utility.LogErrorMessage(this, "Found unsupported {0} parameter method for {1}", parameters.Length, variableName);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return newVar;
+        }
+
+        /// <summary>
+        /// Get the named Variable (for direct access).
+        /// 
+        /// So, that's the really short summary, but it does not tell you what
+        /// I am really doing.
+        /// 
+        /// The MoonSharp interpreter, version 1.6.0, seems to be able to
+        /// process about 90-ish variables per millisecond using the test IVA
+        /// I created (Yarbrough Mk1-1A2, 228 mutable variables).  That's really
+        /// poor performance - around 2.5ms per FixedUpdate, which fires every
+        /// 20ms at default frequency.  In other words, about 1/8 of the FixedUpdate
+        /// time budget, just for the MAS variables.  No bueno.
+        /// 
+        /// So, I use a Lexer object (see Lexer.cs) to parse the variable.  I
+        /// then apply some processing to the parsed variable to simplify
+        /// constant numbers and constant strings into immutable values.  I also
+        /// look for variables that are calling MAS directly (eg, 'fc.Something()')
+        /// so I can create a delegate that allows me to call them directly
+        /// without the cost of a round trip through Lua.
+        /// 
+        /// That optimization by itself, where I can call both void methods and
+        /// single-parameter constant methods (eg 'fc.GetPersistentAsNumber("SomePersistent"),
+        /// moves the refresh rate above 120 updates/ms.  That's better.  The fewer
+        /// calls into Lua / MoonSharp, the better.  It also accounted for about half of the
+        /// total number of calls.
         /// </summary>
         /// <param name="variableName"></param>
         /// <returns></returns>
@@ -111,12 +603,9 @@ namespace AvionicsSystems
 #if VERBOSE_LEXER
                 Utility.LogMessage(this, "Parsing string \"{0}\":", variableName);
 #endif
-                // Reassemble strings.
-                // Convert '-' + number back to '-number'. <- as a second pass?
-                // 
                 bool inQuote = false;
                 int startPosition = 0;
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = null;// new StringBuilder();
                 foreach (var tok in lex)
                 {
 #if VERBOSE_LEXER
@@ -128,6 +617,7 @@ namespace AvionicsSystems
                         // Close quote
                         if (tok.Type == TokenType.Symbol && tok.Id == 2)
                         {
+                            // TODO: Do I care about anything here beyond the first 4 parameters?
                             tokenList.Add(new Token(TokenType.QuotedString, sb.ToString(), sb.ToString(), 0, startPosition, tok.EndPosition, tok.LineBegin, tok.LineNumber, tok.EndLineBegin, tok.EndLineNumber));
                             inQuote = false;
                         }
@@ -139,12 +629,65 @@ namespace AvionicsSystems
                         {
                             inQuote = true;
                             startPosition = tok.StartPosition;
-                            sb.Remove(0, sb.Length);
+                            sb = Utility.GetStringBuilder();
                             sb.Append(tok.Text);
                         }
                         else if (tok.Type != TokenType.WhiteSpace)
                         {
-                            tokenList.Add(tok);
+                            if (tok.Type == TokenType.Identifier)
+                            {
+                                if (tok.Text == "true")
+                                {
+                                    tokenList.Add(new Token(TokenType.Keyword, true, "true", 48, 0, 0, 0, 0, 0, 0));
+                                }
+                                else if (tok.Text == "false")
+                                {
+                                    tokenList.Add(new Token(TokenType.Keyword, false, "false", 48, 0, 0, 0, 0, 0, 0));
+                                }
+                                else if (tok.Text == "and")
+                                {
+                                    tokenList.Add(new Token(TokenType.Identifier, " and ", " and ", 0, 0, 0, 0, 0, 0, 0));
+                                }
+                                else if (tok.Text == "or")
+                                {
+                                    tokenList.Add(new Token(TokenType.Identifier, " or ", " or ", 0, 0, 0, 0, 0, 0, 0));
+                                }
+                                else
+                                { 
+                                    tokenList.Add(tok);
+                                }
+                            }
+                            else if(tok.Type == TokenType.Symbol)
+                            {
+                                if(tok.Id == 18)
+                                {
+                                    tokenList.Add(new Token(TokenType.Symbol, ", ", ", ", tok.Id, 0, 0, 0, 0, 0, 0));
+                                }
+                                else if(tok.Id == 32)
+                                {
+                                    tokenList.Add(new Token(TokenType.Symbol, " * ", " * ", tok.Id, 0, 0, 0, 0, 0, 0));
+                                }
+                                else if(tok.Id == 33)
+                                {
+                                    tokenList.Add(new Token(TokenType.Symbol, " / ", " / ", tok.Id, 0, 0, 0, 0, 0, 0));
+                                }
+                                else if(tok.Id == 34)
+                                {
+                                    tokenList.Add(new Token(TokenType.Symbol, " + ", " + ", tok.Id, 0, 0, 0, 0, 0, 0));
+                                }
+                                else
+                                { 
+                                    tokenList.Add(tok);
+                                }
+                            }
+                            else if(tok.Type == TokenType.Decimal)
+                            {
+                                tokenList.Add(new Token(TokenType.Number, (double)(Decimal)tok.Value, tok.Text, 0, 0, 0, 0, 0, 0, 0));
+                            }
+                            else
+                            {
+                                tokenList.Add(tok);
+                            }
                         }
                     }
                 }
@@ -153,16 +696,16 @@ namespace AvionicsSystems
                     // Second pass - convert '-' + number to '-number'.
                     for (int i = tokenList.Count - 1; i >= 1; --i)
                     {
-                        // '-' preciding digit - convert?
-                        // TODO: This shouldn't actually happen automatically.
-                        if (tokenList[i].Type == TokenType.Decimal && tokenList[i - 1].Type == TokenType.Symbol && tokenList[i - 1].Id == 3)
+                        // '-' preceding digit - convert?
+                        // TODO: This shouldn't actually happen automatically.  The dash may be a subtraction symbol.
+                        if (tokenList[i].Type == TokenType.Number && tokenList[i - 1].Type == TokenType.Symbol && tokenList[i - 1].Id == 3)
                         {
                             Token dash = tokenList[i - 1];
                             Token num = tokenList[i];
-                            Decimal newValue = (Decimal)num.Value;
+                            double newValue = (double)num.Value;
                             newValue = -newValue;
                             string newString = newValue.ToString();
-                            tokenList[i - 1] = new Token(TokenType.Decimal, newValue, newString, 0, dash.StartPosition, num.EndPosition, dash.LineBegin, num.LineNumber, num.EndLineBegin, num.EndLineNumber);
+                            tokenList[i - 1] = new Token(TokenType.Number, newValue, newString, 0, dash.StartPosition, num.EndPosition, dash.LineBegin, num.LineNumber, num.EndLineBegin, num.EndLineNumber);
                             tokenList.Remove(tokenList[i]);
                         }
                     }
@@ -187,83 +730,52 @@ namespace AvionicsSystems
                 throw new ArgumentNullException("Parsing variable " + variableName + " went badly");
             }
 
-            // TODO: Convert variableName to canonicalName
-            // TODO: Look up variableName -> canonicalName in dictionary
-            // TODO: Check if canonicalName is in the variable dict.
+            string canonicalName = string.Empty;
+            if (canonicalVariableName.ContainsKey(variableName))
+            {
+                canonicalName = canonicalVariableName[variableName];
+            }
+            else
+            {
+                canonicalName = MakeCanonicalName(tokens, 0, tokenCount - 1);
+                canonicalVariableName[variableName] = canonicalName;
+            }
 
             Variable v = null;
-            if (variables.ContainsKey(variableName))
+            if (variables.ContainsKey(canonicalName))
             {
-                v = variables[variableName];
+                v = variables[canonicalName];
             }
             else
             {
                 if (tokenCount == 1)
                 {
-                    if (tokens[0].Type == TokenType.Decimal)
+                    if (tokens[0].Type == TokenType.Number)
                     {
+#if VERBOSE_PARSING
                         Utility.LogMessage(this, "Adding parsed numeric constant \"{0}\"", tokens[0].Text);
-                        v = new Variable((double)(Decimal)tokens[0].Value);
+#endif
+                        v = new Variable((double)tokens[0].Value);
                         constantVariableCount++;
                     }
                     else if (tokens[0].Type == TokenType.QuotedString)
                     {
+#if VERBOSE_PARSING
                         Utility.LogMessage(this, "Adding parsed string constant {0}", tokens[0].Text);
+#endif
                         v = new Variable(tokens[0].Text);
                         constantVariableCount++;
                     }
                 }
-                else if (tokenCount == 5)
+                else if (tokenCount >= 5)
                 {
-                    // Try the very simple case of a direct call
-                    if (NativeMethod(tokens, 0, 4))
+#if VERBOSE_PARSING
+                    Utility.LogMessage(this, "Trying native variable path for '{0}'", variableName);
+#endif
+                    v = TryCreateNativeVariable(canonicalName, tokens, tokenCount - 1);
+                    if (v != null)
                     {
-                        object objRef = null;
-                        MethodInfo method = null;
-                        ++skippedNativeVars;
-                        try
-                        {
-                            switch (tokens[0].Text)
-                            {
-                                case "chatterer":
-                                    objRef = chattererProxy;
-                                    method = typeof(MASIChatterer).GetMethod(tokens[2].Text);
-                                    break;
-                                case "far":
-                                    objRef = farProxy;
-                                    method = typeof(MASIFAR).GetMethod(tokens[2].Text);
-                                    break;
-                                case "fc":
-                                    objRef = fcProxy;
-                                    method = typeof(MASFlightComputerProxy).GetMethod(tokens[2].Text);
-                                    break;
-                                case "mechjeb":
-                                    objRef = mjProxy;
-                                    method = typeof(MASIMechJeb).GetMethod(tokens[2].Text);
-                                    break;
-                                case "realchute":
-                                    objRef = realChuteProxy;
-                                    method = typeof(MASIRealChute).GetMethod(tokens[2].Text);
-                                    break;
-                            }
-
-                            if (method != null)
-                            {
-                                DynamicMethod<object> dm = DynamicMethodFactory.CreateFunc<object>(method);
-                                if (dm != null)
-                                {
-                                    v = new Variable(variableName, () => { return dm(objRef); });
-                                    ++nativeVariableCount;
-                                    --skippedNativeVars;
-                                    Utility.LogMessage(this, "Added native variable \"{0}\"", variableName);
-                                }
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            Utility.LogErrorMessage(this, "Native parsing error for \"{0}\"", variableName);
-                            Utility.LogErrorMessage(this, e.ToString());
-                        }
+                        ++nativeVariableCount;
                     }
                 }
 
@@ -271,16 +783,16 @@ namespace AvionicsSystems
                 {
                     // If we couldn't find a way to optimize the value, fall
                     // back to interpreted Lua script.
-                    v = new Variable(variableName, script);
+                    v = new Variable(canonicalName, script);
                     luaVariableCount++;
                 }
-                variables.Add(variableName, v);
+                variables.Add(canonicalName, v);
                 if (v.mutable)
                 {
                     mutableVariablesList.Add(v);
                     mutableVariablesChanged = true;
                 }
-                Utility.LogMessage(this, "Adding new variable '{0}'", variableName);
+                Utility.LogMessage(this, "Adding new variable '{0}'", canonicalName);
             }
 
             return v;
@@ -440,12 +952,20 @@ namespace AvionicsSystems
                                 this.stringValue = this.doubleValue.ToString();
                                 this.rawObject = this.doubleValue;
                             }
-                            else if(type == DataType.String)
+                            else if (type == DataType.String)
                             {
                                 this.doubleValue = double.NaN;
                                 this.safeValue = 0.0;
                                 this.stringValue = luaValue.String;
                                 this.rawObject = this.stringValue;
+                            }
+                            else if (type == DataType.Boolean)
+                            {
+                                bool boolValue = luaValue.Boolean;
+                                this.doubleValue = (boolValue) ? 1.0 : 0.0;
+                                this.safeValue = doubleValue;
+                                this.stringValue = value.ToString();
+                                this.rawObject = boolValue;
                             }
                             else
                             {
