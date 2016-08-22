@@ -77,6 +77,7 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Numeric Utilities
         /// <summary>
         /// Returns true if the value falls between the two extents (order independent)
         /// </summary>
@@ -118,6 +119,29 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Constrain longitude to the range (-180, 180].  KSP does not
+        /// appear to normalize the value in Vessel.
+        /// </summary>
+        /// <param name="angle"></param>
+        /// <returns></returns>
+        internal static double NormalizeLongitude(double longitude)
+        {
+            if (longitude > 180.0)
+            {
+                return longitude - 360.0;
+            }
+            else if (longitude <= -180.0)
+            {
+                return longitude + 360.0;
+            }
+            else
+            {
+                return longitude;
+            }
+        }
+#endregion
+
+        /// <summary>
         /// Put something on-screen when an error occurs.
         /// </summary>
         /// <param name="message"></param>
@@ -129,6 +153,17 @@ namespace AvionicsSystems
         }
 
         private static StringBuilder strb = new StringBuilder();
+        /// <summary>
+        /// Instead of everyone instantiating one of these, just keep it
+        /// available here for temporary use.
+        /// </summary>
+        /// <returns></returns>
+        internal static StringBuilder GetStringBuilder()
+        {
+            strb.Remove(0, strb.Length);
+            return strb;
+        }
+
         private static void DumpConfigNode(ConfigNode node, int depth)
         {
             strb.Remove(0, strb.Length);
@@ -299,28 +334,6 @@ namespace AvionicsSystems
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Constrain longitude to the range (-180, 180].  KSP does not
-        /// appear to normalize the value in Vessel.
-        /// </summary>
-        /// <param name="angle"></param>
-        /// <returns></returns>
-        internal static double NormalizeLongitude(double longitude)
-        {
-            if (longitude > 180.0)
-            {
-                return longitude - 360.0;
-            }
-            else if (longitude <= -180.0)
-            {
-                return longitude + 360.0;
-            }
-            else
-            {
-                return longitude;
-            }
         }
 
         /// <summary>
