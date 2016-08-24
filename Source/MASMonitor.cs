@@ -231,12 +231,15 @@ namespace AvionicsSystems
                         Utility.LogMessage(this, "Page = {0}", pages[i]);
                     }
                     //HackWalkTransforms(screenSpace.transform, 0);
-                    string variableName = "fc.GetPersistent(\"" + monitorID.Trim() +"\")";
-                    pageSelector = comp.RegisterOnVariableChange(variableName, internalProp, PageChanged);
-                    // See if we have a saved page to restore.
-                    if (!string.IsNullOrEmpty(pageSelector.String()) && page.ContainsKey(pageSelector.String()))
+                    if (!string.IsNullOrEmpty(monitorID))
                     {
-                        currentPage = page[pageSelector.String()];
+                        string variableName = "fc.GetPersistent(\"" + monitorID.Trim() + "\")";
+                        pageSelector = comp.RegisterOnVariableChange(variableName, internalProp, PageChanged);
+                        // See if we have a saved page to restore.
+                        if (!string.IsNullOrEmpty(pageSelector.String()) && page.ContainsKey(pageSelector.String()))
+                        {
+                            currentPage = page[pageSelector.String()];
+                        }
                     }
                     currentPage.EnablePage(true);
                     initialized = true;
@@ -290,7 +293,10 @@ namespace AvionicsSystems
             {
                 MASFlightComputer comp = MASFlightComputer.Instance(internalProp.part);
 
-                comp.UnregisterOnVariableChange(pageSelector.name, internalProp, PageChanged);
+                if (pageSelector != null)
+                {
+                    comp.UnregisterOnVariableChange(pageSelector.name, internalProp, PageChanged);
+                }
 
                 foreach (var value in page.Values)
                 {
