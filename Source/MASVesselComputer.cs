@@ -212,7 +212,7 @@ namespace AvionicsSystems
 
             InitResourceData();
 
-            vesselActive = (vessel.GetCrewCount() > 0);
+            vesselActive = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
 
             // TODO: Optimize this better - does any of this really need done if there's no crew?
             // First step:
@@ -360,21 +360,27 @@ namespace AvionicsSystems
                 ProcessResourceData();
             }
         }
+        #endregion
 
-        /// <summary>
-        /// ???
-        /// </summary>
-        //private void Update()
-        //{
-        //    if (vesselActive)
-        //    {
-        //        Utility.LogMessage(this, "Update for {0}", vessel.id);
-        //    }
-        //}
-
+        #region Orbit Data
+        internal double eccentricity
+        {
+            get
+            {
+                return orbit.eccentricity;
+            }
+        }
+        internal Orbit.PatchTransitionType patchEndTransition
+        {
+            get
+            {
+                return orbit.patchEndTransition;
+            }
+        }
         #endregion
 
         #region Vessel Data
+
         internal double altitudeASL;
         internal double altitudeTerrain;
         private double altitudeBottom_;
@@ -846,7 +852,7 @@ namespace AvionicsSystems
         {
             if (who.id == vesselId)
             {
-                vesselActive = (vessel.GetCrewCount() > 0);
+                vesselActive = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
                 InvalidateModules();
             }
         }
@@ -863,7 +869,7 @@ namespace AvionicsSystems
         {
             if (who.id == vesselId)
             {
-                vesselActive = (vessel.GetCrewCount() > 0);
+                vesselActive = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
                 InvalidateModules();
             }
         }
@@ -872,7 +878,7 @@ namespace AvionicsSystems
         {
             if (who.id == vesselId)
             {
-                vesselActive = (vessel.GetCrewCount() > 0);
+                vesselActive = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
             }
         }
 
@@ -880,7 +886,7 @@ namespace AvionicsSystems
         {
             if (who.id == vesselId)
             {
-                vesselActive = (vessel.GetCrewCount() > 0);
+                vesselActive = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
             }
         }
 
@@ -888,7 +894,7 @@ namespace AvionicsSystems
         {
             if (who.id == vessel.id)
             {
-                vesselActive = (vessel.GetCrewCount() > 0);
+                vesselActive = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
             }
         }
 
