@@ -75,10 +75,12 @@ namespace AvionicsSystems
     /// values are plumbed through to the flight computer (for instance, the
     /// action group control and state are all handled in this class).
     /// </summary>
+    /// <LuaName>fc</LuaName>
     internal class MASFlightComputerProxy
     {
         private MASFlightComputer fc;
         internal MASVesselComputer vc;
+        internal MASIFAR farProxy;
         internal MASIMechJeb mjProxy;
         internal Vessel vessel;
         private UIStateToggleButton[] SASbtns = null;
@@ -88,9 +90,10 @@ namespace AvionicsSystems
         private int vesselSituationConverted;
 
         [MoonSharpHidden]
-        public MASFlightComputerProxy(MASFlightComputer fc, MASIMechJeb mjProxy)
+        public MASFlightComputerProxy(MASFlightComputer fc, MASIFAR farProxy, MASIMechJeb mjProxy)
         {
             this.fc = fc;
+            this.farProxy = farProxy;
             this.mjProxy = mjProxy;
         }
 
@@ -98,6 +101,7 @@ namespace AvionicsSystems
         {
             fc = null;
             vc = null;
+            farProxy = null;
             mjProxy = null;
             vessel = null;
             SASbtns = null;
@@ -141,6 +145,21 @@ namespace AvionicsSystems
             {
                 return (1.0f + Math.Log10(absValue)) * Math.Sign(sourceValue);
             }
+        }
+
+        /// <summary>
+        /// Remaps 'value' from the range ['bound1', 'bound2'] to the range
+        /// ['map1', 'map2'].
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="bound1"></param>
+        /// <param name="bound2"></param>
+        /// <param name="map1"></param>
+        /// <param name="map2"></param>
+        /// <returns></returns>
+        public double Remap(double value, double bound1, double bound2, double map1, double map2)
+        {
+            return value.Remap(bound1, bound2, map1, map2);
         }
 
         /// <summary>
@@ -331,6 +350,33 @@ namespace AvionicsSystems
         {
             return vessel.atmDensity;
         }
+
+        /// <summary>
+        /// Returns the current dynamic pressure on the vessel in kPa.  If FAR
+        /// is installed, this variable uses FAR's computation instead.
+        /// </summary>
+        /// <returns></returns>
+        public double DynamicPressure()
+        {
+            if (MASIFAR.farFound)
+            {
+                return farProxy.DynamicPressure();
+            }
+            else
+            {
+                return vessel.dynamicPressurekPa;
+            }
+        }
+
+        /// <summary>
+        /// Returns 1 if the body the vessel is orbiting has an atmosphere.
+        /// </summary>
+        /// <returns></returns>
+        public double HasAtmosphere()
+        {
+            return (vc.mainBody.atmosphere) ? 1.0 : 0.0;
+        }
+
         /// <summary>
         /// Returns the static atmospheric pressure in standard atmospheres.
         /// </summary>
@@ -938,6 +984,37 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Return the eccentricity of the orbit.
+        /// </summary>
+        /// <returns></returns>
+        public double Eccentricity()
+        {
+            return vc.eccentricity;
+        }
+
+        /// <summary>
+        /// Returns 1 if the next SoI change is an 'encounter', -1 if it is an
+        /// 'escape', and 0 if the orbit is not changing SoI.
+        /// </summary>
+        /// <returns></returns>
+        public double NextSoI()
+        {
+            if (vesselSituationConverted > 2)
+            {
+                if (vc.patchEndTransition == Orbit.PatchTransitionType.ENCOUNTER)
+                {
+                    return 1.0;
+                }
+                else if (vc.patchEndTransition == Orbit.PatchTransitionType.ESCAPE)
+                {
+                    return -1.0;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the orbits periapsis (from datum) in meters.
         /// </summary>
         /// <returns></returns>
@@ -1420,6 +1497,27 @@ namespace AvionicsSystems
             {
                 return vc.GetRelativeYaw(-vc.targetRelativeVelocity.normalized);
             }
+        }
+        #endregion
+
+        #region Periodic Variables
+        /// <summary>
+        /// Returns 0 or 1, changing at the specified frequency
+        /// </summary>
+        /// <param name="period"></param>
+        /// <returns></returns>
+        public double Period(double period)
+        {
+            if (period > 0.0)
+            {
+                double invPeriod = 1.0 / period;
+
+                double remainder = vc.universalTime % invPeriod;
+
+                return (remainder > invPeriod * 0.5) ? 1.0 : 0.0;
+            }
+
+            return 0.0;
         }
         #endregion
 
@@ -2604,6 +2702,24 @@ namespace AvionicsSystems
         public double Acceleration()
         {
             return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the approach speed (the rate of closure directly towards
+        /// the target).  Returns 0 if there's no target or all relative
+        /// movement is perpendicular to the approach direction.
+        /// </summary>
+        /// <returns></returns>
+        public double ApproachSpeed()
+        {
+            if (vc.activeTarget != null)
+            {
+                return Vector3d.Dot(vc.targetRelativeVelocity, vc.targetDisplacement);
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
