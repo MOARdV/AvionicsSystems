@@ -111,8 +111,10 @@ to do some learnin' and write the replacement functionality on my own.
 * OrbitExtensions
 
 * Protractor
+ - http://forum.kerbalspaceprogram.com/index.php?/topic/60386-the-ksp-equation/#comment-906538 Hohmann Transfer equation
+ - http://forum.kerbalspaceprogram.com/index.php?/topic/62404-how-to-calculate-phase-angle-for-hohmann-transfer/#comment-944519 and also
 
-* Resources
+- Resources: Done
 
 * AeroExtensions
 
@@ -126,7 +128,7 @@ Design Research
 better, also '2*fc.GetRCS()'), to eliminate duplicate values caused by inconsistent use of whitespace and
 ordering.  One step farther: finding the C# methods and reading attributes from them to know which
 variables are actually variable, and which are constant (and, for persistents, maybe a way of knowing
-when they change).
+when they change).  Got a Lexer class now.
 
 * Can the persistents be flagged somehow in the FixedUpdate polling?  They're only updated through
 specific methods, so I can reduce overhead by moving all persistent variable tests out of the update

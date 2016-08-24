@@ -30,6 +30,10 @@ using System.Text;
 
 namespace AvionicsSystems
 {
+    /// <summary>
+    /// MASIChatterer is the interface with the Chatterer mod.
+    /// </summary>
+    /// <LuaName>chatterer</LuaName>
     internal class MASIChatterer
     {
         static private bool chattererFound = false;

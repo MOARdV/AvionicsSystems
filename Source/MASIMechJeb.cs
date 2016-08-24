@@ -30,6 +30,10 @@ using System.Text;
 
 namespace AvionicsSystems
 {
+    /// <summary>
+    /// MASIMechJeb is the interface to MechJeb.
+    /// </summary>
+    /// <LuaName>mechjeb</LuaName>
     internal class MASIMechJeb
     {
         private static readonly bool mjFound;
@@ -75,6 +79,7 @@ namespace AvionicsSystems
 
         //--- Methods found in ModuleSmartASS
         private static readonly FieldInfo saTarget_t;
+        private static readonly DynamicMethod<object, bool> Engage;
         internal static readonly string[] modeNames;
 
         //--- Methods found in ModuleTargetController
@@ -186,6 +191,10 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// TODO
+        /// </summary>
+        #region General
+        /// <summary>
         /// Returns 1 if any of the autopilots MAS can control are active.
         /// </summary>
         /// <returns></returns>
@@ -210,7 +219,65 @@ namespace AvionicsSystems
             return (mjAvailable) ? 1.0 : 0.0;
         }
 
+        /// <summary>
+        /// Returns 1 if any managed autopilots are engaged, or if SmartASS is not OFF.
+        /// </summary>
+        /// <returns></returns>
+        public double ComputerActive()
+        {
+            if (mjAvailable && (saTarget != SATarget.OFF || ModuleEnabled(ascentAutopilot) || ModuleEnabled(landingAutopilot) || ModuleEnabled(nodeExecutor) || ModuleEnabled(rendezvousAutopilot)))
+            {
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Resets / disables all auto pilots as well as SmartASS.
+        /// </summary>
+        public void Reset()
+        {
+            if (mjAvailable)
+            {
+                if (saTarget != SATarget.OFF)
+                {
+                    saTarget_t.SetValue(smartAss, 0);
+
+                    Engage(smartAss, true);
+                }
+
+                if (ModuleEnabled(ascentAutopilot))
+                {
+                    RemoveUser(ModuleUsers.GetValue(ascentAutopilot), ascentGuidance);
+                }
+
+                if (ModuleEnabled(landingAutopilot))
+                {
+                    StopLanding(landingAutopilot);
+                }
+
+                if (ModuleEnabled(nodeExecutor))
+                {
+                    AbortNode(nodeExecutor);
+                }
+
+                if (ModuleEnabled(rendezvousAutopilot))
+                {
+                    RemoveUser(ModuleUsers.GetValue(rendezvousAutopilot), rendezvousAutopilotWindow);
+                }
+            }
+        }
+        #endregion
+
+        /// <summary>
+        /// The Ascent Autopilot and Guidance methods provide an interface to MechJeb's
+        /// Ascent Autopilot.
+        /// </summary>
         #region Ascent Autopilot and Guidance
+
         /// <summary>
         /// Returns 1 if the MJ Ascent Autopilot is enabled; 0 otherwise.
         /// </summary>
@@ -317,6 +384,11 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// The Landing Autopilot and Computer methods provide an interface to MechJeb's
+        /// Landing Autopilot.  It can also independently trigger the Landing Computer to
+        /// provide landing predictions.
+        /// </summary>
         #region Landing Autopilot and Computer
         /// <summary>
         /// Returns 1 if the MechJeb landing autopilot is engaged.
@@ -449,10 +521,13 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         #region Maneuver Planner and Node Executor
         /// <summary>
         /// Change apoapsis to the specified altitude in meters.  Command is
-        /// ignored if Ap < Pe or the orbit is hyperbolic and the vessel is
+        /// ignored if Ap &lt; Pe or the orbit is hyperbolic and the vessel is
         /// already past the Pe.
         /// </summary>
         /// <param name="newAp"></param>
@@ -475,7 +550,7 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Change Periapsis to the new altitude in meters.  Command is ignored
-        /// if Pe > Ap.
+        /// if Pe &gt; Ap.
         /// </summary>
         /// <param name="newPe"></param>
         public void ChangePeriapsis(double newPe)
@@ -549,6 +624,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         #region Rendezvous Autopilot
         /// <summary>
         /// Returns 1 if the rendezvous autopilot is engaged.
@@ -586,34 +664,37 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         #region SmartASS
         /// <summary>
         /// Returns the number of the currently active SASS mode, or zero if MechJeb
         /// is unavailable.
         /// 
-        /// OFF = 0,
-        /// KILLROT = 1,
-        /// NODE = 2,
-        /// SURFACE = 3,
-        /// PROGRADE = 4,
-        /// RETROGRADE = 5,
-        /// NORMAL_PLUS = 6,
-        /// NORMAL_MINUS = 7,
-        /// RADIAL_PLUS = 8,
-        /// RADIAL_MINUS = 9,
-        /// RELATIVE_PLUS = 10,
-        /// RELATIVE_MINUS = 11,
-        /// TARGET_PLUS = 12,
-        /// TARGET_MINUS = 13,
-        /// PARALLEL_PLUS = 14,
-        /// PARALLEL_MINUS = 15,
-        /// ADVANCED = 16,
-        /// AUTO = 17,
-        /// SURFACE_PROGRADE = 18,
-        /// SURFACE_RETROGRADE = 19,
-        /// HORIZONTAL_PLUS = 20,
-        /// HORIZONTAL_MINUS = 21,
-        /// VERTICAL_PLUS = 22,
+        /// * OFF = 0,
+        /// * KILLROT = 1,
+        /// * NODE = 2,
+        /// * SURFACE = 3,
+        /// * PROGRADE = 4,
+        /// * RETROGRADE = 5,
+        /// * NORMAL_PLUS = 6,
+        /// * NORMAL_MINUS = 7,
+        /// * RADIAL_PLUS = 8,
+        /// * RADIAL_MINUS = 9,
+        /// * RELATIVE_PLUS = 10,
+        /// * RELATIVE_MINUS = 11,
+        /// * TARGET_PLUS = 12,
+        /// * TARGET_MINUS = 13,
+        /// * PARALLEL_PLUS = 14,
+        /// * PARALLEL_MINUS = 15,
+        /// * ADVANCED = 16,
+        /// * AUTO = 17,
+        /// * SURFACE_PROGRADE = 18,
+        /// * SURFACE_RETROGRADE = 19,
+        /// * HORIZONTAL_PLUS = 20,
+        /// * HORIZONTAL_MINUS = 21,
+        /// * VERTICAL_PLUS = 22,
         /// </summary>
         /// <returns></returns>
         public double GetSASSMode()
@@ -631,29 +712,29 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns 1 if the current SASS mode matches the listed value.
         /// 
-        /// OFF = 0,
-        /// KILLROT = 1,
-        /// NODE = 2,
-        /// SURFACE = 3,
-        /// PROGRADE = 4,
-        /// RETROGRADE = 5,
-        /// NORMAL_PLUS = 6,
-        /// NORMAL_MINUS = 7,
-        /// RADIAL_PLUS = 8,
-        /// RADIAL_MINUS = 9,
-        /// RELATIVE_PLUS = 10,
-        /// RELATIVE_MINUS = 11,
-        /// TARGET_PLUS = 12,
-        /// TARGET_MINUS = 13,
-        /// PARALLEL_PLUS = 14,
-        /// PARALLEL_MINUS = 15,
-        /// ADVANCED = 16,
-        /// AUTO = 17,
-        /// SURFACE_PROGRADE = 18,
-        /// SURFACE_RETROGRADE = 19,
-        /// HORIZONTAL_PLUS = 20,
-        /// HORIZONTAL_MINUS = 21,
-        /// VERTICAL_PLUS = 22,
+        /// * OFF = 0,
+        /// * KILLROT = 1,
+        /// * NODE = 2,
+        /// * SURFACE = 3,
+        /// * PROGRADE = 4,
+        /// * RETROGRADE = 5,
+        /// * NORMAL_PLUS = 6,
+        /// * NORMAL_MINUS = 7,
+        /// * RADIAL_PLUS = 8,
+        /// * RADIAL_MINUS = 9,
+        /// * RELATIVE_PLUS = 10,
+        /// * RELATIVE_MINUS = 11,
+        /// * TARGET_PLUS = 12,
+        /// * TARGET_MINUS = 13,
+        /// * PARALLEL_PLUS = 14,
+        /// * PARALLEL_MINUS = 15,
+        /// * ADVANCED = 16,
+        /// * AUTO = 17,
+        /// * SURFACE_PROGRADE = 18,
+        /// * SURFACE_RETROGRADE = 19,
+        /// * HORIZONTAL_PLUS = 20,
+        /// * HORIZONTAL_MINUS = 21,
+        /// * VERTICAL_PLUS = 22,
         /// </summary>
         /// <param name="mode"></param>
         /// <returns></returns>
@@ -687,7 +768,32 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Set the SmartASS pilot to the specified mode.
+        /// Set the SmartASS pilot to the specified mode.  Some modes may not
+        /// be 'settable', such as `AUTO` or `ADVANCED`.
+        /// 
+        /// * OFF = 0,
+        /// * KILLROT = 1,
+        /// * NODE = 2,
+        /// * SURFACE = 3,
+        /// * PROGRADE = 4,
+        /// * RETROGRADE = 5,
+        /// * NORMAL_PLUS = 6,
+        /// * NORMAL_MINUS = 7,
+        /// * RADIAL_PLUS = 8,
+        /// * RADIAL_MINUS = 9,
+        /// * RELATIVE_PLUS = 10,
+        /// * RELATIVE_MINUS = 11,
+        /// * TARGET_PLUS = 12,
+        /// * TARGET_MINUS = 13,
+        /// * PARALLEL_PLUS = 14,
+        /// * PARALLEL_MINUS = 15,
+        /// * ADVANCED = 16,
+        /// * AUTO = 17,
+        /// * SURFACE_PROGRADE = 18,
+        /// * SURFACE_RETROGRADE = 19,
+        /// * HORIZONTAL_PLUS = 20,
+        /// * HORIZONTAL_MINUS = 21,
+        /// * VERTICAL_PLUS = 22,
         /// </summary>
         /// <param name="mode"></param>
         public void SetSASSMode(double mode)
@@ -697,7 +803,7 @@ namespace AvionicsSystems
             {
                 saTarget_t.SetValue(smartAss, mode_i);
 
-                //EnagageSmartASS(smartAss, true);
+                Engage(smartAss, true);
             }
         }
         #endregion
@@ -715,7 +821,7 @@ namespace AvionicsSystems
 
                 landingPredictionEnabled = ModuleEnabled(landingPrediction);
 
-                if(landingPredictionEnabled)
+                if (landingPredictionEnabled)
                 {
                     landingAltitude = 0.0;
                     landingLatitude = 0.0;
@@ -1004,6 +1110,12 @@ namespace AvionicsSystems
                 }
                 FieldInfo modeTexts_t = mjModuleSmartass_t.GetField("ModeTexts", BindingFlags.Static | BindingFlags.Public);
                 modeNames = (string[])modeTexts_t.GetValue(null);
+                MethodInfo mjSmartassEngage = mjModuleSmartass_t.GetMethod("Engage", BindingFlags.Instance | BindingFlags.Public);
+                if (mjSmartassEngage == null)
+                {
+                    throw new NotImplementedException("mjSmartassEngage");
+                }
+                Engage = DynamicMethodFactory.CreateFunc<object, bool>(mjSmartassEngage);
 
                 //--- ModuleTargetController
                 TargetLongitude = mjModuleTargetController_t.GetField("targetLongitude", BindingFlags.Instance | BindingFlags.Public);

@@ -30,6 +30,11 @@ using System.Text;
 
 namespace AvionicsSystems
 {
+    /// <summary>
+    /// MASIRealChute is the interface with the RealChute mod.  It also can
+    /// interact with stock parachutes.
+    /// </summary>
+    /// <LuaName>realchute</LuaName>
     internal class MASIRealChute
     {
         internal static bool realChuteFound;
