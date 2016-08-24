@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvionicsSystems", "AvionicsSystems.csproj", "{4F66C4FC-D095-4D30-A0FE-01EDD2BAF6A8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Documentor", "Documentor\Documentor.csproj", "{CF35EB20-FEA7-4A08-8085-1EB7A7D764DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{4F66C4FC-D095-4D30-A0FE-01EDD2BAF6A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F66C4FC-D095-4D30-A0FE-01EDD2BAF6A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F66C4FC-D095-4D30-A0FE-01EDD2BAF6A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF35EB20-FEA7-4A08-8085-1EB7A7D764DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF35EB20-FEA7-4A08-8085-1EB7A7D764DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF35EB20-FEA7-4A08-8085-1EB7A7D764DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF35EB20-FEA7-4A08-8085-1EB7A7D764DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
