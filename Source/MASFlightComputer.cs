@@ -143,11 +143,11 @@ namespace AvionicsSystems
 
         #region Internal Interface
         /// <summary>
-        /// Return the ASFlightComputer attached to the given part, or null if
+        /// Return the MASFlightComputer attached to the given part, or null if
         /// none is found.
         /// </summary>
         /// <param name="part">The part where the flight computer should live</param>
-        /// <returns>ASFlightComputer or null</returns>
+        /// <returns>MASFlightComputer or null</returns>
         static internal MASFlightComputer Instance(Part part)
         {
             for (int i = part.Modules.Count - 1; i >= 0; --i)
@@ -207,13 +207,6 @@ namespace AvionicsSystems
         /// <param name="callback"></param>
         internal void RegisterNumericVariable(string variableName, InternalProp prop, Action<double> callback)
         {
-            //variableName = ConditionVariableName(variableName, prop);
-            //if (variableName.Length < 1)
-            //{
-            //    Utility.ComplainLoudly("RegisterNumericVariable with empty variableName");
-            //    throw new ArgumentException("[MASFlightComputer] RegisterNumericVariable called with empty variableName");
-            //}
-
             Variable v = GetVariable(variableName, prop);
 
             if (v.mutable)
@@ -232,9 +225,9 @@ namespace AvionicsSystems
         internal void UnregisterNumericVariable(string variableName, InternalProp prop, Action<double> callback)
         {
             variableName = ConditionVariableName(variableName, prop);
-            if (variables.ContainsKey(variableName))
+            if (canonicalVariableName.ContainsKey(variableName))
             {
-                variables[variableName].numericCallbacks -= callback;
+                variables[canonicalVariableName[variableName]].numericCallbacks -= callback;
             }
         }
 
@@ -246,14 +239,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         internal Variable RegisterOnVariableChange(string variableName, InternalProp prop, Action callback)
         {
-            //variableName = ConditionVariableName(variableName, prop);
-            //if (variableName.Length < 1)
-            //{
-            //    Utility.ComplainLoudly("RegisterOnVariableChange with empty variableName");
-            //    throw new ArgumentException("[MASFlightComputer] RegisterOnVariableChange called with empty variableName");
-            //}
-
-            Variable v = GetVariable(variableName, null);
+            Variable v = GetVariable(variableName, prop);
 
             if (v.mutable)
             {
@@ -271,9 +257,9 @@ namespace AvionicsSystems
         internal void UnregisterOnVariableChange(string variableName, InternalProp prop, Action callback)
         {
             variableName = ConditionVariableName(variableName, prop);
-            if (variables.ContainsKey(variableName))
+            if (canonicalVariableName.ContainsKey(variableName))
             {
-                variables[variableName].changeCallbacks -= callback;
+                variables[canonicalVariableName[variableName]].changeCallbacks -= callback;
             }
         }
 
@@ -371,6 +357,7 @@ namespace AvionicsSystems
                     }
 
                     fcProxy.Update();
+                    farProxy.Update();
                     mjProxy.Update();
                     realChuteProxy.Update();
 
@@ -487,7 +474,7 @@ namespace AvionicsSystems
                 UserData.RegisterType<MASIRealChute>();
                 script.Globals["realchute"] = realChuteProxy;
 
-                fcProxy = new MASFlightComputerProxy(this, mjProxy);
+                fcProxy = new MASFlightComputerProxy(this, farProxy, mjProxy);
                 UserData.RegisterType<MASFlightComputerProxy>();
                 script.Globals["fc"] = fcProxy;
 
