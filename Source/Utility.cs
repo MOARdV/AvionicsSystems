@@ -139,7 +139,24 @@ namespace AvionicsSystems
                 return longitude;
             }
         }
-#endregion
+
+        /// <summary>
+        /// Remap the source variable from [sourceRange1, sourceRange2] into
+        /// the range [destinationRange1, destinationRange2].  Convert to
+        /// float as well, since we don't need maximum precision.
+        /// </summary>
+        /// <param name="sourceVariable"></param>
+        /// <param name="sourceRange1"></param>
+        /// <param name="sourceRange2"></param>
+        /// <param name="destinationRange1"></param>
+        /// <param name="destinationRange2"></param>
+        /// <returns></returns>
+        internal static float Remap(this double sourceVariable, double sourceRange1, double sourceRange2, double destinationRange1, double destinationRange2)
+        {
+            float iLerp = Mathf.InverseLerp((float)sourceRange1, (float)sourceRange2, (float)sourceVariable);
+            return Mathf.Lerp((float)destinationRange1, (float)destinationRange2, iLerp);
+        }
+        #endregion
 
         /// <summary>
         /// Put something on-screen when an error occurs.
@@ -356,23 +373,6 @@ namespace AvionicsSystems
             {
                 return ConfigNode.ParseColor32(colorString);
             }
-        }
-
-        /// <summary>
-        /// Remap the source variable from [sourceRange1, sourceRange2] into
-        /// the range [destinationRange1, destinationRange2].  Convert to
-        /// float as well, since we don't need maximum precision.
-        /// </summary>
-        /// <param name="sourceVariable"></param>
-        /// <param name="sourceRange1"></param>
-        /// <param name="sourceRange2"></param>
-        /// <param name="destinationRange1"></param>
-        /// <param name="destinationRange2"></param>
-        /// <returns></returns>
-        internal static float Remap(this double sourceVariable, double sourceRange1, double sourceRange2, double destinationRange1, double destinationRange2)
-        {
-            float iLerp = Mathf.InverseLerp((float)sourceRange1, (float)sourceRange2, (float)sourceVariable);
-            return Mathf.Lerp((float)destinationRange1, (float)destinationRange2, iLerp);
         }
 
         /// <summary>
