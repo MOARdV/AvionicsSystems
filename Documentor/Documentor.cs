@@ -189,6 +189,8 @@ namespace Documentor
                     child = child.NextSibling;
                 }
             }
+            docString.AppendLine("*This documentation is automatically generated from source code.*");
+            docString.AppendLine();
             File.WriteAllText(mdStr, docString.ToString(), Encoding.UTF8);
 
             tokens.Clear();
@@ -214,8 +216,6 @@ namespace Documentor
                     docString.AppendLine(innerText);
                     docString.AppendLine();
                 }
-                docString.AppendLine("*This documentation is automatically generated from source code.*");
-                docString.AppendLine();
             }
 
             XmlElement methodName = child["method"];
@@ -277,6 +277,13 @@ namespace Documentor
                 docString.Append(regionName.InnerText);
                 docString.AppendLine(" Category");
                 docString.AppendLine();
+                XmlElement summary = child["summary"];
+                if (summary != null && regionName != null)
+                {
+                    string innerText = summary.InnerText.Replace("&lt;", "<").Replace("&gt;", ">");
+                    docString.AppendLine(innerText);
+                    docString.AppendLine();
+                }
             }
 
             // TODO: text for returns, parameters
