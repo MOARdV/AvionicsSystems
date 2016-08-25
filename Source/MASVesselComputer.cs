@@ -370,6 +370,13 @@ namespace AvionicsSystems
                 return orbit.eccentricity;
             }
         }
+        internal double inclination
+        {
+            get
+            {
+                return orbit.inclination;
+            }
+        }
         internal Orbit.PatchTransitionType patchEndTransition
         {
             get

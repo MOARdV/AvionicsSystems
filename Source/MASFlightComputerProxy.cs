@@ -150,8 +150,9 @@ namespace AvionicsSystems
         /// else
         ///   return (1 + Log10(abs(sourceValue))) * Sign(sourceValue);
         /// end
+        /// ```
         /// </summary>
-        /// <param name="sourceValue">An input value.</param>
+        /// <param name="sourceValue">An input number</param>
         /// <returns>A Log10-like representation of the input value.</returns>
         public double PseudoLog10(double sourceValue)
         {
@@ -169,12 +170,16 @@ namespace AvionicsSystems
         /// <summary>
         /// Remaps `value` from the range [`bound1`, `bound2`] to the range
         /// [`map1`, `map2`].
+        /// 
+        /// The order of the bound and map parameters will be interpreted
+        /// correctly.  For instance, `fc.Remap(var, 1, 0, 0, 1)` will
+        /// have the same effect as `1 - var`.
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="bound1"></param>
-        /// <param name="bound2"></param>
-        /// <param name="map1"></param>
-        /// <param name="map2"></param>
+        /// <param name="value">An input number</param>
+        /// <param name="bound1">One of the two bounds of the source range.</param>
+        /// <param name="bound2">The other bound of the source range.</param>
+        /// <param name="map1">The first value of the destination range.</param>
+        /// <param name="map2">The second value of the destination range.</param>
         /// <returns></returns>
         public double Remap(double value, double bound1, double bound2, double map1, double map2)
         {
@@ -184,9 +189,9 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns a Vector2 proxy object initialized to the specified parameters.
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
+        /// <param name="x">The X parameter of the vector</param>
+        /// <param name="y">The Y parameter of the vector</param>
+        /// <returns>An object that represents a two-element vector.</returns>
         public DynValue Vector2(double x, double y)
         {
             return UserData.Create(new MASVector2((float)x, (float)y));
@@ -978,7 +983,10 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// TODO
+        /// Meta variables and functions are variables provide information about the
+        /// game, as opposed to the vessel.  They also include the `fc.Conditioned()`
+        /// functions, which can provide some realism by disrupting lighting under
+        /// low power or high G situations.
         /// </summary>
         #region Meta
         /// <summary>
@@ -1020,9 +1028,14 @@ namespace AvionicsSystems
         /// is a chance (also defined in the config file) of the variable being
         /// interrupted.  This chance increases as the g-forces exceed the
         /// threshold using a square-root curve.
+        /// 
+        /// The variable `fc.Conditioned(1)` behaves the same as the RasterPropMonitor
+        /// ASET Props custom variable `CUSTOM_ALCOR_POWEROFF`, with an inverted
+        /// value (`CUSTOM_ALCOR_POWEROFF` returns 1 to indicate "disrupt", but
+        /// `fc.Conditioned(1)` returns 0 instead).
         /// </summary>
         /// <param name="value">A numeric value</param>
-        /// <returns>The value if the conditions above are not met.</returns>
+        /// <returns>`value` if the conditions above are not met.</returns>
         public double Conditioned(double value)
         {
             if (fc.isPowered && UnityEngine.Random.value > fc.disruptionChance)
@@ -1034,9 +1047,10 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the number of hours per day.
+        /// Returns the number of hours per day, depending on whether the game
+        /// is configured for the Earth calendar or the Kerbin calendar.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>6 for Kerbin time, 24 for Earth time</returns>
         public double HoursPerDay()
         {
             return (GameSettings.KERBIN_TIME) ? 6.0 : 24.0;
@@ -1056,14 +1070,15 @@ namespace AvionicsSystems
         /// Log messages to the KSP.log.  Messages will be prefixed with
         /// [MASFlightComputerProxy].
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="message">The string to write.  Strings may be formatted using the Lua string library, or using the `..` concatenation operator.</param>
         public void LogMessage(string message)
         {
             Utility.LogMessage(this, message);
         }
 
         /// <summary>
-        /// Recover the vessel if it is recoverable.
+        /// Recover the vessel if it is recoverable.  Has no effect if the craft can not be
+        /// recovered.
         /// </summary>
         public void RecoverVessel()
         {
@@ -1076,7 +1091,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns 1 if the vessel is recoverable, 0 otherwise.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if the craft can be recovered, 0 otherwise.</returns>
         public double VesselRecoverable()
         {
             return (vessel.IsRecoverable) ? 1.0 : 0.0;
@@ -1103,6 +1118,15 @@ namespace AvionicsSystems
         public double Eccentricity()
         {
             return vc.eccentricity;
+        }
+
+        /// <summary>
+        /// Return the vessel's orbital inclination.
+        /// </summary>
+        /// <returns>Inclination in degrees.</returns>
+        public double Inclination()
+        {
+            return vc.inclination;
         }
 
         /// <summary>
@@ -1138,9 +1162,28 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// TODO
+        /// Variables related to the vessel's orientation in space, relative to a target,
+        /// or relative to the surface, are here.
         /// </summary>
         #region Orientation
+
+        /// <summary>
+        /// Returns the angle of attack of the vessel.  If FAR is installed,
+        /// FAR's results are used.
+        /// </summary>
+        /// <returns>The angle of attack, in degrees</returns>
+        public double AngleOfAttack()
+        {
+            if (MASIFAR.farFound)
+            {
+                return farProxy.AngleOfAttack();
+            }
+            else
+            {
+                return vc.GetRelativePitch(vc.surfacePrograde);
+            }
+        }
+
         /// <summary>
         /// Return heading relative to the surface in degrees [0, 360)
         /// </summary>
@@ -1426,6 +1469,23 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the vessel's current sideslip.  If FAR is installed,
+        /// it will use FAR's computation of sideslip.
+        /// </summary>
+        /// <returns>Sideslip in degrees.</returns>
+        public double Sideslip()
+        {
+            if (MASIFAR.farFound)
+            {
+                return farProxy.Sideslip();
+            }
+            else
+            {
+                return vc.GetRelativeYaw(vc.surfacePrograde);
+            }
+        }
+
+        /// <summary>
         /// Yaw of the vessel relative to the orbit's anti-normal vector.
         /// </summary>
         /// <returns></returns>
@@ -1617,14 +1677,16 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// TODO
+        /// Periodic variables change value over time, based on a requested
+        /// frequency.
         /// </summary>
         #region Periodic Variables
         /// <summary>
-        /// Returns 0 or 1, changing at the specified frequency
+        /// Returns a stair-step periodic variable (changes from 0 to 1 to 0 with
+        /// no ramps between values).
         /// </summary>
-        /// <param name="period"></param>
-        /// <returns></returns>
+        /// <param name="period">The period of the change, in cycles/second (Hertz).</param>
+        /// <returns>0 or 1</returns>
         public double Period(double period)
         {
             if (period > 0.0)
@@ -1641,101 +1703,152 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// TODO
+        /// Persistent variables are the primary means of data storage in Avionics Systems.
+        /// As such, there are many ways to set, alter, or query these variables.
+        /// 
+        /// Persistent variables may be numbers or strings.  Several of the setter and
+        /// getter functions in this category will convert the variable automatically
+        /// from one to the other (whenever possible), but it is the responsibility
+        /// of the prop config maker to make sure that text and numbers are not
+        /// intermingled when a specific persistent variable will be used as a number.
         /// </summary>
         #region Persistent Vars
         /// <summary>
-        /// Add an amount to a persistent (converting it to numeric as needed).
+        /// This method adds an amount to the named persistent.  If the variable
+        /// did not already exist, it is created and initialized to 0 before
+        /// adding `amount`.  If the variable was a string, it is converted to
+        /// a number before adding `amount`.
+        /// 
+        /// If the variable cannot converted to a number, the variable's name is
+        /// returned, instead.
         /// </summary>
-        /// <param name="persistentName"></param>
-        /// <param name="amount"></param>
-        /// <returns></returns>
+        /// <param name="persistentName">The name of the persistent variable to change.</param>
+        /// <param name="amount">The amount to add to the persistent variable.</param>
+        /// <returns>The new value of the persistent variable, or the name of the variable if it could not be converted to a number.</returns>
         public object AddPersistent(string persistentName, double amount)
         {
             return fc.AddPersistent(persistentName, amount);
         }
 
         /// <summary>
-        /// Add an amount to a persistent, converting it to a number if needed,
-        /// and clamp the result between 'minValue' and 'maxValue'
+        /// This method adds an amount to the named persistent.  The result
+        /// is clamped to the range [minValue, maxValue].
+        /// 
+        /// If the variable
+        /// did not already exist, it is created and initialized to 0 before
+        /// adding `amount`.  If the variable was a string, it is converted to
+        /// a number before adding `amount`.
+        /// 
+        /// If the variable cannot converted to a number, the variable's name is
+        /// returned, instead.
         /// </summary>
-        /// <param name="persistentName"></param>
-        /// <param name="amount"></param>
-        /// <param name="minValue"></param>
-        /// <param name="maxValue"></param>
-        /// <returns></returns>
+        /// <param name="persistentName">The name of the persistent variable to change.</param>
+        /// <param name="amount">The amount to add to the persistent variable.</param>
+        /// <param name="minValue">The minimum value of the variable.  If adding `amount` to the variable
+        /// causes it to be less than this value, the variable is set to this value, instead.</param>
+        /// <param name="maxValue">The maximum value of the variable.  If adding `amount` to the variable
+        /// causes it to be greater than this value, the variable is set to this value, instead.</param>
+        /// <returns>The new value of the persistent variable, or the name of the variable if it could not be
+        /// converted to a number.</returns>
         public object AddPersistentClamped(string persistentName, double amount, double minValue, double maxValue)
         {
             return fc.AddPersistentClamped(persistentName, amount, minValue, maxValue);
         }
 
         /// <summary>
-        /// Add an amount to a persistent, converting to a number if needed,
-        /// and wrap the value between 'minValue' and 'maxValue'
+        /// This method adds an amount to the named persistent.  The result
+        /// wraps around the range [minValue, maxValue].  This feature is used,
+        /// for instance, for
+        /// adjusting a heading between 0 and 360 degrees without having to go
+        /// from 359 all the way back to 0.
+        /// 
+        /// If the variable
+        /// did not already exist, it is created and initialized to 0 before
+        /// adding `amount`.  If the variable was a string, it is converted to
+        /// a number before adding `amount`.
+        /// 
+        /// If the variable cannot converted to a number, the variable's name is
+        /// returned, instead.
         /// </summary>
-        /// <param name="persistentName"></param>
-        /// <param name="amount"></param>
-        /// <param name="minValue"></param>
-        /// <param name="maxValue"></param>
-        /// <returns></returns>
+        /// <param name="persistentName">The name of the persistent variable to change.</param>
+        /// <param name="amount">The amount to add to the persistent variable.</param>
+        /// <param name="minValue">The minimum value of the variable.  If adding `amount` would make the
+        /// variable less than `minValue`, MAS sets the variable to `maxValue` minus the
+        /// difference.</param>
+        /// <param name="maxValue">The maximum value of the variable.  If adding `amount` would make the
+        /// variable greather than `maxValue`, MAS sets the variable to `minValue` plus the overage.</param>
+        /// <returns>The new value of the persistent variable, or the name of the variable if it could not be
+        /// converted to a number.</returns>
         public object AddPersistentWrapped(string persistentName, double amount, double minValue, double maxValue)
         {
             return fc.AddPersistentWrapped(persistentName, amount, minValue, maxValue);
         }
 
         /// <summary>
-        /// Append the string 'addon' to the persistent variable 'persistentName', but
+        /// Append the string `addon` to the persistent variable `persistentName`, but
         /// only up to the specified maximum length.  If the persistent does not exist,
-        /// it is created.  If it is a numeric value, it is converted to a string.
+        /// it is created and initialized to `addon`.  If the persistent is a numeric value, 
+        /// it is converted to a string, and then `addon` is added.
         /// </summary>
-        /// <param name="persistentName"></param>
-        /// <param name="addon"></param>
-        /// <param name="maxLength"></param>
-        /// <returns></returns>
+        /// <param name="persistentName">The name of the persistent variable to change.</param>
+        /// <param name="amount">The amount to add to the persistent variable.</param>
+        /// <param name="maxLength">The maximum number of characters allowed in the
+        /// string.  Characters in excess of this amount are not added to the persistent.</param>
+        /// <returns>The new string.</returns>
         public object AppendPersistent(string persistentName, string addon, double maxLength)
         {
             return fc.AppendPersistent(persistentName, addon, (int)maxLength);
         }
 
         /// <summary>
-        /// Return the persistent value (as a string or number, depending on
-        /// its current state).
+        /// Return value of the persistent.  Strings are returned as strings,
+        /// numbers are returned as numbers.  If the persistent does not exist
+        /// yet, the name is returned.
         /// </summary>
-        /// <param name="persistentName"></param>
-        /// <returns></returns>
+        /// <param name="persistentName">The name of the persistent variable to query.</param>
+        /// <returns>The value of the persistent, or its name if it does not exist.</returns>
         public object GetPersistent(string persistentName)
         {
             return fc.GetPersistent(persistentName);
         }
 
         /// <summary>
-        /// Return the persistent value as a number.  If it does not exist, or
-        /// it can not be converted to a number, return 0.
+        /// Return the value of the persistent as a number.  If the persistent
+        /// does not exist yet, or it is a string that can not be converted to
+        /// a number, return 0.
         /// </summary>
-        /// <param name="persistentName"></param>
-        /// <returns></returns>
+        /// <param name="persistentName">The name of the persistent variable to query.</param>
+        /// <returns>The numeric value of the persistent, or 0 if it either does not
+        /// exist, or it cannot be converted to a number.</returns>
         public double GetPersistentAsNumber(string persistentName)
         {
             return fc.GetPersistentAsNumber(persistentName);
         }
 
         /// <summary>
-        /// Set a persistent to either a string or numeric value.
+        /// Set a persistent to `value`.  `value` may be either a string or
+        /// a number.  The existing value of the persistent is replaced.
         /// </summary>
-        /// <param name="persistentName"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="persistentName">The name of the persistent variable to change.</param>
+        /// <param name="value">The new number or text string to use for this persistent.</param>
+        /// <returns>`value`</returns>
         public object SetPersistent(string persistentName, object value)
         {
             return fc.SetPersistent(persistentName, value);
         }
 
         /// <summary>
-        /// Toggle a persistent between 0 and 1 (converting it to a number if
-        /// needed).
+        /// Toggle a persistent between 0 and 1.
+        /// 
+        /// If the persistent is a number, it becomes 0 if it was a
+        /// positive number and it becomes 1 if it was previously %lt;= 0.
+        /// 
+        /// If the persistent was a string, it is converted to a number, and
+        /// the same rule is applied.
         /// </summary>
-        /// <param name="persistentName"></param>
-        /// <returns></returns>
+        /// <param name="persistentName">The name of the persistent variable to change.</param>
+        /// <returns>0 or 1.  If the variable was a string, and it could not be converted
+        /// to a number, `persistentName` is returned, instead.</returns>
         public object TogglePersistent(string persistentName)
         {
             return fc.TogglePersistent(persistentName);
@@ -3105,6 +3218,22 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the altitude of the target, or 0 if there is no target.
+        /// </summary>
+        /// <returns>Target altitude in meters.</returns>
+        public double TargetAltitude()
+        {
+            if (vc.activeTarget != null)
+            {
+                return vc.activeTarget.GetOrbit().altitude;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Returns the raw angle between the target and the nose of the vessel,
         /// or 0 if there is no target.
         /// </summary>
@@ -3115,6 +3244,22 @@ namespace AvionicsSystems
             if (vc.targetType > 0)
             {
                 return Vector3.Angle(vc.forward, vc.targetDirection);
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the target's apoapsis.
+        /// </summary>
+        /// <returns>Target's Ap in meters, or 0 if there is no target.</returns>
+        public double TargetApoapsis()
+        {
+            if (vc.targetType > 0)
+            {
+                return vc.activeTarget.GetOrbit().ApA;
             }
             else
             {
@@ -3177,6 +3322,22 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the orbital inclination of the target, or 0 if there is no target.
+        /// </summary>
+        /// <returns>Target orbital inclination in degrees, or 0 if there is no target.</returns>
+        public double TargetInclination()
+        {
+            if (vc.targetType > 0)
+            {
+                return vc.activeTarget.GetOrbit().inclination;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Returns 1 if the target is a vessel (vessel or Docking Port); 0 otherwise.
         /// </summary>
         /// <returns>1 for vessels or docking port targets, 0 otherwise.</returns>
@@ -3194,22 +3355,6 @@ namespace AvionicsSystems
         public double TargetLatLonValid()
         {
             return (vc.targetType == MASVesselComputer.TargetType.Vessel || vc.targetType == MASVesselComputer.TargetType.DockingPort || vc.targetType == MASVesselComputer.TargetType.PositionTarget) ? 1.0 : 0.0;
-        }
-
-        /// <summary>
-        /// Returns the altitude of the target, or 0 if there is no target.
-        /// </summary>
-        /// <returns>Target altitude in meters.</returns>
-        public double TargetAltitude()
-        {
-            if (vc.activeTarget != null)
-            {
-                return vc.activeTarget.GetOrbit().altitude;
-            }
-            else
-            {
-                return 0.0;
-            }
         }
 
         /// <summary>
@@ -3264,6 +3409,40 @@ namespace AvionicsSystems
         public string TargetName()
         {
             return vc.targetName;
+        }
+
+        /// <summary>
+        /// Returns the target's periapsis.
+        /// </summary>
+        /// <returns>Target's Pe in meters, or 0 if there is no target.</returns>
+        public double TargetPeriapsis()
+        {
+            if (vc.targetType > 0)
+            {
+                return vc.activeTarget.GetOrbit().ApA;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the relative inclination between the vessel and the target.
+        /// If there is no target, the value is 0.
+        /// </summary>
+        /// <returns></returns>
+        public double TargetRelativeInclination()
+        {
+            if (vc.targetType > 0)
+            {
+                return Vector3.Angle(vessel.GetOrbit().GetOrbitNormal(), vc.activeTarget.GetOrbit().GetOrbitNormal());
+            }
+            else
+            {
+                return 0.0;
+            }
+
         }
 
         /// <summary>

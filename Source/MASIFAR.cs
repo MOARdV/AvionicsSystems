@@ -43,6 +43,7 @@ namespace AvionicsSystems
     {
         internal static readonly bool farFound;
 
+        private static readonly Func<Vessel, double> VesselAoA;
         private static readonly Func<Vessel, double> VesselCoeffLift;
         private static readonly Action<Vessel> VesselDecreaseFlapDeflection;
         private static readonly Func<Vessel, double> VesselDynPress;
@@ -50,6 +51,7 @@ namespace AvionicsSystems
         private static readonly Action<Vessel> VesselIncreaseFlapDeflection;
         private static readonly Func<Vessel, double> VesselRefArea;
         private static readonly Action<Vessel, bool> VesselSetSpoilers;
+        private static readonly Func<Vessel, double> VesselSideSlip;
         private static readonly Func<Vessel, bool> VesselSpoilerSetting;
         private static readonly Func<Vessel, double> VesselStallFrac;
 
@@ -76,6 +78,22 @@ namespace AvionicsSystems
             {
                 flapSetting = VesselFlapSetting(vessel);
                 spoilerSetting = VesselSpoilerSetting(vessel);
+            }
+        }
+
+        /// <summary>
+        /// Returns the vessel's angle of attack.
+        /// </summary>
+        /// <returns>Angle of attack in degrees.</returns>
+        public double AngleOfAttack()
+        {
+            if (farFound)
+            {
+                return VesselAoA(vessel);
+            }
+            else
+            {
+                return 0.0;
             }
         }
 
@@ -194,6 +212,22 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the sideslip of the vessel.
+        /// </summary>
+        /// <returns>Sideslip in degrees.</returns>
+        public double Sideslip()
+        {
+            if (farFound)
+            {
+                return VesselSideSlip(vessel);
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Returns the stall fraction for this vessel.
         /// </summary>
         /// <returns></returns>
@@ -223,6 +257,14 @@ namespace AvionicsSystems
                     return;
                 }
                 VesselCoeffLift = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), coeffLift_t);
+
+                MethodInfo aoA_t = farAPI_t.GetMethod("VesselAoA", BindingFlags.Static | BindingFlags.Public);
+                if (aoA_t == null)
+                {
+                    Utility.LogErrorMessage("Failed to find 'VesselAoA' in FAR");
+                    return;
+                }
+                VesselAoA = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), aoA_t);
 
                 MethodInfo dynPress_t = farAPI_t.GetMethod("VesselDynPres", BindingFlags.Static | BindingFlags.Public);
                 if (dynPress_t == null)
@@ -287,8 +329,15 @@ namespace AvionicsSystems
                     return;
                 }
                 VesselSetSpoilers = (Action<Vessel, bool>)Delegate.CreateDelegate(typeof(Action<Vessel, bool>), setSpoiler_t);
-                
-                
+
+                MethodInfo sideslip_t = farAPI_t.GetMethod("VesselSideslip", BindingFlags.Static | BindingFlags.Public);
+                if (sideslip_t == null)
+                {
+                    Utility.LogErrorMessage("Failed to find 'VesselSideslip' in FAR");
+                    return;
+                }
+                VesselSideSlip = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Action<Vessel, double>), sideslip_t);
+
                 farFound = true;
             }
         }

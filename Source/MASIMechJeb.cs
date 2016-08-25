@@ -34,6 +34,8 @@ namespace AvionicsSystems
     /// MASIMechJeb is the interface to MechJeb.
     /// </summary>
     /// <LuaName>mechjeb</LuaName>
+    /// <mdDoc>MASIMechJeb provides the interface for controlling and querying
+    /// MechJeb from Avionics Systems.</mdDoc>
     internal class MASIMechJeb
     {
         private static readonly bool mjFound;
