@@ -253,3 +253,6 @@ paket-files/
 GameData/AvionicsSystems/AvionicsSystems.dll
 GameData/AvionicsSystems/moardvavionicssystems.ksp
 Source/*.md
+
+*.zip
+GameData/AvionicsSystems/MoonSharp.Interpreter.dll
