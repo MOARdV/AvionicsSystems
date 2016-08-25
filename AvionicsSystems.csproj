@@ -79,6 +79,7 @@
     <Compile Include="Source\MASIChatterer.cs" />
     <Compile Include="Source\MASIFAR.cs" />
     <Compile Include="Source\MASIMechJeb.cs" />
+    <Compile Include="Source\MASINavigation.cs" />
     <Compile Include="Source\MASIRealChute.cs" />
     <Compile Include="Source\MASNavBall.cs" />
     <Compile Include="Source\MASRadar.cs" />
@@ -136,7 +137,11 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetPath) "D:\Games\Steam\steamapps\common\Kerbal Space Program\GameData\AvionicsSystems"
-copy $(TargetPath) $(SolutionDir)GameData\AvionicsSystems\</PostBuildEvent>
+
+
+copy $(TargetPath) $(SolutionDir)GameData\AvionicsSystems\
+
+$(SolutionDir)Documentor\$(OutDir)Documentor.exe $(SolutionDir)Source\MASIFAR.cs $(SolutionDir)Source\MASIChatterer.cs $(SolutionDir)Source\MASIMechJeb.cs $(SolutionDir)Source\MASINavigation.cs $(SolutionDir)Source\MASIRealChute.cs $(SolutionDir)Source\MASFlightComputerProxy.cs</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

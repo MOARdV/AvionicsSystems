@@ -109,6 +109,11 @@ namespace AvionicsSystems
         private MASIMechJeb mjProxy;
 
         /// <summary>
+        /// Instance of the Navigation proxy class.
+        /// </summary>
+        private MASINavigation navProxy;
+
+        /// <summary>
         /// Instance of the RealChute proxy class.
         /// </summary>
         private MASIRealChute realChuteProxy;
@@ -359,6 +364,7 @@ namespace AvionicsSystems
                     fcProxy.Update();
                     farProxy.Update();
                     mjProxy.Update();
+                    navProxy.Update();
                     realChuteProxy.Update();
 
                     // Precompute the disruption effects.
@@ -407,6 +413,7 @@ namespace AvionicsSystems
             fcProxy = null;
             chattererProxy = null;
             mjProxy = null;
+            navProxy = null;
             farProxy = null;
             realChuteProxy = null;
             if (initialized)
@@ -469,6 +476,10 @@ namespace AvionicsSystems
                 mjProxy = new MASIMechJeb(vessel);
                 UserData.RegisterType<MASIMechJeb>();
                 script.Globals["mechjeb"] = mjProxy;
+
+                navProxy = new MASINavigation(vessel);
+                UserData.RegisterType<MASINavigation>();
+                script.Globals["nav"] = navProxy;
 
                 realChuteProxy = new MASIRealChute(vessel);
                 UserData.RegisterType<MASIRealChute>();
@@ -588,6 +599,7 @@ namespace AvionicsSystems
                 chattererProxy.UpdateVessel();
                 farProxy.vessel = vessel;
                 mjProxy.UpdateVessel(vessel);
+                navProxy.UpdateVessel(vessel);
                 realChuteProxy.vc = vc;
                 realChuteProxy.vessel = vessel;
                 UpdateLocalCrew();
