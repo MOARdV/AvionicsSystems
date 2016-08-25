@@ -35,6 +35,11 @@ namespace AvionicsSystems
     /// interact with stock parachutes.
     /// </summary>
     /// <LuaName>realchute</LuaName>
+    /// <mdDoc>
+    /// The MASIRealChute component allows Avionics Systems to interact with the
+    /// RealChute mod.  In addition, it allows some control with the stock
+    /// parachute systems regardless of whether RealChute is installed.
+    /// </mdDoc>
     internal class MASIRealChute
     {
         internal static bool realChuteFound;
@@ -104,7 +109,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Deploys any parachutes (RealChute as well as stock).
+        /// Deploy all parachutes (RealChute as well as stock).
         /// </summary>
         public void DeployParachute()
         {

@@ -96,7 +96,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Reduce flap setting one step (if possible)
+        /// Reduce flap setting one step, unless flaps are already at 0.
         /// </summary>
         public void DecreaseFlapSetting()
         {
@@ -107,7 +107,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Return the current dynamic pressure in kPa.
+        /// Returns the current dynamic pressure in kPa.
         /// </summary>
         /// <returns></returns>
         public double DynamicPressure()
@@ -123,10 +123,9 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the current flap setting for the vessel.  Valid values
-        /// are from 0 to 3.
+        /// Returns the current flap setting for the vessel.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>0 (no flaps) through 3 (maximum flaps).</returns>
         public double GetFlapSetting()
         {
             if (farFound)
@@ -156,7 +155,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Increase flap setting one step (if possible)
+        /// Increase flap setting one step, unless flaps are already at 3.
         /// </summary>
         public void IncreaseFlapSetting()
         {
@@ -183,9 +182,9 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Set the spoilers to on/off (true/false)
+        /// Deploy or retract spoilers.
         /// </summary>
-        /// <param name="newState"></param>
+        /// <param name="newState">true to deploy spoilers, false to retract spoilers.</param>
         public void SetSpoilers(bool newState)
         {
             if (farFound && newState != spoilerSetting)

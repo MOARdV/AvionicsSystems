@@ -34,6 +34,11 @@ namespace AvionicsSystems
     /// MASIChatterer is the interface with the Chatterer mod.
     /// </summary>
     /// <LuaName>chatterer</LuaName>
+    /// <mdDoc>
+    /// The MASIChatterer class provides an interface between the Chatterer mod
+    /// and Avionics Systems.  It provides two informational variables and one
+    /// action.
+    /// </mdDoc>
     internal class MASIChatterer
     {
         static private bool chattererFound = false;
@@ -72,9 +77,9 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if the vessel is receiving communications, 0 otherwise.
+        /// Reports on whether or not Mission Control is communicating with the capsule.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if ground control is talking, 0 otherwise.</returns>
         public double Receiving()
         {
             if (chattererFound)
@@ -88,7 +93,8 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// If the comm channel is idle, start a chatter sequence.
+        /// If the comm channel is idle, start a chatter sequence.  If there is
+        /// already an exchange active, do nothing.
         /// </summary>
         public void StartTalking()
         {
@@ -102,9 +108,9 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if the vessel is transmitting, 0 otherwise.
+        /// Reports whether or not the vessel is transmitting to Mission Control.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if the vessel is transmitting, 0 otherwise.</returns>
         public double Transmitting()
         {
             if (chattererFound)

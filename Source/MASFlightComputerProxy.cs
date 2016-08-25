@@ -76,6 +76,12 @@ namespace AvionicsSystems
     /// action group control and state are all handled in this class).
     /// </summary>
     /// <LuaName>fc</LuaName>
+    /// <mdDoc>
+    /// The `fc` group contains the core interface between KSP, Avionics
+    /// Systems, and props in an IVA.  It consists of many 'variable' functions
+    /// that can be used to get information as well as numerous 'action' functions
+    /// that are used to do things.
+    /// </mdDoc>
     internal class MASFlightComputerProxy
     {
         private MASFlightComputer fc;
@@ -127,13 +133,26 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Variables that have not been assigned to a different category are
+        /// dumped in this region until I figured out where to put them.
+        /// </summary>
         #region Unassigned Region
 
         /// <summary>
         /// Apply a log10-like curve to the value.
+        /// 
+        /// The exact formula is:
+        /// 
+        /// ```
+        /// if (abs(sourceValue) %lt; 1.0)
+        ///   return sourceValue;
+        /// else
+        ///   return (1 + Log10(abs(sourceValue))) * Sign(sourceValue);
+        /// end
         /// </summary>
-        /// <param name="sourceValue"></param>
-        /// <returns></returns>
+        /// <param name="sourceValue">An input value.</param>
+        /// <returns>A Log10-like representation of the input value.</returns>
         public double PseudoLog10(double sourceValue)
         {
             double absValue = Math.Abs(sourceValue);
@@ -148,8 +167,8 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Remaps 'value' from the range ['bound1', 'bound2'] to the range
-        /// ['map1', 'map2'].
+        /// Remaps `value` from the range [`bound1`, `bound2`] to the range
+        /// [`map1`, `map2`].
         /// </summary>
         /// <param name="value"></param>
         /// <param name="bound1"></param>
@@ -174,6 +193,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// The Abort action and the GetAbort query belong in this category.
+        /// </summary>
         #region Abort
         /// <summary>
         /// Trigger the Abort action group.
@@ -193,15 +215,19 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// Variables and actions related to player-configured action groups are in this
+        /// category.
+        /// </summary>
         #region Action Groups
         private static readonly KSPActionGroup[] ags = { KSPActionGroup.Custom10, KSPActionGroup.Custom01, KSPActionGroup.Custom02, KSPActionGroup.Custom03, KSPActionGroup.Custom04, KSPActionGroup.Custom05, KSPActionGroup.Custom06, KSPActionGroup.Custom07, KSPActionGroup.Custom08, KSPActionGroup.Custom09 };
 
         /// <summary>
-        /// Returns 1 if at least one action is associated with the action
-        /// group.  0 otherwise.
+        /// Returns 1 if there is at least one action associated with the action
+        /// group.  0 otherwise, or if an invalid action group is specified.
         /// </summary>
-        /// <param name="groupID"></param>
-        /// <returns></returns>
+        /// <param name="groupID">A number between 0 and 9 (inclusive).</param>
+        /// <returns>1 if there are actions for this action group, 0 otherwise.</returns>
         public double ActionGroupHasActions(double groupID)
         {
             if (groupID < 0.0 || groupID > 9.0)
@@ -257,6 +283,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// Variables relating to the current vessel's altitude are found in this category.
+        /// </summary>
         #region Altitudes
         /// <summary>
         /// Returns the vessel's altitude above the datum (sea level where
@@ -288,7 +317,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the distance from the lowest point of the craft to the
         /// surface of the planet.  Ocean is treated as surface for this
-        /// purpose.  Precision reporting sets in at 500m (until then, it
+        /// purpose.  Precision reporting sets in at 500m (above 500m it
         /// reports the same as GetTerrainAltitude(false)).  Distance in
         /// meters.
         /// </summary>
@@ -303,8 +332,8 @@ namespace AvionicsSystems
         /// surface as ground.  Altitude in meters.
         /// </summary>
         /// <param name="ignoreOcean">When false, returns height above sea level
-        /// if over the ocean; when true, always returns ground height.</param>
-        /// <returns></returns>
+        /// when over the ocean; when true, always returns ground height.</param>
+        /// <returns>Altitude above the terrain in meters.</returns>
         public double AltitudeTerrain(bool ignoreOcean)
         {
             return (ignoreOcean) ? vc.altitudeTerrain : Math.Min(vc.altitudeASL, vc.altitudeTerrain);
@@ -321,6 +350,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// Atmosphere and airflow variables are found in this category.
+        /// </summary>
         #region Atmosphere
         /// <summary>
         /// Returns the atmospheric depth as reported by the KSP atmosphere
@@ -355,7 +387,7 @@ namespace AvionicsSystems
         /// Returns the current dynamic pressure on the vessel in kPa.  If FAR
         /// is installed, this variable uses FAR's computation instead.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Dynamic pressure in kPa.</returns>
         public double DynamicPressure()
         {
             if (MASIFAR.farFound)
@@ -396,6 +428,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// Variables related to a vessel's brakes are in this category.
+        /// </summary>
         #region Brakes
         /// <summary>
         /// Returns 1 if the brakes action group has at least one action assigned to it.
@@ -433,6 +468,10 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// Variables and actions related to the controls (roll / pitch / yaw / translation)
+        /// are in this category.
+        /// </summary>
         #region Control Input State
         /// <summary>
         /// Returns 1 when roll/translation controls are near neutral.
@@ -500,6 +539,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// Docking control and status are in the Docking category.
+        /// </summary>
         #region Docking
         /// <summary>
         /// Return 1 if the dock is attached to something (either in-flight
@@ -539,6 +581,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// Engine status and control methods are in the Engine category.
+        /// </summary>
         #region Engine
 
         /// <summary>
@@ -591,6 +636,51 @@ namespace AvionicsSystems
         public double CurrentTWR()
         {
             return vc.currentThrust / (vessel.totalMass * vc.surfaceAccelerationFromGravity);
+        }
+
+        /// <summary>
+        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
+        /// valid numbers at the present.
+        ///
+        /// Returns the total delta-V remaining for the vessel,
+        /// accounting for all stages.
+        /// 
+        /// If MechJeb is installed, its results are used.  Otherwise, a
+        /// highly inaccurate approximation is used.
+        /// </summary>
+        /// <returns>Remaining delta-V in m/s.</returns>
+        public double DeltaV()
+        {
+            if (mjProxy.mjAvailable)
+            {
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
+        /// valid numbers at the present.
+        ///
+        /// Returns the total delta-V remaining for the current stage.
+        /// 
+        /// If MechJeb is installed, its results are used.  Otherwise, a
+        /// highly inaccurate approximation is used.
+        /// </summary>
+        /// <returns>Remaining delta-V for this stage in m/s.</returns>
+        public double DeltaVStage()
+        {
+            if (mjProxy.mjAvailable)
+            {
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
@@ -696,6 +786,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// Flight status variables are in this category.
+        /// </summary>
         #region Flight Status
         /// <summary>
         /// Returns 1 if the vessel is in a landed state (LANDED, SPLASHED,
@@ -719,22 +812,27 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Returns the vessel's situation, based on the KSP variable:
-        /// 0 - LANDED
-        /// 1 - SPLASHED
-        /// 2 - PRELAUNCH
-        /// 3 - FLYING
-        /// 4 - SUB_ORBITAL
-        /// 5 - ORBITING
-        /// 6 - ESCAPING
-        /// 7 - DOCKED
+        /// 
+        /// * 0 - LANDED
+        /// * 1 - SPLASHED
+        /// * 2 - PRELAUNCH
+        /// * 3 - FLYING
+        /// * 4 - SUB_ORBITAL
+        /// * 5 - ORBITING
+        /// * 6 - ESCAPING
+        /// * 7 - DOCKED
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A number between 0 and 7 (inclusive).</returns>
         public double VesselSituation()
         {
             return vesselSituationConverted;
         }
         #endregion
 
+        /// <summary>
+        /// Variables and control methods for the Gear action group are in this
+        /// category.
+        /// </summary>
         #region Gear
         /// <summary>
         /// Returns 1 if there are actions assigned to the landing gear AG.
@@ -772,6 +870,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// The Lights action group can be controlled and queried through this category.
+        /// </summary>
         #region Lights
         /// <summary>
         /// Returns 1 if the Lights action group has at least one action assigned to it.
@@ -809,6 +910,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// Methods for querying and controlling maneuver nodes are in this category.
+        /// </summary>
         #region Maneuver Node
         /// <summary>
         /// Clear all scheduled maneuver nodes.
@@ -851,6 +955,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         #region Mass
         /// <summary>
         /// Returns the mass of the vessel
@@ -870,6 +977,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         #region Meta
         /// <summary>
         /// Applies some "realism" conditions to the variable to cause it to
@@ -973,6 +1083,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         #region Orbit Parameters
         /// <summary>
         /// Returns the orbit's apoapsis (from datum) in meters.
@@ -1024,6 +1137,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         #region Orientation
         /// <summary>
         /// Return heading relative to the surface in degrees [0, 360)
@@ -1500,6 +1616,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         #region Periodic Variables
         /// <summary>
         /// Returns 0 or 1, changing at the specified frequency
@@ -1521,6 +1640,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         #region Persistent Vars
         /// <summary>
         /// Add an amount to a persistent (converting it to numeric as needed).
@@ -1620,6 +1742,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         #region Position
         /// <summary>
         /// Returns the predicted altitude of landing.  Automatically uses
@@ -1713,6 +1838,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         #region Power Production
         /// <summary>
         /// Returns the number of alternators on the vessel.
@@ -1898,6 +2026,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         #region Radar
         /// <summary>
         /// Returns 1 if any radars are turned on; 0 otherwise.
@@ -1930,6 +2061,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         #region Random
         /// <summary>
         /// Return a random number in the range of [0, 1]
@@ -1959,6 +2093,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         #region RCS
         /// <summary>
         /// Returns 1 if the RCS action group has any actions attached to it.
@@ -1996,6 +2133,9 @@ namespace AvionicsSystems
         }
         #endregion RCS
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         #region Resources
         /// <summary>
         /// Returns the current level of available power for the designated
@@ -2317,11 +2457,19 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// The SAS section provides methods to control and query the state of
+        /// a vessel's SAS stability system.
+        /// 
+        /// **CAUTION**: The methods in this seciton will be changing.  Instead of
+        /// methods like `GetSASModeManeuver()` and `SetSASModeManeuver()` there will
+        /// be `IsSASMode(9)` and `SetSASMode(9)`.
+        /// </summary>
         #region SAS
         /// <summary>
-        /// Returns 1 if the vessel is in precision control mode, 0 otherwise
+        /// Returns whether the controls are configured for precision mode.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if the controls are in precision mode, 0 if they are not.</returns>
         public double GetPrecisionMode()
         {
             return (FlightInputHandler.fetch.precisionMode) ? 1.0 : 0.0;
@@ -2338,18 +2486,19 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Returns a number representing the SAS mode:
-        /// 0 = StabilityAssist
-        /// 1 = Prograde
-        /// 2 = Retrograde
-        /// 3 = Normal
-        /// 4 = Anti-Normal
-        /// 5 = Radial In
-        /// 6 = Radial Out
-        /// 7 = Target
-        /// 8 = Anti-Target
-        /// 9 = Maneuver Node
+        ///
+        /// * 0 = StabilityAssist
+        /// * 1 = Prograde
+        /// * 2 = Retrograde
+        /// * 3 = Normal
+        /// * 4 = Anti-Normal
+        /// * 5 = Radial In
+        /// * 6 = Radial Out
+        /// * 7 = Target
+        /// * 8 = Anti-Target
+        /// * 9 = Maneuver Node
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A number between 0 and 9, inclusive.</returns>
         public double GetSASMode()
         {
             double mode;
@@ -2698,7 +2847,16 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         #region Speed, Velocity, and Acceleration
+
+        /// <summary>
+        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
+        /// valid numbers at the present.
+        /// </summary>
+        /// <returns></returns>
         public double Acceleration()
         {
             return 0.0;
@@ -2858,6 +3016,9 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         #region Staging
         /// <summary>
         /// Returns the current stage.
@@ -2925,6 +3086,12 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// The Target and Rendezvous section providesd functions and methods related to
+        /// targets and rendezvous operations with a target.  These methods include raw
+        /// distance and velocities as well as target name and classifiers (is it a vessel,
+        /// a celestial body, etc).
+        /// </summary>
         #region Target and Rendezvous
         /// <summary>
         /// Clears any targets being tracked.
@@ -2941,7 +3108,8 @@ namespace AvionicsSystems
         /// Returns the raw angle between the target and the nose of the vessel,
         /// or 0 if there is no target.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns 0 if the target is directly in front of the vessel, or
+        /// if there is no target; returns a number up to 180 in all other cases</returns>
         public double TargetAngle()
         {
             if (vc.targetType > 0)
@@ -2957,7 +3125,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the distance to the current target in meters, or 0 if there is no target.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The absolute distance in meters.</returns>
         public double TargetDistance()
         {
             return vc.targetDisplacement.magnitude;
@@ -2968,7 +3136,8 @@ namespace AvionicsSystems
         /// transform on the horizontal (reference-transform relative) plane in
         /// meters, with target to the right = +X and left = -X.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Distance in meters.  Positive means the target is to the right,
+        /// negative means to the left.</returns>
         public double TargetDistanceX()
         {
             return Vector3.Dot(vc.targetDisplacement, vc.referenceTransform.right);
@@ -2979,7 +3148,8 @@ namespace AvionicsSystems
         /// transform on the vertical (rt-relative) plane in meters, with target
         /// up = +Y and down = -Y.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Distance in meters.  Positive means the target is above the
+        /// craft, negative means below.</returns>
         public double TargetDistanceY()
         {
             //Utility.LogMessage(this, "Tgt displacement = {0,7:0}, {1,7:0}, {2,7:0}",
@@ -2999,7 +3169,8 @@ namespace AvionicsSystems
         /// transform on the Z (fore/aft) axis in meters, with target ahead = +Z
         /// and behind = -Z
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Distance in meters.  Positive indicates a target in front
+        /// of the craft, negative indicates behind.</returns>
         public double TargetDistanceZ()
         {
             return Vector3.Dot(vc.targetDisplacement, vc.referenceTransform.up);
@@ -3008,7 +3179,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns 1 if the target is a vessel (vessel or Docking Port); 0 otherwise.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 for vessels or docking port targets, 0 otherwise.</returns>
         public double TargetIsVessel()
         {
             return (vc.targetType == MASVesselComputer.TargetType.Vessel || vc.targetType == MASVesselComputer.TargetType.DockingPort) ? 1.0 : 0.0;
@@ -3019,7 +3190,7 @@ namespace AvionicsSystems
         /// currently valid.  Only vessels, docking ports, and position
         /// targets will have valid lat/lon.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 for vessel, docking port, or waypoint targets, 0 otherwise.</returns>
         public double TargetLatLonValid()
         {
             return (vc.targetType == MASVesselComputer.TargetType.Vessel || vc.targetType == MASVesselComputer.TargetType.DockingPort || vc.targetType == MASVesselComputer.TargetType.PositionTarget) ? 1.0 : 0.0;
@@ -3028,7 +3199,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the altitude of the target, or 0 if there is no target.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Target altitude in meters.</returns>
         public double TargetAltitude()
         {
             if (vc.activeTarget != null)
@@ -3045,7 +3216,8 @@ namespace AvionicsSystems
         /// Returns the target latitude for targets that have valid latitudes
         /// (vessel, docking port, position targets).
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Latitude in degrees.  Positive values are north of the
+        /// equator, and negative values are south.</returns>
         public double TargetLatitude()
         {
             switch (vc.targetType)
@@ -3066,7 +3238,8 @@ namespace AvionicsSystems
         /// Returns the target longitude for targets that have valid longitudes
         /// (vessel, docking port, position targets).
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Longitude in degrees.  Negative values are west of the prime
+        /// meridian, and positive values are east of it.</returns>
         public double TargetLongitude()
         {
             switch (vc.targetType)
@@ -3084,25 +3257,44 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the name of the current target, or an empty string if there
+        /// Get the name of the current target, or an empty string if there
         /// is no target.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The name of the current target, or "" if there is no target.</returns>
         public string TargetName()
         {
             return vc.targetName;
         }
 
         /// <summary>
-        /// Returns a number identifying the target type.  Valid results are
-        /// 0: No target
-        /// 1: Target is a Vessel
-        /// 2: Target is a Docking Port
-        /// 3: Target is a Celestial Body
-        /// 4: Target is a Waypoint
-        /// 5: Target is an asteroid (not implemented)
+        /// Returns 1 if there is a target, and it is in the same SoI as the
+        /// vessel (for example: both orbiting Kerbin, or both orbiting the Mun, but not
+        /// one orbiting Kerbin, and the other orbiting the Mun).
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if the target is in the same SoI; 0 if not, or if there is no target.</returns>
+        public double TargetSameSoI()
+        {
+            if (vc.activeTarget != null)
+            {
+                return (vc.activeTarget.GetOrbit().referenceBody == vessel.GetOrbit().referenceBody) ? 1.0 : 0.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns a number identifying the target type.  Valid results are:
+        /// 
+        /// * 0: No target
+        /// * 1: Target is a Vessel
+        /// * 2: Target is a Docking Port
+        /// * 3: Target is a Celestial Body
+        /// * 4: Target is a Waypoint
+        /// * 5: Target is an asteroid *(not yet implemented)*
+        /// </summary>
+        /// <returns>A number between 0 and 5 (inclusive)</returns>
         public double TargetType()
         {
             switch (vc.targetType)
@@ -3124,11 +3316,29 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// **UNTESTED:** signs may be incorrect.  Please report results testing this
+        /// method.
+        /// 
+        /// Returns the target's velocity relative to the left-right axis of the vessel.
+        /// </summary>
+        /// <returns>Velocity in m/s.  Positive means the vessel is moving 'right' relative
+        /// to the target, and negative means 'left'.</returns>
         public double TargetVelocityX()
         {
             return Vector3.Dot(vc.targetRelativeVelocity, vc.referenceTransform.right);
         }
 
+        /// <summary>
+        /// **UNTESTED:** signs may be incorrect.  Please report results testing this
+        /// method.
+        /// 
+        /// Returns the target's velocity relative to the top-bottom axis of the
+        /// vessel (the top / bottom of the vessel from the typical inline IVA's
+        /// perspective).
+        /// </summary>
+        /// <returns>Velocity in m/s.  Positive means the vessel is moving 'up'
+        /// relative to the target, negative means relative 'down'.</returns>
         public double TargetVelocityY()
         {
             Utility.LogMessage(this, "Tgt displacement = {0,7:0}, {1,7:0}, {2,7:0}",
@@ -3140,12 +3350,43 @@ namespace AvionicsSystems
             return -Vector3.Dot(vc.targetRelativeVelocity, vc.referenceTransform.forward);
         }
 
+        /// <summary>
+        /// **UNTESTED:** signs may be incorrect.  Please report results testing this
+        /// method.
+        /// 
+        /// Returns the target's velocity relative to the forward-aft axis of
+        /// the vessel (the nose of an aircraft, the 'top' of a vertically-launched
+        /// craft).
+        /// </summary>
+        /// <returns>Velocity in m/s.  Positive means approaching, negative means departing.</returns>
         public double TargetVelocityZ()
         {
             return Vector3.Dot(vc.targetRelativeVelocity, vc.referenceTransform.up);
         }
+
+        /// <summary>
+        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
+        /// valid numbers at the present.
+        /// 
+        /// Reports the delta-V required to transfer to the target's orbit.
+        /// </summary>
+        /// <returns>Delta-V in m/s. 0 if there is no target.</returns>
+        public double TransferDeltaV()
+        {
+            if (vc.activeTarget != null)
+            {
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
         #endregion
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         #region Time
         /// <summary>
         /// Return the current MET (Mission Elapsed Time) for the vessel in

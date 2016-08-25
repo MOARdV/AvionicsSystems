@@ -191,11 +191,13 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// TODO
+        /// The General category provides some non-specific queries and
+        /// actions (such as whether
+        /// MechJeb functionality is available on a given craft).
         /// </summary>
         #region General
         /// <summary>
-        /// Returns 1 if any of the autopilots MAS can control are active.
+        /// Returns 1 if any of the MechJeb autopilots MAS can control are active.
         /// </summary>
         /// <returns></returns>
         public double AutopilotActive()
@@ -211,7 +213,8 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if MechJeb is installed and available on this craft.
+        /// Returns 1 if MechJeb is installed and available on this craft, 0 if it
+        /// is not available.
         /// </summary>
         /// <returns></returns>
         public double Available()
