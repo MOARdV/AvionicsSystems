@@ -1045,6 +1045,13 @@ namespace AvionicsSystems
                     doubleValue = double.NaN;
                     safeValue = 0.0;
                 }
+                else if (value is bool)
+                {
+                    bool bValue =(bool)value;
+                    safeValue = (bValue) ? 1.0 : 0.0;
+                    doubleValue = double.NaN;
+                    stringValue = bValue.ToString();
+                }
                 else
                 {
                     // TODO ...?
@@ -1061,6 +1068,8 @@ namespace AvionicsSystems
             {
                 if (variableType == VariableType.LuaScript)
                 {
+                    // TODO: Refactor this similar to the native func code path
+                    // and allow for booleans.
                     DynValue oldDynValue = luaValue;
                     string oldString = stringValue;
                     double oldValue = safeValue;
