@@ -58,10 +58,10 @@ namespace Documentor
         static List<DocumentToken> tokens = new List<DocumentToken>();
         static void Main(string[] args)
         {
-            System.Console.WriteLine("Documentifying:");
-            for(int i=0; i<args.Length; ++i)
+            //System.Console.WriteLine("Documentifying:");
+            for (int i = 0; i < args.Length; ++i)
             {
-                System.Console.WriteLine(string.Format(" ...{0}", args[i]));
+                //System.Console.WriteLine(string.Format(" ...{0}", args[i]));
                 Documentify(args[i]);
             }
         }
@@ -87,12 +87,12 @@ namespace Documentor
             bool inComments = false;
             DocumentToken docToken = null;
             // Iterate over the lines to assemble the list of potential documentations.
-            for(int i=0; i<lines.Length; ++i)
+            for (int i = 0; i < lines.Length; ++i)
             {
                 string token = lines[i].Trim();
-                if(inComments)
+                if (inComments)
                 {
-                    if(token.StartsWith("///"))
+                    if (token.StartsWith("///"))
                     {
                         docToken.rawSummary.AppendLine(token.Substring(3));
                     }
@@ -108,7 +108,7 @@ namespace Documentor
                 }
                 else
                 {
-                    if(token.StartsWith("///"))
+                    if (token.StartsWith("///"))
                     {
                         inComments = true;
                         docToken = new DocumentToken();
@@ -120,7 +120,7 @@ namespace Documentor
             }
             docToken = null;
 
-            System.Console.WriteLine("Potential Tokens:");
+            //System.Console.WriteLine("Potential Tokens:");
             StringBuilder docString = new StringBuilder();
             docString.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
             docString.Append("<documentor file=\"");
@@ -129,22 +129,22 @@ namespace Documentor
             docString.AppendLine("\">");
             for (int i = 0; i < tokens.Count; ++i)
             {
-                System.Console.WriteLine(string.Format("[{0,3}]: {1}", i, tokens[i].rawName));
+                //System.Console.WriteLine(string.Format("[{0,3}]: {1}", i, tokens[i].rawName));
                 int openParen = tokens[i].rawName.IndexOf('(');
-                if (openParen >0)
+                if (openParen > 0)
                 {
                     int lastSpace = tokens[i].rawName.LastIndexOf(' ', openParen);
-                    if(lastSpace >= 0)
+                    if (lastSpace >= 0)
                     {
                         tokens[i].rawSummary.Append("<method>");
                         tokens[i].rawSummary.Append(tokens[i].rawName.Substring(lastSpace + 1));
                         tokens[i].rawSummary.AppendLine("</method>");
                     }
                 }
-                else if(tokens[i].rawName.StartsWith("#region"))
+                else if (tokens[i].rawName.StartsWith("#region"))
                 {
                     tokens[i].rawSummary.Append("<region>");
-                    tokens[i].rawSummary.Append(tokens[i].rawName.Substring(tokens[i].rawName.IndexOf(' ')+1));
+                    tokens[i].rawSummary.Append(tokens[i].rawName.Substring(tokens[i].rawName.IndexOf(' ') + 1));
                     tokens[i].rawSummary.AppendLine("</region>");
                 }
                 tokens[i].rawSummary.AppendLine("</token>");
@@ -184,7 +184,7 @@ namespace Documentor
                     if (child is XmlElement && child.Name == "token")
                     {
                         ParseToken(child, docString, ref luaNamespace);
-                        System.Console.WriteLine(child.Name);
+                        //System.Console.WriteLine(child.Name);
                     }
                     child = child.NextSibling;
                 }
@@ -194,10 +194,16 @@ namespace Documentor
             tokens.Clear();
         }
 
+        /// <summary>
+        /// Handle writing the markdown documentation for a single XML element.
+        /// </summary>
+        /// <param name="child"></param>
+        /// <param name="docString"></param>
+        /// <param name="luaNamespace"></param>
         private static void ParseToken(XmlNode child, StringBuilder docString, ref string luaNamespace)
         {
             XmlElement luaNameTag = child["LuaName"];
-            if(luaNameTag != null)
+            if (luaNameTag != null)
             {
                 luaNamespace = luaNameTag.InnerText;
 
@@ -213,7 +219,7 @@ namespace Documentor
             }
 
             XmlElement methodName = child["method"];
-            if(methodName != null)
+            if (methodName != null)
             {
                 docString.Append("###");
                 if (!string.IsNullOrEmpty(luaNamespace))
@@ -223,6 +229,37 @@ namespace Documentor
                 }
                 docString.AppendLine(methodName.InnerText);
                 docString.AppendLine();
+                int paramCount = 0;
+                XmlNode param = child["param"];
+                while (param != null)
+                {
+                    if (param is XmlElement && !string.IsNullOrEmpty(param.InnerText.Trim()))
+                    {
+                        XmlAttribute attr = param.Attributes["name"];
+                        if (attr != null)
+                        {
+                            docString.Append("* `");
+                            docString.Append(attr.Value);
+                            docString.Append("`: ");
+                            docString.AppendLine(param.InnerText.Trim());
+                            ++paramCount;
+                        }
+                    }
+
+                    param = param.NextSibling;
+                }
+                if (paramCount > 0)
+                {
+                    docString.AppendLine();
+                }
+
+                XmlElement returns = child["returns"];
+                if (returns != null && !string.IsNullOrEmpty(returns.InnerText.Trim()))
+                {
+                    docString.Append("**Returns**: ");
+                    docString.AppendLine(returns.InnerText.Trim());
+                    docString.AppendLine();
+                }
 
                 XmlElement summary = child["summary"];
                 if (summary != null && methodName != null)
