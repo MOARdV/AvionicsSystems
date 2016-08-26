@@ -37,6 +37,94 @@ namespace AvionicsSystems
     /// </summary>
     internal partial class MASVesselComputer : VesselModule
     {
+        internal class ApproachSolver
+        {
+            private static readonly int NumSubdivisions = 16;
+            private static readonly int MaxRecursions = 16;
+
+            /// <summary>
+            /// Iterate through the next several patches on the orbit to find the
+            /// first one that shares the same reference body as the supplied
+            /// parameter.
+            /// </summary>
+            /// <param name="startOrbit"></param>
+            /// <param name="referenceBody"></param>
+            /// <returns></returns>
+            private Orbit SelectClosestOrbit(Orbit startOrbit, CelestialBody referenceBody)
+            {
+                Orbit checkorbit = startOrbit;
+                int orbitcount = 0;
+
+                while (checkorbit.nextPatch != null && checkorbit.patchEndTransition != Orbit.PatchTransitionType.FINAL && orbitcount < 3)
+                {
+                    checkorbit = checkorbit.nextPatch;
+                    orbitcount++;
+                    if (checkorbit.referenceBody == referenceBody)
+                    {
+                        return checkorbit;
+                    }
+
+                }
+
+                return startOrbit;
+            }
+
+            private void OneStep(Orbit vesselOrbit, Orbit targetOrbit, double startUT, double endUT, int recursionDepth, ref double targetClosestDistance, ref double targetClosestUT)
+            {
+                if (recursionDepth > MaxRecursions)
+                {
+                    return;
+                }
+
+                double deltaT = (endUT - startUT) / (double)NumSubdivisions;
+
+                if (deltaT < 0.5)
+                {
+                    // If our timesteps are less than a half second, I think
+                    // this is an accurate enough estimate.
+                    return;
+                }
+
+                double closestDistSq = targetClosestDistance * targetClosestDistance;
+                for (double t = startUT; t <= endUT; t += deltaT)
+                {
+                    Vector3d vesselPos = vesselOrbit.getPositionAtUT(t);
+                    Vector3d targetPos = targetOrbit.getPositionAtUT(t);
+
+                    double distSq = (vesselPos - targetPos).sqrMagnitude;
+                    if (distSq < closestDistSq)
+                    {
+                        closestDistSq = distSq;
+                        targetClosestUT = t;
+                    }
+                }
+
+                targetClosestDistance = Math.Sqrt(closestDistSq);
+
+                OneStep(vesselOrbit, targetOrbit, targetClosestUT - deltaT, targetClosestUT + deltaT, recursionDepth + 1, ref targetClosestDistance, ref targetClosestUT);
+            }
+
+            /// <summary>
+            /// Iterate over our closest approach estimator.  Someday, I may figure out how to spin this into a thread
+            /// instead, so it's less costly.
+            /// </summary>
+            /// <param name="vesselOrbit"></param>
+            /// <param name="targetOrbit"></param>
+            /// <param name="now"></param>
+            /// <param name="targetClosestDistance"></param>
+            /// <param name="targetClosestUT"></param>
+            internal void IterateApproachSolver(Orbit vesselOrbit, Orbit targetOrbit, double now, out double targetClosestDistance, out double targetClosestUT)
+            {
+                targetClosestDistance = float.MaxValue;
+                targetClosestUT = float.MaxValue;
+
+                vesselOrbit = SelectClosestOrbit(vesselOrbit, targetOrbit.referenceBody);
+                double minPeriod = Math.Max(vesselOrbit.period, targetOrbit.period);
+
+                OneStep(vesselOrbit, targetOrbit, now, now + minPeriod, 0, ref targetClosestDistance, ref targetClosestUT);
+            }
+        };
+
         internal enum ReferenceType
         {
             Unknown,
@@ -72,7 +160,7 @@ namespace AvionicsSystems
         /// Local copy of the current orbit.  This is updated per fixed-update
         /// so we're not querying an indeterminate-cost property of Vessel.
         /// </summary>
-        private Orbit orbit;
+        internal Orbit orbit;
 
         /// <summary>
         /// A copy of the module's vessel ID, in case vessel is null'd before OnDestroy fires.
@@ -362,30 +450,6 @@ namespace AvionicsSystems
         }
         #endregion
 
-        #region Orbit Data
-        internal double eccentricity
-        {
-            get
-            {
-                return orbit.eccentricity;
-            }
-        }
-        internal double inclination
-        {
-            get
-            {
-                return orbit.inclination;
-            }
-        }
-        internal Orbit.PatchTransitionType patchEndTransition
-        {
-            get
-            {
-                return orbit.patchEndTransition;
-            }
-        }
-        #endregion
-
         #region Vessel Data
 
         internal double altitudeASL;
@@ -617,6 +681,7 @@ namespace AvionicsSystems
 
         #region Maneuver
         private ManeuverNode node;
+        internal Orbit nodeOrbit;
         private double nodeDV = -1.0;
         internal double maneuverNodeDeltaV
         {
@@ -685,10 +750,16 @@ namespace AvionicsSystems
             if (vessel.patchedConicSolver != null)
             {
                 node = vessel.patchedConicSolver.maneuverNodes.Count > 0 ? vessel.patchedConicSolver.maneuverNodes[0] : null;
+
+                if (node != null)
+                {
+                    nodeOrbit = node.nextPatch;
+                }
             }
             else
             {
                 node = null;
+                nodeOrbit = null;
             }
             nodeDV = -1.0;
             maneuverVector = Vector3d.zero;
@@ -706,12 +777,16 @@ namespace AvionicsSystems
             Asteroid,
         };
         internal ITargetable activeTarget = null;
+        internal ApproachSolver approachSolver = new ApproachSolver();
         internal Vector3 targetDisplacement;
         internal Vector3 targetDirection;
         internal Vector3d targetRelativeVelocity;
         internal TargetType targetType;
         internal string targetName;
         internal Transform targetDockingTransform; // Docking node transform - valid only for docking port targets.
+        internal Orbit targetOrbit;
+        internal double targetClosestUT;
+        internal double targetClosestDistance;
         internal bool targetValid
         {
             get
@@ -767,6 +842,8 @@ namespace AvionicsSystems
                 }
 
                 targetName = activeTarget.GetName();
+                targetOrbit = activeTarget.GetOrbit();
+                approachSolver.IterateApproachSolver(orbit, targetOrbit, universalTime, out targetClosestDistance, out targetClosestUT);
             }
             else
             {
@@ -777,6 +854,9 @@ namespace AvionicsSystems
                 targetDirection = forward;
                 targetDockingTransform = null;
                 targetName = string.Empty;
+                targetOrbit = null;
+                targetClosestUT = universalTime;
+                targetClosestDistance = 0.0;
             }
         }
         #endregion

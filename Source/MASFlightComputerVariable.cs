@@ -113,7 +113,7 @@ namespace AvionicsSystems
             {
                 // Must do additional parsing here, in case the tokens are in the form 'fc.blah() * fc.blah2()'
                 int depth = 0;
-                for (int idx = firstToken + 4; idx < lastToken; ++idx )
+                for (int idx = firstToken + 4; idx < lastToken; ++idx)
                 {
                     if (tokens[idx].Type == TokenType.Symbol && tokens[idx].Id == 16)
                     {
@@ -124,7 +124,7 @@ namespace AvionicsSystems
                         --depth;
                     }
 
-                    if(depth < 0)
+                    if (depth < 0)
                     {
                         return false;
                     }
@@ -175,7 +175,7 @@ namespace AvionicsSystems
         private static string MakeCanonicalName(Token[] tokens, int firstIndex, int lastIndex)
         {
             StringBuilder sb = Utility.GetStringBuilder();
-            for(int index = firstIndex; index <= lastIndex; ++index)
+            for (int index = firstIndex; index <= lastIndex; ++index)
             {
                 sb.Append(tokens[index].Text);
             }
@@ -200,7 +200,7 @@ namespace AvionicsSystems
             {
                 int numParameters = 1;
                 // Count the parameters
-                for(int index = firstIndex; index < lastIndex; ++index)
+                for (int index = firstIndex; index < lastIndex; ++index)
                 {
                     if (tokens[index].Type == TokenType.Symbol && tokens[index].Id == 18)
                     {
@@ -223,7 +223,7 @@ namespace AvionicsSystems
 #endif
                         if (numTokens == 1)
                         {
-                            if(tokens[firstIndex].Type == TokenType.Number)
+                            if (tokens[firstIndex].Type == TokenType.Number)
                             {
 #if VERBOSE_PARSING
                                 Utility.LogMessage(this, " Parameter {0} is number", currentParam);
@@ -233,7 +233,7 @@ namespace AvionicsSystems
                                 newParms[currentParam].valueType = typeof(double);
                                 newParms[currentParam].vpType = VariableParameterType.CONST_DOUBLE;
                             }
-                            else if(tokens[firstIndex].Type == TokenType.QuotedString)
+                            else if (tokens[firstIndex].Type == TokenType.QuotedString)
                             {
 #if VERBOSE_PARSING
                                 Utility.LogMessage(this, " Parameter {0} is string", currentParam);
@@ -244,7 +244,7 @@ namespace AvionicsSystems
                                 newParms[currentParam].valueType = typeof(string);
                                 newParms[currentParam].vpType = VariableParameterType.CONST_STRING;
                             }
-                            else if(tokens[firstIndex].Type == TokenType.Keyword && tokens[firstIndex].Id == 48)
+                            else if (tokens[firstIndex].Type == TokenType.Keyword && tokens[firstIndex].Id == 48)
                             {
 #if VERBOSE_PARSING
                                 Utility.LogMessage(this, " Parameter {0} is bool", currentParam);
@@ -373,7 +373,7 @@ namespace AvionicsSystems
                         else
                         {
                             bool match = true;
-                            for(int index = 0; index < numParams; ++index)
+                            for (int index = 0; index < numParams; ++index)
                             {
                                 if (methodParams[index].ParameterType != parameters[index].valueType)
                                 {
@@ -496,16 +496,16 @@ namespace AvionicsSystems
                                         Utility.LogMessage(this, "Added native string variable \"{0}\"", variableName);
 #endif
                                     }
-                                    else if(parameters[0].vpType == VariableParameterType.VARIABLE)
+                                    else if (parameters[0].vpType == VariableParameterType.VARIABLE)
                                     {
                                         if (parameters[0].valueType == typeof(bool))
                                         {
                                             DynamicMethod<object, bool> dm = DynamicMethodFactory.CreateFunc<object, bool>(method);
                                             Variable v = parameters[0].variableValue;
-                                            newVar = new Variable(variableName, () => 
+                                            newVar = new Variable(variableName, () =>
                                             {
                                                 bool bValue = (bool)v.RawValue();
-                                                return dm(objRef, bValue); 
+                                                return dm(objRef, bValue);
                                             });
 #if VERBOSE_PARSING
                                             Utility.LogMessage(this, "Added variable bool variable \"{0}\"", variableName);
@@ -515,9 +515,9 @@ namespace AvionicsSystems
                                         {
                                             DynamicMethod<object, double> dm = DynamicMethodFactory.CreateFunc<object, double>(method);
                                             Variable v = parameters[0].variableValue;
-                                            newVar = new Variable(variableName, () => 
-                                            { 
-                                                return dm(objRef, v.SafeValue()); 
+                                            newVar = new Variable(variableName, () =>
+                                            {
+                                                return dm(objRef, v.SafeValue());
                                             });
 #if VERBOSE_PARSING
                                             Utility.LogMessage(this, "Added variable double variable \"{0}\"", variableName);
@@ -527,16 +527,16 @@ namespace AvionicsSystems
                                         {
                                             DynamicMethod<object, string> dm = DynamicMethodFactory.CreateFunc<object, string>(method);
                                             Variable v = parameters[0].variableValue;
-                                            newVar = new Variable(variableName, () => 
-                                            { 
-                                                return dm(objRef, v.String()); 
+                                            newVar = new Variable(variableName, () =>
+                                            {
+                                                return dm(objRef, v.String());
                                             });
 #if VERBOSE_PARSING
                                             Utility.LogMessage(this, "Added variable string variable \"{0}\"", variableName);
 #endif
                                         }
                                     }
-                                    else 
+                                    else
                                     {
                                         Utility.LogErrorMessage(this, "Found unsupported parameter type {0} for variable {1}", parameters[0].vpType, variableName);
                                     }
@@ -653,34 +653,34 @@ namespace AvionicsSystems
                                     tokenList.Add(new Token(TokenType.Identifier, " or ", " or ", 0, 0, 0, 0, 0, 0, 0));
                                 }
                                 else
-                                { 
+                                {
                                     tokenList.Add(tok);
                                 }
                             }
-                            else if(tok.Type == TokenType.Symbol)
+                            else if (tok.Type == TokenType.Symbol)
                             {
-                                if(tok.Id == 18)
+                                if (tok.Id == 18)
                                 {
                                     tokenList.Add(new Token(TokenType.Symbol, ", ", ", ", tok.Id, 0, 0, 0, 0, 0, 0));
                                 }
-                                else if(tok.Id == 32)
+                                else if (tok.Id == 32)
                                 {
                                     tokenList.Add(new Token(TokenType.Symbol, " * ", " * ", tok.Id, 0, 0, 0, 0, 0, 0));
                                 }
-                                else if(tok.Id == 33)
+                                else if (tok.Id == 33)
                                 {
                                     tokenList.Add(new Token(TokenType.Symbol, " / ", " / ", tok.Id, 0, 0, 0, 0, 0, 0));
                                 }
-                                else if(tok.Id == 34)
+                                else if (tok.Id == 34)
                                 {
                                     tokenList.Add(new Token(TokenType.Symbol, " + ", " + ", tok.Id, 0, 0, 0, 0, 0, 0));
                                 }
                                 else
-                                { 
+                                {
                                     tokenList.Add(tok);
                                 }
                             }
-                            else if(tok.Type == TokenType.Decimal)
+                            else if (tok.Type == TokenType.Decimal)
                             {
                                 tokenList.Add(new Token(TokenType.Number, (double)(Decimal)tok.Value, tok.Text, 0, 0, 0, 0, 0, 0, 0));
                             }
@@ -1047,7 +1047,7 @@ namespace AvionicsSystems
                 }
                 else if (value is bool)
                 {
-                    bool bValue =(bool)value;
+                    bool bValue = (bool)value;
                     safeValue = (bValue) ? 1.0 : 0.0;
                     doubleValue = double.NaN;
                     stringValue = bValue.ToString();

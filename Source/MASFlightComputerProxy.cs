@@ -145,7 +145,7 @@ namespace AvionicsSystems
         /// The exact formula is:
         /// 
         /// ```
-        /// if (abs(sourceValue) %lt; 1.0)
+        /// if (abs(sourceValue) &lt; 1.0)
         ///   return sourceValue;
         /// else
         ///   return (1 + Log10(abs(sourceValue))) * Sign(sourceValue);
@@ -932,12 +932,44 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Delta-V of the scheduled node, or 0 if there is no node.
+        /// Returns the apoapsis of the orbit that results from the scheduled maneuver.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>New Ap in meters, or 0 if no node is scheduled.</returns>
+        public double ManeuverNodeAp()
+        {
+            if (vc.maneuverNodeValid)
+            {
+                return vc.nodeOrbit.ApA;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Delta-V of the next scheduled node.
+        /// </summary>
+        /// <returns>ΔV in m/s, or 0 if no node is scheduled.</returns>
         public double ManeuverNodeDV()
         {
             return vc.maneuverNodeDeltaV;
+        }
+
+        /// <summary>
+        /// Returns the eccentricity of the orbit that results from the scheduled maneuver.
+        /// </summary>
+        /// <returns>New eccentricity, or 0 if no node is scheduled.</returns>
+        public double ManeuverNodeEcc()
+        {
+            if (vc.maneuverNodeValid)
+            {
+                return vc.nodeOrbit.eccentricity;
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
@@ -947,6 +979,56 @@ namespace AvionicsSystems
         public double ManeuverNodeExists()
         {
             return (vc.maneuverNodeValid) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the inclination of the orbit that results from the scheduled maneuver.
+        /// </summary>
+        /// <returns>New inclination in degrees, or 0 if no node is scheduled.</returns>
+        public double ManeuverNodeInc()
+        {
+            if (vc.maneuverNodeValid)
+            {
+                return vc.nodeOrbit.inclination;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the periapsis of the orbit that results from the scheduled maneuver.
+        /// </summary>
+        /// <returns>New Pe in meters, or 0 if no node is scheduled.</returns>
+        public double ManeuverNodePe()
+        {
+            if (vc.maneuverNodeValid)
+            {
+                return vc.nodeOrbit.PeA;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the relative inclination of the target that will result from the
+        /// scheduled maneuver.
+        /// </summary>
+        /// <returns>New relative inclination in degrees, or 0 if there is no maneuver node, 
+        /// no target, or the target orbits a different body.</returns>
+        public double ManeuverNodeRelativeInclination()
+        {
+            if (vc.maneuverNodeValid && vc.targetType > 0 && vc.targetOrbit.referenceBody == vc.nodeOrbit.referenceBody)
+            {
+                return Vector3.Angle(vc.nodeOrbit.GetOrbitNormal(), vc.targetOrbit.GetOrbitNormal());
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
@@ -1099,7 +1181,7 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// TODO
+        /// Information on the vessel's current orbit are available in this category.
         /// </summary>
         #region Orbit Parameters
         /// <summary>
@@ -1117,7 +1199,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double Eccentricity()
         {
-            return vc.eccentricity;
+            return vc.orbit.eccentricity;
         }
 
         /// <summary>
@@ -1126,7 +1208,7 @@ namespace AvionicsSystems
         /// <returns>Inclination in degrees.</returns>
         public double Inclination()
         {
-            return vc.inclination;
+            return vc.orbit.inclination;
         }
 
         /// <summary>
@@ -1138,11 +1220,11 @@ namespace AvionicsSystems
         {
             if (vesselSituationConverted > 2)
             {
-                if (vc.patchEndTransition == Orbit.PatchTransitionType.ENCOUNTER)
+                if (vc.orbit.patchEndTransition == Orbit.PatchTransitionType.ENCOUNTER)
                 {
                     return 1.0;
                 }
-                else if (vc.patchEndTransition == Orbit.PatchTransitionType.ESCAPE)
+                else if (vc.orbit.patchEndTransition == Orbit.PatchTransitionType.ESCAPE)
                 {
                     return -1.0;
                 }
@@ -2574,7 +2656,7 @@ namespace AvionicsSystems
         /// The SAS section provides methods to control and query the state of
         /// a vessel's SAS stability system.
         /// 
-        /// **CAUTION**: The methods in this seciton will be changing.  Instead of
+        /// **CAUTION**: The methods in this section will be changing.  Instead of
         /// methods like `GetSASModeManeuver()` and `SetSASModeManeuver()` there will
         /// be `IsSASMode(9)` and `SetSASMode(9)`.
         /// </summary>
@@ -2980,12 +3062,12 @@ namespace AvionicsSystems
         /// the target).  Returns 0 if there's no target or all relative
         /// movement is perpendicular to the approach direction.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Approach speed in m/s.  Returns 0 if there is no target.</returns>
         public double ApproachSpeed()
         {
             if (vc.activeTarget != null)
             {
-                return Vector3d.Dot(vc.targetRelativeVelocity, vc.targetDisplacement);
+                return Vector3d.Dot(vc.targetRelativeVelocity, vc.targetDirection);
             }
             else
             {
@@ -3225,7 +3307,7 @@ namespace AvionicsSystems
         {
             if (vc.activeTarget != null)
             {
-                return vc.activeTarget.GetOrbit().altitude;
+                return vc.targetOrbit.altitude;
             }
             else
             {
@@ -3259,7 +3341,33 @@ namespace AvionicsSystems
         {
             if (vc.targetType > 0)
             {
-                return vc.activeTarget.GetOrbit().ApA;
+                return vc.targetOrbit.ApA;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the distance of the closest approach to the target during the
+        /// next orbit.
+        /// </summary>
+        /// <returns>Distance in meters, or 0 if there is no target.</returns>
+        public double TargetClosestApproachDistance()
+        {
+            return vc.targetClosestDistance;
+        }
+
+        /// <summary>
+        /// Returns the time until the closest approach to the target.
+        /// </summary>
+        /// <returns>Time to closest approach in seconds, or 0 if there is no target.</returns>
+        public double TargetClosestApproachTime()
+        {
+            if (vc.targetType > 0)
+            {
+                return vc.targetClosestUT - vc.universalTime;
             }
             else
             {
@@ -3329,7 +3437,7 @@ namespace AvionicsSystems
         {
             if (vc.targetType > 0)
             {
-                return vc.activeTarget.GetOrbit().inclination;
+                return vc.targetOrbit.inclination;
             }
             else
             {
@@ -3419,7 +3527,7 @@ namespace AvionicsSystems
         {
             if (vc.targetType > 0)
             {
-                return vc.activeTarget.GetOrbit().ApA;
+                return vc.targetOrbit.PeA;
             }
             else
             {
@@ -3429,20 +3537,19 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Returns the relative inclination between the vessel and the target.
-        /// If there is no target, the value is 0.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Inclination in degrees.  Returns 0 if there is no target, or the
+        /// target orbits a different celestial body.</returns>
         public double TargetRelativeInclination()
         {
-            if (vc.targetType > 0)
+            if (vc.targetType > 0 && vc.targetOrbit.referenceBody == vc.orbit.referenceBody)
             {
-                return Vector3.Angle(vessel.GetOrbit().GetOrbitNormal(), vc.activeTarget.GetOrbit().GetOrbitNormal());
+                return Vector3.Angle(vc.orbit.GetOrbitNormal(), vc.targetOrbit.GetOrbitNormal());
             }
             else
             {
                 return 0.0;
             }
-
         }
 
         /// <summary>
@@ -3455,7 +3562,7 @@ namespace AvionicsSystems
         {
             if (vc.activeTarget != null)
             {
-                return (vc.activeTarget.GetOrbit().referenceBody == vessel.GetOrbit().referenceBody) ? 1.0 : 0.0;
+                return (vc.targetOrbit.referenceBody == vc.orbit.referenceBody) ? 1.0 : 0.0;
             }
             else
             {
@@ -3564,23 +3671,59 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// TODO
+        /// The Time section provides access to the various timers in MAS (and KSP).
         /// </summary>
         #region Time
         /// <summary>
-        /// Return the current MET (Mission Elapsed Time) for the vessel in
+        /// Fetch the current MET (Mission Elapsed Time) for the vessel in
         /// seconds.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Mission time, in seconds.</returns>
         public double MET()
         {
             return vessel.missionTime;
         }
 
         /// <summary>
-        /// Return the current UT (universal time) in seconds.
+        /// Fetch the time to the next apoapsis.  If the orbit is hyperbolic,
+        /// or the vessel is not flying, return 0.
+        /// </summary>
+        /// <returns>Time until Ap in seconds, or 0 if the time would be invalid.</returns>
+        public double TimeToAp()
+        {
+            if (vesselSituationConverted > 2 && vc.orbit.eccentricity < 1.0)
+            {
+                return vc.orbit.timeToAp;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Fetch the time to the next periapsis.  If the vessel is not
+        /// flying, the value will be zero.  If the vessel is on a hyperbolic
+        /// orbit, and it has passed the periapsis already, the value will
+        /// be negative.
         /// </summary>
         /// <returns></returns>
+        public double TimeToPe()
+        {
+            if (vesselSituationConverted > 2)
+            {
+                return vc.orbit.timeToPe;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Fetch the current UT (universal time) in seconds.
+        /// </summary>
+        /// <returns>Universal Time, in seconds.</returns>
         public double UT()
         {
             return vc.universalTime;
