@@ -32,6 +32,8 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
+    // ΔV - put this somewhere where I can find it easily to copy/paste
+
     public class MASProxyAttribute : System.Attribute
     {
         private bool immutable;
@@ -919,6 +921,41 @@ namespace AvionicsSystems
         /// Methods for querying and controlling maneuver nodes are in this category.
         /// </summary>
         #region Maneuver Node
+
+        /// <summary>
+        /// **UNTESTED**
+        /// 
+        /// Replace any scheduled maneuver nodes with this maneuver node.
+        /// </summary>
+        /// <param name="progradedV">ΔV in the prograde direction at the time of the maneuver, in m/s.</param>
+        /// <param name="normaldV">ΔV in the normal direction at the time of the maneuver, in m/s.</param>
+        /// <param name="radialdV">ΔV in the radial direction at the time of the maneuver, in m/s.</param>
+        /// <param name="timeUT">UT to schedule the maneuver, in seconds.</param>
+        public void AddManeuverNode(double progradedV, double normaldV, double radialdV, double timeUT)
+        {
+            if (vessel.patchedConicSolver != null)
+            {
+                if (double.IsNaN(progradedV) || double.IsInfinity(progradedV) ||
+                    double.IsNaN(normaldV) || double.IsInfinity(normaldV) ||
+                    double.IsNaN(radialdV) || double.IsInfinity(radialdV) ||
+                    double.IsNaN(timeUT) || double.IsInfinity(timeUT))
+                {
+                    // bad parameters?
+                    return;
+                }
+
+                // Swizzle parameters and sign-shift normal.
+                Vector3d dV = new Vector3d(radialdV, -normaldV, progradedV);
+
+                // No living in the past.
+                timeUT = Math.Max(timeUT, vc.universalTime);
+
+                vessel.patchedConicSolver.maneuverNodes.Clear();
+                ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(timeUT);
+                mn.OnGizmoUpdated(dV, timeUT);
+            }
+        }
+
         /// <summary>
         /// Clear all scheduled maneuver nodes.
         /// </summary>
@@ -2257,13 +2294,13 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// TODO
+        /// Random number generators are in this category.
         /// </summary>
         #region Random
         /// <summary>
         /// Return a random number in the range of [0, 1]
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A uniformly-distributed pseudo-random number in the range [0, 1].</returns>
         public double Random()
         {
             return UnityEngine.Random.value;
@@ -2272,11 +2309,16 @@ namespace AvionicsSystems
         /// <summary>
         /// Return an approximation of a normal distribution with a mean and
         /// standard deviation as specified.  The actual result falls in the
-        /// range of (-7, +7) for a standard deviation of 1.
+        /// range of (-7, +7) for a mean of 0 and a standard deviation of 1.
+        /// 
+        /// fc.RandomNormal uses a Box-Muller approximation method modified
+        /// to prevent a 0 in the u component (to avoid trying to take the
+        /// log of 0).  The number was tweaked so for all practical purposes
+        /// the range of numbers is about (-7, +7), as explained above.
         /// </summary>
-        /// <param name="mean"></param>
-        /// <param name="stdDev"></param>
-        /// <returns></returns>
+        /// <param name="mean">The desired mean of the normal distribution.</param>
+        /// <param name="stdDev">The desired standard deviation of the normal distribution.</param>
+        /// <returns>A pseudo-random number that emulates a normal distribution.  See the summary for more detail.</returns>
         public double RandomNormal(double mean, double stdDev)
         {
             // Box-Muller method tweaked to prevent a 0 in u: for a stddev of 1
@@ -2289,13 +2331,14 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// TODO
+        /// The RCS controls may be accessed in this category along with status
+        /// variables.
         /// </summary>
         #region RCS
         /// <summary>
         /// Returns 1 if the RCS action group has any actions attached to it.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if any actions are assigned to the RCS group.</returns>
         public double RCSHasActions()
         {
             return (vc.GroupHasActions(KSPActionGroup.RCS)) ? 1.0 : 0.0;
@@ -2304,7 +2347,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns 1 if RCS is on, 0 otherwise.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if the RCS group is enabled, 0 otherwise.</returns>
         public double GetRCS()
         {
             return (vessel.ActionGroups[KSPActionGroup.RCS]) ? 1.0 : 0.0;
@@ -2313,7 +2356,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Set the state of RCS.
         /// </summary>
-        /// <param name="active"></param>
+        /// <param name="active">`true` to enable RCS, `false` to disable RCS.</param>
         public void SetRCS(bool active)
         {
             vessel.ActionGroups.SetGroup(KSPActionGroup.RCS, active);
@@ -3043,7 +3086,8 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// TODO
+        /// Variables related to the vessels speed, velocity, and accelerations are grouped
+        /// in this category.
         /// </summary>
         #region Speed, Velocity, and Acceleration
 
@@ -3080,7 +3124,7 @@ namespace AvionicsSystems
         /// 
         /// https://en.wikipedia.org/wiki/Equivalent_airspeed
         /// </summary>
-        /// <returns></returns>
+        /// <returns>EAS in m/s.</returns>
         public double EquivalentAirspeed()
         {
             double densityRatio = vessel.atmDensity / 1.225;
@@ -3090,7 +3134,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the magnitude g-forces currently affecting the craft, in gees.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Current instantaneous force in Gs.</returns>
         public double GForce()
         {
             return vessel.geeForce_immediate;
@@ -3100,7 +3144,7 @@ namespace AvionicsSystems
         /// Measure of the surface speed of the vessel after removing the
         /// vertical component, in m/s.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Horizontal surface speed in m/s.</returns>
         public double HorizontalSpeed()
         {
             double speedHorizontal;
@@ -3119,7 +3163,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the indicated airspeed in m/s.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>IAS in m/s.</returns>
         public double IndicatedAirspeed()
         {
             // We compute this because this formula is basically what FAR uses; Vessel.indicatedAirSpeed
@@ -3132,7 +3176,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Return the orbital speed of the vessel in m/s
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Orbital speed in m/s.</returns>
         public double OrbitSpeed()
         {
             return vessel.obt_speed;
@@ -3140,9 +3184,10 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Returns +1 if the KSP automatic speed display is set to "Orbit",
-        /// +0 if it's "Surface", and -1 if it's "Target".
+        /// +0 if it's "Surface", and -1 if it's "Target".  This mode affects
+        /// SAS behaviors, so it's useful to know.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 for "Orbit" mode, 0 for "Surface" mode, and -1 for "Target" mode.</returns>
         public double SpeedDisplayMode()
         {
             var displayMode = FlightGlobals.speedDisplayMode;
@@ -3166,7 +3211,7 @@ namespace AvionicsSystems
         /// vector is treated as the vector that faces 'down' in a horizontal
         /// cockpit configuration.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The vessel's velocity fore/aft velocity in m/s.</returns>
         public double SurfaceForwardSpeed()
         {
             return Vector3.Dot(vc.surfacePrograde, vc.surfaceForward);
@@ -3177,7 +3222,7 @@ namespace AvionicsSystems
         /// m/s.  This value could become zero at extreme roll orientations.
         /// Positive values are to the right, negative to the left.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The vessel's left/right velocity in m/s.</returns>
         public double SurfaceLateralSpeed()
         {
             return Vector3.Dot(vc.surfacePrograde, vc.surfaceRight);
@@ -3186,7 +3231,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Return the surface-relative speed of the vessel in m/s.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Surface speed in m/s.</returns>
         public double SurfaceSpeed()
         {
             return vessel.srfSpeed;
@@ -3195,7 +3240,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Target-relative speed in m/s.  0 if no target.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Speed relative to the target in m/s.  0 if there is no target.</returns>
         public double TargetSpeed()
         {
             return vc.targetSpeed;
@@ -3204,7 +3249,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the vertical speed of the vessel in m/s.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Surface-relative vertical speed in m/s.</returns>
         public double VerticalSpeed()
         {
             return vessel.verticalSpeed;
@@ -3212,13 +3257,14 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// TODO
+        /// Controls for staging a vessel, and controlling the stage lock, and information
+        /// related to both staging and stage locks are all in the Staging category.
         /// </summary>
         #region Staging
         /// <summary>
         /// Returns the current stage.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A whole number 0 or larger.</returns>
         public double CurrentStage()
         {
             return StageManager.CurrentStage;
@@ -3227,7 +3273,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns 1 if staging is locked, 0 otherwise.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if staging is locked, 0 if staging is unlocked.</returns>
         public double GetStageLocked()
         {
             return (InputLockManager.IsLocked(ControlTypes.STAGING)) ? 1.0 : 0.0;
@@ -3236,7 +3282,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Sets stage locking to the specified setting (true or false).
         /// </summary>
-        /// <param name="locked"></param>
+        /// <param name="locked">`true` to lock staging, `false` to unlock staging.</param>
         public void SetStageLocked(bool locked)
         {
             if (locked)
@@ -3263,7 +3309,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Can the vessel stage?
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if the vessel can stage, and staging is unlocked; 0 otherwise.</returns>
         public double StageReady()
         {
             return (StageManager.CanSeparate && InputLockManager.IsUnlocked(ControlTypes.STAGING)) ? 1.0 : 0.0;
@@ -3272,7 +3318,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Toggle the stage lock on or off.  Returns the new state.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if staging is now locked; 0 if staging is now unlocked.</returns>
         public double ToggleStageLocked()
         {
             bool state = !InputLockManager.IsLocked(ControlTypes.STAGING);
@@ -3320,7 +3366,7 @@ namespace AvionicsSystems
         /// or 0 if there is no target.
         /// </summary>
         /// <returns>Returns 0 if the target is directly in front of the vessel, or
-        /// if there is no target; returns a number up to 180 in all other cases</returns>
+        /// if there is no target; returns a number up to 180 in all other cases.  Value is in degrees.</returns>
         public double TargetAngle()
         {
             if (vc.targetType > 0)
@@ -3353,7 +3399,7 @@ namespace AvionicsSystems
         /// Returns the distance of the closest approach to the target during the
         /// next orbit.
         /// </summary>
-        /// <returns>Distance in meters, or 0 if there is no target.</returns>
+        /// <returns>Closest approach distance in meters, or 0 if there is no target.</returns>
         public double TargetClosestApproachDistance()
         {
             return vc.targetClosestDistance;
@@ -3378,7 +3424,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the distance to the current target in meters, or 0 if there is no target.
         /// </summary>
-        /// <returns>The absolute distance in meters.</returns>
+        /// <returns>Target distance in meters, or 0 if there is no target.</returns>
         public double TargetDistance()
         {
             return vc.targetDisplacement.magnitude;
@@ -3448,7 +3494,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns 1 if the target is a vessel (vessel or Docking Port); 0 otherwise.
         /// </summary>
-        /// <returns>1 for vessels or docking port targets, 0 otherwise.</returns>
+        /// <returns>1 for vessel or docking port targets, 0 otherwise.</returns>
         public double TargetIsVessel()
         {
             return (vc.targetType == MASVesselComputer.TargetType.Vessel || vc.targetType == MASVesselComputer.TargetType.DockingPort) ? 1.0 : 0.0;
@@ -3656,7 +3702,7 @@ namespace AvionicsSystems
         /// 
         /// Reports the delta-V required to transfer to the target's orbit.
         /// </summary>
-        /// <returns>Delta-V in m/s. 0 if there is no target.</returns>
+        /// <returns>ΔV in m/s to transfer to the target. 0 if there is no target.</returns>
         public double TransferDeltaV()
         {
             if (vc.activeTarget != null)
@@ -3707,7 +3753,8 @@ namespace AvionicsSystems
         /// orbit, and it has passed the periapsis already, the value will
         /// be negative.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Time until the next Pe in seconds, or 0 if the time would
+        /// be invalid.  May return a negative number in hyperbolic orbits.</returns>
         public double TimeToPe()
         {
             if (vesselSituationConverted > 2)
