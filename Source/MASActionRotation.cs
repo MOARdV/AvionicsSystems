@@ -39,9 +39,17 @@ namespace AvionicsSystems
         private string name = "(anonymous)";
         private string variableName;
         private MASFlightComputer.Variable range1, range2;
+        // Beginning and ending rotation points for all rotations
         private Quaternion startRotation, endRotation;
+        // midpoint rotation for 180* < rotation < 360*, and midpoint1
+        // for 360* rotations.
+        private Quaternion midRotation;
+        // 2nd midpoint for 360* rotations.
+        private Quaternion mid2Rotation;
         private MASFlightComputer comp;
         private Transform transform;
+        private readonly bool useLongPath;
+        private readonly bool useVeryLongPath;
         private readonly bool blend;
         private readonly bool rangeMode;
         private readonly bool modulo;
@@ -87,7 +95,8 @@ namespace AvionicsSystems
             }
 
             string range = string.Empty;
-            bool useLongPath = false;
+            useLongPath = false;
+            useVeryLongPath = false;
             if (config.TryGetValue("range", ref range))
             {
                 string[] ranges = range.Split(',');
@@ -148,44 +157,42 @@ namespace AvionicsSystems
                 }
             }
 
-            // Make everything a known value before the callback fires.
+            // Determine the rotations.
             this.startRotation = this.transform.localRotation * Quaternion.Euler(startRotation);
-            if (blend)
+            if (useLongPath)
             {
-                // This looks a little odd.  Here's why:
-                // The Quaternion.Slerp takes the shortest path between two
-                // rotations.  That's fine as long as the intended path is < 180
-                // degrees.  However, for something that has a longer intended travel,
-                // say 270 degrees, it's a problem: Slerp will take the shorter,
-                // 90 degree path.
-                //
-                // In RasterPropMonitor, Mihara got around this problem by using
-                // a linear interpolation between the Euler angles, and a conversion
-                // to a quaternion.  That's a lot of extra math.  What I'm doing
-                // instead is to store 7/16 of the rotation, so I don't lose the intended
-                // path. I allow the slerp to be unbounded, and I scale the blended range
-                // by 16/7 to make sure that a blend of 1.0 has the same rotation.
-                //
-                // I use less than 1/2 because if I use exactly 1/2, it does not work
-                // for the case of rotation 0 to 360 degrees: regardless of if I use
-                // a start of 0 and end of 360, or the other way around, the midpoint
-                // is 180.  Since the quaternions for 0 and 360 are the same, there's
-                // no sense of which way the rotation should go.  Tracing less than half
-                // the circle leaves a sense of the intended direction of the rotation.
-                if (useLongPath)
+                // Due to the nature of Quaternions, any SLerp we do will always
+                // select the shortest route between two Quaternions.  This is great for
+                // rotations that are < 180 degrees, but it's a problem if the rotation is
+                // intended to be > 180 degrees.
+                // As long as the total rotation is < 360, we can get away with a single
+                // midpoint Quaternion and interpolate the result between the two
+                // piece-wise rotations.  However, for a full 360* rotation, we have to have
+                // a third point so we can encode a sense of direction.
+                // And, if the configuration requested long path, but our read of the rotation
+                // says it's less than 180 degrees (and thus a candidate for short path), we
+                // quietly 'downgrade' to the slightly cheaper to compute short path.
+                Quaternion mid = Quaternion.Euler(Vector3.Lerp(startRotation, endRotation, 0.5f));
+                float midAngle = Quaternion.Angle(Quaternion.Euler(startRotation), mid);
+                if (midAngle >= 179.0f)
                 {
-                    this.endRotation = this.transform.localRotation * Quaternion.Euler(Vector3.Lerp(startRotation, endRotation, 0.4375f));
+                    useVeryLongPath = true;
+                    this.midRotation = this.transform.localRotation * Quaternion.Euler(Vector3.Lerp(startRotation, endRotation, 1.0f / 3.0f));
+                    this.mid2Rotation = this.transform.localRotation * Quaternion.Euler(Vector3.Lerp(startRotation, endRotation, 2.0f / 3.0f));
+                }
+                else if (midAngle >= 89.0f)
+                {
+                    this.midRotation = this.transform.localRotation * mid;
                 }
                 else
                 {
-                    this.endRotation = Quaternion.Slerp(this.startRotation, this.transform.localRotation * Quaternion.Euler(endRotation), 0.4375f);
+                    useLongPath = false;
                 }
             }
-            else
-            {
-                this.endRotation = this.transform.localRotation * Quaternion.Euler(endRotation);
-            }
 
+            this.endRotation = this.transform.localRotation * Quaternion.Euler(endRotation);
+
+            // Make everything a known value before the callback fires.
             this.transform.localRotation = this.startRotation;
 
             if (string.IsNullOrEmpty(variableName))
@@ -249,6 +256,48 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Apply the updated blend to the rotation.
+        /// </summary>
+        /// <param name="blend"></param>
+        private Quaternion UpdateRotation(float blend)
+        {
+            Quaternion newRotation;
+            if (useVeryLongPath)
+            {
+                blend *= 3.0f;
+                if (blend <= 1.0f)
+                {
+                    newRotation = Quaternion.Slerp(startRotation, midRotation, blend);
+                }
+                else if (blend <= 2.0f)
+                {
+                    newRotation = Quaternion.Slerp(midRotation, mid2Rotation, blend - 1.0f);
+                }
+                else
+                {
+                    newRotation = Quaternion.Slerp(mid2Rotation, endRotation, blend - 2.0f);
+                }
+            }
+            else if (useLongPath)
+            {
+                if (blend > 0.5f)
+                {
+                    newRotation = Quaternion.Slerp(midRotation, endRotation, blend * 2.0f - 1.0f);
+                }
+                else
+                {
+                    newRotation = Quaternion.Slerp(startRotation, midRotation, blend * 2.0f);
+                }
+            }
+            else
+            {
+                newRotation = Quaternion.Slerp(startRotation, endRotation, blend);
+            }
+
+            return newRotation;
+        }
+
+        /// <summary>
         /// Handle a changed value
         /// </summary>
         /// <param name="newValue"></param>
@@ -294,8 +343,7 @@ namespace AvionicsSystems
 
                     currentBlend = newBlend;
 
-                    Quaternion newRotation = Quaternion.SlerpUnclamped(startRotation, endRotation, currentBlend * 2.285714286f);
-                    transform.localRotation = newRotation;
+                    transform.localRotation = UpdateRotation(currentBlend);
                 }
             }
             else
@@ -329,8 +377,7 @@ namespace AvionicsSystems
 
                 currentBlend = RateLimitBlend(goalBlend);
 
-                Quaternion newRotation = Quaternion.SlerpUnclamped(startRotation, endRotation, currentBlend * 2.285714286f);
-                transform.localRotation = newRotation;
+                transform.localRotation = UpdateRotation(currentBlend);
             }
             coroutineActive = false;
         }
