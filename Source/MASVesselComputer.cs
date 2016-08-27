@@ -78,13 +78,6 @@ namespace AvionicsSystems
 
                 double deltaT = (endUT - startUT) / (double)NumSubdivisions;
 
-                if (deltaT < 0.5)
-                {
-                    // If our timesteps are less than a half second, I think
-                    // this is an accurate enough estimate.
-                    return;
-                }
-
                 double closestDistSq = targetClosestDistance * targetClosestDistance;
                 for (double t = startUT; t <= endUT; t += deltaT)
                 {
@@ -100,6 +93,13 @@ namespace AvionicsSystems
                 }
 
                 targetClosestDistance = Math.Sqrt(closestDistSq);
+
+                if (deltaT < 0.5)
+                {
+                    // If our timesteps are less than a half second, I think
+                    // this is an accurate enough estimate.
+                    return;
+                }
 
                 OneStep(vesselOrbit, targetOrbit, targetClosestUT - deltaT, targetClosestUT + deltaT, recursionDepth + 1, ref targetClosestDistance, ref targetClosestUT);
             }
