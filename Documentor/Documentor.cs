@@ -66,14 +66,29 @@ namespace Documentor
             }
         }
 
+        static readonly string[] MonthAbbr =
+        {
+            "???",
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        };
+
         /// <summary>
         /// Do the documentation parsing.
         /// </summary>
         /// <param name="sourceFile"></param>
         static void Documentify(string sourceFile)
         {
-            // Read the file.
-            string[] lines = File.ReadAllLines(sourceFile, Encoding.UTF8);
             int tail = sourceFile.LastIndexOf('.');
             if (tail <= 0)
             {
@@ -81,8 +96,16 @@ namespace Documentor
             }
             int backslash = sourceFile.LastIndexOf('\\');
 
-            string xmlStr = sourceFile.Substring(0, tail) + ".xml";
             string mdStr = sourceFile.Substring(0, tail) + ".md";
+            if (File.Exists(mdStr) && File.GetLastWriteTimeUtc(mdStr) > File.GetLastWriteTimeUtc(sourceFile))
+            {
+                return;
+            }
+
+            // Read the file.
+            string[] lines = File.ReadAllLines(sourceFile, Encoding.UTF8);
+
+            string xmlStr = sourceFile.Substring(0, tail) + ".xml";
 
             bool inComments = false;
             DocumentToken docToken = null;
@@ -189,7 +212,10 @@ namespace Documentor
                     child = child.NextSibling;
                 }
             }
-            docString.AppendLine("*This documentation is automatically generated from source code.*");
+            docString.AppendLine("***");
+            DateTime now = DateTime.UtcNow;
+            docString.AppendLine(string.Format("*This documentation was automatically generated from source code at {0,2:00}:{1,2:00} UTC on {2}/{3}/{4}.*",
+                now.Hour, now.Minute, now.Day, now.Month, now.Year));
             docString.AppendLine();
             File.WriteAllText(mdStr, docString.ToString(), Encoding.UTF8);
 
