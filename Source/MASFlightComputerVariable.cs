@@ -1052,10 +1052,16 @@ namespace AvionicsSystems
                     doubleValue = double.NaN;
                     stringValue = bValue.ToString();
                 }
+                else if (value == null)
+                {
+                    safeValue = 0.0;
+                    doubleValue = double.NaN;
+                    stringValue = name;
+                }
                 else
                 {
                     // TODO ...?
-                    throw new NotImplementedException("ProcessObject found a non-double, non-string return type");
+                    throw new NotImplementedException("ProcessObject found a non-double, non-string return type " + value.GetType() + " for " + name);
                 }
             }
 
@@ -1117,15 +1123,35 @@ namespace AvionicsSystems
                             catch { }
                         }
                     }
+                    else if (type == DataType.Boolean)
+                    {
+                        bool oldV = (bool)rawObject;
+                        bool newV = luaValue.Boolean;
+                        rawObject = luaValue.ToObject();
+                        if (oldV != newV)
+                        {
+                            try
+                            {
+                                changeCallbacks.Invoke();
+                            }
+                            catch { }
+                        }
+                    }
+                    //else
                     else if (!oldDynValue.Equals(luaValue))
                     {
                         rawObject = luaValue.ToObject();
+                        //Utility.LogMessage(this, "Lua.DataType = {0}, raw type = {1}", type, rawObject.GetType());
                         try
                         {
                             changeCallbacks.Invoke();
                         }
                         catch { }
                     }
+                    //else
+                    //{
+                    //    Utility.LogMessage(this, "Lua.DataType = {0}", type);
+                    //}
                 }
                 else if (variableType == VariableType.Func)
                 {
