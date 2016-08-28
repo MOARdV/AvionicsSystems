@@ -336,7 +336,7 @@ namespace AvionicsSystems
                     Utility.LogErrorMessage("Failed to find 'VesselSideslip' in FAR");
                     return;
                 }
-                VesselSideSlip = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Action<Vessel, double>), sideslip_t);
+                VesselSideSlip = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), sideslip_t);
 
                 farFound = true;
             }
