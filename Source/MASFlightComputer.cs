@@ -351,7 +351,7 @@ namespace AvionicsSystems
         {
             try
             {
-                if (vc.vesselActive)
+                if (vc.vesselActive && initialized)
                 {
                     // Realistically, this block of code won't be triggered very
                     // often.
@@ -465,30 +465,40 @@ namespace AvionicsSystems
                 // don't use the proxy system included in MoonSharp, since it
                 // creates a proxy object for every single script.Call(), which
                 // means plenty of garbage...
-                chattererProxy = new MASIChatterer();
-                UserData.RegisterType<MASIChatterer>();
-                script.Globals["chatterer"] = chattererProxy;
+                try
+                {
+                    chattererProxy = new MASIChatterer();
+                    UserData.RegisterType<MASIChatterer>();
+                    script.Globals["chatterer"] = chattererProxy;
 
-                farProxy = new MASIFAR(vessel);
-                UserData.RegisterType<MASIFAR>();
-                script.Globals["far"] = farProxy;
+                    farProxy = new MASIFAR(vessel);
+                    UserData.RegisterType<MASIFAR>();
+                    script.Globals["far"] = farProxy;
 
-                mjProxy = new MASIMechJeb(vessel);
-                UserData.RegisterType<MASIMechJeb>();
-                script.Globals["mechjeb"] = mjProxy;
+                    mjProxy = new MASIMechJeb(vessel);
+                    UserData.RegisterType<MASIMechJeb>();
+                    script.Globals["mechjeb"] = mjProxy;
 
-                navProxy = new MASINavigation(vessel);
-                UserData.RegisterType<MASINavigation>();
-                script.Globals["nav"] = navProxy;
+                    navProxy = new MASINavigation(vessel);
+                    UserData.RegisterType<MASINavigation>();
+                    script.Globals["nav"] = navProxy;
 
-                realChuteProxy = new MASIRealChute(vessel);
-                UserData.RegisterType<MASIRealChute>();
-                script.Globals["realchute"] = realChuteProxy;
+                    realChuteProxy = new MASIRealChute(vessel);
+                    UserData.RegisterType<MASIRealChute>();
+                    script.Globals["realchute"] = realChuteProxy;
 
-                fcProxy = new MASFlightComputerProxy(this, farProxy, mjProxy);
-                UserData.RegisterType<MASFlightComputerProxy>();
-                script.Globals["fc"] = fcProxy;
+                    fcProxy = new MASFlightComputerProxy(this, farProxy, mjProxy);
+                    UserData.RegisterType<MASFlightComputerProxy>();
+                    script.Globals["fc"] = fcProxy;
 
+                    UserData.RegisterType<MASVector2>();
+                }
+                catch (Exception e)
+                {
+                    Utility.LogErrorMessage(this, "Proxy object configuration failed:");
+                    Utility.LogErrorMessage(this, e.ToString());
+                    Utility.ComplainLoudly("Initialization Failed.  Please check KSP.log");
+                }
                 vc = MASVesselComputer.Instance(parentVesselId);
                 fcProxy.vc = vc;
                 fcProxy.vessel = vessel;
@@ -496,7 +506,6 @@ namespace AvionicsSystems
                 realChuteProxy.vc = vc;
                 realChuteProxy.vessel = vessel;
 
-                UserData.RegisterType<MASVector2>();
 
                 // TODO: Add MAS script
 
