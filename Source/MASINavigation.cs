@@ -63,4 +63,17 @@ namespace AvionicsSystems
             this.vessel = vessel;
         }
     }
+
+    /*
+    public struct NavObject
+    {
+        double latitude;
+        double longitude;
+        double altitude;
+        float frequency;
+        string name;
+        string identifier;
+        int todo_navType;
+    }
+     */
 }

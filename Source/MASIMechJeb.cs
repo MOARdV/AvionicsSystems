@@ -579,7 +579,7 @@ namespace AvionicsSystems
         /// Circularize at the specified altitude, in meters.  Command is
         /// ignored if an invalid altitude is supplied.
         /// </summary>
-        /// <param name="newAlt"></param>
+        /// <param name="newAlt">The altitude to circularize the orbit at, in meters.</param>
         public void CircularizeAt(double newAlt)
         {
             if (mjAvailable && newAlt >= vesselOrbit.PeA && newAlt <= vesselOrbit.ApA && vessel.patchedConicSolver != null)
@@ -670,7 +670,8 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// TODO
+        /// MechJeb's SmartASS attitude control system can be queried and controlled using
+        /// methods from this category.
         /// </summary>
         #region SmartASS
         /// <summary>
