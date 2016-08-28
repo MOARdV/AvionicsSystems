@@ -215,7 +215,7 @@ namespace Documentor
             docString.AppendLine("***");
             DateTime now = DateTime.UtcNow;
             docString.AppendLine(string.Format("*This documentation was automatically generated from source code at {0,2:00}:{1,2:00} UTC on {2}/{3}/{4}.*",
-                now.Hour, now.Minute, now.Day, now.Month, now.Year));
+                now.Hour, now.Minute, now.Day, MonthAbbr[now.Month], now.Year));
             docString.AppendLine();
             File.WriteAllText(mdStr, docString.ToString(), Encoding.UTF8);
 
