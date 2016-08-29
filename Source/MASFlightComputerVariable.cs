@@ -784,7 +784,7 @@ namespace AvionicsSystems
                     // If we couldn't find a way to optimize the value, fall
                     // back to interpreted Lua script.
                     v = new Variable(canonicalName, script);
-                    luaVariableCount++;
+                    ++luaVariableCount;
                 }
                 variables.Add(canonicalName, v);
                 if (v.mutable)
@@ -821,7 +821,6 @@ namespace AvionicsSystems
             internal event Action changeCallbacks;
             private Func<object> nativeEvaluator;
             private DynValue luaEvaluator;
-            private DynValue luaValue;
             private object rawObject;
             private string stringValue;
             private double doubleValue;
@@ -881,12 +880,13 @@ namespace AvionicsSystems
             {
                 this.name = name;
 
-                this.valid = true;
                 this.nativeEvaluator = nativeEvaluator;
-                this.rawObject = nativeEvaluator();
+                object value = nativeEvaluator();
                 this.variableType = VariableType.Func;
 
-                ProcessObject(this.rawObject);
+                ProcessObject(value);
+
+                this.valid = true;
             }
 
             /// <summary>
@@ -898,94 +898,27 @@ namespace AvionicsSystems
             {
                 this.name = name;
 
-                double value;
-                if (double.TryParse(name, out value))
+                DynValue luaValue = null;
+                try
                 {
-                    this.valid = true;
-                    this.stringValue = value.ToString();
-                    this.doubleValue = value;
-                    this.safeValue = value;
-                    this.rawObject = value;
-                    this.variableType = VariableType.Constant;
-                }
-                else
-                {
-                    // TODO: Can I find a way to parse or analyze the evaluator
-                    // and set up a direct call (bypassing Lua) for very simple
-                    // queries?
                     // TODO: MoonSharp "hardwiring" - does it help performance?
+                    luaEvaluator = script.LoadString("return " + name);
+                    luaValue = script.Call(luaEvaluator);
+                    this.valid = true;
+                }
+                catch (Exception e)
+                {
+                    Utility.ComplainLoudly("Error creating variable " + name);
+                    Utility.LogErrorMessage(this, "Unknown variable '{0}':", name);
+                    Utility.LogErrorMessage(this, e.ToString());
                     luaValue = null;
-                    try
-                    {
-                        luaEvaluator = script.LoadString("return " + name);
-                        luaValue = script.Call(luaEvaluator);
-                        this.valid = true;
-                    }
-                    catch (Exception e)
-                    {
-                        Utility.ComplainLoudly("Error creating variable " + name);
-                        Utility.LogErrorMessage(this, "Unknown variable '{0}':", name);
-                        Utility.LogErrorMessage(this, e.ToString());
-                        luaValue = null;
-                        this.valid = false;
-                    }
+                    this.valid = false;
+                }
 
-                    if (luaValue != null)
-                    {
-                        if (luaValue.IsNil() || luaValue.IsVoid())
-                        {
-                            // Not a valid evaluable
-                            this.valid = false;
-                            this.doubleValue = double.NaN;
-                            this.stringValue = name;
-                            this.rawObject = name;
-                            this.valid = false;
-                            this.variableType = VariableType.LuaScript;
-                        }
-                        else
-                        {
-                            DataType type = luaValue.Type;
-                            if (type == DataType.Number)
-                            {
-                                this.doubleValue = luaValue.CastToNumber() ?? double.NaN;
-                                this.safeValue = this.doubleValue;
-                                this.stringValue = this.doubleValue.ToString();
-                                this.rawObject = this.doubleValue;
-                            }
-                            else if (type == DataType.String)
-                            {
-                                this.doubleValue = double.NaN;
-                                this.safeValue = 0.0;
-                                this.stringValue = luaValue.String;
-                                this.rawObject = this.stringValue;
-                            }
-                            else if (type == DataType.Boolean)
-                            {
-                                bool boolValue = luaValue.Boolean;
-                                this.doubleValue = (boolValue) ? 1.0 : 0.0;
-                                this.safeValue = doubleValue;
-                                this.stringValue = value.ToString();
-                                this.rawObject = boolValue;
-                            }
-                            else
-                            {
-                                this.doubleValue = double.NaN;
-                                this.safeValue = 0.0;
-                                this.stringValue = luaValue.CastToString();
-                                this.rawObject = luaValue.ToObject();
-                            }
-
-                            this.valid = true;
-                            this.variableType = VariableType.LuaScript;
-                        }
-                    }
-                    else
-                    {
-                        this.doubleValue = double.NaN;
-                        this.stringValue = name;
-                        this.valid = false;
-                        this.variableType = VariableType.Constant;
-                    }
+                if (this.valid)
+                {
+                    this.variableType = VariableType.LuaScript;
+                    ProcessObject(luaValue.ToObject());
                 }
             }
 
@@ -1033,35 +966,63 @@ namespace AvionicsSystems
             /// <param name="value"></param>
             private void ProcessObject(object value)
             {
-                if (value is double)
+                if (rawObject == null || !value.Equals(rawObject))
                 {
-                    doubleValue = (double)value;
-                    safeValue = doubleValue;
-                    stringValue = doubleValue.ToString();
-                }
-                else if (value is string)
-                {
-                    stringValue = value as string;
-                    doubleValue = double.NaN;
-                    safeValue = 0.0;
-                }
-                else if (value is bool)
-                {
-                    bool bValue = (bool)value;
-                    safeValue = (bValue) ? 1.0 : 0.0;
-                    doubleValue = double.NaN;
-                    stringValue = bValue.ToString();
-                }
-                else if (value == null)
-                {
-                    safeValue = 0.0;
-                    doubleValue = double.NaN;
-                    stringValue = name;
-                }
-                else
-                {
-                    // TODO ...?
-                    throw new NotImplementedException("ProcessObject found a non-double, non-string return type " + value.GetType() + " for " + name);
+                    double oldSafeValue = safeValue;
+                    rawObject = value;
+
+                    if (value is double)
+                    {
+                        doubleValue = (double)value;
+                        safeValue = doubleValue;
+                        stringValue = doubleValue.ToString();
+                    }
+                    else if (value is string)
+                    {
+                        stringValue = value as string;
+                        doubleValue = double.NaN;
+                        safeValue = 0.0;
+                    }
+                    else if (value is bool)
+                    {
+                        bool bValue = (bool)value;
+                        safeValue = (bValue) ? 1.0 : 0.0;
+                        doubleValue = double.NaN;
+                        stringValue = bValue.ToString();
+                    }
+                    else if (value is MASVector2)
+                    {
+                        Vector2 v = (Vector2)(MASVector2)value;
+                        safeValue = v.sqrMagnitude;
+                        doubleValue = safeValue;
+                        stringValue = v.ToString();
+                    }
+                    else if (value == null)
+                    {
+                        safeValue = 0.0;
+                        doubleValue = double.NaN;
+                        stringValue = name;
+                    }
+                    else
+                    {
+                        // TODO ...?
+                        throw new NotImplementedException("ProcessObject found an unexpected return type " + value.GetType() + " for " + name);
+                    }
+
+                    if (!Mathf.Approximately((float)safeValue, (float)oldSafeValue))
+                    {
+                        try
+                        {
+                            numericCallbacks.Invoke(safeValue);
+                        }
+                        catch { }
+                    }
+
+                    try
+                    {
+                        changeCallbacks.Invoke();
+                    }
+                    catch { }
                 }
             }
 
@@ -1074,111 +1035,23 @@ namespace AvionicsSystems
             {
                 if (variableType == VariableType.LuaScript)
                 {
-                    // TODO: Refactor this similar to the native func code path
-                    // and allow for booleans.
-                    DynValue oldDynValue = luaValue;
-                    string oldString = stringValue;
-                    double oldValue = safeValue;
+                    DynValue value;
                     try
                     {
-                        luaValue = script.Call(luaEvaluator);
-                        stringValue = luaValue.CastToString();
-                        doubleValue = luaValue.CastToNumber() ?? double.NaN;
+                        value = script.Call(luaEvaluator);
                     }
                     catch
                     {
-                        this.doubleValue = double.NaN;
-                        this.stringValue = name;
+                        value = DynValue.NewNil();
                     }
 
-                    safeValue = (double.IsInfinity(doubleValue) || double.IsNaN(doubleValue)) ? 0.0 : doubleValue;
-
-                    DataType type = luaValue.Type;
-                    if (type == DataType.Number)
-                    {
-                        if (!Mathf.Approximately((float)oldValue, (float)safeValue))
-                        {
-                            rawObject = doubleValue;
-                            try
-                            {
-                                numericCallbacks.Invoke(safeValue);
-                            }
-                            catch { }
-                            try
-                            {
-                                changeCallbacks.Invoke();
-                            }
-                            catch { }
-                        }
-                    }
-                    else if (type == DataType.String)
-                    {
-                        if (oldString != stringValue)
-                        {
-                            rawObject = stringValue;
-                            try
-                            {
-                                changeCallbacks.Invoke();
-                            }
-                            catch { }
-                        }
-                    }
-                    else if (type == DataType.Boolean)
-                    {
-                        bool oldV = (bool)rawObject;
-                        bool newV = luaValue.Boolean;
-                        rawObject = luaValue.ToObject();
-                        if (oldV != newV)
-                        {
-                            try
-                            {
-                                changeCallbacks.Invoke();
-                            }
-                            catch { }
-                        }
-                    }
-                    //else
-                    else if (!oldDynValue.Equals(luaValue))
-                    {
-                        rawObject = luaValue.ToObject();
-                        //Utility.LogMessage(this, "Lua.DataType = {0}, raw type = {1}", type, rawObject.GetType());
-                        try
-                        {
-                            changeCallbacks.Invoke();
-                        }
-                        catch { }
-                    }
-                    //else
-                    //{
-                    //    Utility.LogMessage(this, "Lua.DataType = {0}", type);
-                    //}
+                    ProcessObject(value.ToObject());
                 }
                 else if (variableType == VariableType.Func)
                 {
                     object value = nativeEvaluator();
 
-                    if (!value.Equals(rawObject))
-                    {
-                        double oldSafeValue = safeValue;
-                        rawObject = value;
-
-                        ProcessObject(value);
-
-                        if (!Mathf.Approximately((float)safeValue, (float)oldSafeValue))
-                        {
-                            try
-                            {
-                                numericCallbacks.Invoke(safeValue);
-                            }
-                            catch { }
-                        }
-
-                        try
-                        {
-                            changeCallbacks.Invoke();
-                        }
-                        catch { }
-                    }
+                    ProcessObject(value);
                 }
             }
         }
