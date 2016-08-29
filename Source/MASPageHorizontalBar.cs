@@ -36,6 +36,8 @@ namespace AvionicsSystems
         private GameObject borderObject;
         private Material imageMaterial;
         private Material borderMaterial;
+        private LineRenderer lineRenderer;
+        private MeshRenderer meshRenderer;
         private readonly string variableName;
         private readonly string sourceName;
         private MASFlightComputer.Variable range1, range2;
@@ -197,7 +199,7 @@ namespace AvionicsSystems
 
                 Color borderColor = Utility.ParseColor32(borderColorName, comp);
                 borderMaterial = new Material(Shader.Find("Particles/Additive"));
-                LineRenderer lineRenderer = borderObject.AddComponent<LineRenderer>();
+                lineRenderer = borderObject.AddComponent<LineRenderer>();
                 lineRenderer.useWorldSpace = false;
                 lineRenderer.material = borderMaterial;
                 lineRenderer.SetColors(borderColor, borderColor);
@@ -222,7 +224,7 @@ namespace AvionicsSystems
             imageObject.transform.Translate(monitor.screenSize.x * -0.5f + position.x, monitor.screenSize.y * 0.5f - position.y, depth);
             // add renderer stuff
             MeshFilter meshFilter = imageObject.AddComponent<MeshFilter>();
-            MeshRenderer meshRenderer = imageObject.AddComponent<MeshRenderer>();
+            meshRenderer = imageObject.AddComponent<MeshRenderer>();
             mesh = new Mesh();
             vertices[0] = new Vector3(0.0f, 0.0f, depth);
             vertices[1] = new Vector3(size.x, 0.0f, depth);
@@ -336,7 +338,8 @@ namespace AvionicsSystems
         /// <param name="enable"></param>
         public void EnableRender(bool enable)
         {
-
+            meshRenderer.enabled = enable;
+            lineRenderer.enabled = enable;
         }
 
         /// <summary>

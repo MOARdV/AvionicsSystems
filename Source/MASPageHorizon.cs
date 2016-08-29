@@ -34,6 +34,7 @@ namespace AvionicsSystems
         private string name = "(anonymous)";
         private GameObject imageObject;
         private Material imageMaterial;
+        private MeshRenderer meshRenderer;
         private readonly string variableName;
         private readonly string pitchName;
         private readonly string rollName;
@@ -196,7 +197,7 @@ namespace AvionicsSystems
 
             // add renderer stuff
             MeshFilter meshFilter = imageObject.AddComponent<MeshFilter>();
-            MeshRenderer meshRenderer = imageObject.AddComponent<MeshRenderer>();
+            meshRenderer = imageObject.AddComponent<MeshRenderer>();
             Mesh mesh = new Mesh();
             mesh.vertices = new[]
                 {
@@ -301,7 +302,7 @@ namespace AvionicsSystems
         /// <param name="enable"></param>
         public void EnableRender(bool enable)
         {
-
+            meshRenderer.enabled = enable;
         }
 
         /// <summary>

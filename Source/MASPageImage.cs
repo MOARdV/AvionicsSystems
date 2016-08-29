@@ -39,6 +39,7 @@ namespace AvionicsSystems
 
         private GameObject imageObject;
         private Material imageMaterial;
+        private MeshRenderer meshRenderer;
         private string variableName;
         private MASFlightComputer.Variable range1, range2;
         private readonly bool rangeMode;
@@ -106,7 +107,7 @@ namespace AvionicsSystems
             imageObject.transform.Translate(monitor.screenSize.x * -0.5f + position.x, monitor.screenSize.y * 0.5f - position.y, depth);
             // add renderer stuff
             MeshFilter meshFilter = imageObject.AddComponent<MeshFilter>();
-            MeshRenderer meshRenderer = imageObject.AddComponent<MeshRenderer>();
+            meshRenderer = imageObject.AddComponent<MeshRenderer>();
             Mesh mesh = new Mesh();
             mesh.vertices = new[]
                 {
@@ -174,7 +175,7 @@ namespace AvionicsSystems
         /// <param name="enable"></param>
         public void EnableRender(bool enable)
         {
-
+            meshRenderer.enabled = enable;
         }
 
         /// <summary>

@@ -42,6 +42,7 @@ namespace AvionicsSystems
         private Material borderMaterial;
         private MASFlightComputer comp;
         private LineRenderer lineRenderer;
+        private LineRenderer borderRenderer;
         private readonly float verticalSpan;
         private readonly float sampleRate;
         private readonly MASFlightComputer.Variable sourceValue;
@@ -164,11 +165,11 @@ namespace AvionicsSystems
 
                 Color borderColor = Utility.ParseColor32(borderColorName, comp);
                 borderMaterial = new Material(Shader.Find("Particles/Additive"));
-                lineRenderer = borderObject.AddComponent<LineRenderer>();
-                lineRenderer.useWorldSpace = false;
-                lineRenderer.material = borderMaterial;
-                lineRenderer.SetColors(borderColor, borderColor);
-                lineRenderer.SetWidth(borderWidth, borderWidth);
+                borderRenderer = borderObject.AddComponent<LineRenderer>();
+                borderRenderer.useWorldSpace = false;
+                borderRenderer.material = borderMaterial;
+                borderRenderer.SetColors(borderColor, borderColor);
+                borderRenderer.SetWidth(borderWidth, borderWidth);
 
                 float halfWidth = borderWidth * 0.5f;
                 Vector3[] borderPoints = new Vector3[]
@@ -179,7 +180,7 @@ namespace AvionicsSystems
                     new Vector3(-halfWidth, size.y+halfWidth, 0.0f),
                     new Vector3(-halfWidth, -halfWidth, 0.0f)
                 };
-                Utility.SetPositions(lineRenderer, borderPoints.Length, borderPoints);
+                Utility.SetPositions(borderRenderer, borderPoints.Length, borderPoints);
             }
 
             graphObject = new GameObject();
@@ -277,7 +278,8 @@ namespace AvionicsSystems
         /// <param name="enable"></param>
         public void EnableRender(bool enable)
         {
-
+            borderRenderer.enabled = enable;
+            lineRenderer.enabled = enable;
         }
 
         /// <summary>

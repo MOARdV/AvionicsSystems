@@ -34,6 +34,7 @@ namespace AvionicsSystems
         private string name = "(anonymous)";
         private GameObject imageObject;
         private Material imageMaterial;
+        private MeshRenderer meshRenderer;
         private readonly string variableName;
         private readonly string inputName;
         private readonly float textureOffset;
@@ -152,7 +153,7 @@ namespace AvionicsSystems
             imageObject.transform.Translate(monitor.screenSize.x * -0.5f + position.x, monitor.screenSize.y * 0.5f - position.y, depth);
             // add renderer stuff
             MeshFilter meshFilter = imageObject.AddComponent<MeshFilter>();
-            MeshRenderer meshRenderer = imageObject.AddComponent<MeshRenderer>();
+            meshRenderer = imageObject.AddComponent<MeshRenderer>();
             Mesh mesh = new Mesh();
             mesh.vertices = new[]
                 {
@@ -235,7 +236,7 @@ namespace AvionicsSystems
         /// <param name="enable"></param>
         public void EnableRender(bool enable)
         {
-
+            meshRenderer.enabled = enable;
         }
 
         /// <summary>

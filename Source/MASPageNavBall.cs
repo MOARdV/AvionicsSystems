@@ -41,10 +41,13 @@ namespace AvionicsSystems
         private GameObject navballModel;
         private GameObject[] markers = new GameObject[12];
         private Material[] markerMaterial = new Material[12];
+        private MeshRenderer[] meshRenderer = new MeshRenderer[12];
         private RenderTexture navballRenTex;
         private Camera navballCamera;
         private Material imageMaterial;
         private Material navballMaterial;
+        private MeshRenderer rentexRenderer;
+        private Renderer navballRenderer;
         private string variableName;
         private MASFlightComputer.Variable range1, range2;
         private readonly bool rangeMode;
@@ -175,7 +178,7 @@ namespace AvionicsSystems
             imageObject.transform.Translate(monitor.screenSize.x * -0.5f + position.x, monitor.screenSize.y * 0.5f - position.y, depth);
             // add renderer stuff
             MeshFilter meshFilter = imageObject.AddComponent<MeshFilter>();
-            MeshRenderer meshRenderer = imageObject.AddComponent<MeshRenderer>();
+            rentexRenderer = imageObject.AddComponent<MeshRenderer>();
             Mesh mesh = new Mesh();
             mesh.vertices = new[]
                 {
@@ -202,7 +205,7 @@ namespace AvionicsSystems
             meshFilter.mesh = mesh;
             imageMaterial = new Material(displayShader);
             imageMaterial.mainTexture = navballRenTex;
-            meshRenderer.material = imageMaterial;
+            rentexRenderer.material = imageMaterial;
 
             //cameraObject
             cameraObject = new GameObject();
@@ -231,7 +234,7 @@ namespace AvionicsSystems
             // TODO: this isn't working when the camera is shifted.  Camera needs
             // to be on a separate GO than the display.
             navballModel.transform.Translate(new Vector3(0.0f, 0.0f, 2.4f));
-            Renderer navballRenderer = null;
+            navballRenderer = null;
             navballMaterial = navballModel.GetComponentCached<Renderer>(ref navballRenderer).material;
             navballMaterial.shader = displayShader;
             navballMaterial.mainTexture = navballTexture;
@@ -437,8 +440,8 @@ namespace AvionicsSystems
             markerMaterial.SetColor(colorIdx, markerColor[markerIdx]);
 
             MeshFilter meshFilter = newMarker.AddComponent<MeshFilter>();
-            MeshRenderer meshRenderer = newMarker.AddComponent<MeshRenderer>();
-            meshRenderer.material = markerMaterial;
+            meshRenderer[markerIdx] = newMarker.AddComponent<MeshRenderer>();
+            meshRenderer[markerIdx].material = markerMaterial;
             this.markerMaterial[markerIdx] = markerMaterial;
 
             Vector2 uv0 = markerUV[markerIdx];
@@ -528,7 +531,12 @@ namespace AvionicsSystems
         /// <param name="enable"></param>
         public void EnableRender(bool enable)
         {
-
+            rentexRenderer.enabled = enable;
+            navballRenderer.enabled = enable;
+            for (int i = meshRenderer.Length - 1; i >= 0; --i)
+            {
+                meshRenderer[i].enabled = enable;
+            }
         }
 
         /// <summary>
