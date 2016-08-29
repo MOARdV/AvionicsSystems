@@ -22,7 +22,7 @@ Prop Modules
 
 JSIVariableAnimator / JSICallbackAnimator components
 
-* animation (JSIVariableAnimator set to a specific position)
+- animation (JSIVariableAnimator set to a specific position)
 
 * exterior animation - Bobcat used this; does alexustas?
 
