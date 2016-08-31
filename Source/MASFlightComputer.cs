@@ -104,6 +104,11 @@ namespace AvionicsSystems
         private MASIFAR farProxy;
 
         /// <summary>
+        /// Instance of the Kerbal Alarm Clock proxy class.
+        /// </summary>
+        private MASIKAC kacProxy;
+
+        /// <summary>
         /// Instance of the MechJeb proxy class.
         /// </summary>
         private MASIMechJeb mjProxy;
@@ -363,6 +368,7 @@ namespace AvionicsSystems
 
                     fcProxy.Update();
                     farProxy.Update();
+                    kacProxy.Update();
                     mjProxy.Update();
                     navProxy.Update();
                     realChuteProxy.Update();
@@ -415,6 +421,7 @@ namespace AvionicsSystems
             mjProxy = null;
             navProxy = null;
             farProxy = null;
+            kacProxy = null;
             realChuteProxy = null;
             if (initialized)
             {
@@ -475,6 +482,10 @@ namespace AvionicsSystems
                     UserData.RegisterType<MASIFAR>();
                     script.Globals["far"] = farProxy;
 
+                    kacProxy = new MASIKAC(vessel);
+                    UserData.RegisterType<MASIKAC>();
+                    script.Globals["kac"] = kacProxy;
+
                     mjProxy = new MASIMechJeb(vessel);
                     UserData.RegisterType<MASIMechJeb>();
                     script.Globals["mechjeb"] = mjProxy;
@@ -500,9 +511,12 @@ namespace AvionicsSystems
                     Utility.ComplainLoudly("Initialization Failed.  Please check KSP.log");
                 }
                 vc = MASVesselComputer.Instance(parentVesselId);
+
+                // TODO: Don't need to set vessel for all of these guys if I just now init'd them.
                 fcProxy.vc = vc;
                 fcProxy.vessel = vessel;
                 farProxy.vessel = vessel;
+                kacProxy.vessel = vessel;
                 realChuteProxy.vc = vc;
                 realChuteProxy.vessel = vessel;
 
@@ -607,6 +621,7 @@ namespace AvionicsSystems
                 fcProxy.vessel = vessel;
                 chattererProxy.UpdateVessel();
                 farProxy.vessel = vessel;
+                kacProxy.vessel = vessel;
                 mjProxy.UpdateVessel(vessel);
                 navProxy.UpdateVessel(vessel);
                 realChuteProxy.vc = vc;
