@@ -1080,14 +1080,14 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// TODO
+        /// Vessel mass may be queried with these methods.
         /// </summary>
         #region Mass
         /// <summary>
         /// Returns the mass of the vessel
         /// </summary>
         /// <param name="wetMass">wet mass if true, dry mass otherwise</param>
-        /// <returns></returns>
+        /// <returns>Vessel mass in kg.</returns>
         public double Mass(bool wetMass)
         {
             if (wetMass)
@@ -2071,58 +2071,64 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// TODO
+        /// Queries and controls related to power production belong in this category.
+        /// 
+        /// For all of these components, if the player has changed the `ElectricCharge` field
+        /// in the MAS config file, these components will track that resource instead.
         /// </summary>
         #region Power Production
         /// <summary>
         /// Returns the number of alternators on the vessel.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Number of alternator modules.</returns>
         public double AlternatorCount()
         {
             return vc.moduleAlternator.Length;
         }
 
         /// <summary>
-        /// Returns the net output of the alternators.
+        /// Returns the current net output of the alternators.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Units of ElectricCharge/second</returns>
         public double AlternatorOutput()
         {
             return vc.netAlternatorOutput;
         }
 
         /// <summary>
-        /// Returns the number of fuel cells on the vessel.
+        /// Returns the number of fuel cells on the vessel.  Fuel cells are defined
+        /// as ModuleResourceConverter units that output `ElectricCharge` (or whatever
+        /// the player-selected override is in the MAS config file).
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Number of fuel cells.</returns>
         public double FuelCellCount()
         {
             return vc.moduleFuelCell.Length;
         }
 
         /// <summary>
-        /// Returns the net output of installed fuel cells.
+        /// Returns the current output of installed fuel cells.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Units of ElectricCharge/second.</returns>
         public double FuelCellOutput()
         {
             return vc.netFuelCellOutput;
         }
 
         /// <summary>
-        /// Returns the number of generators on the vessel.
+        /// Returns the number of generators on the vessel.  Generators
+        /// are and ModuleGenerator that outputs `ElectricCharge`.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Number of generator.s</returns>
         public double GeneratorCount()
         {
             return vc.moduleGenerator.Length;
         }
 
         /// <summary>
-        /// Returns the net output of installed generators.
+        /// Returns the current output of installed generators.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Output in ElectricCharge/sec.</returns>
         public double GeneratorOutput()
         {
             return vc.netGeneratorOutput;
@@ -2131,7 +2137,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns 1 if at least one fuel cell is enabled; 0 otherwise.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if any fuel cell is switched on; 0 otherwise.</returns>
         public double GetFuelCellActive()
         {
             return (vc.fuelCellActive) ? 1.0 : 0.0;
@@ -2140,7 +2146,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the number of solar panels on the vessel.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The number of solar panel modules on the vessel.</returns>
         public double SolarPanelCount()
         {
             return vc.moduleSolarPanel.Length;
@@ -2149,7 +2155,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns 1 if all solar panels are damaged.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 is all solar panels are damaged; 0 otherwise.</returns>
         public double SolarPanelDamaged()
         {
             return (vc.solarPanelPosition == 0) ? 1.0 : 0.0;
@@ -2158,7 +2164,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns 1 if at least one solar panel may be deployed.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if any solar panel is retracted and available to deploy; 0 otherwise.</returns>
         public double SolarPanelDeployable()
         {
             return (vc.solarPanelsDeployable) ? 1.0 : 0.0;
@@ -2167,16 +2173,16 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns 1 if at least one solar panel is moving.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if any solar panels are moving (deploying or retracting).</returns>
         public double SolarPanelMoving()
         {
             return (vc.solarPanelsMoving) ? 1.0 : 0.0;
         }
 
         /// <summary>
-        /// Returns the net output of installed solar panels.
+        /// Returns the current output of installed solar panels.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Solar panel output in ElectricCharge/sec.</returns>
         public double SolarPanelOutput()
         {
             return vc.netSolarOutput;
@@ -2184,25 +2190,26 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Returns a number representing deployable solar panel position:
-        /// 0 = Broken
-        /// 1 = Retracted
-        /// 2 = Retracting
-        /// 3 = Extending
-        /// 4 = Extended
+        /// 
+        /// * 0 = Broken
+        /// * 1 = Retracted
+        /// * 2 = Retracting
+        /// * 3 = Extending
+        /// * 4 = Extended
         /// 
         /// If there are multiple panels, the first non-broken panel's state
         /// is reported; if all panels are broken, the state will be 0.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Panel Position (a number between 0 and 4); 1 if no panels are installed.</returns>
         public double SolarPanelPosition()
         {
             return vc.solarPanelPosition;
         }
 
         /// <summary>
-        /// Returns 1 if at least one solar panels is retractable.
+        /// Returns 1 if at least one solar panel is retractable.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if a solar panel is deployed, and it may be retracted; 0 otherwise.</returns>
         public double SolarPanelRetractable()
         {
             return (vc.solarPanelsRetractable) ? 1.0 : 0.0;
@@ -2259,13 +2266,14 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// TODO
+        /// The Radar category provides the interface for controlling MASRadar
+        /// modules installed on the craft.
         /// </summary>
         #region Radar
         /// <summary>
         /// Returns 1 if any radars are turned on; 0 otherwise.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if any radar is switched on; 0 otherwise.</returns>
         public double RadarActive()
         {
             return (vc.radarActive) ? 1.0 : 0.0;
@@ -2274,7 +2282,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the number of radar modules available on the vessel.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The count of the number of radar units installed on the vessel, 0 or higher.</returns>
         public double RadarCount()
         {
             return vc.moduleRadar.Length;
@@ -2372,7 +2380,24 @@ namespace AvionicsSystems
         #endregion RCS
 
         /// <summary>
-        /// TODO
+        /// The resource methods report the availability of various resources aboard the
+        /// vessel.  They are grouped into three types.
+        /// 
+        /// 'Power' methods `PowerCurrent()`, etc,
+        /// report the state of the resource identified in the MAS config file.  By default,
+        /// this is `ElectricCharge`, but mods may use a different resource for power, instead.
+        /// By using the 'Power' methods, IVA makers do not have to worry about adapting their
+        /// IVA configurations for use with modded configurations.
+        /// 
+        /// 'Resource' methods that take a numeric parameter are ordinal resource listers.  The
+        /// numeric parameter is a number from 0 to fc.ResourceCount() - 1.  This allows the
+        /// IVA maker to display an alphabetized list of resources (on an MFD, for instance).
+        /// 
+        /// 'Resource' methods that take a string parameter return the named resource.  The name
+        /// must match the `name` field of a `RESOURCE_DEFINITION` config node, or 0 will be returned.
+        /// 
+        /// At present, there is no support for alternate fuels, since that gets really complex
+        /// really quickly.
         /// </summary>
         #region Resources
         /// <summary>
@@ -2688,7 +2713,7 @@ namespace AvionicsSystems
         /// to the craft.  By default, 'power' is the ElectricCharge resource,
         /// but users may change that in the MAS config file.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if there is ElectricCharge, 0 otherwise.</returns>
         public double VesselPowered()
         {
             return (vesselPowered) ? 1.0 : 0.0;
@@ -3731,6 +3756,30 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Given a standard time in seconds, return the minutes of the hour (a
+        /// number from 0 to 60).  Fractions of a minute are retained and negative
+        /// values are converted to positive.
+        /// </summary>
+        /// <param name="time">Time in seconds (eg, `fc.MET()`).</param>
+        /// <returns>A number representing the minutes in the hour in the range [0, 60).</returns>
+        public double MinutesOfHour(double time)
+        {
+            return (Math.Abs(time)/60.0) % 60.0;
+        }
+
+        /// <summary>
+        /// Given a standard time in seconds, return the seconds of the minute (the
+        /// number from 0 to 60).  Fractions of a second are retained and negative
+        /// values are converted to positive.
+        /// </summary>
+        /// <param name="time">Time in seconds (eg, `fc.MET()`).</param>
+        /// <returns>A number representing the seconds in the minute in the range [0, 60).</returns>
+        public double SecondsOfMinute(double time)
+        {
+            return Math.Abs(time) % 60.0;
+        }
+
+        /// <summary>
         /// Fetch the time to the next apoapsis.  If the orbit is hyperbolic,
         /// or the vessel is not flying, return 0.
         /// </summary>
@@ -3745,6 +3794,35 @@ namespace AvionicsSystems
             {
                 return 0.0;
             }
+        }
+
+        /// <summary>
+        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
+        /// valid numbers at the present.
+        ///
+        /// Fetch the time until the vessel's orbit next enters or exits the
+        /// body's atmosphere.  If there is no atmosphere, or the orbit does not
+        /// cross that threshold, return 0.
+        /// </summary>
+        /// <returns>Time until the atmosphere boundary is crossed, in seconds; 0 for invalid times.</returns>
+        public double TimeToAtmosphere()
+        {
+            return 0.0;
+        }
+
+        /// <summary>
+        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
+        /// valid numbers at the present.
+        ///
+        /// Returns the time until the vessel lands.  If MechJeb is available and the
+        /// landing prediction module is enabled, MechJeb's results are used.  Otherwise,
+        /// a less accurate MAS predictor is used.  If the orbit does not intercept the
+        /// surface, 0 is returned.
+        /// </summary>
+        /// <returns>Time in seconds until landing; 0 for invalid times.</returns>
+        public double TimeToLanding()
+        {
+            return 0.0;
         }
 
         /// <summary>
@@ -3768,12 +3846,35 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
+        /// valid numbers at the present.
+        ///
+        /// Returns the number of seconds until the vessel's orbit transitions to
+        /// another sphere of influence (leaving the current one and entering another).
+        /// </summary>
+        /// <returns>Time until transition in seconds; 0 if the orbit does not cross a
+        /// Sphere of Influence.</returns>
+        public double TimeToSoI()
+        {
+            return 0.0;
+        }
+
+        /// <summary>
         /// Fetch the current UT (universal time) in seconds.
         /// </summary>
         /// <returns>Universal Time, in seconds.</returns>
         public double UT()
         {
             return vc.universalTime;
+        }
+
+        /// <summary>
+        /// Returns the current time warp multiplier.
+        /// </summary>
+        /// <returns>1 for normal speed, larger values for various warps.</returns>
+        public double WarpRate()
+        {
+            return TimeWarp.CurrentRate;
         }
         #endregion
     }
