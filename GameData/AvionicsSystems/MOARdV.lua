@@ -33,6 +33,7 @@ end
 -- (0.0, 0.6) = yellow
 -- (0.0, 0.2) = red
 function  MOARdVParachuteSafetyTexture()
+
 	local safetyState = realchute.DeploymentSafe()
 	if safetyState > 0 then
 		return fc.Vector2(0, 0.4)
@@ -104,4 +105,29 @@ local TargetType =
 
 function MOARdV_TargetType()
 	return TargetType[fc.TargetType() + 1]
+end
+
+function MOARdVTimeSelect()
+	local selectedTime = 0
+	local selector = fc.GetPersistentAsNumber("MOARdV_TimeMode")
+
+	if selector == 0 then
+		-- MET
+		selectedTime = fc.MET()
+	elseif selector == 1 then
+		-- ATMO
+		selectedTime = fc.TimeToAtmosphere()
+	elseif selector == 2 then
+		-- SoI
+		selectedTime = fc.TimeToSoI()
+	elseif selector == 3 then
+		-- KAC
+		selectedTime = kac.TimeToAlarm()
+	else
+		--selector == 4
+		-- LANDING
+		selectedTime = fc.TimeToLanding()
+	end
+	-- Clamp the time to 999:59:59
+	return math.min(3599999, selectedTime)
 end
