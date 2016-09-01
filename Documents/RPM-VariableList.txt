@@ -352,22 +352,23 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "YAWTARGETRELPLUS": fc.YawTargetRetrograde()
 
 Crew:
-"CREW":
-"CREWLOCAL":
+"CREW": use 'false' as the first parameter below
+"CREWLOCAL": use 'true' as the first parameter below
+seatNumber starts counting at 0, not 1.
 
-"BADASS":
-"COURAGE":
-"EXISTS":
-"EXPERIENCE":
-"FIRST":
-"FULL":
-"LAST":
-"LEVEL":
-"PANIC":
-"PRESENT":
-"STUPIDITY":
-"TITLE":
-"WHEE":
+"BADASS": fc.CrewBadS(true/false, seatNumber)
+"COURAGE": fc.CrewCourage(true/false, seatNumber)
+"EXISTS": fc.SeatExists(true/false, seatNumber)
+"EXPERIENCE": fc.CrewExperience(true/false, seatNumber)
+"FIRST": - not yet-
+"FULL": fc.CrewName(true/false, seatNumber)
+"LAST": - not yet-
+"LEVEL": fc.CrewLevel(true/false, seatNumber)
+"PANIC": fc.CrewPanic(true/false, seatNumber)
+"PRESENT": fc.SeatOccupied(true/false, seatNumber)
+"STUPIDITY": fc.CrewStupidity(true/false, seatNumber)
+"TITLE": fc.CrewTitle(true/false, seatNumber)
+"WHEE": fc.CrewWhee(true/false, seatNumber)
 
 Resources:
 "LISTR": Resource method names taking a double (number) parameter
@@ -378,14 +379,14 @@ JSIInternalRPMButtons:
 
 
 FAR:
-"FARPM_DYNAMIC_PRESSURE_Q": far.DynamicPressure()
+"FARPM_DYNAMIC_PRESSURE_Q": far.DynamicPressure() or fc.DynamicPressure()
 "FARPM_LIFT_COEFFICIENT_CL": far.CoeffLift()
 "FARPM_DRAG_COEFFICIENT_CD"
 "FARPM_REFAREA": far.RefArea()
 "FARPM_MACHNUMBER"
 "FARPM_TERMINALVELOCITY"
 "FARPM_BALLISTIC_COEFFICIENT"
-"FARPM_ANGLE_OF_ATTACK": far.AngleOfAttack()
-"FARPM_SIDESLIP": far.Sideslip()
+"FARPM_ANGLE_OF_ATTACK": far.AngleOfAttack() or fc.AngleOfAttack()
+"FARPM_SIDESLIP": far.Sideslip() or fc.Sideslip()
 "FARPM_THRUST_SPECIFIC_FUEL_CONSUMPTION"
 "FARPM_STALL_FRACTION": far.StallFraction()
