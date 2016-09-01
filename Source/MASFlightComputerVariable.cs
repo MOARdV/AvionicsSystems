@@ -161,6 +161,7 @@ namespace AvionicsSystems
             {"fc", typeof(MASFlightComputerProxy)},
             {"chatterer", typeof(MASIChatterer)},
             {"far", typeof(MASIFAR)},
+            {"kac", typeof(MASIKAC)},
             {"mechjeb", typeof(MASIMechJeb)},
             {"realchute", typeof(MASIRealChute)},
         };
@@ -199,12 +200,24 @@ namespace AvionicsSystems
             else
             {
                 int numParameters = 1;
+                int parenNesting = 0;
                 // Count the parameters
                 for (int index = firstIndex; index < lastIndex; ++index)
                 {
-                    if (tokens[index].Type == TokenType.Symbol && tokens[index].Id == 18)
+                    if (tokens[index].Type == TokenType.Symbol)
                     {
-                        ++numParameters;
+                        if (tokens[index].Id == 18 && parenNesting == 0)
+                        {
+                            ++numParameters;
+                        }
+                        else if(tokens[index].Id == 16)
+                        {
+                            ++parenNesting;
+                        }
+                        else if(tokens[index].Id == 17)
+                        {
+                            --parenNesting;
+                        }
                     }
                 }
 #if VERBOSE_PARSING
@@ -212,76 +225,88 @@ namespace AvionicsSystems
 #endif
                 VariableParameter[] newParms = new VariableParameter[numParameters];
                 int currentParam = 0;
+                parenNesting = 0;
                 int numTokens;
                 for (int index = firstIndex; index <= lastIndex; ++index)
                 {
-                    if (tokens[index].Type == TokenType.Symbol && tokens[index].Id == 18)
+                    if (tokens[index].Type == TokenType.Symbol)
                     {
-                        numTokens = index - firstIndex;
-#if VERBOSE_PARSING
-                        Utility.LogMessage(this, "index = {0}, firstIndex = {1}, numTokens = {2}", index, firstIndex, numTokens);
-#endif
-                        if (numTokens == 1)
+                        if (tokens[index].Id == 16)
                         {
-                            if (tokens[firstIndex].Type == TokenType.Number)
-                            {
+                            ++parenNesting;
+                        }
+                        else if (tokens[index].Id == 17)
+                        {
+                            --parenNesting;
+                        } 
+                        else if (tokens[index].Id == 18 && parenNesting == 0)
+                        {
+                            numTokens = index - firstIndex;
 #if VERBOSE_PARSING
-                                Utility.LogMessage(this, " Parameter {0} is number", currentParam);
+                            Utility.LogMessage(this, "index = {0}, firstIndex = {1}, numTokens = {2}", index, firstIndex, numTokens);
+#endif
+                            if (numTokens == 1)
+                            {
+                                if (tokens[firstIndex].Type == TokenType.Number)
+                                {
+#if VERBOSE_PARSING
+                                    Utility.LogMessage(this, " Parameter {0} is number", currentParam);
 #endif
 
-                                newParms[currentParam].numericValue = (double)tokens[firstIndex].Value;
-                                newParms[currentParam].valueType = typeof(double);
-                                newParms[currentParam].vpType = VariableParameterType.CONST_DOUBLE;
-                            }
-                            else if (tokens[firstIndex].Type == TokenType.QuotedString)
-                            {
+                                    newParms[currentParam].numericValue = (double)tokens[firstIndex].Value;
+                                    newParms[currentParam].valueType = typeof(double);
+                                    newParms[currentParam].vpType = VariableParameterType.CONST_DOUBLE;
+                                }
+                                else if (tokens[firstIndex].Type == TokenType.QuotedString)
+                                {
 #if VERBOSE_PARSING
-                                Utility.LogMessage(this, " Parameter {0} is string", currentParam);
+                                    Utility.LogMessage(this, " Parameter {0} is string", currentParam);
 #endif
 
-                                newParms[currentParam].stringValue = tokens[firstIndex].Value.ToString();
-                                newParms[currentParam].stringValue = newParms[currentParam].stringValue.Substring(1, newParms[currentParam].stringValue.Length - 2);
-                                newParms[currentParam].valueType = typeof(string);
-                                newParms[currentParam].vpType = VariableParameterType.CONST_STRING;
-                            }
-                            else if (tokens[firstIndex].Type == TokenType.Keyword && tokens[firstIndex].Id == 48)
-                            {
+                                    newParms[currentParam].stringValue = tokens[firstIndex].Value.ToString();
+                                    newParms[currentParam].stringValue = newParms[currentParam].stringValue.Substring(1, newParms[currentParam].stringValue.Length - 2);
+                                    newParms[currentParam].valueType = typeof(string);
+                                    newParms[currentParam].vpType = VariableParameterType.CONST_STRING;
+                                }
+                                else if (tokens[firstIndex].Type == TokenType.Keyword && tokens[firstIndex].Id == 48)
+                                {
 #if VERBOSE_PARSING
-                                Utility.LogMessage(this, " Parameter {0} is bool", currentParam);
+                                    Utility.LogMessage(this, " Parameter {0} is bool", currentParam);
 #endif
 
-                                newParms[currentParam].booleanValue = (bool)tokens[firstIndex].Value;
-                                newParms[currentParam].valueType = typeof(bool);
-                                newParms[currentParam].vpType = VariableParameterType.CONST_BOOL;
+                                    newParms[currentParam].booleanValue = (bool)tokens[firstIndex].Value;
+                                    newParms[currentParam].valueType = typeof(bool);
+                                    newParms[currentParam].vpType = VariableParameterType.CONST_BOOL;
+                                }
+                                else
+                                {
+                                    Utility.LogErrorMessage(this, " Parameter {0} is an unexpected value", currentParam);
+                                }
                             }
                             else
                             {
-                                Utility.LogErrorMessage(this, " Parameter {0} is an unexpected value", currentParam);
-                            }
-                        }
-                        else
-                        {
-                            // Variable
-                            string canonName = MakeCanonicalName(tokens, firstIndex, index - 1);
-                            Variable v = GetVariable(canonName, null);
+                                // Variable
+                                string canonName = MakeCanonicalName(tokens, firstIndex, index - 1);
+                                Variable v = GetVariable(canonName, null);
 #if VERBOSE_PARSING
-                            Utility.LogMessage(this, "Looked for child variable {0}: {1}", canonName, (v==null) ? "failed" : "succeeded");
+                                Utility.LogMessage(this, "Looked for child variable {0}: {1}", canonName, (v == null) ? "failed" : "succeeded");
 #endif
-                            if (v == null)
-                            {
-                                newParms = new VariableParameter[1];
-                                newParms[0].vpType = VariableParameterType.UNSUPPORTED;
-                                return newParms;
+                                if (v == null)
+                                {
+                                    newParms = new VariableParameter[1];
+                                    newParms[0].vpType = VariableParameterType.UNSUPPORTED;
+                                    return newParms;
+                                }
+                                else
+                                {
+                                    newParms[currentParam].variableValue = v;
+                                    newParms[currentParam].valueType = v.RawValue().GetType();
+                                    newParms[currentParam].vpType = VariableParameterType.VARIABLE;
+                                }
                             }
-                            else
-                            {
-                                newParms[currentParam].variableValue = v;
-                                newParms[currentParam].valueType = v.RawValue().GetType();
-                                newParms[currentParam].vpType = VariableParameterType.VARIABLE;
-                            }
+                            ++currentParam;
+                            firstIndex = index + 1;
                         }
-                        ++currentParam;
-                        firstIndex = index + 1;
                     }
                 }
                 numTokens = lastIndex - firstIndex + 1;
