@@ -3811,8 +3811,8 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
-        /// valid numbers at the present.
+        /// **INCOMPLETE:** This function is a placeholder that does not return
+        /// valid numbers unless MechJeb is used.
         ///
         /// Returns the time until the vessel lands.  If MechJeb is available and the
         /// landing prediction module is enabled, MechJeb's results are used.  Otherwise,
@@ -3822,7 +3822,14 @@ namespace AvionicsSystems
         /// <returns>Time in seconds until landing; 0 for invalid times.</returns>
         public double TimeToLanding()
         {
-            return 0.0;
+            if (mjProxy.LandingComputerActive() > 0.0)
+            {
+                return mjProxy.LandingTime();
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>

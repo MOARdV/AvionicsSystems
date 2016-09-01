@@ -31,6 +31,10 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
+    // This delegate must be used for any method that uses out or ref parameters.
+    // The other methods do not support 'out' and 'ref'.
+    public delegate object DynamicMethodDelegate(object param0, object[] param1);
+
     public delegate object DynamicMethod<T>(T param0);
     public delegate object DynamicMethod<T, U>(T param0, U param1);
     public delegate object DynamicMethod<T, U, V, W>(T param0, U param1, V param2, W param3);
@@ -565,7 +569,7 @@ namespace AvionicsSystems
 
             return (DynamicMethodVec3d<T, U>)dynam.CreateDelegate(typeof(DynamicMethodVec3d<T, U>));
         }
-        
+
         static internal DynamicMethodVec3d<T, U, V> CreateFuncVec3d<T, U, V>(MethodInfo methodInfo)
         {
             // Up front validation:
@@ -649,6 +653,136 @@ namespace AvionicsSystems
 
 
             return (DynamicMethodVec3d<T, U, V>)dynam.CreateDelegate(typeof(DynamicMethodVec3d<T, U, V>));
+        }
+
+        // This function comes from http://www.codeproject.com/Articles/10951/Fast-late-bound-invocation-through-DynamicMethod-d
+        // covered by The Code Project Open License  http://www.codeproject.com/info/cpol10.aspx
+        //
+        // Changes to support out / reference parameters from
+        // http://stackoverflow.com/questions/29131117/using-ilgenerator-emit-to-call-a-method-in-another-assembly-that-has-an-out-para
+        // with a fix to the code that copies values into locals.
+        static internal DynamicMethodDelegate CreateFunc(MethodInfo methodInfo)
+        {
+            ParameterInfo[] parms = methodInfo.GetParameters();
+            int numparams = parms.Length;
+
+            Type[] _argTypes = { typeof(object), typeof(object[]) };
+
+            // Create dynamic method and obtain its IL generator to
+            // inject code.
+            DynamicMethod dynam =
+                new DynamicMethod(
+                "",
+                typeof(object),
+                _argTypes,
+                typeof(DynamicMethodFactory));
+            ILGenerator il = dynam.GetILGenerator();
+
+            /* [...IL GENERATION...] */
+            // Define a label for succesfull argument count checking.
+            Label argsOK = il.DefineLabel();
+
+            // Check input argument count.
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Ldlen);
+            il.Emit(OpCodes.Ldc_I4, numparams);
+            il.Emit(OpCodes.Beq, argsOK);
+
+            // Argument count was wrong, throw TargetParameterCountException.
+            il.Emit(OpCodes.Newobj,
+               typeof(TargetParameterCountException).GetConstructor(Type.EmptyTypes));
+            il.Emit(OpCodes.Throw);
+
+            // Mark IL with argsOK label.
+            il.MarkLabel(argsOK);
+            // If method isn't static push target instance on top
+            // of stack.
+            if (!methodInfo.IsStatic)
+            {
+                // Argument 0 of dynamic method is target instance.
+                il.Emit(OpCodes.Ldarg_0);
+            }
+            // Lay out args array onto stack.
+            LocalBuilder[] locals = new LocalBuilder[parms.Length];
+            for (int i = 0; i < numparams; i++)
+            {
+                // Push args array reference onto the stack, followed
+                // by the current argument index (i). The Ldelem_Ref opcode
+                // will resolve them to args[i].
+
+                // Argument 1 of dynamic method is argument array.
+                if (!parms[i].IsOut)
+                {
+                    il.Emit(OpCodes.Ldarg_1);
+                    il.Emit(OpCodes.Ldc_I4, i);
+                    il.Emit(OpCodes.Ldelem_Ref);
+                }
+
+                // If parameter [i] is a value type perform an unboxing.
+                Type parmType = parms[i].ParameterType;
+                if (parmType.IsValueType)
+                {
+                    il.Emit(OpCodes.Unbox_Any, parmType);
+                }
+            }
+
+            for (int i = 0; i < numparams; i++)
+            {
+                if (parms[i].IsOut)
+                {
+                    locals[i] = il.DeclareLocal(parms[i].ParameterType.GetElementType());
+                    il.Emit(OpCodes.Ldloca, locals[i]);
+                    //il.Emit(OpCodes.Ldloca, locals[locals.Length - 1]);
+                }
+            }
+
+            // Perform actual call.
+            // If method is not final a callvirt is required
+            // otherwise a normal call will be emitted.
+            if (methodInfo.IsFinal)
+            {
+                il.Emit(OpCodes.Call, methodInfo);
+            }
+            else
+            {
+                il.Emit(OpCodes.Callvirt, methodInfo);
+            }
+
+            for (int i = 0; i < numparams; i++)
+            {
+                if (parms[i].IsOut || parms[i].ParameterType.IsByRef)
+                {
+                    il.Emit(OpCodes.Ldarg_1);
+                    il.Emit(OpCodes.Ldc_I4, i);
+                    il.Emit(OpCodes.Ldloc, locals[i].LocalIndex);
+
+                    if (parms[i].ParameterType.GetElementType().IsValueType)
+                    {
+                        il.Emit(OpCodes.Box, parms[i].ParameterType.GetElementType());
+                    }
+
+                    il.Emit(OpCodes.Stelem_Ref);
+                }
+            }
+
+            if (methodInfo.ReturnType != typeof(void))
+            {
+                // If result is of value type it needs to be boxed
+                if (methodInfo.ReturnType.IsValueType)
+                {
+                    il.Emit(OpCodes.Box, methodInfo.ReturnType);
+                }
+            }
+            else
+            {
+                il.Emit(OpCodes.Ldnull);
+            }
+
+            // Emit return opcode.
+            il.Emit(OpCodes.Ret);
+
+
+            return (DynamicMethodDelegate)dynam.CreateDelegate(typeof(DynamicMethodDelegate));
         }
     }
 }

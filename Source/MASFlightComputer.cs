@@ -486,7 +486,7 @@ namespace AvionicsSystems
                     UserData.RegisterType<MASIKAC>();
                     script.Globals["kac"] = kacProxy;
 
-                    mjProxy = new MASIMechJeb(vessel);
+                    mjProxy = new MASIMechJeb();
                     UserData.RegisterType<MASIMechJeb>();
                     script.Globals["mechjeb"] = mjProxy;
 
@@ -515,10 +515,11 @@ namespace AvionicsSystems
                 // TODO: Don't need to set vessel for all of these guys if I just now init'd them.
                 fcProxy.vc = vc;
                 fcProxy.vessel = vessel;
-                farProxy.vessel = vessel;
-                kacProxy.vessel = vessel;
+                //farProxy.vessel = vessel;
+                //kacProxy.vessel = vessel;
+                mjProxy.UpdateVessel(vessel, vc);
                 realChuteProxy.vc = vc;
-                realChuteProxy.vessel = vessel;
+                //realChuteProxy.vessel = vessel;
 
 
                 // TODO: Add MAS script
@@ -622,7 +623,7 @@ namespace AvionicsSystems
                 chattererProxy.UpdateVessel();
                 farProxy.vessel = vessel;
                 kacProxy.vessel = vessel;
-                mjProxy.UpdateVessel(vessel);
+                mjProxy.UpdateVessel(vessel, vc);
                 navProxy.UpdateVessel(vessel);
                 realChuteProxy.vc = vc;
                 realChuteProxy.vessel = vessel;

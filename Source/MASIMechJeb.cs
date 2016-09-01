@@ -43,6 +43,10 @@ namespace AvionicsSystems
         //--- Methods found in MechJebCore
         private static readonly Type mjCore_t;
 
+        //--- Methods found in AbsoluteVector
+        private static readonly FieldInfo AbsoluteVectorLat;
+        private static readonly FieldInfo AbsoluteVectorLon;
+
         //--- Methods found in ComputerModule
         private static readonly DynamicMethodBool<object> ModuleEnabled;
         private static readonly FieldInfo ModuleUsers;
@@ -53,9 +57,14 @@ namespace AvionicsSystems
         private static readonly DynamicMethodDouble<object> getEditableDoubleMult;
 
         //--- Methods found in OrbitalManeuverCalculator
+        // Actually, this requires 5 parameters, with the 5 an 'out' parameter.
+        private static readonly DynamicMethodDelegate DeltaVAndTimeForInterplanetaryTransferEjection;
+        // The 4th parameter is an 'out' parameter.
+        private static readonly DynamicMethodDelegate DeltaVAndTimeForHohmannTransfer;
         private static readonly DynamicMethodVec3d<Orbit, double, double> DeltaVToChangeApoapsis;
         private static readonly DynamicMethodVec3d<Orbit, double, double> DeltaVToChangePeriapsis;
         private static readonly DynamicMethodVec3d<Orbit, double> DeltaVToCircularize;
+        private static readonly DynamicMethodVec3d<Orbit, double, Orbit> DeltaVToMatchVelocities;
 
         //--- Methods found in VesselExtensions
         private static readonly Type mjVesselExtensions_t;
@@ -75,6 +84,9 @@ namespace AvionicsSystems
         private static readonly DynamicMethod<object, object> LandUntargeted;
         private static readonly DynamicMethod<object> StopLanding;
 
+        //--- Methods found in ModuleLandingPredictions
+        private static readonly DynamicMethod<object> GetPredictionsResult;
+
         //--- Methods found in ModuleNodeExecutor
         private static readonly DynamicMethod<object> AbortNode;
         private static readonly DynamicMethod<object, object> ExecuteOneNode;
@@ -90,6 +102,11 @@ namespace AvionicsSystems
         private static readonly FieldInfo TargetLongitude;
         private static readonly DynamicMethod<object> TargetOrbit;
 
+        //--- Methods found in ReentrySimulation.Result
+        private static readonly FieldInfo ReentryEndPosition;
+        private static readonly FieldInfo ReentryOutcome;
+        private static readonly FieldInfo ReentryTime;
+
         //--- Methods found in UserPool
         private static readonly DynamicMethod<object, object> AddUser;
         private static readonly DynamicMethod<object, object> RemoveUser;
@@ -98,12 +115,14 @@ namespace AvionicsSystems
         internal bool mjAvailable;
 
         Vessel vessel;
+        MASVesselComputer vc;
         Orbit vesselOrbit;
 
         bool landingPredictionEnabled;
         double landingAltitude;
         double landingLatitude;
         double landingLongitude;
+        double landingTime;
 
         object masterMechJeb;
         object ascentAutopilot;
@@ -175,16 +194,9 @@ namespace AvionicsSystems
         #endregion
 
         [MoonSharpHidden]
-        public MASIMechJeb(Vessel vessel)
+        public MASIMechJeb()
         {
-            if (mjFound)
-            {
-                UpdateVessel(vessel);
-            }
-            else
-            {
-                mjAvailable = false;
-            }
+            mjAvailable = mjFound;
         }
 
         ~MASIMechJeb()
@@ -398,7 +410,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns 1 if the MechJeb landing autopilot is engaged.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if the landing autopilot is active, 0 otherwise</returns>
         public double LandingAutopilotActive()
         {
             if (mjAvailable && ModuleEnabled(landingAutopilot))
@@ -414,7 +426,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns 1 if the MechJeb landing prediction computer is engaged.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if the landing prediction computer is enabled; 0 otherwise.</returns>
         public double LandingComputerActive()
         {
             if (mjAvailable && landingPredictionEnabled)
@@ -431,7 +443,8 @@ namespace AvionicsSystems
         /// When the landing prediction computer is engaged, returns the
         /// predicted altitude of the landing site.  Returns 0 otherwise.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Terrain Altitude in meters at the predicted landing
+        /// site; 0 if the orbit does not land.</returns>
         public double LandingAltitude()
         {
             if (mjAvailable && landingPredictionEnabled)
@@ -448,7 +461,8 @@ namespace AvionicsSystems
         /// When the landing prediction computer is engaged, returns the
         /// predicted latitude of the landing site.  Returns 0 otherwise.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Latitude in degrees; north is positive, south is negative; 0
+        /// if the prediciton computer is off or the orbit does not land.</returns>
         public double LandingLatitude()
         {
             if (mjAvailable && landingPredictionEnabled)
@@ -465,12 +479,30 @@ namespace AvionicsSystems
         /// When the landing prediction computer is engaged, returns the
         /// predicted longitude of the landing site.  Returns 0 otherwise.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Longitude in degrees.  West is negative, east is positive; 0 if the orbit
+        /// will not land.</returns>
         public double LandingLongitude()
         {
             if (mjAvailable && landingPredictionEnabled)
             {
                 return landingLongitude;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// When the prediction computer is engaged, returns the predicted time until
+        /// landing.
+        /// </summary>
+        /// <returns>Time in seconds until landing; 0 if the prediction computer is off or the orbit does not land.</returns>
+        public double LandingTime()
+        {
+            if (mjAvailable && landingPredictionEnabled)
+            {
+                return landingTime;
             }
             else
             {
@@ -535,7 +567,7 @@ namespace AvionicsSystems
         /// ignored if Ap &lt; Pe or the orbit is hyperbolic and the vessel is
         /// already past the Pe.
         /// </summary>
-        /// <param name="newAp"></param>
+        /// <param name="newAp">The new apoapsis in meters.</param>
         public void ChangeApoapsis(double newAp)
         {
             if (mjAvailable && newAp >= vesselOrbit.PeA && vessel.patchedConicSolver != null)
@@ -557,7 +589,7 @@ namespace AvionicsSystems
         /// Change Periapsis to the new altitude in meters.  Command is ignored
         /// if Pe &gt; Ap.
         /// </summary>
-        /// <param name="newPe"></param>
+        /// <param name="newPe">The new periapsis in meters.</param>
         public void ChangePeriapsis(double newPe)
         {
             if (mjAvailable && vesselOrbit.eccentricity < 1.0 && newPe <= vesselOrbit.ApA && vessel.patchedConicSolver != null)
@@ -597,7 +629,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns 1 if the maneuver node executor is active, 0 otherwise.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if the node exeuctor is enabled; 0 otherwise.</returns>
         public double ManeuverNodeExecutorActive()
         {
             if (mjAvailable && ModuleEnabled(nodeExecutor))
@@ -607,6 +639,59 @@ namespace AvionicsSystems
             else
             {
                 return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Instructs MechJeb to match velocities with the target at
+        /// closest approach.
+        /// </summary>
+        public void MatchVelocities()
+        {
+            if (vc.activeTarget != null && vc.activeTarget.GetOrbit() != null && vessel.patchedConicSolver != null)
+            {
+                Vector3d dV = DeltaVToMatchVelocities(vesselOrbit, vc.targetClosestUT, vc.activeTarget.GetOrbit());
+                vessel.patchedConicSolver.maneuverNodes.Clear();
+                PlaceManeuverNode(vessel, vesselOrbit, dV, vc.targetClosestUT);
+            }
+        }
+
+        /// <summary>
+        /// When a target is selected and the following conditions are met, this
+        /// method will instruct MechJeb to plot an optimized Hohmann transfer
+        /// to intercept the target.
+        /// 
+        /// If the target orbits a different body, an interplanetary transfer is
+        /// calculated.
+        /// </summary>
+        public void PlotTransfer()
+        {
+            if (vc.activeTarget != null)
+            {
+                Orbit targetOrbit = vc.activeTarget.GetOrbit();
+                if(targetOrbit != null)
+                {
+                    try
+                    {
+                        double nodeUT = vc.universalTime;
+                        Vector3d dV;
+                        if (targetOrbit.referenceBody == vesselOrbit.referenceBody)
+                        {
+                            object[] args = new object[] { vesselOrbit, targetOrbit, vc.universalTime, nodeUT };
+                            dV = (Vector3d)DeltaVAndTimeForHohmannTransfer(null, args);
+                            nodeUT = (double)args[3];
+                        }
+                        else
+                        {
+                            object[] args = new object[] { vesselOrbit, vc.universalTime, targetOrbit, true, nodeUT };
+                            dV = (Vector3d)DeltaVAndTimeForInterplanetaryTransferEjection(null, args);
+                            nodeUT = (double)args[4];
+                        }
+                        vessel.patchedConicSolver.maneuverNodes.Clear();
+                        PlaceManeuverNode(vessel, vesselOrbit, dV, nodeUT);
+                    }
+                    catch { }
+                }
             }
         }
 
@@ -630,7 +715,8 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// TODO
+        /// The Rendezvous Autopilot category contains methods to interact with the Rendezvous
+        /// Autopilot.
         /// </summary>
         #region Rendezvous Autopilot
         /// <summary>
@@ -827,17 +913,35 @@ namespace AvionicsSystems
 
                 landingPredictionEnabled = ModuleEnabled(landingPrediction);
 
+                bool landingPredictionRead = false;
                 if (landingPredictionEnabled)
                 {
-                    landingAltitude = 0.0;
-                    landingLatitude = 0.0;
-                    landingLongitude = 0.0;
+                    object predictions = GetPredictionsResult(landingPrediction);
+                    if (predictions != null)
+                    {
+                        object outcome = ReentryOutcome.GetValue(predictions);
+                        if (outcome != null && outcome.ToString() == "LANDED")
+                        {
+                            object endPosition = ReentryEndPosition.GetValue(predictions);
+                            if (endPosition != null)
+                            {
+                                landingLatitude = (double)AbsoluteVectorLat.GetValue(endPosition);
+                                landingLongitude = (double)AbsoluteVectorLon.GetValue(endPosition);
+                                landingTime = (double)ReentryTime.GetValue(predictions) - Planetarium.GetUniversalTime();
+
+                                landingAltitude = FinePrint.Utilities.CelestialUtilities.TerrainAltitude(vessel.mainBody, landingLatitude, landingLongitude);
+                                landingPredictionRead = true;
+                            }
+                        }
+                    }
                 }
-                else
+
+                if (!landingPredictionRead)
                 {
                     landingAltitude = 0.0;
                     landingLatitude = 0.0;
                     landingLongitude = 0.0;
+                    landingTime = 0.0;
                 }
             }
         }
@@ -848,11 +952,12 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="vessel"></param>
         [MoonSharpHidden]
-        internal void UpdateVessel(Vessel vessel)
+        internal void UpdateVessel(Vessel vessel, MASVesselComputer vc)
         {
             if (mjFound)
             {
                 this.vessel = vessel;
+                this.vc = vc;
                 this.vesselOrbit = vessel.GetOrbit();
                 try
                 {
@@ -1094,6 +1199,19 @@ namespace AvionicsSystems
                 }
                 StopLanding = DynamicMethodFactory.CreateFunc<object>(mjStopLanding);
 
+                //--- ModuleLandingPredictions
+                Type mjModuleLandingPredictions_t = Utility.GetExportedType("MechJeb2", "MuMech.MechJebModuleLandingPredictions");
+                if (mjModuleLandingPredictions_t == null)
+                {
+                    throw new NotImplementedException("mjModuleLandingPredictions_t");
+                }
+                MethodInfo mjPredictionsGetResult = mjModuleLandingPredictions_t.GetMethod("GetResult", BindingFlags.Instance | BindingFlags.Public);
+                if (mjPredictionsGetResult == null)
+                {
+                    throw new NotImplementedException("mjPredictionsGetResult");
+                }
+                GetPredictionsResult = DynamicMethodFactory.CreateFunc<object>(mjPredictionsGetResult);
+
                 //--- ModuleNodeExecutor
                 MethodInfo mjExecuteOneNode = mjNodeExecutor_t.GetMethod("ExecuteOneNode", BindingFlags.Instance | BindingFlags.Public);
                 if (mjExecuteOneNode == null)
@@ -1145,17 +1263,7 @@ namespace AvionicsSystems
                     throw new NotImplementedException("mjGetPositionTargetExists");
                 }
                 PositionTargetExists = DynamicMethodFactory.CreateFuncBool<object>(mjGetPositionTargetExists);
-                //PropertyInfo mjNormalTargetExists = mjModuleTargetController_t.GetProperty("NormalTargetExists", BindingFlags.Instance | BindingFlags.Public);
-                //MethodInfo mjGetNormalTargetExists = null;
-                //if (mjNormalTargetExists != null)
-                //{
-                //    mjGetNormalTargetExists = mjNormalTargetExists.GetGetMethod();
-                //}
-                //if (mjGetNormalTargetExists == null)
-                //{
-                //    throw new NotImplementedException("mjGetNormalTargetExists");
-                //}
-                //getNormalTargetExists = DynamicMethodDelegateFactory.CreateFuncBool(mjGetNormalTargetExists);
+
                 PropertyInfo mjTargetOrbit = mjModuleTargetController_t.GetProperty("TargetOrbit", BindingFlags.Instance | BindingFlags.Public); ;
                 MethodInfo mjGetTargetOrbit = null;
                 if (mjTargetOrbit != null)
@@ -1190,6 +1298,54 @@ namespace AvionicsSystems
                 }
                 DeltaVToCircularize = DynamicMethodFactory.CreateFuncVec3d<Orbit, double>(deltaVToChangeCircularize);
 
+                MethodInfo deltaVAndTimeForHohmannTransfer = mjOrbitalManeuverCalculator_t.GetMethod("DeltaVAndTimeForHohmannTransfer", BindingFlags.Static | BindingFlags.Public);
+                if (deltaVAndTimeForHohmannTransfer == null)
+                {
+                    throw new NotImplementedException("deltaVAndTimeForHohmannTransfer");
+                }
+                DeltaVAndTimeForHohmannTransfer = DynamicMethodFactory.CreateFunc(deltaVAndTimeForHohmannTransfer);
+                
+                MethodInfo deltaVToMatchVelocities = mjOrbitalManeuverCalculator_t.GetMethod("DeltaVToMatchVelocities", BindingFlags.Static | BindingFlags.Public);
+                if (deltaVToMatchVelocities == null)
+                {
+                    throw new NotImplementedException("deltaVToMatchVelocities");
+                }
+                DeltaVToMatchVelocities = DynamicMethodFactory.CreateFuncVec3d<Orbit, double, Orbit>(deltaVToMatchVelocities);
+
+                MethodInfo deltaVAndTimeForInterplanetaryTransferEjection = mjOrbitalManeuverCalculator_t.GetMethod("DeltaVAndTimeForInterplanetaryTransferEjection", BindingFlags.Static | BindingFlags.Public);
+                if (deltaVAndTimeForInterplanetaryTransferEjection == null)
+                {
+                    throw new NotImplementedException("deltaVAndTimeForInterplanetaryTransferEjection");
+                }
+                DeltaVAndTimeForInterplanetaryTransferEjection = DynamicMethodFactory.CreateFunc(deltaVAndTimeForInterplanetaryTransferEjection);
+
+                //--- ReentrySimulation.Result
+                Type mjReentrySim_t = Utility.GetExportedType("MechJeb2", "MuMech.ReentrySimulation");
+                if (mjReentrySim_t == null)
+                {
+                    throw new NotImplementedException("mjReentrySim_t");
+                }
+                Type mjReentryResult_t = mjReentrySim_t.GetNestedType("Result");
+                if (mjReentryResult_t == null)
+                {
+                    throw new NotImplementedException("mjReentryResult_t");
+                }
+                ReentryOutcome = mjReentryResult_t.GetField("outcome", BindingFlags.Instance | BindingFlags.Public);
+                if (ReentryOutcome == null)
+                {
+                    throw new NotImplementedException("ReentryOutcome");
+                }
+                ReentryEndPosition = mjReentryResult_t.GetField("endPosition", BindingFlags.Instance | BindingFlags.Public);
+                if (ReentryEndPosition == null)
+                {
+                    throw new NotImplementedException("ReentryEndPosition");
+                }
+                ReentryTime = mjReentryResult_t.GetField("endUT", BindingFlags.Instance | BindingFlags.Public);
+                if (ReentryTime == null)
+                {
+                    throw new NotImplementedException("ReentryTime");
+                }
+
                 //--- UserPool
                 MethodInfo mjAddUser = mjUserPool_t.GetMethod("Add", BindingFlags.Instance | BindingFlags.Public);
                 if (mjAddUser == null)
@@ -1221,6 +1377,23 @@ namespace AvionicsSystems
                     throw new NotImplementedException("mjPlaceManeuverNode");
                 }
                 PlaceManeuverNode = DynamicMethodFactory.CreateFunc<Vessel, Orbit, Vector3d, double>(mjPlaceManeuverNode);
+
+                //--- AbsoluteVector
+                Type mjAbsoluteVector_t = Utility.GetExportedType("MechJeb2", "MuMech.AbsoluteVector");
+                if (mjAbsoluteVector_t == null)
+                {
+                    throw new NotImplementedException("mjAbsoluteVector_t");
+                }
+                AbsoluteVectorLat = mjAbsoluteVector_t.GetField("latitude", BindingFlags.Instance | BindingFlags.Public);
+                if (AbsoluteVectorLat == null)
+                {
+                    throw new NotImplementedException("AbsoluteVectorLat");
+                }
+                AbsoluteVectorLon = mjAbsoluteVector_t.GetField("longitude", BindingFlags.Instance | BindingFlags.Public);
+                if (AbsoluteVectorLon == null)
+                {
+                    throw new NotImplementedException("AbsoluteVectorLon");
+                }
 
                 mjFound = true;
             }
