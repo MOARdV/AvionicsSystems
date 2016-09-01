@@ -547,6 +547,311 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
+        /// The Crew category provides information about the crew aboard the vessel.
+        /// 
+        /// Most functions in this category require two parameters: `localSeat` and
+        /// `seatNumber`.
+        /// 
+        /// `localSeat` is a boolean.  When it is true, the only seats
+        /// that are considered for the function are the seats local to the current
+        /// pod.  When it is false, all seats on the vessel are considered.
+        /// 
+        /// `seatNumber` is a 0-based index to select which seat is being queried.  
+        /// For local seats, this
+        /// means that a 3-seat pod has valid seat numbers 0, 1, and 2.  A single-seat
+        /// pod as a valid seat number 0.  When `localSeat` is false, this means that
+        /// any number between 0 and fc.NumberSeats(false) - 1 may be used.
+        /// </summary>
+        #region Crew
+        /// <summary>
+        /// **INCOMPLETE:** Full-vessel crew information (`localSeat` = false)
+        /// is not yet implemented.
+        /// 
+        /// Returns 1 if the crew in `seatNumber` has the 'BadS' trait.  Returns 0 if
+        /// `seatNumber` is invalid or there is no crew in that seat, or the crew does
+        /// not possess the 'BadS' trait.
+        /// </summary>
+        /// <param name="localSeat">When `true`, only seats in the current IVA pod are considered;
+        /// when `false`, all seats in the current vessel are considered.</param>
+        /// <param name="seatNumber">The index of the seat to check.  Indices start at 0.</param>
+        /// <returns>1 or 0 (see summary)</returns>
+        public double CrewBadS(bool localSeat, double seatNumber)
+        {
+            int seatIdx = (int)seatNumber;
+            if (localSeat)
+            {
+                return (seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx]!=null && fc.localCrew[seatIdx].isBadass) ? 1.0 : 0.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// **INCOMPLETE:** Full-vessel crew information (`localSeat` = false)
+        /// is not yet implemented.
+        /// 
+        /// Returns the number of experience points for the selected crew member.
+        /// </summary>
+        /// <param name="localSeat">When `true`, only seats in the current IVA pod are considered;
+        /// when `false`, all seats in the current vessel are considered.</param>
+        /// <param name="seatNumber">The index of the seat to check.  Indices start at 0.</param>
+        /// <returns>A number 0 or higher; 0 if the requested seat is invalid or empty.</returns>
+        public double CrewExperience(bool localSeat, double seatNumber)
+        {
+            int seatIdx = (int)seatNumber;
+            if (localSeat)
+            {
+                if (seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null)
+                {
+                    return fc.localCrew[seatIdx].experience;
+                }
+            }
+            else
+            {
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// **INCOMPLETE:** Full-vessel crew information (`localSeat` = false)
+        /// is not yet implemented.
+        /// 
+        /// Returns the experience level of the selected crew member.
+        /// </summary>
+        /// <param name="localSeat">When `true`, only seats in the current IVA pod are considered;
+        /// when `false`, all seats in the current vessel are considered.</param>
+        /// <param name="seatNumber">The index of the seat to check.  Indices start at 0.</param>
+        /// <returns>A number 0-5; 0 if the requested seat is invalid or empty.</returns>
+        public double CrewLevel(bool localSeat, double seatNumber)
+        {
+            int seatIdx = (int)seatNumber;
+            if (localSeat)
+            {
+                if (seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null)
+                {
+                    return fc.localCrew[seatIdx].experienceLevel;
+                }
+            }
+            else
+            {
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// **INCOMPLETE:** Full-vessel crew information (`localSeat` = false)
+        /// is not yet implemented.
+        /// 
+        /// Returns the name of the crew member seated in `seatNumber`.  If
+        /// the number is invalid, or no Kerbal is in the seat, returns an
+        /// empty string.
+        /// </summary>
+        /// <param name="localSeat">When `true`, only seats in the current IVA pod are considered;
+        /// when `false`, all seats in the current vessel are considered.</param>
+        /// <param name="seatNumber">The index of the seat to check.  Indices start at 0.</param>
+        /// <returns>The crew name, or an empty string if there is no crew in the
+        /// given seat.</returns>
+        public string CrewName(bool localSeat, double seatNumber)
+        {
+            int seatIdx = (int)seatNumber;
+            if (localSeat)
+            {
+                if (seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null)
+                {
+                    return fc.localCrew[seatIdx].name;
+                }
+            }
+            else
+            {
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// **INCOMPLETE:** Full-vessel crew information (`localSeat` = false)
+        /// is not yet implemented.
+        /// 
+        /// Returns the 'PANIC' level of the selected crew member.
+        /// </summary>
+        /// <param name="localSeat">When `true`, only seats in the current IVA pod are considered;
+        /// when `false`, all seats in the current vessel are considered.</param>
+        /// <param name="seatNumber">The index of the seat to check.  Indices start at 0.</param>
+        /// <returns>A number between 0 and 1; 0 if the requested seat is invalid or empty.</returns>
+        public double CrewPanic(bool localSeat, double seatNumber)
+        {
+            int seatIdx = (int)seatNumber;
+            if (localSeat)
+            {
+                if (seatIdx < fc.localCrewMedical.Length && fc.localCrewMedical[seatIdx] != null)
+                {
+                    return fc.localCrewMedical[seatIdx].panicLevel;
+                }
+            }
+            else
+            {
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// **INCOMPLETE:** Full-vessel crew information (`localSeat` = false)
+        /// is not yet implemented.
+        /// 
+        /// Returns the stupidity rating of the selected crew member.
+        /// </summary>
+        /// <param name="localSeat">When `true`, only seats in the current IVA pod are considered;
+        /// when `false`, all seats in the current vessel are considered.</param>
+        /// <param name="seatNumber">The index of the seat to check.  Indices start at 0.</param>
+        /// <returns>A number between 0 and 1; 0 if the requested seat is invalid or empty.</returns>
+        public double CrewStupidity(bool localSeat, double seatNumber)
+        {
+            int seatIdx = (int)seatNumber;
+            if (localSeat)
+            {
+                if (seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null)
+                {
+                    return fc.localCrew[seatIdx].stupidity;
+                }
+            }
+            else
+            {
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// **INCOMPLETE:** Full-vessel crew information (`localSeat` = false)
+        /// is not yet implemented.
+        /// 
+        /// Returns the job title of the selected crew member.
+        /// </summary>
+        /// <param name="localSeat">When `true`, only seats in the current IVA pod are considered;
+        /// when `false`, all seats in the current vessel are considered.</param>
+        /// <param name="seatNumber">The index of the seat to check.  Indices start at 0.</param>
+        /// <returns>The name of the job title, or an empty string if `seatNumber` is invalid or
+        /// unoccupied.</returns>
+        public string CrewTitle(bool localSeat, double seatNumber)
+        {
+            int seatIdx = (int)seatNumber;
+            if (localSeat)
+            {
+                if (seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null)
+                {
+                    return fc.localCrew[seatIdx].experienceTrait.Title;
+                }
+            }
+            else
+            {
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// **INCOMPLETE:** Full-vessel crew information (`localSeat` = false)
+        /// is not yet implemented.
+        /// 
+        /// Returns the 'WHEE' level of the selected crew member.
+        /// </summary>
+        /// <param name="localSeat">When `true`, only seats in the current IVA pod are considered;
+        /// when `false`, all seats in the current vessel are considered.</param>
+        /// <param name="seatNumber">The index of the seat to check.  Indices start at 0.</param>
+        /// <returns>A number between 0 and 1; 0 if the requested seat is invalid or empty.</returns>
+        public double CrewWhee(bool localSeat, double seatNumber)
+        {
+            int seatIdx = (int)seatNumber;
+            if (localSeat)
+            {
+                if (seatIdx < fc.localCrewMedical.Length && fc.localCrewMedical[seatIdx] != null)
+                {
+                    return fc.localCrewMedical[seatIdx].wheeLevel;
+                }
+            }
+            else
+            {
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// **INCOMPLETE:** Full-vessel crew information (`localSeat` = false)
+        /// is not yet implemented.
+        /// 
+        /// Returns the number of seats in the current IVA pod or the overall
+        /// vessel, depending on whether `localSeat` is true or false.
+        /// </summary>
+        /// <param name="localSeat">When `true`, the number of seats in the current IVA pod is returned;
+        /// when `false`, the total number of seats in the current vessel is returned.</param>
+        /// <returns>The selected number of seats (1 or more).</returns>
+        public double NumberSeats(bool localSeat)
+        {
+            if (localSeat)
+            {
+                return fc.localCrew.Length;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// **INCOMPLETE:** Full-vessel crew information (`localSeat` = false)
+        /// is not yet implemented.
+        /// 
+        /// Returns 1 if the `seatNumber` refers to a valid seat index.  0 otherwise.
+        /// </summary>
+        /// <param name="localSeat">When `true`, only seats in the current IVA pod are considered;
+        /// when `false`, all seats in the current vessel are considered.</param>
+        /// <param name="seatNumber">The index of the seat to check.  Indices start at 0.</param>
+        /// <returns>1 if `seatNumber` is a valid seat; 0 otherwise.</returns>
+        public double SeatExists(bool localSeat, double seatNumber)
+        {
+            if (localSeat)
+            {
+                return ((int)seatNumber < fc.localCrew.Length) ? 1.0 : 0.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// **INCOMPLETE:** Full-vessel crew information (`localSeat` = false)
+        /// is not yet implemented.
+        /// 
+        /// Indicates whether a given seat is occupied by a Kerbal.  Returns 1 when `seatNumber` is
+        /// valid and there is a Kerbal in the given seat, and returns 0 in all other instances.
+        /// </summary>
+        /// <param name="localSeat">When `true`, only seats in the current IVA pod are considered;
+        /// when `false`, all seats in the current vessel are considered.</param>
+        /// <param name="seatNumber">The index of the seat to check.  Indices start at 0.</param>
+        /// <returns>1 if `seatNumber` is a valid seat; 0 otherwise.</returns>
+        public double SeatOccupied(bool localSeat, double seatNumber)
+        {
+            int seatIdx = (int)seatNumber;
+            if (localSeat)
+            {
+                return (seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null) ? 1.0 : 0.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        #endregion
+
+        /// <summary>
         /// Docking control and status are in the Docking category.
         /// </summary>
         #region Docking
@@ -3764,7 +4069,7 @@ namespace AvionicsSystems
         /// <returns>A number representing the minutes in the hour in the range [0, 60).</returns>
         public double MinutesOfHour(double time)
         {
-            return (Math.Abs(time)/60.0) % 60.0;
+            return (Math.Abs(time) / 60.0) % 60.0;
         }
 
         /// <summary>

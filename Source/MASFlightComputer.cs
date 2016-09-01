@@ -148,6 +148,10 @@ namespace AvionicsSystems
         /// </summary>
         internal MASVesselComputer vc;
 
+        internal ProtoCrewMember[] localCrew = new ProtoCrewMember[0];
+        internal kerbalExpressionSystem[] localCrewMedical = new kerbalExpressionSystem[0];
+
+
         private Stopwatch stopwatch = new Stopwatch();
         long samplecount = 0;
 
@@ -386,6 +390,27 @@ namespace AvionicsSystems
                         disruptionChance = 0.0f;
                     }
 
+                    // Crew medical seems to get nulled somewhere after the
+                    // crew callback, so it appears I need to repeatedly poll
+                    // it.
+                    int numSeats = localCrew.Length;
+                    if (numSeats > 0)
+                    {
+                        for (int i = 0; i < numSeats; i++)
+                        {
+                            if (localCrew[i] != null)
+                            {
+                                kerbalExpressionSystem kES = localCrewMedical[i];
+                                localCrew[i].KerbalRef.GetComponentCached<kerbalExpressionSystem>(ref kES);
+                                localCrewMedical[i] = kES;
+                            }
+                            else
+                            {
+                                localCrewMedical[i] = null;
+                            }
+                        }
+                    }
+
                     // TODO: Add a heuristic to adjust the loop so not all variables
                     // update every fixed update if the average update time is too high.
                     // Need to decide if it's going to be an absolute time (max # ms/update)
@@ -588,6 +613,8 @@ namespace AvionicsSystems
 
                 }
 
+                UpdateLocalCrew();
+
                 GameEvents.onVesselWasModified.Add(onVesselChanged);
                 GameEvents.onVesselChange.Add(onVesselChanged);
                 GameEvents.onVesselCrewWasModified.Add(onVesselChanged);
@@ -600,7 +627,35 @@ namespace AvionicsSystems
         #region Private Methods
         private void UpdateLocalCrew()
         {
+            // part.internalModel may be null if the craft is loaded but isn't the active/IVA craft
+            if (part.internalModel != null)
+            {
+                int seatCount = part.internalModel.seats.Count;
+                if (seatCount != localCrew.Length)
+                {
+                    // This can happen when an internalModel is loaded when
+                    // it wasn't previously, which appears to occur on docking
+                    // for instance.
+                    localCrew = new ProtoCrewMember[seatCount];
+                    localCrewMedical = new kerbalExpressionSystem[seatCount];
+                }
 
+                // Note that we set localCrewMedical to null because the
+                // crewMedical ends up being going null sometime between
+                // when the crew changed callback fires and when we start
+                // checking variables.  Thus, we still have to poll the
+                // crew medical.
+                for (int i = 0; i < seatCount; i++)
+                {
+                    localCrew[i] = part.internalModel.seats[i].crew;
+                    localCrewMedical[i] = null;
+                }
+            }
+            else if(localCrew.Length > 0)
+            {
+                localCrew = new ProtoCrewMember[0];
+                localCrewMedical = new kerbalExpressionSystem[0];
+            }
         }
         #endregion
 
