@@ -311,6 +311,10 @@ namespace AvionicsSystems
                 invalidated = false;
                 configured = true;
             }
+            // HACK: Text positions are wrong on MASMonitor props if I don't
+            // regenerate the text post-configuration.
+            // I should figure out why at some point.
+            invalidated = true;
         }
 
         /// <summary>
