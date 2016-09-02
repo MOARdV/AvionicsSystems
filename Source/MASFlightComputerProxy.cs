@@ -325,7 +325,7 @@ namespace AvionicsSystems
         /// Returns the distance from the lowest point of the craft to the
         /// surface of the planet.  Ocean is treated as surface for this
         /// purpose.  Precision reporting sets in at 500m (above 500m it
-        /// reports the same as GetTerrainAltitude(false)).  Distance in
+        /// reports the same as AltitudeTerrain(false)).  Distance in
         /// meters.
         /// </summary>
         /// <returns></returns>
@@ -335,7 +335,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the height above the terrain, optionally treating the ocean
+        /// Returns the height above the grond, optionally treating the ocean
         /// surface as ground.  Altitude in meters.
         /// </summary>
         /// <param name="ignoreOcean">When false, returns height above sea level
@@ -3574,6 +3574,23 @@ namespace AvionicsSystems
         public double TargetSpeed()
         {
             return vc.targetSpeed;
+        }
+
+        /// <summary>
+        /// Returns the rate at which the vessel's distance to the ground
+        /// is changing.  This is the vertical speed as measured from vessel
+        /// to surface, as opposed to measuring from a fixed altitude.  When
+        /// over an ocean, sea level is used as the ground height (in other
+        /// words, `fc.AltitudeTerrain(false)`).
+        /// 
+        /// Because terrain may be rough, this value may be noisy.  It is
+        /// smoothed using exponential smoothing, so the rate is not
+        /// instantaneously precise.
+        /// </summary>
+        /// <returns>Rate of change of terrain altitude in m/s.</returns>
+        public double AltitudeTerrainRate()
+        {
+            return vc.altitudeTerrainRate;
         }
 
         /// <summary>

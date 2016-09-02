@@ -454,6 +454,7 @@ namespace AvionicsSystems
 
         internal double altitudeASL;
         internal double altitudeTerrain;
+        internal double altitudeTerrainRate;
         private double altitudeBottom_;
         internal double altitudeBottom
         {
@@ -501,8 +502,14 @@ namespace AvionicsSystems
         internal double periapsis;
         void UpdateAltitudes()
         {
+            double previousAltitudeTerrain = Math.Min(altitudeTerrain, altitudeASL);
             altitudeASL = vessel.altitude;
             altitudeTerrain = vessel.altitude - vessel.terrainAltitude;
+
+            // Apply exponential smoothing - terrain rate is very noisy.
+            const float alpha = 0.0625f;
+            altitudeTerrainRate = altitudeTerrainRate * (1.0 - alpha) + ((Math.Min(altitudeTerrain, altitudeASL) - previousAltitudeTerrain) / TimeWarp.fixedDeltaTime) * alpha;
+
             altitudeBottom_ = -1.0;
             apoapsis = orbit.ApA;
             periapsis = orbit.PeA;
