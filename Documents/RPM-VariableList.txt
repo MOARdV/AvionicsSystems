@@ -231,7 +231,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "STOREDSTRING": -replaced with initialized persistent variables-
 "SUICIDEBURNSTARTSECS":
 "SURFSPEED":
-"SURFSPEEDMACH":
+"SURFSPEEDMACH": fc.MachNumber()
 "TARGETALTITUDE": fc.TargetAltitude()
 "TARGETANGLEDEV": fc.TargetAngle()
 "TARGETANGLEX":
@@ -381,12 +381,12 @@ JSIInternalRPMButtons:
 FAR:
 "FARPM_DYNAMIC_PRESSURE_Q": far.DynamicPressure() or fc.DynamicPressure()
 "FARPM_LIFT_COEFFICIENT_CL": far.CoeffLift()
-"FARPM_DRAG_COEFFICIENT_CD"
+"FARPM_DRAG_COEFFICIENT_CD": far.CoeffDrag()
 "FARPM_REFAREA": far.RefArea()
-"FARPM_MACHNUMBER"
-"FARPM_TERMINALVELOCITY"
-"FARPM_BALLISTIC_COEFFICIENT"
+"FARPM_MACHNUMBER": fc.MachNumber() - Note: FARPM_MACHNUMBER returns the stock computed Mach number.
+"FARPM_TERMINALVELOCITY": far.TerminalVelocity()
+"FARPM_BALLISTIC_COEFFICIENT": far.CoeffBallistic()
 "FARPM_ANGLE_OF_ATTACK": far.AngleOfAttack() or fc.AngleOfAttack()
 "FARPM_SIDESLIP": far.Sideslip() or fc.Sideslip()
-"FARPM_THRUST_SPECIFIC_FUEL_CONSUMPTION"
+"FARPM_THRUST_SPECIFIC_FUEL_CONSUMPTION": far.SpecFuelConsumption()
 "FARPM_STALL_FRACTION": far.StallFraction()

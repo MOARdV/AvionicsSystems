@@ -44,7 +44,9 @@ namespace AvionicsSystems
         internal static readonly bool farFound;
 
         private static readonly Func<Vessel, double> VesselAoA;
+        private static readonly Func<Vessel, double> VesselCoeffBallistic;
         private static readonly Func<Vessel, double> VesselCoeffLift;
+        private static readonly Func<Vessel, double> VesselCoeffDrag;
         private static readonly Action<Vessel> VesselDecreaseFlapDeflection;
         private static readonly Func<Vessel, double> VesselDynPress;
         private static readonly Func<Vessel, int> VesselFlapSetting;
@@ -52,8 +54,10 @@ namespace AvionicsSystems
         private static readonly Func<Vessel, double> VesselRefArea;
         private static readonly Action<Vessel, bool> VesselSetSpoilers;
         private static readonly Func<Vessel, double> VesselSideSlip;
+        private static readonly Func<Vessel, double> VesselSpecFuelConsumption;
         private static readonly Func<Vessel, bool> VesselSpoilerSetting;
         private static readonly Func<Vessel, double> VesselStallFrac;
+        private static readonly Func<Vessel, double> VesselTerminalVelocity;
 
         internal Vessel vessel;
 
@@ -90,6 +94,38 @@ namespace AvionicsSystems
             if (farFound)
             {
                 return VesselAoA(vessel);
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Return the ballistic coefficient for this vessel.
+        /// </summary>
+        /// <returns></returns>
+        public double CoeffBallistic()
+        {
+            if (farFound)
+            {
+                return VesselCoeffBallistic(vessel);
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Return the coefficient of drag for this vessel.
+        /// </summary>
+        /// <returns></returns>
+        public double CoeffDrag()
+        {
+            if (farFound)
+            {
+                return VesselCoeffDrag(vessel);
             }
             else
             {
@@ -228,6 +264,22 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the thrust specific fuel consumption of the vessel.
+        /// </summary>
+        /// <returns></returns>
+        public double SpecFuelConsumption()
+        {
+            if (farFound)
+            {
+                return VesselSpecFuelConsumption(vessel);
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Returns the stall fraction for this vessel.
         /// </summary>
         /// <returns></returns>
@@ -243,6 +295,22 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Returns an estimate of the terminal velocity for the current vessel.
+        /// </summary>
+        /// <returns>Terminal velocity in m/s.</returns>
+        public double TerminalVelocity()
+        {
+            if (farFound)
+            {
+                return VesselTerminalVelocity(vessel);
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
         #region Reflection Configuration
         static MASIFAR()
         {
@@ -250,6 +318,22 @@ namespace AvionicsSystems
             Type farAPI_t = Utility.GetExportedType("FerramAerospaceResearch", "FerramAerospaceResearch.FARAPI");
             if (farAPI_t != null)
             {
+                MethodInfo coeffBallistic_t = farAPI_t.GetMethod("VesselBallisticCoeff", BindingFlags.Static | BindingFlags.Public);
+                if (coeffBallistic_t == null)
+                {
+                    Utility.LogErrorMessage("Failed to find 'VesselBallisticCoeff' in FAR");
+                    return;
+                }
+                VesselCoeffBallistic = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), coeffBallistic_t);
+
+                MethodInfo coeffDrag_t = farAPI_t.GetMethod("VesselDragCoeff", BindingFlags.Static | BindingFlags.Public);
+                if (coeffDrag_t == null)
+                {
+                    Utility.LogErrorMessage("Failed to find 'VesselDragCoeff' in FAR");
+                    return;
+                }
+                VesselCoeffDrag = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), coeffDrag_t);
+
                 MethodInfo coeffLift_t = farAPI_t.GetMethod("VesselLiftCoeff", BindingFlags.Static | BindingFlags.Public);
                 if (coeffLift_t == null)
                 {
@@ -289,6 +373,14 @@ namespace AvionicsSystems
                     return;
                 }
                 VesselStallFrac = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), stallFrac_t);
+
+                MethodInfo termVel_t = farAPI_t.GetMethod("VesselTermVelEst", BindingFlags.Static | BindingFlags.Public);
+                if (termVel_t == null)
+                {
+                    Utility.LogErrorMessage("Failed to find 'VesselTermVelEst' in FAR");
+                    return;
+                }
+                VesselTerminalVelocity = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), termVel_t);
 
                 MethodInfo flapSetting_t = farAPI_t.GetMethod("VesselFlapSetting", BindingFlags.Static | BindingFlags.Public);
                 if (flapSetting_t == null)
@@ -337,6 +429,14 @@ namespace AvionicsSystems
                     return;
                 }
                 VesselSideSlip = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), sideslip_t);
+
+                MethodInfo specFuelConsumption_t = farAPI_t.GetMethod("VesselTSFC", BindingFlags.Static | BindingFlags.Public);
+                if (specFuelConsumption_t == null)
+                {
+                    Utility.LogErrorMessage("Failed to find 'VesselTSFC' in FAR");
+                    return;
+                }
+                VesselSpecFuelConsumption = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), specFuelConsumption_t);
 
                 farFound = true;
             }

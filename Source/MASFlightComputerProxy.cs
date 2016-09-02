@@ -3504,6 +3504,16 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the vessel's current Mach number (multiple of the speed of sound).
+        /// This number only makes sense in an atmosphere.
+        /// </summary>
+        /// <returns>Vessel speed as a factor of the speed of sound.</returns>
+        public double MachNumber()
+        {
+            return vessel.mach;
+        }
+
+        /// <summary>
         /// Return the orbital speed of the vessel in m/s
         /// </summary>
         /// <returns>Orbital speed in m/s.</returns>
