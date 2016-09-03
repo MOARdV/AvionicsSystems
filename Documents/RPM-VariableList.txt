@@ -6,7 +6,7 @@ translation guide for anyone else who needs it.
 
 List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 
-"ACCEL":
+"ACCEL": fc.Acceleration()
 "ACCELFORWARD":
 "ACCELNORMAL":
 "ACCELPROGRADE":
@@ -14,7 +14,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "ACCELRIGHT":
 "ACCELSURFPROGRADE":
 "ACCELTOP":
-"ACTIVEENGINECOUNT":
+"ACTIVEENGINECOUNT": fc.EngineCount()
 "AGMEMO":
 "AGSTATE": fc.GetActionGroup(groupID)
 "ALTITUDE": fc.Altitude()
@@ -26,7 +26,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "AMBIENTTEMPERATUREKELVIN":
 "ANGLEOFATTACK": fc.AngleOfAttack()
 "APOAPSIS": fc.Apoapsis()
-"APPROACHSPEED":
+"APPROACHSPEED": fc.ApproachSpeed()
 "ATMDENSITY": fc.AtmosphericDensity()
 "ATMOSPHEREDEPTH": fc.AtmosphereDepth()
 "ATMPRESSURE": fc.StaticPressureAtm() or fc.StaticPressureKPa()
@@ -45,7 +45,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "DRAG":
 "DRAGACCEL":
 "DYNAMICPRESSURE": fc.DynamicPressure()
-"EASPEED":
+"EASPEED": fc.EquivalentAirspeed()
 "ECCENTRICITY": fc.Eccentricity()
 "EFFECTIVEACCEL":
 "EFFECTIVERAWTHROTTLE":
@@ -66,15 +66,15 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "FUNDS":
 "GEAR": fc.GetGear()
 "GEARALARM": -replaced with Lua scripting-
-"GFORCE":
+"GFORCE": fc.GForce()
 "GROUNDPROXIMITYALARM": -replaced with Lua scripting-
 "HEADING": fc.Heading()
 "HEATSHIELDTEMPERATURE":
 "HEATSHIELDTEMPERATUREFLUX":
 "HEATSHIELDTEMPERATUREKELVIN":
-"HORZVELOCITY":
-"HORZVELOCITYFORWARD":
-"HORZVELOCITYRIGHT":
+"HORZVELOCITY": fc.HorizontalSpeed()
+"HORZVELOCITYFORWARD": fc.SurfaceForwardSpeed()
+"HORZVELOCITYRIGHT": fc.SurfaceLateralSpeed()
 "HOTTESTENGINEMAXTEMP":
 "HOTTESTENGINETEMP":
 "HOTTESTENGINETEMPRATIO":
@@ -84,8 +84,8 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "HOTTESTPARTTEMPRATIO":
 "HOVERPOINT":
 "HOVERPOINTEXISTS":
-"IASPEED":
-"IMPACTALARM":
+"IASPEED": fc.IndicatedAirspeed()
+"IMPACTALARM": -replaced with Lua scripting-
 "INCLINATION": fc.Inclination()
 "ISCLAWREFERENCE": fc.ReferenceTransformType() == 4
 "ISDOCKINGPORTREFERENCE": fc.ReferenceTransformType() == 3
@@ -115,9 +115,9 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "MNODEAPOAPSIS": fc.ManeuverNodeAp()
 "MNODEBURNTIMESECS":
 "MNODEDV": fc.ManeuverNodeDV()
-"MNODEDVNORMAL":
-"MNODEDVPROGRADE":
-"MNODEDVRADIAL":
+"MNODEDVNORMAL": fc.ManeuverNodeDVNormal()
+"MNODEDVPROGRADE": fc.ManeuverNodeDVPrograde()
+"MNODEDVRADIAL": fc.ManeuverNodeDVRadial()
 "MNODEECCENTRICITY": fc.ManeuverNodeEcc()
 "MNODEEXISTS": fc.ManeuverNodeExists()
 "MNODEINCLINATION": fc.ManeuverNodeInc()
@@ -127,8 +127,8 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "MNODETARGETCLOSESTAPPROACHTIME":
 "MNODETIMESECS": fc.ManeuverNodeTime()
 "NAME":
-"NEXTAPSIS":
-"NEXTAPSISTYPE":
+"NEXTAPSIS": -replaced with Lua scripting-
+"NEXTAPSISTYPE": -replaced with Lua scripting-
 "ORBITBODY":
 "ORBITBODYAREA":
 "ORBITBODYATMOSPHERE": fc.HasAtmosphere()
@@ -150,7 +150,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "ORBITBODYSYNCORBITVELOCITY":
 "ORBITMAKESSENSE": fc.VesselFlying()
 "ORBPERIODSECS":
-"ORBTSPEED":
+"ORBTSPEED": fc.OrbitSpeed()
 "PERIAPSIS": fc.Periapsis()
 "PERIOD": fc.Period(period)
 "PERIODRANDOM":
@@ -189,7 +189,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "RADARALTLOG10": fc.PseudoLog10(fc.AltitudeTerrain(false))
 "RADARALTOCEAN": fc.AltitudeTerrain(true)
 "RADARALTOCEANLOG10": fc.PseudoLog10(fc.AltitudeTerrain(true))
-"RADARALTVERTSPEED":
+"RADARALTVERTSPEED": fc.AltitudeTerrainRate()
 "RANDOM": fc.Random()
 "RANDOMNORMAL": fc.RandomNormal(mean, stdDev)
 "RCS": fc.GetRCS()
@@ -209,7 +209,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "SCIENCECOUNT":
 "SCIENCEDATA":
 "SELECT": -replaced with Lua scripting-
-"SELECTEDSPEED":
+"SELECTEDSPEED": fc.SpeedDisplayMode()
 "SEMIMAJORAXIS":
 "SIDESLIP": fc.Sideslip()
 "SITUATION": fc.VesselSituation() returns a number instead of a string
@@ -217,8 +217,8 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "SLOPEANGLE":
 "SPEEDATIMPACT":
 "SPEEDDISPLAYMODE":
-"STAGE":
-"STAGEREADY":
+"STAGE": fc.CurrentStage()
+"STAGEREADY": fc.StageReady()
 "STICKPITCH": fc.StickPitch()
 "STICKPITCHTRIM":
 "STICKRCSX": fc.StickTranslationX()
@@ -230,7 +230,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "STICKYAWTRIM":
 "STOREDSTRING": -replaced with initialized persistent variables-
 "SUICIDEBURNSTARTSECS":
-"SURFSPEED":
+"SURFSPEED": fc.SurfaceSpeed()
 "SURFSPEEDMACH": fc.MachNumber()
 "TARGETALTITUDE": fc.TargetAltitude()
 "TARGETANGLEDEV": fc.TargetAngle()
@@ -328,14 +328,14 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "TIMEWARPCURRENT":
 "TIMEWARPNONPHYSICS":
 "TIMEWARPPHYSICS":
-"TRGTSPEED":
+"TRGTSPEED": fc.TargetSpeed()
 "TUMBLEALARM": -replaced with Lua scripting-
 "TWR": fc.CurrentTWR()
 "TWRMAX": fc.MaxTWR()
 "UTSECS": fc.UT()
-"VERTSPEED":
-"VERTSPEEDLOG10":
-"VERTSPEEDROUNDED":
+"VERTSPEED": fc.VerticalSpeed()
+"VERTSPEEDLOG10": fc.PseudoLog10{fc.VerticalSpeed()}
+"VERTSPEEDROUNDED": -replaced with Lua scripting-
 "VESSELTYPE":
 "YAWNODE": fc.YawManeuver()
 "YAWNORMALMINUS": fc.YawAntiNormal()
