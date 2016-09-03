@@ -534,14 +534,13 @@ namespace AvionicsSystems
                 // wheelState == Disabled, unit is disabled.
                 // wheelState == Active and inputSum == 0, unit is idle
                 // wheelState == Active and inputSum > 0, unit is torquing.
-                Utility.LogMessage(this, "Reac[{0}]: actuatorModeCycle = {1}, inputSum = {2:0.000}, itr = {3}, operational = {4}, stateString = {5}, wheelState = {6}",
-                    i,
-                    moduleReactionWheel[i].actuatorModeCycle,
-                    moduleReactionWheel[i].inputSum,
-                    moduleReactionWheel[i].itr,
-                    moduleReactionWheel[i].operational,
-                    moduleReactionWheel[i].stateString,
-                    moduleReactionWheel[i].wheelState);
+                // inputVector provides current torque demand as ( pitch, roll, yaw )
+                //Utility.LogMessage(this, "Reac[{0}]: inputSum = {1:0.00}, inputVector = {2:0.00}, {3:0.00}. {4:0.00}",
+                //    i,
+                //    moduleReactionWheel[i].inputSum,
+                //    moduleReactionWheel[i].inputVector.x,
+                //    moduleReactionWheel[i].inputVector.y,
+                //    moduleReactionWheel[i].inputVector.z);
             }
              */
         }

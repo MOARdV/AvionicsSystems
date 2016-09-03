@@ -2779,7 +2779,107 @@ namespace AvionicsSystems
         }
         #endregion RCS
 
+        /// <summary>
+        /// Methods for controlling and reporting information from reaction wheels are in this
+        /// category.
+        /// 
+        /// Unlike other categories, the reaction wheels methods can be used to inspect the
+        /// reaction wheels installed in the current pod (when `currentPod` is true), or the
+        /// methods can be used to inspect all reaction wheels *not* in the current pod (when
+        /// `currentPod` is false).  To inspect values for all reaction wheels (current pod
+        /// and rest of vessel), sum the results together (with the exception of ReactionWheelState).
+        /// </summary>
         #region Reaction Wheels
+        /// <summary>
+        /// Returns the current amount of torque being applied for pitch.
+        /// 
+        /// When `absoluteTorque` is true, the value that is returns is a signed
+        /// value that ranges from the -PitchTorque to + PitchTorque.
+        /// 
+        /// When `absoluteTorque` is false, the value is a percentage of maximum,
+        /// ranging from -1 to +1, where -1 indicates maximum torque in the negative
+        /// direction.
+        /// </summary>
+        /// <param name="currentPod">If `true`, the state of the current pod's reaction wheel is reported.
+        /// If `false`, the state of all other reaction wheels are reported.</param>
+        /// <param name="absoluteTorque">If `true`, returns the pitch torque in kN.  If `false`, returns the
+        /// torque as a percentage of maximum.</param>
+        /// <returns>Pitch torque.  Negative values indicate pitch down.  See summary for details.</returns>
+        public double ReactionWheelPitch(bool currentPod, bool absoluteTorque)
+        {
+            Part fcPart = fc.part;
+
+            float netTorque = 0.0f;
+            if (currentPod)
+            {
+                for (int i = vc.moduleReactionWheel.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleReactionWheel[i].part == fcPart)
+                    {
+                        netTorque = vc.moduleReactionWheel[i].inputVector.x / ((absoluteTorque) ? 1.0f : vc.moduleReactionWheel[i].PitchTorque);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = vc.moduleReactionWheel.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleReactionWheel[i].part != fcPart)
+                    {
+                        netTorque += vc.moduleReactionWheel[i].inputVector.x / ((absoluteTorque) ? 1.0f : vc.moduleReactionWheel[i].PitchTorque);
+                    }
+                }
+            }
+
+            return netTorque;
+        }
+
+        /// <summary>
+        /// Returns the current amount of torque being applied for roll.
+        /// 
+        /// When `absoluteTorque` is true, the value that is returns is a signed
+        /// value that ranges from the -PitchRoll to + PitchRoll.
+        /// 
+        /// When `absoluteTorque` is false, the value is a percentage of maximum,
+        /// ranging from -1 to +1, where -1 indicates maximum torque in the negative
+        /// direction.
+        /// </summary>
+        /// <param name="currentPod">If `true`, the state of the current pod's reaction wheel is reported.
+        /// If `false`, the state of all other reaction wheels are reported.</param>
+        /// <param name="absoluteTorque">If `true`, returns the roll torque in kN.  If `false`, returns the
+        /// torque as a percentage of maximum.</param>
+        /// <returns>Roll torque.  Negative values indicate roll anti-clockwise.  See summary for details.</returns>
+        public double ReactionWheelRoll(bool currentPod, bool absoluteTorque)
+        {
+            Part fcPart = fc.part;
+
+            float netTorque = 0.0f;
+            if (currentPod)
+            {
+                for (int i = vc.moduleReactionWheel.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleReactionWheel[i].part == fcPart)
+                    {
+                        netTorque = vc.moduleReactionWheel[i].inputVector.y / ((absoluteTorque) ? 1.0f : vc.moduleReactionWheel[i].RollTorque);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = vc.moduleReactionWheel.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleReactionWheel[i].part != fcPart)
+                    {
+                        netTorque += vc.moduleReactionWheel[i].inputVector.y / ((absoluteTorque) ? 1.0f : vc.moduleReactionWheel[i].RollTorque);
+                    }
+                }
+            }
+
+            return netTorque;
+        }
+
         /// <summary>
         /// Returns the state of any reaction wheels installed in the current IVA pod.
         /// Possible values are:
@@ -2901,6 +3001,51 @@ namespace AvionicsSystems
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns the current amount of torque being applied for yaw.
+        /// 
+        /// When `absoluteTorque` is true, the value that is returns is a signed
+        /// value that ranges from the -YawRoll to +YawRoll.
+        /// 
+        /// When `absoluteTorque` is false, the value is a percentage of maximum,
+        /// ranging from -1 to +1, where -1 indicates maximum torque in the negative
+        /// direction.
+        /// </summary>
+        /// <param name="currentPod">If `true`, the state of the current pod's reaction wheel is reported.
+        /// If `false`, the state of all other reaction wheels are reported.</param>
+        /// <param name="absoluteTorque">If `true`, returns the yaw torque in kN.  If `false`, returns the
+        /// torque as a percentage of maximum.</param>
+        /// <returns>Yaw torque.  Negative values indicate yaw left.  See summary for details.</returns>
+        public double ReactionWheelYaw(bool currentPod, bool absoluteTorque)
+        {
+            Part fcPart = fc.part;
+
+            float netTorque = 0.0f;
+            if (currentPod)
+            {
+                for (int i = vc.moduleReactionWheel.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleReactionWheel[i].part == fcPart)
+                    {
+                        netTorque = vc.moduleReactionWheel[i].inputVector.z / ((absoluteTorque) ? 1.0f : vc.moduleReactionWheel[i].YawTorque);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = vc.moduleReactionWheel.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleReactionWheel[i].part != fcPart)
+                    {
+                        netTorque += vc.moduleReactionWheel[i].inputVector.z / ((absoluteTorque) ? 1.0f : vc.moduleReactionWheel[i].YawTorque);
+                    }
+                }
+            }
+
+            return netTorque;
         }
         #endregion
 
