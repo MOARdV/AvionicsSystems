@@ -2700,9 +2700,23 @@ namespace AvionicsSystems
         /// Returns 1 if any RCS ports are disabled on the vessel.
         /// </summary>
         /// <returns>1 if any ports are disabled; 0 if all are enabled or there are no RCS ports.</returns>
-        public double AnyRcsDisabled()
+        public double AnyRCSDisabled()
         {
             return (vc.anyRcsDisabled) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Enables any RCS ports that have been disabled.
+        /// </summary>
+        public void EnableAllRCS()
+        {
+            for (int i = vc.moduleRcs.Length - 1; i >= 0; --i)
+            {
+                if (!vc.moduleRcs[i].rcsEnabled)
+                {
+                    vc.moduleRcs[i].Enable();
+                }
+            }
         }
 
         /// <summary>
@@ -2721,6 +2735,16 @@ namespace AvionicsSystems
         public double GetRCS()
         {
             return (vessel.ActionGroups[KSPActionGroup.RCS]) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the thrust-weighted average of the RCS thrust limit for
+        /// all enabled RCS thrusters.
+        /// </summary>
+        /// <returns>A weighted average between 0 (no thrust) and 1 (full rated thrust).</returns>
+        public double GetRCSThrustLimit()
+        {
+            return vc.rcsWeightedThrustLimit;
         }
 
         /// <summary>

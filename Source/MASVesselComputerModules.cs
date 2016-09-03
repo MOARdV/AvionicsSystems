@@ -497,16 +497,28 @@ namespace AvionicsSystems
         private List<ModuleRCS> rcsList = new List<ModuleRCS>();
         internal ModuleRCS[] moduleRcs = new ModuleRCS[0];
         internal bool anyRcsDisabled = false;
+        internal float rcsWeightedThrustLimit;
         private void UpdateRcs()
         {
             anyRcsDisabled = false;
+            float netThrust = 0.0f;
+            rcsWeightedThrustLimit = 0.0f;
             for (int i = moduleRcs.Length - 1; i >= 0; --i)
             {
                 if (moduleRcs[i].rcsEnabled == false)
                 {
                     anyRcsDisabled = true;
-                    break;
                 }
+                else
+                {
+                    netThrust += moduleRcs[i].thrusterPower;
+                    rcsWeightedThrustLimit += moduleRcs[i].thrusterPower * moduleRcs[i].thrustPercentage;
+                }
+            }
+
+            if (netThrust > 0.0f)
+            {
+                rcsWeightedThrustLimit = rcsWeightedThrustLimit / (netThrust * 100.0f);
             }
         }
         #endregion
