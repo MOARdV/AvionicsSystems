@@ -130,17 +130,17 @@ namespace AvionicsSystems
                             }
                         }
                     }
-                    
-                    if(shipFlightNumber > 0)
+
+                    if (shipFlightNumber > 0)
                     {
                         List<Part> vesselParts = vessel.Parts;
-                        for (int i=vesselParts.Count-1; i>=0; --i)
+                        for (int i = vesselParts.Count - 1; i >= 0; --i)
                         {
                             Part p = vesselParts[i];
                             if (p.launchID == shipFlightNumber)
                             {
                                 dockingNode = p.FindModuleImplementing<ModuleDockingNode>();
-                                if(dockingNode != null)
+                                if (dockingNode != null)
                                 {
                                     break;
                                 }
@@ -366,7 +366,7 @@ namespace AvionicsSystems
         internal List<float> fuelCellOutputList = new List<float>();
         internal float[] fuelCellOutput = new float[0];
         private List<ModuleGenerator> generatorList = new List<ModuleGenerator>();
-        internal ModuleGenerator[] moduleGenerator= new ModuleGenerator[0];
+        internal ModuleGenerator[] moduleGenerator = new ModuleGenerator[0];
         internal List<float> generatorOutputList = new List<float>();
         internal float[] generatorOutput = new float[0];
         private List<ModuleDeployableSolarPanel> solarPanelList = new List<ModuleDeployableSolarPanel>();
@@ -396,7 +396,7 @@ namespace AvionicsSystems
 
             solarPanelPosition = -1;
 
-            for (int i = moduleGenerator.Length-1; i >=0; --i)
+            for (int i = moduleGenerator.Length - 1; i >= 0; --i)
             {
                 generatorActive |= (moduleGenerator[i].generatorIsActive && !moduleGenerator[i].isAlwaysActive);
 
@@ -486,9 +486,27 @@ namespace AvionicsSystems
         private void UpdateRadars()
         {
             radarActive = false;
-            for(int i= moduleRadar.Length-1; i>=0;--i)
+            for (int i = moduleRadar.Length - 1; i >= 0; --i)
             {
                 radarActive |= moduleRadar[i].radarEnabled;
+            }
+        }
+        #endregion
+
+        #region RCS
+        private List<ModuleRCS> rcsList = new List<ModuleRCS>();
+        internal ModuleRCS[] moduleRcs = new ModuleRCS[0];
+        internal bool anyRcsDisabled = false;
+        private void UpdateRcs()
+        {
+            anyRcsDisabled = false;
+            for (int i = moduleRcs.Length - 1; i >= 0; --i)
+            {
+                if (moduleRcs[i].rcsEnabled == false)
+                {
+                    anyRcsDisabled = true;
+                    break;
+                }
             }
         }
         #endregion
@@ -599,9 +617,13 @@ namespace AvionicsSystems
                                 }
                             }
                         }
-                        else if(module is MASRadar)
+                        else if (module is MASRadar)
                         {
                             radarList.Add(module as MASRadar);
+                        }
+                        else if (module is ModuleRCS)
+                        {
+                            rcsList.Add(module as ModuleRCS);
                         }
                         else if (MASIRealChute.realChuteFound && module.GetType() == MASIRealChute.rcAPI_t)
                         {
@@ -656,6 +678,7 @@ namespace AvionicsSystems
             TransferModules<ModuleResourceConverter>(fuelCellList, ref moduleFuelCell);
             TransferModules<float>(fuelCellOutputList, ref fuelCellOutput);
             TransferModules<MASRadar>(radarList, ref moduleRadar);
+            TransferModules<ModuleRCS>(rcsList, ref moduleRcs);
         }
 
         /// <summary>
@@ -700,6 +723,7 @@ namespace AvionicsSystems
             UpdateGimbals();
             UpdatePower();
             UpdateRadars();
+            UpdateRcs();
 
             if (requestReset)
             {

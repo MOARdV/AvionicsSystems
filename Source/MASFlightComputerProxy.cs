@@ -580,7 +580,7 @@ namespace AvionicsSystems
             int seatIdx = (int)seatNumber;
             if (localSeat)
             {
-                return (seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx]!=null && fc.localCrew[seatIdx].isBadass) ? 1.0 : 0.0;
+                return (seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null && fc.localCrew[seatIdx].isBadass) ? 1.0 : 0.0;
             }
             else
             {
@@ -1296,6 +1296,54 @@ namespace AvionicsSystems
         public double ManeuverNodeDV()
         {
             return vc.maneuverNodeDeltaV;
+        }
+
+        /// <summary>
+        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
+        /// valid numbers at the present.
+        /// 
+        /// The normal component of the next scheduled maneuver.
+        /// </summary>
+        /// <returns>ΔV in m/s; negative values indicate anti-normal.</returns>
+        public double ManeuverNodeDVNormal()
+        {
+            if (vc.nodeOrbit != null)
+            {
+
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
+        /// valid numbers at the present.
+        /// 
+        /// The prograde component of the next scheduled maneuver.
+        /// </summary>
+        /// <returns>ΔV in m/s; negative values indicate retrograde.</returns>
+        public double ManeuverNodeDVPrograde()
+        {
+            if (vc.nodeOrbit != null)
+            {
+
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
+        /// valid numbers at the present.
+        /// 
+        /// The radial component of the next scheduled maneuver.
+        /// </summary>
+        /// <returns>ΔV in m/s; negative values indicate anti-radial.</returns>
+        public double ManeuverNodeDVRadial()
+        {
+            if (vc.nodeOrbit != null)
+            {
+
+            }
+            return 0.0;
         }
 
         /// <summary>
@@ -2649,6 +2697,15 @@ namespace AvionicsSystems
         /// </summary>
         #region RCS
         /// <summary>
+        /// Returns 1 if any RCS ports are disabled on the vessel.
+        /// </summary>
+        /// <returns>1 if any ports are disabled; 0 if all are enabled or there are no RCS ports.</returns>
+        public double AnyRcsDisabled()
+        {
+            return (vc.anyRcsDisabled) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Returns 1 if the RCS action group has any actions attached to it.
         /// </summary>
         /// <returns>1 if any actions are assigned to the RCS group.</returns>
@@ -2673,6 +2730,20 @@ namespace AvionicsSystems
         public void SetRCS(bool active)
         {
             vessel.ActionGroups.SetGroup(KSPActionGroup.RCS, active);
+        }
+
+        /// <summary>
+        /// Set the maximum thrust limit of the RCS thrusters.
+        /// </summary>
+        /// <param name="limit">A value between 0 (no thrust) and 1 (full thrust).</param>
+        public void SetRCSThrustLimit(double limit)
+        {
+            float flimit = Math.Max(0.0f, Math.Min(1.0f, (float)limit)) * 100.0f;
+
+            for (int i = vc.moduleRcs.Length - 1; i >= 0; --i)
+            {
+                vc.moduleRcs[i].thrustPercentage = flimit;
+            }
         }
 
         /// <summary>
@@ -3422,13 +3493,12 @@ namespace AvionicsSystems
         #region Speed, Velocity, and Acceleration
 
         /// <summary>
-        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
-        /// valid numbers at the present.
+        /// Returns the current acceleration of the vessel from engines, in m/s^2.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Acceleration in m/s^2.</returns>
         public double Acceleration()
         {
-            return 0.0;
+            return vc.currentThrust / vessel.totalMass;
         }
 
         /// <summary>
@@ -3562,7 +3632,7 @@ namespace AvionicsSystems
         /// m/s.  This value could become zero at extreme roll orientations.
         /// Positive values are to the right, negative to the left.
         /// </summary>
-        /// <returns>The vessel's left/right velocity in m/s.</returns>
+        /// <returns>The vessel's left/right velocity in m/s.  Right is positive; left is negative.</returns>
         public double SurfaceLateralSpeed()
         {
             return Vector3.Dot(vc.surfacePrograde, vc.surfaceRight);
