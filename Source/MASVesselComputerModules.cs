@@ -523,6 +523,30 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Reaction Wheels
+        private List<ModuleReactionWheel> reactionWheelList = new List<ModuleReactionWheel>();
+        internal ModuleReactionWheel[] moduleReactionWheel = new ModuleReactionWheel[0];
+        private void UpdateReactionWheels()
+        {
+            /*
+            for(int i=moduleReactionWheel.Length-1; i>=0; --i)
+            {
+                // wheelState == Disabled, unit is disabled.
+                // wheelState == Active and inputSum == 0, unit is idle
+                // wheelState == Active and inputSum > 0, unit is torquing.
+                Utility.LogMessage(this, "Reac[{0}]: actuatorModeCycle = {1}, inputSum = {2:0.000}, itr = {3}, operational = {4}, stateString = {5}, wheelState = {6}",
+                    i,
+                    moduleReactionWheel[i].actuatorModeCycle,
+                    moduleReactionWheel[i].inputSum,
+                    moduleReactionWheel[i].itr,
+                    moduleReactionWheel[i].operational,
+                    moduleReactionWheel[i].stateString,
+                    moduleReactionWheel[i].wheelState);
+            }
+             */
+        }
+        #endregion
+
         #region Modules Management
         /// <summary>
         /// Mark modules as potentially invalid to force reiterating over the
@@ -637,6 +661,10 @@ namespace AvionicsSystems
                         {
                             rcsList.Add(module as ModuleRCS);
                         }
+                        else if (module is ModuleReactionWheel)
+                        {
+                            reactionWheelList.Add(module as ModuleReactionWheel);
+                        }
                         else if (MASIRealChute.realChuteFound && module.GetType() == MASIRealChute.rcAPI_t)
                         {
                             realchuteList.Add(module);
@@ -691,6 +719,7 @@ namespace AvionicsSystems
             TransferModules<float>(fuelCellOutputList, ref fuelCellOutput);
             TransferModules<MASRadar>(radarList, ref moduleRadar);
             TransferModules<ModuleRCS>(rcsList, ref moduleRcs);
+            TransferModules<ModuleReactionWheel>(reactionWheelList, ref moduleReactionWheel);
         }
 
         /// <summary>
@@ -736,6 +765,7 @@ namespace AvionicsSystems
             UpdatePower();
             UpdateRadars();
             UpdateRcs();
+            UpdateReactionWheels();
 
             if (requestReset)
             {

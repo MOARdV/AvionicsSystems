@@ -2779,6 +2779,131 @@ namespace AvionicsSystems
         }
         #endregion RCS
 
+        #region Reaction Wheels
+        /// <summary>
+        /// Returns the state of any reaction wheels installed in the current IVA pod.
+        /// Possible values are:
+        /// 
+        /// * **-1**: Reaction wheel damaged, disabled, or not installed.
+        /// * **0**: Reaction wheel enabled and idle.
+        /// * **+1**: Reaction wheel enabled and applying torque.
+        /// 
+        /// When `currentPod` is `false`, the value indicates whether *any* wheel is
+        /// applying torque.  If none are active, the value indicates whether *any*
+        /// wheel is idle.
+        /// </summary>
+        /// <param name="currentPod">If `true`, the state of the current pod's reaction wheel is reported.
+        /// If `false`, the state of all other reaction wheels are reported.</param>
+        /// <returns>-1, 0, or 1 as described in the summary.</returns>
+        public double ReactionWheelState(bool currentPod)
+        {
+            Part fcPart = fc.part;
+            if (currentPod)
+            {
+                ModuleReactionWheel rWheel = null;
+                for (int i = vc.moduleReactionWheel.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleReactionWheel[i].part == fcPart)
+                    {
+                        rWheel = vc.moduleReactionWheel[i];
+                        break;
+                    }
+                }
+
+                if (rWheel != null)
+                {
+                    if (rWheel.wheelState == ModuleReactionWheel.WheelState.Active)
+                    {
+                        if (rWheel.inputSum > 0.001f)
+                        {
+                            return 1.0;
+                        }
+                        else
+                        {
+                            return 0.0;
+                        }
+                    }
+                    else
+                    {
+                        return -1.0;
+                    }
+                }
+                else
+                {
+                    return -1.0;
+                }
+            }
+            else
+            {
+                bool anyEnabled = false;
+                bool anyActive = false;
+
+                for (int i = vc.moduleReactionWheel.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleReactionWheel[i].part != fcPart)
+                    {
+                        if (vc.moduleReactionWheel[i].wheelState == ModuleReactionWheel.WheelState.Active)
+                        {
+                            anyEnabled = true;
+
+                            if (vc.moduleReactionWheel[i].inputSum > 0.001f)
+                            {
+                                // Since anyActive takes priority, we exit the loop early here.
+                                anyActive = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (anyActive)
+                {
+                    return 1.0;
+                }
+                else if (anyEnabled)
+                {
+                    return 0.0;
+                }
+                else
+                {
+                    return -1.0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Toggle the reaction wheels, either on the current pod or all wheels
+        /// outside of the current pod.
+        /// </summary>
+        /// <param name="currentPod">If `true`, the current pod's reaction wheel is toggled.
+        /// If `false`, all other reaction wheels are toggled.</param>
+        public void ToggleReactionWheel(bool currentPod)
+        {
+            Part fcPart = fc.part;
+            if (currentPod)
+            {
+                for (int i = vc.moduleReactionWheel.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleReactionWheel[i].part == fcPart)
+                    {
+                        vc.moduleReactionWheel[i].OnToggle();
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = vc.moduleReactionWheel.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleReactionWheel[i].part != fcPart)
+                    {
+                        vc.moduleReactionWheel[i].OnToggle();
+                    }
+                }
+            }
+        }
+        #endregion
+
         /// <summary>
         /// The resource methods report the availability of various resources aboard the
         /// vessel.  They are grouped into three types.
