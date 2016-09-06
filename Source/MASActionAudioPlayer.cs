@@ -34,9 +34,14 @@ namespace AvionicsSystems
     {
         private string name = "(anonymous)";
         private string variableName = string.Empty;
+        private string pitchVariableName = string.Empty;
+        private string volumeVariableName = string.Empty;
+        private float pitch = 1.0f;
+        private float volume = 1.0f;
         private MASFlightComputer.Variable range1, range2;
         private AudioSource audioSource;
         private readonly bool rangeMode = false;
+        private readonly bool mustPlayOnce = false;
         private bool currentState = false;
         private readonly PlaybackMode playbackTrigger = PlaybackMode.ON;
 
@@ -48,23 +53,32 @@ namespace AvionicsSystems
             LOOP
         };
 
-        internal MASActionAudioPlayer(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        internal MASActionAudioPlayer(ConfigNode config, InternalProp internalProp, MASFlightComputer comp)
         {
             if (!config.TryGetValue("name", ref name))
             {
                 name = "(anonymous)";
             }
 
-            float volume = 1.0f;
-            if (config.TryGetValue("volume", ref volume))
+            if (!config.TryGetValue("volume", ref volumeVariableName))
             {
-                volume = Mathf.Clamp01(volume);
+                volumeVariableName = "1";
+            }
+
+            if (!config.TryGetValue("pitch", ref pitchVariableName))
+            {
+                volumeVariableName = "1";
             }
 
             string sound = string.Empty;
             if (!config.TryGetValue("sound", ref sound) || string.IsNullOrEmpty(sound))
             {
                 throw new ArgumentException("Missing or invalid parameter 'sound' in AUDIO_PLAYER " + name);
+            }
+
+            if (!config.TryGetValue("mustPlayOnce", ref mustPlayOnce))
+            {
+                mustPlayOnce = false;
             }
 
             //Try Load audio
@@ -97,6 +111,10 @@ namespace AvionicsSystems
                 }
                 else if (playbackTrigger == PlaybackMode.LOOP.ToString())
                 {
+                    if (mustPlayOnce)
+                    {
+                        throw new ArgumentException("Cannot use 'mustPlayOnce' with looping audio in AUDIO_PLAYER" + name);
+                    }
                     this.playbackTrigger = PlaybackMode.LOOP;
                 }
                 else
@@ -105,10 +123,10 @@ namespace AvionicsSystems
                 }
             }
 
-            audioSource = prop.gameObject.AddComponent<AudioSource>();
+            audioSource = internalProp.gameObject.AddComponent<AudioSource>();
             audioSource.clip = clip;
             audioSource.Stop();
-            audioSource.volume = GameSettings.SHIP_VOLUME * volume;
+            audioSource.volume = GameSettings.SHIP_VOLUME;
             audioSource.rolloffMode = AudioRolloffMode.Logarithmic;
             audioSource.maxDistance = 8.0f;
             audioSource.minDistance = 2.0f;
@@ -132,8 +150,8 @@ namespace AvionicsSystems
                 {
                     throw new ArgumentException("Incorrect number of values in 'range' in AUDIO_PLAYER " + name);
                 }
-                range1 = comp.GetVariable(ranges[0], prop);
-                range2 = comp.GetVariable(ranges[1], prop);
+                range1 = comp.GetVariable(ranges[0], internalProp);
+                range2 = comp.GetVariable(ranges[1], internalProp);
                 rangeMode = true;
             }
             else
@@ -145,7 +163,9 @@ namespace AvionicsSystems
 
             GameEvents.OnCameraChange.Add(OnCameraChange);
 
-            comp.RegisterNumericVariable(variableName, prop, VariableCallback);
+            comp.RegisterNumericVariable(pitchVariableName, internalProp, PitchCallback);
+            comp.RegisterNumericVariable(volumeVariableName, internalProp, VolumeCallback);
+            comp.RegisterNumericVariable(variableName, internalProp, VariableCallback);
         }
 
         /// <summary>
@@ -155,6 +175,26 @@ namespace AvionicsSystems
         private void OnCameraChange(CameraManager.CameraMode newCameraMode)
         {
             audioSource.mute = (newCameraMode != CameraManager.CameraMode.IVA);
+        }
+
+        /// <summary>
+        /// Callback to change audio playback volume.
+        /// </summary>
+        /// <param name="newVolume"></param>
+        private void VolumeCallback(double newVolume)
+        {
+            volume = Mathf.Clamp01((float)newVolume);
+            audioSource.volume = GameSettings.SHIP_VOLUME * volume;
+        }
+
+        /// <summary>
+        /// Callback to change audio playback pitch.
+        /// </summary>
+        /// <param name="newPitch"></param>
+        private void PitchCallback(double newPitch)
+        {
+            pitch = (float)newPitch;
+            audioSource.pitch = pitch;
         }
 
         /// <summary>
@@ -182,12 +222,18 @@ namespace AvionicsSystems
                     }
                     else
                     {
-                        audioSource.Stop();
+                        if (!mustPlayOnce)
+                        {
+                            audioSource.Stop();
+                        }
                     }
                 }
                 else if (playbackTrigger == PlaybackMode.ON || playbackTrigger == PlaybackMode.LOOP)
                 {
-                    audioSource.Stop();
+                    if (!mustPlayOnce)
+                    {
+                        audioSource.Stop();
+                    }
                 }
                 else
                 {
@@ -211,7 +257,9 @@ namespace AvionicsSystems
         public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
             GameEvents.OnCameraChange.Remove(OnCameraChange);
+            comp.UnregisterNumericVariable(pitchVariableName, internalProp, PitchCallback);
             comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
+            comp.UnregisterNumericVariable(volumeVariableName, internalProp, VolumeCallback);
             audioSource.Stop();
             audioSource.clip = null;
             audioSource = null;

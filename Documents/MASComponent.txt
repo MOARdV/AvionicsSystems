@@ -81,16 +81,21 @@ AUDIO_PLAYER
 	trigger = BOTH
 	variable = fc.GetPersistent("Backlight")
 	//range = 0.5, 1.5
+	//mustPlayOnce = false
+	//pitch = fc.AtmosphereDepth()
 }
 
 'name': Optional.  Default '(anonymous)'.  A name for the action.
 'sound': Required.  The URI to the audio clip to play.
-'volume': Optional.  Default 1.0.  The volume at which the audio should be played.
+'volume': Optional.  Default 1.0.  The volume at which the audio should be played (a range between 0 and 1).  May use either a variable or a constant number.
 'trigger': Required.  The conditions under which the audio is played, as explained
 in the text above.
 'variable': Required.  The name of the variable script to evaluate.
 'range': Optional.  When present, the Audio Player operates in Threshold Mode.  When absent, the player operates
 in Boolean Mode.
+'mustPlayOnce': Optional.  When true, the audio clip will be played completely, even if the controlling variable goes
+out of range.  Not valid with trigger = LOOP.
+'pitch': Optional.  Default 1.0.  The pitch for the audio playback.  May be a variable or a constant number.
 
 
 COLLIDER_EVENT
