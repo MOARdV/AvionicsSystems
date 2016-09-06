@@ -669,7 +669,7 @@ namespace AvionicsSystems
             if (vc.activeTarget != null)
             {
                 Orbit targetOrbit = vc.activeTarget.GetOrbit();
-                if(targetOrbit != null)
+                if (targetOrbit != null)
                 {
                     try
                     {
@@ -984,7 +984,7 @@ namespace AvionicsSystems
                         }
 
                         landingAutopilot = GetComputerModule(masterMechJeb, "MechJebModuleLandingAutopilot");
-                        if (ascentGuidance == null)
+                        if (landingAutopilot == null)
                         {
                             throw new Exception("MASIMechJeb: Failed to get Landing Autopilot MJ module");
                         }
@@ -1304,7 +1304,7 @@ namespace AvionicsSystems
                     throw new NotImplementedException("deltaVAndTimeForHohmannTransfer");
                 }
                 DeltaVAndTimeForHohmannTransfer = DynamicMethodFactory.CreateFunc(deltaVAndTimeForHohmannTransfer);
-                
+
                 MethodInfo deltaVToMatchVelocities = mjOrbitalManeuverCalculator_t.GetMethod("DeltaVToMatchVelocities", BindingFlags.Static | BindingFlags.Public);
                 if (deltaVToMatchVelocities == null)
                 {
