@@ -34,7 +34,7 @@ namespace AvionicsSystems
     {
         private string name = "(anonymous)";
         private string variableName;
-        private Material localMaterial = null;
+        private Material[] localMaterial = new Material[0];
         private readonly int colorIndex;
         private MASFlightComputer.Variable range1, range2;
         private readonly bool blend;
@@ -59,14 +59,27 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Missing 'transform' in COLOR_SHIFT " + name);
             }
+            string[] transforms = transform.Split(',');
 
             string colorName = "_EmissiveColor";
             config.TryGetValue("colorName", ref colorName);
             colorIndex = Shader.PropertyToID(colorName.Trim());
 
-            Transform t = prop.FindModelTransform(transform);
-            Renderer r = t.GetComponent<Renderer>();
-            localMaterial = r.material;
+            localMaterial = new Material[transforms.Length];
+            for (int i = transforms.Length - 1; i >= 0; --i)
+            {
+                try
+                {
+                    Transform t = prop.FindModelTransform(transforms[i].Trim());
+                    Renderer r = t.GetComponent<Renderer>();
+                    localMaterial[i] = r.material;
+                }
+                catch (Exception e)
+                {
+                    Utility.LogErrorMessage(this, "Can't find transform {0} in COLOR_SHIFT {1}", transforms[i].Trim(), name);
+                    throw e;
+                }
+            }
 
             // activeColor, passiveColor
             string passiveColorStr = string.Empty;
@@ -134,7 +147,10 @@ namespace AvionicsSystems
             }
 
             // Make everything a known value before the callback fires.
-            localMaterial.SetColor(colorIndex, passiveColor);
+            for (int i = localMaterial.Length - 1; i >= 0; --i)
+            {
+                localMaterial[i].SetColor(colorIndex, passiveColor);
+            }
 
             if (string.IsNullOrEmpty(variableName))
             {
@@ -160,7 +176,10 @@ namespace AvionicsSystems
                 {
                     currentBlend = newBlend;
                     Color32 newColor = Color32.Lerp(passiveColor, activeColor, currentBlend);
-                    localMaterial.SetColor(colorIndex, newColor);
+                    for (int i = localMaterial.Length - 1; i >= 0; --i)
+                    {
+                        localMaterial[i].SetColor(colorIndex, newColor);
+                    }
                 }
             }
             else
@@ -175,7 +194,10 @@ namespace AvionicsSystems
                 if (newState != currentState)
                 {
                     currentState = newState;
-                    localMaterial.SetColor(colorIndex, (currentState && flashOn) ? activeColor : passiveColor);
+                    for (int i = localMaterial.Length - 1; i >= 0; --i)
+                    {
+                        localMaterial[i].SetColor(colorIndex, (currentState && flashOn) ? activeColor : passiveColor);
+                    }
                 }
             }
         }
@@ -189,7 +211,10 @@ namespace AvionicsSystems
             flashOn = newFlashState;
             if (currentState)
             {
-                localMaterial.SetColor(colorIndex, (flashOn) ? activeColor : passiveColor);
+                for (int i = localMaterial.Length - 1; i >= 0; --i)
+                {
+                    localMaterial[i].SetColor(colorIndex, (flashOn) ? activeColor : passiveColor);
+                }
             }
         }
 
@@ -216,7 +241,10 @@ namespace AvionicsSystems
                     comp.UnregisterFlashCallback(flashRate, FlashToggle);
                 }
             }
-            UnityEngine.Object.Destroy(localMaterial);
+            for (int i = localMaterial.Length - 1; i >= 0; --i)
+            {
+                UnityEngine.Object.Destroy(localMaterial[i]);
+            }
         }
     }
 }

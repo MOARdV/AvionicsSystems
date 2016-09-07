@@ -135,8 +135,8 @@ values of the range, and the resulting value is used to blend between the two co
 
 COLOR_SHIFT
 {
-    name = Glow Border
-    transform = GlowBorder
+    name = Glow Border and Switch
+    transform = GlowBorder, SwitchMarker
     passiveColor = 0,0,0,255
     activeColor = COLOR_MOARdV_BacklightColor
     variable = fc.GetRCS()
@@ -147,7 +147,7 @@ COLOR_SHIFT
 }
 
 'name': Optional.  Default '(anonymous)'.  A name for the action.
-'transform': Required.  The name of the transform whose color is going to be shifted.
+'transform': Required.  The name of a transform or a comma-separated list of transforms whose color will be shifted.
 'passiveColor': Required.  The RGBA quadruplet or RasterPropMonitor-compatible Named Color
 to use when the variable is out of bounds.
 'activeColor': Required.  The RGBA quadruplet or RasterPropMonitor-compatible Named Color
