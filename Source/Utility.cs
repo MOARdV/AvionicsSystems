@@ -296,6 +296,10 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Find the ConfigNode corresponding to a particular module.
+        /// 
+        /// BUG: This code breaks when empty / bogus modules are inserted,
+        /// since moduleID reflects the index of the loaded modules, not
+        /// the config's modules.
         /// </summary>
         /// <param name="propName">Name of the prop</param>
         /// <param name="moduleID">ID (index) of the node</param>
