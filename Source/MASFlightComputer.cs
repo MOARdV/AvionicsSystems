@@ -423,7 +423,15 @@ namespace AvionicsSystems
                     int count = mutableVariables.Length;
                     for (int i = 0; i < count; ++i)
                     {
-                        mutableVariables[i].Evaluate(script);
+                        try
+                        {
+                            mutableVariables[i].Evaluate(script);
+                        }
+                        catch (Exception e)
+                        {
+                            Utility.LogErrorMessage(this, "FixedUpdate exception on variable {0}", mutableVariables[i].name);
+                            throw e;
+                        }
                     }
                     stopwatch.Stop();
                     ++samplecount;
