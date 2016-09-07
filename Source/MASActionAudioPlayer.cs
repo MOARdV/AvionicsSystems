@@ -67,7 +67,7 @@ namespace AvionicsSystems
 
             if (!config.TryGetValue("pitch", ref pitchVariableName))
             {
-                volumeVariableName = "1";
+                pitchVariableName = "1";
             }
 
             string sound = string.Empty;
