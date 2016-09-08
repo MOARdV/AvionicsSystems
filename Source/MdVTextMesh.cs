@@ -83,6 +83,10 @@ namespace AvionicsSystems
             {
                 return meshRenderer.material;
             }
+            set
+            {
+                meshRenderer.material = value;
+            }
         }
 
         private MASFlightComputer comp;
@@ -155,7 +159,7 @@ namespace AvionicsSystems
             this.font = font;
             this.fontSize = fontSize;
             boundedText = false;
-            meshRenderer.material.mainTexture = font.material.mainTexture;
+            meshRenderer.material.mainTexture = MASLoader.GetFontTexture(font);
             invalidated = true;
         }
 
@@ -171,7 +175,7 @@ namespace AvionicsSystems
             this.fixedAdvance = (int)fontDimensions.x;
             this.fixedLineSpacing = (int)fontDimensions.y;
             boundedText = true;
-            meshRenderer.material.mainTexture = font.material.mainTexture;
+            meshRenderer.material.mainTexture = MASLoader.GetFontTexture(font);
             invalidated = true;
         }
 
@@ -358,7 +362,7 @@ namespace AvionicsSystems
         /// </summary>
         public void Awake()
         {
-            Font.textureRebuilt += FontRebuiltCallback;
+            MASLoader.textureRebuilt += FontRebuiltCallback;
             CreateComponents();
         }
 
@@ -367,7 +371,7 @@ namespace AvionicsSystems
         /// </summary>
         public void OnDestroy()
         {
-            Font.textureRebuilt -= FontRebuiltCallback;
+            MASLoader.textureRebuilt -= FontRebuiltCallback;
 
             for (int i = textRow.Length - 1; i >= 0; --i)
             {
@@ -470,12 +474,13 @@ namespace AvionicsSystems
         /// When that happens, we have to regenerate our text.
         /// </summary>
         /// <param name="whichFont"></param>
-        private void FontRebuiltCallback(Font whichFont)
+        /// <param name="newTexture"></param>
+        private void FontRebuiltCallback(Font whichFont, Texture2D newTexture)
         {
             if (whichFont == font)
             {
                 invalidated = true;
-                meshRenderer.material.mainTexture = font.material.mainTexture;
+                meshRenderer.material.mainTexture = newTexture;
             }
         }
 

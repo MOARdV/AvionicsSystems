@@ -139,10 +139,10 @@ namespace AvionicsSystems
                 font = MASLoader.GetFont(selectedFonts[0].Trim());
             }
 
+            // We want to use a different shader for monitor displays.
+            textObj.material = new Material(MASLoader.shaders["MOARdV/TextMonitor"]);
             textObj.SetFont(font, fontSize);
             textObj.SetColor(textColor);
-            // We want to use a different shader for monitor displays.
-            textObj.material.shader = MASLoader.shaders["MOARdV/TextMonitor"];
             textObj.material.SetFloat(Shader.PropertyToID("_EmissiveFactor"), 1.0f);
 
             // text, immutable, preserveWhitespace, comp
