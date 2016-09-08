@@ -4442,6 +4442,17 @@ namespace AvionicsSystems
         /// </summary>
         #region Time
         /// <summary>
+        /// Returns the hour of the day (0-5.999... using the Kerbin clock, 0-23.999... using the
+        /// Earth clock).  Fraction of the hour is retained.
+        /// </summary>
+        /// <param name="time">Time in seconds (eg, `fc.UT()`).</param>
+        /// <returns>The hour of the day, accounting for Kerbin time vs. Earth time.</returns>
+        public double HourOfDay(double time)
+        {
+            return (time / 3600.0) % ((GameSettings.KERBIN_TIME) ? 6.0 : 24.0);
+        }
+
+        /// <summary>
         /// Fetch the current MET (Mission Elapsed Time) for the vessel in
         /// seconds.
         /// </summary>
