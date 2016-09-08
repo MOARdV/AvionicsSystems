@@ -228,17 +228,9 @@ where	φ is latitude, λ is longitude, θ is the bearing (clockwise from north),
         {
             double lat1 = latitude1 * Deg2Rad;
             double lat2 = latitude2 * Deg2Rad;
-            double dLat = (latitude2 - latitude1) * Deg2Rad;
-            double dLon = (longitude2 - longitude1) * Deg2Rad;
-            double a = Math.Sin(dLat * 0.5) * Math.Sin(dLat * 0.5) +
-                Math.Cos(lat1) * Math.Cos(lat2) *
-                Math.Sin(dLon * 0.5) * Math.Sin(dLon *0.5);
-
-            // Test:
             double sinLat = Math.Sin((latitude2 - latitude1) * Deg2Rad * 0.5);
             double sinLon = Math.Sin((longitude2 - longitude1) * Deg2Rad * 0.5);
-            double a1 = sinLat * sinLat + Math.Cos(lat1) * Math.Cos(lat2) * sinLon * sinLon;
-            Utility.LogMessage(this, "Haversine distance - original 'a' = {0:0.000}, revised 'a' = {1:0.000}", a, a1);
+            double a = sinLat * sinLat + Math.Cos(lat1) * Math.Cos(lat2) * sinLon * sinLon;
 
             double c = 2.0 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1.0 - a));
 
