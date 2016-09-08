@@ -45,6 +45,33 @@ namespace AvionicsSystems
     public class MASLoader : MonoBehaviour
     {
         /// <summary>
+        /// User-configurable parameters related to radio signal propagation.
+        /// </summary>
+        public struct Navigation
+        {
+            /// <summary>
+            /// Overall scalar to change general signal propagation.  The small radius of Kerbin makes
+            /// values swing wildly on altitude.  Defaults to 1.0.
+            /// </summary>
+            public double generalPropagation;
+
+            /// <summary>
+            /// Propagation scalar for NDB stations.  Defaults to 1.0.
+            /// </summary>
+            public double NDBPropagation;
+
+            /// <summary>
+            /// Propagation scalar of VOR stations.  Defaults to 1.2.
+            /// </summary>
+            public double VORPropagation;
+
+            /// <summary>
+            /// Propagation scalar of DME stations.  Defaults to 1.4.
+            /// </summary>
+            public double DMEPropagation;
+        };
+
+        /// <summary>
         /// Version of the DLL.
         /// </summary>
         static public string asVersion;
@@ -90,9 +117,16 @@ namespace AvionicsSystems
         /// </summary>
         static public bool VerboseLogging = false;
 
+        static public Navigation navigation = new Navigation();
+
         MASLoader()
         {
             DontDestroyOnLoad(this);
+
+            navigation.generalPropagation = 1.0;
+            navigation.NDBPropagation = 1.0;
+            navigation.VORPropagation = 1.2;
+            navigation.DMEPropagation = 1.4;
         }
 
         /// <summary>
@@ -180,6 +214,34 @@ namespace AvionicsSystems
                 if (config.TryGetValue("ElectricCharge", ref newElectricCharge))
                 {
                     ElectricCharge = newElectricCharge;
+                }
+
+                ConfigNode navNode = config.GetNode("navigation");
+                if (navNode != null)
+                {
+                    float generalPropagation = 0.0f;
+                    if(navNode.TryGetValue("GeneralPropagation", ref generalPropagation))
+                    {
+                        navigation.generalPropagation = generalPropagation;
+                    }
+
+                    float NDBPropagation = 0.0f;
+                    if (navNode.TryGetValue("NDBPropagation", ref NDBPropagation))
+                    {
+                        navigation.NDBPropagation = NDBPropagation;
+                    }
+
+                    float VORPropagation = 0.0f;
+                    if (navNode.TryGetValue("VORPropagation", ref VORPropagation))
+                    {
+                        navigation.VORPropagation = VORPropagation;
+                    }
+
+                    float DMEPropagation = 0.0f;
+                    if (navNode.TryGetValue("DMEPropagation", ref DMEPropagation))
+                    {
+                        navigation.DMEPropagation = DMEPropagation;
+                    }
                 }
             }
 
