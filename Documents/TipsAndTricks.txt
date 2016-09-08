@@ -3,18 +3,17 @@ development.  These tips are for IVA makers (specifically, config-file editors),
 players in-game.
 
 
-USE CONSISTENT WHITESPACE AND ORDERING
+USE CONSISTENT ORDERING
 
-Make sure you always use whitespace consistently in variable names, and that you are consistent
+Try to be consistent
 with the order of values when using mathematical expressions in variable names.
 
-Currently, MAS does not know that "2*fc.GetValue()" and "2 * fc.GetValue()" are the same value.  It
-also does not know that "2*fc.GetValue()" and "fc.GetValue()*2" are the same.  Thus, it will create
-a unique variable for each of these configurations, and it will evaluate the same thing three times,
+Currently, MAS does not know that "2*fc.GetValue()" and "fc.GetValue()*2" are the same.  Thus, it will create
+a unique variable for each of these configurations, and it will evaluate the same thing twice,
 with all of the extra computational overhead that that entails.
 
 A future version of MAS may be able to relax this restriction, but it is good practice to use consistent
-ordering and whitespace conventions.
+ordering conventions.
 
 
 TAKE ADVANTAGE OF BOOLEAN MODE WHEN POSSIBLE
@@ -42,3 +41,29 @@ The various text markup tags (eg [b] and [/b], [@x#], etc) force Avionics System
 the displayed text from scratch every time, even when only the color of the text is being
 changed.  This is much more costly than simply changing the color for non-tagged text.
 It should be avoided for static labels that use color changing whenever possible.
+
+
+AUTOMATIC SCRIPTED ACTION CAN BE CREATED IN VARIABLES
+
+If you want an automatically-triggered action to take place, it needs to reside in a variable
+used by a MASComponent or an active MASMonitor page.  For instance, say you want an "automatic
+cutoff" function that will immediately turn off engines when a vessel lands.  Use a
+persistent variable to control whether it's enabled (so it won't prevent launches, for example),
+and add a prop to your IVA that will be used to provide feedback whether the mode is enabled.
+In the prop, instead of querying the persistent, call a custom Lua function like this:
+
+```Lua
+function myAutoCutoffFunction()
+    local cutoffEnabled = fc.GetPersistentAsNumber("myCutoffEnabled")
+    if cutoffEnabled > 0 then
+        if fc.VesselLanded() > 0 and fc.GetEnginesEnabled() > 0 then
+            fc.ToggleEnginesEnabled()
+        end
+    end
+
+  return cutoffEnabled
+end
+```
+
+This will return 1 if the cutoff is enabled, and 0 if it isn't.  It also has the side-effect of making
+the cutoff trigger if it is enabled, the vessel is landed, and the engines are enabled.
