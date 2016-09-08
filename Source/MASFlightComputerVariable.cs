@@ -210,11 +210,11 @@ namespace AvionicsSystems
                         {
                             ++numParameters;
                         }
-                        else if(tokens[index].Id == 16)
+                        else if (tokens[index].Id == 16)
                         {
                             ++parenNesting;
                         }
-                        else if(tokens[index].Id == 17)
+                        else if (tokens[index].Id == 17)
                         {
                             --parenNesting;
                         }
@@ -238,7 +238,7 @@ namespace AvionicsSystems
                         else if (tokens[index].Id == 17)
                         {
                             --parenNesting;
-                        } 
+                        }
                         else if (tokens[index].Id == 18 && parenNesting == 0)
                         {
                             numTokens = index - firstIndex;
@@ -1036,18 +1036,16 @@ namespace AvionicsSystems
 
                     if (!Mathf.Approximately((float)safeValue, (float)oldSafeValue))
                     {
-                        try
+                        if (numericCallbacks != null)
                         {
                             numericCallbacks.Invoke(safeValue);
                         }
-                        catch { }
                     }
 
-                    try
+                    if (changeCallbacks != null)
                     {
                         changeCallbacks.Invoke();
                     }
-                    catch { }
                 }
             }
 
