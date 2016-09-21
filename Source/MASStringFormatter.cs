@@ -37,15 +37,10 @@ namespace AvionicsSystems
     public class MASStringFormatter : IFormatProvider, ICustomFormatter
     {
         /// <summary>
-        /// Take advantage of KSP's existing date/time formatter.
+        /// vals contains an array of integer values: s, m, h, d, y
+        /// Originally, the KSP formatter provided this service.
         /// </summary>
-        private static KSPUtil.DefaultDateTimeFormatter dateTimeFormatter = new KSPUtil.DefaultDateTimeFormatter();
-
-        /// <summary>
-        /// StringBuilder for concatenating strings.  Keep one persistent
-        /// instance instead of creating one per format task.
-        /// </summary>
-        private static StringBuilder sb = new StringBuilder(8);
+        private static int[] vals = new int[5];
 
         private static object[] formatData = new object[8];
 
@@ -180,23 +175,23 @@ namespace AvionicsSystems
         /// <returns></returns>
         private static string FormatMET(string formatSpecification, double value)
         {
-            // vals contains an array of integer values: s, m, h, d, y
-            // All of them are negative if the input is negative.
-            int[] vals;
             int daysPerYear;
             int hoursPerDay;
             if (GameSettings.KERBIN_TIME)
             {
-                vals = dateTimeFormatter.GetKerbinDateFromUT(value);
                 daysPerYear = KerbinDaysPerYear;
                 hoursPerDay = KerbinHoursPerDay;
             }
             else
             {
-                vals = dateTimeFormatter.GetEarthDateFromUT(value);
                 daysPerYear = EarthDaysPerYear;
                 hoursPerDay = EarthHoursPerDay;
             }
+            vals[0] = (int)(Math.Abs(value) % 60.0);
+            vals[1] = ((vals[0] / 60) % 60);
+            vals[2] = ((vals[1] / 60) % hoursPerDay);
+            vals[3] = (vals[2] / hoursPerDay) % daysPerYear;
+            vals[4] = (vals[2] / daysPerYear);
 
             char[] chars = formatSpecification.ToCharArray();
 
@@ -214,7 +209,8 @@ namespace AvionicsSystems
             {
                 formatData[i] = null;
             }
-            sb.Remove(0, sb.Length);
+
+            StringBuilder sb = Utility.GetStringBuilder();
             for (int i = 3; i < numChars && parameterCount < parameterLimit; ++i)
             {
                 didSomething = false;
@@ -240,31 +236,31 @@ namespace AvionicsSystems
                             case 'Y':
                             // Fall through
                             case 'y':
-                                formatData[parameterCount] = Math.Abs(vals[4] + (calendarAdjust ? 1 : 0));
+                                formatData[parameterCount] = (vals[4] + (calendarAdjust ? 1 : 0));
                                 break;
                             case 'D':
-                                formatData[parameterCount] = Math.Abs(vals[3] + daysPerYear * vals[4]);
+                                formatData[parameterCount] = (vals[3] + daysPerYear * vals[4]);
                                 break;
                             case 'd':
-                                formatData[parameterCount] = Math.Abs(vals[3] + (calendarAdjust ? 1 : 0));
+                                formatData[parameterCount] = (vals[3] + (calendarAdjust ? 1 : 0));
                                 break;
                             case 'H':
-                                formatData[parameterCount] = Math.Abs(vals[2] + hoursPerDay * vals[3] + daysPerYear * vals[4]);
+                                formatData[parameterCount] = (vals[2] + hoursPerDay * vals[3] + daysPerYear * vals[4]);
                                 break;
                             case 'h':
-                                formatData[parameterCount] = Math.Abs(vals[2]);
+                                formatData[parameterCount] = vals[2];
                                 break;
                             case 'M':
-                                formatData[parameterCount] = Math.Abs(vals[1] + 60 * vals[2] + hoursPerDay * vals[3] + daysPerYear * vals[4]);
+                                formatData[parameterCount] = (vals[1] + 60 * vals[2] + hoursPerDay * vals[3] + daysPerYear * vals[4]);
                                 break;
                             case 'm':
-                                formatData[parameterCount] = Math.Abs(vals[1]);
+                                formatData[parameterCount] = vals[1];
                                 break;
                             case 'S':
                                 formatData[parameterCount] = Math.Floor(Math.Abs(value));
                                 break;
                             case 's':
-                                formatData[parameterCount] = Math.Abs(vals[0]);
+                                formatData[parameterCount] = vals[0];
                                 break;
                             case 'f':
                                 double fracV = Math.Abs(value) - Math.Floor(Math.Abs(value));
@@ -386,7 +382,7 @@ namespace AvionicsSystems
                 value /= Math.Pow(10.0, (siChar * 3));
             }
 
-            sb.Remove(0, sb.Length);
+            StringBuilder sb = Utility.GetStringBuilder();
             sb.Append("{0:");
             sb.Append(formatSpecification.Substring(3));
             sb.Append('}');
