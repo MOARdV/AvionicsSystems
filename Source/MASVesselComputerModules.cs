@@ -430,10 +430,10 @@ namespace AvionicsSystems
             for (int i = moduleSolarPanel.Length - 1; i >= 0; --i)
             {
                 netSolarOutput += moduleSolarPanel[i].flowRate;
-                solarPanelsRetractable |= (moduleSolarPanel[i].useAnimation && moduleSolarPanel[i].retractable && moduleSolarPanel[i].panelState == ModuleDeployableSolarPanel.panelStates.EXTENDED);
-                solarPanelsDeployable |= (moduleSolarPanel[i].useAnimation && moduleSolarPanel[i].panelState == ModuleDeployableSolarPanel.panelStates.RETRACTED);
-                solarPanelsMoving |= (moduleSolarPanel[i].useAnimation && (moduleSolarPanel[i].panelState == ModuleDeployableSolarPanel.panelStates.RETRACTING || moduleSolarPanel[i].panelState == ModuleDeployableSolarPanel.panelStates.EXTENDING));
-                /* ModuleDeployableSolarPanel.panelStates = 
+                solarPanelsRetractable |= (moduleSolarPanel[i].useAnimation && moduleSolarPanel[i].retractable && moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.EXTENDED);
+                solarPanelsDeployable |= (moduleSolarPanel[i].useAnimation && moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.RETRACTED);
+                solarPanelsMoving |= (moduleSolarPanel[i].useAnimation && (moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.RETRACTING || moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.EXTENDING));
+                /* ModuleDeployablePart.DeployState = 
                         RETRACTED = 0,
                         EXTENDED = 1,
                         RETRACTING = 2,
@@ -450,21 +450,21 @@ namespace AvionicsSystems
                 {
                     if (moduleSolarPanel[i].useAnimation)
                     {
-                        switch (moduleSolarPanel[i].panelState)
+                        switch (moduleSolarPanel[i].deployState)
                         {
-                            case ModuleDeployableSolarPanel.panelStates.BROKEN:
+                            case ModuleDeployablePart.DeployState.BROKEN:
                                 solarPanelPosition = 0;
                                 break;
-                            case ModuleDeployableSolarPanel.panelStates.RETRACTED:
+                            case ModuleDeployablePart.DeployState.RETRACTED:
                                 solarPanelPosition = 1;
                                 break;
-                            case ModuleDeployableSolarPanel.panelStates.RETRACTING:
+                            case ModuleDeployablePart.DeployState.RETRACTING:
                                 solarPanelPosition = 2;
                                 break;
-                            case ModuleDeployableSolarPanel.panelStates.EXTENDING:
+                            case ModuleDeployablePart.DeployState.EXTENDING:
                                 solarPanelPosition = 3;
                                 break;
-                            case ModuleDeployableSolarPanel.panelStates.EXTENDED:
+                            case ModuleDeployablePart.DeployState.EXTENDED:
                                 solarPanelPosition = 4;
                                 break;
                         }
@@ -611,12 +611,12 @@ namespace AvionicsSystems
                         else if (module is ModuleAlternator)
                         {
                             ModuleAlternator alternator = module as ModuleAlternator;
-                            for (int i = 0; i < alternator.outputResources.Count; ++i)
+                            for (int i = alternator.resHandler.outputResources.Count - 1; i>=0 ; --i)
                             {
-                                if (alternator.outputResources[i].name == MASLoader.ElectricCharge)
+                                if (alternator.resHandler.outputResources[i].name == MASLoader.ElectricCharge)
                                 {
                                     alternatorList.Add(alternator);
-                                    alternatorOutputList.Add((float)alternator.outputResources[i].rate);
+                                    alternatorOutputList.Add((float)alternator.resHandler.outputResources[i].rate);
                                     break;
                                 }
                             }
@@ -628,12 +628,12 @@ namespace AvionicsSystems
                         else if (module is ModuleGenerator)
                         {
                             ModuleGenerator generator = module as ModuleGenerator;
-                            for (int i = 0; i < generator.outputList.Count; ++i)
+                            for (int i = generator.resHandler.outputResources.Count - 1; i >= 0; --i)
                             {
-                                if (generator.outputList[i].name == MASLoader.ElectricCharge)
+                                if (generator.resHandler.outputResources[i].name == MASLoader.ElectricCharge)
                                 {
                                     generatorList.Add(generator);
-                                    generatorOutputList.Add((float)generator.outputList[i].rate);
+                                    generatorOutputList.Add((float)generator.resHandler.outputResources[i].rate);
                                     break;
                                 }
                             }
@@ -680,7 +680,7 @@ namespace AvionicsSystems
                 }
 
                 // While we're here, update resources
-                List<PartResource> list = vessel.parts[partIdx].Resources.list;
+                PartResourceList list = vessel.parts[partIdx].Resources;
 
                 if (list != null)
                 {
@@ -728,7 +728,7 @@ namespace AvionicsSystems
         {
             for (int partIdx = vessel.parts.Count - 1; partIdx >= 0; --partIdx)
             {
-                List<PartResource> list = vessel.parts[partIdx].Resources.list;
+                PartResourceList list = vessel.parts[partIdx].Resources;
 
                 if (list != null)
                 {
