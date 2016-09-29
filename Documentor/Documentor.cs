@@ -247,6 +247,7 @@ namespace Documentor
             XmlElement methodName = child["method"];
             if (methodName != null)
             {
+                docString.AppendLine("***");
                 docString.Append("###");
                 if (!string.IsNullOrEmpty(luaNamespace))
                 {
@@ -299,6 +300,7 @@ namespace Documentor
             XmlElement regionName = child["region"];
             if (regionName != null)
             {
+                docString.AppendLine("***");
                 docString.Append("##");
                 docString.Append(regionName.InnerText);
                 docString.AppendLine(" Category");

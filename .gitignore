@@ -257,3 +257,5 @@ Source/*.md
 GameData/AvionicsSystems/MoonSharp.Interpreter.dll
 GameData/AvionicsSystems/ASET_Props/
 GameData/AvionicsSystems/Textures/
+
+*.wav

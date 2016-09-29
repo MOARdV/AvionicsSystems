@@ -1,12 +1,15 @@
-﻿The Config File for Avionics Systems may contain the following options.  All values are optional,
+﻿**See AvionicsSystems.cfg on the wiki for the authorative version of the config file.**
+
+The Config File for Avionics Systems may contain the following options.  All values are optional,
 with defaults as described.  The config file must be at GameData/AvionicsSystems/PluginData/AvionicsSystems.cfg,
 or it will not be loaded.
 
 VerboseLogging - Default False.  Used to enable verbose message logging for diagnostic purposes.
 
-PowerResource - Default "ElectricCharge".  Allows a player to specify a different resource type for power,
+ElectricCharge - Default "ElectricCharge".  Allows a player to specify a different resource type for power,
 so that the fc.HasPower() method will check the correct resource for modded installations that do not use
 "ElectricCharge".
+
 
 Global Config Nodes
 
