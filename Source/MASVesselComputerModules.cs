@@ -240,6 +240,7 @@ namespace AvionicsSystems
                         visitedParts.Add(thatPart);
                     }
                 }
+                MarkPropellant(thatPart.crossfeedPartSet.GetParts());
 
                 //anyEnginesOverheating |= (thatPart.skinTemperature / thatPart.skinMaxTemp > 0.9) || (thatPart.temperature / thatPart.maxTemp > 0.9);
                 anyEnginesEnabled |= me.allowShutdown && me.getIgnitionState;

@@ -41,6 +41,11 @@ namespace AvionicsSystems
         private ResourceData[] resources = new ResourceData[0];
 
         /// <summary>
+        /// HashSet to track active resources.
+        /// </summary>
+        private HashSet<Part> activeResources = new HashSet<Part>();
+
+        /// <summary>
         /// Used for binary searches
         /// </summary>
         private ResourceData dummyResource;
@@ -51,7 +56,7 @@ namespace AvionicsSystems
         {
             internal string name;
 
-            //internal int id;
+            internal int id;
             internal float density;
 
             internal float currentQuantity;
@@ -528,7 +533,7 @@ namespace AvionicsSystems
 
                 resources[index].name = thatResource.name;
 
-                //resources[index].id = thatResource.id;
+                resources[index].id = thatResource.id;
                 resources[index].density = thatResource.density;
                 resources[index].currentQuantity = 0.0f;
                 resources[index].maxQuantity = 0.0f;
@@ -552,6 +557,8 @@ namespace AvionicsSystems
         /// </summary>
         private void PrepareResourceData()
         {
+            activeResources.Clear();
+
             for (int i = resources.Length - 1; i >= 0; --i)
             {
                 vesselActiveResource[i] = int.MaxValue;
@@ -563,28 +570,30 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Track which parts are connected to an engine by creating a union of
+        /// the crossfeedParts fields of each part that contains an engine.
+        /// </summary>
+        /// <param name="connectedParts"></param>
+        public void MarkPropellant(HashSet<Part> connectedParts)
+        {
+            activeResources.UnionWith(connectedParts);
+        }
+
+        /// <summary>
         /// End of FixedUpdate: update the resource data.
         /// </summary>
         private void ProcessResourceData()
         {
-            // Fortunately, the Vessel knows which resources are currently in
-            // use, including things like ElectricCharge and MonoPropellant
-            // that don't flow through "pipes", so the current/max stage
-            // amounts are simply a case of copying from the vessel.
-            List<Vessel.ActiveResource> vesselActiveResource = vessel.GetActiveResources();
-            for (int i = vesselActiveResource.Count - 1; i >= 0; --i)
-            {
-                Vessel.ActiveResource ar = vesselActiveResource[i];
-                dummyResource.name = ar.info.name;
-                int index = Array.BinarySearch<ResourceData>(resources, dummyResource, resourceNameComparer);
-                // I *seriously* hope I don't need to look at whether the index is valid...
-                resources[index].currentStage = (float)ar.amount;
-                resources[index].maxStage = (float)ar.maxAmount;
-            }
+            PartSet partSet = new PartSet(activeResources);
 
             float timeDelta = 1.0f / TimeWarp.fixedDeltaTime;
             for (int i = resources.Length - 1; i >= 0; --i)
             {
+                double amount, maxAmount;
+                partSet.GetConnectedResourceTotals(resources[i].id, out amount, out maxAmount, true);
+                resources[i].maxStage = (float)maxAmount;
+                resources[i].currentStage = (float)amount;
+
                 if (resources[i].previousQuantity > 0.0f && resources[i].maxQuantity > 0.0f)
                 {
                     resources[i].deltaPerSecond = timeDelta * (resources[i].previousQuantity - resources[i].currentQuantity);
