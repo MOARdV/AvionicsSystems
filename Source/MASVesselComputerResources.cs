@@ -45,6 +45,8 @@ namespace AvionicsSystems
         /// </summary>
         private HashSet<Part> activeResources = new HashSet<Part>();
 
+        private PartSet partSet = null;
+
         /// <summary>
         /// Used for binary searches
         /// </summary>
@@ -517,20 +519,16 @@ namespace AvionicsSystems
         /// </summary>
         private void InitResourceData()
         {
-            int resourceCount = 0;
-            foreach (PartResourceDefinition thatResource in PartResourceLibrary.Instance.resourceDefinitions)
-            {
-                ++resourceCount;
-            }
+            int resourceCount = PartResourceLibrary.Instance.resourceDefinitions.Count;
 
             resources = new ResourceData[resourceCount];
             vesselActiveResource = new int[resourceCount];
 
-            int index = 0;
-            foreach (PartResourceDefinition thatResource in PartResourceLibrary.Instance.resourceDefinitions)
+            for (int index = resourceCount - 1; index >= 0; --index)
             {
                 vesselActiveResource[index] = int.MaxValue;
 
+                var thatResource = PartResourceLibrary.Instance.resourceDefinitions[index];
                 resources[index].name = thatResource.name;
 
                 resources[index].id = thatResource.id;
@@ -584,7 +582,14 @@ namespace AvionicsSystems
         /// </summary>
         private void ProcessResourceData()
         {
-            PartSet partSet = new PartSet(activeResources);
+            if (partSet == null)
+            {
+                partSet = new PartSet(activeResources);
+            }
+            else
+            {
+                partSet.RebuildParts(activeResources);
+            }
 
             float timeDelta = 1.0f / TimeWarp.fixedDeltaTime;
             for (int i = resources.Length - 1; i >= 0; --i)
