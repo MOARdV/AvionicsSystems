@@ -214,7 +214,7 @@ namespace AvionicsSystems
                     new Vector3(-halfWidth, size.y+halfWidth, 0.0f),
                     new Vector3(-halfWidth, -halfWidth, 0.0f)
                 };
-                Utility.SetPositions(lineRenderer, borderPoints.Length, borderPoints);
+                lineRenderer.SetPositions(borderPoints);
             }
             imageObject = new GameObject();
             imageObject.name = pageRoot.gameObject.name + "-MASPageHorizontalBar-" + name + "-" + depth.ToString();

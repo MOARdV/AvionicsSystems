@@ -180,7 +180,7 @@ namespace AvionicsSystems
                     new Vector3(-halfWidth, size.y+halfWidth, 0.0f),
                     new Vector3(-halfWidth, -halfWidth, 0.0f)
                 };
-                Utility.SetPositions(borderRenderer, borderPoints.Length, borderPoints);
+                borderRenderer.SetPositions(borderPoints);
             }
 
             graphObject = new GameObject();
@@ -204,9 +204,6 @@ namespace AvionicsSystems
             }
 
             currentSample = 0;
-
-            // Urk... SetPositions isn't available in the KSP 1.1.3 version of Unity.  Will have to redo this later.
-            //SetPositions(lineRenderer, currentSample, graphPoints);
 
             comp.StartCoroutine(SampleData());
 
@@ -246,7 +243,7 @@ namespace AvionicsSystems
                     }
                     graphPoints[maxSamples - 1] = new Vector3((maxSamples - 1) * sampleRate, newSample, 0.0f);
                 }
-                Utility.SetPositions(lineRenderer, currentSample, graphPoints);
+                lineRenderer.SetPositions(graphPoints);
 
                 yield return new WaitForSeconds(sampleRate);
             }
