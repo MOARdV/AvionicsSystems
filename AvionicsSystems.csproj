@@ -33,32 +33,34 @@
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\..\Games\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>..\..\..\Games\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="KSPAssets">
       <HintPath>..\..\..\Games\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\KSPAssets.dll</HintPath>
-    </Reference>
-    <Reference Include="KSPUtil">
-      <HintPath>..\..\..\Games\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\KSPUtil.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="MoonSharp.Interpreter">
       <HintPath>..\..\..\Games\Steam\steamapps\common\Kerbal Space Program\GameData\MOARdV\AvionicsSystem\MoonSharp.Interpreter.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="UnityEngine">
       <HintPath>..\..\..\Games\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\UnityEngine.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>..\..\..\Games\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\DynamicMethodFactory.cs" />
     <Compile Include="Source\KACWrapper.cs" />
-    <Compile Include="Source\Lexer.cs" />
     <Compile Include="Source\MASActionAnimation.cs" />
     <Compile Include="Source\MASActionAnimationPlayer.cs" />
     <Compile Include="Source\MASActionAudioPlayer.cs" />
@@ -106,6 +108,22 @@
     <Compile Include="Source\MASVesselComputerModules.cs" />
     <Compile Include="Source\MASVesselComputerResources.cs" />
     <Compile Include="Source\MdVTextMesh.cs" />
+    <Compile Include="Source\Parser\BinaryOperatorParselet.cs" />
+    <Compile Include="Source\Parser\CallExpression.cs" />
+    <Compile Include="Source\Parser\CallParselet.cs" />
+    <Compile Include="Source\Parser\Expression.cs" />
+    <Compile Include="Source\Parser\GroupParselet.cs" />
+    <Compile Include="Source\Parser\InfixParselet.cs" />
+    <Compile Include="Source\Parser\Lexer.cs" />
+    <Compile Include="Source\Parser\NameExpression.cs" />
+    <Compile Include="Source\Parser\NameParselet.cs" />
+    <Compile Include="Source\Parser\NumberExpression.cs" />
+    <Compile Include="Source\Parser\NumberParselet.cs" />
+    <Compile Include="Source\Parser\OperatorExpression.cs" />
+    <Compile Include="Source\Parser\Parser.cs" />
+    <Compile Include="Source\Parser\PrefixExpression.cs" />
+    <Compile Include="Source\Parser\PrefixOperatorParselet.cs" />
+    <Compile Include="Source\Parser\PrefixParselet.cs" />
     <Compile Include="Source\Utility.cs" />
   </ItemGroup>
   <ItemGroup>
