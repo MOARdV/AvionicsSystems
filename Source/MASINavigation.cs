@@ -104,8 +104,7 @@ namespace AvionicsSystems
             double dLon = (longitude2 - longitude1) * Deg2Rad;
 
             double y = Math.Sin(dLon) * Math.Cos(lat2);
-            double x = Math.Cos(lat1) * Math.Sin(lat2) -
-                    Math.Sin(lat1) * Math.Cos(lat2) * Math.Cos(dLon);
+            double x = Math.Cos(lat1) * Math.Sin(lat2) - Math.Sin(lat1) * Math.Cos(lat2) * Math.Cos(dLon);
             //double y = Math.Sin(lon2 - lon1) * Math.Cos(lat2);
             //double x = Math.Cos(lat1) * Math.Sin(lat2) -
             //        Math.Sin(lat1) * Math.Cos(lat2) * Math.Cos(lon2 - lon1);
@@ -212,8 +211,6 @@ where	φ is latitude, λ is longitude, θ is the bearing (clockwise from north),
         }
 
         /// <summary>
-        /// **UNTESTED**
-        /// 
         /// Return the ground distance between two coordinates on a planet.
         /// 
         /// Assumes the planet is the one the vessel is currently orbiting / flying
@@ -238,8 +235,6 @@ where	φ is latitude, λ is longitude, θ is the bearing (clockwise from north),
         }
 
         /// <summary>
-        /// **UNTESTED**
-        /// 
         /// Return the ground distance between the vessel and a location on the surface
         /// of the planet.
         /// 
