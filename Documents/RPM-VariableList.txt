@@ -324,10 +324,10 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "TIMETOIMPACTSECS":
 "TIMETONEXTAPSIS": math.min(fc.TimeToAp(), fc.TimeToPe())
 "TIMETOPESECS": fc.TimeToPe()
-"TIMEWARPACTIVE":
-"TIMEWARPCURRENT":
-"TIMEWARPNONPHYSICS":
-"TIMEWARPPHYSICS":
+"TIMEWARPACTIVE": fc.WarpRate() > 1
+"TIMEWARPCURRENT": fc.WarpRate()
+"TIMEWARPNONPHYSICS": -no replacement-
+"TIMEWARPPHYSICS": -no replacement-
 "TRGTSPEED": fc.TargetSpeed()
 "TUMBLEALARM": -replaced with Lua scripting-
 "TWR": fc.CurrentTWR()
