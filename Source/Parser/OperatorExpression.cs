@@ -110,7 +110,7 @@ namespace AvionicsSystems.CodeGen
         {
             builder.Append("(");
             mLeft.print(builder);
-            builder.Append(" ").Append(mOperator.punctuator()).Append(" ");
+            builder.Append(mOperator.punctuator());
             mRight.print(builder);
             builder.Append(")");
         }
