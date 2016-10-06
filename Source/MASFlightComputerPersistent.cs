@@ -328,8 +328,8 @@ namespace AvionicsSystems
             {
                 Utility.LogMessage(this, "Saving persistents for {0}", flightComputerId);
 
-                ConfigNode saveNode = new ConfigNode("ASFlightComputerPersistents");
-                saveNode.AddValue("ASFlightComputerId", flightComputerId);
+                ConfigNode saveNode = new ConfigNode("MASFlightComputerPersistents");
+                saveNode.AddValue("MASFlightComputerId", flightComputerId);
 
                 foreach (var keyValPair in persistentVars)
                 {
@@ -354,7 +354,7 @@ namespace AvionicsSystems
         internal bool LoadPersistents(ConfigNode loadNode)
         {
             string id = string.Empty;
-            if (!loadNode.TryGetValue("ASFlightComputerId", ref id) || id != flightComputerId)
+            if (!loadNode.TryGetValue("MASFlightComputerId", ref id) || id != flightComputerId)
             {
                 Utility.LogErrorMessage(this, "looking for {0}, but got {1}", flightComputerId, id);
 
