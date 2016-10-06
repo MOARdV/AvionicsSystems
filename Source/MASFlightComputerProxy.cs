@@ -1461,32 +1461,6 @@ namespace AvionicsSystems
         /// low power or high G situations.
         /// </summary>
         #region Meta
-        /// <summary>
-        /// Applies some "realism" conditions to the variable to cause it to
-        /// return zero under two general conditions:
-        /// 
-        /// 1) When there is no power available (the config-file-specified
-        /// power variable is below 0.0001), or
-        /// 
-        /// 2) The craft is under high g-loading.  G-loading limits are defined
-        /// in the per-pod config file.  When these limits are exceeded, there
-        /// is a chance (also defined in the config file) of the variable being
-        /// interrupted.  This chance increases as the g-forces exceed the
-        /// threshold using a square-root curve.
-        /// </summary>
-        /// <param name="value">A boolean condition</param>
-        /// <returns>1 if the value is true and the conditions above are not met, 0 otherwise</returns>
-        public double Conditioned(bool value)
-        {
-            if (value && fc.isPowered && UnityEngine.Random.value > fc.disruptionChance)
-            {
-                return 1.0;
-            }
-            else
-            {
-                return 0.0;
-            }
-        }
 
         /// <summary>
         /// Applies some "realism" conditions to the variable to cause it to
@@ -1505,17 +1479,36 @@ namespace AvionicsSystems
         /// ASET Props custom variable `CUSTOM_ALCOR_POWEROFF`, with an inverted
         /// value (`CUSTOM_ALCOR_POWEROFF` returns 1 to indicate "disrupt", but
         /// `fc.Conditioned(1)` returns 0 instead).
+        /// 
+        /// For boolean parameters, `true` is treated as 1, and `false` is treated
+        /// as 0.
         /// </summary>
-        /// <param name="value">A numeric value</param>
+        /// <param name="value">A numeric value or a boolean</param>
         /// <returns>`value` if the conditions above are not met.</returns>
-        public double Conditioned(double value)
+        public double Conditioned(object value)
         {
-            if (fc.isPowered && UnityEngine.Random.value > fc.disruptionChance)
+            double state = 0.0;
+            if(value is bool)
             {
-                return value;
+                state = ((bool)value) ? 1.0 : 0.0;
+            }
+            else if(value is double)
+            {
+                state = (double)value;
+            }
+            else
+            {
+                Utility.LogMessage(this, "fc.Conditioned no-op: {0}", value.GetType());
             }
 
-            return 0.0;
+            if (fc.isPowered && UnityEngine.Random.value > fc.disruptionChance)
+            {
+                return state;
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
@@ -2419,6 +2412,7 @@ namespace AvionicsSystems
         public double Longitude()
         {
             // longitude seems to be unnormalized.
+            Utility.LogMessage(this, "Longitude() = {0:0.000} -> {1:0.000}", vessel.longitude, Utility.NormalizeLongitude(vessel.longitude));
             return Utility.NormalizeLongitude(vessel.longitude);
         }
         #endregion
@@ -2599,7 +2593,7 @@ namespace AvionicsSystems
             {
                 for (int i = vc.moduleSolarPanel.Length - 1; i >= 0; --i)
                 {
-                    if (vc.moduleSolarPanel[i].useAnimation && vc.moduleSolarPanel[i].panelState == ModuleDeployableSolarPanel.panelStates.RETRACTED)
+                    if (vc.moduleSolarPanel[i].useAnimation && vc.moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.RETRACTED)
                     {
                         vc.moduleSolarPanel[i].Extend();
                     }
@@ -2609,7 +2603,7 @@ namespace AvionicsSystems
             {
                 for (int i = vc.moduleSolarPanel.Length - 1; i >= 0; --i)
                 {
-                    if (vc.moduleSolarPanel[i].useAnimation && vc.moduleSolarPanel[i].retractable && vc.moduleSolarPanel[i].panelState == ModuleDeployableSolarPanel.panelStates.EXTENDED)
+                    if (vc.moduleSolarPanel[i].useAnimation && vc.moduleSolarPanel[i].retractable && vc.moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.EXTENDED)
                     {
                         vc.moduleSolarPanel[i].Retract();
                     }
@@ -2714,7 +2708,9 @@ namespace AvionicsSystems
             {
                 if (!vc.moduleRcs[i].rcsEnabled)
                 {
-                    vc.moduleRcs[i].Enable();
+                    // UNTESTED
+                    vc.moduleRcs[i].rcsEnabled = true;
+                    //vc.moduleRcs[i].Enable();
                 }
             }
         }
