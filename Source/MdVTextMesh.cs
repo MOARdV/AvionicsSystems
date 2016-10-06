@@ -159,7 +159,7 @@ namespace AvionicsSystems
             this.font = font;
             this.fontSize = fontSize;
             boundedText = false;
-            meshRenderer.material.mainTexture = MASLoader.GetFontTexture(font);
+            meshRenderer.material.mainTexture = font.material.mainTexture;
             invalidated = true;
         }
 
@@ -175,7 +175,7 @@ namespace AvionicsSystems
             this.fixedAdvance = (int)fontDimensions.x;
             this.fixedLineSpacing = (int)fontDimensions.y;
             boundedText = true;
-            meshRenderer.material.mainTexture = MASLoader.GetFontTexture(font);
+            meshRenderer.material.mainTexture = font.material.mainTexture;
             invalidated = true;
         }
 
@@ -362,7 +362,7 @@ namespace AvionicsSystems
         /// </summary>
         public void Awake()
         {
-            MASLoader.textureRebuilt += FontRebuiltCallback;
+            Font.textureRebuilt += FontRebuiltCallback;
             CreateComponents();
         }
 
@@ -371,7 +371,7 @@ namespace AvionicsSystems
         /// </summary>
         public void OnDestroy()
         {
-            MASLoader.textureRebuilt -= FontRebuiltCallback;
+            Font.textureRebuilt -= FontRebuiltCallback;
 
             for (int i = textRow.Length - 1; i >= 0; --i)
             {
@@ -475,12 +475,12 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="whichFont"></param>
         /// <param name="newTexture"></param>
-        private void FontRebuiltCallback(Font whichFont, Texture2D newTexture)
+        private void FontRebuiltCallback(Font whichFont)
         {
             if (whichFont == font)
             {
                 invalidated = true;
-                meshRenderer.material.mainTexture = newTexture;
+                meshRenderer.material.mainTexture = whichFont.material.mainTexture;
             }
         }
 
