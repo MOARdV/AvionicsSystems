@@ -93,9 +93,7 @@ namespace AvionicsSystems.CodeGen
         internal enum ResultType
         {
             ERROR,
-            INDETERMINATE,
-            UNSUCCESSFUL,
-            DELEGATE,
+            EXPRESSION_TREE,
             NUMERIC_CONSTANT,
             STRING_CONSTANT
         };
@@ -152,7 +150,7 @@ namespace AvionicsSystems.CodeGen
                 if (result.type == ResultType.ERROR)
                 {
                     result.expressionTree = exp;
-                    result.type = ResultType.INDETERMINATE;
+                    result.type = ResultType.EXPRESSION_TREE;
                 }
 
                 return result;
