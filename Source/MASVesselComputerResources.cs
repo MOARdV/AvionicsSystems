@@ -524,11 +524,11 @@ namespace AvionicsSystems
             resources = new ResourceData[resourceCount];
             vesselActiveResource = new int[resourceCount];
 
-            for (int index = resourceCount - 1; index >= 0; --index)
+            int index = 0;
+            foreach(var thatResource in PartResourceLibrary.Instance.resourceDefinitions)
             {
                 vesselActiveResource[index] = int.MaxValue;
 
-                var thatResource = PartResourceLibrary.Instance.resourceDefinitions[index];
                 resources[index].name = thatResource.name;
 
                 resources[index].id = thatResource.id;
@@ -539,7 +539,6 @@ namespace AvionicsSystems
                 resources[index].deltaPerSecond = 0.0f;
                 resources[index].currentStage = 0.0f;
                 resources[index].maxStage = 0.0f;
-
                 ++index;
             }
 
