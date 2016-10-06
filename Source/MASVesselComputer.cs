@@ -141,11 +141,6 @@ namespace AvionicsSystems
         private static Dictionary<Guid, MASVesselComputer> knownModules = new Dictionary<Guid, MASVesselComputer>();
 
         /// <summary>
-        /// The Vessel that we're attached to.  This is expected not to change.
-        /// </summary>
-        private Vessel vessel;
-
-        /// <summary>
         /// Our current reference transform.
         /// </summary>
         internal Transform referenceTransform;
@@ -172,6 +167,9 @@ namespace AvionicsSystems
         /// </summary>
         internal bool vesselActive;
 
+        private List<ConfigNode> persistentNodeData = new List<ConfigNode>();
+        private bool anyRestored = false;
+
         /// <summary>
         /// A reference of the linear gauge used for atmospheric depth.
         /// </summary>
@@ -187,7 +185,15 @@ namespace AvionicsSystems
         /// </summary>
         internal CelestialBody mainBody;
 
+        /// <summary>
+        /// Current UT.
+        /// </summary>
         internal double universalTime;
+
+        /// <summary>
+        /// Time increment since last FixedUpdate.
+        /// </summary>
+        internal double deltaTime;
 
         /// <summary>
         /// Returns the MASVesselComputer attached to the specified computer.
@@ -198,31 +204,65 @@ namespace AvionicsSystems
         {
             if (v != null)
             {
-                return Instance(v.id);
+                if (!knownModules.ContainsKey(v.id))
+                {
+                    for (int i = v.vesselModules.Count - 1; i >= 0; --i)
+                    {
+                        if (v.vesselModules[i] is MASVesselComputer)
+                        {
+                            MASVesselComputer vc = v.vesselModules[i] as MASVesselComputer;
+                            knownModules.Add(v.id, vc);
+                            return vc;
+                        }
+                    }
+
+                    return null;
+                }
+                else
+                {
+                    return knownModules[v.id];
+                }
             }
             else
             {
-                Utility.LogErrorMessage("ASVesselComputer.Instance called with null vessel");
+                Utility.LogErrorMessage("MASVesselComputer.Instance called with null vessel");
                 return null;
             }
         }
 
         /// <summary>
-        /// Return the vessel computer associated with the specified id.
+        /// Query to restore persistent data to a MASFlightComputer
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        internal static MASVesselComputer Instance(Guid id)
+        /// <param name="fc"></param>
+        internal void RestorePersistentData(MASFlightComputer fc)
         {
-            if (knownModules.ContainsKey(id))
+            anyRestored = true;
+            for (int i = persistentNodeData.Count - 1; i >= 0; --i)
             {
-                return knownModules[id];
+                if (fc.LoadPersistents(persistentNodeData[i]))
+                {
+                    break;
+                }
             }
-            else
-            {
-                Utility.LogErrorMessage("ASVesselComputer.Instance called with unrecognized vessel id {0}", id);
-                return null;
-            }
+        }
+
+        /// <summary>
+        /// Wrapper method for all of the subcategories of data that are
+        /// refreshed per-FixedUpdate.
+        /// </summary>
+        private void RefreshData()
+        {
+            // First step:
+            PrepareResourceData();
+
+            UpdateModuleData();
+            UpdateAttitude();
+            UpdateAltitudes();
+            UpdateManeuverNode();
+            UpdateTarget();
+            UpdateMisc();
+            // Last step:
+            ProcessResourceData();
         }
 
         #region Monobehaviour
@@ -231,10 +271,18 @@ namespace AvionicsSystems
         /// </summary>
         private void FixedUpdate()
         {
+            // Compute delta-t from Planetarium time so if the vessel goes
+            // inactive for a while, it won't resume with an inaccurate
+            // time ... or is that even worth the extra effort?
             if (vesselActive)
             {
+                // TODO: Can I make tese two update by callback?
+                mainBody = vessel.mainBody;
                 orbit = vessel.orbit;
+
+                double oldUT = universalTime;
                 universalTime = Planetarium.GetUniversalTime();
+                deltaTime = universalTime - oldUT;
 
                 if (refreshReferenceTransform)
                 {
@@ -244,17 +292,8 @@ namespace AvionicsSystems
                     UpdateReferenceTransform(referenceTransform);
                     refreshReferenceTransform = false;
                 }
-                // First step:
-                PrepareResourceData();
 
-                UpdateModuleData();
-                UpdateAttitude();
-                UpdateAltitudes();
-                UpdateManeuverNode();
-                UpdateTarget();
-                UpdateMisc();
-                // Last step:
-                ProcessResourceData();
+                RefreshData();
                 //Utility.LogMessage(this, "FixedUpdate for {0}", vessel.id);
             }
         }
@@ -264,58 +303,47 @@ namespace AvionicsSystems
         /// one we should update (has crew).  Since the latter can change, we
         /// will idle this object (ignore updates) if the crew count is 0.
         /// </summary>
-        public override void OnAwake()
+        protected override void OnAwake()
         {
-            vessel = GetComponent<Vessel>();
-
-            if (vessel == null)
+            // Note: VesselModule.vessel is useless at this stage.
+            if (HighLogic.LoadedSceneIsFlight)
             {
-                // This happens when the vessel module is instantiated outside of flight.
-                //Utility.LogErrorMessage(this, "OnAwake: Failed to get a valid vessel");
-                return;
+                // TODO:
+                //  isLoaded?
+                //  isCrewed?
+                //  isFlight?
+
+                navBall = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.NavBall>();
+                if (navBall == null)
+                {
+                    Utility.LogErrorMessage(this, "navBall was null!");
+                }
+                LinearAtmosphereGauge linearAtmosGauge = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.LinearAtmosphereGauge>();
+                if (linearAtmosGauge == null)
+                {
+                    Utility.LogErrorMessage(this, "linearAtmosGauge was null!");
+                }
+                atmosphereDepthGauge = linearAtmosGauge.gauge;
+
+                // Because vessel isn't really initialized yet, I shove probably-safe
+                // initial values in here:
+                mainBody = FlightGlobals.GetHomeBody();
+                orbit = mainBody.GetOrbit();
+                //mainBody = vessel.mainBody;
+                //vesselId = vessel.id;
+                //orbit = vessel.orbit;
+
+                universalTime = Planetarium.GetUniversalTime();
+
+                GameEvents.OnCameraChange.Add(onCameraChange);
+                GameEvents.onVesselChange.Add(onVesselChange);
+                GameEvents.onVesselSOIChanged.Add(onVesselSOIChanged);
+                GameEvents.onVesselWasModified.Add(onVesselWasModified);
+                GameEvents.onVesselReferenceTransformSwitch.Add(onVesselReferenceTransformSwitch);
+
+                // Note: vessel.id is bogus
+                //Utility.LogMessage(this, "OnAwake for {0}", vessel.id);
             }
-
-            navBall = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.NavBall>();
-
-            LinearAtmosphereGauge linearAtmosGauge = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.LinearAtmosphereGauge>();
-            atmosphereDepthGauge = linearAtmosGauge.gauge;
-
-            mainBody = vessel.mainBody;
-
-            vesselId = vessel.id;
-            orbit = vessel.orbit;
-
-            GameEvents.OnCameraChange.Add(onCameraChange);
-            GameEvents.onVesselChange.Add(onVesselChange);
-            GameEvents.onVesselSOIChanged.Add(onVesselSOIChanged);
-            GameEvents.onVesselWasModified.Add(onVesselWasModified);
-            GameEvents.onVesselReferenceTransformSwitch.Add(onVesselReferenceTransformSwitch);
-
-            if (knownModules.ContainsKey(vesselId))
-            {
-                Utility.LogErrorMessage(this, "OnAwake called on a instance that's already in the database");
-            }
-
-            knownModules[vesselId] = this;
-
-            InitResourceData();
-
-            vesselActive = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
-
-            // TODO: Optimize this better - does any of this really need done if there's no crew?
-            // First step:
-            //PrepareResourceData();
-
-            //UpdateModuleData();
-            //UpdateAttitude();
-            //UpdateAltitudes();
-            //UpdateManeuverNode();
-            //UpdateTarget();
-            //UpdateMisc();
-            //// Last step:
-            //ProcessResourceData();
-
-            Utility.LogMessage(this, "OnAwake for {0}", vesselId);
         }
 
         /// <summary>
@@ -340,7 +368,6 @@ namespace AvionicsSystems
             knownModules.Remove(vesselId);
 
             vesselId = Guid.Empty;
-            vessel = null;
             orbit = null;
             atmosphereDepthGauge = null;
             mainBody = null;
@@ -353,41 +380,21 @@ namespace AvionicsSystems
         /// distribute that data to the MASFlightComputer modules.
         /// </summary>
         /// <param name="node"></param>
-        public override void OnLoad(ConfigNode node)
+        protected override void OnLoad(ConfigNode node)
         {
-            if (vesselActive)
+            base.OnLoad(node);
+
+            ConfigNode[] persistentNodes = node.GetNodes();
+            if (persistentNodes.Length > 0)
             {
-                base.OnLoad(node);
-                Utility.LogMessage(this, "OnLoad for {0}", vessel.id);
-
-                List<MASFlightComputer> knownFc = new List<MASFlightComputer>();
-                for (int partIdx = vessel.parts.Count - 1; partIdx >= 0; --partIdx)
-                {
-                    MASFlightComputer fc = MASFlightComputer.Instance(vessel.parts[partIdx]);
-                    if (fc != null)
-                    {
-                        knownFc.Add(fc);
-                    }
-                }
-
-                ConfigNode[] persistentNodes = node.GetNodes();
-                Utility.LogMessage(this, "Found {0} child nodes and {1} fc", persistentNodes.Length, knownFc.Count);
+                Utility.LogMessage(this, "OnLoad for {0}: Found {1} child nodes", vessel.id, persistentNodes.Length);
 
                 // Yes, this is a horribly inefficient nested loop.  Except that
                 // it should be uncommon to have more than a small number of pods
                 // in most configurations.
                 for (int nodeIdx = persistentNodes.Length - 1; nodeIdx >= 0; --nodeIdx)
                 {
-                    for (int fcIdx = knownFc.Count - 1; fcIdx >= 0; --fcIdx)
-                    {
-                        if (knownFc[fcIdx] != null)
-                        {
-                            if (knownFc[fcIdx].LoadPersistents(persistentNodes[nodeIdx]))
-                            {
-                                knownFc[fcIdx] = null;
-                            }
-                        }
-                    }
+                    persistentNodeData.Add(persistentNodes[nodeIdx].CreateCopy());
                 }
             }
         }
@@ -396,13 +403,13 @@ namespace AvionicsSystems
         /// Save this vessel's ASFlightComputer persistent vars.
         /// </summary>
         /// <param name="node"></param>
-        public override void OnSave(ConfigNode node)
+        protected override void OnSave(ConfigNode node)
         {
-            if (vesselActive)
-            {
-                base.OnSave(node);
-                Utility.LogMessage(this, "OnSave for {0}", vessel.id);
+            base.OnSave(node);
 
+            if (anyRestored)
+            {
+                Utility.LogMessage(this, "OnSave for {0}", vessel.id);
                 for (int partIdx = vessel.parts.Count - 1; partIdx >= 0; --partIdx)
                 {
                     MASFlightComputer fc = MASFlightComputer.Instance(vessel.parts[partIdx]);
@@ -416,36 +423,47 @@ namespace AvionicsSystems
                     }
                 }
             }
+            else
+            {
+                // Nobody asked to restore persistent data - either there
+                // are no MASFlightComputer nodes or we're not on a loaded
+                // vessel.
+                for (int i = persistentNodeData.Count - 1; i >= 0; --i)
+                {
+                    node.AddNode(persistentNodeData[i]);
+                }
+            }
         }
 
         /// <summary>
         /// Initialize our state.
         /// </summary>
-        private void Start()
+        protected override void OnStart()
         {
-            if (vesselActive)
+            if (HighLogic.LoadedSceneIsFlight)
             {
-                Utility.LogMessage(this, "Start for {0}", vessel.id);
+                mainBody = vessel.mainBody;
+                vesselId = vessel.id;
+                orbit = vessel.orbit;
 
-                // All this tells me is the current state of the nodes.  I
-                // don't care about that - I want "is there anything in
-                // that node"?
-                //ConfigNode node = new ConfigNode("dummy");
-                //vessel.ActionGroups.Save(node);
-                UpdateReferenceTransform(vessel.ReferenceTransform);
-                refreshReferenceTransform = true;
+                vesselActive = (vessel.GetCrewCount() > 0);
 
-                // First step:
-                PrepareResourceData();
+                if (vesselActive)
+                {
+                    InitResourceData();
 
-                UpdateModuleData();
-                UpdateAttitude();
-                UpdateAltitudes();
-                UpdateManeuverNode();
-                UpdateTarget();
-                UpdateMisc();
-                // Last step:
-                ProcessResourceData();
+                    Utility.LogMessage(this, "Start for {0}", vessel.id);
+
+                    // All this tells me is the current state of the nodes.  I
+                    // don't care about that - I want "is there anything in
+                    // that node"?
+                    //ConfigNode node = new ConfigNode("dummy");
+                    //vessel.ActionGroups.Save(node);
+                    UpdateReferenceTransform(vessel.ReferenceTransform);
+                    refreshReferenceTransform = true;
+
+                    RefreshData();
+                }
             }
         }
         #endregion

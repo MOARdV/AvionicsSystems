@@ -316,6 +316,13 @@ namespace AvionicsSystems
             // TODO: Lexer / parsing on this.
             actionName = ConditionVariableName(actionName, prop);
 
+            //var result = CodeGen.Parser.TryParse(actionName);
+            //if (result.type != CodeGen.Parser.ResultType.ERROR)
+            //{
+            //    Utility.LogMessage(this, "IN : {0}", actionName);
+            //    Utility.LogMessage(this, "OUT: {0}", result.canonicalSource);
+            //}
+
             if (actions.ContainsKey(actionName))
             {
                 return actions[actionName];
@@ -465,7 +472,6 @@ namespace AvionicsSystems
 
                 Utility.LogMessage(this, "{3} variables created: {0} constant variables, {1} native variables, and {2} Lua variables",
                     constantVariableCount, nativeVariableCount, luaVariableCount, variables.Count);
-                Utility.LogMessage(this, "{0} potential native variables overlooked (fell back to Lua)", skippedNativeVars);
                 double msPerFixedUpdate = 1000.0 * (double)(stopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
                 Utility.LogMessage(this, "MoonSharp time average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, (double)mutableVariables.Length / msPerFixedUpdate);
             }
@@ -543,7 +549,8 @@ namespace AvionicsSystems
                     Utility.LogErrorMessage(this, e.ToString());
                     Utility.ComplainLoudly("Initialization Failed.  Please check KSP.log");
                 }
-                vc = MASVesselComputer.Instance(parentVesselId);
+                vc = MASVesselComputer.Instance(vessel);
+                vc.RestorePersistentData(this);
 
                 // TODO: Don't need to set vessel for all of these guys if I just now init'd them.
                 fcProxy.vc = vc;
@@ -680,7 +687,7 @@ namespace AvionicsSystems
                 // TODO: Do something different if parentVesselID != vessel.id?
                 Vessel vessel = this.vessel;
                 parentVesselId = vessel.id;
-                vc = MASVesselComputer.Instance(parentVesselId);
+                vc = MASVesselComputer.Instance(vessel);
                 fcProxy.vc = vc;
                 fcProxy.vessel = vessel;
                 chattererProxy.UpdateVessel();
