@@ -525,7 +525,7 @@ namespace AvionicsSystems
             vesselActiveResource = new int[resourceCount];
 
             int index = 0;
-            foreach(var thatResource in PartResourceLibrary.Instance.resourceDefinitions)
+            foreach (var thatResource in PartResourceLibrary.Instance.resourceDefinitions)
             {
                 vesselActiveResource[index] = int.MaxValue;
 
@@ -563,6 +563,7 @@ namespace AvionicsSystems
                 resources[i].maxQuantity = 0.0f;
                 resources[i].currentStage = 0.0f;
                 resources[i].maxStage = 0.0f;
+                resources[i].deltaPerSecond = 0.0f;
             }
         }
 
@@ -581,33 +582,39 @@ namespace AvionicsSystems
         /// </summary>
         private void ProcessResourceData()
         {
-            if (partSet == null)
+            //if (partSet == null)
             {
                 partSet = new PartSet(activeResources);
+                //Utility.LogMessage(this, "ProcessResourceData(): {0} parts in new set", partSet.GetParts().Count);
             }
-            else
-            {
-                partSet.RebuildParts(activeResources);
-            }
+            // This is supposed to allow refreshing the partSet, but it doesn't appear to work:
+            //else
+            //{
+            //    partSet.RebuildParts(activeResources);
+            //    Utility.LogMessage(this, "ProcessResourceData(): {0} parts in updated", partSet.GetParts().Count);
+            //}
 
             float timeDelta = 1.0f / TimeWarp.fixedDeltaTime;
             for (int i = resources.Length - 1; i >= 0; --i)
             {
-                double amount, maxAmount;
-                partSet.GetConnectedResourceTotals(resources[i].id, out amount, out maxAmount, true);
-                resources[i].maxStage = (float)maxAmount;
-                resources[i].currentStage = (float)amount;
-
-                if (resources[i].previousQuantity > 0.0f && resources[i].maxQuantity > 0.0f)
+                if (resources[i].maxQuantity > 0.0f)
                 {
-                    resources[i].deltaPerSecond = timeDelta * (resources[i].previousQuantity - resources[i].currentQuantity);
-                }
-                else
-                {
-                    resources[i].deltaPerSecond = 0.0f;
-                }
+                    double amount, maxAmount;
+                    partSet.GetConnectedResourceTotals(resources[i].id, out amount, out maxAmount, true);
+                    resources[i].maxStage = (float)maxAmount;
+                    resources[i].currentStage = (float)amount;
 
-                resources[i].previousQuantity = resources[i].currentQuantity;
+                    if (resources[i].previousQuantity > 0.0f)
+                    {
+                        resources[i].deltaPerSecond = timeDelta * (resources[i].previousQuantity - resources[i].currentQuantity);
+                    }
+                    else
+                    {
+                        resources[i].deltaPerSecond = 0.0f;
+                    }
+
+                    resources[i].previousQuantity = resources[i].currentQuantity;
+                }
             }
 
             // sort the array of installed indices.
