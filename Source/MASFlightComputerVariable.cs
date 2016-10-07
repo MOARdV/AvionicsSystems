@@ -1,4 +1,4 @@
-﻿#define PLENTIFUL_LOGGING
+﻿//#define PLENTIFUL_LOGGING
 #if PLENTIFUL_LOGGING
 //#define EXCESSIVE_LOGGING
 #endif
@@ -233,166 +233,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// See if we can parse the tokens sufficiently to create a delegate
-        /// that allows us to bypass the MoonSharp interpreter.  Returns
-        /// null on failure.
-        /// </summary>
-        /// <param name="tokens"></param>
-        /// <param name="lastToken"></param>
-        /// <returns></returns>
-        //        private Variable TryCreateNativeVariable(string variableName, Token[] tokens, int lastToken)
-        //        {
-        //            Variable newVar = null;
-        //            if (NativeMethod(tokens, 0, lastToken))
-        //            {
-        //#if VERBOSE_PARSING
-        //                Utility.LogMessage(this, "Native candidate...");
-        //#endif
-        //                // This looks promising...  Can we figure out how to construct a variable?
-        //                VariableParameter[] parameters = TryParseParameters(tokens, 4, lastToken - 1);
-
-        //                if (parameters.Length == 1 && parameters[0].vpType == VariableParameterType.UNSUPPORTED)
-        //                {
-        //#if VERBOSE_PARSING
-        //                    Utility.LogMessage(this, "... Unsupported component in parameter list");
-        //#endif
-        //                    return null;
-        //                }
-        //                else
-        //                {
-        //                    MethodInfo method = FindMethod(tokens[2].Text, typeMap[tokens[0].Text], parameters);
-        //                    if (method == null)
-        //                    {
-        //                        Utility.LogErrorMessage(this, "... Did not find matching method for '{0}'", tokens[2].Text);
-        //                    }
-        //                    else
-        //                    {
-        //#if VERBOSE_PARSING
-        //                        Utility.LogMessage(this, "... Found matching method for '{0}'", tokens[2].Text);
-        //#endif
-        //                        object objRef = null;
-        //                        switch (tokens[0].Text)
-        //                        {
-        //                            case "fc":
-        //                                objRef = fcProxy;
-        //                                break;
-        //                            case "far":
-        //                                objRef = farProxy;
-        //                                break;
-        //                            case "chatterer":
-        //                                objRef = chattererProxy;
-        //                                break;
-        //                            case "mechjeb":
-        //                                objRef = mjProxy;
-        //                                break;
-        //                            case "realchute":
-        //                                objRef = realChuteProxy;
-        //                                break;
-        //                        }
-        //                        if (objRef != null)
-        //                        {
-        //                            if (parameters.Length == 0)
-        //                            {
-        //                                // No parameters.
-        //                                DynamicMethod<object> dm = DynamicMethodFactory.CreateFunc<object>(method);
-        //                                if (dm != null)
-        //                                {
-        //                                    newVar = new Variable(variableName, () => { return dm(objRef); });
-        //#if VERBOSE_PARSING
-        //                                    Utility.LogMessage(this, "Added native variable \"{0}\"", variableName);
-        //#endif
-        //                                }
-        //                            }
-        //                            else
-        //                            {
-        //                                if (parameters.Length == 1)
-        //                                {
-        //                                    if (parameters[0].vpType == VariableParameterType.CONST_BOOL)
-        //                                    {
-        //                                        DynamicMethod<object, bool> dm = DynamicMethodFactory.CreateFunc<object, bool>(method);
-        //                                        bool bValue = parameters[0].booleanValue;
-        //                                        newVar = new Variable(variableName, () => { return dm(objRef, bValue); });
-        //#if VERBOSE_PARSING
-        //                                        Utility.LogMessage(this, "Added native bool variable \"{0}\"", variableName);
-        //#endif
-        //                                    }
-        //                                    else if (parameters[0].vpType == VariableParameterType.CONST_DOUBLE)
-        //                                    {
-        //                                        DynamicMethod<object, double> dm = DynamicMethodFactory.CreateFunc<object, double>(method);
-        //                                        double dValue = parameters[0].numericValue;
-        //                                        newVar = new Variable(variableName, () => { return dm(objRef, dValue); });
-        //#if VERBOSE_PARSING
-        //                                        Utility.LogMessage(this, "Added native double variable \"{0}\"", variableName);
-        //#endif
-        //                                    }
-        //                                    else if (parameters[0].vpType == VariableParameterType.CONST_STRING)
-        //                                    {
-        //                                        DynamicMethod<object, string> dm = DynamicMethodFactory.CreateFunc<object, string>(method);
-        //                                        string sValue = parameters[0].stringValue;
-        //                                        newVar = new Variable(variableName, () => { return dm(objRef, sValue); });
-        //#if VERBOSE_PARSING
-        //                                        Utility.LogMessage(this, "Added native string variable \"{0}\"", variableName);
-        //#endif
-        //                                    }
-        //                                    else if (parameters[0].vpType == VariableParameterType.VARIABLE)
-        //                                    {
-        //                                        if (parameters[0].valueType == typeof(bool))
-        //                                        {
-        //                                            DynamicMethod<object, bool> dm = DynamicMethodFactory.CreateFunc<object, bool>(method);
-        //                                            Variable v = parameters[0].variableValue;
-        //                                            newVar = new Variable(variableName, () =>
-        //                                            {
-        //                                                bool bValue = (bool)v.RawValue();
-        //                                                return dm(objRef, bValue);
-        //                                            });
-        //#if VERBOSE_PARSING
-        //                                            Utility.LogMessage(this, "Added variable bool variable \"{0}\"", variableName);
-        //#endif
-        //                                        }
-        //                                        else if (parameters[0].valueType == typeof(double))
-        //                                        {
-        //                                            DynamicMethod<object, double> dm = DynamicMethodFactory.CreateFunc<object, double>(method);
-        //                                            Variable v = parameters[0].variableValue;
-        //                                            newVar = new Variable(variableName, () =>
-        //                                            {
-        //                                                return dm(objRef, v.SafeValue());
-        //                                            });
-        //#if VERBOSE_PARSING
-        //                                            Utility.LogMessage(this, "Added variable double variable \"{0}\"", variableName);
-        //#endif
-        //                                        }
-        //                                        else if (parameters[0].valueType == typeof(string))
-        //                                        {
-        //                                            DynamicMethod<object, string> dm = DynamicMethodFactory.CreateFunc<object, string>(method);
-        //                                            Variable v = parameters[0].variableValue;
-        //                                            newVar = new Variable(variableName, () =>
-        //                                            {
-        //                                                return dm(objRef, v.String());
-        //                                            });
-        //#if VERBOSE_PARSING
-        //                                            Utility.LogMessage(this, "Added variable string variable \"{0}\"", variableName);
-        //#endif
-        //                                        }
-        //                                    }
-        //                                    else
-        //                                    {
-        //                                        Utility.LogErrorMessage(this, "Found unsupported parameter type {0} for variable {1}", parameters[0].vpType, variableName);
-        //                                    }
-        //                                }
-        //                                else
-        //                                {
-        //                                    Utility.LogErrorMessage(this, "Found unsupported {0} parameter method for {1}", parameters.Length, variableName);
-        //                                }
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //            }
-
-        //            return newVar;
-        //        }
-
-        /// <summary>
         /// Get the named Variable (for direct access).
         /// 
         /// So, that's the really short summary, but it does not tell you what
@@ -461,7 +301,8 @@ namespace AvionicsSystems
                 }
                 else if (result.type == CodeGen.Parser.ResultType.EXPRESSION_TREE)
                 {
-#if PLENTIFUL_LOGGING
+#if EXCESSIVE_LOGGING
+
                     Utility.LogMessage(this, "- EXPRESSION_TREE");
 #endif
                     v = GenerateVariable(result.expressionTree);
@@ -489,7 +330,9 @@ namespace AvionicsSystems
                         mutableVariablesList.Add(v);
                         mutableVariablesChanged = true;
                     }
+#if PLENTIFUL_LOGGING
                     Utility.LogMessage(this, "Adding new variable '{0}'", result.canonicalName);
+#endif
                 }
             }
 
@@ -542,8 +385,16 @@ namespace AvionicsSystems
 #endif
                     v = GenerateCallVariable(expression as CodeGen.CallExpression);
                     break;
+                case CodeGen.ExpressionIs.Name:
+#if EXCESSIVE_LOGGING
+                    Utility.LogMessage(this, "-- GenerateVariable(): NameExpression");
+#endif
+                    v = GenerateNameVariable(expression as CodeGen.NameExpression);
+                    break;
                 default:
+#if PLENTIFUL_LOGGING
                     Utility.LogErrorMessage(this, "!! GenerateVariable(): Unhandled expression type {0}", expression.GetType());
+#endif
                     //v = new Variable(canonical, script);
                     break;
             }
@@ -575,6 +426,27 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Generate a variable from a name expression.
+        /// </summary>
+        /// <param name="nameExpression"></param>
+        /// <returns></returns>
+        private Variable GenerateNameVariable(CodeGen.NameExpression nameExpression)
+        {
+            if (nameExpression.getName() == "true")
+            {
+                return new Variable(true);
+            }
+            else if (nameExpression.getName() == "false")
+            {
+                return new Variable(false);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Take a binary operator (+, -, *, /, <, >, etc) and transform it into
         /// a variable.
         /// </summary>
@@ -582,8 +454,65 @@ namespace AvionicsSystems
         /// <returns></returns>
         private Variable GenerateOperatorVariable(CodeGen.OperatorExpression operatorExpression)
         {
+            Variable lhs = GenerateVariable(operatorExpression.LeftOperand());
+            Variable rhs = GenerateVariable(operatorExpression.RightOperand());
+#if EXCESSIVE_LOGGING
             Utility.LogMessage(this, "--- GenerateOperatorVariable(): operator {0}", operatorExpression.Operator());
-            return null;
+#endif
+#if PLENTIFUL_LOGGING
+            if (lhs == null)
+            {
+                if (rhs == null)
+                {
+                    Utility.LogMessage(this, "!!! GenerateOperatorVariable(): Failed to find both operands {0} and {1}",
+                        operatorExpression.LeftOperand().CanonicalName(), operatorExpression.RightOperand().CanonicalName());
+                }
+                else
+                {
+                    Utility.LogMessage(this, "!!! GenerateOperatorVariable(): Failed to find left operand {0}",
+                        operatorExpression.LeftOperand().CanonicalName());
+                }
+
+                return null;
+            }
+            else if (rhs == null)
+            {
+                Utility.LogMessage(this, "!!! GenerateOperatorVariable(): Failed to find right operand {0}",
+                    operatorExpression.RightOperand().CanonicalName());
+                return null;
+            }
+#endif
+            Variable v = null;
+            switch(operatorExpression.Operator())
+            {
+                case CodeGen.Parser.LuaToken.PLUS:
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() + rhs.SafeValue());
+                    break;
+                case CodeGen.Parser.LuaToken.MINUS:
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() - rhs.SafeValue());
+                    break;
+                case CodeGen.Parser.LuaToken.MULTIPLY:
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() * rhs.SafeValue());
+                    break;
+                case CodeGen.Parser.LuaToken.DIVIDE:
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() / rhs.SafeValue());
+                    break;
+                case CodeGen.Parser.LuaToken.LESS_THAN:
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() < rhs.SafeValue());
+                    break;
+                case CodeGen.Parser.LuaToken.GREATER_THAN:
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() > rhs.SafeValue());
+                    break;
+                case CodeGen.Parser.LuaToken.AND:
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.BoolValue() && rhs.BoolValue());
+                    break;
+                default:
+#if PLENTIFUL_LOGGING
+                    Utility.LogErrorMessage(this, "!!! GenerateOperatorVariable(): unsupported operator {0}", operatorExpression.Operator());
+#endif
+                    break;
+            }
+            return v;
         }
 
         /// <summary>
@@ -634,7 +563,9 @@ namespace AvionicsSystems
                     parms[i] = GenerateVariable(exp);
                     if (parms[i] == null)
                     {
+#if PLENTIFUL_LOGGING
                         Utility.LogErrorMessage(this, "!!! GenerateCallVariable(): Unable to generate variable for parameter {0}, punting", i, exp.CanonicalName());
+#endif
                         return null;
                     }
                     else
@@ -679,6 +610,14 @@ namespace AvionicsSystems
                             DynamicMethod<object, string> dm = DynamicMethodFactory.CreateFunc<object, string>(method);
                             return new Variable(canonical, () => dm(tableInstance, parms[0].String()));
                         }
+                        else if (methodParams[0].ParameterType == typeof(bool))
+                        {
+#if EXCESSIVE_LOGGING
+                            Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
+#endif
+                            DynamicMethod<object, bool> dm = DynamicMethodFactory.CreateFunc<object, bool>(method);
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].BoolValue()));
+                        }
                         else if (methodParams[0].ParameterType == typeof(object))
                         {
 #if EXCESSIVE_LOGGING
@@ -689,8 +628,29 @@ namespace AvionicsSystems
                         }
                         else
                         {
-                            Utility.LogErrorMessage(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
+                            Utility.LogErrorMessage(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0}, with parameter {1}", canonical, methodParams[0].ParameterType);
                         }
+                    }
+                    else if (numArgs == 2)
+                    {
+                        if (methodParams[0].ParameterType == typeof(double) && methodParams[1].ParameterType == typeof(double))
+                        {
+                            DynamicMethod<object, double, double> dm = DynamicMethodFactory.CreateFunc<object, double, double>(method);
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].SafeValue()));
+                        }
+                        else if (methodParams[0].ParameterType == typeof(bool) && methodParams[1].ParameterType == typeof(double))
+                        {
+                            DynamicMethod<object, bool, double> dm = DynamicMethodFactory.CreateFunc<object, bool, double>(method);
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].BoolValue(), parms[1].SafeValue()));
+                        }
+                        else
+                        {
+                            Utility.LogErrorMessage(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0}, with parameters {1} and {2}", canonical, methodParams[0].ParameterType, methodParams[1].ParameterType);
+                        }
+                    }
+                    else
+                    {
+                        Utility.LogErrorMessage(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0} with {1} parameters", canonical, numArgs);
                     }
                 }
 #if PLENTIFUL_LOGGING
@@ -775,6 +735,22 @@ namespace AvionicsSystems
                 Constant,
                 Func,
             };
+
+            /// <summary>
+            /// Construct a constant boolean Variable.
+            /// </summary>
+            /// <param name="value"></param>
+            public Variable(bool value)
+            {
+                this.name = string.Format("{0}", value);
+
+                this.valid = true;
+                this.stringValue = this.name;
+                this.doubleValue = value ? 1.0 : 0.0;
+                this.safeValue = this.doubleValue;
+                this.rawObject = value;
+                this.variableType = VariableType.Constant;
+            }
 
             /// <summary>
             /// Construct a constant numeric Variable.
@@ -867,6 +843,15 @@ namespace AvionicsSystems
             public object RawValue()
             {
                 return rawObject;
+            }
+
+            /// <summary>
+            /// Return the object conditioned as a boolean.
+            /// </summary>
+            /// <returns></returns>
+            public bool BoolValue()
+            {
+                return (safeValue != 0.0);
             }
 
             /// <summary>
