@@ -52,6 +52,7 @@ namespace AvionicsSystems.CodeGen
 
     interface Expression
     {
+        string CanonicalName();
         void print(StringBuilder builder);
         Type ReturnType();
         ExpressionIs ExpressionType();

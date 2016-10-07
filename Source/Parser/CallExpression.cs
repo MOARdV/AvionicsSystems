@@ -45,7 +45,13 @@ namespace AvionicsSystems.CodeGen
         {
             mFunction = function;
             mArgs = args;
+
+            StringBuilder sb = Utility.GetStringBuilder();
+            print(sb);
+            canonicalName = sb.ToString();
         }
+
+        public string CanonicalName() { return canonicalName; }
 
         public ExpressionIs ExpressionType() { return ExpressionIs.Call; }
 
@@ -75,5 +81,6 @@ namespace AvionicsSystems.CodeGen
 
         private Expression mFunction;
         private List<Expression> mArgs;
+        private string canonicalName;
     }
 }

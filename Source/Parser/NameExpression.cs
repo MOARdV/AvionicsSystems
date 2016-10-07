@@ -44,7 +44,13 @@ namespace AvionicsSystems.CodeGen
         public NameExpression(String name)
         {
             mName = name;
+
+            StringBuilder sb = Utility.GetStringBuilder();
+            print(sb);
+            canonicalName = sb.ToString();
         }
+
+        public string CanonicalName() { return canonicalName; }
 
         public ExpressionIs ExpressionType() { return ExpressionIs.Name; }
 
@@ -62,13 +68,21 @@ namespace AvionicsSystems.CodeGen
         }
 
         private String mName;
+        private string canonicalName;
     }
+
     class StringExpression : Expression
     {
         public StringExpression(String name)
         {
             mName = name.Substring(1, name.Length-2);
+
+            StringBuilder sb = Utility.GetStringBuilder();
+            print(sb);
+            canonicalName = sb.ToString();
         }
+
+        public string CanonicalName() { return canonicalName; }
 
         public ExpressionIs ExpressionType() { return ExpressionIs.ConstantString; }
         
@@ -87,5 +101,6 @@ namespace AvionicsSystems.CodeGen
         }
 
         private String mName;
+        private string canonicalName;
     }
 }

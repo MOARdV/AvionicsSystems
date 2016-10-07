@@ -68,7 +68,13 @@ namespace AvionicsSystems.CodeGen
                     returnType = typeof(void);
                     break;
             }
+
+            StringBuilder sb = Utility.GetStringBuilder();
+            print(sb);
+            canonicalName = sb.ToString();
         }
+
+        public string CanonicalName() { return canonicalName; }
 
         public ExpressionIs ExpressionType() { return ExpressionIs.Operator; }
 
@@ -94,6 +100,7 @@ namespace AvionicsSystems.CodeGen
         private Parser.LuaToken mOperator;
         private Expression mRight;
         private readonly Type returnType;
+        private string canonicalName;
     }
 
     class DotOperatorExpression : Expression
@@ -103,7 +110,13 @@ namespace AvionicsSystems.CodeGen
             mLeft = left;
             mOperator = oper;
             mRight = right;
+
+            StringBuilder sb = Utility.GetStringBuilder();
+            print(sb);
+            canonicalName = sb.ToString();
         }
+
+        public string CanonicalName() { return canonicalName; }
 
         public ExpressionIs ExpressionType() { return ExpressionIs.DotOperator; }
 
@@ -128,5 +141,6 @@ namespace AvionicsSystems.CodeGen
         private Expression mLeft;
         private Parser.LuaToken mOperator;
         private Expression mRight;
+        private string canonicalName;
     }
 }

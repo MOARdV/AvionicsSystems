@@ -48,7 +48,13 @@ namespace AvionicsSystems.CodeGen
         {
             mOperator = oper;
             mRight = right;
+
+            StringBuilder sb = Utility.GetStringBuilder();
+            print(sb);
+            canonicalName = sb.ToString();
         }
+
+        public string CanonicalName() { return canonicalName; }
 
         public ExpressionIs ExpressionType() { return ExpressionIs.PrefixOperator; }
 
@@ -69,5 +75,6 @@ namespace AvionicsSystems.CodeGen
 
         private Parser.LuaToken mOperator;
         private Expression mRight;
+        private string canonicalName;
     }
 }

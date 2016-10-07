@@ -503,10 +503,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         private Variable GenerateVariable(CodeGen.Expression expression)
         {
-            StringBuilder sb = Utility.GetStringBuilder();
-            expression.print(sb);
-
-            string canonical = sb.ToString();
+            string canonical = expression.CanonicalName();
             if (variables.ContainsKey(canonical))
             {
                 return variables[canonical];
@@ -618,12 +615,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         private Variable GenerateCallVariable(CodeGen.CallExpression callExpression)
         {
-            StringBuilder sb;
-
-            // Temporary: only look at 0 arg options
-            sb = Utility.GetStringBuilder();
-            callExpression.print(sb);
-            string canonical = sb.ToString();
+            string canonical = callExpression.CanonicalName();
 
             if (callExpression.Function().ExpressionType() == CodeGen.ExpressionIs.DotOperator)
             {
@@ -635,16 +627,14 @@ namespace AvionicsSystems
 #endif
                 for (int i = 0; i < numArgs; ++i)
                 {
-                    sb = Utility.GetStringBuilder();
                     CodeGen.Expression exp = callExpression.Arg(i);
-                    exp.print(sb);
 #if EXCESSIVE_LOGGING
                     Utility.LogMessage(this, "--- GenerateCallVariable(): Parameter {0} is {1} (a {2})", i, sb.ToString(), exp.ExpressionType());
 #endif
                     parms[i] = GenerateVariable(exp);
                     if (parms[i] == null)
                     {
-                        Utility.LogErrorMessage(this, "!!! GenerateCallVariable(): Unable to generate variable for parameter {0}, punting", i, sb.ToString());
+                        Utility.LogErrorMessage(this, "!!! GenerateCallVariable(): Unable to generate variable for parameter {0}, punting", i, exp.CanonicalName());
                         return null;
                     }
                     else

@@ -44,7 +44,13 @@ namespace AvionicsSystems.CodeGen
         public NumberExpression(double number)
         {
             this.number = number;
+
+            StringBuilder sb = Utility.GetStringBuilder();
+            print(sb);
+            canonicalName = sb.ToString();
         }
+
+        public string CanonicalName() { return canonicalName; }
 
         public ExpressionIs ExpressionType() { return ExpressionIs.ConstantNumber; }
 
@@ -61,5 +67,6 @@ namespace AvionicsSystems.CodeGen
         }
 
         private double number;
+        private string canonicalName;
     }
 }

@@ -121,9 +121,7 @@ namespace AvionicsSystems.CodeGen
 
                 Expression exp = parser.parseExpression();
 
-                StringBuilder sb = Utility.GetStringBuilder();
-                exp.print(sb);
-                result.canonicalName = sb.ToString();
+                result.canonicalName = exp.CanonicalName();
 
                 if (exp is StringExpression)
                 {
