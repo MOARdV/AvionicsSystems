@@ -2412,7 +2412,6 @@ namespace AvionicsSystems
         public double Longitude()
         {
             // longitude seems to be unnormalized.
-            Utility.LogMessage(this, "Longitude() = {0:0.000} -> {1:0.000}", vessel.longitude, Utility.NormalizeLongitude(vessel.longitude));
             return Utility.NormalizeLongitude(vessel.longitude);
         }
         #endregion
