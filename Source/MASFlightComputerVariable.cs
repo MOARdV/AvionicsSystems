@@ -1,4 +1,8 @@
-﻿/*****************************************************************************
+﻿#define PLENTIFUL_LOGGING
+#if PLENTIFUL_LOGGING
+//#define EXCESSIVE_LOGGING
+#endif
+/*****************************************************************************
  * The MIT License (MIT)
  * 
  * Copyright (c) 2016 MOARdV
@@ -70,11 +74,22 @@ namespace AvionicsSystems
             {"realchute", typeof(MASIRealChute)},
         };
 
-        internal bool GetMASIMethod(string tableName, string methodName, Type[] parameters, out object tableRef, out MethodInfo methodInfo)
+        /// <summary>
+        /// Given a table (object) name, a method name, and an array of
+        /// parameters, use reflection to find the object and Method that
+        /// corresponds to that table.method pair.
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="methodName"></param>
+        /// <param name="parameters"></param>
+        /// <param name="tableRef"></param>
+        /// <param name="methodInfo"></param>
+        /// <returns></returns>
+        private bool GetMASIMethod(string tableName, string methodName, Type[] parameters, out object tableRef, out MethodInfo methodInfo)
         {
             methodInfo = null;
             tableRef = null;
-            if (typeMap.ContainsKey(tableName))
+            //if (typeMap.ContainsKey(tableName)) // Did this already by the caller
             {
                 methodInfo = FindMethod(methodName, typeMap[tableName], parameters);
 
@@ -197,7 +212,8 @@ namespace AvionicsSystems
                             bool match = true;
                             for (int index = 0; index < numParams; ++index)
                             {
-                                if (methodParams[index].ParameterType != parameters[index])
+                                //if (methodParams[index].ParameterType != parameters[index])
+                                if (!(methodParams[index].ParameterType == typeof(object) || parameters[index] == typeof(object) || methodParams[index].ParameterType == parameters[index]))
                                 {
                                     match = false;
                                     break;
@@ -416,7 +432,6 @@ namespace AvionicsSystems
             }
 
             CodeGen.Parser.CompilerResult result = CodeGen.Parser.TryParse(variableName);
-
             Variable v = null;
             if (variables.ContainsKey(result.canonicalName))
             {
@@ -424,18 +439,31 @@ namespace AvionicsSystems
             }
             else
             {
+#if PLENTIFUL_LOGGING
+                Utility.LogMessage(this, "*  *  *");
+                Utility.LogMessage(this, "Generating variable from {0}", result.canonicalName);
+#endif
                 if (result.type == CodeGen.Parser.ResultType.NUMERIC_CONSTANT)
                 {
+#if EXCESSIVE_LOGGING
+                    Utility.LogMessage(this, "- NUMERIC_CONSTANT");
+#endif
                     v = new Variable(result.numericConstant);
                     ++constantVariableCount;
                 }
                 else if (result.type == CodeGen.Parser.ResultType.STRING_CONSTANT)
                 {
+#if EXCESSIVE_LOGGING
+                    Utility.LogMessage(this, "- STRING_CONSTANT");
+#endif
                     v = new Variable(result.stringConstant);
                     ++constantVariableCount;
                 }
                 else if (result.type == CodeGen.Parser.ResultType.EXPRESSION_TREE)
                 {
+#if PLENTIFUL_LOGGING
+                    Utility.LogMessage(this, "- EXPRESSION_TREE");
+#endif
                     v = GenerateVariable(result.expressionTree);
                     if(v != null && v.variableType == Variable.VariableType.Func)
                     {
@@ -445,88 +473,231 @@ namespace AvionicsSystems
 
                 if (v == null)
                 {
+#if PLENTIFUL_LOGGING
+                    Utility.LogMessage(this, "- fall back to Lua scripting");
+#endif
                     // If we couldn't find a way to optimize the value, fall
                     // back to interpreted Lua script.
                     v = new Variable(result.canonicalName, script);
                     ++luaVariableCount;
                 }
-                variables.Add(result.canonicalName, v);
-                if (v.mutable)
+                if (!variables.ContainsKey(result.canonicalName))
                 {
-                    mutableVariablesList.Add(v);
-                    mutableVariablesChanged = true;
+                    variables.Add(result.canonicalName, v);
+                    if (v.mutable)
+                    {
+                        mutableVariablesList.Add(v);
+                        mutableVariablesChanged = true;
+                    }
+                    Utility.LogMessage(this, "Adding new variable '{0}'", result.canonicalName);
                 }
-                Utility.LogMessage(this, "Adding new variable '{0}'", result.canonicalName);
             }
 
             return v;
         }
 
         /// <summary>
-        /// Transform an expression into a delegate
+        /// Transform an expression into a delegate.
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
         private Variable GenerateVariable(CodeGen.Expression expression)
         {
+            StringBuilder sb = Utility.GetStringBuilder();
+            expression.print(sb);
+
+            string canonical = sb.ToString();
+            if (variables.ContainsKey(canonical))
+            {
+                return variables[canonical];
+            }
+
+            Variable v = null;
             switch(expression.ExpressionType())
             {
                 case CodeGen.ExpressionIs.ConstantNumber:
-                    return new Variable((expression as CodeGen.NumberExpression).getNumber());
-                    //break;
+#if EXCESSIVE_LOGGING
+                    Utility.LogMessage(this, "-- GenerateVariable(): NumberExpression");
+#endif
+                    v = new Variable((expression as CodeGen.NumberExpression).getNumber());
+                    break;
                 case CodeGen.ExpressionIs.ConstantString:
-                    return new Variable((expression as CodeGen.StringExpression).getString());
-                    //break;
+#if EXCESSIVE_LOGGING
+                    Utility.LogMessage(this, "-- GenerateVariable(): StringExpression");
+#endif
+                    v = new Variable((expression as CodeGen.StringExpression).getString());
+                    break;
+                case CodeGen.ExpressionIs.Call:
+#if EXCESSIVE_LOGGING
+                    Utility.LogMessage(this, "-- GenerateVariable(): CallExpression");
+#endif
+                    v = GenerateCallVariable(expression as CodeGen.CallExpression);
+                    break;
                 default:
-                    Utility.LogErrorMessage(this, "Unhandled expression type {0}", expression.GetType());
+                    Utility.LogErrorMessage(this, "!! GenerateVariable(): Unhandled expression type {0}", expression.GetType());
+                    //v = new Variable(canonical, script);
                     break;
             }
-            return null;
-            //throw new NotImplementedException();
+
+            if (v != null && !variables.ContainsKey(canonical))
+            {
+                variables.Add(canonical, v);
+                if (v.mutable)
+                {
+                    mutableVariablesList.Add(v);
+                    mutableVariablesChanged = true;
+                }
+
+                if (v.variableType == Variable.VariableType.Constant)
+                {
+                    ++constantVariableCount;
+                }
+                else if(v.variableType == Variable.VariableType.Func)
+                {
+                    ++nativeVariableCount;
+                }
+                else if(v.variableType == Variable.VariableType.LuaScript)
+                {
+                    ++luaVariableCount;
+                }
+            }
+
+            return v;
         }
 
         /// <summary>
-        /// Create or return a named variable based on a CodeGen Expression.  We use this to break
-        /// down complex statements into smaller chunks that may be used by more than one
-        /// data consumer, or that may already exist on its own, to reduce the amount of redundant
-        /// data we update.
+        /// Given a CallExpression, convert it into either a native delegate or a Lua
+        /// script function.
         /// </summary>
-        /// <param name="canonicalName"></param>
-        /// <param name="expression"></param>
+        /// <param name="callExpression"></param>
         /// <returns></returns>
-        internal Variable GetVariable(CodeGen.Expression expression, string canonicalName)
+        private Variable GenerateCallVariable(CodeGen.CallExpression callExpression)
         {
-            if (variables.ContainsKey(canonicalName))
-            {
-                // Early return: variable exists already.
-                return variables[canonicalName];
-            }
-            else
-            {
-                // Time to generate a variable.
-                Variable v = null;
-                if (expression is CodeGen.NumberExpression)
-                {
-                    v = new Variable((expression as CodeGen.NumberExpression).getNumber());
-                    ++constantVariableCount;
-                }
-                else if (expression is CodeGen.StringExpression)
-                {
-                    v = new Variable((expression as CodeGen.StringExpression).getString());
-                    ++constantVariableCount;
-                }
+            StringBuilder sb;
 
-                if (v != null)
+            // Temporary: only look at 0 arg options
+            sb = Utility.GetStringBuilder();
+            callExpression.print(sb);
+            string canonical = sb.ToString();
+
+            if (callExpression.Function().ExpressionType() == CodeGen.ExpressionIs.DotOperator)
+            {
+                int numArgs = callExpression.NumArgs();
+                Variable[] parms = new Variable[numArgs];
+                Type[] parameters = new Type[numArgs];
+#if EXCESSIVE_LOGGING
+                Utility.LogMessage(this, "--- GenerateCallVariable(): {0} parameters", numArgs);
+#endif
+                for (int i = 0; i < numArgs; ++i)
                 {
-                    variables.Add(canonicalName, v);
-                    if (v.mutable)
+                    sb = Utility.GetStringBuilder();
+                    CodeGen.Expression exp = callExpression.Arg(i);
+                    exp.print(sb);
+#if EXCESSIVE_LOGGING
+                    Utility.LogMessage(this, "--- GenerateCallVariable(): Parameter {0} is {1} (a {2})", i, sb.ToString(), exp.ExpressionType());
+#endif
+                    parms[i] = GenerateVariable(exp);
+                    if (parms[i] == null)
                     {
-                        mutableVariablesList.Add(v);
-                        mutableVariablesChanged = true;
+                        Utility.LogErrorMessage(this, "!!! GenerateCallVariable(): Unable to generate variable for parameter {0}, punting", i, sb.ToString());
+                        return null;
+                    }
+                    else
+                    {
+                        parameters[i] = parms[i].RawValue().GetType();
+#if EXCESSIVE_LOGGING
+                        Utility.LogMessage(this, "--- GenerateCallVariable(): parameter[{0}] is {1}", i, parameters[i]);
+#endif
                     }
                 }
 
-                return v;
+                object tableInstance;
+                MethodInfo method;
+                EvaluateDotOperator(callExpression.Function() as CodeGen.DotOperatorExpression, parameters, out tableInstance, out method);
+
+                if (tableInstance != null)
+                {
+                    ParameterInfo[] methodParams = method.GetParameters();
+                    if (numArgs == 0)
+                    {
+                        DynamicMethod<object> dm = DynamicMethodFactory.CreateFunc<object>(method);
+#if EXCESSIVE_LOGGING
+                        Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, {1} parameters", canonical, numArgs);
+#endif
+                        return new Variable(canonical, () => dm(tableInstance));
+                    }
+                    else if (numArgs == 1)
+                    {
+                        if (methodParams[0].ParameterType == typeof(double))
+                        {
+#if EXCESSIVE_LOGGING
+                            Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
+#endif
+                            DynamicMethod<object, double> dm = DynamicMethodFactory.CreateFunc<object, double>(method);
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue()));
+                        }
+                        else if (methodParams[0].ParameterType == typeof(string))
+                        {
+#if EXCESSIVE_LOGGING
+                            Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
+#endif
+                            DynamicMethod<object, string> dm = DynamicMethodFactory.CreateFunc<object, string>(method);
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].String()));
+                        }
+                        else if (methodParams[0].ParameterType == typeof(object))
+                        {
+#if EXCESSIVE_LOGGING
+                            Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
+#endif
+                            DynamicMethod<object, object> dm = DynamicMethodFactory.CreateFunc<object, object>(method);
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].RawValue()));
+                        }
+                        else
+                        {
+                            Utility.LogErrorMessage(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
+                        }
+                    }
+                }
+#if PLENTIFUL_LOGGING
+                else
+                {
+                    Utility.LogMessage(this, "!!! GenerateCallVariable(): Did not find method for {0}", canonical);
+                }
+#endif
+            }
+#if EXCESSIVE_LOGGING
+            else
+            {
+                Utility.LogMessage(this, "--- GenerateCallVariable(): Not able to find method for {0}", canonical);
+            }
+#endif
+
+            return null;
+        }
+
+        /// <summary>
+        /// Dot Operator evaluation for the case of a table.method pair - does not handle
+        /// convention Lua tables.  It's only for the case of a reflected object.method,
+        /// such as fc.Pitch().
+        /// </summary>
+        /// <param name="dotOperatorExpression"></param>
+        /// <param name="parameters"></param>
+        /// <param name="tableInstance"></param>
+        /// <param name="method"></param>
+        private void EvaluateDotOperator(CodeGen.DotOperatorExpression dotOperatorExpression, Type[] parameters, out object tableInstance, out MethodInfo method)
+        {
+            tableInstance = null;
+            method = null;
+
+            StringBuilder sb = Utility.GetStringBuilder();
+            dotOperatorExpression.print(sb);
+
+            CodeGen.NameExpression tableName = dotOperatorExpression.TableName() as CodeGen.NameExpression;
+            CodeGen.NameExpression methodName = dotOperatorExpression.MethodName() as CodeGen.NameExpression;
+
+            if (tableName != null && methodName != null && typeMap.ContainsKey(tableName.getName()))
+            {
+                GetMASIMethod(tableName.getName(), methodName.getName(), parameters, out tableInstance, out method);
             }
         }
 
