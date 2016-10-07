@@ -37,6 +37,7 @@ namespace AvionicsSystems
 
     public delegate object DynamicMethod<T>(T param0);
     public delegate object DynamicMethod<T, U>(T param0, U param1);
+    public delegate object DynamicMethod<T, U, V>(T param0, U param1, V param2);
     public delegate object DynamicMethod<T, U, V, W>(T param0, U param1, V param2, W param3);
     public delegate bool DynamicMethodBool<T>(T param0);
     public delegate double DynamicMethodDouble<T>(T param0);
@@ -244,6 +245,99 @@ namespace AvionicsSystems
 
 
             return (DynamicMethod<T, U>)dynam.CreateDelegate(typeof(DynamicMethod<T, U>));
+        }
+
+        static internal DynamicMethod<T, U, V> CreateFunc<T, U, V>(MethodInfo methodInfo)
+        {
+            // Up front validation:
+            ParameterInfo[] parms = methodInfo.GetParameters();
+            if (methodInfo.IsStatic)
+            {
+                if (parms.Length != 3)
+                {
+                    throw new ArgumentException("CreateFunc<T, U, V> called with static method that takes " + parms.Length + " parameters");
+                }
+
+                if (typeof(T) != parms[0].ParameterType)
+                {
+                    throw new ArgumentException("CreateFunc<T, U, V, W> parameter [0] mismatch");
+                }
+                if (typeof(U) != parms[1].ParameterType)
+                {
+                    throw new ArgumentException("CreateFunc<T, U, V, W> parameter [1] mismatch");
+                }
+                if (typeof(V) != parms[2].ParameterType)
+                {
+                    throw new ArgumentException("CreateFunc<T, U, V, W> parameter [2] mismatch");
+                }
+            }
+            else
+            {
+                if (parms.Length != 2)
+                {
+                    throw new ArgumentException("CreateFunc<T, U, V> called with non-static method that takes " + parms.Length + " parameters");
+                }
+                // How do I validate T?
+                //if (typeof(T) != parms[0].ParameterType)
+                //{
+                //    // What to do?
+                //}
+                if (typeof(U) != parms[0].ParameterType)
+                {
+                    throw new ArgumentException("CreateFunc<T, U, V, W> parameter [0] mismatch");
+                }
+                if (typeof(V) != parms[1].ParameterType)
+                {
+                    throw new ArgumentException("CreateFunc<T, U, V, W> parameter [1] mismatch");
+                }
+            }
+
+            Type[] _argTypes = { typeof(T), typeof(U), typeof(V) };
+
+            // Create dynamic method and obtain its IL generator to
+            // inject code.
+            DynamicMethod dynam =
+                new DynamicMethod(
+                "", // name - don't care
+                typeof(object), // return type
+                _argTypes, // argument types
+                typeof(DynamicMethodFactory));
+            ILGenerator il = dynam.GetILGenerator();
+
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Ldarg_2);
+
+            // Perform actual call.
+            // If method is not final a callvirt is required
+            // otherwise a normal call will be emitted.
+            if (methodInfo.IsFinal)
+            {
+                il.Emit(OpCodes.Call, methodInfo);
+            }
+            else
+            {
+                il.Emit(OpCodes.Callvirt, methodInfo);
+            }
+
+            if (methodInfo.ReturnType != typeof(void))
+            {
+                // If result is of value type it needs to be boxed
+                if (methodInfo.ReturnType.IsValueType)
+                {
+                    il.Emit(OpCodes.Box, methodInfo.ReturnType);
+                }
+            }
+            else
+            {
+                il.Emit(OpCodes.Ldnull);
+            }
+
+            // Emit return opcode.
+            il.Emit(OpCodes.Ret);
+
+
+            return (DynamicMethod<T, U, V>)dynam.CreateDelegate(typeof(DynamicMethod<T, U, V>));
         }
 
         static internal DynamicMethod<T, U, V, W> CreateFunc<T, U, V, W>(MethodInfo methodInfo)
