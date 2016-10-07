@@ -108,11 +108,6 @@ namespace AvionicsSystems
         static public Dictionary<string, Color32> namedColors = new Dictionary<string, Color32>();
 
         /// <summary>
-        /// Where is my config file?
-        /// </summary>
-        static private readonly string configFileName = "GameData/AvionicsSystems/PluginData/AvionicsSystems.cfg";
-
-        /// <summary>
         /// Does the config file say I should use verbose logging?
         /// </summary>
         static public bool VerboseLogging = false;
@@ -194,59 +189,8 @@ namespace AvionicsSystems
                 throw new Exception("MASLoader: GameDatabase is not ready.  Unable to continue.");
             }
 
-            ConfigNode config = ConfigNode.Load(KSPUtil.ApplicationRootPath + configFileName);
-            if (config != null && config.CountNodes > 0)
-            {
-                config = config.GetNode("AvionicsSystems");
-            }
-            else
-            {
-                config = null;
-            }
-
-            if (config != null)
-            {
-                bool logging = false;
-                if (config.TryGetValue("VerboseLogging", ref logging))
-                {
-                    VerboseLogging = logging;
-                    Utility.LogMessage(this, "VerboseLogging = {0}", VerboseLogging);
-                }
-
-                string newElectricCharge = string.Empty;
-                if (config.TryGetValue("ElectricCharge", ref newElectricCharge))
-                {
-                    ElectricCharge = newElectricCharge;
-                }
-
-                ConfigNode navNode = config.GetNode("Navigation");
-                if (navNode != null)
-                {
-                    float generalPropagation = 0.0f;
-                    if (navNode.TryGetValue("GeneralPropagation", ref generalPropagation))
-                    {
-                        navigation.generalPropagation = generalPropagation;
-                    }
-
-                    float NDBPropagation = 0.0f;
-                    if (navNode.TryGetValue("NDBPropagation", ref NDBPropagation))
-                    {
-                        navigation.NDBPropagation = NDBPropagation;
-                    }
-
-                    float VORPropagation = 0.0f;
-                    if (navNode.TryGetValue("VORPropagation", ref VORPropagation))
-                    {
-                        navigation.VORPropagation = VORPropagation;
-                    }
-
-                    float DMEPropagation = 0.0f;
-                    if (navNode.TryGetValue("DMEPropagation", ref DMEPropagation))
-                    {
-                        navigation.DMEPropagation = DMEPropagation;
-                    }
-                }
-            }
+            GameEvents.OnGameSettingsApplied.Add(OnGameSettingsApplied);
+            GameEvents.onGameStateLoad.Add(OnGameStateLoad);
 
             // HACK: Pass only one of the asset definitions, since LoadAssets
             // behaves badly if we ask it to load more than one.  If that ever
@@ -255,6 +199,64 @@ namespace AvionicsSystems
 
             StartCoroutine("LoadAvionicsSystemAssets");
             RegisterWithModuleManager();
+        }
+
+        /// <summary>
+        /// Callback for once the game has been loaded, so we can read our configs.
+        /// </summary>
+        /// <param name="data"></param>
+        private void OnGameStateLoad(ConfigNode data)
+        {
+            OnGameSettingsApplied();
+        }
+
+        /// <summary>
+        /// Callback for when game settings are changed.
+        /// </summary>
+        private void OnGameSettingsApplied()
+        {
+            try
+            {
+                MASConfig masConfig = HighLogic.CurrentGame.Parameters.CustomParams<MASConfig>();
+                if (masConfig != null)
+                {
+                    if (VerboseLogging != masConfig.VerboseLogging)
+                    {
+                        VerboseLogging = masConfig.VerboseLogging;
+                        Utility.LogMessage(this, "Updating Verbose Logging to {0}", VerboseLogging);
+                    }
+                    if (ElectricCharge != masConfig.ElectricCharge)
+                    {
+                        ElectricCharge = masConfig.ElectricCharge;
+                        Utility.LogMessage(this, "Updating Electric Charge to {0}", ElectricCharge);
+                    }
+
+                    if (navigation.generalPropagation != masConfig.GeneralPropagation)
+                    {
+                        navigation.generalPropagation = masConfig.GeneralPropagation;
+                        Utility.LogMessage(this, "Updating General Propagation to {0}", navigation.generalPropagation);
+                    }
+                    if (navigation.NDBPropagation != masConfig.NDBPropagation)
+                    {
+                        navigation.NDBPropagation = masConfig.NDBPropagation;
+                        Utility.LogMessage(this, "Updating NDB Propagation to {0}", navigation.NDBPropagation);
+                    }
+                    if (navigation.VORPropagation != masConfig.VORPropagation)
+                    {
+                        navigation.VORPropagation = masConfig.VORPropagation;
+                        Utility.LogMessage(this, "Updating VOR Propagation to {0}", navigation.VORPropagation);
+                    }
+                    if (navigation.DMEPropagation != masConfig.DMEPropagation)
+                    {
+                        navigation.DMEPropagation = masConfig.DMEPropagation;
+                        Utility.LogMessage(this, "Updating DME Propagation to {0}", navigation.DMEPropagation);
+                    }
+                }
+            }
+            catch
+            {
+                ; //no-op
+            }
         }
 
         /// <summary>
@@ -307,7 +309,7 @@ namespace AvionicsSystems
                             namedColors.Add(name, color);
                         }
 
-                        Utility.LogMessage(this, "{0} = {1}", name, color);
+                        //Utility.LogMessage(this, "{0} = {1}", name, color);
                     }
                 }
                 yield return new WaitForEndOfFrame();
