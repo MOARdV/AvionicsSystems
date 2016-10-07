@@ -306,10 +306,6 @@ namespace AvionicsSystems
                     Utility.LogMessage(this, "- EXPRESSION_TREE");
 #endif
                     v = GenerateVariable(result.expressionTree);
-                    if (v != null && v.variableType == Variable.VariableType.Func)
-                    {
-                        ++nativeVariableCount;
-                    }
                 }
 
                 if (v == null)
