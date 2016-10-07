@@ -154,6 +154,7 @@ namespace AvionicsSystems
 
         private Stopwatch stopwatch = new Stopwatch();
         long samplecount = 0;
+        long variablescount = 0;
 
         #region Internal Interface
         /// <summary>
@@ -442,6 +443,7 @@ namespace AvionicsSystems
                     }
                     stopwatch.Stop();
                     ++samplecount;
+                    variablescount += count;
                 }
             }
             catch (Exception e)
@@ -473,7 +475,9 @@ namespace AvionicsSystems
                 Utility.LogMessage(this, "{3} variables created: {0} constant variables, {1} native variables, and {2} Lua variables",
                     constantVariableCount, nativeVariableCount, luaVariableCount, variables.Count);
                 double msPerFixedUpdate = 1000.0 * (double)(stopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
-                Utility.LogMessage(this, "MoonSharp time average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, (double)mutableVariables.Length / msPerFixedUpdate);
+                double samplesPerMs = (double)variablescount / (1000.0 * (double)(stopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
+                //Utility.LogMessage(this, "MoonSharp time average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, (double)mutableVariables.Length / msPerFixedUpdate);
+                Utility.LogMessage(this, "FixedUpdate average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
             }
         }
 
@@ -666,7 +670,7 @@ namespace AvionicsSystems
                     localCrewMedical[i] = null;
                 }
             }
-            else if(localCrew.Length > 0)
+            else if (localCrew.Length > 0)
             {
                 localCrew = new ProtoCrewMember[0];
                 localCrewMedical = new kerbalExpressionSystem[0];
