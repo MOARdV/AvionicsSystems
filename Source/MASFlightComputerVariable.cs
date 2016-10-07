@@ -112,7 +112,7 @@ namespace AvionicsSystems
 
                     if (parameterMatch)
                     {
-                        switch(tableName)
+                        switch (tableName)
                         {
                             case "fc":
                                 tableRef = fcProxy;
@@ -465,7 +465,7 @@ namespace AvionicsSystems
                     Utility.LogMessage(this, "- EXPRESSION_TREE");
 #endif
                     v = GenerateVariable(result.expressionTree);
-                    if(v != null && v.variableType == Variable.VariableType.Func)
+                    if (v != null && v.variableType == Variable.VariableType.Func)
                     {
                         ++nativeVariableCount;
                     }
@@ -513,7 +513,7 @@ namespace AvionicsSystems
             }
 
             Variable v = null;
-            switch(expression.ExpressionType())
+            switch (expression.ExpressionType())
             {
                 case CodeGen.ExpressionIs.ConstantNumber:
 #if EXCESSIVE_LOGGING
@@ -526,6 +526,18 @@ namespace AvionicsSystems
                     Utility.LogMessage(this, "-- GenerateVariable(): StringExpression");
 #endif
                     v = new Variable((expression as CodeGen.StringExpression).getString());
+                    break;
+                case CodeGen.ExpressionIs.Operator:
+#if EXCESSIVE_LOGGING
+                    Utility.LogMessage(this, "-- GenerateVariable(): OperatorExpression");
+#endif
+                    v = GenerateOperatorVariable(expression as CodeGen.OperatorExpression);
+                    break;
+                case CodeGen.ExpressionIs.PrefixOperator:
+#if EXCESSIVE_LOGGING
+                    Utility.LogMessage(this, "-- GenerateVariable(): PrefixExpression");
+#endif
+                    v = GeneratePrefixVariable(expression as CodeGen.PrefixExpression);
                     break;
                 case CodeGen.ExpressionIs.Call:
 #if EXCESSIVE_LOGGING
@@ -552,17 +564,50 @@ namespace AvionicsSystems
                 {
                     ++constantVariableCount;
                 }
-                else if(v.variableType == Variable.VariableType.Func)
+                else if (v.variableType == Variable.VariableType.Func)
                 {
                     ++nativeVariableCount;
                 }
-                else if(v.variableType == Variable.VariableType.LuaScript)
+                else if (v.variableType == Variable.VariableType.LuaScript)
                 {
                     ++luaVariableCount;
                 }
             }
 
             return v;
+        }
+
+        /// <summary>
+        /// Take a binary operator (+, -, *, /, <, >, etc) and transform it into
+        /// a variable.
+        /// </summary>
+        /// <param name="operatorExpression"></param>
+        /// <returns></returns>
+        private Variable GenerateOperatorVariable(CodeGen.OperatorExpression operatorExpression)
+        {
+            Utility.LogMessage(this, "--- GenerateOperatorVariable(): operator {0}", operatorExpression.Operator());
+            return null;
+        }
+
+        /// <summary>
+        /// Transform a prefix expression of the form (-number) into a numeric
+        /// constant.
+        /// </summary>
+        /// <param name="prefixExpression"></param>
+        /// <returns></returns>
+        private Variable GeneratePrefixVariable(CodeGen.PrefixExpression prefixExpression)
+        {
+            CodeGen.Expression right = prefixExpression.getRight();
+
+            if (prefixExpression.getOperator() == CodeGen.Parser.LuaToken.MINUS && right is CodeGen.NumberExpression)
+            {
+                double numericConstant = -(right as CodeGen.NumberExpression).getNumber();
+                return new Variable(numericConstant);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         /// <summary>

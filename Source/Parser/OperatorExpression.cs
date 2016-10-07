@@ -89,6 +89,7 @@ namespace AvionicsSystems.CodeGen
             return returnType;
         }
 
+        public Parser.LuaToken Operator() { return mOperator; }
         private Expression mLeft;
         private Parser.LuaToken mOperator;
         private Expression mRight;
