@@ -582,17 +582,14 @@ namespace AvionicsSystems
         /// </summary>
         private void ProcessResourceData()
         {
-            //if (partSet == null)
+            if (partSet == null)
             {
                 partSet = new PartSet(activeResources);
-                //Utility.LogMessage(this, "ProcessResourceData(): {0} parts in new set", partSet.GetParts().Count);
             }
-            // This is supposed to allow refreshing the partSet, but it doesn't appear to work:
-            //else
-            //{
-            //    partSet.RebuildParts(activeResources);
-            //    Utility.LogMessage(this, "ProcessResourceData(): {0} parts in updated", partSet.GetParts().Count);
-            //}
+            else
+            {
+                partSet.RebuildParts(activeResources);
+            }
 
             float timeDelta = 1.0f / TimeWarp.fixedDeltaTime;
             for (int i = resources.Length - 1; i >= 0; --i)
