@@ -240,7 +240,6 @@ namespace AvionicsSystems
                         visitedParts.Add(thatPart);
                     }
                 }
-                MarkPropellant(thatPart.crossfeedPartSet.GetParts());
 
                 //anyEnginesOverheating |= (thatPart.skinTemperature / thatPart.skinMaxTemp > 0.9) || (thatPart.temperature / thatPart.maxTemp > 0.9);
                 anyEnginesEnabled |= me.allowShutdown && me.getIgnitionState;
@@ -248,6 +247,8 @@ namespace AvionicsSystems
 
                 if (me.EngineIgnited && me.isEnabled && me.isOperational)
                 {
+                    MarkPropellant(thatPart.crossfeedPartSet.GetParts());
+
                     float currentThrust = me.finalThrust;
                     this.currentThrust += currentThrust;
                     this.maxRatedThrust += me.GetMaxThrust();
@@ -612,7 +613,7 @@ namespace AvionicsSystems
                         else if (module is ModuleAlternator)
                         {
                             ModuleAlternator alternator = module as ModuleAlternator;
-                            for (int i = alternator.resHandler.outputResources.Count - 1; i>=0 ; --i)
+                            for (int i = alternator.resHandler.outputResources.Count - 1; i >= 0; --i)
                             {
                                 if (alternator.resHandler.outputResources[i].name == MASLoader.ElectricCharge)
                                 {
