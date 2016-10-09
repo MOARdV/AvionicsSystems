@@ -476,6 +476,85 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
+        /// Variables related to CommNet connectivity are in this category.
+        /// </summary>
+        #region CommNet
+
+        /// <summary>
+        /// Reports if the vessel is connected to CommNet.
+        /// </summary>
+        /// <returns>1 if the vessel is connected, 0 otherwise.</returns>
+        public double CommNetConnected()
+        {
+            return vessel.connection.IsConnected ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Reports if the vessel has a connection home.
+        /// </summary>
+        /// <returns>1 if the vessel can talk to home, 0 otherwise.</returns>
+        public double CommNetConnectedHome()
+        {
+            return vessel.connection.IsConnectedHome ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the current control state of the vessel:
+        /// 
+        /// * 2: Full Kerbal control
+        /// * 1: Partial Kerbal control
+        /// * 0: No Kerbal control
+        /// * -1: Other control state
+        /// </summary>
+        /// <returns>A value between -1 and +2</returns>
+        public double CommNetControlState()
+        {
+            switch (vessel.connection.ControlState)
+            {
+                case CommNet.VesselControlState.KerbalFull:
+                    return 2.0;
+                case CommNet.VesselControlState.KerbalPartial:
+                    return 1.0;
+                case CommNet.VesselControlState.KerbalNone:
+                    return 0.0;
+            }
+            return -1.0;
+        }
+
+        /// <summary>
+        /// Returns the name of the endpoint of the CommNet connection.
+        /// </summary>
+        /// <returns>The name of the endpoint.</returns>
+        public string CommNetEndpoint()
+        {
+            try
+            {
+                return vessel.connection.ControlPath.Last.b.name;
+            }
+            catch { }
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Returns the signal delay between the vessel and its CommNet endpoint.
+        /// </summary>
+        /// <returns>Delay in seconds.</returns>
+        public double CommNetSignalDelay()
+        {
+            return vessel.connection.SignalDelay;
+        }
+
+        /// <summary>
+        /// Returns the signal strength of the CommNet signal.
+        /// </summary>
+        /// <returns>A value between 0 (no signal) and 1 (maximum signal strength).</returns>
+        public double CommNetSignalStrength()
+        {
+            return vessel.connection.SignalStrength;
+        }
+        #endregion
+
+        /// <summary>
         /// Variables and actions related to the controls (roll / pitch / yaw / translation)
         /// are in this category.
         /// </summary>
@@ -1488,11 +1567,11 @@ namespace AvionicsSystems
         public double Conditioned(object value)
         {
             double state = 0.0;
-            if(value is bool)
+            if (value is bool)
             {
                 state = ((bool)value) ? 1.0 : 0.0;
             }
-            else if(value is double)
+            else if (value is double)
             {
                 state = (double)value;
             }
