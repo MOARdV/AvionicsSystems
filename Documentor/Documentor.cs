@@ -313,8 +313,6 @@ namespace Documentor
                     docString.AppendLine();
                 }
             }
-
-            // TODO: text for returns, parameters
         }
     }
 }
