@@ -175,8 +175,8 @@ namespace AvionicsSystems
         /// <returns></returns>
         private static string FormatMET(string formatSpecification, double value)
         {
-            int daysPerYear;
-            int hoursPerDay;
+            double daysPerYear;
+            double hoursPerDay;
             if (GameSettings.KERBIN_TIME)
             {
                 daysPerYear = KerbinDaysPerYear;
@@ -187,11 +187,20 @@ namespace AvionicsSystems
                 daysPerYear = EarthDaysPerYear;
                 hoursPerDay = EarthHoursPerDay;
             }
-            vals[0] = (int)(Math.Abs(value) % 60.0);
-            vals[1] = ((vals[0] / 60) % 60);
-            vals[2] = ((vals[1] / 60) % hoursPerDay);
-            vals[3] = (vals[2] / hoursPerDay) % daysPerYear;
-            vals[4] = (vals[2] / daysPerYear);
+            // seconds...
+            double timeBalance = Math.Abs(value);
+            vals[0] = (int)(timeBalance % 60.0);
+            // minutes...
+            timeBalance /= 60.0;
+            vals[1] = (int)(timeBalance % 60.0);
+            // hours...
+            timeBalance /= 60.0;
+            vals[2] = (int)(timeBalance % hoursPerDay);
+            // days...
+            timeBalance /= hoursPerDay;
+            vals[3] = (int)(timeBalance % daysPerYear);
+            // years...
+            vals[4] = (int)(timeBalance / daysPerYear);
 
             char[] chars = formatSpecification.ToCharArray();
 
@@ -239,19 +248,19 @@ namespace AvionicsSystems
                                 formatData[parameterCount] = (vals[4] + (calendarAdjust ? 1 : 0));
                                 break;
                             case 'D':
-                                formatData[parameterCount] = (vals[3] + daysPerYear * vals[4]);
+                                formatData[parameterCount] = (int)(vals[3] + daysPerYear * vals[4]);
                                 break;
                             case 'd':
                                 formatData[parameterCount] = (vals[3] + (calendarAdjust ? 1 : 0));
                                 break;
                             case 'H':
-                                formatData[parameterCount] = (vals[2] + hoursPerDay * vals[3] + daysPerYear * vals[4]);
+                                formatData[parameterCount] = (int)(vals[2] + hoursPerDay * vals[3] + daysPerYear * vals[4]);
                                 break;
                             case 'h':
                                 formatData[parameterCount] = vals[2];
                                 break;
                             case 'M':
-                                formatData[parameterCount] = (vals[1] + 60 * vals[2] + hoursPerDay * vals[3] + daysPerYear * vals[4]);
+                                formatData[parameterCount] = (int)(vals[1] + 60 * vals[2] + hoursPerDay * vals[3] + daysPerYear * vals[4]);
                                 break;
                             case 'm':
                                 formatData[parameterCount] = vals[1];
