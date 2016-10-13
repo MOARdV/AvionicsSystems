@@ -152,9 +152,11 @@ namespace AvionicsSystems
         internal kerbalExpressionSystem[] localCrewMedical = new kerbalExpressionSystem[0];
 
 
-        private Stopwatch stopwatch = new Stopwatch();
+        private Stopwatch nativeStopwatch = new Stopwatch();
+        private Stopwatch luaStopwatch = new Stopwatch();
         long samplecount = 0;
-        long variablescount = 0;
+        long nativeVariablesCount = 0;
+        long luaVariablesCount = 0;
 
         #region Internal Interface
         /// <summary>
@@ -374,7 +376,27 @@ namespace AvionicsSystems
                     // often.
                     if (mutableVariablesChanged)
                     {
-                        mutableVariables = mutableVariablesList.ToArray();
+                        nativeVariables = new Variable[nativeVariableCount];
+                        luaVariables = new Variable[luaVariableCount];
+                        int nativeIdx = 0, luaIdx = 0;
+                        foreach(Variable var in mutableVariablesList)
+                        {
+                            if (var.variableType == Variable.VariableType.LuaScript)
+                            {
+                                luaVariables[luaIdx] = var;
+                                ++luaIdx;
+                            }
+                            else if(var.variableType == Variable.VariableType.Func)
+                            {
+                                nativeVariables[nativeIdx] = var;
+                                ++nativeIdx;
+                            }
+                            else
+                            {
+                                throw new ArgumentException(string.Format("Unexpected variable type {0} in mutableVariablesList", var.variableType));
+                            }
+                        }
+                        //nativeVariables = mutableVariablesList.ToArray();
                         mutableVariablesChanged = false;
                     }
 
@@ -427,23 +449,40 @@ namespace AvionicsSystems
                     // a LOT of garbage collection going on.
                     // 229 variables -> 2.6-2.7ms/update, so 70-80 variables per ms on
                     // a reasonable mid-upper range CPU (3.6GHz).
-                    stopwatch.Start();
-                    int count = mutableVariables.Length;
+                    nativeStopwatch.Start();
+                    int count = nativeVariables.Length;
                     for (int i = 0; i < count; ++i)
                     {
                         try
                         {
-                            mutableVariables[i].Evaluate(script);
+                            nativeVariables[i].Evaluate(script);
                         }
                         catch (Exception e)
                         {
-                            Utility.LogErrorMessage(this, "FixedUpdate exception on variable {0}", mutableVariables[i].name);
+                            Utility.LogErrorMessage(this, "FixedUpdate exception on variable {0}", nativeVariables[i].name);
                             throw e;
                         }
                     }
-                    stopwatch.Stop();
+                    nativeVariablesCount += count;
+                    nativeStopwatch.Stop();
+
+                    luaStopwatch.Start();
+                    count = luaVariables.Length;
+                    for (int i = 0; i < count; ++i)
+                    {
+                        try
+                        {
+                            luaVariables[i].Evaluate(script);
+                        }
+                        catch (Exception e)
+                        {
+                            Utility.LogErrorMessage(this, "FixedUpdate exception on variable {0}", luaVariables[i].name);
+                            throw e;
+                        }
+                    }
+                    luaVariablesCount += count;
+                    luaStopwatch.Stop();
                     ++samplecount;
-                    variablescount += count;
                 }
             }
             catch (Exception e)
@@ -474,10 +513,14 @@ namespace AvionicsSystems
 
                 Utility.LogMessage(this, "{3} variables created: {0} constant variables, {1} native variables, and {2} Lua variables",
                     constantVariableCount, nativeVariableCount, luaVariableCount, variables.Count);
-                double msPerFixedUpdate = 1000.0 * (double)(stopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
-                double samplesPerMs = (double)variablescount / (1000.0 * (double)(stopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
+                double msPerFixedUpdate = 1000.0 * (double)(nativeStopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
+                double samplesPerMs = (double)nativeVariablesCount / (1000.0 * (double)(nativeStopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
                 //Utility.LogMessage(this, "MoonSharp time average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, (double)mutableVariables.Length / msPerFixedUpdate);
-                Utility.LogMessage(this, "FixedUpdate average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
+                Utility.LogMessage(this, "FixedUpdate native average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
+
+                msPerFixedUpdate = 1000.0 * (double)(luaStopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
+                samplesPerMs = (double)luaVariablesCount / (1000.0 * (double)(luaStopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
+                Utility.LogMessage(this, "FixedUpdate Lua    average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
             }
         }
 

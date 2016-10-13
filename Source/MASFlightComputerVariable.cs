@@ -55,9 +55,16 @@ namespace AvionicsSystems
         /// <summary>
         /// Because a List is more expensive to traverse than an array, and
         /// because we are going to iterate over the mutable variables
-        /// *A*LOT*, we keep an array that we really iterate over.
+        /// A LOT, we keep arrays that we really iterate over.  To further
+        /// track what's going on, we split the list into 'native' variables
+        /// that are delegates and 'lua' variables that are Lua scripts.
         /// </summary>
-        private Variable[] mutableVariables = new Variable[0];
+        private Variable[] nativeVariables = new Variable[0];
+
+        /// <summary>
+        /// The array of Lua variables (see description for nativeVariables).
+        /// </summary>
+        private Variable[] luaVariables = new Variable[0];
 
         private int luaVariableCount = 0;
         private int nativeVariableCount = 0;
