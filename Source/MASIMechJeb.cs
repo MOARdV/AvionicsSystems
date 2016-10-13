@@ -107,6 +107,16 @@ namespace AvionicsSystems
         private static readonly FieldInfo ReentryOutcome;
         private static readonly FieldInfo ReentryTime;
 
+        //--- Methods found in StageStags
+        private static readonly DynamicMethod<object, object, bool> RequestUpdate;
+        private static readonly FieldInfo AtmoStats;
+        private static readonly FieldInfo VacStats;
+        private static readonly DynamicMethodInt<object> GetStatsLength;
+        private static readonly DynamicMethod<object, int> GetStatsIndex;
+
+        //--- Field in FuelFlowSimulation.Stats
+        private static readonly FieldInfo StatsStageDv;
+
         //--- Methods found in UserPool
         private static readonly DynamicMethod<object, object> AddUser;
         private static readonly DynamicMethod<object, object> RemoveUser;
@@ -124,6 +134,9 @@ namespace AvionicsSystems
         double landingLongitude;
         double landingTime;
 
+        double deltaV;
+        double deltaVStage;
+
         object masterMechJeb;
         object ascentAutopilot;
         object ascentGuidance;
@@ -135,6 +148,7 @@ namespace AvionicsSystems
         object rendezvousAutopilot;
         object rendezvousAutopilotWindow;
         object smartAss;
+        object stageStats;
 
         private SATarget saTarget;
 
@@ -559,7 +573,8 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// TODO
+        /// The Maneuver Planner and Node Executor section provides access to the MechJeb autopilot
+        /// and maneuver node planner.
         /// </summary>
         #region Maneuver Planner and Node Executor
         /// <summary>
@@ -711,6 +726,30 @@ namespace AvionicsSystems
                     ExecuteOneNode(nodeExecutor, maneuverPlanner);
                 }
             }
+        }
+        #endregion
+
+        /// <summary>
+        /// The Performance section provides metrics of vessel performance as computed my MechJeb.
+        /// </summary>
+        #region Performance
+
+        /// <summary>
+        /// Returns the dV remaining for the vessel.
+        /// </summary>
+        /// <returns>dV in m/s.</returns>
+        public double DeltaV()
+        {
+            return deltaV;
+        }
+
+        /// <summary>
+        /// Returns the dV remaining for the currently active stage.
+        /// </summary>
+        /// <returns>dV in m/s.</returns>
+        public double StageDeltaV()
+        {
+            return deltaVStage;
         }
         #endregion
 
@@ -943,6 +982,51 @@ namespace AvionicsSystems
                     landingLongitude = 0.0;
                     landingTime = 0.0;
                 }
+
+                RequestUpdate(stageStats, this, false);
+                int atmStatsLength = 0, vacStatsLength = 0;
+
+                object atmStatsO = AtmoStats.GetValue(stageStats);
+                object vacStatsO = VacStats.GetValue(stageStats);
+                if (atmStatsO != null)
+                {
+                    atmStatsLength = GetStatsLength(atmStatsO);
+                }
+                if (vacStatsO != null)
+                {
+                    vacStatsLength = GetStatsLength(vacStatsO);
+                }
+
+                deltaV = deltaVStage = 0.0;
+
+                if (atmStatsLength > 0 && atmStatsLength == vacStatsLength)
+                {
+                    double atmospheresLocal = vessel.staticPressurekPa * PhysicsGlobals.KpaToAtmospheres;
+
+                    for (int i = 0; i < atmStatsLength; ++i)
+                    {
+                        object atmStat = GetStatsIndex(atmStatsO, i);
+                        object vacStat = GetStatsIndex(vacStatsO, i);
+                        if (atmStat == null || vacStat == null)
+                        {
+                            Utility.LogErrorMessage("atmStat or vacStat did not evaluate");
+                            deltaV = deltaVStage = 0.0;
+                            return;
+                        }
+
+                        float atm = (float)StatsStageDv.GetValue(atmStat);
+                        float vac = (float)StatsStageDv.GetValue(vacStat);
+                        double stagedV = UtilMath.LerpUnclamped(vac, atm, atmospheresLocal);
+
+                        deltaV += stagedV;
+
+                        if (i == (atmStatsLength - 1))
+                        {
+                            deltaVStage = stagedV;
+                        }
+
+                    }
+                }
             }
         }
 
@@ -1024,6 +1108,12 @@ namespace AvionicsSystems
                         {
                             throw new Exception("MASIMechJeb: Failed to get Rendezvous Autopilot Window MJ module");
                         }
+
+                        stageStats = GetComputerModule(masterMechJeb, "MechJebModuleStageStats");
+                        if (stageStats == null)
+                        {
+                            throw new Exception("MASIMechJeb: Failed to get Stage Stats Window MJ module");
+                        }
                     }
 
                     mjAvailable = (masterMechJeb != null);
@@ -1104,6 +1194,22 @@ namespace AvionicsSystems
                 if (mjUserPool_t == null)
                 {
                     throw new ArgumentNullException("mjUserPool_t");
+                }
+                Type mjModuleStageStats_t = Utility.GetExportedType("MechJeb2", "MuMech.MechJebModuleStageStats");
+                if (mjModuleStageStats_t == null)
+                {
+                    throw new NotImplementedException("mjModuleStageStats_t");
+                }
+                //---FuelFlowSimulation
+                Type mjFuelFlowSimulation_t = Utility.GetExportedType("MechJeb2", "MuMech.FuelFlowSimulation");
+                if (mjFuelFlowSimulation_t == null)
+                {
+                    throw new NotImplementedException("mjFuelFlowSimulation_t");
+                }
+                Type mjFuelFlowSimulationStats_t = mjFuelFlowSimulation_t.GetNestedType("Stats");
+                if (mjFuelFlowSimulationStats_t == null)
+                {
+                    throw new NotImplementedException("mjFuelFlowSimulationStats_t");
                 }
 
                 //--- MechJebCore
@@ -1345,6 +1451,54 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("ReentryTime");
                 }
+
+                //--- StageStats
+                MethodInfo mjRequestUpdate = mjModuleStageStats_t.GetMethod("RequestUpdate", BindingFlags.Instance | BindingFlags.Public);
+                if (mjRequestUpdate == null)
+                {
+                    throw new NotImplementedException("mjRequestUpdate");
+                }
+                RequestUpdate = DynamicMethodFactory.CreateFunc<object, object, bool>(mjRequestUpdate);
+                VacStats = mjModuleStageStats_t.GetField("vacStats", BindingFlags.Instance | BindingFlags.Public);
+                if (VacStats == null)
+                {
+                    throw new NotImplementedException("VacStats");
+                }
+
+                //--- FuelFlowSimulation.Stats
+                StatsStageDv = mjFuelFlowSimulationStats_t.GetField("deltaV", BindingFlags.Instance | BindingFlags.Public);
+                if (StatsStageDv == null)
+                {
+                    throw new NotImplementedException("mjStageDv");
+                }
+
+                // Updated MechJeb (post 2.5.1) switched from using KER back to
+                // its internal FuelFlowSimulation.  This sim uses an array of
+                // structs, which entails a couple of extra hoops to jump through
+                // when reading via reflection.
+                AtmoStats = mjModuleStageStats_t.GetField("atmoStats", BindingFlags.Instance | BindingFlags.Public);
+                if (AtmoStats == null)
+                {
+                    throw new NotImplementedException("AtmoStats");
+                }
+
+                PropertyInfo mjStageStatsLength = VacStats.FieldType.GetProperty("Length");
+                if (mjStageStatsLength == null)
+                {
+                    throw new NotImplementedException("mjStageStatsLength");
+                }
+                MethodInfo mjStageStatsGetLength = mjStageStatsLength.GetGetMethod();
+                if (mjStageStatsGetLength == null)
+                {
+                    throw new NotImplementedException("mjStageStatsGetLength");
+                }
+                GetStatsLength = DynamicMethodFactory.CreateFuncInt<object>(mjStageStatsGetLength);
+                MethodInfo mjStageStatsGetIndex = VacStats.FieldType.GetMethod("Get");
+                if (mjStageStatsGetIndex == null)
+                {
+                    throw new NotImplementedException("mjStageStatsGetIndex");
+                }
+                GetStatsIndex = DynamicMethodFactory.CreateFunc<object, int>(mjStageStatsGetIndex);
 
                 //--- UserPool
                 MethodInfo mjAddUser = mjUserPool_t.GetMethod("Add", BindingFlags.Instance | BindingFlags.Public);
