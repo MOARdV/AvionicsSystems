@@ -40,6 +40,7 @@ namespace AvionicsSystems
     public delegate object DynamicMethod<T, U, V>(T param0, U param1, V param2);
     public delegate object DynamicMethod<T, U, V, W>(T param0, U param1, V param2, W param3);
     public delegate bool DynamicMethodBool<T>(T param0);
+    public delegate int DynamicMethodInt<T>(T param0);
     public delegate double DynamicMethodDouble<T>(T param0);
 
     // Specializations for MechJeb
@@ -513,6 +514,78 @@ namespace AvionicsSystems
 
 
             return (DynamicMethodBool<T>)dynam.CreateDelegate(typeof(DynamicMethodBool<T>));
+        }
+
+        /// <summary>
+        /// Create a delegate that takes a single typed parameter and returns an int.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="methodInfo"></param>
+        /// <returns></returns>
+        static internal DynamicMethodInt<T> CreateFuncInt<T>(MethodInfo methodInfo)
+        {
+            // Up front validation:
+            ParameterInfo[] parms = methodInfo.GetParameters();
+            if (methodInfo.IsStatic)
+            {
+                if (parms.Length != 1)
+                {
+                    throw new ArgumentException("CreateFuncInt<T> called with static method that takes " + parms.Length + " parameters");
+                }
+
+                if (typeof(T) != parms[0].ParameterType)
+                {
+                    // What to do?
+                }
+            }
+            else
+            {
+                if (parms.Length != 0)
+                {
+                    throw new ArgumentException("CreateFuncInt<T> called with non-static method that takes " + parms.Length + " parameters");
+                }
+                // How do I validate T?
+                //if (typeof(T) != parms[0].ParameterType)
+                //{
+                //    // What to do?
+                //}
+            }
+            if (methodInfo.ReturnType != typeof(int))
+            {
+                throw new ArgumentException("CreateFuncInt<T> called with method that does not return int");
+            }
+
+            Type[] _argTypes = { typeof(T) };
+
+            // Create dynamic method and obtain its IL generator to
+            // inject code.
+            DynamicMethod dynam =
+                new DynamicMethod(
+                "", // name - don't care
+                methodInfo.ReturnType, // return type
+                _argTypes, // argument types
+                typeof(DynamicMethodFactory));
+            ILGenerator il = dynam.GetILGenerator();
+
+            il.Emit(OpCodes.Ldarg_0);
+
+            // Perform actual call.
+            // If method is not final a callvirt is required
+            // otherwise a normal call will be emitted.
+            if (methodInfo.IsFinal)
+            {
+                il.Emit(OpCodes.Call, methodInfo);
+            }
+            else
+            {
+                il.Emit(OpCodes.Callvirt, methodInfo);
+            }
+
+            // Emit return opcode.
+            il.Emit(OpCodes.Ret);
+
+
+            return (DynamicMethodInt<T>)dynam.CreateDelegate(typeof(DynamicMethodInt<T>));
         }
 
         /// <summary>
