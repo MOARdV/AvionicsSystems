@@ -83,6 +83,10 @@ namespace AvionicsSystems
     /// Systems, and props in an IVA.  It consists of many 'variable' functions
     /// that can be used to get information as well as numerous 'action' functions
     /// that are used to do things.
+    /// 
+    /// *NOTE:* If a variable listed below includes an entry for 'Required Mod(s)',
+    /// then the mod listed (or any of the mods, if more than one) must be installed
+    /// for that particular feature to work.
     /// </mdDoc>
     internal class MASFlightComputerProxy
     {
@@ -1030,21 +1034,17 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
-        /// valid numbers at the present.
-        ///
-        /// Returns the total delta-V remaining for the vessel,
-        /// accounting for all stages.
+        /// If MechJeb is installed, returns the total delta-V remaining for the vessel.
         /// 
-        /// If MechJeb is installed, its results are used.  Otherwise, a
-        /// highly inaccurate approximation is used.
+        /// Otherwise, 0 is returned.
         /// </summary>
+        /// <seealso>MechJeb</seealso>
         /// <returns>Remaining delta-V in m/s.</returns>
         public double DeltaV()
         {
             if (mjProxy.mjAvailable)
             {
-                return 1.0;
+                return mjProxy.DeltaV();
             }
             else
             {
@@ -1053,20 +1053,17 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
-        /// valid numbers at the present.
-        ///
-        /// Returns the total delta-V remaining for the current stage.
+        /// If MechJeb is installed, returns the total delta-V remaining for the current stage.
         /// 
-        /// If MechJeb is installed, its results are used.  Otherwise, a
-        /// highly inaccurate approximation is used.
+        /// Otherwise, 0 is returned.
         /// </summary>
+        /// <seealso>MechJeb</seealso>
         /// <returns>Remaining delta-V for this stage in m/s.</returns>
         public double DeltaVStage()
         {
             if (mjProxy.mjAvailable)
             {
-                return 1.0;
+                return mjProxy.StageDeltaV();
             }
             else
             {
@@ -2400,13 +2397,14 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// TODO
+        /// The Position category provides information about the vessel's position
+        /// relative to a body (latitude and longitude) as well as landing predictions
+        /// and the like.
         /// </summary>
         #region Position
         /// <summary>
-        /// Returns the predicted altitude of landing.  Automatically uses
-        /// MechJeb if its landing computer is active; otherwise it uses the
-        /// less-accurate built-in Avionics Systems predictor.
+        /// Returns the predicted altitude of landing.  Uses
+        /// MechJeb if its landing computer is active.
         /// </summary>
         /// <returns></returns>
         public double LandingAltitude()
@@ -2417,15 +2415,13 @@ namespace AvionicsSystems
             }
             else
             {
-                // TODO: Write the lame landing predictor.
                 return 0.0;
             }
         }
 
         /// <summary>
-        /// Returns the predicted latitude of landing.  Automatically uses
-        /// MechJeb if its landing computer is active; otherwise it uses the
-        /// less-accurate built-in Avionics Systems predictor.
+        /// Returns the predicted latitude of landing.  Uses
+        /// MechJeb if its landing computer is active.
         /// </summary>
         /// <returns></returns>
         public double LandingLatitude()
@@ -2441,9 +2437,8 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the predicted longitude of landing.  Automatically uses
-        /// MechJeb if its landing computer is active; otherwise it uses the
-        /// less-accurate built-in Avionics Systems predictor.
+        /// Returns the predicted longitude of landing.  Uses
+        /// MechJeb if its landing computer is active.
         /// </summary>
         /// <returns></returns>
         public double LandingLongitude()
