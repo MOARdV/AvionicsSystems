@@ -247,7 +247,6 @@ namespace Documentor
             XmlElement methodName = child["method"];
             if (methodName != null)
             {
-                docString.AppendLine("***");
                 docString.Append("###");
                 if (!string.IsNullOrEmpty(luaNamespace))
                 {
@@ -285,6 +284,14 @@ namespace Documentor
                 {
                     docString.Append("**Returns**: ");
                     docString.AppendLine(returns.InnerText.Trim());
+                    docString.AppendLine();
+                }
+
+                XmlElement seealso = child["seealso"];
+                if (seealso != null && !string.IsNullOrEmpty(seealso.InnerText.Trim()))
+                {
+                    docString.Append("**Required Mod(s)**: ");
+                    docString.AppendLine(seealso.InnerText.Trim());
                     docString.AppendLine();
                 }
 
