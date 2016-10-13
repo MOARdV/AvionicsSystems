@@ -52,10 +52,10 @@ Handlers (non-prop control stuff)
 
 * IJSI modules (plugins) -> MASI (Avionics Systems Interface)
   - MASIRealChute
-  - MASIFAR (in progress)
+  - MASIFAR
   - MASIChatterer
-  * MASIKAC (Kerbal Alarm Clock)
-  * MASIMechJeb
+  - MASIKAC (Kerbal Alarm Clock)
+  - MASIMechJeb
   * MASIPilotAssistant
 
 - JSIGraphingBackground: complete (except 'virtual tablo indicator' mode, which is easy to emulate)
@@ -72,7 +72,7 @@ Handlers (non-prop control stuff)
 
 * Interactive MFD pages (JSITargetMenu, MechJebRPM) - a big mess; can I expose an API for this?
 
-* RPM extension bridges (SCANsat, VesselView, DPAI background handlers; FAR variables <- No.  Incorporate into MASIFAR)
+* RPM extension bridges (SCANsat, VesselView, DPAI background handlers; FAR variables <- No.  Incorporated into MASIFAR)
 
 * RPM interop?  Talk to RPM about some data (maybe to ease adoption of AS).
 Persistents might be helpful.  Mostly for development; may not be good to keep around after full development.
@@ -110,7 +110,7 @@ to do some learnin' and write the replacement functionality on my own.
 
 * OrbitExtensions
 
-* Protractor
+* Protractor -- Or, make Protractor an optional dependency?
  - http://forum.kerbalspaceprogram.com/index.php?/topic/60386-the-ksp-equation/#comment-906538 Hohmann Transfer equation
  - http://forum.kerbalspaceprogram.com/index.php?/topic/62404-how-to-calculate-phase-angle-for-hohmann-transfer/#comment-944519 and also
 
@@ -144,10 +144,11 @@ Use that instead of the RPM system of a texture + text file with manual mapping.
 them into an UpdateAllTheThings call (as a multi-return)?
 
 * What about skipping Lua entirely for simple cases, like 'fc.GetPersistent("SomeValue")',
-where the Lua code is simple a wrapper for a direct call to fcProxy?
+where the Lua code is simple a wrapper for a direct call to fcProxy?  Mostly implemented.
 
 * Create a "standard library" of methods for the Lua environment, so there can be things
-like "DoThisIfThereIsPower(function-to-do)".
+like "DoThisIfThereIsPower(function-to-do)".  However, due to the performance of Lua,
+it should be non-Lua code.
 
 StdLib ideas:
 

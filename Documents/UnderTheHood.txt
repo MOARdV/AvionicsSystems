@@ -59,3 +59,9 @@ persistent value gets priority when they disagree?).
 In addition to the two core data sources, there are plugin data sources.  These
 sources are wrappers to code that communicates with other mods, such as getting
 flaps settings from FAR or parachute status from RealChute.
+
+One change MAS incorporates is that certain complex functions are not done by
+RPM.  Some specific examples include delta-V computations - MechJeb and KER both
+produce that data, and any computations MAS would do would either be a wholesale
+duplication of their code or a low-quality simulation of those results.  Thus,
+unlike RPM, some MAS features will have external dependencies.
