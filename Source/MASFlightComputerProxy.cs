@@ -4556,6 +4556,68 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Given an altitude in meters, return the number of seconds until the vessel
+        /// next crosses that altitude.  If the vessel is on a hyperbolic orbit, or
+        /// if the orbit never crosses the given altitude, return 0.0.
+        /// </summary>
+        /// <param name="altitude">Altitude above the datum, in meters.</param>
+        /// <returns>Time in seconds until the altitude is crossed, or 0 if the orbit does not cross that altitude.</returns>
+        public double TimeToAltitude(double altitude)
+        {
+            if (vc.orbit.ApA >= altitude && vc.orbit.PeA <= altitude && vc.orbit.eccentricity < 1.0)
+            {
+                // How do I do this?  Like so:
+                // TrueAnomalyAtRadius returns a TA between 0 and PI, representing
+                // when the orbit crosses that altitude while ascending from Pe (0) to Ap (PI).
+                double taAtAltitude = vc.orbit.TrueAnomalyAtRadius(altitude + vc.mainBody.Radius);
+                // GetUTForTrueAnomaly gives us a time for when that will occur.  I don't know
+                // what parameter 2 is really supposed to do (wrapAfterSeconds), because after
+                // subtracting vc.UT, I see values sometimes 2 orbits in the past.  Which is why...
+                double timeToTa1 = vc.orbit.GetUTforTrueAnomaly(taAtAltitude, vc.orbit.period) - vc.universalTime;
+                // ... we have to normalize it here to the next time we cross that TA.
+                while (timeToTa1 < 0.0)
+                {
+                    timeToTa1 += vc.orbit.period;
+                }
+                // Now, what about the other time we cross that altitude (in the range of -PI to 0)?
+                // Easy.  The orbit is symmetrical around 0, so the other TA is -taAtAltitude.
+                // I *could* use TrueAnomalyAtRadius and normalize the result, but I don't know the
+                // complexity of that function, and there's an easy way to compute it: since
+                // the TA is symmetrical, the time from the Pe to TA1 is the same as the time
+                // from TA2 to Pe.
+
+                // First, find the time-to-Pe that occurs before the time to TA1:
+                double relevantPe = vc.orbit.timeToPe;
+                if (relevantPe > timeToTa1)
+                {
+                    // If we've passed the Pe, but we haven't reached TA1, we
+                    // need to find the previous Pe
+                    relevantPe -= vc.orbit.period;
+                }
+
+                // Then, we subtract the interval from TA1 to the Pe from the time
+                // until the Pe (that is, T(Pe) - (T(TA1) - T(Pe)), rearranging terms:
+                double timeToTa2 = 2.0 * relevantPe - timeToTa1;
+                if (timeToTa2 < 0.0)
+                {
+                    // If the relevant Pe occurred in the past, advance the time to
+                    // the next time in the future.  I could probably do some
+                    // optimizations by saying "well, this is in the past, so I know
+                    // TA1 is the future", but I doubt that buys enough of a
+                    // performance difference.
+                    timeToTa2 += vc.orbit.period;
+                }
+
+                // Whichever occurs first is the one we care about:
+                return Math.Min(timeToTa1, timeToTa2);
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Fetch the time to the next apoapsis.  If the orbit is hyperbolic,
         /// or the vessel is not flying, return 0.
         /// </summary>
@@ -4573,9 +4635,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
-        /// valid numbers at the present.
-        ///
         /// Fetch the time until the vessel's orbit next enters or exits the
         /// body's atmosphere.  If there is no atmosphere, or the orbit does not
         /// cross that threshold, return 0.
@@ -4583,7 +4642,14 @@ namespace AvionicsSystems
         /// <returns>Time until the atmosphere boundary is crossed, in seconds; 0 for invalid times.</returns>
         public double TimeToAtmosphere()
         {
-            return 0.0;
+            if (vc.mainBody.atmosphere)
+            {
+                return TimeToAltitude(vc.mainBody.atmosphereDepth);
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
