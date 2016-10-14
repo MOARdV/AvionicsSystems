@@ -44,6 +44,9 @@ namespace AvionicsSystems
         [GameParameters.CustomParameterUI("Power Resource", toolTip = "Resource to use as power")]
         public string ElectricCharge = "ElectricCharge";
 
+        [GameParameters.CustomIntParameterUI("Lua Update Priority", toolTip="Larger numbers generate garbage slower, but will feel less responsive", minValue = 1, maxValue=4, stepSize=1)]
+        public int LuaUpdateDenominator = 1;
+
         [GameParameters.CustomStringParameterUI("Test String UI", autoPersistance = true, lines = 2, title = "Radio Navigation Settings", toolTip = "Tuning parameters for MAS Radio Navigation")]
         public string UIstring = "";
 

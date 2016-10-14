@@ -112,6 +112,12 @@ namespace AvionicsSystems
         /// </summary>
         static public bool VerboseLogging = false;
 
+        /// <summary>
+        /// The inverse ration of the number of Lua variables updated per
+        /// FixedUpdate (ie: 1 = 100%, 2 = 1/2, 3 = 1/3).
+        /// </summary>
+        static public long LuaUpdateDenominator = 1;
+
         static public Navigation navigation = new Navigation();
 
         MASLoader()
@@ -229,6 +235,11 @@ namespace AvionicsSystems
                     {
                         ElectricCharge = masConfig.ElectricCharge;
                         Utility.LogMessage(this, "Updating Electric Charge to {0}", ElectricCharge);
+                    }
+                    if (LuaUpdateDenominator != masConfig.LuaUpdateDenominator)
+                    {
+                        LuaUpdateDenominator = masConfig.LuaUpdateDenominator;
+                        Utility.LogMessage(this, "Updating Lua Update Denominator to {0}", LuaUpdateDenominator);
                     }
 
                     if (navigation.generalPropagation != masConfig.GeneralPropagation)

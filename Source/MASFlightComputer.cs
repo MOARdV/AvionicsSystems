@@ -467,8 +467,31 @@ namespace AvionicsSystems
                     nativeStopwatch.Stop();
 
                     luaStopwatch.Start();
-                    count = luaVariables.Length;
-                    for (int i = 0; i < count; ++i)
+                    // Update some Lua variables - user configurable, so lower-
+                    // spec machines aren't as badly affected.
+                    int startLuaIdx, endLuaIdx;
+                    if (MASLoader.LuaUpdateDenominator == 1)
+                    {
+                        startLuaIdx = 0;
+                        endLuaIdx = luaVariables.Length;
+                    }
+                    else
+                    {
+                        long modulo = samplecount % MASLoader.LuaUpdateDenominator;
+                        int span = luaVariables.Length / (int)MASLoader.LuaUpdateDenominator;
+                        startLuaIdx = (int)modulo * span;
+
+                        if (modulo == MASLoader.LuaUpdateDenominator - 1)
+                        {
+                            endLuaIdx = luaVariables.Length;
+                        }
+                        else
+                        {
+                            endLuaIdx = startLuaIdx + span;
+                        }
+                    }
+                    count = endLuaIdx - startLuaIdx;
+                    for (int i = startLuaIdx; i < endLuaIdx; ++i)
                     {
                         try
                         {
