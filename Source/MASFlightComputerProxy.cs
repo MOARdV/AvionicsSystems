@@ -4241,12 +4241,6 @@ namespace AvionicsSystems
         /// craft, negative means below.</returns>
         public double TargetDistanceY()
         {
-            //Utility.LogMessage(this, "Tgt displacement = {0,7:0}, {1,7:0}, {2,7:0}",
-            //    Vector3.Dot(vc.targetDisplacement, vc.referenceTransform.right),
-            //    -Vector3.Dot(vc.targetDisplacement, vc.referenceTransform.forward),
-            //    Vector3.Dot(vc.targetDisplacement, vc.referenceTransform.up)
-            //    );
-
             // The sign is reversed because it appears that the forward vector actually
             // points down, not up, which also means not having to flip the sign for the
             // Z axis.
@@ -4463,12 +4457,6 @@ namespace AvionicsSystems
         /// relative to the target, negative means relative 'down'.</returns>
         public double TargetVelocityY()
         {
-            Utility.LogMessage(this, "Tgt displacement = {0,7:0}, {1,7:0}, {2,7:0}",
-                Vector3.Dot(vc.targetRelativeVelocity, vc.referenceTransform.right),
-                -Vector3.Dot(vc.targetRelativeVelocity, vc.referenceTransform.forward),
-                Vector3.Dot(vc.targetRelativeVelocity, vc.referenceTransform.up)
-                );
-
             return -Vector3.Dot(vc.targetRelativeVelocity, vc.referenceTransform.forward);
         }
 
