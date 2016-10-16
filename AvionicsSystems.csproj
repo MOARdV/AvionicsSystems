@@ -86,6 +86,7 @@
     <Compile Include="Source\MASIMechJeb.cs" />
     <Compile Include="Source\MASINavigation.cs" />
     <Compile Include="Source\MASIRealChute.cs" />
+    <Compile Include="Source\MASITransfer.cs" />
     <Compile Include="Source\MASNavBall.cs" />
     <Compile Include="Source\MASRadar.cs" />
     <Compile Include="Source\MASTypes.cs" />

@@ -119,6 +119,31 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Constrain an angle to the range [0, 360).
+        /// </summary>
+        /// <param name="angle">An input angle</param>
+        /// <returns>The equivalent angle constrained to the range of 0 to 360 degrees.</returns>
+        internal static double NormalizeAngle(double angle)
+        {
+            if(angle < 0.0)
+            {
+                while (angle < 0.0)
+                {
+                    angle += 360.0;
+                }
+            }
+            else if(angle >= 360.0)
+            {
+                while (angle >= 0.0)
+                {
+                    angle -= 360.0;
+                }
+            }
+
+            return angle;
+        }
+
+        /// <summary>
         /// Constrain longitude to the range (-180, 180].  KSP does not
         /// appear to normalize the value in Vessel.
         /// </summary>

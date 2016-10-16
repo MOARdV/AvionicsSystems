@@ -124,6 +124,11 @@ namespace AvionicsSystems
         private MASIRealChute realChuteProxy;
 
         /// <summary>
+        /// Instance of the Transfer proxy class.
+        /// </summary>
+        private MASITransfer transferProxy;
+
+        /// <summary>
         /// Have we initialized?
         /// </summary>
         private bool initialized = false;
@@ -406,6 +411,7 @@ namespace AvionicsSystems
                     mjProxy.Update();
                     navProxy.Update();
                     realChuteProxy.Update();
+                    transferProxy.Update();
 
                     // Precompute the disruption effects.
                     // TODO: Don't do the string lookup every FixedUpdate...
@@ -527,6 +533,7 @@ namespace AvionicsSystems
             farProxy = null;
             kacProxy = null;
             realChuteProxy = null;
+            transferProxy = null;
             if (initialized)
             {
                 Utility.LogMessage(this, "OnDestroy for {0}", flightComputerId);
@@ -607,6 +614,10 @@ namespace AvionicsSystems
                     UserData.RegisterType<MASIRealChute>();
                     script.Globals["realchute"] = realChuteProxy;
 
+                    transferProxy = new MASITransfer(vessel);
+                    UserData.RegisterType<MASITransfer>();
+                    script.Globals["transfer"] = transferProxy;
+
                     fcProxy = new MASFlightComputerProxy(this, farProxy, mjProxy);
                     UserData.RegisterType<MASFlightComputerProxy>();
                     script.Globals["fc"] = fcProxy;
@@ -629,6 +640,7 @@ namespace AvionicsSystems
                 //kacProxy.vessel = vessel;
                 mjProxy.UpdateVessel(vessel, vc);
                 realChuteProxy.vc = vc;
+                transferProxy.vc = vc;
                 //realChuteProxy.vessel = vessel;
 
 
@@ -767,6 +779,8 @@ namespace AvionicsSystems
                 navProxy.UpdateVessel(vessel);
                 realChuteProxy.vc = vc;
                 realChuteProxy.vessel = vessel;
+                transferProxy.vc = vc;
+                transferProxy.vessel = vessel;
                 UpdateLocalCrew();
             }
         }
