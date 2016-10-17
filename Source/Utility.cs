@@ -166,6 +166,32 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Normalize a time by limiting it to the range of [0, orbit.period).
+        /// 
+        /// Assumes this is not an absolute time, so events in the past are moved
+        /// forward to the next occurrence.
+        /// </summary>
+        /// <param name="time"></param>
+        /// <param name="o"></param>
+        /// <returns></returns>
+        internal static double NormalizeOrbitTime(double time, Orbit o)
+        {
+            if (time < 0.0)
+            {
+                time = o.period + time;
+            }
+
+            if (time < o.period)
+            {
+                return time;
+            }
+            else
+            {
+                return time % o.period;
+            }
+        }
+
+        /// <summary>
         /// Remap the source variable from [sourceRange1, sourceRange2] into
         /// the range [destinationRange1, destinationRange2].  Convert to
         /// float as well, since we don't need maximum precision.
