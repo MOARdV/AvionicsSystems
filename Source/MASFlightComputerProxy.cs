@@ -90,6 +90,8 @@ namespace AvionicsSystems
     /// </mdDoc>
     internal class MASFlightComputerProxy
     {
+        internal const double KelvinToCelsius = -273.15;
+
         private MASFlightComputer fc;
         internal MASVesselComputer vc;
         internal MASIFAR farProxy;
@@ -437,6 +439,334 @@ namespace AvionicsSystems
         {
             return vessel.staticPressurekPa;
         }
+        #endregion
+
+        /// <summary>
+        /// Information about the Celestial Bodies may be fetched using the
+        /// methods in this category.
+        /// 
+        /// Most of these methods function in one of two ways: by name or
+        /// by number.  By name means using the name of the body to select
+        /// it (eg, `fc.BodyMass("Jool")`).  However, since strings are
+        /// slightly slower than numbers for lookups, these methods will
+        /// accept numbers.  The number for a world can be fetched using
+        /// `fc.BodyIndex`, or one of two special values may be used:
+        /// 
+        /// * -1: Return information about the body the vessel is currently
+        /// orbiting.
+        /// * -2: Return information about the body currently being targeted.
+        /// 
+        /// Obviously, if no body is being targted, no data will be returned
+        /// when -2 is used.
+        /// </summary>
+        #region Body
+        /// <summary>
+        /// Private method to map a string or number to a CelestialBody.
+        /// </summary>
+        /// <param name="id">A string or number identifying the celestial body.</param>
+        private CelestialBody SelectBody(object id)
+        {
+            CelestialBody cb = null;
+
+            if (id is double)
+            {
+                int idx = (int)(double)id;
+                if (idx == -1)
+                {
+                    cb = vessel.mainBody;
+                }
+                else if (idx == -2)
+                {
+                    if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
+                    {
+                        cb = vc.activeTarget as CelestialBody;
+                    }
+                }
+                else if (idx >= 0 && idx < FlightGlobals.Bodies.Count)
+                {
+                    cb = FlightGlobals.Bodies[idx];
+                }
+            }
+            else if (id is string)
+            {
+                string bodyName = id as string;
+                cb = FlightGlobals.Bodies.Find(x => (x.bodyName == bodyName));
+            }
+
+            return cb;
+        }
+
+        /// <summary>
+        /// Returns the surface area of the selected body.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>Surface area of the planet in m^2.</returns>
+        public double BodyArea(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+
+            return (cb == null) ? 0.0 : cb.SurfaceArea;
+        }
+
+        /// <summary>
+        /// Returns the altitude of the top of the selected body's
+        /// atmosphere.  If the body does not have an atmosphere, or
+        /// an invalid body is selected, 0 is returned.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>The altitude of the top of the atmosphere, in meters, or 0.</returns>
+        public double BodyAtmosphereTop(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+
+            double atmoTop = 0.0;
+            if(cb != null && cb.atmosphere)
+            {
+                atmoTop = cb.atmosphereDepth;
+            }
+
+            return atmoTop;
+        }
+
+        /// <summary>
+        /// Returns the escape velocity of the body.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>Escape velocity in m/s, or 0 if the body was invalid.</returns>
+        public double BodyEscapeVelocity(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+
+            double escapeVelocity = 0.0;
+            if(cb != null)
+            {
+                escapeVelocity = Math.Sqrt(2.0 * cb.gravParameter / cb.Radius);
+            }
+
+            return escapeVelocity;
+        }
+
+        /// <summary>
+        /// Returns the acceleration from gravity as the surface
+        /// for the selected body.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>Acceleration in G's, or 0 if the body was invalid.</returns>
+        public double BodyGeeASL(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+
+            return (cb != null) ? cb.GeeASL : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the standard gravitational parameter of the body.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>GM in m^3/s^2, or 0 if the body is invalid.</returns>
+        public double BodyGM(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+
+            return (cb != null) ? cb.gravParameter : 0.0;
+        }
+
+        /// <summary>
+        /// Indicates if the selected body has an atmosphere.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>1 if the body has an atmosphere, 0 if it does not, or an invalid body was selected.</returns>
+        public double BodyHasAtmosphere(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+            bool atmo = (cb != null) ? cb.atmosphere : false;
+
+            return (atmo) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Indicates if the selected body's atmosphere has oxygen.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>1 if the body has an atmosphere that contains oxygen, 0 if it does not, or an invalid body was selected.</returns>
+        public double BodyHasOxygen(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+            bool atmo = (cb != null) ? cb.atmosphere : false;
+            bool oxy = atmo && ((cb != null) ? cb.atmosphereContainsOxygen : false);
+
+            return (oxy) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the numeric identifier for the named body.  If the name is invalid
+        /// (no such body exists), returns -1.  May also use the index, which is useful
+        /// for -1 and -2.
+        /// </summary>
+        /// <param name="bodyName">The name of the body, eg. `"Kerbin"` or one of the indices (including -1 and -2).</param>
+        /// <returns>An index from 0 to (number of Celestial Bodies - 1), or -1 if the named body was not found.</returns>
+        public double BodyIndex(object id)
+        {
+            string bodyName = string.Empty;
+            if (id is double)
+            {
+                CelestialBody cb = SelectBody(id);
+                if (cb != null)
+                {
+                    bodyName = cb.bodyName;
+                }
+            }
+            else if (id is string)
+            {
+                bodyName = id as string;
+            }
+
+            return (double)FlightGlobals.Bodies.FindIndex(x => x.bodyName == bodyName);
+        }
+
+        /// <summary>
+        /// Returns the mass of the requested body.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>Mass in kg.</returns>
+        public double BodyMass(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+
+            return (cb!=null) ? cb.Mass : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the name of the requested body.  While this method can be used
+        /// with a name for its parameter, that is kind of pointless.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>The name of the body, or an empty string if invalid.</returns>
+        public string BodyName(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+            return (cb != null) ? cb.bodyName : string.Empty;
+        }
+
+        /// <summary>
+        /// Returns the radius of the selected body.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>Radius in meters, or 0 if the body is invalid.</returns>
+        public double BodyRadius(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+
+            return (cb != null) ? cb.Radius : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the rotation period of the body.  If the body does not
+        /// rotate, 0 is returned.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>Rotation period in seconds, or 0.</returns>
+        public double BodyRotationPeriod(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+
+            return (cb != null && cb.rotates) ? cb.rotationPeriod : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the radius of the body's Sphere of Influence.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>SoI in meters</returns>
+        public double BodySoI(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+
+            return (cb != null) ? cb.sphereOfInfluence : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the temperature of the body at sea level.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <param name="useKelvin">If true, temperature is in Kelvin; if false, temperature is in Celsius.</param>
+        /// <returns>Surface temperature in K or C; 0 if the selected object was invalid</returns>
+        public double BodySurfaceTemp(object id, bool useKelvin)
+        {
+            CelestialBody cb = SelectBody(id);
+
+            double temperature = 0.0;
+
+            if (cb!=null)
+            {
+                temperature = cb.atmosphereTemperatureSeaLevel;
+                if (!useKelvin)
+                {
+                    temperature += KelvinToCelsius;
+                }
+            }
+
+            return temperature;
+        }
+
+        /// <summary>
+        /// Returns the semi-major axis of a synchronous orbit with the selected body.
+        /// When a vessel's SMA matches the sync orbit SMA, a craft is in a synchronous
+        /// orbit.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>SMA in meters, or 0 if the body is invalid, or the synchronous orbit
+        /// is out side the body's SoI.</returns>
+        public double BodySyncOrbitSMA(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+
+            double syncOrbit = 0.0;
+
+            if (cb != null)
+            {
+                syncOrbit = Math.Pow(cb.gravParameter * Math.Pow(cb.rotationPeriod / (2.0 * Math.PI), 2.0), 1.0 / 3.0);
+
+                if (syncOrbit > cb.sphereOfInfluence)
+                {
+                    syncOrbit = 0.0;
+                }
+            }
+
+            return syncOrbit;
+        }
+
+        /// <summary>
+        /// Returns the speed of a synchronous orbit.  Provided an orbit is
+        /// perfectly circular, an orbit that has this velocity will be
+        /// synchronous.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>Velocity in m/s, or 0 if there is no synchronous orbit.</returns>
+        public double BodySyncOrbitVelocity(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+
+            double syncOrbitPeriod = 0.0;
+
+            if (cb != null && cb.rotates)
+            {
+                double syncOrbit = Math.Pow(cb.gravParameter * Math.Pow(cb.rotationPeriod / (2.0 * Math.PI), 2.0), 1.0 / 3.0);
+
+                if (syncOrbit > cb.sphereOfInfluence)
+                {
+                    syncOrbit = 0.0;
+                }
+
+                // Determine the circumference of the orbit.
+                syncOrbit *= 2.0 * Math.PI;
+
+                syncOrbitPeriod = syncOrbit / cb.rotationPeriod;
+            }
+
+            return syncOrbitPeriod;
+        }
+
         #endregion
 
         /// <summary>
@@ -1693,12 +2023,31 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the orbital period, in seconds.
+        /// </summary>
+        /// <returns>Orbital period, seconds.</returns>
+        public double OrbitPeriod()
+        {
+            return vc.orbit.period;
+        }
+
+        /// <summary>
         /// Returns the orbits periapsis (from datum) in meters.
         /// </summary>
         /// <returns></returns>
         public double Periapsis()
         {
             return vc.periapsis;
+        }
+
+        /// <summary>
+        /// Returns the semi-major axis of the current orbit.  When the SMA
+        /// matches a body's synchronous orbit SMA, the vessel is in a synchronous orbit.
+        /// </summary>
+        /// <returns>SMA in meters.</returns>
+        public double SemiMajorAxis()
+        {
+            return vc.orbit.semiMajorAxis;
         }
         #endregion
 
@@ -4606,6 +4955,28 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// For non-hyperbolic orbits, returns time to the next equatorial
+        /// Ascending Node.
+        /// </summary>
+        /// <returns>Time to AN, seconds, or 0 if the orbit is hyperbolic.</returns>
+        public double TimeToANEq()
+        {
+            if (vc.orbit.eccentricity < 1.0)
+            {
+                Vector3d ANVector = vc.orbit.GetANVector();
+                Vector3d ANNorm = ANVector.normalized;
+                double taAN = vc.orbit.GetTrueAnomalyOfZupVector(ANNorm);
+                double timeAN = vc.orbit.GetUTforTrueAnomaly(taAN, vc.orbit.period) - vc.universalTime;
+
+                return Utility.NormalizeOrbitTime(timeAN, vc.orbit);
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Fetch the time to the next apoapsis.  If the orbit is hyperbolic,
         /// or the vessel is not flying, return 0.
         /// </summary>
@@ -4641,14 +5012,34 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// **INCOMPLETE:** This function is a placeholder that does not return
-        /// valid numbers unless MechJeb is used.
-        ///
+        /// Returns the time to the equatorial descending node, in seconds.
+        /// </summary>
+        /// <returns>Time in seconds to the next descending node, or 0 if the orbit is hyperbolic.</returns>
+        public double TimeToDNEq()
+        {
+            if (vc.orbit.eccentricity < 1.0)
+            {
+                Vector3d ANVector = vc.orbit.GetANVector();
+                Vector3d DNNorm = -ANVector.normalized;
+                double taDN = vc.orbit.GetTrueAnomalyOfZupVector(DNNorm);
+                double timeDN = vc.orbit.GetUTforTrueAnomaly(taDN, vc.orbit.period) - vc.universalTime;
+
+                return Utility.NormalizeOrbitTime(timeDN, vc.orbit);
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Returns the time until the vessel lands.  If MechJeb is available and the
-        /// landing prediction module is enabled, MechJeb's results are used.  Otherwise,
-        /// a less accurate MAS predictor is used.  If the orbit does not intercept the
+        /// landing prediction module is enabled, MechJeb's results are used.  
+        /// 
+        /// If the orbit does not intercept the
         /// surface, 0 is returned.
         /// </summary>
+        /// <seealso>MechJeb</seealso>
         /// <returns>Time in seconds until landing; 0 for invalid times.</returns>
         public double TimeToLanding()
         {
