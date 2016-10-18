@@ -51,6 +51,18 @@ MASAction).  The mapping of RPM modules to MASAction is described below:
 JSIActionGroupSwitch: Use COLLIDER_EVENT for the click action, ANIMATION_PLAYER for
 the animation that is played for the click.  Sounds are managed by AUDIO_PLAYER.
 
+
+Variables:
+
+Some RPM variables do not exist in MAS.  Most of these were variables that provided
+threshold alarms, but a few others did not make it, either.  The master list of
+RPM variables and their replacements is in [https://github.com/MOARdV/AvionicsSystems/blob/master/Documents/RPM-VariableList.txt].
+
+If an RPM variable has a blank after it, it has not been transferred to MAS yet (or
+the document hasn't been updated).  Otherwise, the MAS equivalent of the variable
+is listed.
+
+
 Some additional detail:
 
 The 'dummy' action uses 'fc.TogglePersistent("NAME")', where NAME is replaced with

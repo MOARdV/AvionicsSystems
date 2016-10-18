@@ -22,8 +22,8 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "ALTITUDEBOTTOM": fc.AltitudeBottom()
 "ALTITUDEBOTTOMLOG10": fc.PseudoLog10(fc.AltitudeBottom())
 "ALTITUDELOG10": fc.PseudoLog10(fc.Altitude())
-"AMBIENTTEMPERATURE":
-"AMBIENTTEMPERATUREKELVIN":
+"AMBIENTTEMPERATURE": fc.AmbientTemperature(false)
+"AMBIENTTEMPERATUREKELVIN": fc.AmbientTemperature(true)
 "ANGLEOFATTACK": fc.AngleOfAttack()
 "APOAPSIS": fc.Apoapsis()
 "APPROACHSPEED": fc.ApproachSpeed()
@@ -50,18 +50,18 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "EFFECTIVEACCEL":
 "EFFECTIVERAWTHROTTLE":
 "EFFECTIVETHROTTLE":
-"ELECOUTPUTALTERNATOR":
-"ELECOUTPUTFUELCELL":
-"ELECOUTPUTGENERATOR":
-"ELECOUTPUTSOLAR":
+"ELECOUTPUTALTERNATOR": fc.AlternatorOutput()
+"ELECOUTPUTFUELCELL": fc.FuelCellOutput()
+"ELECOUTPUTGENERATOR": fc.GeneratorOutput()
+"ELECOUTPUTSOLAR": fc.SolarPanelOutput()
 "ENCOUNTERBODY":
 "ENCOUNTEREXISTS": fc.NextSoI()
 "ENCOUNTERTIME":
 "ENGINECOUNT":
 "ENGINEFLAMEOUTALARM": fc.EngineFlameout()
 "ENGINEOVERHEATALARM": 
-"EXTERNALTEMPERATURE":
-"EXTERNALTEMPERATUREKELVIN":
+"EXTERNALTEMPERATURE": fc.ExternalTemperature(false)
+"EXTERNALTEMPERATUREKELVIN": fc.ExternalTemperature(true)
 "FLIGHTUIMODE":
 "FUNDS":
 "GEAR": fc.GetGear()
@@ -75,9 +75,9 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "HORZVELOCITY": fc.HorizontalSpeed()
 "HORZVELOCITYFORWARD": fc.SurfaceForwardSpeed()
 "HORZVELOCITYRIGHT": fc.SurfaceLateralSpeed()
-"HOTTESTENGINEMAXTEMP":
-"HOTTESTENGINETEMP":
-"HOTTESTENGINETEMPRATIO":
+"HOTTESTENGINEMAXTEMP": fc.HottestEngineTemperatureMax(true)
+"HOTTESTENGINETEMP": fc.HottestEngineTemperature(true)
+"HOTTESTENGINETEMPRATIO": fc.HottestEngineTemperature(true) / fc.HottestEngineTemperature(true)
 "HOTTESTPARTMAXTEMP":
 "HOTTESTPARTNAME":
 "HOTTESTPARTTEMP":
@@ -210,13 +210,13 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "SCIENCEDATA":
 "SELECT": -replaced with Lua scripting-
 "SELECTEDSPEED": fc.SpeedDisplayMode()
-"SEMIMAJORAXIS":
+"SEMIMAJORAXIS": fc.SemiMajorAxis()
 "SIDESLIP": fc.Sideslip()
 "SITUATION": fc.VesselSituation() returns a number instead of a string
-"SLOPEALARM":
+"SLOPEALARM": -replaced with Lua scripting-
 "SLOPEANGLE":
 "SPEEDATIMPACT":
-"SPEEDDISPLAYMODE":
+"SPEEDDISPLAYMODE": fc.SpeedDisplayMode()
 "STAGE": fc.CurrentStage()
 "STAGEREADY": fc.StageReady()
 "STICKPITCH": fc.StickPitch()
@@ -253,7 +253,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "TARGETBODYMASS": fc.BodyMass(-2)
 "TARGETBODYMOONEJECTIONANGLE":
 "TARGETBODYOXYGEN": fc.BodyHasOxygen(-2)
-"TARGETBODYPHASEANGLE":
+"TARGETBODYPHASEANGLE": transfer.RelativePhaseAngle()
 "TARGETBODYPHASEANGLESECS":
 "TARGETBODYRADIUS": fc.BodyRadius(-2)
 "TARGETBODYROTATIONPERIOD": fc.BodyRotationPeriod(-2)
@@ -272,7 +272,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "TARGETDISTANCEX": fc.TargetDistanceX()
 "TARGETDISTANCEY": fc.TargetDistanceY()
 "TARGETDISTANCEZ": fc.TargetDistanceZ()
-"TARGETECCENTRICITY":
+"TARGETECCENTRICITY": fc.TargetEccentricity()
 "TARGETEXISTS": fc.TargetType() > 0
 "TARGETGROUNDDISTANCE":
 "TARGETINCLINATION": fc.TargetInclination()
@@ -297,8 +297,8 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "TARGETSIGNALSTRENGTHCAPTION":
 "TARGETSITUATION":
 "TARGETSIZECLASS":
-"TARGETTIMETOAPSECS":
-"TARGETTIMETOPESECS":
+"TARGETTIMETOAPSECS": fc.TargetTimeToAp()
+"TARGETTIMETOPESECS": fc.TargetTimeToPe()
 "TARGETTYPE": fc.TargetType(), although TargetType returns a number, not a string
 "TERMINALVELOCITY":
 "TERRAINDELTA":

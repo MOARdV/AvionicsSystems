@@ -22,6 +22,7 @@ Many MASComponent actions support Boolean Mode, where the controlling variable i
 or false.  Whenever possible, take advantage of that mode, since it requires the least
 computational overhead (is the new number greater than 0 or not?).
 
+
 USE THE Lua math LIBRARY AND THE mas LIBRARY
 
 Lua's math library provides a fair amount of built-in math capabilities, as described
@@ -33,6 +34,14 @@ this example, we're using a 4-segment LED, so we can't display a value larger th
 In addition, the MAS "standard library" provides some handy specialized functions for use
 in variables (and in custom Lua scripts).  Refer to the MAS Standard Library chapter for more
 details.
+
+
+USE Lua SPARINGLY
+
+Compared to C# code, Lua interpreted code is very slow - close to 16x slower than C#
+code.  It is very flexible, so it should be used where its power is advantageous, but
+try not to duplicate existing functionality in Lua script.  MAS has a built-in text
+parser, and it can convert most variables to MSIL delegates.
 
 
 USE TEXT MARKUP SPARINGLY IN TEXT THAT ONLY CHANGES COLOR

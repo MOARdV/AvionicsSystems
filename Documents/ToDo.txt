@@ -113,10 +113,11 @@ to do some learnin' and write the replacement functionality on my own.
 * Protractor -- Or, make Protractor an optional dependency?
  - http://forum.kerbalspaceprogram.com/index.php?/topic/60386-the-ksp-equation/#comment-906538 Hohmann Transfer equation
  - http://forum.kerbalspaceprogram.com/index.php?/topic/62404-how-to-calculate-phase-angle-for-hohmann-transfer/#comment-944519 and also
+ - https://en.wikipedia.org/wiki/Hohmann_transfer_orbit seems to explain it fairly well - make a MASITransfer module.
 
 - Resources: Done
 
-* AeroExtensions
+- AeroExtensions: Not needed /done
 
 * CelestialBodyExtensions
 
