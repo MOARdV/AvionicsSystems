@@ -4609,6 +4609,23 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the eccentricity of the target's orbit, or 0 if there is no
+        /// target.
+        /// </summary>
+        /// <returns>Returns the target orbit's eccentricity.</returns>
+        public double TargetEccentricity()
+        {
+            if (vc.targetType > 0)
+            {
+                return vc.targetOrbit.eccentricity;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Returns the orbital inclination of the target, or 0 if there is no target.
         /// </summary>
         /// <returns>Target orbital inclination in degrees, or 0 if there is no target.</returns>
@@ -4750,6 +4767,38 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the time until the target's next apoapsis.
+        /// </summary>
+        /// <returns>Time to Ap in seconds, or 0 if there's no target.</returns>
+        public double TargetTimeToAp()
+        {
+            if (vc.targetType > 0)
+            {
+                return vc.targetOrbit.timeToAp;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the time until the target's next periapsis.
+        /// </summary>
+        /// <returns>Time to Pe in seconds, or 0 if there's no target.</returns>
+        public double TargetTimeToPe()
+        {
+            if (vc.targetType > 0)
+            {
+                return vc.targetOrbit.timeToPe;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Returns a number identifying the target type.  Valid results are:
         /// 
         /// * 0: No target
@@ -4840,6 +4889,55 @@ namespace AvionicsSystems
             {
                 return 0.0;
             }
+        }
+        #endregion
+
+        /// <summary>
+        /// The Thermal section contains temperature monitoring values.
+        /// </summary>
+        #region Thermal
+
+        /// <summary>
+        /// Returns the current atmosphere / ambient temperature outside the
+        /// craft.
+        /// </summary>
+        /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
+        /// <returns>Ambient temperature in Kelvin or Celsius.</returns>
+        public double AmbientTemperature(bool useKelvin)
+        {
+            return vessel.atmosphericTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+        }
+
+        /// <summary>
+        /// Returns the current temperature outside the vessel.
+        /// </summary>
+        /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
+        /// <returns>External temperature in Kelvin or Celsius.</returns>
+        public double ExternalTemperature(bool useKelvin)
+        {
+            return vessel.externalTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+        }
+
+        /// <summary>
+        /// Returns the current temperature of the hottest engine, where hottest engine
+        /// is defined as "closest to its maximum temperature".
+        /// </summary>
+        /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
+        /// <returns>Current temperature of the hottest engine in Kelvin or Celsius.</returns>
+        public double HottestEngineTemperature(bool useKelvin)
+        {
+            return vc.hottestEngineTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+        }
+
+        /// <summary>
+        /// Returns the maximum temperature of the hottest engine, where hottest engine
+        /// is defined as "closest to its maximum temperature".
+        /// </summary>
+        /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
+        /// <returns>Current temperature of the hottest engine in Kelvin or Celsius.</returns>
+        public double HottestEngineTemperatureMax(bool useKelvin)
+        {
+            return vc.hottestEngineMaxTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
         }
         #endregion
 
