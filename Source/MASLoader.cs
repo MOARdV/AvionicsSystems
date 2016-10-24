@@ -28,7 +28,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
@@ -554,11 +553,14 @@ namespace AvionicsSystems
         /// </summary>
         private void RegisterWithModuleManager()
         {
-            // Shh!  Using Linq.  But this is a one-shot event.
-            var mmPatchLoader = AssemblyLoader.loadedAssemblies
-                .Select(a => a.assembly.GetExportedTypes())
-                .SelectMany(t => t)
-                .FirstOrDefault(t => t.FullName == "ModuleManager.MMPatchLoader");
+            Type mmPatchLoader = null;
+            AssemblyLoader.loadedAssemblies.TypeOperation(t =>
+            {
+                if (t.FullName == "ModuleManager.MMPatchLoader")
+                {
+                    mmPatchLoader = t;
+                }
+            });
 
             if (mmPatchLoader == null)
             {
