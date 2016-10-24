@@ -3530,6 +3530,76 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the total quantity of all resources consumed as engine
+        /// propellant.  Massless resources (ElectricCharge) are not included.
+        /// </summary>
+        /// <returns>Current amount of active propellants on board.</returns>
+        public double PropellantCurrent()
+        {
+            return vc.propellant.currentQuantity;
+        }
+
+        /// <summary>
+        /// Returns the current instantaneous consumption rate of all active
+        /// propellants.  Massless propellants are not included.
+        /// </summary>
+        /// <returns>Resource change rate in units/sec.</returns>
+        public double PropellantDelta()
+        {
+            return vc.propellant.deltaPerSecond;
+        }
+
+        /// <summary>
+        /// Returns the maximum capacity of active propellants on the vessel.
+        /// Massless propellants are not included.
+        /// </summary>
+        /// <returns>Max amount of propellants in units.</returns>
+        public double PropellantMax()
+        {
+            return vc.propellant.maxQuantity;
+        }
+
+        /// <summary>
+        /// Returns the current amount of propellant on the vessel as a ratio of
+        /// the current amount / max amount.  Massless propellants are not included.
+        /// </summary>
+        /// <returns>Ratio of propellant in the range [0, 1].</returns>
+        public double PropellantPercent()
+        {
+            return (vc.propellant.maxQuantity > 0.0f) ? (vc.propellant.currentQuantity / vc.propellant.maxQuantity) : 0.0f;
+        }
+
+        /// <summary>
+        /// Returns the amount of propellant left on the current stage.
+        /// Massless propellants are not included.
+        /// </summary>
+        /// <returns></returns>
+        public double PropellantStage()
+        {
+            return vc.propellant.currentStage;
+        }
+
+        /// <summary>
+        /// Returns the maximum amount of propellant on the current stage.
+        /// Massless propellants are not included.
+        /// </summary>
+        /// <returns></returns>
+        public double PropellantStageMax()
+        {
+            return vc.propellant.maxStage;
+        }
+
+        /// <summary>
+        /// Returns the ratio of the amount of propellant remaining on the current
+        /// stage.  Massless propellants are not included.
+        /// </summary>
+        /// <returns>Propellant remaining in the range [0, 1].</returns>
+        public double PropellantStagePercent()
+        {
+            return (vc.propellant.maxStage > 0.0f) ? (vc.propellant.currentStage / vc.propellant.maxStage) : 0.0f;
+        }
+
+        /// <summary>
         /// Returns the total number of resources found on this vessel.
         /// </summary>
         /// <returns></returns>

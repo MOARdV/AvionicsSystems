@@ -45,6 +45,8 @@ namespace AvionicsSystems
         /// </summary>
         private HashSet<Part> activeResources = new HashSet<Part>();
 
+        internal ResourceData propellant = new ResourceData();
+
         private PartSet partSet = null;
 
         /// <summary>
@@ -54,7 +56,7 @@ namespace AvionicsSystems
 
         private ResourceNameComparer resourceNameComparer = new ResourceNameComparer();
 
-        private struct ResourceData
+        internal struct ResourceData
         {
             internal string name;
 
@@ -546,6 +548,17 @@ namespace AvionicsSystems
             // TODO: Should I sort on resource ID instead?  That would be
             // cheaper than a string search.
             Array.Sort(resources, resourceNameComparer);
+
+            // Initialize our propellant tracking ResourceData
+            propellant.name = "Active Propellants";
+            propellant.id = 0;
+            propellant.density = 0.0f;
+            propellant.currentQuantity = 0.0f;
+            propellant.maxQuantity = 0.0f;
+            propellant.previousQuantity = 0.0f;
+            propellant.deltaPerSecond = 0.0f;
+            propellant.currentStage = 0.0f;
+            propellant.maxStage = 0.0f;
         }
 
         /// <summary>
@@ -611,8 +624,37 @@ namespace AvionicsSystems
                     }
 
                     resources[i].previousQuantity = resources[i].currentQuantity;
+
+                    if (resources[i].density > 0.0f)
+                    {
+                        propellant.density += resources[i].density * resources[i].currentQuantity;
+                        propellant.currentQuantity += resources[i].currentQuantity;
+                        propellant.maxQuantity += resources[i].maxQuantity;
+                        propellant.maxStage += (float)maxAmount;
+                        propellant.currentStage += (float)amount;
+                    }
                 }
             }
+
+            if (propellant.previousQuantity > 0.0f)
+            {
+                propellant.deltaPerSecond = timeDelta * (propellant.previousQuantity - propellant.currentQuantity);
+            }
+            else
+            {
+                propellant.deltaPerSecond = 0.0f;
+            }
+
+            if (propellant.currentQuantity > 0.0f)
+            {
+                propellant.density /= propellant.currentQuantity;
+            }
+            else
+            {
+                propellant.density = 0.0f;
+            }
+
+            propellant.previousQuantity = propellant.currentQuantity;
 
             // sort the array of installed indices.
             Array.Sort<int>(this.vesselActiveResource);
