@@ -167,9 +167,6 @@ namespace AvionicsSystems
         /// </summary>
         internal bool vesselActive;
 
-        private List<ConfigNode> persistentNodeData = new List<ConfigNode>();
-        private bool anyRestored = false;
-
         /// <summary>
         /// A reference of the linear gauge used for atmospheric depth.
         /// </summary>
@@ -227,22 +224,6 @@ namespace AvionicsSystems
             {
                 Utility.LogErrorMessage("MASVesselComputer.Instance called with null vessel");
                 return null;
-            }
-        }
-
-        /// <summary>
-        /// Query to restore persistent data to a MASFlightComputer
-        /// </summary>
-        /// <param name="fc"></param>
-        internal void RestorePersistentData(MASFlightComputer fc)
-        {
-            anyRestored = true;
-            for (int i = persistentNodeData.Count - 1; i >= 0; --i)
-            {
-                if (fc.LoadPersistents(persistentNodeData[i]))
-                {
-                    break;
-                }
             }
         }
 
@@ -376,66 +357,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Load persistent variable data from the persistent files, and
-        /// distribute that data to the MASFlightComputer modules.
-        /// </summary>
-        /// <param name="node"></param>
-        protected override void OnLoad(ConfigNode node)
-        {
-            base.OnLoad(node);
-
-            ConfigNode[] persistentNodes = node.GetNodes();
-            if (persistentNodes.Length > 0)
-            {
-                Utility.LogMessage(this, "OnLoad for {0}: Found {1} child nodes", vessel.id, persistentNodes.Length);
-
-                // Yes, this is a horribly inefficient nested loop.  Except that
-                // it should be uncommon to have more than a small number of pods
-                // in most configurations.
-                for (int nodeIdx = persistentNodes.Length - 1; nodeIdx >= 0; --nodeIdx)
-                {
-                    persistentNodeData.Add(persistentNodes[nodeIdx].CreateCopy());
-                }
-            }
-        }
-
-        /// <summary>
-        /// Save this vessel's ASFlightComputer persistent vars.
-        /// </summary>
-        /// <param name="node"></param>
-        protected override void OnSave(ConfigNode node)
-        {
-            base.OnSave(node);
-
-            if (anyRestored)
-            {
-                Utility.LogMessage(this, "OnSave for {0}", vessel.id);
-                for (int partIdx = vessel.parts.Count - 1; partIdx >= 0; --partIdx)
-                {
-                    MASFlightComputer fc = MASFlightComputer.Instance(vessel.parts[partIdx]);
-                    if (fc != null)
-                    {
-                        ConfigNode saveNode = fc.SavePersistents();
-                        if (saveNode != null)
-                        {
-                            node.AddNode(saveNode);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // Nobody asked to restore persistent data - either there
-                // are no MASFlightComputer nodes or we're not on a loaded
-                // vessel.
-                for (int i = persistentNodeData.Count - 1; i >= 0; --i)
-                {
-                    node.AddNode(persistentNodeData[i]);
-                }
-            }
-        }
-
-        /// <summary>
         /// Initialize our state.
         /// </summary>
         protected override void OnStart()
@@ -454,11 +375,6 @@ namespace AvionicsSystems
 
                     Utility.LogMessage(this, "Start for {0}", vessel.id);
 
-                    // All this tells me is the current state of the nodes.  I
-                    // don't care about that - I want "is there anything in
-                    // that node"?
-                    //ConfigNode node = new ConfigNode("dummy");
-                    //vessel.ActionGroups.Save(node);
                     UpdateReferenceTransform(vessel.ReferenceTransform);
                     refreshReferenceTransform = true;
 

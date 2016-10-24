@@ -631,7 +631,16 @@ namespace AvionicsSystems
                     Utility.ComplainLoudly("Initialization Failed.  Please check KSP.log");
                 }
                 vc = MASVesselComputer.Instance(vessel);
-                vc.RestorePersistentData(this);
+
+                if (!MASPersistent.PersistentsLoaded)
+                {
+                    throw new ArgumentNullException("MASPersistent.PersistentsLoaded has not loaded!");
+                }
+                persistentVars = MASPersistent.RestoreDictionary(fcId, persistentVars);
+
+                // Always make sure we set the vessel ID in the persistent table
+                // based on what it currently is.
+                SetPersistent("__vesselId", parentVesselId.ToString());
 
                 // TODO: Don't need to set vessel for all of these guys if I just now init'd them.
                 fcProxy.vc = vc;
@@ -768,7 +777,11 @@ namespace AvionicsSystems
             {
                 // TODO: Do something different if parentVesselID != vessel.id?
                 Vessel vessel = this.vessel;
-                parentVesselId = vessel.id;
+                if (vessel.id != parentVesselId)
+                {
+                    parentVesselId = vessel.id;
+                    SetPersistent("__vesselId", parentVesselId.ToString());
+                }
                 vc = MASVesselComputer.Instance(vessel);
                 fcProxy.vc = vc;
                 fcProxy.vessel = vessel;

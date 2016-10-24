@@ -88,6 +88,7 @@
     <Compile Include="Source\MASIRealChute.cs" />
     <Compile Include="Source\MASITransfer.cs" />
     <Compile Include="Source\MASNavBall.cs" />
+    <Compile Include="Source\MASPersistent.cs" />
     <Compile Include="Source\MASRadar.cs" />
     <Compile Include="Source\MASTypes.cs" />
     <Compile Include="Source\MASLoader.cs" />
