@@ -337,7 +337,7 @@ namespace AvionicsSystems
                 return; // early - we never configured.
             }
 
-            Utility.LogMessage(this, "OnDestroy for {0}", vesselId);
+            //Utility.LogMessage(this, "OnDestroy for {0}", vesselId);
 
             GameEvents.OnCameraChange.Remove(onCameraChange);
             GameEvents.onVesselChange.Remove(onVesselChange);
@@ -373,7 +373,7 @@ namespace AvionicsSystems
                 {
                     InitResourceData();
 
-                    Utility.LogMessage(this, "Start for {0}", vessel.id);
+                    //Utility.LogMessage(this, "Start for {0}", vessel.id);
 
                     UpdateReferenceTransform(vessel.ReferenceTransform);
                     refreshReferenceTransform = true;
