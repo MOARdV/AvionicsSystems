@@ -42,8 +42,15 @@ namespace AvionicsSystems
 
             internal void Toggle()
             {
-                state = !state;
-                flashCallbacks.Invoke(state);
+                try
+                {
+                    state = !state;
+                    flashCallbacks.Invoke(state);
+                }
+                catch
+                {
+                    Utility.LogErrorMessage(this, "Exception caught in {0:0.00} - callback no longer valid?", period);
+                }
             }
         };
 
