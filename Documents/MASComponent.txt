@@ -13,6 +13,8 @@ MODULE
   // one or more MASAction actions as described below
 }
 
+CAUTION: Only use one MASComponent per prop.  Multiple MASComponent modules will lead to incorrect behavior.
+
 Modes:
 
 Many of the MASAction objects may operate in several modes.

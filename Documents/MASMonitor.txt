@@ -52,6 +52,8 @@ default page that is visible when first entering IVA.
 to contain the current page selection.  Defaulting to %AUTOID% allows on-prop buttons to likewise
 use %AUTOID%, but a unique name might be better for a monitor controlled by props located elsewhere.
 
+CAUTION: Only use one MASMonitor per prop.  Multiple MASMonitor modules will lead to incorrect behavior.
+
 
 MAS_PAGE
 {
