@@ -253,6 +253,10 @@ namespace AvionicsSystems
             {
                 variables[canonicalVariableName[variableName]].numericCallbacks -= callback;
             }
+            else
+            {
+                Utility.LogErrorMessage(this, "UnregisterNumericVariable: Did not find {0}", variableName);
+            }
         }
 
         /// <summary>
