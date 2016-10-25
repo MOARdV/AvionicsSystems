@@ -279,6 +279,16 @@ namespace AvionicsSystems
             }
 
             CodeGen.Parser.CompilerResult result = CodeGen.Parser.TryParse(variableName);
+
+            // Because variables may be added when parsing an expression tree, we need to
+            // make sure we check the canonical variable name map here.
+            // TODO: Can I short-cut this by testing for canonicalVariableName[variableName],
+            // and then testing for variables[canonicalVariableName]?
+            if (!canonicalVariableName.ContainsKey(variableName))
+            {
+                canonicalVariableName[variableName] = result.canonicalName;
+            }
+
             Variable v = null;
             if (variables.ContainsKey(result.canonicalName))
             {
