@@ -49,7 +49,8 @@ namespace AvionicsSystems
         /// </summary>
         static internal bool PersistentsLoaded
         {
-            get; private set;
+            get;
+            private set;
         }
 
         /// <summary>
@@ -82,7 +83,7 @@ namespace AvionicsSystems
             ConfigNode[] fc = node.GetNodes("MASFlightComputer");
             Utility.LogMessage(this, "OnLoad(): {0} stored flight computers", fc.Length);
 
-            for (int fcNodeIndex = fc.Length-1; fcNodeIndex >= 0; --fcNodeIndex )
+            for (int fcNodeIndex = fc.Length - 1; fcNodeIndex >= 0; --fcNodeIndex)
             {
                 string fcId = string.Empty;
                 if (fc[fcNodeIndex].TryGetValue("__MASFlightComputerId", ref fcId) && !string.IsNullOrEmpty(fcId))
@@ -92,8 +93,8 @@ namespace AvionicsSystems
                     int numValues = fc[fcNodeIndex].CountValues;
                     Dictionary<string, object> persistentVars = new Dictionary<string, object>(numValues - 1);
 
-                    // NOTE: We stop at 1, not 0, because we expect ASFlightComputerPersistents
-                    // to be the first entry; it will be as long as no one hand-edited the file!
+                    // NOTE: We stop at 1, not 0, because we expect __MASFlightComputerId
+                    // to be the first entry; it will be as long as no one manually reordered it.
                     for (int i = numValues - 1; i >= 1; --i)
                     {
                         ConfigNode.Value val = fc[fcNodeIndex].values[i];
@@ -145,31 +146,47 @@ namespace AvionicsSystems
         /// <param name="node"></param>
         public override void OnSave(ConfigNode node)
         {
-            //Utility.LogMessage(this, "OnSave(): {0} registered flight computers", knownPersistents.Count);
-            
-            // TODO: 
-            // 1) Create a HashSet of all vessel GUID.
-            // 2) When interating through the nodes below, search for the reserved
-            // variable '__vesselId'.
-            // 3) See if __vesselId is in the HashSet.
-            //  3a) If so, save persistents.
-            //  3b) If not, do not save persistents.
+            Utility.LogMessage(this, "OnSave(): {0} registered flight computers", knownPersistents.Count);
 
-            foreach(var fc in knownPersistents)
+            HashSet<string> knownVessels = new HashSet<string>();
+            List<Vessel> vessels = FlightGlobals.Vessels;
+            for (int idx = vessels.Count - 1; idx >= 0; --idx)
             {
-                ConfigNode saveNode = new ConfigNode("MASFlightComputer");
-                saveNode.AddValue("__MASFlightComputerId", fc.Key.ToString());
+                knownVessels.Add(vessels[idx].id.ToString());
+            }
 
-                foreach (var keyValPair in fc.Value)
+            foreach (var fc in knownPersistents)
+            {
+                if (fc.Value.ContainsKey(MASFlightComputer.vesselIdLabel) && knownVessels.Contains(fc.Value[MASFlightComputer.vesselIdLabel].ToString()))
                 {
-                    string value = string.Format("{0},{1}", keyValPair.Value.GetType().ToString(), keyValPair.Value.ToString());
-                    saveNode.AddValue(keyValPair.Key, value);
-                }
+                    ConfigNode saveNode = new ConfigNode("MASFlightComputer");
+                    saveNode.AddValue("__MASFlightComputerId", fc.Key.ToString());
 
-                node.AddNode(saveNode);
+                    foreach (var keyValPair in fc.Value)
+                    {
+                        string value = string.Format("{0},{1}", keyValPair.Value.GetType().ToString(), keyValPair.Value.ToString());
+                        saveNode.AddValue(keyValPair.Key, value);
+                    }
+
+                    node.AddNode(saveNode);
+                }
+                else
+                {
+                    if (fc.Value.ContainsKey(MASFlightComputer.vesselIdLabel))
+                    {
+                        Utility.LogMessage(this, "Discarding flight computer {0} because vessel ID {1} no longer exists",
+                        fc.Key,
+                        fc.Value[MASFlightComputer.vesselIdLabel]);
+                    }
+                    else
+                    {
+                        Utility.LogMessage(this, "Discarding flight computer {0} because it did not stored vessel ID",
+                            fc.Key);
+                    }
+                }
             }
         }
-       
+
         /// <summary>
         /// Accessor method to restore persistent variables from our global table.
         /// If the MASFlightComputer that calls this method isn't already in our

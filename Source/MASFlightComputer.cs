@@ -153,6 +153,8 @@ namespace AvionicsSystems
         /// </summary>
         internal MASVesselComputer vc;
 
+        internal static readonly string vesselIdLabel = "__vesselId";
+
         internal ProtoCrewMember[] localCrew = new ProtoCrewMember[0];
         internal kerbalExpressionSystem[] localCrewMedical = new kerbalExpressionSystem[0];
 
@@ -355,7 +357,7 @@ namespace AvionicsSystems
                         }
                     };
 
-                    Utility.LogMessage(this, "Adding new Action '{0}'", actionName);
+                    //Utility.LogMessage(this, "Adding new Action '{0}'", actionName);
                     actions.Add(actionName, a);
                     return a;
                 }
@@ -401,6 +403,7 @@ namespace AvionicsSystems
                                 throw new ArgumentException(string.Format("Unexpected variable type {0} in mutableVariablesList", var.variableType));
                             }
                         }
+                        Utility.LogMessage(this, "Resizing variables lists to N:{0} L:{1}", nativeVariableCount, luaVariableCount);
                         //nativeVariables = mutableVariablesList.ToArray();
                         mutableVariablesChanged = false;
                     }
@@ -426,25 +429,33 @@ namespace AvionicsSystems
                         disruptionChance = 0.0f;
                     }
 
-                    // Crew medical seems to get nulled somewhere after the
-                    // crew callback, so it appears I need to repeatedly poll
-                    // it.
-                    int numSeats = localCrew.Length;
-                    if (numSeats > 0)
+                    try
                     {
-                        for (int i = 0; i < numSeats; i++)
+                        // Crew medical seems to get nulled somewhere after the
+                        // crew callback, so it appears I need to repeatedly poll
+                        // it.
+                        int numSeats = localCrew.Length;
+                        if (numSeats > 0)
                         {
-                            if (localCrew[i] != null)
+                            for (int i = 0; i < numSeats; i++)
                             {
-                                kerbalExpressionSystem kES = localCrewMedical[i];
-                                localCrew[i].KerbalRef.GetComponentCached<kerbalExpressionSystem>(ref kES);
-                                localCrewMedical[i] = kES;
-                            }
-                            else
-                            {
-                                localCrewMedical[i] = null;
+                                if (localCrew[i] != null)
+                                {
+                                    kerbalExpressionSystem kES = localCrewMedical[i];
+                                    localCrew[i].KerbalRef.GetComponentCached<kerbalExpressionSystem>(ref kES);
+                                    localCrewMedical[i] = kES;
+                                }
+                                else
+                                {
+                                    localCrewMedical[i] = null;
+                                }
                             }
                         }
+                    }
+                    catch(Exception)
+                    {
+                        Utility.LogMessage(this, "Exception trapped trying to update kerbal expressions - resetting kerbal data");
+                        UpdateLocalCrew();
                     }
 
                     // TODO: Add a heuristic to adjust the loop so not all variables
@@ -465,8 +476,9 @@ namespace AvionicsSystems
                         }
                         catch (Exception e)
                         {
-                            Utility.LogErrorMessage(this, "FixedUpdate exception on variable {0}", nativeVariables[i].name);
-                            throw e;
+                            Utility.LogErrorMessage(this, "FixedUpdate exception on variable {0}:", nativeVariables[i].name);
+                            Utility.LogErrorMessage(this, e.ToString());
+                            //throw e;
                         }
                     }
                     nativeVariablesCount += count;
@@ -640,7 +652,7 @@ namespace AvionicsSystems
 
                 // Always make sure we set the vessel ID in the persistent table
                 // based on what it currently is.
-                SetPersistent("__vesselId", parentVesselId.ToString());
+                SetPersistent(vesselIdLabel, parentVesselId.ToString());
 
                 // TODO: Don't need to set vessel for all of these guys if I just now init'd them.
                 fcProxy.vc = vc;
@@ -780,7 +792,7 @@ namespace AvionicsSystems
                 if (vessel.id != parentVesselId)
                 {
                     parentVesselId = vessel.id;
-                    SetPersistent("__vesselId", parentVesselId.ToString());
+                    SetPersistent(vesselIdLabel, parentVesselId.ToString());
                 }
                 vc = MASVesselComputer.Instance(vessel);
                 fcProxy.vc = vc;
@@ -794,8 +806,8 @@ namespace AvionicsSystems
                 realChuteProxy.vessel = vessel;
                 transferProxy.vc = vc;
                 transferProxy.vessel = vessel;
-                UpdateLocalCrew();
             }
+            UpdateLocalCrew();
         }
         #endregion
     }
