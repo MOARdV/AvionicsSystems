@@ -200,7 +200,7 @@ namespace AvionicsSystems
 
                     defaultFont = MASLoader.GetFont(font.Trim());
 
-                    ConfigNode moduleConfig = Utility.GetPropModuleConfigNode(internalProp.propName, moduleID);
+                    ConfigNode moduleConfig = Utility.GetPropModuleConfigNode(internalProp.propName, ClassName);
                     if (moduleConfig == null)
                     {
                         throw new ArgumentNullException("No ConfigNode found for MASMonitor in " + internalProp.propName + "!");

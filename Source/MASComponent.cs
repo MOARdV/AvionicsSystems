@@ -119,7 +119,7 @@ namespace AvionicsSystems
                     throw new ArgumentNullException("Unable to find ASFlightComputer in part - please check part configs");
                 }
 
-                ConfigNode moduleConfig = Utility.GetPropModuleConfigNode(internalProp.propName, moduleID);
+                ConfigNode moduleConfig = Utility.GetPropModuleConfigNode(internalProp.propName, ClassName);
                 if (moduleConfig == null)
                 {
                     throw new ArgumentNullException("No ConfigNode found!");

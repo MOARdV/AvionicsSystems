@@ -347,15 +347,11 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Find the ConfigNode corresponding to a particular module.
-        /// 
-        /// BUG: This code breaks when empty / bogus modules are inserted,
-        /// since moduleID reflects the index of the loaded modules, not
-        /// the config's modules.
         /// </summary>
         /// <param name="propName">Name of the prop</param>
-        /// <param name="moduleID">ID (index) of the node</param>
+        /// <param name="moduleName">The name of the module</param>
         /// <returns></returns>
-        internal static ConfigNode GetPropModuleConfigNode(string propName, int moduleID)
+        internal static ConfigNode GetPropModuleConfigNode(string propName, string moduleName)
         {
             ConfigNode[] dbNodes = GameDatabase.Instance.GetConfigNodes("PROP");
 
@@ -364,13 +360,12 @@ namespace AvionicsSystems
                 if (dbNodes[nodeIdx].GetValue("name") == propName)
                 {
                     ConfigNode[] moduleNodes = dbNodes[nodeIdx].GetNodes("MODULE");
-                    if (moduleNodes.Length > moduleID)
+                    for (int i=moduleNodes.Length-1; i>=0; --i)
                     {
-                        return moduleNodes[moduleID];
-                    }
-                    else
-                    {
-                        return null;
+                        if (moduleNodes[i].GetValue("name") == moduleName)
+                        {
+                            return moduleNodes[i];
+                        }
                     }
                 }
             }
