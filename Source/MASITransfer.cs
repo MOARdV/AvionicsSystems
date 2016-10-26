@@ -26,6 +26,7 @@ using MoonSharp.Interpreter;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 
 namespace AvionicsSystems
 {
@@ -40,6 +41,10 @@ namespace AvionicsSystems
     /// equivalent to the Protractor mod, but focused strictly on computations
     /// involving the current vessel and a target (either another vessel or a
     /// Celestial Body).
+    /// 
+    /// Note that MASITransfer assumes the target has a small relative inclination.
+    /// It will generate erroneous results for high inclination and retrograde relative
+    /// orbits.
     /// </mdDoc>
     internal class MASITransfer
     {
@@ -50,6 +55,12 @@ namespace AvionicsSystems
 
         private double currentPhaseAngle;
         private double transferPhaseAngle;
+        private double timeUntilTransfer;
+
+        private double currentEjectionAngle;
+        private double transferEjectionAngle;
+        private double timeUntilEjection;
+
         //private double transferDeltaV;
 
         [MoonSharpHidden]
@@ -59,9 +70,122 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the current phase angle between the vessel and its target.
+        /// The Ejection Angle provides information on the ejection angle.  The
+        /// ejection angle is used on interplanetary transfers to determine when
+        /// the vessel should start its burn to escape the world it currently orbits.
         /// 
-        /// **BUG:** Currently, this value is always between 0 and 180, not 0 and 360.
+        /// When the vessel is orbiting a moon in preparation for an interplanetary
+        /// transfer, the target ejection angle will reflect the ejection angle
+        /// required to take advantage of the Oberth effect during the ejection.
+        /// </summary>
+        #region Ejection Angle
+
+        /// <summary>
+        /// Reports the vessel's current ejection angle.  When this value matches
+        /// the transfer ejection angle, it is time to start an interplanetary burn.
+        /// </summary>
+        /// <returns>Current ejection angle in degrees, or 0 if there is no ejection angle.</returns>
+        public double CurrentEjectionAngle()
+        {
+            if (vc.activeTarget != null)
+            {
+                if (invalid)
+                {
+                    UpdateTransferParameters();
+                }
+
+                return currentEjectionAngle;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Reports the difference between the vessel's current ejection angle
+        /// and the transfer ejection angle.  When this value is 0, it is time to
+        /// start an interplanetary burn.
+        /// </summary>
+        /// <returns>Relative ejection angle in degrees, or 0 if there is no ejection angle.</returns>
+        public double RelativeEjectionAngle()
+        {
+            if (vc.activeTarget != null)
+            {
+                if (invalid)
+                {
+                    UpdateTransferParameters();
+                }
+
+                return Utility.NormalizeAngle(currentEjectionAngle - transferEjectionAngle); 
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Provides the time until the vessel reaches the transfer ejection angle.
+        /// </summary>
+        /// <returns>Time until the relative ejection angle is 0, in seconds, or 0 if there is no ejection angle.</returns>
+        public double TimeUntilEjection()
+        {
+            if (vc.activeTarget != null)
+            {
+                if (invalid)
+                {
+                    UpdateTransferParameters();
+                }
+
+                return timeUntilEjection;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Reports the ejection angle when an interplanetary Hohmann transfer
+        /// orbit should begin.  This is of use for transfers from one planet
+        /// to another - once the transfer phase angle has been reached, the
+        /// vessel should launch when the next transfer ejection angle is reached.
+        /// </summary>
+        /// <returns>Transfer ejection angle in degrees, or 0 if there is no ejection angle.</returns>
+        public double TransferEjectionAngle()
+        {
+            if (vc.activeTarget != null)
+            {
+                if (invalid)
+                {
+                    UpdateTransferParameters();
+                }
+
+                return transferEjectionAngle;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        #endregion
+
+        /// <summary>
+        /// The Phase Angle section provides measurements of the phase angle, the
+        /// measure of the angle created by drawing lines from the object being
+        /// orbited to the vessel and to the target.  This angle shows relative
+        /// position of the two objects, and it is continuously changing as long as
+        /// the craft are not in the same orbit.
+        /// 
+        /// To do a Hohmann transfer between orbits, the vessel should initiate a
+        /// burn when its current phase angle reaches the transfer phase angle.
+        /// Alternatively, when the relative phase angle reaches 0, initiate a burn.
+        /// </summary>
+        #region Phase Angle
+        /// <summary>
+        /// Returns the current phase angle between the vessel and its target.
         /// </summary>
         /// <returns>Current phase angle in degrees, from 0 to 360.</returns>
         public double CurrentPhaseAngle()
@@ -86,8 +210,6 @@ namespace AvionicsSystems
         /// and the transfer phase angle.  When this value reaches 0, it is time
         /// to start the transfer burn.  If there is no valid target, this value
         /// is 0.
-        /// 
-        /// **BUG:** Currently, this value is always between 0 and 180.
         /// </summary>
         /// <returns>The difference between the transfer phase angle and the current
         /// phase angle in degrees, ranging from 0 to 360.</returns>
@@ -101,6 +223,28 @@ namespace AvionicsSystems
                 }
 
                 return Utility.NormalizeAngle(currentPhaseAngle - transferPhaseAngle);
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the time in seconds until the vessel reaches the correct
+        /// phase angle for initiating a burn to transfer to the target.
+        /// </summary>
+        /// <returns>Time until transfer, in seconds, or 0 if there is no solution.</returns>
+        public double TimeUntilPhaseAngle()
+        {
+            if (vc.activeTarget != null)
+            {
+                if (invalid)
+                {
+                    UpdateTransferParameters();
+                }
+
+                return timeUntilTransfer;
             }
             else
             {
@@ -135,6 +279,33 @@ namespace AvionicsSystems
             }
         }
 
+        #endregion
+
+        /// <summary>
+        /// Project vectors onto a plane, measure the angle
+        /// between them.
+        /// </summary>
+        /// <param name="a">First ray</param>
+        /// <param name="b">Second ray</param>
+        /// <returns>Angle between the two vectors in degrees [0, 360).</returns>
+        private static double ProjectAngle2D(Vector3d a, Vector3d b)
+        {
+            // TODO: atan2 instead.
+            Vector3d ray1 = Vector3d.Project(new Vector3d(a.x, 0.0, a.z), a);
+            Vector3d ray2 = Vector3d.Project(new Vector3d(b.x, 0.0, b.z), b);
+
+            double phase = Vector3d.Angle(ray1, ray2);
+
+            Vector3d ap = Quaternion.AngleAxis(90.0f, Vector3d.forward) * a;
+            Vector3d ray1p = Vector3d.Project(new Vector3d(ap.x, 0.0, ap.z), ap);
+            if (Vector3d.Angle(ray1p, ray2) > 90.0)
+            {
+                phase = 360.0 - phase;
+            }
+
+            return Utility.NormalizeAngle(phase);
+        }
+
         /// <summary>
         /// Updater method - called at most once per FixedUpdate when the
         /// transfer parameters are being queried.
@@ -144,11 +315,22 @@ namespace AvionicsSystems
             // Initialize values
             currentPhaseAngle = 0.0;
             transferPhaseAngle = 0.0;
+            timeUntilTransfer = 0.0;
+
+            currentEjectionAngle = 0.0;
+            transferEjectionAngle = 0.0;
+            timeUntilEjection = 0.0;
 
             if (vc.activeTarget != null)
             {
                 Orbit vesselOrbit = vessel.orbit;
                 Orbit destinationOrbit = vc.activeTarget.GetOrbit();
+
+                if (vesselOrbit.eccentricity >= 1.0 || destinationOrbit.eccentricity >= 1.0)
+                {
+                    // One or both orbits are escape orbits.  We can't work with them.
+                    return;
+                }
 
                 // Figure out what sort of transfer we're doing.
                 if (vesselOrbit.referenceBody != destinationOrbit.referenceBody)
@@ -170,12 +352,20 @@ namespace AvionicsSystems
                 // current phase angle: the angle between the two positions as projected onto a 2D plane.
                 Vector3d pos1 = vesselOrbit.getRelativePositionAtUT(vc.universalTime);
                 Vector3d pos2 = destinationOrbit.getRelativePositionAtUT(vc.universalTime);
-                pos1 = new Vector3d(pos1.x, pos1.y, 0.0);
-                pos2 = new Vector3d(pos2.x, pos2.y, 0.0);
 
-                // TODO: What happens when the relative inclination > 90*? Need to account for that
-                // TODO: Vector3d.Angle takes the smallest angle, so it's always <=180.
-                currentPhaseAngle = Utility.NormalizeAngle(Vector3d.Angle(pos1, pos2));
+                currentPhaseAngle = ProjectAngle2D(pos1, pos2);
+
+                double deltaRelativePhaseAngle = (360.0 / vesselOrbit.period) - (360.0 / destinationOrbit.period);
+                if (deltaRelativePhaseAngle > 0.0)
+                {
+                    timeUntilTransfer = Utility.NormalizeAngle(currentPhaseAngle - transferPhaseAngle) / deltaRelativePhaseAngle;
+                }
+                else if (deltaRelativePhaseAngle <0.0)
+                {
+                    // isn't 360 - (current - transfer) == (transfer - current)?
+                    timeUntilTransfer = (360.0 - Utility.NormalizeAngle(currentPhaseAngle - transferPhaseAngle)) / deltaRelativePhaseAngle;
+                }
+                // else can't compute it - the orbits have the exact same period.
             }
 
             invalid = false;

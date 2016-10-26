@@ -33,6 +33,23 @@ namespace AvionicsSystems
     {
         internal static readonly string[] NewLine = { Environment.NewLine };
 
+        internal static Dictionary<VesselType, string> typeDict = new Dictionary<VesselType, string>
+        {
+            {VesselType.Debris, "Debris"},
+            {VesselType.SpaceObject, "SpaceObject"},
+            {VesselType.Unknown, "Unknown"},
+            {VesselType.Probe, "Probe"},
+            {VesselType.Relay, "Relay"},
+            {VesselType.Rover, "Rover"},
+            {VesselType.Lander, "Lander"},
+            {VesselType.Ship, "Ship"},
+            {VesselType.Plane, "Plane"},
+            {VesselType.Station, "Station"},
+            {VesselType.Base, "Base"},
+            {VesselType.EVA, "EVA"},
+            {VesselType.Flag, "Flag"},
+        };
+
         #region Message Logging
         /// <summary>
         /// Log a message
@@ -125,14 +142,14 @@ namespace AvionicsSystems
         /// <returns>The equivalent angle constrained to the range of 0 to 360 degrees.</returns>
         internal static double NormalizeAngle(double angle)
         {
-            if(angle < 0.0)
+            if (angle < 0.0)
             {
                 while (angle < 0.0)
                 {
                     angle += 360.0;
                 }
             }
-            else if(angle >= 360.0)
+            else if (angle >= 360.0)
             {
                 while (angle >= 0.0)
                 {
@@ -360,7 +377,7 @@ namespace AvionicsSystems
                 if (dbNodes[nodeIdx].GetValue("name") == propName)
                 {
                     ConfigNode[] moduleNodes = dbNodes[nodeIdx].GetNodes("MODULE");
-                    for (int i=moduleNodes.Length-1; i>=0; --i)
+                    for (int i = moduleNodes.Length - 1; i >= 0; --i)
                     {
                         if (moduleNodes[i].GetValue("name") == moduleName)
                         {

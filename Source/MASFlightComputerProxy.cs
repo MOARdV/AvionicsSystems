@@ -950,6 +950,33 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the current pitch trim setting.
+        /// </summary>
+        /// <returns>Trim setting, between -1 and +1</returns>
+        public double StickTrimPitch()
+        {
+            return vessel.ctrlState.pitchTrim;
+        }
+
+        /// <summary>
+        /// Returns the current roll trim setting.
+        /// </summary>
+        /// <returns>Trim setting, between -1 and +1</returns>
+        public double StickTrimRoll()
+        {
+            return vessel.ctrlState.rollTrim;
+        }
+
+        /// <summary>
+        /// Returns the current yaw trim setting.
+        /// </summary>
+        /// <returns>Trim setting, between -1 and +1</returns>
+        public double StickTrimYaw()
+        {
+            return vessel.ctrlState.yawTrim;
+        }
+
+        /// <summary>
         /// Returns the current yaw control state.
         /// </summary>
         /// <returns></returns>
@@ -5271,6 +5298,31 @@ namespace AvionicsSystems
         public double WarpRate()
         {
             return TimeWarp.CurrentRate;
+        }
+        #endregion
+
+        /// <summary>
+        /// The Vessel Info group contains non-flight information about the vessel (such
+        /// as vessel name, type, etc.).
+        /// </summary>
+        #region Vessel Info
+
+        /// <summary>
+        /// Returns the name of the vessel.
+        /// </summary>
+        /// <returns></returns>
+        public string VesselName()
+        {
+            return vessel.vesselName;
+        }
+
+        /// <summary>
+        /// Returns a string naming the type of vessel.
+        /// </summary>
+        /// <returns></returns>
+        public string VesselType()
+        {
+            return Utility.typeDict[vessel.vesselType];
         }
         #endregion
     }
