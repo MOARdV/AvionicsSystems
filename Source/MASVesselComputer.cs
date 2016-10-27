@@ -69,7 +69,7 @@ namespace AvionicsSystems
                 return startOrbit;
             }
 
-            private void OneStep(Orbit vesselOrbit, Orbit targetOrbit, double startUT, double endUT, int recursionDepth, ref double targetClosestDistance, ref double targetClosestUT)
+            private void OneStep(Orbit sourceOrbit, Orbit targetOrbit, double startUT, double endUT, int recursionDepth, ref double targetClosestDistance, ref double targetClosestUT)
             {
                 if (recursionDepth > MaxRecursions)
                 {
@@ -81,7 +81,7 @@ namespace AvionicsSystems
                 double closestDistSq = targetClosestDistance * targetClosestDistance;
                 for (double t = startUT; t <= endUT; t += deltaT)
                 {
-                    Vector3d vesselPos = vesselOrbit.getPositionAtUT(t);
+                    Vector3d vesselPos = sourceOrbit.getPositionAtUT(t);
                     Vector3d targetPos = targetOrbit.getPositionAtUT(t);
 
                     double distSq = (vesselPos - targetPos).sqrMagnitude;
@@ -101,7 +101,7 @@ namespace AvionicsSystems
                     return;
                 }
 
-                OneStep(vesselOrbit, targetOrbit, targetClosestUT - deltaT, targetClosestUT + deltaT, recursionDepth + 1, ref targetClosestDistance, ref targetClosestUT);
+                OneStep(sourceOrbit, targetOrbit, targetClosestUT - deltaT, targetClosestUT + deltaT, recursionDepth + 1, ref targetClosestDistance, ref targetClosestUT);
             }
 
             /// <summary>
@@ -118,10 +118,27 @@ namespace AvionicsSystems
                 targetClosestDistance = float.MaxValue;
                 targetClosestUT = float.MaxValue;
 
-                vesselOrbit = SelectClosestOrbit(vesselOrbit, targetOrbit.referenceBody);
-                double minPeriod = Math.Max(vesselOrbit.period, targetOrbit.period);
+                Orbit sourceOrbit = SelectClosestOrbit(vesselOrbit, targetOrbit.referenceBody);
 
-                OneStep(vesselOrbit, targetOrbit, now, now + minPeriod, 0, ref targetClosestDistance, ref targetClosestUT);
+                double searchPeriod = 0.0;
+                if (targetOrbit.eccentricity < 1.0)
+                {
+                    searchPeriod = targetOrbit.period;
+                }
+                else
+                {
+                    searchPeriod = targetOrbit.EndUT - now;
+                }
+                if (sourceOrbit.eccentricity < 1.0)
+                {
+                    searchPeriod = Math.Max(searchPeriod, sourceOrbit.period);
+                }
+                else
+                {
+                    searchPeriod = Math.Max(searchPeriod, sourceOrbit.EndUT - now);
+                }
+
+                OneStep(sourceOrbit, targetOrbit, now, now + searchPeriod, 0, ref targetClosestDistance, ref targetClosestUT);
             }
         };
 
