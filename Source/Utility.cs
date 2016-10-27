@@ -1,4 +1,5 @@
-﻿/*****************************************************************************
+﻿//#define VALIDATE_ANGLE_NORMALIZER
+/*****************************************************************************
  * The MIT License (MIT)
  * 
  * Copyright (c) 2016 MOARdV
@@ -138,25 +139,56 @@ namespace AvionicsSystems
         /// <summary>
         /// Constrain an angle to the range [0, 360).
         /// </summary>
-        /// <param name="angle">An input angle</param>
+        /// <param name="angle">An input angle in degrees</param>
         /// <returns>The equivalent angle constrained to the range of 0 to 360 degrees.</returns>
         internal static double NormalizeAngle(double angle)
         {
+#if VALIDATE_ANGLE_NORMALIZER
+            double angle2 = angle;
+            if (angle2 < 0.0)
+            {
+                while (angle2 < 0.0)
+                {
+                    angle2 += 360.0;
+                }
+            }
+            else if (angle2 >= 360.0)
+            {
+                while (angle2 >= 360.0)
+                {
+                    angle2 -= 360.0;
+                }
+            }
+#endif
             if (angle < 0.0)
             {
-                while (angle < 0.0)
+                angle = 360.0 + (angle % 360.0);
+#if VALIDATE_ANGLE_NORMALIZER
+                if (!Mathf.Approximately((float)angle, (float)angle2))
                 {
-                    angle += 360.0;
+                    Utility.LogMessage(angle, "Got {0,6:0.00}, expect {1,6:0.00} (mod-)", angle, angle2);
                 }
+#endif
             }
             else if (angle >= 360.0)
             {
-                while (angle >= 0.0)
+                angle = angle % 360.0;
+#if VALIDATE_ANGLE_NORMALIZER
+                if (!Mathf.Approximately((float)angle, (float)angle2))
                 {
-                    angle -= 360.0;
+                    Utility.LogMessage(angle, "Got {0,6:0.00}, expect {1,6:0.00} (mod+)", angle, angle2);
+                }
+#endif
+            }
+#if VALIDATE_ANGLE_NORMALIZER
+            else
+            {
+                if (!Mathf.Approximately((float)angle, (float)angle2))
+                {
+                    Utility.LogMessage(angle, "Got {0,6:0.00}, expect {1,6:0.00} (direct)", angle, angle2);
                 }
             }
-
+#endif
             return angle;
         }
 
