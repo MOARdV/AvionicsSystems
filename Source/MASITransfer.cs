@@ -1,4 +1,5 @@
-﻿/*****************************************************************************
+﻿//#define COMPARE_PHASE_ANGLE_PROTRACTOR
+/*****************************************************************************
  * The MIT License (MIT)
  * 
  * Copyright (c) 2016 MOARdV
@@ -288,9 +289,9 @@ namespace AvionicsSystems
         /// <param name="a">First ray</param>
         /// <param name="b">Second ray</param>
         /// <returns>Angle between the two vectors in degrees [0, 360).</returns>
+#if COMPARE_PHASE_ANGLE_PROTRACTOR
         private static double ProjectAngle2D(Vector3d a, Vector3d b)
         {
-            // TODO: atan2 instead.
             Vector3d ray1 = Vector3d.Project(new Vector3d(a.x, 0.0, a.z), a);
             Vector3d ray2 = Vector3d.Project(new Vector3d(b.x, 0.0, b.z), b);
 
@@ -305,6 +306,7 @@ namespace AvionicsSystems
 
             return Utility.NormalizeAngle(phase);
         }
+#endif
 
         /// <summary>
         /// Updater method - called at most once per FixedUpdate when the
@@ -342,6 +344,13 @@ namespace AvionicsSystems
                     return;
                 }
 
+                // TODO: At what angle should it bail out?
+                if (Vector3.Angle(vesselOrbit.GetOrbitNormal(), destinationOrbit.GetOrbitNormal()) > 30.0)
+                {
+                    // Relative inclination is very out-of-spec.  Bail out.
+                    return;
+                }
+
                 // Transfer phase angle: use the mean radii of the orbits.
                 double r1 = (vesselOrbit.PeR + vesselOrbit.ApR) * 0.5;
                 double r2 = (destinationOrbit.PeR + destinationOrbit.ApR) * 0.5;
@@ -349,21 +358,37 @@ namespace AvionicsSystems
                 // transfer phase angle from https://en.wikipedia.org/wiki/Hohmann_transfer_orbit
                 transferPhaseAngle = 180.0 * (1.0 - 0.35355339 * Math.Pow(r1 / r2 + 1.0, 1.5));
 
+#if COMPARE_PHASE_ANGLE_PROTRACTOR
                 // current phase angle: the angle between the two positions as projected onto a 2D plane.
                 Vector3d pos1 = vesselOrbit.getRelativePositionAtUT(vc.universalTime);
                 Vector3d pos2 = destinationOrbit.getRelativePositionAtUT(vc.universalTime);
 
-                currentPhaseAngle = ProjectAngle2D(pos1, pos2);
+                double protractorPhaseAngle = ProjectAngle2D(pos1, pos2);
+#endif
+                // Use orbital parameters.  Note that the argumentOfPeriapsis and LAN
+                // are both in degrees, while true anomaly is in radians.
+                double tA1 = (vesselOrbit.trueAnomaly * Orbit.Rad2Deg + vesselOrbit.argumentOfPeriapsis + vesselOrbit.LAN);
+                double tA2 = (destinationOrbit.trueAnomaly * Orbit.Rad2Deg + destinationOrbit.argumentOfPeriapsis + destinationOrbit.LAN);
+                currentPhaseAngle = Utility.NormalizeAngle(tA2 - tA1);
 
-                double deltaRelativePhaseAngle = (360.0 / vesselOrbit.period) - (360.0 / destinationOrbit.period);
+#if COMPARE_PHASE_ANGLE_PROTRACTOR
+                if (Math.Abs(currentPhaseAngle - protractorPhaseAngle) > 0.5)
+                {
+                    Utility.LogMessage(this, "Protractor phase angle = {0,7:0.00}; trueAnomaly pa = {1,7:0.00}, diff = {2,7:0.00}", protractorPhaseAngle, currentPhaseAngle, currentPhaseAngle - protractorPhaseAngle);
+                }
+#endif
+
+                // The difference in mean motion tells us how quickly the phase angle is changing.
+                // Since Orbit.meanMotion is in rad/sec, we need to convert the difference to deg/sec.
+                double deltaRelativePhaseAngle = (vesselOrbit.meanMotion - destinationOrbit.meanMotion) * Orbit.Rad2Deg;
+
                 if (deltaRelativePhaseAngle > 0.0)
                 {
                     timeUntilTransfer = Utility.NormalizeAngle(currentPhaseAngle - transferPhaseAngle) / deltaRelativePhaseAngle;
                 }
-                else if (deltaRelativePhaseAngle <0.0)
+                else if (deltaRelativePhaseAngle < 0.0)
                 {
-                    // isn't 360 - (current - transfer) == (transfer - current)?
-                    timeUntilTransfer = (360.0 - Utility.NormalizeAngle(currentPhaseAngle - transferPhaseAngle)) / deltaRelativePhaseAngle;
+                    timeUntilTransfer = Utility.NormalizeAngle(transferPhaseAngle - currentPhaseAngle) / deltaRelativePhaseAngle;
                 }
                 // else can't compute it - the orbits have the exact same period.
             }
