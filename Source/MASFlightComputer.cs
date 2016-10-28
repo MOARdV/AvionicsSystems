@@ -381,7 +381,7 @@ namespace AvionicsSystems
         {
             try
             {
-                if (initialized && vc.vesselActive)
+                if (initialized && vc.vesselCrewed && vc.vesselActive)
                 {
                     // Realistically, this block of code won't be triggered very
                     // often.

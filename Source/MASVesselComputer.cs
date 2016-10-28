@@ -182,6 +182,11 @@ namespace AvionicsSystems
         /// <summary>
         /// Whether the vessel needs MASVC support (has at least one crew).
         /// </summary>
+        internal bool vesselCrewed;
+
+        /// <summary>
+        /// Whether the vessel is actually loaded and active.
+        /// </summary>
         internal bool vesselActive;
 
         /// <summary>
@@ -272,7 +277,7 @@ namespace AvionicsSystems
             // Compute delta-t from Planetarium time so if the vessel goes
             // inactive for a while, it won't resume with an inaccurate
             // time ... or is that even worth the extra effort?
-            if (vesselActive)
+            if (vesselCrewed && vesselActive)
             {
                 // TODO: Can I make tese two update by callback?
                 mainBody = vessel.mainBody;
@@ -297,20 +302,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Startup: see if we're attached to a vessel, and if that vessel is
-        /// one we should update (has crew).  Since the latter can change, we
-        /// will idle this object (ignore updates) if the crew count is 0.
+        /// Initialize some fields to safe values (or expected unchanging values).
+        /// The vessel fields of VesselComputer doesn't have good values yet, so this
+        /// step is only good for non-specific initial values.
         /// </summary>
         protected override void OnAwake()
         {
             // Note: VesselModule.vessel is useless at this stage.
             if (HighLogic.LoadedSceneIsFlight)
             {
-                // TODO:
-                //  isLoaded?
-                //  isCrewed?
-                //  isFlight?
-
                 navBall = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.NavBall>();
                 if (navBall == null)
                 {
@@ -320,8 +320,12 @@ namespace AvionicsSystems
                 if (linearAtmosGauge == null)
                 {
                     Utility.LogErrorMessage(this, "linearAtmosGauge was null!");
+                    atmosphereDepthGauge = new KSP.UI.Screens.LinearGauge();
                 }
-                atmosphereDepthGauge = linearAtmosGauge.gauge;
+                else
+                {
+                    atmosphereDepthGauge = linearAtmosGauge.gauge;
+                }
 
                 // Because vessel isn't really initialized yet, I shove probably-safe
                 // initial values in here:
@@ -349,32 +353,33 @@ namespace AvionicsSystems
         /// </summary>
         private void OnDestroy()
         {
-            if (vesselId == Guid.Empty)
+            if (HighLogic.LoadedSceneIsFlight)
             {
-                return; // early - we never configured.
+                //Utility.LogMessage(this, "OnDestroy for {0}", vesselId);
+
+                GameEvents.OnCameraChange.Remove(onCameraChange);
+                GameEvents.onVesselChange.Remove(onVesselChange);
+                GameEvents.onVesselSOIChanged.Remove(onVesselSOIChanged);
+                GameEvents.onVesselWasModified.Remove(onVesselWasModified);
+                GameEvents.onVesselReferenceTransformSwitch.Remove(onVesselReferenceTransformSwitch);
+
+                TeardownResourceData();
+                if (vesselId != Guid.Empty)
+                {
+                    knownModules.Remove(vesselId);
+                }
+
+                vesselId = Guid.Empty;
+                orbit = null;
+                atmosphereDepthGauge = null;
+                mainBody = null;
+                navBall = null;
+                activeTarget = null;
             }
-
-            //Utility.LogMessage(this, "OnDestroy for {0}", vesselId);
-
-            GameEvents.OnCameraChange.Remove(onCameraChange);
-            GameEvents.onVesselChange.Remove(onVesselChange);
-            GameEvents.onVesselSOIChanged.Remove(onVesselSOIChanged);
-            GameEvents.onVesselWasModified.Remove(onVesselWasModified);
-            GameEvents.onVesselReferenceTransformSwitch.Remove(onVesselReferenceTransformSwitch);
-
-            TeardownResourceData();
-            knownModules.Remove(vesselId);
-
-            vesselId = Guid.Empty;
-            orbit = null;
-            atmosphereDepthGauge = null;
-            mainBody = null;
-            navBall = null;
-            activeTarget = null;
         }
 
         /// <summary>
-        /// Initialize our state.
+        /// Initialize our state.  Fields we rely on have meaningful values at this point.
         /// </summary>
         protected override void OnStart()
         {
@@ -384,12 +389,16 @@ namespace AvionicsSystems
                 vesselId = vessel.id;
                 orbit = vessel.orbit;
 
-                vesselActive = (vessel.GetCrewCount() > 0);
+                knownModules[vesselId] = this;
 
-                if (vesselActive)
+                vesselCrewed = (vessel.GetCrewCount() > 0);
+
+                vesselActive = ActiveVessel(vessel);
+
+                InitResourceData();
+
+                if (vesselCrewed)
                 {
-                    InitResourceData();
-
                     //Utility.LogMessage(this, "Start for {0}", vessel.id);
 
                     UpdateReferenceTransform(vessel.ReferenceTransform);
@@ -402,6 +411,20 @@ namespace AvionicsSystems
         #endregion
 
         #region Vessel Data
+
+        /// <summary>
+        /// Helper method to determine if the vessel is the active IVA vessel,
+        /// since we don't want to burn cycles on vessels whose IVA doesn't exist.
+        /// </summary>
+        /// <param name="vessel"></param>
+        /// <returns></returns>
+        private static bool ActiveVessel(Vessel vessel)
+        {
+            // This does not account for the stock overlays.  However, that
+            // required iterating over the cameras list to find
+            // "InternalSpaceOverlay Host".  At least, in 1.1.3.
+            return vessel.isActiveVessel && CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA;
+        }
 
         internal double altitudeASL;
         internal double altitudeTerrain;
@@ -887,17 +910,19 @@ namespace AvionicsSystems
         /// there are docks available.  To do that, we have to reprocess the
         /// reference transform.
         /// </summary>
-        /// <param name="data"></param>
-        private void onCameraChange(CameraManager.CameraMode data)
+        /// <param name="newMode"></param>
+        private void onCameraChange(CameraManager.CameraMode newMode)
         {
             UpdateReferenceTransform(referenceTransform);
+            vesselActive = ActiveVessel(vessel);
         }
 
         private void onVesselChange(Vessel who)
         {
             if (who.id == vesselId)
             {
-                vesselActive = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
+                vesselCrewed = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
+                vesselActive = ActiveVessel(vessel);
                 InvalidateModules();
             }
         }
@@ -914,7 +939,8 @@ namespace AvionicsSystems
         {
             if (who.id == vesselId)
             {
-                vesselActive = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
+                vesselCrewed = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
+                vesselActive = ActiveVessel(vessel);
                 InvalidateModules();
             }
         }
@@ -923,7 +949,8 @@ namespace AvionicsSystems
         {
             if (who.id == vesselId)
             {
-                vesselActive = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
+                vesselCrewed = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
+                vesselActive = ActiveVessel(vessel);
             }
         }
 
@@ -931,7 +958,8 @@ namespace AvionicsSystems
         {
             if (who.id == vesselId)
             {
-                vesselActive = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
+                vesselCrewed = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
+                vesselActive = ActiveVessel(vessel);
             }
         }
 
@@ -939,7 +967,8 @@ namespace AvionicsSystems
         {
             if (who.id == vessel.id)
             {
-                vesselActive = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
+                vesselCrewed = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
+                vesselActive = ActiveVessel(vessel);
             }
         }
 
