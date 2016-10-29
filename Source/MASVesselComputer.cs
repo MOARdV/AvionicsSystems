@@ -190,6 +190,12 @@ namespace AvionicsSystems
         internal bool vesselActive;
 
         /// <summary>
+        /// Boolean used to detect double-clicks during IVA, which would cause
+        /// the vessel to lose target track.
+        /// </summary>
+        private bool doubleClickDetected = false;
+
+        /// <summary>
         /// A reference of the linear gauge used for atmospheric depth.
         /// </summary>
         private KSP.UI.Screens.LinearGauge atmosphereDepthGauge;
@@ -296,8 +302,61 @@ namespace AvionicsSystems
                     refreshReferenceTransform = false;
                 }
 
+                // If there was a mouse double-click event, and we think there's
+                // a target, and KSP says there isn't a target, the user likely
+                // double-clicked in the IVA and accidentally cleared the active
+                // target.  Let's fix that for them.
+                //
+                // However, there seems to be a one-update delay in the change
+                // registering:
+                // 1) LateUpdate sees a double-click.
+                // 2) FixedUpdate shows a VesselTarget in FlightGlobals.
+                // 3) LateUpdate does not see a double-click.
+                // 4) FixedUpdate shows the target is cleared.
+                //
+                // I could do a countdown timer instead of a boolean, I suppose.
+                if (doubleClickDetected)
+                {
+                    if (activeTarget == null)
+                    {
+                        //Utility.LogMessage(this, "doubleClick corrector: no target expected (active = {0}, FG = {1})",
+                        //    activeTarget != null, FlightGlobals.fetch.VesselTarget != null);
+                        doubleClickDetected = false;
+                    }
+                    else if (activeTarget != null && FlightGlobals.fetch.VesselTarget == null)
+                    {
+                        FlightGlobals.fetch.SetVesselTarget(activeTarget);
+                        //Utility.LogMessage(this, "doubleClick corrector: resetting");
+                        doubleClickDetected = false;
+                    }
+                    //else
+                    //{
+                    //    Utility.LogMessage(this, "doubleClick corrector: no-op (active = {0}, FG = {1})",
+                    //        activeTarget != null, FlightGlobals.fetch.VesselTarget != null);
+                    //}
+                }
+
                 RefreshData();
                 //Utility.LogMessage(this, "FixedUpdate for {0}", vessel.id);
+            }
+        }
+
+        /// <summary>
+        /// We use the LateUpdate() (why? - RPM did it here, but I don't know if
+        /// it *needs* to be here) to look for double-click events, which happen
+        /// too easily when playing in IVA.  The double-click clears targets, which
+        /// can be a problem.
+        /// </summary>
+        public void LateUpdate()
+        {
+            if (vesselActive)
+            {
+                doubleClickDetected |= Mouse.Left.GetDoubleClick();
+                //Utility.LogMessage(this, "LateUpdate: doubleClick = {0} ({1})", doubleClickDetected, Mouse.Left.GetDoubleClick());
+            }
+            else
+            {
+                doubleClickDetected = false;
             }
         }
 

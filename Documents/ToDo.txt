@@ -4,7 +4,7 @@ Major components that need to be ported or handled somehow.
 
 Non-prop modules:
 
-* InternalCameraTargetHelper
+- InternalCameraTargetHelper - Implemented as part of MASVesselComputer, instead of a separate module.
 
 * JSIExternalCameraSelector
 
