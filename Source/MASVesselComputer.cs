@@ -825,6 +825,12 @@ namespace AvionicsSystems
                 targetName = activeTarget.GetName();
                 targetOrbit = activeTarget.GetOrbit();
                 approachSolver.IterateApproachSolver(orbit, targetOrbit, universalTime, out targetClosestDistance, out targetClosestUT);
+                if (targetType == TargetType.CelestialBody)
+                {
+                    // If we are targeting a body, account for the radius of the planet when describing closest approach.
+                    // That is, targetClosestDistance is effectively PeA.
+                    targetClosestDistance = Math.Max(0.0, targetClosestDistance - (activeTarget as CelestialBody).Radius);
+                }
             }
             else
             {

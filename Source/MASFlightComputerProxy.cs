@@ -4633,7 +4633,9 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Returns the distance of the closest approach to the target during the
-        /// next orbit.
+        /// next orbit.  If the target is a celestial body, the closest approach
+        /// distance reports the predicted periapsis, with a value of 0 indicating
+        /// lithobraking (impact).
         /// </summary>
         /// <returns>Closest approach distance in meters, or 0 if there is no target.</returns>
         public double TargetClosestApproachDistance()
