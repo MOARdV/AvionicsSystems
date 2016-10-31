@@ -343,6 +343,10 @@ namespace AvionicsSystems
                         mutableVariablesList.Add(v);
                         mutableVariablesChanged = true;
                     }
+                    else if (v.variableType == Variable.VariableType.Unknown)
+                    {
+                        Utility.LogErrorMessage(this, "There was an error processing variable {0}", variableName);
+                    }
 #if PLENTIFUL_LOGGING
                     Utility.LogMessage(this, "Adding new variable '{0}'", result.canonicalName);
 #endif
@@ -433,6 +437,10 @@ namespace AvionicsSystems
                 {
                     ++luaVariableCount;
                 }
+                else
+                {
+                    Utility.LogErrorMessage(this, "There was an error processing variable {0}", canonicalVariableName);
+                }
             }
 
             return v;
@@ -496,7 +504,7 @@ namespace AvionicsSystems
             }
 #endif
             Variable v = null;
-            switch(operatorExpression.Operator())
+            switch (operatorExpression.Operator())
             {
                 case CodeGen.Parser.LuaToken.PLUS:
                     v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() + rhs.SafeValue());
@@ -724,7 +732,7 @@ namespace AvionicsSystems
             {
                 get
                 {
-                    return variableType != VariableType.Constant;
+                    return (variableType == VariableType.Func) || (variableType == VariableType.LuaScript);
                 }
             }
             public readonly bool valid;
