@@ -102,6 +102,16 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns 1 if FAR is installed and available on this craft, 0 if it
+        /// is not available.
+        /// </summary>
+        /// <returns></returns>
+        public double Available()
+        {
+            return (farFound) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Return the ballistic coefficient for this vessel.
         /// </summary>
         /// <returns></returns>

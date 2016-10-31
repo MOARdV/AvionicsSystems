@@ -114,6 +114,16 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns 1 if Kerbal Alarm Clock is installed and available on this craft, 0 if it
+        /// is not available.
+        /// </summary>
+        /// <returns></returns>
+        public double Available()
+        {
+            return (KACWrapper.InstanceExists) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Returns the time to the next alarm scheduled in Kerbal Alarm Clock
         /// for this vessel.  If no alarm is scheduled, or all alarms occurred in
         /// the past, this value is 0.

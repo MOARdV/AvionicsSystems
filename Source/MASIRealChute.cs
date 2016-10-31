@@ -90,6 +90,16 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns 1 if RealChute is installed and available on this craft, 0 if it
+        /// is not available.
+        /// </summary>
+        /// <returns></returns>
+        public double Available()
+        {
+            return (realChuteFound) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Cut all deployed parachutes (RealChute as well as stock).
         /// </summary>
         public void CutParachute()
