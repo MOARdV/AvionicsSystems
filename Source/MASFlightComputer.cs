@@ -681,6 +681,12 @@ namespace AvionicsSystems
 
                     Utility.LogMessage(this, "{1}: Loaded {0} user scripts", MASLoader.userScripts.Count, flightComputerId);
                 }
+                catch (MoonSharp.Interpreter.SyntaxErrorException e)
+                {
+                    Utility.ComplainLoudly("User Script Loading error");
+                    Utility.LogErrorMessage(this, " - {0}", e.DecoratedMessage);
+                    Utility.LogErrorMessage(this, e.ToString());
+                }
                 catch (Exception e)
                 {
                     Utility.ComplainLoudly("User Script Loading error");
