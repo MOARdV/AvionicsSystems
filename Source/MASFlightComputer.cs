@@ -404,7 +404,7 @@ namespace AvionicsSystems
                             }
                             else
                             {
-                                throw new ArgumentException(string.Format("Unexpected variable type {0} in mutableVariablesList", var.variableType));
+                                throw new ArgumentException(string.Format("Unexpected variable type {0} for variable {1} in mutableVariablesList", var.variableType, var.name));
                             }
                         }
                         Utility.LogMessage(this, "Resizing variables lists to N:{0} L:{1}", nativeVariableCount, luaVariableCount);
