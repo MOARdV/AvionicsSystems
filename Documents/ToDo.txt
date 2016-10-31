@@ -8,7 +8,7 @@ Non-prop modules:
 
 * JSIExternalCameraSelector
 
-* JSIRadar
+- JSIRadar - MASRadar
 
 * JSISetInternalCameraFOV
 
@@ -74,7 +74,7 @@ Handlers (non-prop control stuff)
 
 * RPM extension bridges (SCANsat, VesselView, DPAI background handlers; FAR variables <- No.  Incorporated into MASIFAR)
 
-* RPM interop?  Talk to RPM about some data (maybe to ease adoption of AS).
+X RPM interop?  Talk to RPM about some data (maybe to ease adoption of AS). - No, will not implement.
 Persistents might be helpful.  Mostly for development; may not be good to keep around after full development.
 
 Support Components
@@ -125,11 +125,11 @@ Design Research
 
 * Use coroutines (or threads?!?) for some continual-refinement processing (eg, landing location estimator).
 
-* Rudimentary parser that can identify identical variables (eg, 'fc.GetRCS() * 2' and 'fc.GetRCS()*2'; even
+- Rudimentary parser that can identify identical variables (eg, 'fc.GetRCS() * 2' and 'fc.GetRCS()*2'; even
 better, also '2*fc.GetRCS()'), to eliminate duplicate values caused by inconsistent use of whitespace and
 ordering.  One step farther: finding the C# methods and reading attributes from them to know which
 variables are actually variable, and which are constant (and, for persistents, maybe a way of knowing
-when they change).  Got a Lexer class now.
+when they change).  Got a Lexer class now. - Mostly implemented.
 
 * Can the persistents be flagged somehow in the FixedUpdate polling?  They're only updated through
 specific methods, so I can reduce overhead by moving all persistent variable tests out of the update
@@ -141,10 +141,10 @@ of whatever the update delta is?
 - User-defined fonts: DONE and IMPLEMENTED: Unity.Font has ways to add user-defined fonts based on bitmaps and character maps.
 Use that instead of the RPM system of a texture + text file with manual mapping.
 
-* Is it cheaper to do a bunch of little Lua queries each FixedUpdate, or should I concatenate
-them into an UpdateAllTheThings call (as a multi-return)?
+- Is it cheaper to do a bunch of little Lua queries each FixedUpdate, or should I concatenate
+them into an UpdateAllTheThings call (as a multi-return)? - made no difference.
 
-* What about skipping Lua entirely for simple cases, like 'fc.GetPersistent("SomeValue")',
+- What about skipping Lua entirely for simple cases, like 'fc.GetPersistent("SomeValue")',
 where the Lua code is simple a wrapper for a direct call to fcProxy?  Mostly implemented.
 
 * Create a "standard library" of methods for the Lua environment, so there can be things
@@ -161,7 +161,7 @@ Map(value, min, max, mappedMin, mappedMax)
 
 fc.AppendPersistent("name", "string")
 
-fc.GetPersistentAsNumber("name") -> return a number, or 0 if it can't be converted;
+- fc.GetPersistentAsNumber("name") -> return a number, or 0 if it can't be converted;
 this does not change a string to a number, so that string can still be edited.
 
 fc.RemoveLastCharPersistent("name")
