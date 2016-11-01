@@ -45,8 +45,10 @@ namespace AvionicsSystems
         /// </summary>
         private HashSet<Part> activeResources = new HashSet<Part>();
 
-        internal ResourceData propellant = new ResourceData();
-
+        /// <summary>
+        /// PartSet tracking all parts connected to active stages for the sake
+        /// of tracking stage current and stage max resources.
+        /// </summary>
         private PartSet partSet = null;
 
         /// <summary>
@@ -62,6 +64,7 @@ namespace AvionicsSystems
 
             internal int id;
             internal float density;
+            internal ResourceFlowMode flowMode;
 
             internal float currentQuantity;
             internal float maxQuantity;
@@ -499,22 +502,6 @@ namespace AvionicsSystems
         #endregion
 
         #region Resource Data Management
-        /// <summary>
-        /// Update the current and max quantity of the resource specified.
-        /// </summary>
-        /// <param name="rsrc"></param>
-        void AddResource(PartResource rsrc)
-        {
-            if (rsrc.isVisible)
-            {
-                dummyResource.name = rsrc.resourceName;
-                int index = Array.BinarySearch<ResourceData>(resources, dummyResource, resourceNameComparer);
-                resources[index].currentQuantity += (float)rsrc.amount;
-                resources[index].maxQuantity += (float)rsrc.maxAmount;
-                // Mark the resource as one that's found on the vessel.
-                vesselActiveResource[index] = index;
-            }
-        }
 
         /// <summary>
         /// Startup initialization of vessel resource tracking.
@@ -535,6 +522,7 @@ namespace AvionicsSystems
 
                 resources[index].id = thatResource.id;
                 resources[index].density = thatResource.density;
+                resources[index].flowMode = thatResource.resourceFlowMode;
                 resources[index].currentQuantity = 0.0f;
                 resources[index].maxQuantity = 0.0f;
                 resources[index].previousQuantity = 0.0f;
@@ -548,17 +536,16 @@ namespace AvionicsSystems
             // TODO: Should I sort on resource ID instead?  That would be
             // cheaper than a string search.
             Array.Sort(resources, resourceNameComparer);
+        }
 
-            // Initialize our propellant tracking ResourceData
-            propellant.name = "Active Propellants";
-            propellant.id = 0;
-            propellant.density = 0.0f;
-            propellant.currentQuantity = 0.0f;
-            propellant.maxQuantity = 0.0f;
-            propellant.previousQuantity = 0.0f;
-            propellant.deltaPerSecond = 0.0f;
-            propellant.currentStage = 0.0f;
-            propellant.maxStage = 0.0f;
+        /// <summary>
+        /// Is this flow mode one that can move between stages?
+        /// </summary>
+        /// <param name="flowMode"></param>
+        /// <returns></returns>
+        private static bool IsFreeFlow(ResourceFlowMode flowMode)
+        {
+            return (flowMode == ResourceFlowMode.ALL_VESSEL || flowMode == ResourceFlowMode.STAGE_PRIORITY_FLOW);
         }
 
         /// <summary>
@@ -567,27 +554,27 @@ namespace AvionicsSystems
         /// </summary>
         private void PrepareResourceData()
         {
-            activeResources.Clear();
-
             for (int i = resources.Length - 1; i >= 0; --i)
             {
                 vesselActiveResource[i] = int.MaxValue;
-                resources[i].currentQuantity = 0.0f;
-                resources[i].maxQuantity = 0.0f;
-                resources[i].currentStage = 0.0f;
-                resources[i].maxStage = 0.0f;
+
+                double amount, maxAmount;
+                vessel.GetConnectedResourceTotals(resources[i].id, out amount, out maxAmount);
+
+                resources[i].currentQuantity = (float)amount;
+                resources[i].maxQuantity = (float)maxAmount;
+                if (IsFreeFlow(resources[i].flowMode))
+                {
+                    resources[i].currentStage = (float)amount;
+                    resources[i].maxStage = (float)maxAmount;
+                }
+                else
+                {
+                    resources[i].currentStage = 0.0f;
+                    resources[i].maxStage = 0.0f;
+                }
                 resources[i].deltaPerSecond = 0.0f;
             }
-        }
-
-        /// <summary>
-        /// Track which parts are connected to an engine by creating a union of
-        /// the crossfeedParts fields of each part that contains an engine.
-        /// </summary>
-        /// <param name="connectedParts"></param>
-        public void MarkPropellant(HashSet<Part> connectedParts)
-        {
-            activeResources.UnionWith(connectedParts);
         }
 
         /// <summary>
@@ -595,24 +582,24 @@ namespace AvionicsSystems
         /// </summary>
         private void ProcessResourceData()
         {
-            if (partSet == null)
-            {
-                partSet = new PartSet(activeResources);
-            }
-            else
-            {
-                partSet.RebuildParts(activeResources);
-            }
-
             float timeDelta = 1.0f / TimeWarp.fixedDeltaTime;
             for (int i = resources.Length - 1; i >= 0; --i)
             {
                 if (resources[i].maxQuantity > 0.0f)
                 {
-                    double amount, maxAmount;
-                    partSet.GetConnectedResourceTotals(resources[i].id, out amount, out maxAmount, true);
-                    resources[i].maxStage = (float)maxAmount;
-                    resources[i].currentStage = (float)amount;
+                    // if maxStage > 0, then this resource has a flow rule that allows it to flow between
+                    // stages, so we don't need to update maxStage and currentStage now.
+                    // TODO: Does this manage blocked resource transfers (like over decouplers)?
+                    // Maybe, instead of / in addition to marking engines, I should collect *all* parts
+                    // on the currently active stage.
+                    if (resources[i].maxStage == 0.0)
+                    {
+                        double amount, maxAmount;
+                        partSet.GetConnectedResourceTotals(resources[i].id, out amount, out maxAmount, true);
+
+                        resources[i].maxStage = (float)maxAmount;
+                        resources[i].currentStage = (float)amount;
+                    }
 
                     if (resources[i].previousQuantity > 0.0f)
                     {
@@ -624,37 +611,8 @@ namespace AvionicsSystems
                     }
 
                     resources[i].previousQuantity = resources[i].currentQuantity;
-
-                    if (resources[i].density > 0.0f)
-                    {
-                        propellant.density += resources[i].density * resources[i].currentQuantity;
-                        propellant.currentQuantity += resources[i].currentQuantity;
-                        propellant.maxQuantity += resources[i].maxQuantity;
-                        propellant.maxStage += (float)maxAmount;
-                        propellant.currentStage += (float)amount;
-                    }
                 }
             }
-
-            if (propellant.previousQuantity > 0.0f)
-            {
-                propellant.deltaPerSecond = timeDelta * (propellant.previousQuantity - propellant.currentQuantity);
-            }
-            else
-            {
-                propellant.deltaPerSecond = 0.0f;
-            }
-
-            if (propellant.currentQuantity > 0.0f)
-            {
-                propellant.density /= propellant.currentQuantity;
-            }
-            else
-            {
-                propellant.density = 0.0f;
-            }
-
-            propellant.previousQuantity = propellant.currentQuantity;
 
             // sort the array of installed indices.
             Array.Sort<int>(this.vesselActiveResource);

@@ -397,6 +397,7 @@ namespace AvionicsSystems
                 universalTime = Planetarium.GetUniversalTime();
 
                 GameEvents.OnCameraChange.Add(onCameraChange);
+                GameEvents.onStageActivate.Add(onStageActivate);
                 GameEvents.onVesselChange.Add(onVesselChange);
                 GameEvents.onVesselSOIChanged.Add(onVesselSOIChanged);
                 GameEvents.onVesselWasModified.Add(onVesselWasModified);
@@ -417,6 +418,7 @@ namespace AvionicsSystems
                 //Utility.LogMessage(this, "OnDestroy for {0}", vesselId);
 
                 GameEvents.OnCameraChange.Remove(onCameraChange);
+                GameEvents.onStageActivate.Remove(onStageActivate);
                 GameEvents.onVesselChange.Remove(onVesselChange);
                 GameEvents.onVesselSOIChanged.Remove(onVesselSOIChanged);
                 GameEvents.onVesselWasModified.Remove(onVesselWasModified);
@@ -980,6 +982,15 @@ namespace AvionicsSystems
         {
             UpdateReferenceTransform(referenceTransform);
             vesselActive = ActiveVessel(vessel);
+        }
+
+        /// <summary>
+        /// We staged - time to refresh our resource tracking.
+        /// </summary>
+        /// <param name="stage"></param>
+        private void onStageActivate(int stage)
+        {
+            InvalidateModules();
         }
 
         private void onVesselChange(Vessel who)

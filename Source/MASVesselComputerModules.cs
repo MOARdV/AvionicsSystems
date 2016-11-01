@@ -247,8 +247,6 @@ namespace AvionicsSystems
 
                 if (me.EngineIgnited && me.isEnabled && me.isOperational)
                 {
-                    MarkPropellant(thatPart.crossfeedPartSet.GetParts());
-
                     float currentThrust = me.finalThrust;
                     this.currentThrust += currentThrust;
                     this.maxRatedThrust += me.GetMaxThrust();
@@ -584,6 +582,7 @@ namespace AvionicsSystems
         /// </summary>
         private void RebuildModules()
         {
+            activeResources.Clear();
             for (int agIndex = hasActionGroup.Length - 1; agIndex >= 0; --agIndex)
             {
                 hasActionGroup[agIndex] = false;
@@ -681,16 +680,21 @@ namespace AvionicsSystems
                     }
                 }
 
-                // While we're here, update resources
-                PartResourceList list = vessel.parts[partIdx].Resources;
-
-                if (list != null)
+                // While we're here, update active resources
+                if (vessel.parts[partIdx].inverseStage >= vessel.currentStage)
                 {
-                    for (int resourceIdx = list.Count - 1; resourceIdx >= 0; --resourceIdx)
-                    {
-                        AddResource(list[resourceIdx]);
-                    }
+                    activeResources.UnionWith(vessel.parts[partIdx].crossfeedPartSet.GetParts());
                 }
+            }
+
+            // Rebuild the part set.
+            if (partSet == null)
+            {
+                partSet = new PartSet(activeResources);
+            }
+            else
+            {
+                partSet.RebuildParts(activeResources);
             }
 
             // Transfer the modules to an array, since the array is cheaper to
@@ -728,18 +732,6 @@ namespace AvionicsSystems
         /// </summary>
         private void UpdatePartData()
         {
-            for (int partIdx = vessel.parts.Count - 1; partIdx >= 0; --partIdx)
-            {
-                PartResourceList list = vessel.parts[partIdx].Resources;
-
-                if (list != null)
-                {
-                    for (int resourceIdx = list.Count - 1; resourceIdx >= 0; --resourceIdx)
-                    {
-                        AddResource(list[resourceIdx]);
-                    }
-                }
-            }
         }
 
         /// <summary>
