@@ -404,6 +404,41 @@ When active, 'startUV' is applied to the texture at startup, but the action has 
 demonstrates this static mode
 
 
+TRANSLATION
+
+A translation may be used to displace a portion of a prop, such as moving the needle of an indicator
+or shifting a joystick or throttle position.
+
+TRANSLATION
+{
+	name = Right Arrow
+	transform = ArrowRightLoc
+	startTranslation = 0,0,0
+	endTranslation = 0,0,0.005
+	variable = fc.GetThrottle()
+	range = 0.0, 1.0
+	blend = true
+	//speed = 1.0
+}
+
+'name': Optional.  Default '(anonymous)'.  A name for the action.
+'transform': Required.  The name of the transforms that contain lights.
+'startTranslation': Required.  The displacement for the initial position.  This value is
+used for Static mode, as well as the other modes for values out of range.
+'endTranslation': Required.  The displacement for the final position.  This value may be
+omitted for Static mode.
+'variable': Required.  The name of the variable script to evaluate.
+'range': Optional.  When present, the Translation operates in Threshold Mode.  When absent, it operates
+in Boolean Mode.
+'blend': Optional. Default false.  Ignored if 'range' is not present.  When true, the translation is
+interpolated between startTranslation and endTranslation based on where in the range the variable falls.
+allows for a variable to cycle a rotation repeatedly around a circle without requiring it to animate the
+entire transition (such as looping repeatedly).
+'speed': Optional.  Default 0.0.  Ignored if 'blend' is not true, or if speed is not positive.  The speed
+parameter describes how quickly the animation can go from 'startTranslation' to 'endTranslation', in seconds.
+Thus, numbers larger than one are faster, while smaller numbers are slower.
+
+
 TRIGGER_EVENT
 
 This action is used to activate an event when a specified variable is true (Boolean Mode) or
