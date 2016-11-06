@@ -59,6 +59,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Source\ApproachSolverBW.cs" />
     <Compile Include="Source\DynamicMethodFactory.cs" />
     <Compile Include="Source\KACWrapper.cs" />
     <Compile Include="Source\MASActionAnimation.cs" />
