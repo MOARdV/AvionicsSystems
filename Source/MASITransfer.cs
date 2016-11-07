@@ -84,6 +84,8 @@ namespace AvionicsSystems
         /// <summary>
         /// Reports the vessel's current ejection angle.  When this value matches
         /// the transfer ejection angle, it is time to start an interplanetary burn.
+        /// 
+        /// This angle is a measurement of the vessel from the planet's prograde direction.
         /// </summary>
         /// <returns>Current ejection angle in degrees, or 0 if there is no ejection angle.</returns>
         public double CurrentEjectionAngle()
@@ -107,6 +109,8 @@ namespace AvionicsSystems
         /// Reports the difference between the vessel's current ejection angle
         /// and the transfer ejection angle.  When this value is 0, it is time to
         /// start an interplanetary burn.
+        /// 
+        /// **NOT IMPLEMENTED**
         /// </summary>
         /// <returns>Relative ejection angle in degrees, or 0 if there is no ejection angle.</returns>
         public double RelativeEjectionAngle()
@@ -128,6 +132,8 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Provides the time until the vessel reaches the transfer ejection angle.
+        /// 
+        /// **NOT IMPLEMENTED**
         /// </summary>
         /// <returns>Time until the relative ejection angle is 0, in seconds, or 0 if there is no ejection angle.</returns>
         public double TimeUntilEjection()
@@ -152,20 +158,22 @@ namespace AvionicsSystems
         /// orbit should begin.  This is of use for transfers from one planet
         /// to another - once the transfer phase angle has been reached, the
         /// vessel should launch when the next transfer ejection angle is reached.
+        /// 
+        /// **NOT IMPLEMENTED**
         /// </summary>
         /// <returns>Transfer ejection angle in degrees, or 0 if there is no ejection angle.</returns>
         public double TransferEjectionAngle()
         {
-            if (vc.activeTarget != null)
-            {
-                if (invalid)
-                {
-                    UpdateTransferParameters();
-                }
+            //if (vc.activeTarget != null)
+            //{
+            //    if (invalid)
+            //    {
+            //        UpdateTransferParameters();
+            //    }
 
-                return transferEjectionAngle;
-            }
-            else
+            //    return transferEjectionAngle;
+            //}
+            //else
             {
                 return 0.0;
             }
@@ -282,6 +290,7 @@ namespace AvionicsSystems
 
         #endregion
 
+#if COMPARE_PHASE_ANGLE_PROTRACTOR
         /// <summary>
         /// Project vectors onto a plane, measure the angle
         /// between them.
@@ -289,7 +298,6 @@ namespace AvionicsSystems
         /// <param name="a">First ray</param>
         /// <param name="b">Second ray</param>
         /// <returns>Angle between the two vectors in degrees [0, 360).</returns>
-#if COMPARE_PHASE_ANGLE_PROTRACTOR
         private static double ProjectAngle2D(Vector3d a, Vector3d b)
         {
             Vector3d ray1 = Vector3d.Project(new Vector3d(a.x, 0.0, a.z), a);
@@ -306,7 +314,100 @@ namespace AvionicsSystems
 
             return Utility.NormalizeAngle(phase);
         }
+        private static double Angle2d(Vector3d vector1, Vector3d vector2)
+        {
+            Vector3d v1 = Vector3d.Project(new Vector3d(vector1.x, 0, vector1.z), vector1);
+            Vector3d v2 = Vector3d.Project(new Vector3d(vector2.x, 0, vector2.z), vector2);
+            return Vector3d.Angle(v1, v2);
+        }
 #endif
+
+        /// <summary>
+        /// For
+        /// </summary>
+        static private Orbit GetSolarOrbit(Orbit orbit, out int numHops)
+        {
+            // Does this object orbit the sun?
+            if (orbit.referenceBody == Planetarium.fetch.Sun)
+            {
+                numHops = 0;
+                return orbit;
+            }
+            // Does this object orbit something that orbits the sun?
+            else if (orbit.referenceBody.GetOrbit().referenceBody == Planetarium.fetch.Sun)
+            {
+                numHops = 1;
+                return orbit.referenceBody.GetOrbit();
+            }
+            // Does this object orbit the moon of something that orbits the sun?
+            else if (orbit.referenceBody.GetOrbit().referenceBody.GetOrbit().referenceBody == Planetarium.fetch.Sun)
+            {
+                numHops = 2;
+                return orbit.referenceBody.GetOrbit().referenceBody.GetOrbit();
+            }
+            else
+            {
+                // Nothing in stock KSP orbits more than two levels deep.
+                throw new ArgumentException("GetSolarOrbit(): Unable to find a valid solar orbit.");
+            }
+        }
+
+        /// <summary>
+        /// Find the orbits we can use to determine phase angle.  These orbits
+        /// need to share a common reference body.  We also report how many parent
+        /// bodies we had to look at to find the returned vesselOrbit, so we can
+        /// compute the correct ejection angle (either ejection angle, or moon ejection
+        /// angle for Oberth transfers).
+        /// </summary>
+        static private void GetCommonOrbits(ref Orbit vesselOrbit, ref Orbit destinationOrbit, out int vesselOrbitSteps)
+        {
+            if (vesselOrbit.referenceBody == destinationOrbit.referenceBody)
+            {
+                // Orbiting the same body.  Easy case.  We're done.
+                vesselOrbitSteps = 0;
+            }
+            else if (vesselOrbit.referenceBody == Planetarium.fetch.Sun)
+            {
+                // We orbit the sun.  Find the orbit of whichever parent
+                // of the target orbits the sun:
+                int dontCare;
+                destinationOrbit = GetSolarOrbit(destinationOrbit, out dontCare);
+                vesselOrbitSteps = 0;
+            }
+            else if (destinationOrbit.referenceBody == Planetarium.fetch.Sun)
+            {
+                // The target orbits the sun, but we don't.
+                vesselOrbit = GetSolarOrbit(vesselOrbit, out vesselOrbitSteps);
+            }
+            else
+            {
+                // Complex case...
+                int dontCare;
+                Orbit newVesselOrbit = GetSolarOrbit(vesselOrbit, out vesselOrbitSteps);
+                Orbit newDestinationOrbit = GetSolarOrbit(destinationOrbit, out dontCare);
+
+                if (newVesselOrbit == newDestinationOrbit)
+                {
+                    // Even more complex case.  Source and destination orbit are in the
+                    // same planetary system, but one or both orbit moons.
+                    if (vesselOrbitSteps == 2)
+                    {
+                        // Vessel orbits a moon.
+                        vesselOrbit = vesselOrbit.referenceBody.GetOrbit();
+                        vesselOrbitSteps = 1;
+                    }
+                    if (dontCare == 2)
+                    {
+                        destinationOrbit = destinationOrbit.referenceBody.GetOrbit();
+                    }
+                }
+                else
+                {
+                    vesselOrbit = newVesselOrbit;
+                    destinationOrbit = newDestinationOrbit;
+                }
+            }
+        }
 
         /// <summary>
         /// Updater method - called at most once per FixedUpdate when the
@@ -334,17 +435,18 @@ namespace AvionicsSystems
                     return;
                 }
 
+                int vesselOrbitSteps;
+                GetCommonOrbits(ref vesselOrbit, ref destinationOrbit, out vesselOrbitSteps);
+
                 // Figure out what sort of transfer we're doing.
                 if (vesselOrbit.referenceBody != destinationOrbit.referenceBody)
                 {
-                    // We're not orbiting the same thing .. we need to compute proxy
-                    // orbits
-
-                    // HACK:
+                    // We can't find a common orbit?
+                    Utility.LogErrorMessage(this, "Bailing out computer transfer parameters: unable to reconcile orbits");
                     return;
                 }
 
-                // TODO: At what angle should it bail out?
+                // TODO: At what relative inclination should it bail out?
                 if (Vector3.Angle(vesselOrbit.GetOrbitNormal(), destinationOrbit.GetOrbitNormal()) > 30.0)
                 {
                     // Relative inclination is very out-of-spec.  Bail out.
@@ -356,6 +458,7 @@ namespace AvionicsSystems
                 double r2 = (destinationOrbit.PeR + destinationOrbit.ApR) * 0.5;
 
                 // transfer phase angle from https://en.wikipedia.org/wiki/Hohmann_transfer_orbit
+                // This does not do anything special for Oberth effect transfers
                 transferPhaseAngle = 180.0 * (1.0 - 0.35355339 * Math.Pow(r1 / r2 + 1.0, 1.5));
 
 #if COMPARE_PHASE_ANGLE_PROTRACTOR
@@ -391,6 +494,52 @@ namespace AvionicsSystems
                     timeUntilTransfer = Utility.NormalizeAngle(transferPhaseAngle - currentPhaseAngle) / deltaRelativePhaseAngle;
                 }
                 // else can't compute it - the orbits have the exact same period.
+
+                // Compute current ejection angle
+                //if (vesselOrbitSteps > 0)
+                {
+#if COMPARE_PHASE_ANGLE_PROTRACTOR
+                    //--- PROTRACTOR
+                    Vector3d vesselvec = vessel.orbit.getRelativePositionAtUT(Planetarium.GetUniversalTime());
+
+                    // get planet's position relative to universe
+                    Vector3d bodyvec = vessel.mainBody.orbit.getRelativePositionAtUT(Planetarium.GetUniversalTime());
+
+                    Vector3d forwardVec = Quaternion.AngleAxis(90.0f, Vector3d.forward) * bodyvec;
+                    forwardVec.Normalize();
+                    double protractorEject = Angle2d(vesselvec, Quaternion.AngleAxis(90.0f, Vector3d.forward) * bodyvec);
+
+                    if (Angle2d(vesselvec, Quaternion.AngleAxis(180.0f, Vector3d.forward) * bodyvec) > Angle2d(vesselvec, bodyvec))
+                    {
+                        protractorEject = 360.0 - protractorEject;//use cross vector to determine up or down
+                    }
+                    //--- PROTRACTOR
+#endif
+                    Vector3d vesselPos = vessel.orbit.pos;
+                    vesselPos.Normalize();
+                    Vector3d bodyProgradeVec = vessel.mainBody.orbit.vel;
+                    bodyProgradeVec.Normalize();
+                    Vector3d bodyPosVec = vessel.mainBody.orbit.pos;
+                    currentEjectionAngle = Vector3d.Angle(vesselPos, bodyProgradeVec);
+                    if (Vector3d.Dot(vesselPos, bodyPosVec) > 0.0)
+                    {
+                        currentEjectionAngle = Utility.NormalizeAngle(360.0 - currentEjectionAngle);
+                    }
+#if COMPARE_PHASE_ANGLE_PROTRACTOR
+                    Utility.LogMessage(this, "Protractor ejection angle = {0,5:0.0} , computed = {1,5:0.0}", protractorEject, currentEjectionAngle);
+#endif
+                }
+
+                //if (vesselOrbitSteps == 1)
+                //{
+                //    // transferEjectionAngle = something
+                //    transferEjectionAngle = Utility.NormalizeAngle(CalcEjectionValues(vesselOrbit.referenceBody,) * Orbit.Rad2Deg);
+                //}
+                //else if(vesselOrbitSteps == 2)
+                //{
+                //    // Compute moon ejection angle to take advantage of the Oberth effect.
+                //    // transferEjectionAngle = something different than for vesselOrbitSteps = 1?
+                //}
             }
 
             invalid = false;
