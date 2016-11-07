@@ -37,111 +37,6 @@ namespace AvionicsSystems
     /// </summary>
     internal partial class MASVesselComputer : VesselModule
     {
-        internal class ApproachSolver
-        {
-            private static readonly int NumSubdivisions = 16;
-            private static readonly int MaxRecursions = 16;
-
-            /// <summary>
-            /// Iterate through the next several patches on the orbit to find the
-            /// first one that shares the same reference body as the supplied
-            /// parameter.
-            /// </summary>
-            /// <param name="startOrbit"></param>
-            /// <param name="referenceBody"></param>
-            /// <returns></returns>
-            private Orbit SelectClosestOrbit(Orbit startOrbit, CelestialBody referenceBody)
-            {
-                Orbit checkorbit = startOrbit;
-                int orbitcount = 0;
-
-                while (checkorbit.nextPatch != null && checkorbit.patchEndTransition != Orbit.PatchTransitionType.FINAL && orbitcount < 3)
-                {
-                    checkorbit = checkorbit.nextPatch;
-                    orbitcount++;
-                    if (checkorbit.referenceBody == referenceBody)
-                    {
-                        return checkorbit;
-                    }
-
-                }
-
-                return startOrbit;
-            }
-
-            private void OneStep(Orbit sourceOrbit, Orbit targetOrbit, double startUT, double endUT, int recursionDepth, ref double targetClosestDistance, ref double targetClosestUT)
-            {
-                if (recursionDepth > MaxRecursions)
-                {
-                    return;
-                }
-
-                double deltaT = (endUT - startUT) / (double)NumSubdivisions;
-
-                double closestDistSq = targetClosestDistance * targetClosestDistance;
-                for (double t = startUT; t <= endUT; t += deltaT)
-                {
-                    Vector3d vesselPos = sourceOrbit.getPositionAtUT(t);
-                    Vector3d targetPos = targetOrbit.getPositionAtUT(t);
-
-                    double distSq = (vesselPos - targetPos).sqrMagnitude;
-                    if (distSq < closestDistSq)
-                    {
-                        closestDistSq = distSq;
-                        targetClosestUT = t;
-                    }
-                }
-
-                targetClosestDistance = Math.Sqrt(closestDistSq);
-
-                if (deltaT < 0.5)
-                {
-                    // If our timesteps are less than a half second, I think
-                    // this is an accurate enough estimate.
-                    return;
-                }
-
-                OneStep(sourceOrbit, targetOrbit, targetClosestUT - deltaT, targetClosestUT + deltaT, recursionDepth + 1, ref targetClosestDistance, ref targetClosestUT);
-            }
-
-            /// <summary>
-            /// Iterate over our closest approach estimator.  Someday, I may figure out how to spin this into a thread
-            /// instead, so it's less costly.
-            /// </summary>
-            /// <param name="vesselOrbit"></param>
-            /// <param name="targetOrbit"></param>
-            /// <param name="now"></param>
-            /// <param name="targetClosestDistance"></param>
-            /// <param name="targetClosestUT"></param>
-            internal void IterateApproachSolver(Orbit vesselOrbit, Orbit targetOrbit, double now, out double targetClosestDistance, out double targetClosestUT)
-            {
-                targetClosestDistance = float.MaxValue;
-                targetClosestUT = float.MaxValue;
-
-                Orbit sourceOrbit = SelectClosestOrbit(vesselOrbit, targetOrbit.referenceBody);
-
-                double searchPeriod = 0.0;
-                if (targetOrbit.eccentricity < 1.0)
-                {
-                    searchPeriod = targetOrbit.period;
-                }
-                else
-                {
-                    searchPeriod = targetOrbit.EndUT - now;
-                }
-                if (sourceOrbit.eccentricity < 1.0)
-                {
-                    searchPeriod = Math.Max(searchPeriod, sourceOrbit.period);
-                }
-                else
-                {
-                    searchPeriod = Math.Max(searchPeriod, sourceOrbit.EndUT - now);
-                }
-
-                OneStep(sourceOrbit, targetOrbit, now, now + searchPeriod, 0, ref targetClosestDistance, ref targetClosestUT);
-            }
-        };
-
         internal enum ReferenceType
         {
             Unknown,
@@ -819,7 +714,7 @@ namespace AvionicsSystems
             Asteroid,
         };
         internal ITargetable activeTarget = null;
-        internal ApproachSolver approachSolver = new ApproachSolver();
+        internal ApproachSolverBW approachSolverBW = new ApproachSolverBW();
         internal Vector3 targetDisplacement;
         internal Vector3 targetDirection;
         internal Vector3d targetRelativeVelocity;
@@ -885,12 +780,24 @@ namespace AvionicsSystems
 
                 targetName = activeTarget.GetName();
                 targetOrbit = activeTarget.GetOrbit();
-                approachSolver.IterateApproachSolver(orbit, targetOrbit, universalTime, out targetClosestDistance, out targetClosestUT);
-                if (targetType == TargetType.CelestialBody)
+
+                // Fire off a background worker to solve the closest approach.
+                // The background worker may ignore this request if the orbits
+                // are fairly close to the last solution, and it will ignore the
+                // request if it is actively solving.
+                approachSolverBW.IterateApproachSolver(orbit, targetOrbit, universalTime);
+
+                if (approachSolverBW.resultsReady)
                 {
-                    // If we are targeting a body, account for the radius of the planet when describing closest approach.
-                    // That is, targetClosestDistance is effectively PeA.
-                    targetClosestDistance = Math.Max(0.0, targetClosestDistance - (activeTarget as CelestialBody).Radius);
+                    targetClosestDistance = approachSolverBW.targetClosestDistance;
+                    targetClosestUT = approachSolverBW.targetClosestUT;
+
+                    if (targetType == TargetType.CelestialBody)
+                    {
+                        // If we are targeting a body, account for the radius of the planet when describing closest approach.
+                        // That is, targetClosestDistance is effectively PeA.
+                        targetClosestDistance = Math.Max(0.0, targetClosestDistance - (activeTarget as CelestialBody).Radius);
+                    }
                 }
             }
             else
@@ -905,6 +812,8 @@ namespace AvionicsSystems
                 targetOrbit = null;
                 targetClosestUT = universalTime;
                 targetClosestDistance = 0.0;
+
+                approachSolverBW.ResetComputation();
             }
         }
         #endregion
