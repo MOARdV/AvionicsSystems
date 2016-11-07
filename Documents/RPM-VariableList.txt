@@ -3,7 +3,7 @@ most of the variables in RasterPropMonitor, along with the MAS equivalent.  I'm 
 as a master list of how much work I still need to do, although it doubles as a handy
 translation guide for anyone else who needs it.
 
-Incomplete variables (not transfered): 90 variables
+Incomplete variables (to-do list): 84 variables
 "ACCELFORWARD":
 "ACCELNORMAL":
 "ACCELPROGRADE":
@@ -22,13 +22,10 @@ Incomplete variables (not transfered): 90 variables
 "EFFECTIVERAWTHROTTLE":
 "EFFECTIVETHROTTLE":
 "ENCOUNTERBODY":
-"ENCOUNTERTIME":
 "ENGINECOUNT":
 "ENGINEOVERHEATALARM": 
-"FLIGHTUIMODE":
 "FUNDS":
 "HEATSHIELDTEMPERATURE":
-"HEATSHIELDTEMPERATUREFLUX":
 "HEATSHIELDTEMPERATUREKELVIN":
 "HOTTESTPARTMAXTEMP":
 "HOTTESTPARTNAME":
@@ -36,7 +33,6 @@ Incomplete variables (not transfered): 90 variables
 "HOTTESTPARTTEMPRATIO":
 "HOVERPOINT":
 "HOVERPOINTEXISTS":
-"ISLOADED":
 "LATERALBRAKEDISTANCE":
 "LIFT":
 "LIFTACCEL":
@@ -53,7 +49,6 @@ Incomplete variables (not transfered): 90 variables
 "PODMAXSKINTEMPERATUREKELVIN":
 "PODMAXTEMPERATURE":
 "PODMAXTEMPERATUREKELVIN":
-"PODNETFLUX":
 "PODSKINTEMPERATURE":
 "PODSKINTEMPERATUREKELVIN":
 "PODTEMPERATURE":
@@ -147,13 +142,13 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "ELECOUTPUTSOLAR": fc.SolarPanelOutput()
 "ENCOUNTERBODY":
 "ENCOUNTEREXISTS": fc.NextSoI()
-"ENCOUNTERTIME":
+"ENCOUNTERTIME": fc.TimeToSoI()
 "ENGINECOUNT":
 "ENGINEFLAMEOUTALARM": fc.EngineFlameout()
 "ENGINEOVERHEATALARM": 
 "EXTERNALTEMPERATURE": fc.ExternalTemperature(false)
 "EXTERNALTEMPERATUREKELVIN": fc.ExternalTemperature(true)
-"FLIGHTUIMODE":
+"FLIGHTUIMODE": -no replacement-
 "FUNDS":
 "GEAR": fc.GetGear()
 "GEARALARM": -replaced with Lua scripting-
@@ -161,7 +156,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "GROUNDPROXIMITYALARM": -replaced with Lua scripting-
 "HEADING": fc.Heading()
 "HEATSHIELDTEMPERATURE":
-"HEATSHIELDTEMPERATUREFLUX":
+"HEATSHIELDTEMPERATUREFLUX": -no replacement-
 "HEATSHIELDTEMPERATUREKELVIN":
 "HORZVELOCITY": fc.HorizontalSpeed()
 "HORZVELOCITYFORWARD": fc.SurfaceForwardSpeed()
@@ -180,7 +175,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "INCLINATION": fc.Inclination()
 "ISCLAWREFERENCE": fc.ReferenceTransformType() == 4
 "ISDOCKINGPORTREFERENCE": fc.ReferenceTransformType() == 3
-"ISLOADED":
+"ISLOADED": fc.AssemblyLoaded()
 "ISONKERBINTIME": fc.KerbinTime()
 "ISREMOTEREFERENCE": fc.ReferenceTransformType() == 2
 "LATERALBRAKEDISTANCE":
@@ -265,7 +260,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "PODMAXSKINTEMPERATUREKELVIN":
 "PODMAXTEMPERATURE":
 "PODMAXTEMPERATUREKELVIN":
-"PODNETFLUX":
+"PODNETFLUX": -no replacement-
 "PODSKINTEMPERATURE":
 "PODSKINTEMPERATUREKELVIN":
 "PODTEMPERATURE":

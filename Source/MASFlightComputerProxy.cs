@@ -1896,6 +1896,18 @@ namespace AvionicsSystems
         #region Meta
 
         /// <summary>
+        /// Checks for the existence of the named assembly (eg, `fc.AssemblyLoaded("MechJeb2")`).
+        /// This can be used to determine
+        /// if a particular mod has been installed when that mod is not directly supported by
+        /// Avionics Systems.
+        /// </summary>
+        /// <returns>1 if the named assembly is loaded, 0 otherwise.</returns>
+        public double AssemblyLoaded(string assemblyName)
+        {
+            return MASLoader.knownAssemblies.Contains(assemblyName) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Applies some "realism" conditions to the variable to cause it to
         /// return zero under two general conditions:
         /// 
@@ -2031,7 +2043,7 @@ namespace AvionicsSystems
         /// Returns 1 if the next SoI change is an 'encounter', -1 if it is an
         /// 'escape', and 0 if the orbit is not changing SoI.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>0 if the orbit does not transition.  1 if the vessel will encounter a body, -1 if the vessel will escape the current body.</returns>
         public double NextSoI()
         {
             if (vesselSituationConverted > 2)
@@ -5249,9 +5261,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
-        /// valid numbers at the present.
-        ///
         /// Returns the number of seconds until the vessel's orbit transitions to
         /// another sphere of influence (leaving the current one and entering another).
         /// </summary>
@@ -5259,6 +5268,11 @@ namespace AvionicsSystems
         /// Sphere of Influence.</returns>
         public double TimeToSoI()
         {
+            if (vc.orbit.patchEndTransition == Orbit.PatchTransitionType.ESCAPE || vc.orbit.patchEndTransition == Orbit.PatchTransitionType.ENCOUNTER)
+            {
+                return vc.orbit.UTsoi - vc.universalTime;
+            }
+
             return 0.0;
         }
 

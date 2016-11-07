@@ -106,6 +106,8 @@ namespace AvionicsSystems
         /// </summary>
         static public Dictionary<string, Color32> namedColors = new Dictionary<string, Color32>();
 
+        static public HashSet<string> knownAssemblies = new HashSet<string>();
+
         /// <summary>
         /// Does the config file say I should use verbose logging?
         /// </summary>
@@ -204,6 +206,12 @@ namespace AvionicsSystems
 
             StartCoroutine("LoadAvionicsSystemAssets");
             RegisterWithModuleManager();
+
+            for (int i = AssemblyLoader.loadedAssemblies.Count - 1; i >= 0; --i)
+            {
+                string assemblyName = AssemblyLoader.loadedAssemblies[i].assembly.GetName().Name;
+                knownAssemblies.Add(assemblyName);
+            }
         }
 
         /// <summary>
