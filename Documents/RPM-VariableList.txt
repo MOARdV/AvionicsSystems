@@ -3,7 +3,7 @@ most of the variables in RasterPropMonitor, along with the MAS equivalent.  I'm 
 as a master list of how much work I still need to do, although it doubles as a handy
 translation guide for anyone else who needs it.
 
-Incomplete variables (not transfered): 92 variables
+Incomplete variables (not transfered): 90 variables
 "ACCELFORWARD":
 "ACCELNORMAL":
 "ACCELPROGRADE":
@@ -92,8 +92,6 @@ Incomplete variables (not transfered): 92 variables
 "TERRAINDELTA":
 "THRUSTLIMIT":
 "TIMEOFDAYSECS":
-"TIMETOANWITHTARGETSECS":
-"TIMETODNWITHTARGETSECS":
 "TIMETOIMPACTSECS":
 
 
@@ -409,11 +407,11 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "TIMESINCELASTAP": fc.TimeToAp() - fc.OrbitPeriod()
 "TIMESINCELASTPE": fc.TimeToPe() - fc.OrbitPeriod()
 "TIMETOANEQUATORIAL": fc.TimeToANEq()
-"TIMETOANWITHTARGETSECS":
+"TIMETOANWITHTARGETSECS": fc.TimeToANTarget()
 "TIMETOAPSECS": fc.TimeToAp()
 "TIMETOATMOSPHERESECS": fc.TimeToAtmosphere()
 "TIMETODNEQUATORIAL": fc.TimeToDNEq()
-"TIMETODNWITHTARGETSECS":
+"TIMETODNWITHTARGETSECS": fc.TimeToDNTarget()
 "TIMETOIMPACTSECS":
 "TIMETONEXTAPSIS": math.min(fc.TimeToAp(), fc.TimeToPe())
 "TIMETOPESECS": fc.TimeToPe()

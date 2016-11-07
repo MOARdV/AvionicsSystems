@@ -5091,8 +5091,32 @@ namespace AvionicsSystems
             if (vc.orbit.eccentricity < 1.0)
             {
                 Vector3d ANVector = vc.orbit.GetANVector();
-                Vector3d ANNorm = ANVector.normalized;
-                double taAN = vc.orbit.GetTrueAnomalyOfZupVector(ANNorm);
+                ANVector.Normalize();
+                double taAN = vc.orbit.GetTrueAnomalyOfZupVector(ANVector);
+                double timeAN = vc.orbit.GetUTforTrueAnomaly(taAN, vc.orbit.period) - vc.universalTime;
+
+                return Utility.NormalizeOrbitTime(timeAN, vc.orbit);
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the time until the next ascending node with the current target,
+        /// provided the target is orbiting the same body as the vessel (and the target
+        /// exists).
+        /// </summary>
+        /// <returns>Time in seconds to the next ascending node, in seconds, or 0.</returns>
+        public double TimeToANTarget()
+        {
+            if (vc.orbit.eccentricity < 1.0 && vc.targetType != MASVesselComputer.TargetType.None && vc.orbit.referenceBody == vc.activeTarget.GetOrbit().referenceBody)
+            {
+                Vector3d vesselNormal = vc.orbit.GetOrbitNormal();
+                Vector3d targetNormal = vc.activeTarget.GetOrbit().GetOrbitNormal();
+                Vector3d cross = Vector3d.Cross(vesselNormal, targetNormal);
+                double taAN = vc.orbit.GetTrueAnomalyOfZupVector(-cross);
                 double timeAN = vc.orbit.GetUTforTrueAnomaly(taAN, vc.orbit.period) - vc.universalTime;
 
                 return Utility.NormalizeOrbitTime(timeAN, vc.orbit);
@@ -5146,9 +5170,33 @@ namespace AvionicsSystems
         {
             if (vc.orbit.eccentricity < 1.0)
             {
-                Vector3d ANVector = vc.orbit.GetANVector();
-                Vector3d DNNorm = -ANVector.normalized;
-                double taDN = vc.orbit.GetTrueAnomalyOfZupVector(DNNorm);
+                Vector3d DNVector = vc.orbit.GetANVector();
+                DNVector.Normalize();
+                double taDN = vc.orbit.GetTrueAnomalyOfZupVector(-DNVector);
+                double timeDN = vc.orbit.GetUTforTrueAnomaly(taDN, vc.orbit.period) - vc.universalTime;
+
+                return Utility.NormalizeOrbitTime(timeDN, vc.orbit);
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the time until the next descending node with the current target,
+        /// provided the target is orbiting the same body as the vessel (and the target
+        /// exists).
+        /// </summary>
+        /// <returns>Time in seconds to the next descending node, in seconds, or 0.</returns>
+        public double TimeToDNTarget()
+        {
+            if (vc.orbit.eccentricity < 1.0 && vc.targetType != MASVesselComputer.TargetType.None && vc.orbit.referenceBody == vc.activeTarget.GetOrbit().referenceBody)
+            {
+                Vector3d vesselNormal = vc.orbit.GetOrbitNormal();
+                Vector3d targetNormal = vc.activeTarget.GetOrbit().GetOrbitNormal();
+                Vector3d cross = Vector3d.Cross(vesselNormal, targetNormal);
+                double taDN = vc.orbit.GetTrueAnomalyOfZupVector(cross);
                 double timeDN = vc.orbit.GetUTforTrueAnomaly(taDN, vc.orbit.period) - vc.universalTime;
 
                 return Utility.NormalizeOrbitTime(timeDN, vc.orbit);
