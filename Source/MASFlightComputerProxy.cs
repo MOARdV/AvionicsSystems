@@ -5032,6 +5032,18 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Similar to `fc.HourOfDay()`, but returning the answer in seconds instead
+        /// of hours.
+        /// 
+        /// When used with `fc.UT()`, for instance, it returns the number of seconds since midnight UT.
+        /// </summary>
+        /// <returns>Number of seconds since the latest day began.</returns>
+        public double TimeOfDay(double time)
+        {
+            return 3600.0 * HourOfDay(time);
+        }
+
+        /// <summary>
         /// Given an altitude in meters, return the number of seconds until the vessel
         /// next crosses that altitude.  If the vessel is on a hyperbolic orbit, or
         /// if the orbit never crosses the given altitude, return 0.0.

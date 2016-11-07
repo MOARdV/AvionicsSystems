@@ -3,7 +3,7 @@ most of the variables in RasterPropMonitor, along with the MAS equivalent.  I'm 
 as a master list of how much work I still need to do, although it doubles as a handy
 translation guide for anyone else who needs it.
 
-Incomplete variables (to-do list): 84 variables
+Incomplete variables (to-do list): 81 variables
 "ACCELFORWARD":
 "ACCELNORMAL":
 "ACCELPROGRADE":
@@ -23,7 +23,6 @@ Incomplete variables (to-do list): 84 variables
 "EFFECTIVETHROTTLE":
 "ENCOUNTERBODY":
 "ENGINECOUNT":
-"ENGINEOVERHEATALARM": 
 "FUNDS":
 "HEATSHIELDTEMPERATURE":
 "HEATSHIELDTEMPERATUREKELVIN":
@@ -52,7 +51,6 @@ Incomplete variables (to-do list): 84 variables
 "PODSKINTEMPERATURE":
 "PODSKINTEMPERATUREKELVIN":
 "PODTEMPERATURE":
-"PODTEMPERATUREALARM":
 "PODTEMPERATUREKELVIN":
 "PREDICTEDLANDINGERROR":
 "REPUTATION":
@@ -86,7 +84,6 @@ Incomplete variables (to-do list): 84 variables
 "TERMINALVELOCITY":
 "TERRAINDELTA":
 "THRUSTLIMIT":
-"TIMEOFDAYSECS":
 "TIMETOIMPACTSECS":
 
 
@@ -145,7 +142,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "ENCOUNTERTIME": fc.TimeToSoI()
 "ENGINECOUNT":
 "ENGINEFLAMEOUTALARM": fc.EngineFlameout()
-"ENGINEOVERHEATALARM": 
+"ENGINEOVERHEATALARM": -replaced with Lua scripting-
 "EXTERNALTEMPERATURE": fc.ExternalTemperature(false)
 "EXTERNALTEMPERATUREKELVIN": fc.ExternalTemperature(true)
 "FLIGHTUIMODE": -no replacement-
@@ -264,7 +261,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "PODSKINTEMPERATURE":
 "PODSKINTEMPERATUREKELVIN":
 "PODTEMPERATURE":
-"PODTEMPERATUREALARM":
+"PODTEMPERATUREALARM": -no replacement-
 "PODTEMPERATUREKELVIN":
 "PRECISIONCONTROL": fc.GetPrecisionMode()
 "PREDICTEDLANDINGALTITUDE": fc.LandingAltitude()
@@ -398,7 +395,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "THRUSTLIMIT":
 "THRUSTMAX": fc.MaxThrustkN(true)
 "THRUSTMAXRAW": fc.MaxThrustkN(false)
-"TIMEOFDAYSECS":
+"TIMEOFDAYSECS": fc.TimeOfDay(fc.UT())
 "TIMESINCELASTAP": fc.TimeToAp() - fc.OrbitPeriod()
 "TIMESINCELASTPE": fc.TimeToPe() - fc.OrbitPeriod()
 "TIMETOANEQUATORIAL": fc.TimeToANEq()
