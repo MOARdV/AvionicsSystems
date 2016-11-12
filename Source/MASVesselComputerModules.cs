@@ -200,7 +200,6 @@ namespace AvionicsSystems
         internal int currentEngineCount;
         internal int activeEngineCount;
         internal bool anyEnginesFlameout;
-        //internal bool anyEnginesOverheating;
         internal bool anyEnginesEnabled;
         private bool UpdateEngines()
         {
@@ -241,7 +240,6 @@ namespace AvionicsSystems
                     }
                 }
 
-                //anyEnginesOverheating |= (thatPart.skinTemperature / thatPart.skinMaxTemp > 0.9) || (thatPart.temperature / thatPart.maxTemp > 0.9);
                 anyEnginesEnabled |= me.allowShutdown && me.getIgnitionState;
                 anyEnginesFlameout |= (me.isActiveAndEnabled && me.flameout);
 
