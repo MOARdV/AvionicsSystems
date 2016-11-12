@@ -34,35 +34,35 @@ namespace AvionicsSystems
 {
     // ΔV - put this somewhere where I can find it easily to copy/paste
 
-    public class MASProxyAttribute : System.Attribute
-    {
-        private bool immutable;
-        private bool uncacheable;
+    //public class MASProxyAttribute : System.Attribute
+    //{
+    //    private bool immutable;
+    //    private bool uncacheable;
 
-        public bool Immutable
-        {
-            get
-            {
-                return immutable;
-            }
-            set
-            {
-                immutable = value;
-            }
-        }
+    //    public bool Immutable
+    //    {
+    //        get
+    //        {
+    //            return immutable;
+    //        }
+    //        set
+    //        {
+    //            immutable = value;
+    //        }
+    //    }
 
-        public bool Uncacheable
-        {
-            get
-            {
-                return uncacheable;
-            }
-            set
-            {
-                uncacheable = value;
-            }
-        }
-    }
+    //    public bool Uncacheable
+    //    {
+    //        get
+    //        {
+    //            return uncacheable;
+    //        }
+    //        set
+    //        {
+    //            uncacheable = value;
+    //        }
+    //    }
+    //}
 
     /// <summary>
     /// The flight computer proxy provides the interface between the flight
@@ -4979,6 +4979,16 @@ namespace AvionicsSystems
         public double HottestEngineTemperatureMax(bool useKelvin)
         {
             return vc.hottestEngineMaxTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+        }
+
+        /// <summary>
+        /// Returns the interior temperature of the current IVA pod.
+        /// </summary>
+        /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
+        /// <returns>Current temperature of the interior of the current IVA pod in Kelvin or Celsius.</returns>
+        public double InternalTemperature(bool useKelvin)
+        {
+            return fc.part.temperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
         }
         #endregion
 

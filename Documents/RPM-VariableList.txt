@@ -3,7 +3,7 @@ most of the variables in RasterPropMonitor, along with the MAS equivalent.  I'm 
 as a master list of how much work I still need to do, although it doubles as a handy
 translation guide for anyone else who needs it.
 
-Incomplete variables (to-do list): 81 variables
+Incomplete variables (to-do list): 79 variables
 "ACCELFORWARD":
 "ACCELNORMAL":
 "ACCELPROGRADE":
@@ -50,8 +50,6 @@ Incomplete variables (to-do list): 81 variables
 "PODMAXTEMPERATUREKELVIN":
 "PODSKINTEMPERATURE":
 "PODSKINTEMPERATUREKELVIN":
-"PODTEMPERATURE":
-"PODTEMPERATUREKELVIN":
 "PREDICTEDLANDINGERROR":
 "REPUTATION":
 "SASMODEMANEUVER":
@@ -260,9 +258,9 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "PODNETFLUX": -no replacement-
 "PODSKINTEMPERATURE":
 "PODSKINTEMPERATUREKELVIN":
-"PODTEMPERATURE":
+"PODTEMPERATURE": fc.InternalTemperature(false)
 "PODTEMPERATUREALARM": -no replacement-
-"PODTEMPERATUREKELVIN":
+"PODTEMPERATUREKELVIN": fc.InternalTemperature(true)
 "PRECISIONCONTROL": fc.GetPrecisionMode()
 "PREDICTEDLANDINGALTITUDE": fc.LandingAltitude()
 "PREDICTEDLANDINGERROR":
