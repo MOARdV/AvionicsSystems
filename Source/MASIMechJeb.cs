@@ -1014,8 +1014,8 @@ namespace AvionicsSystems
                             return;
                         }
 
-                        float atm = (float)StatsStageDv.GetValue(atmStat);
-                        float vac = (float)StatsStageDv.GetValue(vacStat);
+                        double atm = (double)StatsStageDv.GetValue(atmStat);
+                        double vac = (double)StatsStageDv.GetValue(vacStat);
                         double stagedV = UtilMath.LerpUnclamped(vac, atm, atmospheresLocal);
 
                         deltaV += stagedV;
