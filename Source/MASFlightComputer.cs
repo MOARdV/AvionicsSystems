@@ -153,6 +153,8 @@ namespace AvionicsSystems
         /// </summary>
         internal MASVesselComputer vc;
 
+        internal MASClimateControl cc = null;
+
         internal static readonly string vesselIdLabel = "__vesselId";
 
         internal ProtoCrewMember[] localCrew = new ProtoCrewMember[0];
@@ -550,6 +552,7 @@ namespace AvionicsSystems
             kacProxy = null;
             realChuteProxy = null;
             transferProxy = null;
+            cc = null;
             if (initialized)
             {
                 Utility.LogMessage(this, "OnDestroy for {0}", flightComputerId);
@@ -578,6 +581,8 @@ namespace AvionicsSystems
             if (HighLogic.LoadedSceneIsFlight)
             {
                 Vessel vessel = this.vessel;
+
+                cc = part.FindModuleImplementing<MASClimateControl>();
 
                 if (string.IsNullOrEmpty(flightComputerId))
                 {
