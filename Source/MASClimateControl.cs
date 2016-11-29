@@ -100,6 +100,11 @@ namespace AvionicsSystems
         public float podHeaterOutput = 0.5f;
 
         /// <summary>
+        /// Records the amount of energy actually requested from the heater.
+        /// </summary>
+        internal float podHeaterDraw = 0.0f;
+
+        /// <summary>
         /// Cabin temperature readout
         /// </summary>
         [KSPField(guiName = "Cabin Temp (K)", guiActive = true, guiFormat = "0.0")]
@@ -232,6 +237,7 @@ namespace AvionicsSystems
                     if (requiredEC > 0.0)
                     {
                         double powerDrawn = part.RequestResource("ElectricCharge", requiredEC);
+                        podHeaterDraw = (float)(powerDrawn / TimeWarp.fixedDeltaTime);
 
                         if (heaterEnergy < 0.0f)
                         {
@@ -248,6 +254,14 @@ namespace AvionicsSystems
                         D_HeaterSetting = Math.Sign(heaterEnergy) * (float)powerDrawn / TimeWarp.fixedDeltaTime;
 #endif
                     }
+                    else
+                    {
+                        podHeaterDraw = 0.0f;
+                    }
+                }
+                else
+                {
+                    podHeaterDraw = 0.0f;
                 }
 
                 // Transfer energy.  kW to the part,
