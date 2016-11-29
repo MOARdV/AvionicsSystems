@@ -520,7 +520,7 @@ namespace AvionicsSystems
             CelestialBody cb = SelectBody(id);
 
             double atmoTop = 0.0;
-            if(cb != null && cb.atmosphere)
+            if (cb != null && cb.atmosphere)
             {
                 atmoTop = cb.atmosphereDepth;
             }
@@ -538,7 +538,7 @@ namespace AvionicsSystems
             CelestialBody cb = SelectBody(id);
 
             double escapeVelocity = 0.0;
-            if(cb != null)
+            if (cb != null)
             {
                 escapeVelocity = Math.Sqrt(2.0 * cb.gravParameter / cb.Radius);
             }
@@ -633,7 +633,7 @@ namespace AvionicsSystems
         {
             CelestialBody cb = SelectBody(id);
 
-            return (cb!=null) ? cb.Mass : 0.0;
+            return (cb != null) ? cb.Mass : 0.0;
         }
 
         /// <summary>
@@ -697,7 +697,7 @@ namespace AvionicsSystems
 
             double temperature = 0.0;
 
-            if (cb!=null)
+            if (cb != null)
             {
                 temperature = cb.atmosphereTemperatureSeaLevel;
                 if (!useKelvin)
@@ -815,6 +815,88 @@ namespace AvionicsSystems
         #region CommNet
 
         /// <summary>
+        /// Returns the number of antennae on the vessel.
+        /// </summary>
+        /// <returns>The number of deployable antennae on the vessel.</returns>
+        public double AntennaCount()
+        {
+            return vc.moduleAntenna.Length;
+        }
+
+        /// <summary>
+        /// Returns 1 if all antennae are damaged.
+        /// </summary>
+        /// <returns>1 if all antennae are damaged; 0 otherwise.</returns>
+        public double AntennaDamaged()
+        {
+            return (vc.antennaPosition == 0) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if at least one antenna may be deployed.
+        /// </summary>
+        /// <returns>1 if any antenna is retracted and available to deploy; 0 otherwise.</returns>
+        public double AntennaDeployable()
+        {
+            return (vc.antennaDeployable) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if at least one antenna is moving.
+        /// </summary>
+        /// <returns>1 if any antenna is moving (deploying or retracting).</returns>
+        public double AntennaMoving()
+        {
+            return (vc.antennaMoving) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns a number representing deployable antenna position:
+        /// 
+        /// * 0 = Broken
+        /// * 1 = Retracted
+        /// * 2 = Retracting
+        /// * 3 = Extending
+        /// * 4 = Extended
+        /// 
+        /// If there are multiple antennae, the first non-broken antenna's state
+        /// is reported; if all antennae are broken, the state will be 0.
+        /// </summary>
+        /// <returns>Antenna Position (a number between 0 and 4); 1 if no antennae are installed.</returns>
+        public double AntennaPosition()
+        {
+            //Utility.LogMessage(this, "AntennaPosition() = {0}", vc.antennaPosition);
+            return vc.antennaPosition;
+        }
+
+        /// <summary>
+        /// Returns 1 if at least one antenna is retractable.
+        /// </summary>
+        /// <returns>1 if a antenna is deployed, and it may be retracted; 0 otherwise.</returns>
+        public double AntennaRetractable()
+        {
+            return (vc.antennaRetractable) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Reports if the vessel can communicate.
+        /// </summary>
+        /// <returns>1 if the vessel can communicate, 0 otherwise.</returns>
+        public double CommNetCanCommunicate()
+        {
+            return vessel.connection.CanComm ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Reports if the vessel can transmit science.
+        /// </summary>
+        /// <returns>1 if the vessel can transmit science, 0 otherwise.</returns>
+        public double CommNetCanScience()
+        {
+            return vessel.connection.CanScience ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Reports if the vessel is connected to CommNet.
         /// </summary>
         /// <returns>1 if the vessel is connected, 0 otherwise.</returns>
@@ -885,6 +967,33 @@ namespace AvionicsSystems
         public double CommNetSignalStrength()
         {
             return vessel.connection.SignalStrength;
+        }
+
+        /// <summary>
+        /// Deploys / undeploys antennae.
+        /// </summary>
+        public void ToggleAntenna()
+        {
+            if (vc.antennaDeployable)
+            {
+                for (int i = vc.moduleAntenna.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleAntenna[i].useAnimation && vc.moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.RETRACTED)
+                    {
+                        vc.moduleAntenna[i].Extend();
+                    }
+                }
+            }
+            else if (vc.antennaRetractable)
+            {
+                for (int i = vc.moduleAntenna.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleAntenna[i].useAnimation && vc.moduleAntenna[i].retractable && vc.moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.EXTENDED)
+                    {
+                        vc.moduleAntenna[i].Retract();
+                    }
+                }
+            }
         }
         #endregion
 
@@ -1613,6 +1722,9 @@ namespace AvionicsSystems
         {
             vessel.ActionGroups.ToggleGroup(KSPActionGroup.Gear);
         }
+        #endregion
+
+        #region Life Support
         #endregion
 
         /// <summary>
@@ -4950,6 +5062,19 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the temperature of the current IVA's cabin atmosphere, if the
+        /// pod has the appropriate PartModule (MASClimateControl).  Otherwise,
+        /// the part's internal temperature is provided.
+        /// </summary>
+        /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
+        /// <returns>Cabin temperature in Kelvin or Celsius.</returns>
+        public double CabinTemperature(bool useKelvin)
+        {
+            return ((fc.cc == null) ? fc.part.temperature : fc.cc.cabinTemperature)
+                + ((useKelvin) ? 0.0 : KelvinToCelsius);
+        }
+
+        /// <summary>
         /// Returns the current temperature outside the vessel.
         /// </summary>
         /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
@@ -4982,13 +5107,142 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the interior temperature of the current IVA pod.
+        /// Returns the interior temperature of the current IVA pod.  This is the part's interior
+        /// temperature.  For cabin temperature (with the appropriate mods), use
+        /// `fc.CabinTemperature()`.
         /// </summary>
         /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
         /// <returns>Current temperature of the interior of the current IVA pod in Kelvin or Celsius.</returns>
         public double InternalTemperature(bool useKelvin)
         {
             return fc.part.temperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+        }
+
+        /// <summary>
+        /// Returns 1 if there is at least one radiator active on the vessel.
+        /// </summary>
+        /// <returns>1 if any radiators are active, or 0 if no radiators are active or no radiators
+        /// are installed.</returns>
+        public double RadiatorActive()
+        {
+            return (vc.radiatorActive) ? 1.0 : 0.0;
+        }
+        
+        /// <summary>
+        /// Returns 1 if the deployable radiators are damaged.
+        /// </summary>
+        /// <returns></returns>
+        public double RadiatorDamaged()
+        {
+            return (vc.radiatorPosition == 0) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if at least one radiator may be deployed.
+        /// </summary>
+        /// <returns>1 if any radiators may be deployed, or 0 if no radiators may be deployed
+        /// or no radiators are installed.</returns>
+        public double RadiatorDeployable()
+        {
+            return (vc.radiatorDeployable) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if there is at least one radiator inactive on the vessel.
+        /// </summary>
+        /// <returns>1 if any radiators are inactive, or 0 if no radiators are inactive or no radiators
+        /// are installed.</returns>
+        public double RadiatorInactive()
+        {
+            return (vc.radiatorInactive) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if at least one radiator on the vessel is deploying or
+        /// retracting.
+        /// </summary>
+        /// <returns>1 if a deployable radiator is moving, or 0 if none are moving.
+        /// </returns>
+        public double RadiatorMoving()
+        {
+            return (vc.radiatorMoving) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns a number representing deployable radiator position:
+        /// 
+        /// * 0 = Broken
+        /// * 1 = Retracted
+        /// * 2 = Retracting
+        /// * 3 = Extending
+        /// * 4 = Extended
+        /// 
+        /// If there are multiple radiators, the first non-broken radiator's state
+        /// is reported; if all radiators are broken, the state will be 0.
+        /// </summary>
+        /// <returns>Radiator Position (a number between 0 and 4); 1 if no radiators are installed.</returns>
+        public double RadiatorPosition()
+        {
+            return vc.radiatorPosition;
+        }
+
+        /// <summary>
+        /// Returns 1 if at least one radiator on the vessel may be retracted or
+        /// undeployed.
+        /// </summary>
+        /// <returns>1 if a deployable radiator may be retracted, or 0 if none may be
+        /// retracted or no deployable radiators are installed.</returns>
+        public double RadiatorRetractable()
+        {
+            return (vc.radiatorRetractable) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns current radiator utilization as a percentage of maximum of active
+        /// radiators.
+        /// </summary>
+        /// <returns>Current utilization, in the range of 0 to 1.  If no active radiators are installed,
+        /// or none are active, returns 0.</returns>
+        public double RadiatorUtilization()
+        {
+            return (vc.maxEnergyTransfer > 0.0) ? (vc.currentEnergyTransfer / vc.maxEnergyTransfer) : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the skin temperature of the current IVA pod.
+        /// </summary>
+        /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
+        /// <returns>Current temperature of the interior of the current IVA pod in Kelvin or Celsius.</returns>
+        public double SkinTemperature(bool useKelvin)
+        {
+            return fc.part.skinTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+        }
+
+        /// <summary>
+        /// Deploys deployable radiators, or retracts retractable radiators.
+        /// </summary>
+        public void ToggleRadiator()
+        {
+            if (vc.radiatorDeployable)
+            {
+                for (int i = vc.moduleDeployableRadiator.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleDeployableRadiator[i].useAnimation && vc.moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.RETRACTED)
+                    {
+                        vc.moduleDeployableRadiator[i].Extend();
+                    }
+                }
+            }
+            else if (vc.radiatorRetractable)
+            {
+                for (int i = vc.moduleDeployableRadiator.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleDeployableRadiator[i].useAnimation && vc.moduleDeployableRadiator[i].retractable && vc.moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.EXTENDED)
+                    {
+                        vc.moduleDeployableRadiator[i].Retract();
+                    }
+                }
+            }
         }
         #endregion
 

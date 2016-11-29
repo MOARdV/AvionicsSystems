@@ -79,6 +79,73 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Communications
+        private List<ModuleDeployableAntenna> antennaList = new List<ModuleDeployableAntenna>(8);
+        internal ModuleDeployableAntenna[] moduleAntenna = new ModuleDeployableAntenna[0];
+        internal bool antennaDeployable;
+        internal bool antennaRetractable;
+        internal bool antennaMoving;
+        internal int antennaPosition;
+        private void UpdateAntenna()
+        {
+            antennaDeployable = false;
+            antennaRetractable = false;
+            antennaMoving = false;
+
+            antennaPosition = -1;
+
+            for (int i = moduleAntenna.Length - 1; i >= 0; --i)
+            {
+                antennaRetractable |= (moduleAntenna[i].useAnimation && moduleAntenna[i].retractable && moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.EXTENDED);
+                antennaDeployable |= (moduleAntenna[i].useAnimation && moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.RETRACTED);
+                antennaMoving |= (moduleAntenna[i].useAnimation && (moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.RETRACTING || moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.EXTENDING));
+                /* ModuleDeployablePart.DeployState = 
+                        RETRACTED = 0,
+                        EXTENDED = 1,
+                        RETRACTING = 2,
+                        EXTENDING = 3,
+                        BROKEN = 4,
+                 * REMAP TO:
+                 * BROKEN = 0
+                 * RETRACTED = 1
+                 * RETRACTING = 2
+                 * EXTENDING = 3
+                 * EXTENDED = 4
+                 */
+                if (antennaPosition < 1)
+                {
+                    if (moduleAntenna[i].useAnimation)
+                    {
+                        switch (moduleAntenna[i].deployState)
+                        {
+                            case ModuleDeployablePart.DeployState.BROKEN:
+                                antennaPosition = 0;
+                                break;
+                            case ModuleDeployablePart.DeployState.RETRACTED:
+                                antennaPosition = 1;
+                                break;
+                            case ModuleDeployablePart.DeployState.RETRACTING:
+                                antennaPosition = 2;
+                                break;
+                            case ModuleDeployablePart.DeployState.EXTENDING:
+                                antennaPosition = 3;
+                                break;
+                            case ModuleDeployablePart.DeployState.EXTENDED:
+                                antennaPosition = 4;
+                                break;
+                        }
+                    }
+                }
+            }
+            // If there are no antennae, or no deployable antennae, set it to RETRACTED
+            if (antennaPosition < 0)
+            {
+                antennaPosition = 1;
+            }
+        }
+
+        #endregion
+
         #region Docking
         // Unlike some of the other sections here, the Dock section focuses on
         // a single ModuleDockingNode that the vessel computer designates as
@@ -544,6 +611,103 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Thermal Management
+        private List<ModuleActiveRadiator> radiatorList = new List<ModuleActiveRadiator>();
+        internal ModuleActiveRadiator[] moduleRadiator = new ModuleActiveRadiator[0];
+        private List<ModuleDeployableRadiator> deployableRadiatorList = new List<ModuleDeployableRadiator>();
+        internal ModuleDeployableRadiator[] moduleDeployableRadiator = new ModuleDeployableRadiator[0];
+        internal double currentEnergyTransfer;
+        internal double maxEnergyTransfer;
+        internal bool radiatorActive;
+        internal bool radiatorInactive;
+        internal bool radiatorDeployable;
+        internal bool radiatorRetractable;
+        internal bool radiatorMoving;
+        internal int radiatorPosition;
+        private void UpdateRadiators()
+        {
+            radiatorActive = false;
+            radiatorInactive = false;
+            radiatorDeployable = false;
+            radiatorRetractable = false;
+            radiatorMoving = false;
+            radiatorPosition = -1;
+            maxEnergyTransfer = 0.0;
+            currentEnergyTransfer = 0.0;
+
+            string tempString;
+            for (int i=moduleRadiator.Length-1; i>=0;--i)
+            {
+                if (moduleRadiator[i].IsCooling)
+                {
+                    radiatorActive = true;
+                    maxEnergyTransfer += moduleRadiator[i].maxEnergyTransfer;
+                    float xv;
+                    // Hack: I can't coax this information out through another
+                    // public field.
+                    tempString = moduleRadiator[i].status.Substring(0, moduleRadiator[i].status.Length - 1);
+                    if (float.TryParse(tempString, out xv))
+                    {
+                        currentEnergyTransfer += xv * 0.01 * moduleRadiator[i].maxEnergyTransfer;
+                    }
+                }
+                else
+                {
+                    radiatorInactive = true;
+                }
+            }
+
+            for (int i = moduleDeployableRadiator.Length - 1; i >= 0; --i)
+            {
+                radiatorRetractable |= (moduleDeployableRadiator[i].useAnimation && moduleDeployableRadiator[i].retractable && moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.EXTENDED);
+                radiatorDeployable |= (moduleDeployableRadiator[i].useAnimation && moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.RETRACTED);
+                radiatorMoving |= (moduleDeployableRadiator[i].useAnimation && (moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.RETRACTING || moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.EXTENDING));
+                /* ModuleDeployablePart.DeployState = 
+                        RETRACTED = 0,
+                        EXTENDED = 1,
+                        RETRACTING = 2,
+                        EXTENDING = 3,
+                        BROKEN = 4,
+                 * REMAP TO:
+                 * BROKEN = 0
+                 * RETRACTED = 1
+                 * RETRACTING = 2
+                 * EXTENDING = 3
+                 * EXTENDED = 4
+                 */
+                if (radiatorPosition < 1)
+                {
+                    if (moduleDeployableRadiator[i].useAnimation)
+                    {
+                        switch (moduleDeployableRadiator[i].deployState)
+                        {
+                            case ModuleDeployablePart.DeployState.BROKEN:
+                                radiatorPosition = 0;
+                                break;
+                            case ModuleDeployablePart.DeployState.RETRACTED:
+                                radiatorPosition = 1;
+                                break;
+                            case ModuleDeployablePart.DeployState.RETRACTING:
+                                radiatorPosition = 2;
+                                break;
+                            case ModuleDeployablePart.DeployState.EXTENDING:
+                                radiatorPosition = 3;
+                                break;
+                            case ModuleDeployablePart.DeployState.EXTENDED:
+                                radiatorPosition = 4;
+                                break;
+                        }
+                    }
+                }
+            }
+            // If there are no radiators, or no deployable radiators, set it to RETRACTED
+            if (radiatorPosition < 0)
+            {
+                radiatorPosition = 1;
+            }
+        }
+        #endregion
+
         #region Modules Management
         /// <summary>
         /// Mark modules as potentially invalid to force reiterating over the
@@ -651,9 +815,21 @@ namespace AvionicsSystems
                                 }
                             }
                         }
+                        else if (module is ModuleDeployableAntenna)
+                        {
+                            antennaList.Add(module as ModuleDeployableAntenna);
+                        }
                         else if (module is MASRadar)
                         {
                             radarList.Add(module as MASRadar);
+                        }
+                        else if (module is ModuleDeployableRadiator)
+                        {
+                            deployableRadiatorList.Add(module as ModuleDeployableRadiator);
+                        }
+                        else if (module is ModuleActiveRadiator)
+                        {
+                            radiatorList.Add(module as ModuleActiveRadiator);
                         }
                         else if (module is ModuleRCS)
                         {
@@ -710,19 +886,22 @@ namespace AvionicsSystems
                 invMaxISP[i] = 1.0f / maxIsp;
             }
 
-            TransferModules<PartModule>(realchuteList, ref moduleRealChute);
-            TransferModules<ModuleParachute>(parachuteList, ref moduleParachute);
-            TransferModules<ModuleGimbal>(gimbalsList, ref moduleGimbals);
             TransferModules<ModuleAlternator>(alternatorList, ref moduleAlternator);
             TransferModules<float>(alternatorOutputList, ref alternatorOutput);
-            TransferModules<ModuleGenerator>(generatorList, ref moduleGenerator);
-            TransferModules<float>(generatorOutputList, ref generatorOutput);
-            TransferModules<ModuleDeployableSolarPanel>(solarPanelList, ref moduleSolarPanel);
+            TransferModules<ModuleDeployableAntenna>(antennaList, ref moduleAntenna);
+            TransferModules<ModuleDeployableRadiator>(deployableRadiatorList, ref moduleDeployableRadiator);
             TransferModules<ModuleResourceConverter>(fuelCellList, ref moduleFuelCell);
             TransferModules<float>(fuelCellOutputList, ref fuelCellOutput);
+            TransferModules<ModuleGenerator>(generatorList, ref moduleGenerator);
+            TransferModules<float>(generatorOutputList, ref generatorOutput);
+            TransferModules<ModuleGimbal>(gimbalsList, ref moduleGimbals);
+            TransferModules<ModuleParachute>(parachuteList, ref moduleParachute);
             TransferModules<MASRadar>(radarList, ref moduleRadar);
+            TransferModules<ModuleActiveRadiator>(radiatorList, ref moduleRadiator);
             TransferModules<ModuleRCS>(rcsList, ref moduleRcs);
+            TransferModules<PartModule>(realchuteList, ref moduleRealChute);
             TransferModules<ModuleReactionWheel>(reactionWheelList, ref moduleReactionWheel);
+            TransferModules<ModuleDeployableSolarPanel>(solarPanelList, ref moduleSolarPanel);
         }
 
         /// <summary>
@@ -750,11 +929,13 @@ namespace AvionicsSystems
             }
 
             bool requestReset = false;
+            UpdateAntenna();
             UpdateDockingNodeState();
             requestReset |= UpdateEngines();
             UpdateGimbals();
             UpdatePower();
             UpdateRadars();
+            UpdateRadiators();
             UpdateRcs();
             UpdateReactionWheels();
 
