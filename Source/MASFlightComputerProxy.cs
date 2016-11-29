@@ -34,36 +34,6 @@ namespace AvionicsSystems
 {
     // ΔV - put this somewhere where I can find it easily to copy/paste
 
-    //public class MASProxyAttribute : System.Attribute
-    //{
-    //    private bool immutable;
-    //    private bool uncacheable;
-
-    //    public bool Immutable
-    //    {
-    //        get
-    //        {
-    //            return immutable;
-    //        }
-    //        set
-    //        {
-    //            immutable = value;
-    //        }
-    //    }
-
-    //    public bool Uncacheable
-    //    {
-    //        get
-    //        {
-    //            return uncacheable;
-    //        }
-    //        set
-    //        {
-    //            uncacheable = value;
-    //        }
-    //    }
-    //}
-
     /// <summary>
     /// The flight computer proxy provides the interface between the flight
     /// computer module and the Lua environment.  It is a thin wrapper over
@@ -1724,7 +1694,51 @@ namespace AvionicsSystems
         }
         #endregion
 
+        /// <summary>
+        /// The Life Support region provides specialized functionality for interfacing with
+        /// the MASClimateControl cabin temperature system.
+        /// </summary>
         #region Life Support
+
+        /// <summary>
+        /// When the MASClimateControl module is installed, returns the current load on
+        /// the heating / cooling system as a percentage (from 0 to 1).  If the module is
+        /// off, or it is not installed, this method returns 0.
+        /// </summary>
+        /// <returns>A value between 0 and 1.</returns>
+        public double ClimateControlLoad()
+        {
+            if (fc.cc != null && fc.cc.enableHeater && fc.cc.podHeaterOutput > 0.0f)
+            {
+                return fc.cc.podHeaterDraw / fc.cc.podHeaterOutput;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns 1 if the MASClimateControl module is installed in this pod, and it
+        /// is enabled.  Returns 0 otherwise.
+        /// </summary>
+        /// <returns>1 if MASClimateControl is installed and active, 0 otherwise.</returns>
+        public double GetClimateControl()
+        {
+            return (fc.cc != null && fc.cc.enableHeater) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Toggle the MASClimateControl module on or off.
+        /// </summary>
+        public void ToggleClimateControl()
+        {
+            if (fc.cc != null)
+            {
+                fc.cc.enableHeater = !fc.cc.enableHeater;
+            }
+        }
+
         #endregion
 
         /// <summary>
@@ -2007,6 +2021,7 @@ namespace AvionicsSystems
         /// </summary>
         #region Meta
 
+        [MASProxyAttribute(Immutable=true)]
         /// <summary>
         /// Checks for the existence of the named assembly (eg, `fc.AssemblyLoaded("MechJeb2")`).
         /// This can be used to determine
@@ -2096,6 +2111,17 @@ namespace AvionicsSystems
         public void LogMessage(string message)
         {
             Utility.LogMessage(this, message);
+        }
+
+        [MASProxyAttribute(Immutable=true)]
+        /// <summary>
+        /// Returns the version number of the MAS plugin, as a string,
+        /// such as `1.0.1.12331`.
+        /// </summary>
+        /// <returns>MAS Version in string format.</returns>
+        public string MASVersion()
+        {
+            return MASLoader.asVersion;
         }
 
         /// <summary>
@@ -3225,15 +3251,17 @@ namespace AvionicsSystems
         /// Random number generators are in this category.
         /// </summary>
         #region Random
+        [MASProxyAttribute(Uncacheable = true)]
         /// <summary>
         /// Return a random number in the range of [0, 1]
         /// </summary>
         /// <returns>A uniformly-distributed pseudo-random number in the range [0, 1].</returns>
         public double Random()
         {
-            return UnityEngine.Random.value;
+            return UnityEngine.Random.Range(0.0f, 1.0f);
         }
 
+        [MASProxyAttribute(Uncacheable = true)]
         /// <summary>
         /// Return an approximation of a normal distribution with a mean and
         /// standard deviation as specified.  The actual result falls in the
@@ -5127,7 +5155,7 @@ namespace AvionicsSystems
         {
             return (vc.radiatorActive) ? 1.0 : 0.0;
         }
-        
+
         /// <summary>
         /// Returns 1 if the deployable radiators are damaged.
         /// </summary>
@@ -5595,5 +5623,49 @@ namespace AvionicsSystems
             return Utility.typeDict[vessel.vesselType];
         }
         #endregion
+    }
+
+    /// <summary>
+    /// The MASProxyAttribute class is used to mark specific methods in the various
+    /// proxy classes as either Immutable or Uncacheable (both would be nonsensical).
+    /// 
+    /// A method flagged as Immutable is evaluated once when it's created, and never
+    /// again (useful for values that never change in a game session).
+    /// 
+    /// A method flagged as Uncacheable is expected to change each time it's called,
+    /// such as random number generators.
+    /// 
+    /// Both of these attributes affect only variables that can be transformed to a
+    /// native evaluator - Lua scripts are always cacheable + mutable.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
+    public class MASProxyAttribute : System.Attribute
+    {
+        private bool immutable;
+        private bool uncacheable;
+
+        public bool Immutable
+        {
+            get
+            {
+                return immutable;
+            }
+            set
+            {
+                immutable = value;
+            }
+        }
+
+        public bool Uncacheable
+        {
+            get
+            {
+                return uncacheable;
+            }
+            set
+            {
+                uncacheable = value;
+            }
+        }
     }
 }

@@ -386,7 +386,7 @@ namespace AvionicsSystems
                 if (initialized && vc.vesselCrewed && vc.vesselActive)
                 {
                     // Realistically, this block of code won't be triggered very
-                    // often.
+                    // often.  Once per scene change per pod.
                     if (mutableVariablesChanged)
                     {
                         nativeVariables = new Variable[nativeVariableCount];
@@ -410,7 +410,6 @@ namespace AvionicsSystems
                             }
                         }
                         Utility.LogMessage(this, "Resizing variables lists to N:{0} L:{1}", nativeVariableCount, luaVariableCount);
-                        //nativeVariables = mutableVariablesList.ToArray();
                         mutableVariablesChanged = false;
                     }
 

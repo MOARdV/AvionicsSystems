@@ -507,25 +507,25 @@ namespace AvionicsSystems
             switch (operatorExpression.Operator())
             {
                 case CodeGen.Parser.LuaToken.PLUS:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() + rhs.SafeValue());
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() + rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
                     break;
                 case CodeGen.Parser.LuaToken.MINUS:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() - rhs.SafeValue());
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() - rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
                     break;
                 case CodeGen.Parser.LuaToken.MULTIPLY:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() * rhs.SafeValue());
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() * rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
                     break;
                 case CodeGen.Parser.LuaToken.DIVIDE:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() / rhs.SafeValue());
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() / rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
                     break;
                 case CodeGen.Parser.LuaToken.LESS_THAN:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() < rhs.SafeValue());
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() < rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
                     break;
                 case CodeGen.Parser.LuaToken.GREATER_THAN:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() > rhs.SafeValue());
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() > rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
                     break;
                 case CodeGen.Parser.LuaToken.AND:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.BoolValue() && rhs.BoolValue());
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.BoolValue() && rhs.BoolValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
                     break;
                 default:
 #if PLENTIFUL_LOGGING
@@ -604,6 +604,17 @@ namespace AvionicsSystems
 
                 if (tableInstance != null)
                 {
+                    bool cacheable = true;
+                    bool mutable = true;
+                    object[] attrs = method.GetCustomAttributes(typeof(MASProxyAttribute), true);
+                    if (attrs.Length > 0)
+                    {
+                        for(int i=0; i<attrs.Length; ++i)
+                        {
+                            cacheable = !(attrs[i] as MASProxyAttribute).Uncacheable;
+                            mutable = !(attrs[i] as MASProxyAttribute).Immutable;
+                        }
+                    }
                     ParameterInfo[] methodParams = method.GetParameters();
                     if (numArgs == 0)
                     {
@@ -611,7 +622,7 @@ namespace AvionicsSystems
 #if EXCESSIVE_LOGGING
                         Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, {1} parameters", canonical, numArgs);
 #endif
-                        return new Variable(canonical, () => dm(tableInstance));
+                        return new Variable(canonical, () => dm(tableInstance), cacheable, mutable);
                     }
                     else if (numArgs == 1)
                     {
@@ -621,7 +632,7 @@ namespace AvionicsSystems
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
                             DynamicMethod<object, double> dm = DynamicMethodFactory.CreateFunc<object, double>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue()));
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue()), cacheable, mutable);
                         }
                         else if (methodParams[0].ParameterType == typeof(string))
                         {
@@ -629,7 +640,7 @@ namespace AvionicsSystems
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
                             DynamicMethod<object, string> dm = DynamicMethodFactory.CreateFunc<object, string>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].String()));
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].String()), cacheable, mutable);
                         }
                         else if (methodParams[0].ParameterType == typeof(bool))
                         {
@@ -637,7 +648,7 @@ namespace AvionicsSystems
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
                             DynamicMethod<object, bool> dm = DynamicMethodFactory.CreateFunc<object, bool>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].BoolValue()));
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].BoolValue()), cacheable, mutable);
                         }
                         else if (methodParams[0].ParameterType == typeof(object))
                         {
@@ -645,7 +656,7 @@ namespace AvionicsSystems
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
                             DynamicMethod<object, object> dm = DynamicMethodFactory.CreateFunc<object, object>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].RawValue()));
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].RawValue()), cacheable, mutable);
                         }
                         else
                         {
@@ -657,12 +668,12 @@ namespace AvionicsSystems
                         if (methodParams[0].ParameterType == typeof(double) && methodParams[1].ParameterType == typeof(double))
                         {
                             DynamicMethod<object, double, double> dm = DynamicMethodFactory.CreateFunc<object, double, double>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].SafeValue()));
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].SafeValue()), cacheable, mutable);
                         }
                         else if (methodParams[0].ParameterType == typeof(bool) && methodParams[1].ParameterType == typeof(double))
                         {
                             DynamicMethod<object, bool, double> dm = DynamicMethodFactory.CreateFunc<object, bool, double>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].BoolValue(), parms[1].SafeValue()));
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].BoolValue(), parms[1].SafeValue()), cacheable, mutable);
                         }
                         else
                         {
@@ -717,6 +728,7 @@ namespace AvionicsSystems
             }
         }
 
+        //--------------------------------------------------------------------
         /// <summary>
         /// The Variable is a wrapper class to manage a single variable (as
         /// defined by a Lua script or a constant value).  It allows the MAS
@@ -727,15 +739,23 @@ namespace AvionicsSystems
         /// </summary>
         public class Variable
         {
+            /// <summary>
+            /// Variable name
+            /// </summary>
             public readonly string name;
-            public bool mutable
-            {
-                get
-                {
-                    return (variableType == VariableType.Func) || (variableType == VariableType.LuaScript);
-                }
-            }
+            /// <summary>
+            /// Whether the variable can change (otherwise it is a constant)
+            /// </summary>
+            public readonly bool mutable;
+            /// <summary>
+            /// Is this variable even valid?
+            /// </summary>
             public readonly bool valid;
+            /// <summary>
+            /// Can the results be cached, or must they be evaluated each time
+            /// it is called?
+            /// </summary>
+            public readonly bool cacheable;
             internal event Action<double> numericCallbacks;
             internal event Action changeCallbacks;
             private Func<object> nativeEvaluator;
@@ -771,6 +791,9 @@ namespace AvionicsSystems
                 this.safeValue = this.doubleValue;
                 this.rawObject = value;
                 this.variableType = VariableType.Constant;
+                this.cacheable = true;
+                this.mutable = false;
+                //this.invariant = true;
             }
 
             /// <summary>
@@ -787,6 +810,8 @@ namespace AvionicsSystems
                 this.safeValue = value;
                 this.rawObject = value;
                 this.variableType = VariableType.Constant;
+                this.cacheable = true;
+                this.mutable = false;
             }
 
             /// <summary>
@@ -803,6 +828,8 @@ namespace AvionicsSystems
                 this.safeValue = 0.0;
                 this.rawObject = value;
                 this.variableType = VariableType.Constant;
+                this.cacheable = true;
+                this.mutable = false;
             }
 
             /// <summary>
@@ -810,18 +837,19 @@ namespace AvionicsSystems
             /// </summary>
             /// <param name="name"></param>
             /// <param name="nativeEvaluator"></param>
-            /// <param name="mutable"></param>
-            public Variable(string name, Func<object> nativeEvaluator)
+            /// <param name="cacheable"></param>
+            public Variable(string name, Func<object> nativeEvaluator, bool cacheable, bool mutable)
             {
                 this.name = name;
 
                 this.nativeEvaluator = nativeEvaluator;
-                object value = nativeEvaluator();
-                this.variableType = VariableType.Func;
 
-                ProcessObject(value);
+                ProcessObject(nativeEvaluator());
 
                 this.valid = true;
+                this.cacheable = (mutable) ? cacheable : true;
+                this.mutable = mutable;
+                this.variableType = (mutable) ? VariableType.Func : VariableType.Constant;
             }
 
             /// <summary>
@@ -855,6 +883,8 @@ namespace AvionicsSystems
                     this.variableType = VariableType.LuaScript;
                     ProcessObject(luaValue.ToObject());
                 }
+                this.cacheable = true;
+                this.mutable = true;
             }
 
             /// <summary>
@@ -863,6 +893,11 @@ namespace AvionicsSystems
             /// <returns></returns>
             public object RawValue()
             {
+                if (!cacheable)
+                {
+                    // Only permitted for native objects
+                    ProcessObject(nativeEvaluator());
+                }
                 return rawObject;
             }
 
@@ -872,6 +907,11 @@ namespace AvionicsSystems
             /// <returns></returns>
             public bool BoolValue()
             {
+                if (!cacheable)
+                {
+                    // Only permitted for native objects
+                    ProcessObject(nativeEvaluator());
+                }
                 return (safeValue != 0.0);
             }
 
@@ -881,6 +921,11 @@ namespace AvionicsSystems
             /// <returns></returns>
             public double Value()
             {
+                if (!cacheable)
+                {
+                    // Only permitted for native objects
+                    ProcessObject(nativeEvaluator());
+                }
                 return doubleValue;
             }
 
@@ -891,6 +936,11 @@ namespace AvionicsSystems
             /// <returns></returns>
             public double SafeValue()
             {
+                if (!cacheable)
+                {
+                    // Only permitted for native objects
+                    ProcessObject(nativeEvaluator());
+                }
                 return safeValue;
             }
 
@@ -900,6 +950,11 @@ namespace AvionicsSystems
             /// <returns></returns>
             public string String()
             {
+                if (!cacheable)
+                {
+                    // Only permitted for native objects
+                    ProcessObject(nativeEvaluator());
+                }
                 return stringValue;
             }
 
