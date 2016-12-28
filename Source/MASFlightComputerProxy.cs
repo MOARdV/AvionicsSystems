@@ -1372,6 +1372,12 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Docking control and status are in the Docking category.
+        /// 
+        /// Many of these methods use the concept of "Primary Docking Port".
+        /// The primary docking port is defined as the first or only docking
+        /// port found on the vessel.  These features are primarily centered
+        /// around CTV / OTV type spacecraft where there is a single dock,
+        /// not space stations or large craft with many docks.
         /// </summary>
         #region Docking
         /// <summary>
@@ -1391,6 +1397,46 @@ namespace AvionicsSystems
         public double DockReady()
         {
             return (vc.dockingNodeState == MASVesselComputer.DockingNodeState.READY) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the current IVA pod is the reference transform.  Returns 0 otherwise.
+        /// </summary>
+        /// <returns></returns>
+        public double GetPodIsReference()
+        {
+            return (fc.part == vessel.GetReferenceTransformPart()) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the primary docking port on the vessel is the current reference transform.
+        /// 
+        /// Returns 0 if the primary docking port is not the reference transform, or if there is no docking port,
+        /// or if a docking port other than the primary port is the reference transform.
+        /// </summary>
+        /// <returns></returns>
+        public double GetDockIsReference()
+        {
+            return (vc.dockingNode != null && vc.dockingNode.part == vessel.GetReferenceTransformPart()) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Set the current IVA pod to be the reference transform.
+        /// </summary>
+        public void SetPodToReference()
+        {
+            vessel.SetReferenceTransform(fc.part);
+        }
+
+        /// <summary>
+        /// Set the primary docking port to be the reference transform.
+        /// </summary>
+        public void SetDockToReference()
+        {
+            if (vc.dockingNode != null)
+            {
+                vessel.SetReferenceTransform(vc.dockingNode.part);
+            }
         }
 
         /// <summary>
@@ -1866,7 +1912,7 @@ namespace AvionicsSystems
         /// <returns>ΔV in m/s; negative values indicate anti-normal.</returns>
         public double ManeuverNodeDVNormal()
         {
-            if (vc.nodeOrbit != null)
+            if (vc.maneuverNodeValid && vc.nodeOrbit != null)
             {
 
             }
@@ -1882,7 +1928,7 @@ namespace AvionicsSystems
         /// <returns>ΔV in m/s; negative values indicate retrograde.</returns>
         public double ManeuverNodeDVPrograde()
         {
-            if (vc.nodeOrbit != null)
+            if (vc.maneuverNodeValid && vc.nodeOrbit != null)
             {
 
             }
@@ -1898,7 +1944,7 @@ namespace AvionicsSystems
         /// <returns>ΔV in m/s; negative values indicate anti-radial.</returns>
         public double ManeuverNodeDVRadial()
         {
-            if (vc.nodeOrbit != null)
+            if (vc.maneuverNodeValid && vc.nodeOrbit != null)
             {
 
             }
