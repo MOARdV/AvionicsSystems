@@ -82,9 +82,9 @@ namespace AvionicsSystems
         /// <param name="startUT"></param>
         /// <param name="endUT"></param>
         /// <param name="recursionDepth"></param>
-        /// <param name="targetClosestDistance"></param>
-        /// <param name="targetClosestUT"></param>
-        static private void OneStep(Orbit sourceOrbit, Orbit targetOrbit, double startUT, double endUT, int recursionDepth, ref double targetClosestDistance, ref double targetClosestUT)
+        /// <param name="closestDistance"></param>
+        /// <param name="closestUT"></param>
+        static private void OneStep(Orbit sourceOrbit, Orbit targetOrbit, double startUT, double endUT, int recursionDepth, ref double closestDistance, ref double closestUT)
         {
             if (recursionDepth > MaxRecursions)
             {
@@ -93,7 +93,7 @@ namespace AvionicsSystems
 
             double deltaT = (endUT - startUT) / (double)NumSubdivisions;
 
-            double closestDistSq = targetClosestDistance * targetClosestDistance;
+            double closestDistSq = closestDistance * closestDistance;
             for (double t = startUT; t <= endUT; t += deltaT)
             {
                 Vector3d vesselPos = sourceOrbit.getPositionAtUT(t);
@@ -103,11 +103,11 @@ namespace AvionicsSystems
                 if (distSq < closestDistSq)
                 {
                     closestDistSq = distSq;
-                    targetClosestUT = t;
+                    closestUT = t;
                 }
             }
 
-            targetClosestDistance = Math.Sqrt(closestDistSq);
+            closestDistance = Math.Sqrt(closestDistSq);
 
             if (deltaT < 0.5)
             {
@@ -116,7 +116,7 @@ namespace AvionicsSystems
                 return;
             }
 
-            OneStep(sourceOrbit, targetOrbit, Math.Max(targetClosestUT - deltaT, startUT), Math.Min(targetClosestUT + deltaT, endUT), recursionDepth + 1, ref targetClosestDistance, ref targetClosestUT);
+            OneStep(sourceOrbit, targetOrbit, Math.Max(closestUT - deltaT, startUT), Math.Min(closestUT + deltaT, endUT), recursionDepth + 1, ref closestDistance, ref closestUT);
         }
 
         /// <summary>
@@ -219,22 +219,22 @@ namespace AvionicsSystems
             {
                 //Utility.LogMessage(this, "... Closed orbits involved - using multi-orbit scan");
 
-                double targetClosestDistance = float.MaxValue;
-                double targetClosestTime = float.MaxValue;
+                double closestDistance = float.MaxValue;
+                double closestTime = float.MaxValue;
 
                 double startTime = resultsStartTime;
                 double endTime = startTime + startOrbit.period;
 
                 for (int i = 0; i < NumOrbitsLookAhead; ++i)
                 {
-                    OneStep(startOrbit, targetOrbit, startTime, endTime, 0, ref targetClosestDistance, ref targetClosestTime);
+                    OneStep(startOrbit, targetOrbit, startTime, endTime, 0, ref closestDistance, ref closestTime);
                     startTime += startOrbit.period;
                     endTime += startOrbit.period;
                 }
 
-                this.targetClosestDistance = targetClosestDistance;
-                this.targetClosestUT = targetClosestTime;
-                this.resultsValidUntil = Math.Min(resultsStartTime + startOrbit.period, targetClosestTime);
+                this.targetClosestDistance = closestDistance;
+                this.targetClosestUT = closestTime;
+                this.resultsValidUntil = Math.Min(resultsStartTime + startOrbit.period, closestTime);
                 //Utility.LogMessage(this, "close = {0:0} @ {1:0}, with resultsValid until {2:0}",
                 //    targetClosestDistance, targetClosestTime - Planetarium.GetUniversalTime(), this.resultsValidUntil - Planetarium.GetUniversalTime());
             }
