@@ -89,6 +89,7 @@ namespace AvionicsSystems
             vc = null;
         }
 
+        [MASProxyAttribute(Immutable = true)]
         /// <summary>
         /// Returns 1 if RealChute is installed and available on this craft, 0 if it
         /// is not available.

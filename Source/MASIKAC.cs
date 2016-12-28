@@ -113,6 +113,7 @@ namespace AvionicsSystems
             return alarms.Length;
         }
 
+        [MASProxyAttribute(Immutable = true)]
         /// <summary>
         /// Returns 1 if Kerbal Alarm Clock is installed and available on this craft, 0 if it
         /// is not available.
