@@ -44,8 +44,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="MoonSharp.Interpreter">
-      <HintPath>GameData\AvionicsSystems\MoonSharp.Interpreter.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>GameData\MOARdV\AvionicsSystems\MoonSharp.Interpreter.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -162,8 +161,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetPath) "D:\Games\Steam\steamapps\common\Kerbal Space Program\GameData\AvionicsSystems"
-copy $(TargetPath) $(SolutionDir)GameData\AvionicsSystems\
+    <PostBuildEvent>copy $(TargetPath) "D:\Games\KSP-IVA\GameData\MOARdV\AvionicsSystems"
+copy $(TargetPath) $(SolutionDir)GameData\MOARdV\AvionicsSystems\
 $(SolutionDir)Documentor\$(OutDir)Documentor.exe $(SolutionDir)Source\MASIFAR.cs $(SolutionDir)Source\MASIKAC.cs $(SolutionDir)Source\MASIChatterer.cs $(SolutionDir)Source\MASIMechJeb.cs $(SolutionDir)Source\MASINavigation.cs $(SolutionDir)Source\MASIRealChute.cs $(SolutionDir)Source\MASITransfer.cs $(SolutionDir)Source\MASFlightComputerProxy.cs</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

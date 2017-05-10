@@ -250,12 +250,10 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
-GameData/AvionicsSystems/AvionicsSystems.dll
-GameData/AvionicsSystems/avionicssystems.ksp
+GameData/MOARdV/AvionicsSystems/AvionicsSystems.dll
+GameData/MOARdV/AvionicsSystems/avionicssystems.ksp
 Source/*.md
 *.zip
-GameData/AvionicsSystems/MoonSharp.Interpreter.dll
-GameData/AvionicsSystems/ASET_Props/
-GameData/AvionicsSystems/Textures/
+GameData/MOARdV/AvionicsSystems/MoonSharp.Interpreter.dll
 
 *.wav
