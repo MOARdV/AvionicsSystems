@@ -178,6 +178,7 @@ namespace AvionicsSystems.CodeGen
             {"-", 35}, // dash -> might be 'minus', might be 'unary negation'
             {"<", 48}, // less than
             {">", 49}, // greater than
+            {"==", 50}, // equality
 
             // Text doesn't actually parse to symbols :(
             {"and", 64}, // logical AND
@@ -205,6 +206,7 @@ namespace AvionicsSystems.CodeGen
 
             LESS_THAN,
             GREATER_THAN,
+            EQUALITY,
 
             AND,
             OR,
@@ -314,6 +316,7 @@ namespace AvionicsSystems.CodeGen
             //register(LuaToken.DOT, new BinaryOperatorParselet(POSTFIX, false));
             register(LuaToken.LESS_THAN, new BinaryOperatorParselet(COMPARISON, false));
             register(LuaToken.GREATER_THAN, new BinaryOperatorParselet(COMPARISON, false));
+            register(LuaToken.EQUALITY, new BinaryOperatorParselet(COMPARISON, false));
             register(LuaToken.AND, new BinaryOperatorParselet(LOGICAL, false));
             register(LuaToken.OR, new BinaryOperatorParselet(LOGICAL, false));
         }
@@ -461,6 +464,8 @@ namespace AvionicsSystems.CodeGen
                     return Parser.LuaToken.LESS_THAN;
                 case 49:
                     return Parser.LuaToken.GREATER_THAN;
+                case 50:
+                    return Parser.LuaToken.EQUALITY;
                 case 64:
                     return Parser.LuaToken.AND;
                 case 65:
@@ -533,6 +538,8 @@ namespace AvionicsSystems.CodeGen
                     return ">";
                 case Parser.LuaToken.LESS_THAN:
                     return "<";
+                case Parser.LuaToken.EQUALITY:
+                    return "==";
                 case Parser.LuaToken.AND:
                     return "and";
                 case Parser.LuaToken.OR:
