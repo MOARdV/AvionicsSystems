@@ -2248,10 +2248,10 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the orbital period, in seconds.
         /// </summary>
-        /// <returns>Orbital period, seconds.</returns>
+        /// <returns>Orbital period, seconds.  Zero if the craft is not in flight.</returns>
         public double OrbitPeriod()
         {
-            return vc.orbit.period;
+            return (vesselSituationConverted > 2) ? vc.orbit.period : 0.0;
         }
 
         /// <summary>
@@ -2873,7 +2873,13 @@ namespace AvionicsSystems
         /// wraps around the range [minValue, maxValue].  This feature is used,
         /// for instance, for
         /// adjusting a heading between 0 and 360 degrees without having to go
-        /// from 359 all the way back to 0.
+        /// from 359 all the way back to 0.  `maxValue` is treated as an alias
+        /// for `minValue`, so if adding to a persistent value makes it equal
+        /// exactly `maxValue`, it is set to `minValue` instead.  With the heading
+        /// example above, for instance, you would use `fc.AddPersistentWrapped("SomeVariableName", 1, 0, 360)`.
+        /// 
+        /// To make a counter that runs from 0 to 2 before wrapping back to 0
+        /// again, `fc.AddPersistentWrapped("SomeVariableName", 1, 0, 3)`.
         /// 
         /// If the variable
         /// did not already exist, it is created and initialized to 0 before
@@ -3715,7 +3721,7 @@ namespace AvionicsSystems
         #region Resources
         /// <summary>
         /// Returns the current level of available power for the designated
-        /// "Power" resource;by default, this is ElectricCharge.
+        /// "Power" resource; by default, this is ElectricCharge.
         /// </summary>
         /// <returns></returns>
         public double PowerCurrent()
