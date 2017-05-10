@@ -183,7 +183,7 @@ namespace AvionicsSystems
                 throw new Exception("MASLoader: Unable to load shaders - AssetLoader is not ready.");
             }
 
-            KSPAssets.AssetDefinition[] asShaders = KSPAssets.Loaders.AssetLoader.GetAssetDefinitionsWithType("AvionicsSystems/avionicssystems", typeof(Shader));
+            KSPAssets.AssetDefinition[] asShaders = KSPAssets.Loaders.AssetLoader.GetAssetDefinitionsWithType("MOARdV/AvionicsSystems/avionicssystems", typeof(Shader));
             if (asShaders == null || asShaders.Length == 0)
             {
                 Utility.LogErrorMessage(this, "Unable to load shaders - No shaders found in AS asset bundle.");
