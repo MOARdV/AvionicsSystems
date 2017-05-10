@@ -195,7 +195,7 @@ namespace Documentor
             string luaNamespace = string.Empty;
             XmlNode root = doc.DocumentElement;
             docString = new StringBuilder();
-            docString.Append("#");
+            docString.Append("# ");
             docString.AppendLine(sourceFileName);
             docString.AppendLine();
 
@@ -247,7 +247,7 @@ namespace Documentor
             XmlElement methodName = child["method"];
             if (methodName != null)
             {
-                docString.Append("###");
+                docString.Append("### ");
                 if (!string.IsNullOrEmpty(luaNamespace))
                 {
                     docString.Append(luaNamespace);
@@ -308,7 +308,7 @@ namespace Documentor
             if (regionName != null)
             {
                 docString.AppendLine("***");
-                docString.Append("##");
+                docString.Append("## ");
                 docString.Append(regionName.InnerText);
                 docString.AppendLine(" Category");
                 docString.AppendLine();
