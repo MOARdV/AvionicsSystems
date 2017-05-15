@@ -4042,10 +4042,6 @@ namespace AvionicsSystems
         /// <summary>
         /// The SAS section provides methods to control and query the state of
         /// a vessel's SAS stability system.
-        /// 
-        /// **CAUTION**: The methods in this section will be changing.  Instead of
-        /// methods like `GetSASModeManeuver()` and `SetSASModeManeuver()` there will
-        /// be `IsSASMode(9)` and `SetSASMode(9)`.
         /// </summary>
         #region SAS
         /// <summary>
@@ -4125,96 +4121,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if SAS is currently set for anti-normal.
-        /// </summary>
-        /// <returns></returns>
-        public double GetSASModeAntiNormal()
-        {
-            return (autopilotMode == VesselAutopilot.AutopilotMode.Antinormal) ? 1.0 : 0.0;
-        }
-
-        /// <summary>
-        /// Returns 1 if SAS is currently set for anti-target.
-        /// </summary>
-        /// <returns></returns>
-        public double GetSASModeAntiTarget()
-        {
-            return (autopilotMode == VesselAutopilot.AutopilotMode.AntiTarget) ? 1.0 : 0.0;
-        }
-
-        /// <summary>
-        /// Returns 1 if SAS is currently set for maneuver.
-        /// </summary>
-        /// <returns></returns>
-        public double GetSASModeManeuver()
-        {
-            return (autopilotMode == VesselAutopilot.AutopilotMode.Maneuver) ? 1.0 : 0.0;
-        }
-
-        /// <summary>
-        /// Returns 1 if SAS is currently set for normal.
-        /// </summary>
-        /// <returns></returns>
-        public double GetSASModeNormal()
-        {
-            return (autopilotMode == VesselAutopilot.AutopilotMode.Normal) ? 1.0 : 0.0;
-        }
-
-        /// <summary>
-        /// Returns 1 if SAS is currently set for prograde.
-        /// </summary>
-        /// <returns></returns>
-        public double GetSASModePrograde()
-        {
-            return (autopilotMode == VesselAutopilot.AutopilotMode.Prograde) ? 1.0 : 0.0;
-        }
-
-        /// <summary>
-        /// Returns 1 if SAS is currently set for radial in.
-        /// </summary>
-        /// <returns></returns>
-        public double GetSASModeRadialIn()
-        {
-            return (autopilotMode == VesselAutopilot.AutopilotMode.RadialIn) ? 1.0 : 0.0;
-        }
-
-        /// <summary>
-        /// Returns 1 if SAS is currently set for radial out.
-        /// </summary>
-        /// <returns></returns>
-        public double GetSASModeRadialOut()
-        {
-            return (autopilotMode == VesselAutopilot.AutopilotMode.RadialOut) ? 1.0 : 0.0;
-        }
-
-        /// <summary>
-        /// Returns 1 if SAS is currently set for retrograde.
-        /// </summary>
-        /// <returns></returns>
-        public double GetSASModeRetrograde()
-        {
-            return (autopilotMode == VesselAutopilot.AutopilotMode.Retrograde) ? 1.0 : 0.0;
-        }
-
-        /// <summary>
-        /// Returns 1 if SAS is currently set for stability assist.
-        /// </summary>
-        /// <returns></returns>
-        public double GetSASModeStabilityAssist()
-        {
-            return (autopilotMode == VesselAutopilot.AutopilotMode.StabilityAssist) ? 1.0 : 0.0;
-        }
-
-        /// <summary>
-        /// Returns 1 if SAS is currently set for target +.
-        /// </summary>
-        /// <returns></returns>
-        public double GetSASModeTarget()
-        {
-            return (autopilotMode == VesselAutopilot.AutopilotMode.Target) ? 1.0 : 0.0;
-        }
-
-        /// <summary>
         /// Return the current speed display mode: 1 for orbit, 0 for surface,
         /// and -1 for target.
         /// </summary>
@@ -4256,129 +4162,72 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Sets SAS mode to anti-normal.
+        /// Set the SAS mode.  Note that while you can set this mode when SAS is off, KSP
+        /// sets it back to Stability Assist when SAS is switched on.  Valid modes are:
+        /// 
+        /// * 0 = StabilityAssist
+        /// * 1 = Prograde
+        /// * 2 = Retrograde
+        /// * 3 = Normal
+        /// * 4 = Anti-Normal
+        /// * 5 = Radial In
+        /// * 6 = Radial Out
+        /// * 7 = Target
+        /// * 8 = Anti-Target
+        /// * 9 = Maneuver Node
         /// </summary>
-        public void SetSASModeAntiNormal()
+        /// <param name="mode">One of the modes listed above.  If an invalid value is provided, Stability Assist is set.</param>
+        /// <returns>1 if the mode was set, 0 if an invalid mode was specified</returns>
+        public double SetSASMode(double mode)
         {
-            if (vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.Antinormal))
+            int iMode = (int)mode;
+            double returnVal = 1.0;
+            switch(iMode)
             {
-                vessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.Antinormal);
-                UpdateSASModeToggleButtons(VesselAutopilot.AutopilotMode.Antinormal);
+                case 0:
+                    TrySetSASMode(VesselAutopilot.AutopilotMode.StabilityAssist);
+                    break;
+                case 1:
+                    TrySetSASMode(VesselAutopilot.AutopilotMode.Prograde);
+                    break;
+                case 2:
+                    TrySetSASMode(VesselAutopilot.AutopilotMode.Retrograde);
+                    break;
+                case 3:
+                    TrySetSASMode(VesselAutopilot.AutopilotMode.Normal);
+                    break;
+                case 4:
+                    TrySetSASMode(VesselAutopilot.AutopilotMode.Antinormal);
+                    break;
+                case 5:
+                    TrySetSASMode(VesselAutopilot.AutopilotMode.RadialIn);
+                    break;
+                case 6:
+                    TrySetSASMode(VesselAutopilot.AutopilotMode.RadialOut);
+                    break;
+                case 7:
+                    TrySetSASMode(VesselAutopilot.AutopilotMode.Target);
+                    break;
+                case 8:
+                    TrySetSASMode(VesselAutopilot.AutopilotMode.AntiTarget);
+                    break;
+                case 9:
+                    TrySetSASMode(VesselAutopilot.AutopilotMode.Maneuver);
+                    break;
+                default:
+                    TrySetSASMode(VesselAutopilot.AutopilotMode.StabilityAssist);
+                    returnVal = 0.0;
+                    break;
             }
-        }
 
-        /// <summary>
-        /// Sets SAS mode to anti-target.
-        /// </summary>
-        public void SetSASModeAntiTarget()
-        {
-            if (vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.AntiTarget))
-            {
-                vessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.AntiTarget);
-                UpdateSASModeToggleButtons(VesselAutopilot.AutopilotMode.AntiTarget);
-            }
-        }
-
-        /// <summary>
-        /// Sets SAS mode to maneuver.
-        /// </summary>
-        public void SetSASModeManeuver()
-        {
-            if (vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.Maneuver))
-            {
-                vessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.Maneuver);
-                UpdateSASModeToggleButtons(VesselAutopilot.AutopilotMode.Maneuver);
-            }
-        }
-
-        /// <summary>
-        /// Sets SAS mode to normal.
-        /// </summary>
-        public void SetSASModeNormal()
-        {
-            if (vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.Normal))
-            {
-                vessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.Normal);
-                UpdateSASModeToggleButtons(VesselAutopilot.AutopilotMode.Normal);
-            }
-        }
-
-        /// <summary>
-        /// Sets SAS mode to prograde.
-        /// </summary>
-        public void SetSASModePrograde()
-        {
-            if (vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.Prograde))
-            {
-                vessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.Prograde);
-                UpdateSASModeToggleButtons(VesselAutopilot.AutopilotMode.Prograde);
-            }
-        }
-
-        /// <summary>
-        /// Sets SAS mode to radial in.
-        /// </summary>
-        public void SetSASModeRadialIn()
-        {
-            if (vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.RadialIn))
-            {
-                vessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.RadialIn);
-                UpdateSASModeToggleButtons(VesselAutopilot.AutopilotMode.RadialIn);
-            }
-        }
-
-        /// <summary>
-        /// Sets SAS mode to radial out.
-        /// </summary>
-        public void SetSASModeRadialOut()
-        {
-            if (vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.RadialOut))
-            {
-                vessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.RadialOut);
-                UpdateSASModeToggleButtons(VesselAutopilot.AutopilotMode.RadialOut);
-            }
-        }
-
-        /// <summary>
-        /// Sets SAS mode to retrograde.
-        /// </summary>
-        public void SetSASModeRetrograde()
-        {
-            if (vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.Retrograde))
-            {
-                vessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.Retrograde);
-                UpdateSASModeToggleButtons(VesselAutopilot.AutopilotMode.Retrograde);
-            }
-        }
-
-        /// <summary>
-        /// Sets SAS mode to stability assist.
-        /// </summary>
-        public void SetSASModeStabilityAssist()
-        {
-            if (vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.StabilityAssist))
-            {
-                vessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.StabilityAssist);
-                UpdateSASModeToggleButtons(VesselAutopilot.AutopilotMode.StabilityAssist);
-            }
-        }
-
-        /// <summary>
-        /// Sets SAS mode to target +.
-        /// </summary>
-        public void SetSASModeTarget()
-        {
-            if (vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.Target))
-            {
-                vessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.Target);
-                UpdateSASModeToggleButtons(VesselAutopilot.AutopilotMode.Target);
-            }
+            return returnVal;
         }
 
         /// <summary>
         /// Toggle precision control mode
         /// </summary>
-        public void TogglePrecisionMode()
+        /// <returns>1 if precision mode is now on, 0 if it is now off.</returns>
+        public double TogglePrecisionMode()
         {
             bool state = !FlightInputHandler.fetch.precisionMode;
 
@@ -4393,39 +4242,48 @@ namespace AvionicsSystems
                 }
             }
 
+            return (state) ? 1.0 : 0.0;
         }
 
         /// <summary>
         /// Toggles SAS on-to-off or vice-versa
         /// </summary>
-        public void ToggleSAS()
+        /// <returns>1 if SAS is now on, 0 if it is now off.</returns>
+        public double ToggleSAS()
         {
             vessel.ActionGroups.ToggleGroup(KSPActionGroup.SAS);
+            return (vessel.ActionGroups[KSPActionGroup.SAS]) ? 1.0 : 0.0;
         }
 
         /// <summary>
         /// Toggles the SAS speed mode.
         /// </summary>
-        public void ToggleSASSpeedMode()
+        /// <returns>The new speed mode (see `fc.GetSASSpeedMode()`).</returns>
+        public double ToggleSASSpeedMode()
         {
             FlightGlobals.CycleSpeedModes();
+            return GetSASSpeedMode();
         }
 
         /// <summary>
-        /// Internal method to update the mode buttons in the UI.
+        /// Internal method to set SAS mode and update the UI.
         /// TODO: Radial Out / Radial In may be backwards (either in the display,
         /// or in the enums).
         /// </summary>
-        /// <param name="newMode"></param>
-        private void UpdateSASModeToggleButtons(VesselAutopilot.AutopilotMode newMode)
+        /// <param name="mode">Mode to set</param>
+        private void TrySetSASMode(VesselAutopilot.AutopilotMode mode)
         {
-            // find the UI object on screen
-            if (SASbtns == null)
+            if (vessel.Autopilot.CanSetMode(mode))
             {
-                SASbtns = UnityEngine.Object.FindObjectOfType<VesselAutopilotUI>().modeButtons;
+                vessel.Autopilot.SetMode(mode);
+
+                if (SASbtns == null)
+                {
+                    SASbtns = UnityEngine.Object.FindObjectOfType<VesselAutopilotUI>().modeButtons;
+                }
+                // set our mode, note it takes the mode as an int, generally top to bottom, left to right, as seen on the screen. Maneuver node being the exception, it is 9
+                SASbtns[(int)mode].SetState(true);
             }
-            // set our mode, note it takes the mode as an int, generally top to bottom, left to right, as seen on the screen. Maneuver node being the exception, it is 9
-            SASbtns[(int)newMode].SetState(true);
         }
         #endregion
 
