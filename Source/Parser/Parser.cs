@@ -179,6 +179,9 @@ namespace AvionicsSystems.CodeGen
             {"<", 48}, // less than
             {">", 49}, // greater than
             {"==", 50}, // equality
+            {"~=", 51}, // inequality
+            {"<=", 52}, // less than / equal to
+            {">=", 53}, // greater than / equal to
 
             // Text doesn't actually parse to symbols :(
             {"and", 64}, // logical AND
@@ -207,6 +210,9 @@ namespace AvionicsSystems.CodeGen
             LESS_THAN,
             GREATER_THAN,
             EQUALITY,
+            INEQUALITY,
+            LESS_EQUAL,
+            GREATER_EQUAL,
 
             AND,
             OR,
@@ -317,6 +323,9 @@ namespace AvionicsSystems.CodeGen
             register(LuaToken.LESS_THAN, new BinaryOperatorParselet(COMPARISON, false));
             register(LuaToken.GREATER_THAN, new BinaryOperatorParselet(COMPARISON, false));
             register(LuaToken.EQUALITY, new BinaryOperatorParselet(COMPARISON, false));
+            register(LuaToken.INEQUALITY, new BinaryOperatorParselet(COMPARISON, false));
+            register(LuaToken.LESS_EQUAL, new BinaryOperatorParselet(COMPARISON, false));
+            register(LuaToken.GREATER_EQUAL, new BinaryOperatorParselet(COMPARISON, false));
             register(LuaToken.AND, new BinaryOperatorParselet(LOGICAL, false));
             register(LuaToken.OR, new BinaryOperatorParselet(LOGICAL, false));
         }
@@ -466,6 +475,12 @@ namespace AvionicsSystems.CodeGen
                     return Parser.LuaToken.GREATER_THAN;
                 case 50:
                     return Parser.LuaToken.EQUALITY;
+                case 51:
+                    return Parser.LuaToken.INEQUALITY;
+                case 52:
+                    return Parser.LuaToken.LESS_EQUAL;
+                case 53:
+                    return Parser.LuaToken.GREATER_EQUAL;
                 case 64:
                     return Parser.LuaToken.AND;
                 case 65:
@@ -540,6 +555,12 @@ namespace AvionicsSystems.CodeGen
                     return "<";
                 case Parser.LuaToken.EQUALITY:
                     return "==";
+                case Parser.LuaToken.INEQUALITY:
+                    return "~=";
+                case Parser.LuaToken.LESS_EQUAL:
+                    return "<=";
+                case Parser.LuaToken.GREATER_EQUAL:
+                    return ">=";
                 case Parser.LuaToken.AND:
                     return "and";
                 case Parser.LuaToken.OR:

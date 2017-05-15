@@ -527,6 +527,15 @@ namespace AvionicsSystems
                 case CodeGen.Parser.LuaToken.EQUALITY:
                     v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() == rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
                     break;
+                case CodeGen.Parser.LuaToken.INEQUALITY:
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() != rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
+                    break;
+                case CodeGen.Parser.LuaToken.LESS_EQUAL:
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() <= rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
+                    break;
+                case CodeGen.Parser.LuaToken.GREATER_EQUAL:
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() >= rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
+                    break;
                 case CodeGen.Parser.LuaToken.AND:
                     v = new Variable(operatorExpression.CanonicalName(), () => lhs.BoolValue() && rhs.BoolValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
                     break;

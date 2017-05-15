@@ -61,6 +61,9 @@ namespace AvionicsSystems.CodeGen
                 case Parser.LuaToken.LESS_THAN:
                 case Parser.LuaToken.GREATER_THAN:
                 case Parser.LuaToken.EQUALITY:
+                case Parser.LuaToken.INEQUALITY:
+                case Parser.LuaToken.LESS_EQUAL:
+                case Parser.LuaToken.GREATER_EQUAL:
                 case Parser.LuaToken.AND:
                 case Parser.LuaToken.OR:
                     returnType = typeof(bool);
