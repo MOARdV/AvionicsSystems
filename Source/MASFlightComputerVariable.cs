@@ -591,7 +591,7 @@ namespace AvionicsSystems
                 {
                     CodeGen.Expression exp = callExpression.Arg(i);
 #if EXCESSIVE_LOGGING
-                    Utility.LogMessage(this, "--- GenerateCallVariable(): Parameter {0} is {1} (a {2})", i, sb.ToString(), exp.ExpressionType());
+                    Utility.LogMessage(this, "--- GenerateCallVariable(): Parameter {0} is {1} (a {2})", i, "???"/*sb.ToString()*/, exp.ExpressionType());
 #endif
                     parms[i] = GenerateVariable(exp);
                     if (parms[i] == null)
@@ -704,12 +704,30 @@ namespace AvionicsSystems
                 }
 #endif
             }
-#if EXCESSIVE_LOGGING
             else
             {
-                Utility.LogMessage(this, "--- GenerateCallVariable(): Not able to find method for {0}", canonical);
-            }
+                // I think only a Lua script will hit here.
+                Variable v = new Variable(canonical, script);
+                if (v.valid)
+                {
+                    ++luaVariableCount;
+                    if (!variables.ContainsKey(canonical))
+                    {
+                        variables.Add(canonical, v);
+
+                        mutableVariablesList.Add(v);
+                        mutableVariablesChanged = true;
+                    }
+#if EXCESSIVE_LOGGING
+                    Utility.LogMessage(this, "--- GenerateCallVariable(): Created Lua variable for {0}", canonical);
 #endif
+                    return v;
+                }
+
+#if EXCESSIVE_LOGGING
+                Utility.LogMessage(this, "--- GenerateCallVariable(): Not able to find method for {0}", canonical);
+#endif
+            }
 
             return null;
         }
