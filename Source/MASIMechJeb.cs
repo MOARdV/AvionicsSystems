@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -397,7 +397,8 @@ namespace AvionicsSystems
         /// <summary>
         /// Toggles the Ascent Autopilot on or off.
         /// </summary>
-        public void ToggleAscentAutopilot()
+        /// <returns>1 if the autopilot was engaged, 0 if it was disengaged or unavailable.</returns>
+        public double ToggleAscentAutopilot()
         {
             if (mjAvailable)
             {
@@ -410,8 +411,11 @@ namespace AvionicsSystems
                 else
                 {
                     AddUser(users, ascentGuidance);
+                    return 1.0;
                 }
             }
+
+            return 0.0;
         }
         #endregion
 
@@ -527,7 +531,8 @@ namespace AvionicsSystems
         /// <summary>
         /// Toggles the MechJeb landing autopilot on/off.
         /// </summary>
-        public void ToggleLandingAutopilot()
+        /// <returns>1 if the autopilot was switched on, 0 if it was switched off.</returns>
+        public double ToggleLandingAutopilot()
         {
             if (mjAvailable)
             {
@@ -546,15 +551,19 @@ namespace AvionicsSystems
                     {
                         LandUntargeted(landingAutopilot, landingGuidance);
                     }
+                    return 1.0;
                 }
             }
+
+            return 0.0;
         }
 
         /// <summary>
         /// Toggles the MechJeb landing prediction computer on/off independently
         /// of the landing autopilot.
         /// </summary>
-        public void ToggleLandingComputer()
+        /// <returns>1 if the prediction computer was switched on, 0 if it was switched off.</returns>
+        public double ToggleLandingComputer()
         {
             if (mjAvailable)
             {
@@ -567,8 +576,12 @@ namespace AvionicsSystems
                 else
                 {
                     AddUser(users, landingGuidance);
+
+                    return 1.0;
                 }
             }
+
+            return 0.0;
         }
         #endregion
 
@@ -583,7 +596,8 @@ namespace AvionicsSystems
         /// already past the Pe.
         /// </summary>
         /// <param name="newAp">The new apoapsis in meters.</param>
-        public void ChangeApoapsis(double newAp)
+        /// <returns>1 on success, 0 on failure</returns>
+        public double ChangeApoapsis(double newAp)
         {
             if (mjAvailable && newAp >= vesselOrbit.PeA && vessel.patchedConicSolver != null)
             {
@@ -596,8 +610,12 @@ namespace AvionicsSystems
                     Vector3d dV = DeltaVToChangeApoapsis(vesselOrbit, nextPeriapsisTime, vesselOrbit.referenceBody.Radius + newAp);
 
                     PlaceManeuverNode(vessel, vesselOrbit, dV, nextPeriapsisTime);
+
+                    return 1.0;
                 }
             }
+
+            return 0.0;
         }
 
         /// <summary>
@@ -605,7 +623,8 @@ namespace AvionicsSystems
         /// if Pe &gt; Ap.
         /// </summary>
         /// <param name="newPe">The new periapsis in meters.</param>
-        public void ChangePeriapsis(double newPe)
+        /// <returns>1 on success, 0 on failure</returns>
+        public double ChangePeriapsis(double newPe)
         {
             if (mjAvailable && vesselOrbit.eccentricity < 1.0 && newPe <= vesselOrbit.ApA && vessel.patchedConicSolver != null)
             {
@@ -618,8 +637,12 @@ namespace AvionicsSystems
                     Vector3d dV = DeltaVToChangePeriapsis(vesselOrbit, nextApoapsisTime, vesselOrbit.referenceBody.Radius + newPe);
 
                     PlaceManeuverNode(vessel, vesselOrbit, dV, nextApoapsisTime);
+
+                    return 1.0;
                 }
             }
+
+            return 0.0;
         }
 
         /// <summary>
@@ -627,7 +650,8 @@ namespace AvionicsSystems
         /// ignored if an invalid altitude is supplied.
         /// </summary>
         /// <param name="newAlt">The altitude to circularize the orbit at, in meters.</param>
-        public void CircularizeAt(double newAlt)
+        /// <returns>1 on success, 0 on failure</returns>
+        public double CircularizeAt(double newAlt)
         {
             if (mjAvailable && newAlt >= vesselOrbit.PeA && newAlt <= vesselOrbit.ApA && vessel.patchedConicSolver != null)
             {
@@ -638,7 +662,11 @@ namespace AvionicsSystems
 
                 Vector3d dV = DeltaVToCircularize(vesselOrbit, nextAltTime);
                 PlaceManeuverNode(vessel, vesselOrbit, dV, nextAltTime);
+
+                return 1.0;
             }
+
+            return 0.0;
         }
 
         /// <summary>
@@ -661,14 +689,19 @@ namespace AvionicsSystems
         /// Instructs MechJeb to match velocities with the target at
         /// closest approach.
         /// </summary>
-        public void MatchVelocities()
+        /// <returns>1 on success, 0 on failure</returns>
+        public double MatchVelocities()
         {
             if (vc.activeTarget != null && vc.activeTarget.GetOrbit() != null && vessel.patchedConicSolver != null)
             {
                 Vector3d dV = DeltaVToMatchVelocities(vesselOrbit, vc.targetClosestUT, vc.activeTarget.GetOrbit());
                 vessel.patchedConicSolver.maneuverNodes.Clear();
                 PlaceManeuverNode(vessel, vesselOrbit, dV, vc.targetClosestUT);
+
+                return 1.0;
             }
+
+            return 0.0;
         }
 
         /// <summary>
@@ -679,7 +712,8 @@ namespace AvionicsSystems
         /// If the target orbits a different body, an interplanetary transfer is
         /// calculated.
         /// </summary>
-        public void PlotTransfer()
+        /// <returns>1 on success, 0 on failure</returns>
+        public double PlotTransfer()
         {
             if (vc.activeTarget != null)
             {
@@ -704,16 +738,21 @@ namespace AvionicsSystems
                         }
                         vessel.patchedConicSolver.maneuverNodes.Clear();
                         PlaceManeuverNode(vessel, vesselOrbit, dV, nodeUT);
+
+                        return 1.0;
                     }
                     catch { }
                 }
             }
+
+            return 0.0;
         }
 
         /// <summary>
         /// Enables / disables Maneuver Node Executor
         /// </summary>
-        public void ToggleManeuverNodeExecutor()
+        /// <returns>1 if the node exeuctor is enabled; 0 otherwise.</returns>
+        public double ToggleManeuverNodeExecutor()
         {
             if (mjAvailable)
             {
@@ -724,8 +763,11 @@ namespace AvionicsSystems
                 else
                 {
                     ExecuteOneNode(nodeExecutor, maneuverPlanner);
+                    return 1.0;
                 }
             }
+
+            return 0.0;
         }
         #endregion
 
@@ -777,7 +819,8 @@ namespace AvionicsSystems
         /// <summary>
         /// Engages / disengages the MechJeb Rendezvous Autopilot
         /// </summary>
-        public void ToggleRendezvousAutopilot()
+        /// <returns>1 if the autopilot was switched on, 0 if it was switched off.</returns>
+        public double ToggleRendezvousAutopilot()
         {
             if (mjAvailable)
             {
@@ -789,8 +832,11 @@ namespace AvionicsSystems
                 else
                 {
                     AddUser(users, rendezvousAutopilotWindow);
+                    return 1.0;
                 }
             }
+
+            return 0.0;
         }
         #endregion
 
