@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -116,34 +116,6 @@ namespace AvionicsSystems
         /// dumped in this region until I figured out where to put them.
         /// </summary>
         #region Unassigned Region
-
-        /// <summary>
-        /// Apply a log10-like curve to the value.
-        /// 
-        /// The exact formula is:
-        /// 
-        /// ```
-        /// if (abs(sourceValue) &lt; 1.0)
-        ///   return sourceValue;
-        /// else
-        ///   return (1 + Log10(abs(sourceValue))) * Sign(sourceValue);
-        /// end
-        /// ```
-        /// </summary>
-        /// <param name="sourceValue">An input number</param>
-        /// <returns>A Log10-like representation of the input value.</returns>
-        public double PseudoLog10(double sourceValue)
-        {
-            double absValue = Math.Abs(sourceValue);
-            if (absValue <= 1.0)
-            {
-                return sourceValue;
-            }
-            else
-            {
-                return (1.0f + Math.Log10(absValue)) * Math.Sign(sourceValue);
-            }
-        }
 
         /// <summary>
         /// Remaps `value` from the range [`bound1`, `bound2`] to the range
@@ -2060,6 +2032,64 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
+        /// Provides MAS-native methods for common math primitives.  These methods generally
+        /// duplicate the functions in the Lua math table, but by placing them in MAS, MAS
+        /// can use native delegates instead of having to call into Lua (which is slower).
+        /// </summary>
+        #region Math
+
+        /// <summary>
+        /// Return the larger value
+        /// </summary>
+        /// <param name="a">The first value to test.</param>
+        /// <param name="b">The second value to test.</param>
+        /// <returns>`a` if `a` is larger than `b`; `b` otherwise.</returns>
+        public double Max(double a, double b)
+        {
+            return Math.Max(a, b);
+        }
+
+        /// <summary>
+        /// Return the smaller value
+        /// </summary>
+        /// <param name="a">The first value to test.</param>
+        /// <param name="b">The second value to test.</param>
+        /// <returns>`a` if `a` is smaller than `b`; `b` otherwise.</returns>
+        public double Min(double a, double b)
+        {
+            return Math.Min(a, b);
+        }
+
+        /// <summary>
+        /// Apply a log10-like curve to the value.
+        /// 
+        /// The exact formula is:
+        /// 
+        /// ```
+        /// if (abs(sourceValue) &lt; 1.0)
+        ///   return sourceValue;
+        /// else
+        ///   return (1 + Log10(abs(sourceValue))) * Sign(sourceValue);
+        /// end
+        /// ```
+        /// </summary>
+        /// <param name="sourceValue">An input number</param>
+        /// <returns>A Log10-like representation of the input value.</returns>
+        public double PseudoLog10(double sourceValue)
+        {
+            double absValue = Math.Abs(sourceValue);
+            if (absValue <= 1.0)
+            {
+                return sourceValue;
+            }
+            else
+            {
+                return (1.0f + Math.Log10(absValue)) * Math.Sign(sourceValue);
+            }
+        }
+
+        #endregion
+        /// <summary>
         /// Meta variables and functions are variables provide information about the
         /// game, as opposed to the vessel.  They also include the `fc.Conditioned()`
         /// functions, which can provide some realism by disrupting lighting under
@@ -2174,11 +2204,17 @@ namespace AvionicsSystems
         /// Recover the vessel if it is recoverable.  Has no effect if the craft can not be
         /// recovered.
         /// </summary>
-        public void RecoverVessel()
+        /// <returns>1 if the craft can be recovered (although it is also recovered immediately), 0 otherwise.</returns>
+        public double RecoverVessel()
         {
             if (vessel.IsRecoverable)
             {
                 GameEvents.OnVesselRecoveryRequested.Fire(vessel);
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
             }
         }
 
@@ -4526,11 +4562,17 @@ namespace AvionicsSystems
         /// <summary>
         /// Activate the next stage.
         /// </summary>
-        public void Stage()
+        /// <returns>1 if the vessel staged; 0 otherwise.</returns>
+        public double Stage()
         {
-            if (InputLockManager.IsUnlocked(ControlTypes.STAGING))
+            if (StageManager.CanSeparate && InputLockManager.IsUnlocked(ControlTypes.STAGING))
             {
                 StageManager.ActivateNextStage();
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
             }
         }
 
