@@ -1841,13 +1841,19 @@ namespace AvionicsSystems
         /// <summary>
         /// Clear all scheduled maneuver nodes.
         /// </summary>
-        public void ClearManeuverNode()
+        /// <returns>1 if any nodes were cleared, 0 if no nodes were cleared.</returns>
+        public double ClearManeuverNode()
         {
             if (vessel.patchedConicSolver != null)
             {
+                int nodeCount = vessel.patchedConicSolver.maneuverNodes.Count;
                 // TODO: what is vessel.patchedConicSolver.flightPlan?  And do I care?
                 vessel.patchedConicSolver.maneuverNodes.Clear();
+
+                return (nodeCount > 0) ? 1.0 : 0.0;
             }
+
+            return 0.0;
         }
 
         /// <summary>
@@ -4357,7 +4363,28 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Compute equivalent airspeed.
+        /// Returns the speed selected by the speed mode (surface, orbit, or target)
+        /// in m/s.
+        /// This value is equivalent to the speed displayed over the NavBall in the UI.
+        /// </summary>
+        /// <returns>Current speed in m/s.</returns>
+        public double CurrentSpeedModeSpeed()
+        {
+            switch (FlightGlobals.speedDisplayMode)
+            {
+                case FlightGlobals.SpeedDisplayModes.Orbit:
+                    return vessel.obt_speed;
+                case FlightGlobals.SpeedDisplayModes.Surface:
+                    return vessel.srfSpeed;
+                case FlightGlobals.SpeedDisplayModes.Target:
+                    return vc.targetSpeed;
+                default:
+                    return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Compute equivalent airspeed based on current surface speed and atmospheric density.
         /// 
         /// https://en.wikipedia.org/wiki/Equivalent_airspeed
         /// </summary>
@@ -4398,7 +4425,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the indicated airspeed in m/s.
+        /// Returns the indicated airspeed in m/s, based on current surface speed, atmospheric density, and Mach number.
         /// </summary>
         /// <returns>IAS in m/s.</returns>
         public double IndicatedAirspeed()
@@ -4607,12 +4634,16 @@ namespace AvionicsSystems
         /// <summary>
         /// Clears any targets being tracked.
         /// </summary>
-        public void ClearTarget()
+        /// <returns>1 if the target was cleared, 0 otherwise.</returns>
+        public double ClearTarget()
         {
             if (vc.targetValid)
             {
                 FlightGlobals.fetch.SetVesselTarget((ITargetable)null);
+                return 1.0;
             }
+
+            return 0.0;
         }
 
         /// <summary>
