@@ -1,8 +1,11 @@
 -- ASET_IMP.lua
 --
--- Lua functions for the ASET "Globus" IMP
+-- MOARdV's Avionics Systems
+-- Lua functions for the ASET "Globus" IMP.
 --
 -- Author: MOARdV
+--
+-- This script is public domain (although acknowledgement that MOARdV wrote it would be nice).
 
 local IMP_mode = 0
 local IMP_active = true
@@ -54,7 +57,7 @@ end
 -- Return the backlight setting.  Also manages updating mode settings for the
 -- latitude / longitude processing.
 function IMP_Backlight()
-	IMP_mode = fc.GetPersistentAsNumber("IMP_Mode")
+	IMP_mode = fc.GetPersistentAsNumber("MAS_IMP_Mode")
 
 	IMP_active = false
 
