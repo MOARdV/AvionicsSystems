@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -55,7 +55,7 @@ namespace AvionicsSystems
         [KSPField]
         public string resourceName = "ElectricCharge";
         private int resourceId;
-        internal bool hasPower = true;
+        //internal bool hasPower = true;
 
         /// <summary>
         /// How many units/second of the resource do we use?
@@ -72,10 +72,36 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Will the radar select a docking port on a targeted vessel once we
-        /// are close?
+        /// are close?  Only applies to radars installed on a part that has a ModuleDockingPort.
         /// </summary>
         [KSPField]
         public bool targetDockingPorts = false;
+        private ModuleDockingNode dock = null;
+
+        /// <summary>
+        /// Optional: provides the index number for another module on the same part that controls
+        /// whether the radar can function or not.  This module needs to be a child of ModuleDeployablePart
+        /// (ModuleDeployableAntenna, ModuleDeployableRadiator, ModuleDeployableSolarPanel), or ModuleAnimateGeneric.
+        /// THis is a 0-based index.
+        /// </summary>
+        [KSPField]
+        public int DeployFxModules = -1;
+        //private bool radarDeployed = true;
+        private ModuleAnimateGeneric deployAnimator = null;
+        private ModuleDeployablePart deployPart = null;
+
+        [KSPField(guiActive = true, guiName = "Radar Status: ")]
+        public string statusString = "Standby";
+        public enum RadarStatus
+        {
+            STANDBY,
+            SCANNING,
+            TRACKING,
+            NOT_DEPLOYED,
+            BROKEN,
+            NO_POWER,
+        };
+        private RadarStatus status = RadarStatus.STANDBY;
 
         [UI_Toggle(disabledText = "Standby", enabledText = "Active")]
         [KSPField(guiActive = true, guiActiveEditor = true, guiName = "Radar: ", isPersistant = true)]
@@ -91,11 +117,6 @@ namespace AvionicsSystems
         private bool scanTransformIsDockingNode;
 
         private string nodeType = string.Empty;
-
-        // Piecewise scanning data:
-        int currentScanTarget = 0;
-        double currentScanDistance = 0.0;
-        double currentScanDistanceSquared = 0.0;
 
         /// <summary>
         /// Initialize the radar system.
@@ -155,6 +176,7 @@ namespace AvionicsSystems
                     ModuleDockingNode dockingNode = part.FindModuleImplementing<ModuleDockingNode>();
                     if (dockingNode != null)
                     {
+                        dock = dockingNode;
                         scanTransform = dockingNode.nodeTransform;
                         nodeType = dockingNode.nodeType;
                         scanTransformIsDockingNode = true;
@@ -167,6 +189,36 @@ namespace AvionicsSystems
                 }
             }
 
+            if (DeployFxModules >= 0)
+            {
+                try
+                {
+                    PartModule pm = part.Modules[DeployFxModules];
+                    if (pm != null)
+                    {
+                        if (pm is ModuleDeployablePart)
+                        {
+                            deployPart = pm as ModuleDeployablePart;
+                            //radarDeployed = deployPart.useAnimation && deployPart.deployState == ModuleDeployablePart.DeployState.EXTENDED;
+                        }
+                        else if (pm is ModuleAnimateGeneric)
+                        {
+                            deployAnimator = pm as ModuleAnimateGeneric;
+                            //radarDeployed = deployAnimator.IsMoving() == false && deployAnimator.animTime == 1.0f;
+                        }
+                        //else
+                        //{
+                        //    radarDeployed = false;
+                        //}
+                    }
+                }
+                catch (Exception e)
+                {
+                    Utility.LogErrorMessage(this, "Grabbing deploy module.");
+                    Utility.LogErrorMessage(this, "Exception: {0}", e);
+                }
+            }
+            targetDockingPorts = targetDockingPorts && scanTransformIsDockingNode;
         }
 
         /// <summary>
@@ -181,7 +233,28 @@ namespace AvionicsSystems
 
             if (radarEnabled)
             {
-                hasPower = true;
+                bool radarDeployed = true;
+                bool radarBroken = false;
+                if (deployPart != null)
+                {
+                    radarDeployed = deployPart.useAnimation && deployPart.deployState == ModuleDeployablePart.DeployState.EXTENDED;
+                    radarBroken = deployPart.deployState == ModuleDeployablePart.DeployState.BROKEN;
+                }
+                else if (deployAnimator != null)
+                {
+                    radarDeployed = deployAnimator.IsMoving() == false && deployAnimator.animTime == 1.0f;
+                }
+
+                if (!radarDeployed)
+                {
+                    // If the radar's not deployed, we're done.
+                    status = (radarBroken) ? RadarStatus.BROKEN : RadarStatus.NOT_DEPLOYED;
+                    UpdateRadarStatus();
+                    return;
+                }
+                status = RadarStatus.SCANNING;
+
+                //hasPower = true;
                 // Resources check
                 if (resourceAmount > 0.0f)
                 {
@@ -189,23 +262,21 @@ namespace AvionicsSystems
                     float supplied = part.RequestResource(resourceId, requested);
                     if (supplied < requested * 0.5f)
                     {
-                        hasPower = false;
+                        //hasPower = false;
+                        status = RadarStatus.NO_POWER;
+                        UpdateRadarStatus();
                         return;
                     }
                 }
 
-
                 FlightGlobals fg = FlightGlobals.fetch;
                 ITargetable target = fg.VesselTarget;
-                // Can't test only null: we check only one vessel per FixedUpdate,
-                // so we must iterate over all of the vessels in the vessels list
-                // before we can punt.
-                if (target == null || currentScanTarget < fg.vessels.Count)
+                if (target == null)
                 {
                     // Scan
-                    StepScanForTarget(fg);
+                    ScanForTarget(fg);
                 }
-                else if (targetDockingPorts && (target is Vessel))
+                else if (targetDockingPorts && dock != null && (target is Vessel))
                 {
                     Vessel targetVessel = target as Vessel;
 
@@ -219,14 +290,15 @@ namespace AvionicsSystems
                         {
                             for (int i = docks.Count - 1; i >= 0; --i)
                             {
-                                ModuleDockingNode dock = docks[i];
-                                if (dock.state == "Ready" && (string.IsNullOrEmpty(nodeType) || nodeType == dock.nodeType))
+                                ModuleDockingNode otherDock = docks[i];
+                                // Only lock on to an available dock of the same type that is either ungendered or the opposite gender.
+                                if (otherDock.state == "Ready" && (string.IsNullOrEmpty(nodeType) || nodeType == otherDock.nodeType) && (dock.gendered == false || dock.genderFemale != otherDock.genderFemale))
                                 {
-                                    Vector3 vectorToTarget = (dock.part.transform.position - scanTransform.position);
+                                    Vector3 vectorToTarget = (otherDock.part.transform.position - scanTransform.position);
                                     if (vectorToTarget.sqrMagnitude < closestDistance)
                                     {
                                         closestDistance = vectorToTarget.sqrMagnitude;
-                                        closestNode = dock;
+                                        closestNode = otherDock;
                                     }
                                 }
                             }
@@ -235,66 +307,75 @@ namespace AvionicsSystems
                         if (closestNode != null)
                         {
                             fg.SetVesselTarget(closestNode);
+                            status = RadarStatus.TRACKING;
                         }
                     }
                 }
+                else
+                {
+                    status = RadarStatus.TRACKING;
+                }
             }
+            else
+            {
+                status = RadarStatus.STANDBY;
+            }
+
+            UpdateRadarStatus();
         }
 
         /// <summary>
-        /// Scan for a target.  We do this piecewise, instead of iterating over
-        /// the *entire* vessels list every FixedUpdate.
+        /// Scan for a target.
         /// </summary>
-        private void StepScanForTarget(FlightGlobals fg)
+        private void ScanForTarget(FlightGlobals fg)
         {
             try
             {
                 List<Vessel> vessels = fg.vessels;
 
-                // If we've looped over the list, reset our counter.
-                if (currentScanTarget >= vessels.Count)
-                {
-                    currentScanTarget = 0;
-                }
+                double currentScanDistance = maxRangeMeters;
+                double currentScanDistanceSquared = maxRangeMetersSquared;
 
-                // If we've reset our counter, reset our tracking variables
-                if (currentScanTarget == 0)
+                Vessel candidateTarget = null;
+                for (int currentScanTarget = vessels.Count - 1; currentScanTarget >= 0; --currentScanTarget)
                 {
-                    currentScanDistance = maxRangeMeters;
-                    currentScanDistanceSquared = maxRangeMetersSquared;
-                }
+                    // See if this one is a candidate.
+                    Vessel candidate = vessels[currentScanTarget];
 
-                // See if this one is a candidate.
-                Vessel candidate = vessels[currentScanTarget];
-
-                VesselType vesselType = candidate.vesselType;
-                if (candidate.id != vessel.id && !(vesselType == VesselType.EVA || vesselType == VesselType.Flag || vesselType == VesselType.Unknown) && (vesselType != VesselType.Debris || targetDebris))
-                {
-                    Vector3d distance = (candidate.GetTransform().position - scanTransform.position);
-                    double manhattanDistance = Math.Max(Math.Abs(distance.x), Math.Max(Math.Abs(distance.y), Math.Abs(distance.z)));
-                    if (manhattanDistance < currentScanDistance)
+                    VesselType vesselType = candidate.vesselType;
+                    if (candidate.id != vessel.id && candidate.mainBody == vessel.mainBody && !(vesselType == VesselType.EVA || vesselType == VesselType.Flag || vesselType == VesselType.Unknown) && (vesselType != VesselType.Debris || targetDebris))
                     {
-                        // Within Manhattan distance.  Check for real distance (squared, so we're not wasting cycles on a square root operation).
-                        double distSq = distance.sqrMagnitude;
-                        if (distSq < currentScanDistanceSquared)
+                        Vector3d displacement = (candidate.GetTransform().position - scanTransform.position);
+                        double cardinalDistance = Math.Max(Math.Abs(displacement.x), Math.Max(Math.Abs(displacement.y), Math.Abs(displacement.z)));
+                        if (cardinalDistance < currentScanDistance)
                         {
-                            float angle = Vector3.Angle(distance.normalized, (scanTransformIsDockingNode) ? scanTransform.forward : scanTransform.up);
-                            if (angle < scanAngle)
+                            // Within the current scanning distance on one axis.  Check for real distance (squared, so we're not wasting cycles on a square root operation).
+                            double distSq = displacement.sqrMagnitude;
+                            if (distSq < currentScanDistanceSquared)
                             {
-                                currentScanDistanceSquared = distSq;
-                                currentScanDistance = Math.Sqrt(distSq);
-                                fg.SetVesselTarget(candidate);
+                                // See if it's within our scanning angle.
+                                float angle = Vector3.Angle(displacement.normalized, (scanTransformIsDockingNode) ? scanTransform.forward : scanTransform.up);
+                                if (angle < scanAngle)
+                                {
+                                    currentScanDistanceSquared = distSq;
+                                    currentScanDistance = Math.Sqrt(distSq);
+                                    candidateTarget = candidate;
+                                }
                             }
                         }
                     }
+                }
+
+                if (candidateTarget != null)
+                {
+                    status = RadarStatus.TRACKING;
+                    fg.SetVesselTarget(candidateTarget);
                 }
             }
             catch
             {
 
             }
-            // Done with this iteration.  Increment the counter.
-            ++currentScanTarget;
         }
 
         /// <summary>
@@ -311,9 +392,37 @@ namespace AvionicsSystems
             }
             if (targetDockingPorts)
             {
-                sb.Append("\nWill select nearest docking port on target vessel.");
+                sb.Append("\nMay select nearest docking port on target vessel.");
             }
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Update the radar status string based on current radar status.
+        /// </summary>
+        private void UpdateRadarStatus()
+        {
+            switch(status)
+            {
+                case RadarStatus.STANDBY:
+                    statusString = "Standby";
+                    break;
+                case RadarStatus.SCANNING:
+                    statusString = "Scanning";
+                    break;
+                case RadarStatus.TRACKING:
+                    statusString = "Tracking";
+                    break;
+                case RadarStatus.NOT_DEPLOYED:
+                    statusString = "Not Deployed";
+                    break;
+                case RadarStatus.BROKEN:
+                    statusString = "Broken";
+                    break;
+                case RadarStatus.NO_POWER:
+                    statusString = "No Power";
+                    break;
+            }
         }
 
         [KSPAction("Turn Radar Off")]
