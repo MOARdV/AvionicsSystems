@@ -155,9 +155,11 @@ namespace AvionicsSystems
         /// <summary>
         /// Trigger the Abort action group.
         /// </summary>
-        public void Abort()
+        /// <returns>1 (abort is always a SET, not a toggle).</returns>
+        public double Abort()
         {
             vessel.ActionGroups.SetGroup(KSPActionGroup.Abort, true);
+            return 1.0;
         }
 
         /// <summary>
@@ -1414,19 +1416,24 @@ namespace AvionicsSystems
         /// <summary>
         /// Undock / detach (if pre-attached) the active docking node.
         /// </summary>
-        public void Undock()
+        /// <returns>If the active dock undocked from something.</returns>
+        public double Undock()
         {
             if (vc.dockingNode != null)
             {
                 if (vc.dockingNodeState == MASVesselComputer.DockingNodeState.DOCKED)
                 {
                     vc.dockingNode.Undock();
+                    return 1.0;
                 }
                 else if (vc.dockingNodeState == MASVesselComputer.DockingNodeState.PREATTACHED)
                 {
                     vc.dockingNode.Decouple();
+                    return 1.0;
                 }
             }
+
+            return 0.0;
         }
         #endregion
 
