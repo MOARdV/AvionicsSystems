@@ -159,11 +159,6 @@ Map(value, min, max, mappedMin, mappedMax)
 
 * Still need:
 
-fc.AppendPersistent("name", "string")
-
-- fc.GetPersistentAsNumber("name") -> return a number, or 0 if it can't be converted;
-this does not change a string to a number, so that string can still be edited.
-
 fc.RemoveLastCharPersistent("name")
 
 fc.PlaySound("name", volume)

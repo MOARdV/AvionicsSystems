@@ -7,7 +7,7 @@ The following are some guidelines:
 RasterPropMonitorComputer:
 
 This module was semi-required in RPM.  It could be omitted from a part, and
-RPM would install it as needed.  Its analogue is MASFlightComputer, which is
+RPM would usually install it as needed.  Its analogue is MASFlightComputer, which is
 mandatory for any part that contains an Avionics Systems-enabled IVA.
 
 Within the RPMC config, there were several options.  Those options and their
@@ -15,7 +15,7 @@ alternatives are discussed below.
 
 'storedStrings' - storedStrings provided a way to specify strings in RPM that
 could be accessed using the STOREDSTRING_# variable, which returned a string
-value.  These feature has been replaced with the AS_PERSISTENT persistent
+value.  These feature has been replaced with the PERSISTENT_VARIABLES persistent
 variable initializer (see MASFlightComputer's config options).
 
 'triggeredEvents' - this feature provided a way to trigger events when certain
@@ -37,7 +37,7 @@ Avionics Systems will read and use the global color definitions, so no actions
 need to be taken there.
 
 The various custom variables need to be converted to Lua scripts referenced in
-AS_LUA config nodes.  This method will allow for much better control of the variables,
+MAS_LUA config nodes.  This method will allow for much better control of the variables,
 and significantly more flexibility using them.
 
 
@@ -45,11 +45,11 @@ Prop Modules:
 
 The many prop modules in RasterPropMonitor have been replaced primarily with
 MASComponent.  Instead of (potentially) several modules needing to be added to each
-prop, now a single module is added with multiple components (called generically
-MASAction).  The mapping of RPM modules to MASAction is described below:
+prop, now a single module is added with multiple components, which are called generically
+MASActions.  The mapping of RPM modules to MASAction is described below:
 
 JSIActionGroupSwitch: Use COLLIDER_EVENT for the click action, ANIMATION_PLAYER for
-the animation that is played for the click.  Sounds are managed by AUDIO_PLAYER.
+the animation that is played for the click.  Sounds may be managed by AUDIO_PLAYER.
 
 
 Variables:
@@ -67,7 +67,7 @@ Some additional detail:
 
 The 'dummy' action uses 'fc.TogglePersistent("NAME")', where NAME is replaced with
 the persistent variable (still in quotes, eg 'fc.TogglePersistent("MOARdV_Backlight")').  For dummy
-variables, use 'fc.TogglePersistent("%AUTOID%")', and 'fc.GetPersistent("%AUTOID%")'
+variables, use 'fc.TogglePersistent("%AUTOID%")', and use 'fc.GetPersistentAsNumber("%AUTOID%")'
 for animations controlled by the persistent.
 
 The 'plugin' action uses the appropriate plugin methods, such as 'realchute.ToggleArmParachute()'.

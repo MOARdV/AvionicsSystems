@@ -4,24 +4,46 @@
 answered in the FAQ.  Asking one of those questions tells me you didn't bother
 looking at even that documentation.
 
-1a) If you have a previous installation of Avionics Systems and you want to
-preserve your config file, back up GameData/AvionicsSystems/PluginData/as.cfg.
-
 2) Delete any existing GameData/AvionicsSystems directory.  I recommend this
 approach over copying over an existing installation because sometimes I move
-files around, and having multiple copies could have side-effects (bugs).
+files around, and having multiple copies could have side-effects (cause bugs).
 
 3) Unzip the GameData directory in this zip file into your GameData directory.
-The only directory in this zip file's GameData directory is the AvionicsSystems
+The only directory in this zip file's GameData directory is the MOARdV
 directory, so telling it to overwrite the existing folder is safe (refer to step
 2 above).
-
-3a) If you backed up your config file, restore it now by overwriting the config
-file that was in the zip file.
 
 4) (Optional) Download and install Module Manager from
 http://forum.kerbalspaceprogram.com/index.php?/topic/50533-112-module-manager-2625-may-19th-where-the-singularity-started/ .
 
 Avionics Systems does not require MM to function, but most IVAs use MM to replace
-an existing IVA with an updated one.  There is a good chance you've installed
-MM already, so make sure you have the current version.
+a stock IVA with a MAS-enabled version.  There is a good chance you've installed
+MM already, so make sure you have the current version.  It is not included in
+the MAS distribution.
+
+If you have installed correctly, the directory structure should look like this:
+
+GameData +
+		 + MOARdV +
+		          + AvionicsSystems
+				  + FlightSystems (maybe)
+				  + MAS_ASET
+				  + Props
+				  + Scripts
+
+The contents of each directory are:
+MOARdV/AvionicsSystems : The MAS plugin, the MoonSharp Lua interpreter, and other
+ required files.  Delete this, and the mod will not work.
+MOARdV/MAS_ASET        : MAS-enabled props using alexustas's ASET Props pack.  These
+ DO NOT replace RPM props.  They are the props I use for developing and testing MAS.
+ If you are not using one of my MAS-enabled IVAs, you do not have to keep this directory.
+MOARdV/FlightSystems   : Config files for MAS-enabled IVAs.  These may or may not be part
+ of an official MAS distribution.  If you don't see the directory, there are no IVAs
+ included.
+MOARdV/Props           : Props developed by alexustas that are not part of his official
+ props packs that may be used in my MAS-enabled IVAs.  Like the MAS_ASET directory,
+ you do not need to keep this directory if you're not using one of my IVAs.
+MOARdV/Scripts         : Lua scripts used by the props in MOARdV/Props.  You can use
+ these for reference writing your own scripts, or you can delete them if you're deleting
+ the Props directory.
+ 

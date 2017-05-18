@@ -8,12 +8,9 @@ USE CONSISTENT ORDERING
 Try to be consistent
 with the order of values when using mathematical expressions in variable names.
 
-Currently, MAS does not know that "2*fc.GetValue()" and "fc.GetValue()*2" are the same.  Thus, it will create
+MAS does not know that "2*fc.GetValue()" and "fc.GetValue()*2" are the same.  Thus, it will create
 a unique variable for each of these configurations, and it will evaluate the same thing twice,
 with all of the extra computational overhead that that entails.
-
-A future version of MAS may be able to relax this restriction, but it is good practice to use consistent
-ordering conventions.
 
 
 TAKE ADVANTAGE OF BOOLEAN MODE WHEN POSSIBLE
@@ -23,7 +20,7 @@ or false.  Whenever possible, take advantage of that mode, since it requires the
 computational overhead (is the new number greater than 0 or not?).
 
 
-USE THE Lua math LIBRARY AND THE mas LIBRARY
+USE THE Lua math LIBRARY
 
 Lua's math library provides a fair amount of built-in math capabilities, as described
 here: http://lua-users.org/wiki/MathLibraryTutorial.  One use for this is with
@@ -31,17 +28,14 @@ LED-style displays where there are a limited number of digits.  You can prevent 
 by using something like `math.min(fc.ResourceStageCurrent("LiquidFuel"), 9999)` - in
 this example, we're using a 4-segment LED, so we can't display a value larger than 9999.
 
-In addition, the MAS "standard library" provides some handy specialized functions for use
-in variables (and in custom Lua scripts).  Refer to the MAS Standard Library chapter for more
-details.
-
 
 USE Lua SPARINGLY
 
 Compared to C# code, Lua interpreted code is very slow - close to 16x slower than C#
 code.  It is very flexible, so it should be used where its power is advantageous, but
 try not to duplicate existing functionality in Lua script.  MAS has a built-in text
-parser, and it can convert most variables to MSIL delegates.
+parser, and it can convert most variables to simple lambda expressions.  Lua is best
+suited for processing actions, where it is not called every FixedUpdate.
 
 
 USE TEXT MARKUP SPARINGLY IN TEXT THAT ONLY CHANGES COLOR
@@ -49,7 +43,7 @@ USE TEXT MARKUP SPARINGLY IN TEXT THAT ONLY CHANGES COLOR
 The various text markup tags (eg [b] and [/b], [@x#], etc) force Avionics System to generate
 the displayed text from scratch every time, even when only the color of the text is being
 changed.  This is much more costly than simply changing the color for non-tagged text.
-It should be avoided for static labels that use color changing whenever possible.
+Markup should be avoided for static labels that use color changing.
 
 
 AUTOMATIC SCRIPTED ACTION CAN BE CREATED IN VARIABLES

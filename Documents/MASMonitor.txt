@@ -130,7 +130,9 @@ HORIZONTAL_BAR
 
 A Horizontal Bar node renders a bar graph that grows or shrinks horizontally in
 response to the source variable.  The bar graph may be a solid color, or it may
-use a texture.
+use a texture.  If a texture is used, the UV values are scaled in proportion to
+how full the bar is (in other words, the texture is not squished as the bar goes
+from full to empty), which allows a texture with a gradient or other pattern to be used.
 
 HORIZONTAL_BAR
 {
@@ -157,7 +159,7 @@ of the bar graph will be placed.
 'sourceColor': Optional.  Defaults to white.  The color of the bar graph.
 'texture': Optional.  When present, the named texture is drawn so it will fill the
 graphs area.  Color textures may be used - the sourceColor is multiplied by the texture
-color in that case.  If no texture is provided, the graph is treated as a solid color/
+color in that case.  If no texture is provided, the graph is treated as a solid color.
 'anchor': Optional.  Defaults to 'Left'.  Defines the anchor of the bar graph.  'Left'
 means the left side of the region, in which case the graph grows towards the right.
 'Right' means the opposite: the graph starts on the right and it grows to the left.
@@ -308,6 +310,10 @@ A NavBall node is used to render a navball on the monitor.  This can be used to
 create a primary flight display, or, with the right configuration, a 3D spherical
 HUD navigation aid.
 
+Note that, at present, MAS does not include a NavBall model and texture.  The
+example below assumes that RPM is installed.  The ASET Props pack also includes
+a navball model.
+
 NAVBALL
 {
 	name = PFD navball
@@ -354,7 +360,7 @@ font size, anchors, etc.  However, they still support Formatted Rich Text.
 
 TEXT
 {
-  name = Important Text
+  name = Important Text Node
   text = Hello, world!
   //textfile = AvionicsSystems/Sample/helloworld.txt
   //font = InconsolataGo-Bold
@@ -371,11 +377,10 @@ this node, similar to a Text Label action in MASComponent.
 'textfile': Required if there is not a 'text' entry; ignored if there is a
 'text' field.  Refers to a text file that contains the text that will be rendered.
 The 'textfile' is usually the better choice for multi-line text.
-'font': Optional. A comma separated list of fonts that will be used for rendering
-this text.  The first font is the default font.  If this parameter is omitted,
-the font listed in MASMonitor is used.
+'font': Optional. The name of the font to use for rendering
+this text.  If this parameter is omitted, the font listed in MASMonitor is used.
 'fontSize': Optional.  The width and height of this text as rendered on the
-screen.  If it is omitted, the default fromn MASMonitor is used.
+screen, in pixels.  If it is omitted, the default fromn MASMonitor is used.
 'textColor': Optional.  The default text color for this text.  If the entry is
 omitted, the default found in MASMonitor is used.
 'position': Optional.  Default (0, 0).  An offset from the upper-left corner for
@@ -392,7 +397,7 @@ VERTICAL_BAR
 
 A Vertical Bar node renders a bar graph that grows or shrinks vertically in
 response to the source variable.  The bar graph may be a solid color, or it may
-use a texture.
+use a texture, as described in the Horizontal Bar entry.
 
 VERTICAL_BAR
 {

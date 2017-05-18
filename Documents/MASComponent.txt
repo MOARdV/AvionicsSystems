@@ -21,12 +21,11 @@ Many of the MASAction objects may operate in several modes.
 
 Static Mode: Static mode does not use a variable.  It is used to make a one-time change to a value at initialization,
 which is useful for techniques such as texture atlasing and color shifting.
-Only the following actions support Static Mode: COLOR_SHIFT, TEXTURE_SHIFT.
 
 Boolean Mode: In boolean mode, the variable is assumed to be either true or false.  Since all variables in MAS are
 a number or string, this means that strings are always treated as 'false'. Numbers are treated as 'true' if
 they are greater than 0 and 'false' if they are equal to or less than zero.  This mode is good for simple animated
-switches and actions (illuminating backlights, for instance).
+switches and actions (illuminating backlights or signal flags, for instance).
 
 Threshold Mode: In threshold mode, the variable is treated as 'true' when its value falls between the two values
 specified in 'range', and it is treated as 'false' when it is not between those values.  The order of the values in
@@ -36,7 +35,6 @@ will aerobrake, but doesn't yet hit the surface, the range would be '0, fc.GetCu
 Blend Mode: In blend mode, the variable is linearly interpolated between the two values in 'range', with a result ranging
 from 0 to 1 depending on how close to either variable it is.  The order of the range matters in this case,
 since the blended variable will be 0 if it is equal to the first range value, and 1 if it equals the second.
-Only the following actions support Blend Mode: COLOR_SHIFT, TEXTURE_SHIFT.
 
 There are many MASAction objects:
 
@@ -50,7 +48,7 @@ ANIMATION_PLAYER
 {
     name = swToggle
     animation = SwitchTumbleAnim
-    speed = 1.0
+    //speed = 1.0
     variable = fc.GetRCS()
     //range = 0.5,1.5
 }
@@ -79,7 +77,7 @@ AUDIO_PLAYER
 {
 	name = Clicker
 	sound = ASET/ASET_Props/Sounds/tumbleClick01
-	volume = 1.0
+	//volume = 1.0
 	trigger = BOTH
 	variable = fc.GetPersistent("Backlight")
 	//range = 0.5, 1.5
@@ -169,7 +167,7 @@ An alternate mode for COLOR_SHIFT is a one-time color change.  If 'variable' is 
 is applied one time at startup, but the component has no further effect.  This is useful for changing the
 color of a component without needing it to change in the future (such as re-tinting a prop).  When used for
 this mode, do not include any optional parameters ('range', 'blend', 'flashRate') or configuration errors
-may occur.
+will occur.
 
 
 DYNAMIC_TEXTURE_SHIFT
@@ -245,7 +243,7 @@ interpolated between startScale and endScale based on where in the range the var
 
 ROTATION
 
-The Rotation action is used to rotation part of a prop.  This feature is useful for indicator needles and
+The Rotation action is used to rotate part of a prop.  This feature is useful for indicator needles and
 dial gauges.  Rotations may be Static (single rotation during initialization), Boolean, Threshold,
 or Blended.
 
@@ -311,6 +309,12 @@ and then never altered), or it can be dynamic.  In addition, the text can be con
 different ways to switch between emissive and non-emissive modes.  There are many configuration options
 available for a Text Label.
 
+The 'emissive' field controls when or if the text is emissive.  When set to 'always', the text
+will glow at all times.  When set to 'active', the text glows when the variable is greater than
+zero.  The 'passive' setting causes the text to glow only when the variable is zero (the opposite
+of 'active').  Use 'never' is the text should never glow, and use 'flash' to make the text glow
+when the when the text is in the "flash on" state.
+
 The Text Label supports Boolean Mode, Threshold Mode, Blend Mode, and Static Mode.
 
 TEXT_LABEL
@@ -341,15 +345,18 @@ TEXT_LABEL
 'oneshot': Optional.  Default false.  If true, 'text' is considered immutable, meaning that
 is will never be updated after its initial value is determined.  If no variables are included
 in 'text', it automatically is treated as immutable, so this parameter is only needed for
-text that consumes variables that you know won't need updated after initialization.
+text that consumes variables that you know won't need updates after initialization.
 'font': Required.  The name of the font to use.  Supported fonts include system fonts (which
 may not be on every computer), Arial, Inconsolata-Go, <-TODO->
 'alignment': Optional.  Default 'Left'.  Controls horizontal justification of the text.  Valid
 options are 'Left', 'Right', and 'Center'.
-'anchor': Optional.  Default 'UpperLeft'.  Controls vertical justification of the text. <-TODO->
+'anchor': Optional.  Default 'UpperLeft'.  Controls vertical justification of the text. Valid
+options are combinations of the prefixes 'Upper', 'Middle', or 'Lower' and the suffixes
+'Left', 'Center', or 'Right'.
 'transformOffset': Optional.  Default (0, 0).  Allows the text to be displaced from the
 specified transform.
-'emissive': Optional.  Default 'active' or 'always'.  <-TODO->
+'emissive': Optional.  Default 'active' or 'always'.  Valid options are 'active', 'always',
+'never', 'flash', or 'passive'.
 'variable': Optional.  Required if activeColor is defined.  The variable that controls text color
 and emissive properties.
 'range': Optional.  Ignored if 'variable' is not present.  When 'range' is present, the text color

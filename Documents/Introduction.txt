@@ -1,4 +1,4 @@
-﻿Avionics Systems by MOARdV
+﻿MOARdV's Avionics Systems
 A modernized replacement for RasterPropMonitor
 
 Background
@@ -68,10 +68,7 @@ scripting support (while still maintaining the old classes).
 Instead, what I chose to do is to start with a clean slate.  I've ported a
 couple of classes from RPM to Avionics Systems to avoid having to rewrite
 some infrastructure from scratch, while the rest of the design is fresh
-code.  (For the curious, RPM code is GPL; as the sole contributor to the
-code that was imported to MAS, I granted myself permission to license
-a copy of it under the MIT license - it does not affect the existing
-license on the RPM code)
+code.
 
 A new, configuration-incompatible mod will be a nuisance for IVA prop
 creators, but a clean break allows RPM to move to maintenance mode while
@@ -80,8 +77,8 @@ MAS is built up.
 The key change from RasterPropMonitor to Avionics Systems is the introduction
 of Lua scripting.  Where RPM treated variables as hardcoded constant values,
 MAS uses the value returned from a function.  Where RPM actions were limited
-to a handful of simple actions and an array of plugin actions, MAS uses
-Lua function calls.
+to a handful of simple actions and an array of plugin actions, MAS allows the
+use of Lua function calls.
 
 The first, immediate, benefit of this change is that the IVA creator now has
 a great deal of flexibility in defining behavior and evaluating numbers.
@@ -121,7 +118,7 @@ end
 
 The larger benefit of using Lua scripting is in actions.  Where the
 JSIActionGroupSwitch had a narrowly-defined set of actions it could take,
-the COLLIDER_EVENT component of ASAction is practically open-ended:
+the COLLIDER_EVENT component of MASAction is practically open-ended:
 
 Let's say you wanted to add a switch to deploy solar panels, but you wanted to
 have it have its own safety interlock that disabled the switch while in
@@ -173,6 +170,38 @@ be mixed-and-matched in any order, with any layout.  Want a navball, some vertic
 HUD-style data strips, and a linegraph on the same page?  MAS can do that.
 
 Even better, MAS has a "backwards compatibility" mode where it can interact with
-mods that can draw background handlers, and it can display those images arbitrarily
+mods that can draw RPM background handlers, and it can display those images arbitrarily
 on-screen (such as a SCANsat display in one quadrant of the screen, with other data
 rendered in the other three quadrants).
+
+* DISCLAIMER: MASMonitor is not fully implemented.  These are planned features.
+
+
+Lua comes with a downside, however.  It's an interpreted language running in C#,
+and it is S-L-O-W, and the MoonSharp interpreter generates a lot of temporary
+allocations (which lead to garbage collection).  As such, I strongly recommend
+minimizing the use of full-on Lua scripting in variables.  For actions (responses
+to key presses), it's less of an issue, since those do not fire every FixedUpdate.
+
+To help minimize the use of Lua, MAS is able to parse quite a few variables into
+lambda functions that run natively in C#.  This capability is done automatically
+on any variable found in a config file.  For instance, the retro button backlight
+variable mentioned earlier:
+
+variable = fc.GetPersistent("MyButtonOn")*2 + PodBacklightOn()
+
+Lua script:
+
+function PodBacklightOn()
+    if fc.GetPower() > 0.0001 and fc.GetPersistent("PodBacklight") > 0
+	    return 1
+	else
+		return 0
+	end
+end
+
+could also be expressed as 
+
+variable = fc.GetPersistent("MyButtonOn")*2 + (fc.GetPower() > 0.0001 and fc.GetPersistent("PodBacklight") > 0)
+
+and MAS will be able to generate appropriate lambda functions to evaluate it entirely in C#.

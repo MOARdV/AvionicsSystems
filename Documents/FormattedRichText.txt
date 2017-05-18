@@ -24,9 +24,9 @@ at the end of the formatting string, before the variable list:
 Altitude: {0:#####0.0}m $&$ fc.GetAltitude()
 
 Because variables in MAS are evaluated as snippets of Lua, the RasterPropMonitor convention
-of separating variables with spaces has been replaced with using a comma ',':
+of separating variables with spaces has been replaced with using a semi-colon ';':
 
-Ap: {0:#####0.0}km / Pe: {1:#####0.0}km $&$ fc.GetApoapsis() / 1000, fc.GetPeriapsis() / 1000
+Ap: {0:#####0.0}km / Pe: {1:#####0.0}km $&$ fc.GetApoapsis() / 1000; fc.GetPeriapsis() / 1000
 
 Note in this case that in addition to using two variables, we are also converting the Ap
 and Pe from meters to km.  Lua allows us to include mathematical expressions in our
@@ -41,12 +41,12 @@ of a MASComponent, end-of-line doesn't work.  Instead the token '$$$' may be use
 indicate a new line.  Note that this token is translated directly into a new line
 character, so the following would not work:
 
- ALT: {0:#####.0}m $$$ RALT: {1:#####.0}m $&$ fc.GetAltitude(), fc.GetRadarAltitude()
+ ALT: {0:#####.0}m $$$ RALT: {1:#####.0}m $&$ fc.GetAltitude(); fc.GetRadarAltitude()
 
 That text would be converted to
 
  ALT: {0:#####.0}m 
-RALT: {1:#####.0}m $&$ fc.GetAltitude(), fc.GetRadarAltitude()
+RALT: {1:#####.0}m $&$ fc.GetAltitude(); fc.GetRadarAltitude()
 
 which will generate a string formatting exception, since there is no variable on the first row.
 Instead, the text needs to be defined as 

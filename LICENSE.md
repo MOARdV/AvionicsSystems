@@ -1,17 +1,15 @@
-﻿LICENSE
+MOARdV's Avionics Systems
 
-The source code, shaders, and compiled binary (DLL) for Avionics Systems are covered by
-the MIT License:
+The MIT License (MIT)
 
 Copyright (c) 2016-2017 MOARdV
 
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-of the Software, and to permit persons to whom the Software is furnished to do
-so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
@@ -36,12 +34,9 @@ permitted.
 
 ---
 
-Avionics Systems uses a Pratt parser based on the Bantam Java parser
-found at https://github.com/munificent/bantam
+MAS incorporates code derived from the Bantam Java-based Pratt parser:
 
-The conversion from Java to C# was done by MOARdV, along with various
-adjustments to make it parse Lua.  The original Bantam parser is licensed
-with the MIT license:
+https://github.com/munificent/bantam
 
 Copyright (c) 2011 Robert Nystrom
 
@@ -74,9 +69,9 @@ THE SOFTWARE.
 
 ---
 
-The MoonSharp Lua interpreter is included in this package in accordance with
-the MoonSharp license.  Source code for MoonSharp can be found on GitHub
-at (https://github.com/xanathar/moonsharp).
+MAS includes the MoonSharp Lua interpreter:
+
+https://github.com/xanathar/moonsharp
 
 Copyright (c) 2014, Marco Mastropaolo
 All rights reserved.

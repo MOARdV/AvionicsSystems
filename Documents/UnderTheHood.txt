@@ -1,6 +1,7 @@
 ﻿Under the Hood
 
-Or, theory of operation.
+Or, theory of operation.  Or, lots of words.
+
 
 Data Sources
 
@@ -65,3 +66,14 @@ RPM.  Some specific examples include delta-V computations - MechJeb and KER both
 produce that data, and any computations MAS would do would either be a wholesale
 duplication of their code or a low-quality simulation of those results.  Thus,
 unlike RPM, some MAS features will have external dependencies.
+
+Because the Lua interpreter is incredibly slow in comparison to even native
+C# code, MAS uses a parser on each variable to try to break it down to a simple
+set of operators, constants, and built-in functions.  A "built-in function" is
+one of the MAS functions (like 'fc.GetThrottle()' or 'mechjeb.GetDeltaV()').
+
+If MAS can parse the variable without encountering unrecognized functions,
+it will create a series of small lambda functions to evaluate the variable,
+bypassing Lua entirely.  This approach is several times faster than the Lua
+interpreter during FixedUpdate, and it results in less pressure on the
+garbage collector.

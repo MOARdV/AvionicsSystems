@@ -3,7 +3,19 @@
 The following are frequently asked questions (and frequently anticipated
 questions):
 
-* How to Get Support
+* Where are the IVAs?
+
+Short answer: there aren't any.
+
+Long answer: MAS is a toolkit.  Much like alexustas's ASET Props and ASET
+Avionics packs, this mod is geared towards modders who want to create advanced
+functional IVAs.  I *may* include IVAs in this pack at some point in the
+future to demonstrate what can be done, but I do not plan on making drop-in
+replacement IVAs for all of the stock pods.  The IVAs I create take way too
+long to create, and I don't want to spend hundreds of hours crafting IVAs
+for parts I'm not even using.
+
+* How to Get Support?
 
 Please follow these basic troubleshooting steps before asking for help on the
 forum:
@@ -33,15 +45,9 @@ GitHub.  No logs = no support.
 * What about CKAN?
 
 At this time, I do not plan on maintaining CKAN metadata.  Any CKAN metadata
-for this mod was submitted by a third party without consulting me first, so
-there is no guarantee of correctness or completeness in that data.  Any CKAN
+for this mod was submitted by a third party, so I do not
+guarantee the correctness or completeness in that data.  Any CKAN
 installation problems must go to the CKAN forum thread.
-
-I may change my mind about CKAN at a later date, but that decision will be
-based on CKAN demonstrating commitment to improved processes and policies so
-that modders are not left with the support burden for botched CKAN installs.
-There have been steps in that direction recently, but I want to see if it
-is sustained.
 
 * What about RasterPropMonitor?
 

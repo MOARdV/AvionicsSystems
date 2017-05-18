@@ -6,7 +6,7 @@ InternalNavBall with the addition of up to three additional parameters:
 'variable': Required.  Name of the variable that controls when the navball is
 enabled.
 'range': Optional.  When present, MASNavBall operates in Threshold Mode; otherwise,
-MASNavBall operates in Boolean Mode. See
-MASComponent for definitions of Threshold Mode and Boolean Mode.
+MASNavBall operates in Boolean Mode. See MASComponent for definitions of Threshold
+Mode and Boolean Mode.
 'maxAngle': Optional.  Defaults to 180.  Specifies the maximum slew rate of the
 navball in degrees-per-second.

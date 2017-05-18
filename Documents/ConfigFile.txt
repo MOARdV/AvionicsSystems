@@ -20,7 +20,7 @@ Color Nodes
 
 Color Nodes are used to define a named color.  A named color allows an IVA designer to specify
 instrument colors using a consistent theme, including changing all of the colors by editing a single
-location (as opposed to editing every single prop config file).  In addition, these colors can be
+location (as opposed to editing every single prop config file).  In addition, these colors may be
 overridden on a per-pod basis using nodes in the MASFlightComputer part module (see MASFlightComputer).
 
 These color nodes are defined exactly like RasterPropMonitor color nodes (100% compatibility):
