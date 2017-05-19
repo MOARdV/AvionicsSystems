@@ -9,11 +9,11 @@ Short answer: there aren't any.
 
 Long answer: MAS is a toolkit.  Much like alexustas's ASET Props and ASET
 Avionics packs, this mod is geared towards modders who want to create advanced
-functional IVAs.  I *may* include IVAs in this pack at some point in the
+functional IVAs.  I *may* include IVAs in this pack in the
 future to demonstrate what can be done, but I do not plan on making drop-in
-replacement IVAs for all of the stock pods.  The IVAs I create take way too
-long to create, and I don't want to spend hundreds of hours crafting IVAs
-for parts I'm not even using.
+replacement IVAs for all of the stock pods.  The IVAs I create take a
+long time to prepare, and I don't want to spend hundreds of hours crafting IVAs
+for pods I'm not even using.
 
 * How to Get Support?
 
@@ -46,17 +46,17 @@ GitHub.  No logs = no support.
 
 At this time, I do not plan on maintaining CKAN metadata.  Any CKAN metadata
 for this mod was submitted by a third party, so I do not
-guarantee the correctness or completeness in that data.  Any CKAN
-installation problems must go to the CKAN forum thread.
+guarantee the correctness or completeness in that data.  Any problems
+with a CKAN installation must go to the CKAN forum thread.
 
 * What about RasterPropMonitor?
 
 As explained in the Introduction to MAS, the design of RPM placed limitations on
-what it could do.  I had a choice to bolt on more functionality on that mod, or
+what it could do.  I had a choice to bolt on more functionality to that mod, or
 make a clean break with backwards compatibility and streamline the mod.
 Instead of outright breaking RPM for everyone, I started a new mod.
 
-At present, I consider RasterPropMonitor in "maintenance mode", with no new
+At present, I consider RasterPropMonitor in maintenance mode, with no new
 features being added and only critical bugs being fixed.  I plan to make sure
 RPM remains functional with KSP updates until its market share has dropped
 to too small a number to keep it running.
@@ -74,7 +74,7 @@ They still work with RPM.
 Part of my plan for Avionics Systems is to roll out a tool that can process
 prop config files and convert existing RasterPropMonitor configs to Avionics
 Systems configs.  The details of that tool (standalone / DLL for KSP) have
-not been finalized.
+not been finalized, and it may not happen.
 
 * Why Lua?  Why MoonSharp?
 
