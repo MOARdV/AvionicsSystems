@@ -34,6 +34,15 @@ permitted.
 
 ---
 
+Lua scripts included in MOARdV's Avionics Systems are public domain.  If you reuse them, I'd appreciate
+acknowledgment, but they are otherwise unrestricted.
+
+---
+
+Prop configs included in MAS are CC-BY-SA.
+
+---
+
 MAS incorporates code derived from the Bantam Java-based Pratt parser:
 
 https://github.com/munificent/bantam
