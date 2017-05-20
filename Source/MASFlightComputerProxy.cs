@@ -285,7 +285,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the height above the grond, optionally treating the ocean
+        /// Returns the height above the ground, optionally treating the ocean
         /// surface as ground.  Altitude in meters.
         /// </summary>
         /// <param name="ignoreOcean">When false, returns height above sea level
@@ -1617,21 +1617,25 @@ namespace AvionicsSystems
         /// <summary>
         /// Turns on/off engines for the current stage
         /// </summary>
-        public void ToggleEnginesEnabled()
+        /// <returns>1 if engines are now enabled, 0 if they are disabled.</returns>
+        public double ToggleEnginesEnabled()
         {
-            vc.ToggleEnginesEnabled();
+            return (vc.ToggleEnginesEnabled()) ? 1.0 : 0.0;
         }
 
         /// <summary>
         /// Toggles gimbal lock on/off for the current stage.
         /// </summary>
-        public void ToggleGimbalLock()
+        /// <returns>1 if the gimbals are now locked, 0 if they are unlocked.</returns>
+        public double ToggleGimbalLock()
         {
             bool newState = !vc.anyGimbalsLocked;
             for (int i = vc.moduleGimbals.Length - 1; i >= 0; --i)
             {
                 vc.moduleGimbals[i].gimbalLock = newState;
             }
+
+            return (newState) ? 1.0 : 0.0;
         }
         #endregion
 
@@ -3843,6 +3847,9 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the instantaneous change-per-second of the Nth resource,
         /// or zero if the Nth resource is invalid.
+        /// 
+        /// A positive number means the resource is being consumed (burning fuel,
+        /// for instance).
         /// </summary>
         /// <param name="resourceId"></param>
         /// <returns></returns>
@@ -3854,6 +3861,9 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the instantaneous change-per-second of the resource, or
         /// zero if the resource wasn't found.
+        /// 
+        /// A positive number means the resource is being consumed (burning fuel,
+        /// for instance).
         /// </summary>
         /// <param name="resourceName"></param>
         /// <returns></returns>

@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -193,8 +193,11 @@ namespace AvionicsSystems
         /// <summary>
         /// Toggles the armed state of any RealChute parachutes.
         /// </summary>
-        public void ToggleParachuteArmed()
+        /// <returns>1 if parachutes are armed, 0 otherwise</returns>
+        public double ToggleParachuteArmed()
         {
+            bool armed = false;
+
             if (anyArmed)
             {
                 for (int i = disarmParachute.Length - 1; i >= 0; --i)
@@ -204,11 +207,14 @@ namespace AvionicsSystems
             }
             else
             {
+                armed = (armParachute.Length > 0);
                 for (int i = armParachute.Length - 1; i >= 0; --i)
                 {
                     armParachute[i]();
                 }
             }
+
+            return (armed) ? 1.0 : 0.0;
         }
 
         /// <summary>

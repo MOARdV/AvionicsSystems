@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -88,6 +88,7 @@ namespace AvionicsSystems
         internal int antennaPosition;
         private void UpdateAntenna()
         {
+            // TODO: What about detecting if dynamic pressure is low enough to deploy antennae?
             antennaDeployable = false;
             antennaRetractable = false;
             antennaMoving = false;
@@ -371,7 +372,7 @@ namespace AvionicsSystems
 
             return requestReset;
         }
-        internal void ToggleEnginesEnabled()
+        internal bool ToggleEnginesEnabled()
         {
             bool newState = !anyEnginesEnabled;
             for (int i = moduleEngines.Length - 1; i >= 0; --i)
@@ -393,6 +394,8 @@ namespace AvionicsSystems
                     }
                 }
             }
+
+            return newState;
         }
         #endregion
 
@@ -448,6 +451,7 @@ namespace AvionicsSystems
         internal float netSolarOutput;
         private void UpdatePower()
         {
+            // TODO: What about detecting if dynamic pressure is low enough to deploy solar panels?
             netAlternatorOutput = 0.0f;
             netFuelCellOutput = 0.0f;
             netGeneratorOutput = 0.0f;
