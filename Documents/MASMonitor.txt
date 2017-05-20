@@ -75,6 +75,10 @@ Because fonts are treated as fixed-width, there is the possibility that scaling 
 cause unusually-wide characters to be compressed horizontally, which may hinder readability.
 This problem may be worse if the [hw] tag is used with those fonts.
 
+Pages are selected by setting the persistent identified by `monitorID` to the name (string) of
+the desired page.  In the example config above, for instance, a button on the same prop could use
+`fc.SetPersistent("%AUTOID%", "Orbit_Page")` to select the second page in the list.
+
 
 HORIZON
 
