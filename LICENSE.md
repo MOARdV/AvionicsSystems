@@ -113,7 +113,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---
 
 The Digital-7 font is included per the terms described in 
-Gamedata/AvionicsSystems/PluginData/digital-7-readme.txt
+GameData/MOARdV/AvionicsSystems/PluginData/digital-7-readme.txt
 
 ---
 
@@ -123,4 +123,4 @@ http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&item_id=OFL&_sc=1
 ---
 
 The Repetition Scrolling font is included per the terms described in
-Gamedata/AvionicsSystems/PluginData/repetition-scrolling-ReadMe.txt
+GameData/MOARdV/AvionicsSystems/PluginData/repetition-scrolling-ReadMe.txt
