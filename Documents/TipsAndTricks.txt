@@ -20,15 +20,6 @@ or false.  Whenever possible, take advantage of that mode, since it requires the
 computational overhead (is the new number greater than 0 or not?).
 
 
-USE THE Lua math LIBRARY
-
-Lua's math library provides a fair amount of built-in math capabilities, as described
-here: http://lua-users.org/wiki/MathLibraryTutorial.  One use for this is with
-LED-style displays where there are a limited number of digits.  You can prevent overflow
-by using something like `math.min(fc.ResourceStageCurrent("LiquidFuel"), 9999)` - in
-this example, we're using a 4-segment LED, so we can't display a value larger than 9999.
-
-
 USE Lua SPARINGLY
 
 Compared to C# code, Lua interpreted code is very slow - close to 16x slower than C#
@@ -70,3 +61,20 @@ end
 
 This will return 1 if the cutoff is enabled, and 0 if it isn't.  It also has the side-effect of making
 the cutoff trigger if it is enabled, the vessel is landed, and the engines are enabled.
+
+
+TAKE ADVANTAGE OF INLINE SCRIPTING
+
+As long as you're not using Lua libraries or your own custom Lua scripting, MAS can
+parse a variable and convert it into a series of Lambda functions that can be evaluated
+natively in C# (meaning, much faster than Lua interprets them).   All of the following
+variables are treated as "native" variables instead of Lua scripts:
+
+// Use the "Backlight" persistent as the variable
+variable = fc.GetPersistentAsNumber("Backlight")
+
+// Use 1 if landing gear is up, 2 if it is down
+variable = fc.GetGear() + 1
+
+// Set the variable to 25% of the backlight setting if landing gear is up, 100% of backlight is gear is down
+variable = (0.25 + 0.75 * fc.GetGear()) * fc.("Backlight")

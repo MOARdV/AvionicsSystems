@@ -4,7 +4,7 @@
 answered in the FAQ.  Asking one of those questions tells me you didn't bother
 looking at even that documentation.
 
-2) Delete any existing GameData/AvionicsSystems directory.  I recommend this
+2) Delete any existing GameData/MOARdV/AvionicsSystems directory.  I recommend this
 approach over copying over an existing installation because sometimes I move
 files around, and having multiple copies could have side-effects (cause bugs).
 
