@@ -12,8 +12,6 @@
 -- these values here, and not have to ask the flight computer for them
 -- every time, since the only way we allow them to change is through the
 -- functions in this module.
--- TODO: There needs to be an initialisation function that can reset these
--- values on load (restore from save).
 local fdai1ErrorScale = 1.2
 --local fdai1RateScale = 1.0
 local fdai1ErrorFlag = false
