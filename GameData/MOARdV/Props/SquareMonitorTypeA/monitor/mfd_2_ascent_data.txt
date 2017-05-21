@@ -1,0 +1,12 @@
+{0,8:0.0}         {1:METhh:mm:ss} $&$ fc.Apoapsis() * 0.001; fc.TimeOfDay(fc.TimeToAp())
+{0,8:0.0}         {1:METhh:mm:ss} $&$ fc.Periapsis() * 0.001; fc.TimeOfDay(fc.TimeToPe())
+  {0,6:0.0} $&$ fc.Inclination() 
+
+{0,8:0.0}         {1:METhh:mm:ss} $&$ (fc.AtmosphereTop() - fc.Altitude()) * 0.001; fc.TimeOfDay(fc.TimeToAtmosphere())
+{0,8:0.0} $&$ fc.StaticPressureKPa()
+{0,8:0.0} $&$ fc.DynamicPressure()
+
+{0,8:0.0} $&$ fc.SurfaceSpeed()
+  {0,6:0.0}           {1,6:0.0} $&$ fc.AngleOfAttack(); fc.Sideslip()
+
+{0,8:0.0} $&$ fc.VerticalSpeed()
