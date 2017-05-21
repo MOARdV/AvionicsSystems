@@ -313,7 +313,8 @@ The 'emissive' field controls when or if the text is emissive.  When set to 'alw
 will glow at all times.  When set to 'active', the text glows when the variable is greater than
 zero.  The 'passive' setting causes the text to glow only when the variable is zero (the opposite
 of 'active').  Use 'never' is the text should never glow, and use 'flash' to make the text glow
-when the when the text is in the "flash on" state.
+when the when the text is in the "flash on" state.  If the Text Label is configured in Static Mode,
+the default for 'emissive' is 'always'.  For all other modes, the default is 'active'.
 
 The Text Label supports Boolean Mode, Threshold Mode, Blend Mode, and Static Mode.
 
