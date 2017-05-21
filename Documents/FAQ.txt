@@ -3,17 +3,17 @@
 The following are frequently asked questions (and frequently anticipated
 questions):
 
-* Where are the IVAs?
+* Where are all the IVAs?
 
 Short answer: there aren't any.
 
 Long answer: MAS is a toolkit.  Much like alexustas's ASET Props and ASET
 Avionics packs, this mod is geared towards modders who want to create advanced
-functional IVAs.  I *may* include IVAs in this pack in the
-future to demonstrate what can be done, but I do not plan on making drop-in
-replacement IVAs for all of the stock pods.  The IVAs I create take a
-long time to prepare, and I don't want to spend hundreds of hours crafting IVAs
-for pods I'm not even using.
+functional IVAs.  I've included a snapshot of the IVA I am using to develop
+MAS features (the Near Future Spacecraft Mk3-9).  It is not a completed
+cockpit, and I will not provide support for it.  It is included so IVA makers
+can see what MAS can do.  If you want to give it a spin, read the README
+in MOARdV/FlightSystems.
 
 * How to Get Support?
 
