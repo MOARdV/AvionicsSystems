@@ -809,7 +809,6 @@ namespace AvionicsSystems
         /// <returns>Antenna Position (a number between 0 and 4); 1 if no antennae are installed.</returns>
         public double AntennaPosition()
         {
-            //Utility.LogMessage(this, "AntennaPosition() = {0}", vc.antennaPosition);
             return vc.antennaPosition;
         }
 
@@ -916,8 +915,10 @@ namespace AvionicsSystems
         /// <summary>
         /// Deploys / undeploys antennae.
         /// </summary>
-        public void ToggleAntenna()
+        /// <returns>1 if any antennas were toggled, 0 otherwise</returns>
+        public double ToggleAntenna()
         {
+            bool anyMoved = false;
             if (vc.antennaDeployable)
             {
                 for (int i = vc.moduleAntenna.Length - 1; i >= 0; --i)
@@ -925,6 +926,7 @@ namespace AvionicsSystems
                     if (vc.moduleAntenna[i].useAnimation && vc.moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.RETRACTED)
                     {
                         vc.moduleAntenna[i].Extend();
+                        anyMoved = true;
                     }
                 }
             }
@@ -935,9 +937,12 @@ namespace AvionicsSystems
                     if (vc.moduleAntenna[i].useAnimation && vc.moduleAntenna[i].retractable && vc.moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.EXTENDED)
                     {
                         vc.moduleAntenna[i].Retract();
+                        anyMoved = true;
                     }
                 }
             }
+
+            return (anyMoved) ? 1.0 : 0.0;
         }
         #endregion
 
@@ -3267,15 +3272,19 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Toggles fuel cells from off to on or vice versa.
+        /// Toggles fuel cells from off to on or vice versa.  Fuel cells that can
+        /// not be manually controlled are not toggled.
         /// </summary>
-        public void ToggleFuelCellActive()
+        /// <returns>1 if fuel cells are now active, 0 if they're off or they could not be toggled.</returns>
+        public double ToggleFuelCellActive()
         {
             bool state = !vc.fuelCellActive;
+            bool anyChanged = false;
             for (int i = vc.moduleFuelCell.Length - 1; i >= 0; --i)
             {
                 if (!vc.moduleFuelCell[i].AlwaysActive)
                 {
+                    anyChanged = true;
                     if (state)
                     {
                         vc.moduleFuelCell[i].StartResourceConverter();
@@ -3286,13 +3295,17 @@ namespace AvionicsSystems
                     }
                 }
             }
+
+            return (state && anyChanged) ? 1.0 : 0.0;
         }
 
         /// <summary>
         /// Deploys / undeploys solar panels.
         /// </summary>
-        public void ToggleSolarPanel()
+        /// <returns>1 if at least one panel is moving; 0 otherwise.</returns>
+        public double ToggleSolarPanel()
         {
+            bool anyMoving = false;
             if (vc.solarPanelsDeployable)
             {
                 for (int i = vc.moduleSolarPanel.Length - 1; i >= 0; --i)
@@ -3300,6 +3313,7 @@ namespace AvionicsSystems
                     if (vc.moduleSolarPanel[i].useAnimation && vc.moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.RETRACTED)
                     {
                         vc.moduleSolarPanel[i].Extend();
+                        anyMoving = true;
                     }
                 }
             }
@@ -3310,9 +3324,12 @@ namespace AvionicsSystems
                     if (vc.moduleSolarPanel[i].useAnimation && vc.moduleSolarPanel[i].retractable && vc.moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.EXTENDED)
                     {
                         vc.moduleSolarPanel[i].Retract();
+                        anyMoving = true;
                     }
                 }
             }
+
+            return (anyMoving) ? 1.0 : 0.0;
         }
         #endregion
 

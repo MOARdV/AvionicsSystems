@@ -76,6 +76,16 @@ namespace AvionicsSystems
             chattererStartTalking = (Action)Delegate.CreateDelegate(typeof(Action), chatterer, chatterMethod_t);
         }
 
+        [MASProxyAttribute(Immutable = true)]
+        /// <summary>
+        /// Reports whether the Chatterer mod is installed.
+        /// </summary>
+        /// <returns>1 if Chatterer is installed, 0 otherwise</returns>
+        public double Available()
+        {
+            return (chattererFound) ? 1.0 : 0.0;
+        }
+
         /// <summary>
         /// Reports on whether or not Mission Control is communicating with the capsule.
         /// </summary>
@@ -96,15 +106,19 @@ namespace AvionicsSystems
         /// If the comm channel is idle, start a chatter sequence.  If there is
         /// already an exchange active, do nothing.
         /// </summary>
-        public void StartTalking()
+        /// <returns>1 if Chatterer starts transmitting; 0 otherwise.</returns>
+        public double StartTalking()
         {
             if (chattererFound)
             {
                 if (!chattererTx() && !chattererRx())
                 {
                     chattererStartTalking();
+                    return 1.0;
                 }
             }
+
+            return 0.0;
         }
 
         /// <summary>
