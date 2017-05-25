@@ -1,15 +1,14 @@
 FORM01 - SYSTEMS
-12345678901234567890123456789012
-3
-4
-5
-6
-7
-8
-9
-a
-b
-c
-d
-e
-f
+
+Throttle:    {0,3:0}%  Thrust: {1,3:0}% $&$ fc.GetThrottle() * 100; fc.CurrentThrust(false) * 100
+Fuel Flow:{0,8:0.0}kg/s$&$ fc.ResourceDelta("LiquidFuel") * fc.ResourceDensity("LiquidFuel")
+Fuel Cap: {0,8:0.0}kg $&$ fc.ResourceMass("LiquidFuel")
+Isp:         {0,5:0.0}s $&$ fc.CurrentIsp()
+Gimbal:      {0,5:0.0}°   {1:"LOCK";"FREE";"FREE"} $&$ fc.CurrentGimbal(); fc.GetGimbalsLocked()
+
+
+Mono Flow:{0,8:0.0}kg/s $&$ fc.ResourceDelta("MonoPropellant") * fc.ResourceDensity("MonoPropellant")
+Mono Cap: {0,8:0.0}kg $&$ fc.ResourceMass("MonoPropellant")
+
+Btty Flow: {0,7:0.0}EC/s $&$ fc.PowerDelta()
+Btty Cap:  {0,7:0.0}EC $&$ fc.PowerCurrent()

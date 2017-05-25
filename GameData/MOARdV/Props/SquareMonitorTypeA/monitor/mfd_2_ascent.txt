@@ -2,13 +2,13 @@ FORM02 - ASCENT
 
 Ap :         km
 Pe :         km
-Inc:         *
+Inc:         °
 
 Atm:         km
 SPr:         kPa
 Q  :         kPa
 
 Spd:         m/s
-AoA:         *   SS :         *
+AoA:         °   SS :         °
 
 V/S:         m/s

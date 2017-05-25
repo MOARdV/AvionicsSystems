@@ -27,13 +27,13 @@ function ARRT_Error()
 		end
 
 		-- Externally controlled mode switch persistent
-		local modeSetting = fc.TogglePersistent("MAS_ARRT_Mode")
+		local modeSetting = fc.GetPersistentAsNumber("MAS_ARRT_Mode")
 		if modeSetting > 0 then
 			arrtRangeMode = true
 		end
 
 		-- Internally controlled / externally read "Is this thing on?" persistent.
-		local enableSetting = fc.TogglePersistent("MAS_ARRT_Enable")
+		local enableSetting = fc.GetPersistentAsNumber("MAS_ARRT_Enable")
 		if enableSetting > 0 then
 			arrtEnable = true
 		end

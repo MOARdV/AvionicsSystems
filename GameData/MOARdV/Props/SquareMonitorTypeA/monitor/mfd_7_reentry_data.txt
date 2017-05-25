@@ -1,0 +1,7 @@
+{0,8:0.0}$&$ fc.AltitudeTerrain(true) * 0.001
+
+{0,8:0.0} $&$ fc.SurfaceSpeed()
+{0,8:0.0} $&$ fc.VerticalSpeed()
+
+{0,8:0.0} $&$ fc.StaticPressureKPa()
+{0,8:0.0} $&$ fc.DynamicPressure()

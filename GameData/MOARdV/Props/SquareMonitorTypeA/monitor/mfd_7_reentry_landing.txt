@@ -1,0 +1,12 @@
+                 {0:METhh:mm:ss} $&$ fc.Min(fc.TimeToLanding(), 359999)
+
+
+
+
+
+
+
+
+
+  {0:LATDDD MM SS} $&$ fc.LandingLatitude()
+  {0:LONDDD MM SS} $&$ fc.LandingLongitude()

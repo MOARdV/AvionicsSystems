@@ -1,15 +1,12 @@
 FORM05 - RENDEZVOUS
-12345678901234567890123456789012
-3
-4
-5
-6
-7
-8
-9
-a
-b
-c
-d
-e
-f
+
+TARGET:
+
+TAp:         km
+TPe:         km
+RIn:         °
+
+Appr:        m
+
+TAn:
+TDn:
