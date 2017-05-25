@@ -360,7 +360,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns 1 if the body the vessel is orbiting has an atmosphere.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if there is an atmosphere, 0 otherwise.</returns>
         public double HasAtmosphere()
         {
             return (vc.mainBody.atmosphere) ? 1.0 : 0.0;
@@ -378,7 +378,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the static atmospheric pressure in kiloPascals.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Static pressure in kPa.</returns>
         public double StaticPressureKPa()
         {
             return vessel.staticPressurekPa;
@@ -1379,15 +1379,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if the current IVA pod is the reference transform.  Returns 0 otherwise.
-        /// </summary>
-        /// <returns></returns>
-        public double GetPodIsReference()
-        {
-            return (fc.part == vessel.GetReferenceTransformPart()) ? 1.0 : 0.0;
-        }
-
-        /// <summary>
         /// Returns 1 if the primary docking port on the vessel is the current reference transform.
         /// 
         /// Returns 0 if the primary docking port is not the reference transform, or if there is no docking port,
@@ -1400,11 +1391,12 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Set the current IVA pod to be the reference transform.
+        /// Returns 1 if the current IVA pod is the reference transform.  Returns 0 otherwise.
         /// </summary>
-        public void SetPodToReference()
+        /// <returns></returns>
+        public double GetPodIsReference()
         {
-            vessel.SetReferenceTransform(fc.part);
+            return (fc.part == vessel.GetReferenceTransformPart()) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -1416,6 +1408,14 @@ namespace AvionicsSystems
             {
                 vessel.SetReferenceTransform(vc.dockingNode.part);
             }
+        }
+
+        /// <summary>
+        /// Set the current IVA pod to be the reference transform.
+        /// </summary>
+        public void SetPodToReference()
+        {
+            vessel.SetReferenceTransform(fc.part);
         }
 
         /// <summary>
@@ -1457,9 +1457,19 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the current maximum deflection of any active gimbals,
+        /// accounting for gimbal limits.
+        /// </summary>
+        /// <returns>Gimbal limit in degrees.</returns>
+        public double CurrentGimbal()
+        {
+            return vc.maxGimbal;
+        }
+
+        /// <summary>
         /// Return the current specific impulse in seconds.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The current Isp.</returns>
         public double CurrentIsp()
         {
             return vc.currentIsp;
@@ -1468,7 +1478,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the current thrust output, from 0.0 to 1.0.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Thrust output, ranging from 0 to 1.</returns>
         public double CurrentThrust(bool useThrottleLimits)
         {
             if (vc.currentThrust > 0.0f)
@@ -1898,9 +1908,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
-        /// valid numbers at the present.
-        /// 
         /// The normal component of the next scheduled maneuver.
         /// </summary>
         /// <returns>ΔV in m/s; negative values indicate anti-normal.</returns>
@@ -1908,15 +1915,12 @@ namespace AvionicsSystems
         {
             if (vc.maneuverNodeValid && vc.nodeOrbit != null)
             {
-
+                return vc.maneuverNodeComponent.z;
             }
             return 0.0;
         }
 
         /// <summary>
-        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
-        /// valid numbers at the present.
-        /// 
         /// The prograde component of the next scheduled maneuver.
         /// </summary>
         /// <returns>ΔV in m/s; negative values indicate retrograde.</returns>
@@ -1924,15 +1928,12 @@ namespace AvionicsSystems
         {
             if (vc.maneuverNodeValid && vc.nodeOrbit != null)
             {
-
+                return vc.maneuverNodeComponent.x;
             }
             return 0.0;
         }
 
         /// <summary>
-        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
-        /// valid numbers at the present.
-        /// 
         /// The radial component of the next scheduled maneuver.
         /// </summary>
         /// <returns>ΔV in m/s; negative values indicate anti-radial.</returns>
@@ -1940,7 +1941,7 @@ namespace AvionicsSystems
         {
             if (vc.maneuverNodeValid && vc.nodeOrbit != null)
             {
-
+                return vc.maneuverNodeComponent.y;
             }
             return 0.0;
         }
@@ -2119,7 +2120,7 @@ namespace AvionicsSystems
         /// </summary>
         #region Meta
 
-        [MASProxyAttribute(Immutable=true)]
+        [MASProxyAttribute(Immutable = true)]
         /// <summary>
         /// Checks for the existence of the named assembly (eg, `fc.AssemblyLoaded("MechJeb2")`).
         /// This can be used to determine
@@ -2211,7 +2212,7 @@ namespace AvionicsSystems
             Utility.LogMessage(this, message);
         }
 
-        [MASProxyAttribute(Immutable=true)]
+        [MASProxyAttribute(Immutable = true)]
         /// <summary>
         /// Returns the version number of the MAS plugin, as a string,
         /// such as `1.0.1.12331`.
@@ -3893,20 +3894,20 @@ namespace AvionicsSystems
         /// Returns the density of the Nth resource, or zero if it is invalid.
         /// </summary>
         /// <param name="resourceId"></param>
-        /// <returns></returns>
+        /// <returns>Density in kg / unit</returns>
         public double ResourceDensity(double resourceId)
         {
-            return vc.ResourceDensity((int)resourceId);
+            return vc.ResourceDensity((int)resourceId) * 1000.0;
         }
 
         /// <summary>
         /// Returns the density of the named resource, or zero if it wasn't found.
         /// </summary>
         /// <param name="resourceName"></param>
-        /// <returns></returns>
+        /// <returns>Density in kg / unit</returns>
         public double ResourceDensity(string resourceName)
         {
-            return vc.ResourceDensity(resourceName);
+            return vc.ResourceDensity(resourceName) * 1000.0;
         }
 
         /// <summary>
@@ -3932,24 +3933,24 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the current mass of the Nth resource.
+        /// Returns the current mass of the Nth resource in kg.
         /// </summary>
         /// <param name="resourceId"></param>
         /// <returns></returns>
         public double ResourceMass(double resourceId)
         {
-            return vc.ResourceMass((int)resourceId);
+            return vc.ResourceMass((int)resourceId) * 1000.0;
         }
 
         /// <summary>
         /// Returns the mass of the current resource supply
-        /// in (units).
+        /// in kg.
         /// </summary>
         /// <param name="resourceName"></param>
         /// <returns></returns>
         public double ResourceMass(string resourceName)
         {
-            return vc.ResourceMass(resourceName);
+            return vc.ResourceMass(resourceName) * 1000.0;
         }
 
         /// <summary>
@@ -4258,7 +4259,7 @@ namespace AvionicsSystems
         {
             int iMode = (int)mode;
             double returnVal = 1.0;
-            switch(iMode)
+            switch (iMode)
             {
                 case 0:
                     TrySetSASMode(VesselAutopilot.AutopilotMode.StabilityAssist);
