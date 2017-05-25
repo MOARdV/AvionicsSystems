@@ -273,6 +273,7 @@ namespace AvionicsSystems
         {
             this.currentThrust = 0.0f;
             this.maxRatedThrust = 0.0f;
+            maxGimbal = 0.0f;
             currentLimitedThrust = 0.0f;
             currentMaxThrust = 0.0f;
             hottestEngineTemperature = 0.0f;
@@ -403,15 +404,26 @@ namespace AvionicsSystems
         private List<ModuleGimbal> gimbalsList = new List<ModuleGimbal>(8);
         internal ModuleGimbal[] moduleGimbals = new ModuleGimbal[0];
         internal bool anyGimbalsLocked = false;
+        internal float maxGimbal = 0.0f;
         void UpdateGimbals()
         {
+            maxGimbal = 0.0f;
             anyGimbalsLocked = false;
             for (int i = moduleGimbals.Length - 1; i >= 0; --i)
             {
                 if (moduleGimbals[i].gimbalLock)
                 {
                     anyGimbalsLocked |= moduleGimbals[i].gimbalLock;
-                    break;
+                }
+                else
+                {
+                    float limit = 0.01f * moduleGimbals[i].gimbalLimiter;
+                    maxGimbal = Math.Max(maxGimbal, limit * moduleGimbals[i].gimbalRange);
+                    // TODO: Is XN and YN negative?  I don't remember.
+                    maxGimbal = Math.Max(maxGimbal, limit * moduleGimbals[i].gimbalRangeXN);
+                    maxGimbal = Math.Max(maxGimbal, limit * moduleGimbals[i].gimbalRangeXP);
+                    maxGimbal = Math.Max(maxGimbal, limit * moduleGimbals[i].gimbalRangeYN);
+                    maxGimbal = Math.Max(maxGimbal, limit * moduleGimbals[i].gimbalRangeYP);
                 }
             }
         }
