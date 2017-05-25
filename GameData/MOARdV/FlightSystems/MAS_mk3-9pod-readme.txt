@@ -1,13 +1,13 @@
 Nertea's Near Future Spacecraft Mk3-9 Command Pod README
 
-The Mk3-9 command pod is the current development platform for MOARdV's
+The Mk3-9 command pod was the initial development platform for MOARdV's
 Avionics Systems.  It is not a completed MAS command pod, but it
 illustrates some of what is possible in MAS.  Some of those capabilities
 are very difficult to duplicate using RasterPropMonitor.
 
 This is *not* a complete IVA.  You can probably do most orbital transfer
 and rendezvous tasks from this IVA, but it's not complete, and it's not
-meant to be a play IVA yet - it's intended to showcase MAS and give me an
+meant to be a play IVA - it's intended to showcase MAS and give me an
 in-game environment to test things out.
 
 You will need to install this patch in a KSP installation that does
