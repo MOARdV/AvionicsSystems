@@ -1,7 +1,8 @@
-﻿/*****************************************************************************
+﻿//#define SHORTCIRCUIT_SOLVER
+/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -77,23 +78,12 @@ namespace AvionicsSystems
         /// <summary>
         /// Iterate across one step of the search.
         /// </summary>
-        /// <param name="sourceOrbit"></param>
-        /// <param name="targetOrbit"></param>
-        /// <param name="startUT"></param>
-        /// <param name="endUT"></param>
-        /// <param name="recursionDepth"></param>
-        /// <param name="closestDistance"></param>
-        /// <param name="closestUT"></param>
-        static private void OneStep(Orbit sourceOrbit, Orbit targetOrbit, double startUT, double endUT, int recursionDepth, ref double closestDistance, ref double closestUT)
+        static private void FindClosest(Orbit sourceOrbit, Orbit targetOrbit, double startUT, double endUT, int recursionDepth, ref double closestDistance, ref double closestUT)
         {
-            if (recursionDepth > MaxRecursions)
-            {
-                return;
-            }
-
             double deltaT = (endUT - startUT) / (double)NumSubdivisions;
-
             double closestDistSq = closestDistance * closestDistance;
+            double closestTime = (startUT + endUT) * 0.5;
+            bool foundClosest = false;
             for (double t = startUT; t <= endUT; t += deltaT)
             {
                 Vector3d vesselPos = sourceOrbit.getPositionAtUT(t);
@@ -103,152 +93,32 @@ namespace AvionicsSystems
                 if (distSq < closestDistSq)
                 {
                     closestDistSq = distSq;
-                    closestUT = t;
+                    closestTime = t;
+                    foundClosest = true;
                 }
             }
 
-            closestDistance = Math.Sqrt(closestDistSq);
-
-            if (deltaT < 0.5)
+            if (foundClosest)
             {
-                // If our timesteps are less than a half second, I think
-                // this is an accurate enough estimate.
-                return;
-            }
+                closestDistance = Math.Sqrt(closestDistSq);
+                closestUT = closestTime;
 
-            OneStep(sourceOrbit, targetOrbit, Math.Max(closestUT - deltaT, startUT), Math.Min(closestUT + deltaT, endUT), recursionDepth + 1, ref closestDistance, ref closestUT);
-        }
-
-        /// <summary>
-        /// Compare the two orbits to see if they're fairly close to one another.
-        /// </summary>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        /// <returns></returns>
-        private static bool OrbitsSimilar(Orbit a, Orbit b)
-        {
-            if (a == null || b == null)
-            {
-                return false;
-            }
-
-            if (a.referenceBody != b.referenceBody)
-            {
-                return false;
-            }
-
-            if (Math.Abs(a.inclination - b.inclination) > 0.01)
-            {
-                //Utility.LogMessage(a, "inclination different");
-                return false;
-            }
-            if (Math.Abs(a.eccentricity - b.eccentricity) > 0.01)
-            {
-                //Utility.LogMessage(a, "eccentricity different");
-                return false;
-            }
-            if (Math.Abs(a.LAN - b.LAN) > 0.01)
-            {
-                //Utility.LogMessage(a, "LAN different");
-                return false;
-            }
-            if (Math.Abs(a.argumentOfPeriapsis - b.argumentOfPeriapsis) > 0.01)
-            {
-                //Utility.LogMessage(a, "argumentOfPeriapsis different");
-                return false;
-            }
-            if (Math.Abs(a.semiMajorAxis - b.semiMajorAxis) > 100.0)
-            {
-                //Utility.LogMessage(a, "SMA different");
-                return false;
-            }
-            // Orbit.meanAnomalyAtEpoch changes every update - presumably, the
-            // epoch is shifting over time to avoid numeric precision problems?
-            // So, instead of comparing mA at the epoch, we compute the current
-            // mean anomaly.
-            double ma1 = a.meanAnomalyAtEpoch + a.meanMotion * (Planetarium.GetUniversalTime() - a.epoch);
-            double ma2 = b.meanAnomalyAtEpoch + b.meanMotion * (Planetarium.GetUniversalTime() - b.epoch);
-            if (Math.Abs(ma1 - ma2) > 0.01)
-            {
-                //Utility.LogMessage(a, "meanAnomalyAtEpoch has shifted ... mA 1 = {0:0.00}, mA 2 = {1:0.00}", ma1, ma2);
-
-                return false;
-            }
-
-            return true;
-        }
-
-        private void bw_FindClosestApproach(object sender, DoWorkEventArgs e)
-        {
-            if (startOrbit.eccentricity >= 1.0 || targetOrbit.eccentricity >= 1.0)
-            {
-                // Hyperbolic orbit is involved.  Don't check multiple orbits.
-                // This is a fairly quick search.
-
-                double startTime = resultsStartTime;
-                startTime = Math.Max(startTime, startOrbit.StartUT);
-                startTime = Math.Max(startTime, targetOrbit.StartUT);
-
-                double endTime;
-                if (startOrbit.eccentricity >= 1.0)
+                if (deltaT < 1.0)
                 {
-                    endTime = startOrbit.EndUT;
+                    // If our timesteps are this small, I think
+                    // this is an accurate enough estimate.
+                    return;
                 }
-                else
+                if (recursionDepth == MaxRecursions)
                 {
-                    endTime = startTime + startOrbit.period * 6.0;
-                }
-                if (targetOrbit.eccentricity >= 1.0)
-                {
-                    endTime = Math.Min(endTime, targetOrbit.EndUT);
-                }
-                else
-                {
-                    endTime = Math.Min(endTime, targetOrbit.period * 6.0);
+                    // Hit recursion limit.  Done.
+                    return;
                 }
 
-                double targetClosestDistance = float.MaxValue;
-                double targetClosestTime = float.MaxValue;
-                OneStep(startOrbit, targetOrbit, startTime, endTime, 0, ref targetClosestDistance, ref targetClosestTime);
-
-                this.targetClosestDistance = targetClosestDistance;
-                this.targetClosestUT = targetClosestTime;
-                this.resultsValidUntil = targetClosestTime;
+                FindClosest(sourceOrbit, targetOrbit, Math.Max(closestTime - deltaT, startUT), Math.Min(closestTime + deltaT, endUT), recursionDepth + 1, ref closestDistance, ref closestUT);
             }
-            else
-            {
-                //Utility.LogMessage(this, "... Closed orbits involved - using multi-orbit scan");
 
-                double closestDistance = float.MaxValue;
-                double closestTime = float.MaxValue;
-
-                double startTime = resultsStartTime;
-                double endTime = startTime + startOrbit.period;
-
-                for (int i = 0; i < NumOrbitsLookAhead; ++i)
-                {
-                    OneStep(startOrbit, targetOrbit, startTime, endTime, 0, ref closestDistance, ref closestTime);
-                    startTime += startOrbit.period;
-                    endTime += startOrbit.period;
-                }
-
-                this.targetClosestDistance = closestDistance;
-                this.targetClosestUT = closestTime;
-                this.resultsValidUntil = Math.Min(resultsStartTime + startOrbit.period, closestTime);
-                //Utility.LogMessage(this, "close = {0:0} @ {1:0}, with resultsValid until {2:0}",
-                //    targetClosestDistance, targetClosestTime - Planetarium.GetUniversalTime(), this.resultsValidUntil - Planetarium.GetUniversalTime());
-            }
-        }
-
-        /// <summary>
-        /// Work completed ... signal that results are valid.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void bw_TaskComplete(object sender, RunWorkerCompletedEventArgs e)
-        {
-            resultsComputing = false;
-            resultsReady = true;
+            // Did not improve on the previous iteration.  Don't recurse.
         }
 
         internal void ResetComputation()
@@ -256,80 +126,88 @@ namespace AvionicsSystems
             resultsReady = false;
         }
 
-        internal bool resultsComputing { get; private set; }
         internal bool resultsReady { get; private set; }
         internal double targetClosestDistance { get; private set; }
         internal double targetClosestUT { get; private set; }
 
-        private double resultsValidUntil;
-        private double resultsStartTime;
-        private Orbit startOrbit;
-        private Orbit targetOrbit;
-        private BackgroundWorker worker;
-
-        /// <summary>
-        /// Iterate over our closest approach estimator.  Someday, I may figure out how to spin this into a thread
-        /// instead, so it's less costly.
-        /// </summary>
-        /// <param name="vesselOrbit"></param>
-        /// <param name="targetOrbit"></param>
-        /// <param name="now"></param>
-        /// <param name="targetClosestDistance"></param>
-        /// <param name="targetClosestUT"></param>
-        internal void IterateApproachSolver(Orbit vesselOrbit, Orbit targetOrbit, double now)
+        internal void SolveApproach(Orbit vesselOrbit, Orbit targetOrbit, double now)
         {
-            // Ignore requests while we're busy.
-            if (resultsComputing)
+#if SHORTCIRCUIT_SOLVER
+            this.targetClosestUT = 1.0;
+            this.targetClosestUT = 1.0;
+            this.resultsReady = true;
+#else
+            // This seems to be horribly broken - like, hanging the game broken.
+            try
             {
-                //Utility.LogMessage(this, "IterateApproachSolver(): I'm busy.  Check back later.");
-                return;
+                Orbit startOrbit = SelectClosestOrbit(vesselOrbit, targetOrbit.referenceBody);
+
+                if (startOrbit.eccentricity >= 1.0 || targetOrbit.eccentricity >= 1.0)
+                {
+                    // Hyperbolic orbit is involved.  Don't check multiple orbits.
+                    // This is a fairly quick search.
+
+                    double startTime = now;
+                    startTime = Math.Max(startTime, startOrbit.StartUT);
+                    startTime = Math.Max(startTime, targetOrbit.StartUT);
+
+                    double endTime;
+                    if (startOrbit.eccentricity >= 1.0)
+                    {
+                        endTime = startOrbit.EndUT;
+                    }
+                    else
+                    {
+                        endTime = startTime + startOrbit.period * 6.0;
+                    }
+                    if (targetOrbit.eccentricity >= 1.0)
+                    {
+                        endTime = Math.Min(endTime, targetOrbit.EndUT);
+                    }
+                    else
+                    {
+                        endTime = Math.Min(endTime, targetOrbit.period * 6.0);
+                    }
+
+                    double targetClosestDistance = float.MaxValue;
+                    double targetClosestTime = float.MaxValue;
+                    FindClosest(startOrbit, targetOrbit, startTime, endTime, 0, ref targetClosestDistance, ref targetClosestTime);
+
+                    this.targetClosestDistance = targetClosestDistance;
+                    this.targetClosestUT = targetClosestTime;
+                }
+                else
+                {
+                    double startTime = now;
+                    double endTime = startTime + startOrbit.period;
+                    targetClosestDistance = float.MaxValue;
+
+                    for (int i = 0; i < NumOrbitsLookAhead; ++i)
+                    {
+                        double closestDistance = float.MaxValue;
+                        double closestTime = float.MaxValue;
+
+                        FindClosest(startOrbit, targetOrbit, startTime, endTime, 0, ref closestDistance, ref closestTime);
+                        startTime += startOrbit.period;
+                        endTime += startOrbit.period;
+
+                        if(closestDistance < this.targetClosestDistance)
+                        {
+                            this.targetClosestDistance = closestDistance;
+                            this.targetClosestUT = closestTime;
+                        }
+                    }
+
+                    //this.targetClosestDistance = closestDistance;
+                    //this.targetClosestUT = closestTime;
+                }
+                this.resultsReady = true;
             }
-
-            Orbit startOrbit = SelectClosestOrbit(vesselOrbit, targetOrbit.referenceBody);
-
-            bool needToRecompute = false;
-            if (!OrbitsSimilar(targetOrbit, this.targetOrbit))
+            catch(Exception e)
             {
-                //Utility.LogMessage(this, "IterateApproachSolver(): Target Orbit has changed - going to work.");
-                needToRecompute = true;
+                Utility.LogMessage("ApproachSolver threw {0}", e);
             }
-            if (!OrbitsSimilar(startOrbit, this.startOrbit))
-            {
-                //Utility.LogMessage(this, "IterateApproachSolver(): Vessel Orbit has changed - going to work.");
-                needToRecompute = true;
-            }
-            if (now > resultsValidUntil)
-            {
-                //Utility.LogMessage(this, "IterateApproachSolver(): Results have expired - going to work.");
-                needToRecompute = true;
-            }
-
-            if (needToRecompute)
-            {
-                //this.resultsReady = false;
-                this.resultsComputing = true;
-
-                //this.targetClosestDistance = float.MaxValue;
-                //this.targetClosestUT = float.MaxValue;
-
-                this.targetOrbit = new Orbit(targetOrbit);
-                this.targetOrbit.Init(); // needed?
-
-                this.startOrbit = new Orbit(startOrbit);
-                this.startOrbit.Init(); // needed?
-
-                resultsStartTime = now;
-
-                worker = new BackgroundWorker();
-                worker.DoWork += bw_FindClosestApproach;
-                worker.RunWorkerCompleted += bw_TaskComplete;
-
-                worker.RunWorkerAsync();
-            }
-            else
-            {
-                worker = null;
-            }
+#endif
         }
     }
 }

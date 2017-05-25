@@ -188,12 +188,12 @@ namespace AvionicsSystems
                 universalTime = Planetarium.GetUniversalTime();
                 deltaTime = universalTime - oldUT;
 
-                if (refreshReferenceTransform)
+                //if (refreshReferenceTransform)
                 {
                     // GetReferenceTransformPart() seems to be pointing at the
                     // previous part when the callback fires, so I use this hack
                     // to manually recompute it here.
-                    UpdateReferenceTransform(referenceTransform);
+                    UpdateReferenceTransform(vessel.ReferenceTransform);
                     refreshReferenceTransform = false;
                 }
 
@@ -619,7 +619,66 @@ namespace AvionicsSystems
         #region Maneuver
         private ManeuverNode node;
         internal Orbit nodeOrbit;
+        private Matrix4x4D mnvrBasis = Matrix4x4D.Identity();
         private double nodeDV = -1.0;
+        private void RefreshNodeValues()
+        {
+            // Per KSP API wiki http://docuwiki-kspapi.rhcloud.com/#/classes/ManeuverNode:
+            // The x-component of DeltaV represents the delta-V in the radial-plus direction.
+            // The y-component of DeltaV  represents the delta-V in the normal-minus direction.
+            // The z-component of DeltaV represents the delta-V in the prograde direction.
+            // However... it is not returned in the basis of the orbit at the time of the
+            // maneuver.  It needs transformed into the right basis.
+            maneuverVector = node.GetBurnVector(orbit);
+            nodeDV = maneuverVector.magnitude;
+            maneuverNodeComponentVector = Orbit.Swizzle(maneuverVector);
+
+            Vector3d mnvrPrograde = orbit.getOrbitalVelocityAtUT(node.UT);
+            mnvrPrograde.Normalize(); // Prograde vector at maneuver time
+
+            // ? Radial ?  Not entirely sure it's right.
+            Vector3d mnvrRadial = orbit.getRelativePositionAtUT(node.UT);
+            mnvrRadial = Vector3.ProjectOnPlane(mnvrRadial, prograde);
+            mnvrRadial.Normalize();
+
+            Vector3d mnvrNml = -Vector3.Cross(mnvrRadial, mnvrPrograde);
+            mnvrNml.Normalize();
+
+            mnvrBasis.m00 = mnvrPrograde.x;
+            mnvrBasis.m01 = mnvrPrograde.y;
+            mnvrBasis.m02 = mnvrPrograde.z;
+            mnvrBasis.m10 = mnvrRadial.x;
+            mnvrBasis.m11 = mnvrRadial.y;
+            mnvrBasis.m12 = mnvrRadial.z;
+            mnvrBasis.m20 = mnvrNml.x;
+            mnvrBasis.m21 = mnvrNml.y;
+            mnvrBasis.m22 = mnvrNml.z;
+
+            mnvrBasis = mnvrBasis.Inverse();
+
+            maneuverNodeComponentVector = mnvrBasis.TransformPoint(maneuverNodeComponentVector);
+        }
+
+        private Vector3d maneuverNodeComponentVector = Vector3d.zero;
+        internal Vector3d maneuverNodeComponent
+        {
+            get
+            {
+                if (nodeDV < 0.0)
+                {
+                    if (node != null && orbit != null)
+                    {
+                        RefreshNodeValues();
+                    }
+                    else
+                    {
+                        nodeDV = 0.0;
+                    }
+                }
+
+                return maneuverNodeComponentVector;
+            }
+        }
         internal double maneuverNodeDeltaV
         {
             get
@@ -628,8 +687,7 @@ namespace AvionicsSystems
                 {
                     if (node != null && orbit != null)
                     {
-                        maneuverVector = node.GetBurnVector(orbit);
-                        nodeDV = maneuverVector.magnitude;
+                        RefreshNodeValues();
                     }
                     else
                     {
@@ -649,8 +707,7 @@ namespace AvionicsSystems
                 {
                     if (node != null && orbit != null)
                     {
-                        maneuverVector = node.GetBurnVector(orbit);
-                        nodeDV = maneuverVector.magnitude;
+                        RefreshNodeValues();
                     }
                     else
                     {
@@ -700,6 +757,7 @@ namespace AvionicsSystems
             }
             nodeDV = -1.0;
             maneuverVector = Vector3d.zero;
+            maneuverNodeComponentVector = Vector3d.zero;
         }
         #endregion
 
@@ -722,8 +780,44 @@ namespace AvionicsSystems
         internal string targetName;
         internal Transform targetDockingTransform; // Docking node transform - valid only for docking port targets.
         internal Orbit targetOrbit;
-        internal double targetClosestUT;
-        internal double targetClosestDistance;
+        internal double targetClosestUT
+        {
+            get
+            {
+                if (activeTarget != null && !approachSolverBW.resultsReady)
+                {
+                    approachSolverBW.SolveApproach(orbit, targetOrbit, universalTime);
+                }
+                return approachSolverBW.resultsReady ? approachSolverBW.targetClosestUT : 0.0;
+            }
+        }
+        internal double targetClosestDistance
+        {
+            get
+            {
+                if (activeTarget != null && !approachSolverBW.resultsReady)
+                {
+                    approachSolverBW.SolveApproach(orbit, targetOrbit, universalTime);
+                }
+                if (approachSolverBW.resultsReady)
+                {
+                    if (targetType == TargetType.CelestialBody)
+                    {
+                        // If we are targeting a body, account for the radius of the planet when describing closest approach.
+                        // That is, targetClosestDistance is effectively PeA.
+                        return Math.Max(0.0, approachSolverBW.targetClosestDistance - (activeTarget as CelestialBody).Radius);
+                    }
+                    else
+                    {
+                        return approachSolverBW.targetClosestDistance;
+                    }
+                }
+                else
+                {
+                    return 0.0;
+                }
+            }
+        }
         internal bool targetValid
         {
             get
@@ -780,25 +874,6 @@ namespace AvionicsSystems
 
                 targetName = activeTarget.GetName();
                 targetOrbit = activeTarget.GetOrbit();
-
-                // Fire off a background worker to solve the closest approach.
-                // The background worker may ignore this request if the orbits
-                // are fairly close to the last solution, and it will ignore the
-                // request if it is actively solving.
-                approachSolverBW.IterateApproachSolver(orbit, targetOrbit, universalTime);
-
-                if (approachSolverBW.resultsReady)
-                {
-                    targetClosestDistance = approachSolverBW.targetClosestDistance;
-                    targetClosestUT = approachSolverBW.targetClosestUT;
-
-                    if (targetType == TargetType.CelestialBody)
-                    {
-                        // If we are targeting a body, account for the radius of the planet when describing closest approach.
-                        // That is, targetClosestDistance is effectively PeA.
-                        targetClosestDistance = Math.Max(0.0, targetClosestDistance - (activeTarget as CelestialBody).Radius);
-                    }
-                }
             }
             else
             {
@@ -810,11 +885,9 @@ namespace AvionicsSystems
                 targetDockingTransform = null;
                 targetName = string.Empty;
                 targetOrbit = null;
-                targetClosestUT = universalTime;
-                targetClosestDistance = 0.0;
 
-                approachSolverBW.ResetComputation();
             }
+            approachSolverBW.ResetComputation();
         }
         #endregion
 
