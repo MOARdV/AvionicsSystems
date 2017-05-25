@@ -43,6 +43,13 @@ Prop configs included in MAS are CC-BY-SA.
 
 ---
 
+MAS includes a modified version of the KP0110 IVA originally created by
+Ledenko and released into the public domain.
+
+http://forum.kerbalspaceprogram.com/index.php?/topic/74147-k-p0110-apollo-like-crew-module-now-with-source-files-included/
+
+---
+
 MAS incorporates code derived from the Bantam Java-based Pratt parser:
 
 https://github.com/munificent/bantam
