@@ -261,15 +261,15 @@ namespace AvionicsSystems
 
                 if (typeof(T) != parms[0].ParameterType)
                 {
-                    throw new ArgumentException("CreateFunc<T, U, V, W> parameter [0] mismatch");
+                    throw new ArgumentException("CreateFunc<T, U, V> parameter [0] mismatch");
                 }
                 if (typeof(U) != parms[1].ParameterType)
                 {
-                    throw new ArgumentException("CreateFunc<T, U, V, W> parameter [1] mismatch");
+                    throw new ArgumentException("CreateFunc<T, U, V> parameter [1] mismatch");
                 }
                 if (typeof(V) != parms[2].ParameterType)
                 {
-                    throw new ArgumentException("CreateFunc<T, U, V, W> parameter [2] mismatch");
+                    throw new ArgumentException("CreateFunc<T, U, V> parameter [2] mismatch");
                 }
             }
             else
@@ -285,11 +285,11 @@ namespace AvionicsSystems
                 //}
                 if (typeof(U) != parms[0].ParameterType)
                 {
-                    throw new ArgumentException("CreateFunc<T, U, V, W> parameter [0] mismatch");
+                    throw new ArgumentException("CreateFunc<T, U, V> parameter [0] mismatch");
                 }
                 if (typeof(V) != parms[1].ParameterType)
                 {
-                    throw new ArgumentException("CreateFunc<T, U, V, W> parameter [1] mismatch");
+                    throw new ArgumentException("CreateFunc<T, U, V> parameter [1] mismatch");
                 }
             }
 
