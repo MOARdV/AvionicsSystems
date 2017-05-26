@@ -35,6 +35,7 @@ namespace AvionicsSystems
         public override string Title { get { return "MOARdV Avionics Systems Options"; } }
         public override GameParameters.GameMode GameMode { get { return GameParameters.GameMode.ANY; } }
         public override string Section { get { return "MAS"; } }
+        public override string DisplaySection { get { return "MAS"; } }
         public override int SectionOrder { get { return 1; } }
         public override bool HasPresets { get { return false; } }
 
