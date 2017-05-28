@@ -56,7 +56,7 @@ namespace AvionicsSystems
         /// Our current reference transform.
         /// </summary>
         internal Transform referenceTransform;
-        private bool refreshReferenceTransform = false;
+        //private bool refreshReferenceTransform = false;
 
         /// <summary>
         /// Type of object that the reference transform is attached to.
@@ -194,7 +194,7 @@ namespace AvionicsSystems
                     // previous part when the callback fires, so I use this hack
                     // to manually recompute it here.
                     UpdateReferenceTransform(vessel.ReferenceTransform);
-                    refreshReferenceTransform = false;
+                    //refreshReferenceTransform = false;
                 }
 
                 // If there was a mouse double-click event, and we think there's
@@ -358,7 +358,7 @@ namespace AvionicsSystems
                     //Utility.LogMessage(this, "Start for {0}", vessel.id);
 
                     UpdateReferenceTransform(vessel.ReferenceTransform);
-                    refreshReferenceTransform = true;
+                    //refreshReferenceTransform = true;
 
                     RefreshData();
                 }
@@ -1033,7 +1033,7 @@ namespace AvionicsSystems
         private void onVesselReferenceTransformSwitch(Transform fromXform, Transform toXform)
         {
             UpdateReferenceTransform(toXform);
-            refreshReferenceTransform = true;
+            //refreshReferenceTransform = true;
             //Utility.LogMessage(this, "onVesselReferenceTransformSwitch from {0} to {1}; fromMatch = {2}", 
             //    (fromXform == null) ? "(null)" : fromXform.name,
             //    (toXform == null) ? "(null)" : toXform.name,
