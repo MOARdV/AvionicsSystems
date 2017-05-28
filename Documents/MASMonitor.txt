@@ -80,6 +80,47 @@ the desired page.  In the example config above, for instance, a button on the sa
 `fc.SetPersistent("%AUTOID%", "Orbit_Page")` to select the second page in the list.
 
 
+CAMERA
+
+The Camera node renders the view from cameras on board the vessel.  Such cameras can be used for
+docking, or inspecting the exterior of the craft, or surveying things from a distance.  The
+camera objects are created by adding a MASCamera module to a part, and correctly configuring it
+(see MASCamera).
+
+Cameras are accessed by name, and each camera should have a unique name.  To allow some generalization
+in monitor configuration, the MASFlightComputer has method that allow cameras to be addressed by
+number, but MAS makes no guarantees on the ordering of those cameras.
+
+For the most efficient use of memory, the size of the camera should be a power-of-2 (64, 128, 256,
+512).  It does not have to be square. For instance, a 512 x 256 size is okay.
+
+TODO: Add an invalid camera texture optional parameter.
+
+CAMERA
+{
+	name = ActionCam
+	position = 0,0
+	size = 256, 256
+	camera = "MyActionCam"
+	//camera = fc.GetCameraName(0)
+	//camera = fc.GetPersistent("My-Active-Camera-Variable")
+	//variable = fc.GetBrakes()
+	//range = 0.5, 1.1
+}
+
+'name': Optional.  Default '(anonymous)'.  A name for the node.
+'position': Required.  The location on the monitor where the upper-left
+corner of the camera view will be placed.
+'size': Required.  The size of the camera view.
+'camera': Required.  Identifies which camera should be rendered.  If an invalid name is provided,
+nothing is rendered.
+'variable': Optional.  When present, the variable will control whether the horizon
+is rendered or not.
+'range': Optional.  Ignored if 'variable' is not present.  When present, the
+'variable' operates in Threshold Mode; when absent, the 'variable' operates in
+Boolean Mode.
+
+
 HORIZON
 
 The Horizon node renders an artificial horizon, such as would be found on aircraft.  It is

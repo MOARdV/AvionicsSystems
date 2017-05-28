@@ -37,7 +37,11 @@ namespace AvionicsSystems
 
         private static IMASMonitorComponent CreatePageComponent(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
-            if (config.name == "HORIZON")
+            if (config.name == "CAMERA")
+            {
+                return new MASPageCamera(config, prop, comp, monitor, pageRoot, depth);
+            }
+            else if (config.name == "HORIZON")
             {
                 return new MASPageHorizon(config, prop, comp, monitor, pageRoot, depth);
             }
