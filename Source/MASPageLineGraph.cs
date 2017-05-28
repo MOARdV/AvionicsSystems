@@ -40,7 +40,6 @@ namespace AvionicsSystems
         private GameObject borderObject;
         private Material graphMaterial;
         private Material borderMaterial;
-        private MASFlightComputer comp;
         private LineRenderer lineRenderer;
         private LineRenderer borderRenderer;
         private readonly float verticalSpan;
@@ -58,7 +57,6 @@ namespace AvionicsSystems
 
         internal MASPageLineGraph(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
-            this.comp = comp;
             if (!config.TryGetValue("name", ref name))
             {
                 name = "(anonymous)";
@@ -293,7 +291,6 @@ namespace AvionicsSystems
         /// </summary>
         public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
-            this.comp = null;
             lineRenderer = null;
             UnityEngine.Object.Destroy(graphMaterial);
             graphMaterial = null;
