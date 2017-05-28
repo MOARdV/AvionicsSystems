@@ -38,9 +38,11 @@ namespace AvionicsSystems
         public Vector2 fovRange = new Vector2(50.0f, 50.0f);
 
         /// <summary>
-        /// Used internally to allow current FoV to persist.
+        /// Used internally to allow current FoV to persist.  Should only
+        /// be changed programmatically through AddFoV() and SetFoV() to
+        /// manage the FoV limits.
         /// </summary>
-        [KSPField(isPersistant=true)]
+        [KSPField(isPersistant = true)]
         public float currentFov = 50.0f;
 
         /// <summary>
@@ -53,7 +55,9 @@ namespace AvionicsSystems
         public Vector2 panRange = new Vector2(0.0f, 0.0f);
 
         /// <summary>
-        /// Used internally to allow current pan angle to persist.
+        /// Used internally to allow current pan angle to persist.  Should only
+        /// be changed programmatically through AddPan() and SetPan() to
+        /// manage the pan limits.
         /// </summary>
         [KSPField(isPersistant = true)]
         public float currentPan = 0.0f;
@@ -68,10 +72,12 @@ namespace AvionicsSystems
         public Vector2 tiltRange = new Vector2(0.0f, 0.0f);
 
         /// <summary>
-        /// Used internally to allow current tilt angle to persist.
+        /// Used internally to allow current tilt angle to persist.  Should only
+        /// be changed programmatically through AddTilt() and SetTilt() to
+        /// manage the tilt limits.
         /// </summary>
         [KSPField(isPersistant = true)]
-        public float currentTilt= 0.0f;
+        public float currentTilt = 0.0f;
 
         /// <summary>
         /// Name of the transform that the camera is attached to.
@@ -97,7 +103,7 @@ namespace AvionicsSystems
         /// be selected in-flight, and if several cameras have the same name,
         /// only one of them will be selectable.
         /// </summary>
-        [KSPField (isPersistant=true)]
+        [KSPField(isPersistant = true)]
         public string cameraName = string.Empty;
         public string newCameraName = string.Empty;
 
@@ -105,27 +111,368 @@ namespace AvionicsSystems
         [KSPField(guiActiveEditor = true, guiName = "FOV marker")]
         public bool showFov = false;
 
+        private static readonly string[] knownCameraNames = 
+        {
+            "GalaxyCamera",
+            "Camera ScaledSpace",
+            "Camera VE Underlay", // Environmental Visual Enhancements plugin camera
+            "Camera VE Overlay",  // Environmental Visual Enhancements plugin camera
+            "Camera 01",
+            "Camera 00",
+            "FXCamera"
+        };
+        private readonly Camera[] cameras = { null, null, null, null, null, null, null };
+        private Quaternion cameraRotation = Quaternion.identity;
+
+        /// <summary>
+        /// Is this object ready to use?
+        /// </summary>
+        /// <returns>true if a this object will function, false otherwise</returns>
+        public bool IsValid()
+        {
+            return cameraTransform != null;
+        }
+
+        #region Setup - Teardown
+        /// <summary>
+        /// Configure everything.
+        /// </summary>
         public void Start()
         {
+            if (!(HighLogic.LoadedScene == GameScenes.EDITOR || HighLogic.LoadedScene == GameScenes.FLIGHT))
+            {
+                return;
+            }
+
+            if (knownCameraNames.Length != cameras.Length)
+            {
+                throw new NotImplementedException("MASCamera: Camera Names array has a different size than cameras array!");
+            }
+
+            if (!string.IsNullOrEmpty(cameraTransformName))
+            {
+                Transform cameraParentTransform = part.FindModelTransform(cameraTransformName);
+                cameraTransform = new GameObject().transform;
+                cameraTransform.gameObject.name = "MASCamera-" + cameraParentTransform.gameObject.name;
+                cameraTransform.parent = cameraParentTransform;
+                cameraTransform.position = cameraParentTransform.position;
+                cameraTransform.rotation = cameraParentTransform.rotation;
+
+                if (rotation != Vector3.zero)
+                {
+                    cameraTransform.Rotate(rotation);
+                }
+                if (translation != Vector3.zero)
+                {
+                    cameraTransform.Translate(translation);
+                }
+
+                Utility.LogMessage(this, "Looking for transform \"{0}\": {1}", cameraTransformName, (cameraParentTransform == null) ? "failure" : "success");
+            }
+
+            if (cameraTransform != null)
+            {
+                // Make everything in-order, and clamp the current values to a legal range.
+                // TODO: And clamp the ranges to legal ranges.
+                if (fovRange.y < fovRange.x)
+                {
+                    fovRange = new Vector2(fovRange.y, fovRange.x);
+                }
+                currentFov = Mathf.Clamp(currentFov, fovRange.x, fovRange.y);
+
+                if (panRange.y < panRange.x)
+                {
+                    panRange = new Vector2(panRange.y, panRange.x);
+                }
+                currentPan = Mathf.Clamp(currentPan, panRange.x, panRange.y);
+
+                if (tiltRange.y < tiltRange.x)
+                {
+                    tiltRange = new Vector2(tiltRange.y, tiltRange.x);
+                }
+                currentTilt = Mathf.Clamp(currentTilt, tiltRange.x, tiltRange.y);
+
+                cameraRotation = cameraTransform.rotation * Quaternion.Euler(currentPan, currentTilt, 0.0f);
+
+                //
+                if (HighLogic.LoadedSceneIsEditor)
+                {
+                    CreateFovRenderer();
+                }
+                else // must be flight
+                {
+                    CreateFlightCameras();
+                }
+            }
+            else if (string.IsNullOrEmpty(cameraTransformName))
+            {
+                Utility.LogErrorMessage(this, "No 'cameraTransformName' provided in part.");
+                throw new NotImplementedException("MASCamera: Missing 'cameraTransformName' in module config node.");
+            }
+            else
+            {
+                Utility.LogErrorMessage(this, "Unable to find transform \"{0}\" in part", cameraTransformName);
+            }
+        }
+
+        /// <summary>
+        /// Helper function to locate flight cameras.
+        /// </summary>
+        /// <param name="cameraName">Name of the camera we're looking for.</param>
+        /// <returns>The named camera, or null if it was not found.</returns>
+        private static Camera GetCameraByName(string cameraName)
+        {
+            for (int i = 0; i < Camera.allCamerasCount; ++i)
+            {
+                if (Camera.allCameras[i].name == cameraName)
+                {
+                    return Camera.allCameras[i];
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Create the cameras used during flight.
+        /// </summary>
+        private void CreateFlightCameras()
+        {
+            for (int i = 0; i < cameras.Length; ++i)
+            {
+                Camera sourceCamera = GetCameraByName(knownCameraNames[i]);
+                GameObject cameraBody = new GameObject();
+                cameraBody.name = "MASCamera-" + i + "-" + cameraBody.GetInstanceID();
+                cameras[i] = cameraBody.AddComponent<Camera>();
+
+                // Just in case to support JSITransparentPod.
+                cameras[i].cullingMask &= ~(1 << 16 | 1 << 20);
+
+                cameras[i].CopyFrom(sourceCamera);
+                cameras[i].enabled = false;
+                cameras[i].aspect = 1.0f;
+                cameras[i].fieldOfView = currentFov;
+                cameras[i].transform.rotation = cameraRotation;
+
+                // Minor hack to bring the near clip plane for the "up close"
+                // cameras drastically closer to where the cameras notionally
+                // are.  Experimentally, these two cameras have N/F of 0.4 / 300.0,
+                // or 750:1 Far/Near ratio.  Changing this to 8192:1 brings the
+                // near plane to 37cm or so, which hopefully is close enough to
+                // see nearby details without creating z-fighting artifacts.
+                if (i == 5 || i == 6)
+                {
+                    cameras[i].nearClipPlane = cameras[i].farClipPlane / 8192.0f;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tear down and release resources.
+        /// </summary>
+        public void OnDestroy()
+        {
+            if (minFovRenderer != null)
+            {
+                Destroy(minFovRenderer);
+                minFovRenderer = null;
+                Destroy(minFovPosition);
+                minFovPosition = null;
+            }
+            if (maxFovRenderer != null)
+            {
+                Destroy(maxFovRenderer);
+                maxFovRenderer = null;
+                Destroy(maxFovPosition);
+                maxFovPosition = null;
+            }
+            if (cameras[0] != null)
+            {
+                for (int i = 0; i < cameras.Length; ++i)
+                {
+                    try
+                    {
+                        UnityEngine.Object.Destroy(cameras[i]);
+                    }
+                    catch
+                    {
+
+                    }
+                    finally
+                    {
+                        cameras[i] = null;
+                    }
+                }
+            }
+        }
+        #endregion
+
+        #region Flight
+
+        /// <summary>
+        /// Change the current field of view by `deltaFoV` degrees, remaining within
+        /// camera FoV limits.
+        /// </summary>
+        /// <param name="deltaFoV">The amount to add or subtract to FoV in degrees.</param>
+        public void AddFoV(float deltaFoV)
+        {
+            currentFov = Mathf.Clamp(currentFov + deltaFoV, fovRange.x, fovRange.y);
+            for (int i = cameras.Length - 1; i >= 0; --i)
+            {
+                if (cameras[i] != null)
+                {
+                    cameras[i].fieldOfView = currentFov;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set the current field of view, remaining within camera FoV limits.
+        /// </summary>
+        /// <param name="fieldOfView">The new FoV in degrees.</param>
+        public void SetFoV(float fieldOfView)
+        {
+            currentFov = Mathf.Clamp(fieldOfView, fovRange.x, fovRange.y);
+            for (int i = cameras.Length - 1; i >= 0; --i)
+            {
+                if (cameras[i] != null)
+                {
+                    cameras[i].fieldOfView = currentFov;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Enable / disable the FOV cones.  Valid only in the editor.
+        /// </summary>
+        public void Update()
+        {
+            if (HighLogic.LoadedSceneIsEditor)
+            {
+                if (minFovRenderer != null)
+                {
+                    minFovRenderer.enabled = showFov;
+                }
+                if (maxFovRenderer != null)
+                {
+                    maxFovRenderer.enabled = showFov;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Render the scenes onto the supplied render texture.
+        /// </summary>
+        /// <param name="renderTarget">The RenderTexture to draw on.</param>
+        /// <returns>true if cameras rendered, false otherwise.</returns>
+        public bool Render(RenderTexture renderTarget)
+        {
+            if (!HighLogic.LoadedSceneIsFlight)
+            {
+                return false;
+            }
+
+            float width = renderTarget.width;
+            float height = renderTarget.height;
+            float aspectRatio = width / height;
+            int camerasLength = cameras.Length;
+
+            // Comment from RPM:
+            // This is a hack - FXCamera isn't always available, so I need to add and remove it in flight.
+            // I don't know if there's a callback I can use to find when it's added, so brute force it for now.
+            // TODO: Is that still operational?
+
+            for (int i = 0; i < camerasLength; ++i)
+            {
+                if (cameras[i] != null)
+                {
+                    // Comment from RPM:
+                    // ScaledSpace camera and its derived cameras from Visual Enhancements mod are special - they don't move.
+                    // TODO: But the EVE overlay camera is at 3 - so is this right?  Or should it be 4?
+                    if (i >= 3)
+                    {
+                        cameras[i].transform.position = cameraTransform.position;
+                    }
+                    cameras[i].targetTexture = renderTarget;
+                    cameras[i].aspect = aspectRatio;
+                    //cameras[i].transform.rotation = cameraRotation;
+                    //cameras[i].fieldOfView = FOV;
+                    cameras[i].Render();
+                }
+                else
+                {
+                    Utility.LogMessage(this, "Camera {0} is null during flight", knownCameraNames[i]);
+                }
+            }
+            return true;
+        }
+        #endregion
+
+        #region Editor
+        private static readonly Material fovRendererMaterial = new Material(Shader.Find("Particles/Additive"));
+        private GameObject minFovPosition;
+        private LineRenderer minFovRenderer;
+        private GameObject maxFovPosition;
+        private LineRenderer maxFovRenderer;
+        /// <summary>
+        /// Configure the editor field-of-view cones.  There are two - one of the min angle, and one for the
+        /// max - but we only configure one if min == max.
+        /// </summary>
+        private void CreateFovRenderer()
+        {
+            const float rayLength = 10.0f;
+            float minSpan = rayLength * 2.0f * (float)Math.Tan(Mathf.Deg2Rad * fovRange.x * 0.5f);
+
+            minFovPosition = new GameObject();
+            minFovRenderer = minFovPosition.AddComponent<LineRenderer>();
+            minFovRenderer.useWorldSpace = true;
+            minFovRenderer.material = fovRendererMaterial;
+            minFovRenderer.SetWidth(0.054f, minSpan);
+            minFovRenderer.SetVertexCount(2);
+            minFovRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            minFovRenderer.receiveShadows = false;
+            Vector3 origin = cameraTransform.TransformPoint(Vector3.zero);
+            Vector3 direction = cameraTransform.TransformDirection(Vector3.up);
+            minFovRenderer.SetPosition(0, origin);
+            minFovRenderer.SetPosition(1, origin + direction * rayLength);
+            Color startColor = (fovRange.y > fovRange.x) ? new Color(0.0f, 1.0f, 0.0f, 0.75f) : new Color(0.0f, 1.0f, 1.0f, 0.75f);
+            Color endColor = startColor;
+            endColor.a = 0.0f;
+            minFovRenderer.SetColors(startColor, endColor);
+            minFovRenderer.enabled = showFov;
+
+            if (fovRange.y > fovRange.x)
+            {
+                float maxSpan = rayLength * 2.0f * (float)Math.Tan(Mathf.Deg2Rad * fovRange.y * 0.5f);
+
+                maxFovPosition = new GameObject();
+                maxFovRenderer = maxFovPosition.AddComponent<LineRenderer>();
+                maxFovRenderer.useWorldSpace = true;
+                maxFovRenderer.material = fovRendererMaterial;
+                maxFovRenderer.SetWidth(0.054f, maxSpan);
+                maxFovRenderer.SetVertexCount(2);
+                maxFovRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                maxFovRenderer.receiveShadows = false;
+                maxFovRenderer.SetPosition(0, origin);
+                maxFovRenderer.SetPosition(1, origin + direction * rayLength);
+                startColor = new Color(0.0f, 0.0f, 1.0f, 0.65f);
+                endColor = startColor;
+                endColor.a = 0.0f;
+                maxFovRenderer.SetColors(startColor, endColor);
+                maxFovRenderer.enabled = showFov;
+            }
         }
 
         private bool showGui = false;
         private Rect windowPos = new Rect(Screen.width / 4, Screen.height / 4, 10f, 10f);
         private void mainGUI(int windowID)
         {
-            GUIStyle styleWindow = new GUIStyle(GUI.skin.window);
-            styleWindow.padding.left = 4;
-            styleWindow.padding.top = 4;
-            styleWindow.padding.bottom = 4;
-            styleWindow.padding.right = 4;
-
-            GUILayout.Label("Camera Name", styleWindow);
-            newCameraName = GUILayout.TextArea(newCameraName, styleWindow);
-            if (GUILayout.Button("Cancel", styleWindow, GUILayout.Height(30)))
+            GUILayout.Label("Camera Name");
+            newCameraName = GUILayout.TextArea(newCameraName);
+            if (GUILayout.Button("Cancel", GUILayout.Height(30)))
             {
                 showGui = false;
             }
-            if (GUILayout.Button("OK", styleWindow, GUILayout.Height(30)))
+            if (GUILayout.Button("OK", GUILayout.Height(30)))
             {
                 cameraName = newCameraName;
                 showGui = false;
@@ -144,12 +491,16 @@ namespace AvionicsSystems
         {
             return "Cameras rule!";
         }
+        #endregion
 
+        /// <summary>
+        /// Open the 'MASCamera Name' GUI to allow changing camera name.
+        /// </summary>
         [KSPEvent(guiActive = true, guiActiveEditor = true, guiName = "Set Camera Name")]
         public void SetCameraName()
         {
             showGui = !showGui;
-            if(showGui)
+            if (showGui)
             {
                 newCameraName = cameraName;
             }
