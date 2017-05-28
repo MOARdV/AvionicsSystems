@@ -754,6 +754,23 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
+        /// The methods in this section are focused around controlling external
+        /// cameras installed on the vessel.  They provide an interface between
+        /// the MASCamera part module and CAMERA nodes in a monitor page.
+        /// </summary>
+        #region Cameras
+
+        /// <summary>
+        /// Returns a count of the valid MASCamera modules found on this vessel.
+        /// </summary>
+        /// <returns>The number of valid MASCamera modules installed on this vessel.</returns>
+        public double CameraCount()
+        {
+            return vc.moduleCamera.Length;
+        }
+        #endregion
+
+        /// <summary>
         /// Variables related to CommNet connectivity are in this category.
         /// </summary>
         #region CommNet

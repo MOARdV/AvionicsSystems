@@ -79,6 +79,33 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Cameras
+        private List<MASCamera> cameraList = new List<MASCamera>(4);
+        internal MASCamera[] moduleCamera = new MASCamera[0];
+        private void UpdateCamera()
+        {
+
+        }
+
+        /// <summary>
+        /// Search the list of camera modules to find the named camera.
+        /// </summary>
+        /// <param name="cameraName">The name to search for</param>
+        /// <returns>The camera module, or null if it was not found.</returns>
+        internal MASCamera FindCameraModule(string cameraName)
+        {
+            for (int i = moduleCamera.Length - 1; i >= 0; --i)
+            {
+                if (moduleCamera[i].cameraName == cameraName)
+                {
+                    return moduleCamera[i];
+                }
+            }
+
+            return null;
+        }
+        #endregion
+
         #region Communications
         private List<ModuleDeployableAntenna> antennaList = new List<ModuleDeployableAntenna>(8);
         internal ModuleDeployableAntenna[] moduleAntenna = new ModuleDeployableAntenna[0];
@@ -652,7 +679,7 @@ namespace AvionicsSystems
             currentEnergyTransfer = 0.0;
 
             string tempString;
-            for (int i=moduleRadiator.Length-1; i>=0;--i)
+            for (int i = moduleRadiator.Length - 1; i >= 0; --i)
             {
                 if (moduleRadiator[i].IsCooling)
                 {
@@ -859,6 +886,10 @@ namespace AvionicsSystems
                         {
                             realchuteList.Add(module);
                         }
+                        else if (module is MASCamera)
+                        {
+                            cameraList.Add(module as MASCamera);
+                        }
 
                         foreach (BaseAction ba in module.Actions)
                         {
@@ -918,6 +949,7 @@ namespace AvionicsSystems
             TransferModules<PartModule>(realchuteList, ref moduleRealChute);
             TransferModules<ModuleReactionWheel>(reactionWheelList, ref moduleReactionWheel);
             TransferModules<ModuleDeployableSolarPanel>(solarPanelList, ref moduleSolarPanel);
+            TransferModules<MASCamera>(cameraList, ref moduleCamera);
         }
 
         /// <summary>
@@ -946,6 +978,7 @@ namespace AvionicsSystems
 
             bool requestReset = false;
             UpdateAntenna();
+            UpdateCamera();
             UpdateDockingNodeState();
             requestReset |= UpdateEngines();
             UpdateGimbals();
