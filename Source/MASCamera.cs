@@ -158,16 +158,19 @@ namespace AvionicsSystems
                 cameraTransform.position = cameraParentTransform.position;
                 cameraTransform.rotation = cameraParentTransform.rotation;
 
-                if (rotation != Vector3.zero)
-                {
-                    cameraTransform.Rotate(rotation);
-                }
+                // TODO: Still sort this out - ordering
                 if (translation != Vector3.zero)
                 {
                     cameraTransform.Translate(translation);
                 }
-
-                Utility.LogMessage(this, "Looking for transform \"{0}\": {1}", cameraTransformName, (cameraParentTransform == null) ? "failure" : "success");
+                if (rotation != Vector3.zero)
+                {
+                    cameraTransform.Rotate(rotation);
+                }
+                //if (translation != Vector3.zero)
+                //{
+                //    cameraTransform.Translate(translation);
+                //}
             }
 
             if (cameraTransform != null)
@@ -240,28 +243,31 @@ namespace AvionicsSystems
             for (int i = 0; i < cameras.Length; ++i)
             {
                 Camera sourceCamera = GetCameraByName(knownCameraNames[i]);
-                GameObject cameraBody = new GameObject();
-                cameraBody.name = "MASCamera-" + i + "-" + cameraBody.GetInstanceID();
-                cameras[i] = cameraBody.AddComponent<Camera>();
-
-                // Just in case to support JSITransparentPod.
-                cameras[i].cullingMask &= ~(1 << 16 | 1 << 20);
-
-                cameras[i].CopyFrom(sourceCamera);
-                cameras[i].enabled = false;
-                cameras[i].aspect = 1.0f;
-                cameras[i].fieldOfView = currentFov;
-                cameras[i].transform.rotation = cameraRotation;
-
-                // Minor hack to bring the near clip plane for the "up close"
-                // cameras drastically closer to where the cameras notionally
-                // are.  Experimentally, these two cameras have N/F of 0.4 / 300.0,
-                // or 750:1 Far/Near ratio.  Changing this to 8192:1 brings the
-                // near plane to 37cm or so, which hopefully is close enough to
-                // see nearby details without creating z-fighting artifacts.
-                if (i == 5 || i == 6)
+                if (sourceCamera != null)
                 {
-                    cameras[i].nearClipPlane = cameras[i].farClipPlane / 8192.0f;
+                    GameObject cameraBody = new GameObject();
+                    cameraBody.name = "MASCamera-" + i + "-" + cameraBody.GetInstanceID();
+                    cameras[i] = cameraBody.AddComponent<Camera>();
+
+                    // Just in case to support JSITransparentPod.
+                    cameras[i].cullingMask &= ~(1 << 16 | 1 << 20);
+
+                    cameras[i].CopyFrom(sourceCamera);
+                    cameras[i].enabled = false;
+                    cameras[i].aspect = 1.0f;
+                    cameras[i].fieldOfView = currentFov;
+                    cameras[i].transform.rotation = cameraRotation;
+
+                    // Minor hack to bring the near clip plane for the "up close"
+                    // cameras drastically closer to where the cameras notionally
+                    // are.  Experimentally, these two cameras have N/F of 0.4 / 300.0,
+                    // or 750:1 Far/Near ratio.  Changing this to 8192:1 brings the
+                    // near plane to 37cm or so, which hopefully is close enough to
+                    // see nearby details without creating z-fighting artifacts.
+                    if (i == 5 || i == 6)
+                    {
+                        cameras[i].nearClipPlane = cameras[i].farClipPlane / 8192.0f;
+                    }
                 }
             }
         }
@@ -348,6 +354,10 @@ namespace AvionicsSystems
         {
             if (HighLogic.LoadedSceneIsEditor)
             {
+                // TODO: Renderers don't show up if the part is added.
+                // only when a craft is loaded with camera attached.
+                // RPM used callbacks for onattach / ondetach - maybe
+                // they need to be used here.
                 if (minFovRenderer != null)
                 {
                     minFovRenderer.enabled = showFov;
@@ -398,10 +408,10 @@ namespace AvionicsSystems
                     //cameras[i].fieldOfView = FOV;
                     cameras[i].Render();
                 }
-                else
-                {
-                    Utility.LogMessage(this, "Camera {0} is null during flight", knownCameraNames[i]);
-                }
+                //else
+                //{
+                //    Utility.LogMessage(this, "Camera {0} is null during flight", knownCameraNames[i]);
+                //}
             }
             return true;
         }
@@ -431,7 +441,7 @@ namespace AvionicsSystems
             minFovRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             minFovRenderer.receiveShadows = false;
             Vector3 origin = cameraTransform.TransformPoint(Vector3.zero);
-            Vector3 direction = cameraTransform.TransformDirection(Vector3.up);
+            Vector3 direction = cameraTransform.forward;
             minFovRenderer.SetPosition(0, origin);
             minFovRenderer.SetPosition(1, origin + direction * rayLength);
             Color startColor = (fovRange.y > fovRange.x) ? new Color(0.0f, 1.0f, 0.0f, 0.75f) : new Color(0.0f, 1.0f, 1.0f, 0.75f);
