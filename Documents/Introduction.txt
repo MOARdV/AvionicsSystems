@@ -181,7 +181,7 @@ Lua comes with a downside, however.  It's an interpreted language running in C#,
 and it is S-L-O-W, and the MoonSharp interpreter generates a lot of temporary
 allocations (which lead to garbage collection).  As such, I strongly recommend
 minimizing the use of full-on Lua scripting in variables.  For actions (responses
-to key presses), it's less of an issue, since those do not fire every FixedUpdate.
+to clicks), it's less of an issue, since those do not fire every FixedUpdate.
 
 To help minimize the use of Lua, MAS is able to parse quite a few variables into
 lambda functions that run natively in C#.  This capability is done automatically

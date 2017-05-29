@@ -53,11 +53,11 @@ ANIMATION_PLAYER
     //range = 0.5,1.5
 }
 
-'name': Optional.  Default '(anonymous)'.  A name for the action.
-'animation': Required.  The name of the animation that is triggered by the variable changing.
-'speed': Optional.  Default 1.0.  Used to adjust animation playback rate.
-'variable': Required.  The name of the variable script to evaluate.
-'range': Optional.  When present, the Animation Player operates in Threshold Mode.  When absent, the player operates
+* **name**: Optional.  Default '(anonymous)'.  A name for the action.
+* **animation**: Required.  The name of the animation that is triggered by the variable changing.
+* **speed**: Optional.  Default 1.0.  Used to adjust animation playback rate.
+* **variable**: Required.  The name of the variable script to evaluate.
+* **range**: Optional.  When present, the Animation Player operates in Threshold Mode.  When absent, the player operates
 in Boolean Mode.
 
 
@@ -85,17 +85,17 @@ AUDIO_PLAYER
 	//pitch = fc.AtmosphereDepth()
 }
 
-'name': Optional.  Default '(anonymous)'.  A name for the action.
-'sound': Required.  The URI to the audio clip to play.
-'volume': Optional.  Default 1.0.  The volume at which the audio should be played (a range between 0 and 1).  May use either a variable or a constant number.
-'trigger': Required.  The conditions under which the audio is played, as explained
+* **name**: Optional.  Default '(anonymous)'.  A name for the action.
+* **sound**: Required.  The URI to the audio clip to play.
+* **volume**: Optional.  Default 1.0.  The volume at which the audio should be played (a range between 0 and 1).  May use either a variable or a constant number.
+'trigger**: Required.  The conditions under which the audio is played, as explained
 in the text above.
-'variable': Required.  The name of the variable script to evaluate.
-'range': Optional.  When present, the Audio Player operates in Threshold Mode.  When absent, the player operates
+* **variable**: Required.  The name of the variable script to evaluate.
+* **range**: Optional.  When present, the Audio Player operates in Threshold Mode.  When absent, the player operates
 in Boolean Mode.
-'mustPlayOnce': Optional.  When true, the audio clip will be played completely, even if the controlling variable goes
+'mustPlayOnce**: Optional.  When true, the audio clip will be played completely, even if the controlling variable goes
 out of range.  Not valid with trigger = LOOP.
-'pitch': Optional.  Default 1.0.  The pitch for the audio playback.  May be a variable or a constant number.
+* **pitch**: Optional.  Default 1.0.  The pitch for the audio playback.  May be a variable or a constant number.
 
 
 COLLIDER_EVENT
@@ -113,16 +113,16 @@ COLLIDER_EVENT
 	//volume = 
 }
 
-'name': Optional.  Default '(anonymous)'.  A name for the action.
-'transform': Required.  The transform in the prop that contains a collider.
-'onClick', 'onRelease': One or the other is required; both may be present.  A Lua Action to trigger when the prop's
+* **name**: Optional.  Default '(anonymous)'.  A name for the action.
+* **transform**: Required.  The transform in the prop that contains a collider.
+* **onClick**, **onRelease**: One or the other is required; both may be present.  A Lua Action to trigger when the prop's
 transform is clicked or released.  If both are present, the switch may be used for momentary events.
-'autoRepeat': Optional.  Default 0.0.  When set to a positive number, the 'onClick' event
+* **autoRepeat**: Optional.  Default 0.0.  When set to a positive number, the 'onClick' event
 triggers every 'autoRepeat' seconds until the button is released.  It is possible to use autoRepeat, onClick, and onRelease
 in the same Collider Event.
-'sound': Optional.  Required if 'volume' is present.  When present, plays the specified audio when the click event
+* **sound**: Optional.  Required if 'volume' is present.  When present, plays the specified audio when the click event
 fires.
-'volume': Optional.  Required if 'sound' is present.  Adjusts the volume of the click sound.
+* **volume**: Optional.  Required if 'sound' is present.  Adjusts the volume of the click sound.
 
 
 COLOR_SHIFT
@@ -146,21 +146,21 @@ COLOR_SHIFT
 	//colorName = _EmissiveColor
 }
 
-'name': Optional.  Default '(anonymous)'.  A name for the action.
-'transform': Required.  The name of a transform or a comma-separated list of transforms whose color will be shifted.
-'passiveColor': Required.  The RGBA quadruplet or RasterPropMonitor-compatible Named Color
+* **name**: Optional.  Default '(anonymous)'.  A name for the action.
+* **transform**: Required.  The name of a transform or a comma-separated list of transforms whose color will be shifted.
+* **passiveColor**: Required.  The RGBA quadruplet or RasterPropMonitor-compatible Named Color
 to use when the variable is out of bounds.
-'activeColor': Required.  The RGBA quadruplet or RasterPropMonitor-compatible Named Color
+* **activeColor**: Required.  The RGBA quadruplet or RasterPropMonitor-compatible Named Color
 to use when the variable is in bounds.
-'variable': Required.  The name of the variable script to evaluate.
-'range': Optional.  When present, the Color Shift operates in threshold mode.  When absent, the shift is done
+* **variable**: Required.  The name of the variable script to evaluate.
+* **range**: Optional.  When present, the Color Shift operates in threshold mode.  When absent, the shift is done
 in boolean mode.
-'blend': Optional. Default false.  Ignored if 'range' is not present.  When true, the color is linearly
+* **blend**: Optional. Default false.  Ignored if 'range' is not present.  When true, the color is linearly
 interpolated between passiveColor and activeColor based on where in the range the variable falls.
-'flashRate': Optional.  Default 0.0.  Ignored if 'blend' is enabled.  Specifies one-half of the duty
+* **flashRate**: Optional.  Default 0.0.  Ignored if 'blend' is enabled.  Specifies one-half of the duty
 cycle for a blinking light (in other words, a flashRate of 0.5 means the light is on 0.5 seconds, and then
 off for 0.5 seconds).
-'colorName': Optional.  Default '_EmissiveColor'.  Controls which color this Color Shift action will alter.
+* **colorName**: Optional.  Default '_EmissiveColor'.  Controls which color this Color Shift action will alter.
 Known working values are '_Color' (diffuse) and '_EmissiveColor'.
 
 An alternate mode for COLOR_SHIFT is a one-time color change.  If 'variable' is omitted, the 'passiveColor'
@@ -185,11 +185,11 @@ DYNAMIC_TEXTURE_SHIFT
 	layers = _MainTex _Emissive
 	variable = MOARdVParachuteSafetyTexture()
 }
-'name': Optional.  Default '(anonymous)'.  A name for the action.
-'transform': Required.  The name of the transform whose UV values will be shifted.
-'layers': Optional.  Default '_MainTex'.  A space-delimited list of layers where the texture shift should be applied.
+* **name**: Optional.  Default '(anonymous)'.  A name for the action.
+* **transform**: Required.  The name of the transform whose UV values will be shifted.
+* **layers**: Optional.  Default '_MainTex'.  A space-delimited list of layers where the texture shift should be applied.
 Known valid options are '_MainTex' and '_Emissive'.
-'variable': Required.  A user-supplied variable that returns a Vector2 (as created using fc.Vector2)
+* **variable**: Required.  A user-supplied variable that returns a Vector2 (as created using fc.Vector2)
 that provides the UV offset from the initial setting.
 
 
@@ -205,10 +205,10 @@ INT_LIGHT
 	//range = 0.5, 1.5
 }
 
-'name': Optional.  Default '(anonymous)'.  A name for the action.
-'transform': Required.  The name of the transforms that contain lights.
-'variable': Required.  The name of the variable script to evaluate.
-'range': Optional.  When present, the Int Light operates in threshold mode.  When absent, it operates
+* **name**: Optional.  Default '(anonymous)'.  A name for the action.
+* **transform**: Required.  The name of the transforms that contain lights.
+* **variable**: Required.  The name of the variable script to evaluate.
+* **range**: Optional.  When present, the Int Light operates in threshold mode.  When absent, it operates
 in boolean mode.
 
 
@@ -228,16 +228,16 @@ MODEL_SCALE
 	//blend = true
 }
 
-'name': Optional.  Default '(anonymous)'.  A name for the action.
-'transform': Required.  The name of the transform that will be scaled.
-'startScale': Required.  A Vector3 showing how much should be added to the
+* **name**: Optional.  Default '(anonymous)'.  A name for the action.
+* **transform**: Required.  The name of the transform that will be scaled.
+* **startScale**: Required.  A Vector3 showing how much should be added to the
 transform's scale when the variable is out of range.
-'endScale': Required.  A Vec3 showing how much should be added to the transform's
+* **endScale**: Required.  A Vec3 showing how much should be added to the transform's
 scale when the variable is in range.
-'variable': Required.  The name of the variable script to evaluate.
-'range': Optional.  When present, the Model Scale operates in Threshold Mode.  When absent, it operates
+* **variable**: Required.  The name of the variable script to evaluate.
+* **range**: Optional.  When present, the Model Scale operates in Threshold Mode.  When absent, it operates
 in Boolean Mode.
-'blend': Optional. Default false.  Ignored if 'range' is not present.  When true, the transform is linearly
+* **blend**: Optional. Default false.  Ignored if 'range' is not present.  When true, the transform is linearly
 interpolated between startScale and endScale based on where in the range the variable falls.
 
 
@@ -279,24 +279,24 @@ ROTATION
 	//speed = 1.0
 }
 
-'name': Optional.  Default '(anonymous)'.  A name for the action.
-'transform': Required.  The name of the transforms that contain lights.
-'startRotation': Required.  The Euler angles of the initial rotation position.  This value is
+* **name**: Optional.  Default '(anonymous)'.  A name for the action.
+* **transform**: Required.  The name of the transforms that contain lights.
+* **startRotation**: Required.  The Euler angles of the initial rotation position.  This value is
 used for Static mode, as well as the other modes for values out of range.
-'endRotation': Required.  The Euler angles of the final rotation position.  This value may be
+* **endRotation**: Required.  The Euler angles of the final rotation position.  This value may be
 omitted for Static mode.
-'variable': Required.  The name of the variable script to evaluate.
-'range': Optional.  When present, the Rotation operates in Threshold Mode.  When absent, it operates
+* **variable**: Required.  The name of the variable script to evaluate.
+* **range**: Optional.  When present, the Rotation operates in Threshold Mode.  When absent, it operates
 in Boolean Mode.
-'blend': Optional. Default false.  Ignored if 'range' is not present.  When true, the transform is spherically
+* **blend**: Optional. Default false.  Ignored if 'range' is not present.  When true, the transform is spherically
 interpolated between startRotation and endRotation based on where in the range the variable falls.
-'longPath': Optional.  Default false.  Ignored if 'blend' is not true.  When true, the rotation
+* **longPath**: Optional.  Default false.  Ignored if 'blend' is not true.  When true, the rotation
 will take the longer route to cycle from the start to the end position, instead of the shortest possible
 route.
-'modulo': Optional.  Default 0.0.  Ignored if 'blend' is not true.  When set to a positive value, modulo
+* **modulo**: Optional.  Default 0.0.  Ignored if 'blend' is not true.  When set to a positive value, modulo
 allows for a variable to cycle a rotation repeatedly around a circle without requiring it to animate the
 entire transition (such as looping repeatedly).
-'speed': Optional.  Default 0.0.  Ignored if 'blend' is not true, or if speed is not positive.  The speed
+* **speed**: Optional.  Default 0.0.  Ignored if 'blend' is not true, or if speed is not positive.  The speed
 parameter describes how quickly the animation can go from 'startRotation' to 'endRotation', in seconds.
 Thus, numbers larger than one are faster, while smaller numbers are slower.  If 'modulo' is also valid,
 'speed' represents how quickly the Rotation can complete a single circuit.
@@ -340,39 +340,39 @@ TEXT_LABEL
 	text = RCS
 }
 
-'name': Optional.  Default '(anonymous)'.  A name for the action.
-'transform': Required.  The transform in the prop where you want to apply the text.
-'fontSize': Required.  How large the text should be in arbitrary units.
-'oneshot': Optional.  Default false.  If true, 'text' is considered immutable, meaning that
+* **name**: Optional.  Default '(anonymous)'.  A name for the action.
+* **transform**: Required.  The transform in the prop where you want to apply the text.
+* **fontSize**: Required.  How large the text should be in arbitrary units.
+* **oneshot**: Optional.  Default false.  If true, 'text' is considered immutable, meaning that
 is will never be updated after its initial value is determined.  If no variables are included
 in 'text', it automatically is treated as immutable, so this parameter is only needed for
 text that consumes variables that you know won't need updates after initialization.
-'font': Required.  The name of the font to use.  Supported fonts include system fonts (which
+* **font**: Required.  The name of the font to use.  Supported fonts include system fonts (which
 may not be on every computer), Arial, Inconsolata-Go, <-TODO->
-'alignment': Optional.  Default 'Left'.  Controls horizontal justification of the text.  Valid
+* **alignment**: Optional.  Default 'Left'.  Controls horizontal justification of the text.  Valid
 options are 'Left', 'Right', and 'Center'.
-'anchor': Optional.  Default 'UpperLeft'.  Controls vertical justification of the text. Valid
+* **anchor**: Optional.  Default 'UpperLeft'.  Controls vertical justification of the text. Valid
 options are combinations of the prefixes 'Upper', 'Middle', or 'Lower' and the suffixes
 'Left', 'Center', or 'Right'.
-'transformOffset': Optional.  Default (0, 0).  Allows the text to be displaced from the
+* **transformOffset**: Optional.  Default (0, 0).  Allows the text to be displaced from the
 specified transform.
-'emissive': Optional.  Default 'active' or 'always'.  Valid options are 'active', 'always',
+* **emissive**: Optional.  Default 'active' or 'always'.  Valid options are 'active', 'always',
 'never', 'flash', or 'passive'.
-'variable': Optional.  Required if activeColor is defined.  The variable that controls text color
+* **variable**: Optional.  Required if activeColor is defined.  The variable that controls text color
 and emissive properties.
-'range': Optional.  Ignored if 'variable' is not present.  When 'range' is present, the text color
+* **range**: Optional.  Ignored if 'variable' is not present.  When 'range' is present, the text color
 operates in threshold mode.  When absent, it operates in Boolean Mode.
-'blend': Optional.  Default false.  Ignored if 'range' is missing.  Allows the text to blend
+* **blend**: Optional.  Default false.  Ignored if 'range' is missing.  Allows the text to blend
 smoothly between 'activeColor' and 'passiveColor'.
-'lineSpacing': Optional.  Default 1.0.  Scaled line-to-line spacing on multi-line text.
-'flashRate': Optional. Default 0.0.  Ignored if 'blend' is true.  Sets the flash rate of the text
+'lineSpacing**: Optional.  Default 1.0.  Scaled line-to-line spacing on multi-line text.
+* **flashRate**: Optional. Default 0.0.  Ignored if 'blend' is true.  Sets the flash rate of the text
 when the controlling variable is in range.  Provides 1/2 of the duty cycle of the flash (so a
 flashRate of 0.5 means "on for 0.5 seconds, off for 0.5 seconds").
-'activeColor': Optional.  Required is 'variable' is defined.  Defines the color of the text when
+* **activeColor**: Optional.  Required is 'variable' is defined.  Defines the color of the text when
 the variable is in range.
-'passiveColor': Required.  Defines the default color of the text if 'variable' is not defined, and
+* **passiveColor**: Required.  Defines the default color of the text if 'variable' is not defined, and
 the color of the text when 'variable' is defined and it is out of range.
-'text': Formatted rich text (see Formatted Rich Text).
+'text**: Formatted rich text (see Formatted Rich Text).
 
 If 'variable' and 'activeColor' are omitted, the Text Label operates in Static Mode.
 
@@ -394,16 +394,16 @@ TEXTURE_SHIFT
 	//blend = true
 }
 
-'name': Optional.  Default '(anonymous)'.  A name for the action.
-'transform': Required.  The transform in the prop where you want to shift the texture.
-'startUV': Required.  The (u,v) displacement for the texture when the variable is out of range.
-'endUV': Required.  The (u,v) displacement for the texture when the variable is in range.
-'layers': Optional.  Default '_MainTex'.  A space-delimited list of layers where the texture shift should be applied.
+* **name**: Optional.  Default '(anonymous)'.  A name for the action.
+* **transform**: Required.  The transform in the prop where you want to shift the texture.
+* **startUV**: Required.  The (u,v) displacement for the texture when the variable is out of range.
+* **endUV**: Required.  The (u,v) displacement for the texture when the variable is in range.
+* **layers**: Optional.  Default '_MainTex'.  A space-delimited list of layers where the texture shift should be applied.
 Known valid options are '_MainTex' and '_Emissive'.
-'variable': Required.  The name of the variable script to evaluate.
-'range': Optional.  When present, the Texture Shift operates in Threshold Mode.  When absent, it operates
+* **variable**: Required.  The name of the variable script to evaluate.
+* **range**: Optional.  When present, the Texture Shift operates in Threshold Mode.  When absent, it operates
 in Boolean Mode.
-'blend': Optional. Default false.  Ignored if 'range' is not present.  When true, the texture is linearly
+* **blend**: Optional. Default false.  Ignored if 'range' is not present.  When true, the texture is linearly
 interpolated between startUV and endUV based on where in the range the variable falls.
 
 Texture Shift has an alternate Static Mode where it can be used to apply a one-time change to a texture.  This mode
@@ -429,20 +429,20 @@ TRANSLATION
 	//speed = 1.0
 }
 
-'name': Optional.  Default '(anonymous)'.  A name for the action.
-'transform': Required.  The name of the transforms that contain lights.
-'startTranslation': Required.  The displacement for the initial position.  This value is
+* **name**: Optional.  Default '(anonymous)'.  A name for the action.
+* **transform**: Required.  The name of the transforms that contain lights.
+* **startTranslation**: Required.  The displacement for the initial position.  This value is
 used for Static mode, as well as the other modes for values out of range.
-'endTranslation': Required.  The displacement for the final position.  This value may be
+* **endTranslation**: Required.  The displacement for the final position.  This value may be
 omitted for Static mode.
-'variable': Required.  The name of the variable script to evaluate.
-'range': Optional.  When present, the Translation operates in Threshold Mode.  When absent, it operates
+* **variable**: Required.  The name of the variable script to evaluate.
+* **range**: Optional.  When present, the Translation operates in Threshold Mode.  When absent, it operates
 in Boolean Mode.
-'blend': Optional. Default false.  Ignored if 'range' is not present.  When true, the translation is
+* **blend**: Optional. Default false.  Ignored if 'range' is not present.  When true, the translation is
 interpolated between startTranslation and endTranslation based on where in the range the variable falls.
 allows for a variable to cycle a rotation repeatedly around a circle without requiring it to animate the
 entire transition (such as looping repeatedly).
-'speed': Optional.  Default 0.0.  Ignored if 'blend' is not true, or if speed is not positive.  The speed
+* **speed**: Optional.  Default 0.0.  Ignored if 'blend' is not true, or if speed is not positive.  The speed
 parameter describes how quickly the animation can go from 'startTranslation' to 'endTranslation', in seconds.
 Thus, numbers larger than one are faster, while smaller numbers are slower.
 
@@ -466,10 +466,10 @@ TRIGGER_EVENT
 	//autoRepeat = true
 }
 
-'name': Optional.  Default '(anonymous)'.  A name for the action.
-'event': Required.  The event that is triggered when the trigger event is active.
-'variable': Required.  The name of the variable script to evaluate.
-'range': Optional.  When present, the Trigger Event operates in threshold mode.  When absent, it operates
+* **name**: Optional.  Default '(anonymous)'.  A name for the action.
+* **event**: Required.  The event that is triggered when the trigger event is active.
+* **variable**: Required.  The name of the variable script to evaluate.
+* **range**: Optional.  When present, the Trigger Event operates in threshold mode.  When absent, it operates
 in boolean mode.
-'autoRepeat': Optional.  Default 'false'.  When set to true, the onClick event
+* **autoRepeat**: Optional.  Default 'false'.  When set to true, the onClick event
 triggers every FixedUpdate until the button is released.

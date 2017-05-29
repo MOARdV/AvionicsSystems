@@ -1,4 +1,4 @@
-﻿The MASMonitor prop module powers monitor displays, ranging from simple single-line
+﻿The MASMonitor prop module powers monitor displays ranging from simple single-line
 digital readouts to full-featured MFDs.  MASMonitor is more complex to set up than
 a MASComponent, since it entails a render texture and multiple pages.  The MASMonitor
 is comparable to the RasterPropMonitor class, but it is substantially more flexible
@@ -407,7 +407,7 @@ TEXT
 {
   name = Important Text Node
   text = Hello, world!
-  //textfile = AvionicsSystems/Sample/helloworld.txt
+  //textfile = MOARdV/AvionicsSystems/Sample/helloworld.txt
   //font = InconsolataGo-Bold
   //fontSize = 16, 32
   //textColor = 0, 255, 0, 255
