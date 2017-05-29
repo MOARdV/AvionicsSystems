@@ -105,7 +105,7 @@ namespace AvionicsSystems
         /// </summary>
         [KSPField(isPersistant = true)]
         public string cameraName = string.Empty;
-        public string newCameraName = string.Empty;
+        private string newCameraName = string.Empty;
 
         [UI_Toggle(disabledText = "Off", enabledText = "On")]
         [KSPField(guiActiveEditor = true, guiName = "FOV marker")]
