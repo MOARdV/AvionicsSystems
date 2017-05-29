@@ -151,14 +151,15 @@ namespace AvionicsSystems
             {
                 currentState = true;
                 imageObject.SetActive(true);
-                if (coroutineActive == false)
-                {
-                    comp.StartCoroutine(CameraRenderCoroutine());
-                }
             }
 
             cameraSelector = comp.RegisterOnVariableChange(cameraName, prop, CameraSelectCallback);
             CameraSelectCallback();
+
+            if (coroutineActive == false)
+            {
+                comp.StartCoroutine(CameraRenderCoroutine());
+            }
         }
 
         /// <summary>
@@ -176,23 +177,16 @@ namespace AvionicsSystems
 
             if (newState != currentState)
             {
-                Utility.LogMessage(this, "currentState: {0}", currentState);
                 currentState = newState;
                 imageObject.SetActive(currentState);
 
-                if(newState == false)
+                if (currentState == false)
                 {
                     if (cameraTexture.IsCreated())
                     {
                         cameraTexture.Release();
                     }
                 }
-
-                //if (currentState == true)
-                //{
-                //    // CameraSelectCallback will start the coroutine if needed.
-                //    CameraSelectCallback();
-                //}
             }
         }
 
@@ -212,19 +206,6 @@ namespace AvionicsSystems
             {
                 activeCamera = null;
             }
-
-            if(activeCamera == null)
-            {
-                Utility.LogMessage(this, "activeCamera: null - {0}", cameraSelector.String());
-            }
-            else
-            {
-                Utility.LogMessage(this, "activeCamera: valid");
-                //if (currentState == true && coroutineActive == false)
-                //{
-                //    comp.StartCoroutine(CameraRenderCoroutine());
-                //}
-            }
         }
 
         /// <summary>
@@ -234,7 +215,6 @@ namespace AvionicsSystems
         private IEnumerator CameraRenderCoroutine()
         {
             coroutineActive = true;
-            Utility.LogMessage(this, "CameraRenderCoroutine entry");
 
             while (this.comp != null)
             {
@@ -271,7 +251,6 @@ namespace AvionicsSystems
                 }
             }
 
-            Utility.LogMessage(this, "CameraRenderCoroutine exit");
             coroutineActive = false;
         }
 

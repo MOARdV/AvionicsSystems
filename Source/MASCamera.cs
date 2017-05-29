@@ -110,6 +110,7 @@ namespace AvionicsSystems
         [UI_Toggle(disabledText = "Off", enabledText = "On")]
         [KSPField(guiActiveEditor = true, guiName = "FOV marker")]
         public bool showFov = false;
+        const float rayLength = 10.0f;
 
         private static readonly string[] knownCameraNames = 
         {
@@ -181,23 +182,28 @@ namespace AvionicsSystems
                 {
                     fovRange = new Vector2(fovRange.y, fovRange.x);
                 }
+                fovRange.x = Mathf.Clamp(fovRange.x, 1.0f, 90.0f);
+                fovRange.y = Mathf.Clamp(fovRange.y, 1.0f, 90.0f);
                 currentFov = Mathf.Clamp(currentFov, fovRange.x, fovRange.y);
 
                 if (panRange.y < panRange.x)
                 {
                     panRange = new Vector2(panRange.y, panRange.x);
                 }
+                panRange.x = Mathf.Clamp(panRange.x, -180.0f, 180.0f);
+                panRange.y = Mathf.Clamp(panRange.y, -180.0f, 180.0f);
                 currentPan = Mathf.Clamp(currentPan, panRange.x, panRange.y);
 
                 if (tiltRange.y < tiltRange.x)
                 {
                     tiltRange = new Vector2(tiltRange.y, tiltRange.x);
                 }
+                tiltRange.x = Mathf.Clamp(tiltRange.x, -180.0f, 180.0f);
+                tiltRange.y = Mathf.Clamp(tiltRange.y, -180.0f, 180.0f);
                 currentTilt = Mathf.Clamp(currentTilt, tiltRange.x, tiltRange.y);
 
                 cameraRotation = cameraTransform.rotation * Quaternion.Euler(currentPan, currentTilt, 0.0f);
 
-                //
                 if (HighLogic.LoadedSceneIsEditor)
                 {
                     CreateFovRenderer();
@@ -272,6 +278,27 @@ namespace AvionicsSystems
             }
         }
 
+        private void AttachPart()
+        {
+            Vector3 origin = cameraTransform.TransformPoint(Vector3.zero);
+            Vector3 direction = cameraTransform.forward;
+            if (minFovRenderer != null)
+            {
+                minFovRenderer.SetPosition(0, origin);
+                minFovRenderer.SetPosition(1, origin + direction * rayLength);
+            }
+            if (maxFovRenderer != null)
+            {
+                maxFovRenderer.SetPosition(0, origin);
+                maxFovRenderer.SetPosition(1, origin + direction * rayLength);
+            }
+        }
+
+        private void DetachPart()
+        {
+            showFov = false;
+        }
+
         /// <summary>
         /// Tear down and release resources.
         /// </summary>
@@ -283,6 +310,9 @@ namespace AvionicsSystems
                 minFovRenderer = null;
                 Destroy(minFovPosition);
                 minFovPosition = null;
+                part.OnEditorAttach -= AttachPart;
+                part.OnEditorDetach -= DetachPart;
+                part.OnEditorDestroy -= DetachPart;
             }
             if (maxFovRenderer != null)
             {
@@ -385,11 +415,13 @@ namespace AvionicsSystems
             float height = renderTarget.height;
             float aspectRatio = width / height;
             int camerasLength = cameras.Length;
-
+            
+            cameraRotation = cameraTransform.rotation * Quaternion.Euler(currentPan, currentTilt, 0.0f);
+            
             // Comment from RPM:
             // This is a hack - FXCamera isn't always available, so I need to add and remove it in flight.
             // I don't know if there's a callback I can use to find when it's added, so brute force it for now.
-            // TODO: Is that still operational?
+            // TODO: Is that still operational?  It does not appear to be the case.
 
             for (int i = 0; i < camerasLength; ++i)
             {
@@ -404,14 +436,10 @@ namespace AvionicsSystems
                     }
                     cameras[i].targetTexture = renderTarget;
                     cameras[i].aspect = aspectRatio;
-                    //cameras[i].transform.rotation = cameraRotation;
-                    //cameras[i].fieldOfView = FOV;
+                    cameras[i].transform.rotation = cameraRotation;
+                    cameras[i].fieldOfView = currentFov;
                     cameras[i].Render();
                 }
-                //else
-                //{
-                //    Utility.LogMessage(this, "Camera {0} is null during flight", knownCameraNames[i]);
-                //}
             }
             return true;
         }
@@ -429,8 +457,11 @@ namespace AvionicsSystems
         /// </summary>
         private void CreateFovRenderer()
         {
-            const float rayLength = 10.0f;
             float minSpan = rayLength * 2.0f * (float)Math.Tan(Mathf.Deg2Rad * fovRange.x * 0.5f);
+
+            part.OnEditorAttach += AttachPart;
+            part.OnEditorDetach += DetachPart;
+            part.OnEditorDestroy += DetachPart;
 
             minFovPosition = new GameObject();
             minFovRenderer = minFovPosition.AddComponent<LineRenderer>();
