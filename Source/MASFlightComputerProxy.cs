@@ -118,6 +118,19 @@ namespace AvionicsSystems
         #region Unassigned Region
 
         /// <summary>
+        /// Returns 1 if `value` is at least equal to `lowerBound` and not greater
+        /// than `upperBound`.  Returns 0 otherwise.
+        /// </summary>
+        /// <param name="value">The value to test.</param>
+        /// <param name="lowerBound">The lower bound of the range to test.</param>
+        /// <param name="upperBound">The upper bound of the range to test.</param>
+        /// <returns>1 if `value` is between `lowerBound` and `upperBound`, 0 otherwise.</returns>
+        public double Between(double value, double lowerBound, double upperBound)
+        {
+            return (value >= lowerBound && value <= upperBound) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Remaps `value` from the range [`bound1`, `bound2`] to the range
         /// [`map1`, `map2`].
         /// 
@@ -767,6 +780,22 @@ namespace AvionicsSystems
         public double CameraCount()
         {
             return vc.moduleCamera.Length;
+        }
+
+        /// <summary>
+        /// Returns the name of the camera selected by `index`, or an empty string
+        /// if the index is invalid.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <returns>The name of the camera, or an empty string.</returns>
+        public string GetCameraName(double index)
+        {
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                return vc.moduleCamera[i].cameraName;
+            }
+            return string.Empty;
         }
         #endregion
 
