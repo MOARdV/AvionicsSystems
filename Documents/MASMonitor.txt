@@ -104,7 +104,7 @@ CAMERA
 	camera = "MyActionCam"
 	//camera = fc.GetCameraName(0)
 	//camera = fc.GetPersistent("My-Active-Camera-Variable")
-	//variable = fc.GetBrakes()
+	//variable = fc.GetPersistentAsNumber("ShowCamera")
 	//range = 0.5, 1.1
 }
 
@@ -283,7 +283,7 @@ IMAGE
 	texture = JSI/RasterPropMonitor/Library/Components/NavBall/StaticMask
 	//position = 128,256
 	//size = 256,256
-	//variable = fc.GetBrakes()
+	//variable = fc.GetPersistentAsNumber("ShowImage")
 	//range = 0.5, 1.1
 }
 
