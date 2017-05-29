@@ -13,7 +13,7 @@ together).
 ## Dev Builds?
 
 Dev Builds are available as releases.  They're updated when I feel it's warranted.  A little more
-discussion is over on [the wiki](https://github.com/MOARdV/AvionicsSystems/wiki/Dev-Builds).  Please
+discussion is over on [the wiki](https://github.com/MOARdV/AvionicsSystems/wiki).  Please
 take heed of the "ATTENTION" paragraph.
 
 ## What about RPM?
@@ -39,4 +39,4 @@ that is, people who can find holes in the MAS design and things I overlooked.
 
 ## Other questions?
 
-Look at Documents/FAQ.txt.  I may have already come up with an answer.  If not, please ask.
+Look at Documents/FAQ.txt, or the FAQ on the wiki.  I may have already come up with an answer.  If not, please ask.
