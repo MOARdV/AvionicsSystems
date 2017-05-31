@@ -175,7 +175,7 @@ namespace AvionicsSystems
         public void Awake()
         {
             asVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
-            UnityEngine.Debug.Log(String.Format("[MASLoader] Avionics Systems version {0}", asVersion));
+            UnityEngine.Debug.Log(String.Format("[MASLoader] MOARdV's Avionics Systems version {0}", asVersion));
 
             if (KSPAssets.Loaders.AssetLoader.Ready == false)
             {
@@ -513,7 +513,7 @@ namespace AvionicsSystems
                 {
                     // If we found our bundle, set up our shaders
                     // dictionary and bail - our mission is complete.
-                    Utility.LogMessage(this, "Found {0} AS shaders and {1} fonts.", foundShaders.Length, foundFonts.Length);
+                    Utility.LogMessage(this, "Found {0} MAS shaders and {1} fonts.", foundShaders.Length, foundFonts.Length);
                     for (int j = 0; j < foundShaders.Length; ++j)
                     {
                         if (!foundShaders[j].isSupported)
