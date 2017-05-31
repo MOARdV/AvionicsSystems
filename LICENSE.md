@@ -1,6 +1,7 @@
-MOARdV's Avionics Systems
+# MOARdV's Avionics Systems
 
-The MIT License (MIT)
+The source code, shaders, and compiled binary (DLL) for Avionics Systems are covered by
+the MIT License:
 
 Copyright (c) 2016-2017 MOARdV
 
