@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------------
 // The MIT License (MIT)
 //
-// Copyright (c) 2016 MOARdV
+// Copyright (c) 2016-2017 MOARdV
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -32,7 +32,6 @@ Shader "MOARdV/TextMonitor"
 	{
 		_MainTex ("Texture", 2D) = "white" {}
         _Color("_Color", Color) = (1,1,1,1)
-		//_EmissiveFactor ("_EmissiveFactor", Range(0,1)) = 1
 		_ClipCoords ("_ClipCoords", Vector) = (-1, -1, 1, 1)
 	}
 
@@ -77,7 +76,8 @@ Shader "MOARdV/TextMonitor"
 				float2 normalizedVertex : TEXCOORD1;
 			};
 
-			sampler2D _MainTex;
+			UNITY_DECLARE_TEX2D(_MainTex);
+			float4 _MainTex_ST;
 			float4 _Color;
 			float4 _ClipCoords;
 
@@ -89,7 +89,7 @@ Shader "MOARdV/TextMonitor"
 				float4 transformedVtx = mul(UNITY_MATRIX_MVP, v.vertex);
 				dataOut.vertex = transformedVtx;
 				dataOut.normalizedVertex.xy = transformedVtx.xy / transformedVtx.w;
-				dataOut.texcoord = v.texcoord;
+				dataOut.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
 				dataOut.color.r = v.color.r * _Color.r;
 				dataOut.color.g = v.color.g * _Color.g;
 				dataOut.color.b = v.color.b * _Color.b;
@@ -112,8 +112,9 @@ Shader "MOARdV/TextMonitor"
 					_ClipCoords.w - dataIn.normalizedVertex.y
 					));
 
-				fixed4 diffuse = tex2D(_MainTex, dataIn.texcoord);
-				diffuse.a *= dataIn.color.a;
+				float alpha = UNITY_SAMPLE_TEX2D(_MainTex, dataIn.texcoord).a;
+				fixed4 diffuse;
+				diffuse.a = dataIn.color.a * alpha;
 				diffuse.rgb = (dataIn.color.rgb) * diffuse.a;
 				return diffuse;
 			}

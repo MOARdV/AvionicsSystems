@@ -1,12 +1,10 @@
 // MOARdV/TextMesh
 //
-// Derived from KSP Alpha / Transparent
-// Originally included in RasterPropMonitor.  As sole author of this code,
-// MOARdV grants himself license to move it to a non-GPL mod.
+// Derived from older KSP Alpha / Transparent
 //----------------------------------------------------------------------------
 // The MIT License (MIT)
 //
-// Copyright (c) 2016 MOARdV
+// Copyright (c) 2016-2017 MOARdV
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -29,53 +27,36 @@
 //----------------------------------------------------------------------------
 Shader "MOARdV/TextMesh"
 {
-	// Derived from KSP Alpha / Transparent
-	// Originally included in RasterPropMonitor.  As sole author of this code,
-	// MOARdV grants himself license to move it to a non-GPL mod.
 	Properties
 	{
-        [Header(Texture Maps)]
 		_MainTex("MainTex (RGBA)", 2D) = "white" {}
         _Color("_Color", Color) = (1,1,1,1)
-        [Header(Specularity)]
-		_SpecColor ("_SpecColor", Color) = (0.5, 0.5, 0.5, 1)
-		_Shininess ("_Shininess", Range (0.03, 1)) = 0.078125
-        [Header(Transparency)]
+
 		_Opacity("_Opacity", Range(0,1)) = 1
-		_Fresnel("_Fresnel", Range(0,10)) = 0
-        [Header(Effects)]
+
 		_RimFalloff("Rim Falloff", Range(0.01,5) ) = 0.1
 		_RimColor("Rim Color", Color) = (0,0,0,0)
 		_TemperatureColor("_TemperatureColor", Color) = (0,0,0,0)
 		_BurnColor ("Burn Color", Color) = (1,1,1,1)
-		_UnderwaterFogFactor("Underwater Fog Factor", Range(0,1)) = 0
-		[Header(RPM)]
+
 		_EmissiveFactor ("_EmissiveFactor", Range(0,1)) = 1
 		_Cutoff ("Alpha cutoff", Range(0,1)) = 0.35
 	}
 
 	SubShader
 	{
-		Tags {"Queue"="AlphaTest"}
-
-		Pass
-		{
-			ZWrite On
-			ColorMask 0
-		}
+		Tags {"Queue"="Transparent"}
 
 		ZWrite Off
 		ZTest LEqual
 		Blend SrcAlpha OneMinusSrcAlpha
-		//Cull Off
 		Cull Back
 
 		CGPROGRAM
 
-		#pragma surface surf BlinnPhongSmooth alphatest:_Cutoff
-		#pragma target 3.0
+		#pragma surface surf Lambert alpha
 
-		#include "../../SquadCore/LightingKSP.cginc"
+		#pragma target 3.0
 
 		half _Shininess;
 
@@ -118,7 +99,7 @@ Shader "MOARdV/TextMesh"
 			o.Albedo = color.rgb;
             o.Emission = emission * (1.0 - _EmissiveFactor) + (_EmissiveFactor * color.rgb) * alpha;
 			o.Normal = normal;
-			o.Emission *= _Opacity;// * fog.a;
+			o.Emission *= _Opacity;
 			o.Alpha = alpha;
 		}
 
