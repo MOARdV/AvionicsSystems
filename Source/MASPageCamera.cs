@@ -143,6 +143,21 @@ namespace AvionicsSystems
                         }
                     }
                 }
+
+                string textureName = string.Empty;
+                if (!config.TryGetValue("texture", ref textureName))
+                {
+                    throw new ArgumentException("Unable to find 'texture' in CAMERA " + name);
+                }
+                else
+                {
+                    Texture2D auxTexture = GameDatabase.Instance.GetTexture(textureName, false);
+                    if (auxTexture == null)
+                    {
+                        throw new ArgumentException("Unable to find 'texture' " + textureName + " for CAMERA " + name);
+                    }
+                    postProcShader.SetTexture("_AuxTex", auxTexture);
+                }
             }
 
             imageObject = new GameObject();
