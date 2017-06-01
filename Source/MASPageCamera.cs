@@ -35,17 +35,19 @@ namespace AvionicsSystems
         private string name = "(anonymous)";
         private GameObject imageObject;
         private Material imageMaterial;
+        private Material postProcShader = null;
         private MeshRenderer meshRenderer;
         private RenderTexture cameraTexture;
         private string variableName;
         private MASFlightComputer.Variable range1, range2;
+        string[] propertyValue = new string[0];
+        Action<double>[] propertyCallback = new Action<double>[0];
         private readonly bool rangeMode;
         private MASFlightComputer.Variable cameraSelector;
         private MASCamera activeCamera = null;
-        private bool currentState;
-        //private bool renderEnable;
-        private bool coroutineActive;
         private MASFlightComputer comp;
+        private bool currentState;
+        private bool coroutineActive;
 
         internal MASPageCamera(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
@@ -69,7 +71,7 @@ namespace AvionicsSystems
 
             cameraTexture = new RenderTexture((int)size.x, (int)size.y, 24, RenderTextureFormat.ARGB32);
 
-                    string cameraName = string.Empty;
+            string cameraName = string.Empty;
             if (config.TryGetValue("camera", ref cameraName))
             {
                 cameraName = cameraName.Trim();
@@ -90,7 +92,7 @@ namespace AvionicsSystems
                 string[] ranges = range.Split(',');
                 if (ranges.Length != 2)
                 {
-                    throw new ArgumentException("Incorrect number of values in 'range' in TEXT " + name);
+                    throw new ArgumentException("Incorrect number of values in 'range' in CAMERA " + name);
                 }
                 range1 = comp.GetVariable(ranges[0], prop);
                 range2 = comp.GetVariable(ranges[1], prop);
@@ -100,6 +102,47 @@ namespace AvionicsSystems
             else
             {
                 rangeMode = false;
+            }
+
+            string shaderName = string.Empty;
+            string[] propertyName = new string[0];
+            if (config.TryGetValue("shader", ref shaderName))
+            {
+                shaderName = shaderName.Trim();
+                if (!MASLoader.shaders.ContainsKey(shaderName))
+                {
+                    throw new ArgumentException("Unknown 'shader' in CAMERA " + name);
+                }
+
+                postProcShader = new Material(MASLoader.shaders[shaderName]);
+                if (postProcShader == null)
+                {
+                    throw new ArgumentException("Failed to load 'shader' in CAMERA " + name);
+                }
+
+                string concatProperties = string.Empty;
+                if (config.TryGetValue("properties", ref concatProperties))
+                {
+                    string[] propertiesList = concatProperties.Split(';');
+                    int listLength = propertiesList.Length;
+                    if (listLength > 0)
+                    {
+                        propertyName = new string[listLength];
+                        propertyValue = new string[listLength];
+                        propertyCallback = new Action<double>[listLength];
+
+                        for (int i = 0; i < listLength; ++i)
+                        {
+                            string[] pair = propertiesList[i].Split(':');
+                            if (pair.Length != 2)
+                            {
+                                throw new ArgumentOutOfRangeException("Incorrect number of parameters for property: requires 2, found " + pair.Length + " in property " + propertiesList[i] + " for CAMERA " + name);
+                            }
+                            propertyName[i] = pair[0].Trim();
+                            propertyValue[i] = pair[1].Trim();
+                        }
+                    }
+                }
             }
 
             imageObject = new GameObject();
@@ -156,10 +199,27 @@ namespace AvionicsSystems
             cameraSelector = comp.RegisterOnVariableChange(cameraName, prop, CameraSelectCallback);
             CameraSelectCallback();
 
+            for (int i = 0; i < propertyValue.Length; ++i)
+            {
+                int propertyId = Shader.PropertyToID(propertyName[i]);
+                propertyCallback[i] = delegate(double a) { PropertyCallback(propertyId, a); };
+                comp.RegisterNumericVariable(propertyValue[i], prop, propertyCallback[i]);
+            }
+
             if (coroutineActive == false)
             {
                 comp.StartCoroutine(CameraRenderCoroutine());
             }
+        }
+
+        /// <summary>
+        /// Callback to update the shader's properties.
+        /// </summary>
+        /// <param name="propertyId">The property ID to update.</param>
+        /// <param name="newValue">The new value for that property.</param>
+        private void PropertyCallback(int propertyId, double newValue)
+        {
+            postProcShader.SetFloat(propertyId, (float)newValue);
         }
 
         /// <summary>
@@ -239,12 +299,23 @@ namespace AvionicsSystems
                     else
                     {
                         cameraTexture.DiscardContents();
-                        activeCamera.Render(cameraTexture);
+                        if (postProcShader == null)
+                        {
+                            activeCamera.Render(cameraTexture);
+                        }
+                        else
+                        {
+                            RenderTexture targetTexture = RenderTexture.GetTemporary(cameraTexture.width, cameraTexture.height, cameraTexture.depth, cameraTexture.format);
+                            targetTexture.DiscardContents(); // needed?
+                            activeCamera.Render(targetTexture);
+                            Graphics.Blit(targetTexture, cameraTexture, postProcShader);
+                            RenderTexture.ReleaseTemporary(targetTexture);
+                        }
                     }
                 }
                 else
                 {
-                    if(cameraTexture.IsCreated())
+                    if (cameraTexture.IsCreated())
                     {
                         cameraTexture.Release();
                     }
@@ -287,6 +358,11 @@ namespace AvionicsSystems
             UnityEngine.GameObject.Destroy(cameraTexture);
             cameraTexture = null;
 
+            if (postProcShader != null)
+            {
+                UnityEngine.GameObject.Destroy(postProcShader);
+                postProcShader = null;
+            }
             UnityEngine.GameObject.Destroy(imageObject);
             imageObject = null;
             UnityEngine.GameObject.Destroy(imageMaterial);
@@ -295,6 +371,11 @@ namespace AvionicsSystems
             if (!string.IsNullOrEmpty(variableName))
             {
                 comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
+            }
+
+            for (int i = 0; i < propertyValue.Length; ++i)
+            {
+                comp.UnregisterNumericVariable(propertyValue[i], internalProp, propertyCallback[i]);
             }
 
             if (!string.IsNullOrEmpty(cameraSelector.name))
