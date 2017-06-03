@@ -58,13 +58,6 @@ function MAS_Clock_NextMode(autoId)
 	end
 end
 
--- function MAS_Clock_TimeMode(autoId)
-	-- -- We use this to give us a way to animate a push button.
-	-- fc.TogglePersistent(autoId)
-	-- -- Maybe I should add a fc.Toggle2Persistent?
-	-- fc.TogglePersistent("MAS_Clock_ClockMode")
--- end
-
 function MAS_Clock_Apsis()
 	if fc.GetPersistentAsNumber("MAS_Clock_ApsisMode") > 0 then
 		return fc.TimeToAp()
