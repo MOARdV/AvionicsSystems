@@ -67,6 +67,17 @@ namespace AvionicsSystems
                 localFonts = string.Empty;
             }
 
+            string styleStr = string.Empty;
+            FontStyle style = FontStyle.Normal;
+            if (config.TryGetValue("style", ref styleStr))
+            {
+                style = MdVTextMesh.FontStyle(styleStr);
+            }
+            else
+            {
+                style = monitor.defaultStyle;
+            }
+
             Vector2 fontSize = Vector2.zero;
             if (!config.TryGetValue("fontSize", ref fontSize) || fontSize.x < 0.0f || fontSize.y < 0.0f)
             {
@@ -134,9 +145,7 @@ namespace AvionicsSystems
             }
             else
             {
-                string[] selectedFonts = localFonts.Split(',');
-                // TODO: Multiple fonts
-                font = MASLoader.GetFont(selectedFonts[0].Trim());
+                font = MASLoader.GetFont(localFonts.Trim());
             }
 
             // We want to use a different shader for monitor displays.
@@ -144,6 +153,7 @@ namespace AvionicsSystems
             textObj.SetFont(font, fontSize);
             textObj.SetColor(textColor);
             textObj.material.SetFloat(Shader.PropertyToID("_EmissiveFactor"), 1.0f);
+            textObj.fontStyle = style;
 
             // text, immutable, preserveWhitespace, comp
             textObj.SetText(text, false, true, comp, prop);

@@ -84,7 +84,7 @@ namespace AvionicsSystems
         /// Fonts that have been loaded (AssetBundle fonts, user bitmap fonts,
         /// or system fonts).
         /// </summary>
-        static public Dictionary<string, Font> fonts = new Dictionary<string, Font>();
+        static public Dictionary<string, List<Font>> fonts = new Dictionary<string, List<Font>>();
 
         /// <summary>
         /// List of the known system fonts.
@@ -142,7 +142,7 @@ namespace AvionicsSystems
         {
             if (fonts.ContainsKey(fontName))
             {
-                return fonts[fontName];
+                return fonts[fontName][0];
             }
             else if (systemFonts == null)
             {
@@ -154,10 +154,10 @@ namespace AvionicsSystems
             {
                 // If the font isn't recognized as a system font, fall back to
                 // Liberation Sans.
-
+                Utility.LogErrorMessage("Need to update a font name: {1} (ignore {0})", 0, fontName);
                 if (fonts.ContainsKey("LiberationSans-Regular"))
                 {
-                    return fonts["LiberationSans-Regular"];
+                    return fonts["Liberation Sans"][0];
                 }
                 else
                 {
@@ -167,7 +167,9 @@ namespace AvionicsSystems
             else
             {
                 Font dynamicFont = Font.CreateDynamicFontFromOSFont(fontName, 32);
-                fonts[fontName] = dynamicFont;
+                List<Font> fontList = new List<Font>();
+                fontList.Add(dynamicFont);
+                fonts[fontName] = fontList;
 
                 return dynamicFont;
             }
@@ -440,7 +442,9 @@ namespace AvionicsSystems
 
             Utility.LogMessage(this, "Adding bitmap font {0} with {1} characters", name, numCharacters);
 
-            fonts[name] = newFont;
+            List<Font> fontList = new List<Font>();
+            fontList.Add(newFont);
+            fonts[name] = fontList;
         }
 
         /// <summary>
@@ -529,30 +533,49 @@ namespace AvionicsSystems
 
                     for (int j = 0; j < foundFonts.Length; ++j)
                     {
-                        //string[] fnames = foundFonts[j].fontNames;
-                        //Utility.LogMessage(this, "Font '{0}':", foundFonts[j].name);
-                        //if (fnames != null)
-                        //{
-                        //    CharacterInfo rci;
-                        //    CharacterInfo bci;
-                        //    CharacterInfo ici;
-                        //    bool hasRci, hasBci, hasIci;
-                        //    foundFonts[j].RequestCharactersInTexture("a", 32, FontStyle.Normal);
-                        //    foundFonts[j].RequestCharactersInTexture("a", 32, FontStyle.Bold);
-                        //    foundFonts[j].RequestCharactersInTexture("a", 32, FontStyle.Italic);
-                        //    hasRci = foundFonts[j].GetCharacterInfo('a', out rci, 32, FontStyle.Normal);
-                        //    hasBci = foundFonts[j].GetCharacterInfo('a', out bci, 32, FontStyle.Bold);
-                        //    hasIci = foundFonts[j].GetCharacterInfo('a', out ici, 32, FontStyle.Italic);
+                        string[] fnames = foundFonts[j].fontNames;
+                        if (fnames.Length == 0)
+                        {
+                            Utility.LogErrorMessage(this, "Font {0} - did not find fontName.", foundFonts[j].name);
+                        }
+                        else
+                        {
+                            //Utility.LogMessage(this, "Font '{0}':", foundFonts[j].name);
+                            //if (fnames != null)
+                            //{
+                            //    CharacterInfo rci;
+                            //    CharacterInfo bci;
+                            //    CharacterInfo ici;
+                            //    bool hasRci, hasBci, hasIci;
+                            //    foundFonts[j].RequestCharactersInTexture("a", 32, FontStyle.Normal);
+                            //    foundFonts[j].RequestCharactersInTexture("a", 32, FontStyle.Bold);
+                            //    foundFonts[j].RequestCharactersInTexture("a", 32, FontStyle.Italic);
+                            //    hasRci = foundFonts[j].GetCharacterInfo('a', out rci, 32, FontStyle.Normal);
+                            //    hasBci = foundFonts[j].GetCharacterInfo('a', out bci, 32, FontStyle.Bold);
+                            //    hasIci = foundFonts[j].GetCharacterInfo('a', out ici, 32, FontStyle.Italic);
 
-                        //    Utility.LogMessage("... regular? {0,5}, style {1}", hasRci, rci.style);
-                        //    Utility.LogMessage("... bold?    {0,5}, style {1}", hasBci, bci.style);
-                        //    Utility.LogMessage("... italic?  {0,5}, style {1}", hasIci, ici.style);
-                        //    for (int fn = 0; fn < fnames.Length; ++fn)
-                        //    {
-                        //        Utility.LogMessage(this, "... {0}", fnames[i]);
-                        //    }
-                        //}
-                        fonts[foundFonts[j].name] = foundFonts[j];
+                            //    Utility.LogMessage("... regular? {0,5}, style {1}", hasRci, rci.style);
+                            //    Utility.LogMessage("... bold?    {0,5}, style {1}", hasBci, bci.style);
+                            //    Utility.LogMessage("... italic?  {0,5}, style {1}", hasIci, ici.style);
+                            //    for (int fn = 0; fn < fnames.Length; ++fn)
+                            //    {
+                            //        Utility.LogMessage(this, "... {0}", fnames[i]);
+                            //    }
+                            //}
+                            if (fonts.ContainsKey(fnames[0]))
+                            {
+                                // TODO: Do I need to keep all of the fonts in this dictionary?  Or is one
+                                // adequate?
+                                fonts[fnames[0]].Add(foundFonts[j]);
+                            }
+                            else
+                            {
+                                Utility.LogMessage(this, "Adding font \"{0}\" from asset bundle.", fnames[0]);
+                                List<Font> fontList = new List<Font>();
+                                fontList.Add(foundFonts[j]);
+                                fonts[fnames[0]] = fontList;
+                            }
+                        }
                     }
 
                     // User fonts.  We put them here to make sure that internal

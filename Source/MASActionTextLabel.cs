@@ -84,6 +84,13 @@ namespace AvionicsSystems
                 throw new ArgumentException("Invalid or missing 'font' in TEXT_LABEL " + name);
             }
 
+            string styleStr = string.Empty;
+            FontStyle style = FontStyle.Normal;
+            if (config.TryGetValue("style", ref styleStr))
+            {
+                style = MdVTextMesh.FontStyle(styleStr);
+            }
+
             string text = string.Empty;
             if (!config.TryGetValue("text", ref text))
             {
@@ -125,11 +132,10 @@ namespace AvionicsSystems
             }
 
             textObj.SetFont(font, font.fontSize);
-            //textObj.fontSize = fontQuality; // This doesn't work with Unity-embedded fonts
-            //textObj.fontSize = font.fontSize;
             float sizeScalar = 32.0f / (float)font.fontSize;
             textObj.SetCharacterSize(fontSize * 0.00005f * sizeScalar);
             textObj.SetLineSpacing(lineSpacing);
+            textObj.fontStyle = style;
 
             // Final validations
             bool usesMulticolor = false;

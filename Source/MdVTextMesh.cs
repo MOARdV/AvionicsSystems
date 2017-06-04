@@ -89,6 +89,23 @@ namespace AvionicsSystems
             }
         }
 
+        private FontStyle fontStyle_ = UnityEngine.FontStyle.Normal;
+        public FontStyle fontStyle
+        {
+            get
+            {
+                return fontStyle_;
+            }
+            set
+            {
+                if (value != fontStyle_)
+                {
+                    invalidated = true;
+                    fontStyle_ = value;
+                }
+            }
+        }
+
         private MASFlightComputer comp;
         private Font font;
         private MeshRenderer meshRenderer;
@@ -1371,19 +1388,19 @@ namespace AvionicsSystems
         /// <param name="bold">Is the style bold?</param>
         /// <param name="italic">Is the style italic?</param>
         /// <returns></returns>
-        public static FontStyle GetFontStyle(bool bold, bool italic)
+        public FontStyle GetFontStyle(bool bold, bool italic)
         {
             if (bold)
             {
-                return (italic) ? FontStyle.BoldAndItalic : FontStyle.Bold;
+                return (italic) ? UnityEngine.FontStyle.BoldAndItalic : UnityEngine.FontStyle.Bold;
             }
             else if (italic)
             {
-                return FontStyle.Italic;
+                return UnityEngine.FontStyle.Italic;
             }
             else
             {
-                return FontStyle.Normal;
+                return fontStyle_;
             }
         }
 
@@ -1434,6 +1451,31 @@ namespace AvionicsSystems
                     rowInvalidated = false;
                 }
             }
+        }
+
+        /// <summary>
+        /// Convert a FontStyle string to an enumeraction, falling back to FontStyle.Normal on error.
+        /// </summary>
+        /// <param name="styleStr"></param>
+        /// <returns></returns>
+        internal static FontStyle FontStyle(string styleStr)
+        {
+            if (!string.IsNullOrEmpty(styleStr))
+            {
+                if (styleStr == UnityEngine.FontStyle.Bold.ToString())
+                {
+                    return UnityEngine.FontStyle.Bold;
+                }
+                else if (styleStr == UnityEngine.FontStyle.Italic.ToString())
+                {
+                    return UnityEngine.FontStyle.Italic;
+                }
+                else if (styleStr == UnityEngine.FontStyle.BoldAndItalic.ToString())
+                {
+                    return UnityEngine.FontStyle.BoldAndItalic;
+                }
+            }
+            return UnityEngine.FontStyle.Normal;
         }
     }
 }

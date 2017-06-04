@@ -48,6 +48,9 @@ namespace AvionicsSystems
         public string font = string.Empty;
 
         [KSPField]
+        public string style = string.Empty;
+
+        [KSPField]
         public string textColor;
         internal Color32 textColor_;
 
@@ -65,6 +68,7 @@ namespace AvionicsSystems
         private Dictionary<string, MASPage> page = new Dictionary<string, MASPage>();
         private MASPage currentPage;
         internal Font defaultFont;
+        internal FontStyle defaultStyle = FontStyle.Normal;
 
         private bool initialized = false;
 
@@ -199,6 +203,11 @@ namespace AvionicsSystems
                     }
 
                     defaultFont = MASLoader.GetFont(font.Trim());
+
+                    if (!string.IsNullOrEmpty(style))
+                    {
+                        defaultStyle = MdVTextMesh.FontStyle(style.Trim());
+                    }
 
                     ConfigNode moduleConfig = Utility.GetPropModuleConfigNode(internalProp.propName, ClassName);
                     if (moduleConfig == null)
