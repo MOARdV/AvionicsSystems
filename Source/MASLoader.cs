@@ -153,20 +153,24 @@ namespace AvionicsSystems
             if (string.IsNullOrEmpty(toFind))
             {
                 // If the font isn't recognized as a system font, fall back to
-                // Arial.  If we do that, check to see if Arial has already
-                // been loaded as a font.
-                fontName = "Arial";
+                // Liberation Sans.
 
-                if (fonts.ContainsKey(fontName))
+                if (fonts.ContainsKey("LiberationSans-Regular"))
                 {
-                    return fonts[fontName];
+                    return fonts["LiberationSans-Regular"];
+                }
+                else
+                {
+                    throw new ArgumentException("Unable to find font " + fontName);
                 }
             }
+            else
+            {
+                Font dynamicFont = Font.CreateDynamicFontFromOSFont(fontName, 32);
+                fonts[fontName] = dynamicFont;
 
-            Font dynamicFont = Font.CreateDynamicFontFromOSFont(fontName, 32);
-            fonts[fontName] = dynamicFont;
-
-            return dynamicFont;
+                return dynamicFont;
+            }
         }
 
         /// <summary>
@@ -527,9 +531,26 @@ namespace AvionicsSystems
                     {
                         //string[] fnames = foundFonts[j].fontNames;
                         //Utility.LogMessage(this, "Font '{0}':", foundFonts[j].name);
-                        //for (int fn = 0; fn < fnames.Length; ++fn)
+                        //if (fnames != null)
                         //{
-                        //    Utility.LogMessage(this, "... {0}", fnames[i]);
+                        //    CharacterInfo rci;
+                        //    CharacterInfo bci;
+                        //    CharacterInfo ici;
+                        //    bool hasRci, hasBci, hasIci;
+                        //    foundFonts[j].RequestCharactersInTexture("a", 32, FontStyle.Normal);
+                        //    foundFonts[j].RequestCharactersInTexture("a", 32, FontStyle.Bold);
+                        //    foundFonts[j].RequestCharactersInTexture("a", 32, FontStyle.Italic);
+                        //    hasRci = foundFonts[j].GetCharacterInfo('a', out rci, 32, FontStyle.Normal);
+                        //    hasBci = foundFonts[j].GetCharacterInfo('a', out bci, 32, FontStyle.Bold);
+                        //    hasIci = foundFonts[j].GetCharacterInfo('a', out ici, 32, FontStyle.Italic);
+
+                        //    Utility.LogMessage("... regular? {0,5}, style {1}", hasRci, rci.style);
+                        //    Utility.LogMessage("... bold?    {0,5}, style {1}", hasBci, bci.style);
+                        //    Utility.LogMessage("... italic?  {0,5}, style {1}", hasIci, ici.style);
+                        //    for (int fn = 0; fn < fnames.Length; ++fn)
+                        //    {
+                        //        Utility.LogMessage(this, "... {0}", fnames[i]);
+                        //    }
                         //}
                         fonts[foundFonts[j].name] = foundFonts[j];
                     }
