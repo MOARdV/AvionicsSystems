@@ -3,40 +3,31 @@ MOARdV's Avionics Systems for Kerbal Space Program - a new generation of IVA enh
 
 ## Short Intro
 
-This is a research and design project (currently) to see if I can rebuild RasterPropMonitor
-from the ground up using the design techniques I've retrofitted to RPM during the first half
+This is a project to rebuild RasterPropMonitor
+from the ground up using the design techniques I retrofitted to RPM during the first half
 of 2016.  The goal is to provide a leaner, more performant design without sacrificing
-features that are currently available in RPM.  A longer-winded explanation is available
-in Documents/Introduction.txt (once I post it; it will be in the formal documentation once that comes
-together).
+features that are available in RPM.  A longer-winded explanation is available in the
+wiki's [Introduction](https://github.com/MOARdV/AvionicsSystems/wiki/Introduction).
 
-## Dev Builds?
+MAS is under intermittent development (basically, when I feel like it and I have time).
 
-Dev Builds are available as releases.  They're updated when I feel it's warranted.  A little more
-discussion is over on [the wiki](https://github.com/MOARdV/AvionicsSystems/wiki).  Please
-take heed of the "ATTENTION" paragraph.
+The [wiki](https://github.com/MOARdV/AvionicsSystems/wiki) contains most of the documentation for this mod, including guides to
+configuring props and integrating scripting.
+
+Development builds will appear under [Releases](https://github.com/MOARdV/AvionicsSystems/releases) as I have new things to test.
+
+Please understand that any IVA included directly in MAS is 
+not guaranteed to be a full-featured IVA ideal for regular gameplay.
 
 ## What about RPM?
 
 RasterPropMonitor is in maintenance mode.  I will keep RPM compiling, and I will try to fix any
-egregious errors, but I do not plan to continue developing features for the mod.  It is far too
+egregious bugs, but I do not plan to continue developing features for the mod.  It is far too
 complex for me to test it adequately by myself in a reasonable time.  As long as RPM is still
 in wide use, I will strive to keep it working, but I can not guarantee much beyond that.
 
-## What about mods using RPM?
-
 IVAs will still work with RPM.  Props packs designed for RPM will still work with RPM.
-
-## When will this happen?
-
-MAS is under intermittent development (basically, when I feel like it and I have time).
-
-Development builds will appear here as I have stuff to test. If you're interested
-in testing, PM me on the KSP forum.  Please understand that any IVA I create during development
-will not be a full-featured IVA intended for gameplay.  Ideal testers are people who create
-their own IVAs, and people who are not hesistant to tweak prop config files to try things out -
-that is, people who can find holes in the MAS design and things I overlooked.
 
 ## Other questions?
 
-Look at Documents/FAQ.txt, or the FAQ on the wiki.  I may have already come up with an answer.  If not, please ask.
+Look at the [FAQ](https://github.com/MOARdV/AvionicsSystems/wiki/FAQ) on the wiki.  I may have already come up with an answer.  If not, please ask.

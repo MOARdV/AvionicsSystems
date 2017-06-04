@@ -30,8 +30,7 @@ Documentation for MOARdV's Avionics Systems is
 Copyright (c) 2016-2017 MOARdV.  All Rights Reserved.
 
 You may distribute unaltered versions of the documentation, either with this
-plugin or separately, but altered versions of the documentation are not
-permitted.
+plugin or separately, but please do not distrubute altered versions of this documentation.
 
 ---
 
@@ -40,7 +39,7 @@ acknowledgment, but they are otherwise unrestricted.
 
 ---
 
-Prop configs included in MAS are CC-BY-SA.
+Prop configs included in MAS are CC-BY-SA by MOARdV.
 
 ---
 
@@ -129,15 +128,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ---
 
-The Digital-7 font is included per the terms described in 
+[Digital-7](http://www.fontspace.com/style-7/digital-7) by Sizenko Alexander [Style-7](http://www.styleseven.com) is included per the terms described in 
 GameData/MOARdV/AvionicsSystems/PluginData/digital-7-readme.txt
 
 ---
 
-The Inconsolata-Go font is included per the terms of the Open Font License,
-http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&item_id=OFL&_sc=1
+The [InconsolataGo](http://www.levien.com/type/myfonts/) font is included per the terms of the [Open Font License](http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&item_id=OFL&_sc=1).
 
 ---
 
-The Repetition Scrolling font is included per the terms described in
+The [Liberation Sans](https://pagure.io/liberation-fonts) font is included per the terms of the [Open Font License]((https://opensource.org/licenses/OFL-1.1).
+
+
+---
+
+The [Repetition Scrolling](http://www.1001fonts.com/repetition-scrolling-font.html) font by Tepid Monkey Fonts is included per the terms described in
 GameData/MOARdV/AvionicsSystems/PluginData/repetition-scrolling-ReadMe.txt
