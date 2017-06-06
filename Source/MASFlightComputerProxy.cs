@@ -98,7 +98,7 @@ namespace AvionicsSystems
         internal void Update()
         {
             autopilotMode = vessel.Autopilot.Mode;
-            vesselPowered = (vc.ResourceCurrent(MASLoader.ElectricCharge) > 0.0001);
+            vesselPowered = (vc.ResourceCurrent(MASConfig.ElectricCharge) > 0.0001);
 
             int situation = (int)vessel.situation;
             for (int i = 0; i < 0x10; ++i)
@@ -2158,6 +2158,7 @@ namespace AvionicsSystems
         }
 
         #endregion
+
         /// <summary>
         /// Meta variables and functions are variables provide information about the
         /// game, as opposed to the vessel.  They also include the `fc.Conditioned()`
@@ -2267,6 +2268,19 @@ namespace AvionicsSystems
         public string MASVersion()
         {
             return MASLoader.asVersion;
+        }
+
+        /// <summary>
+        /// Play the audio file specified in `sound`, at the volume specified in `volume`.
+        /// 
+        /// **NOT IMPLEMENTED YET.**
+        /// </summary>
+        /// <param name="sound">The name of the sound to play.</param>
+        /// <param name="volume">The volume to use for playback, with 1.0 equal to default volume.</param>
+        /// <returns>Returns 1 if the audio was played, 0 if it was not found or otherwise not played.</returns>
+        public double PlayAudio(string sound, double volume)
+        {
+            return 0.0;
         }
 
         /// <summary>
@@ -3843,7 +3857,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double PowerCurrent()
         {
-            return vc.ResourceCurrent(MASLoader.ElectricCharge);
+            return vc.ResourceCurrent(MASConfig.ElectricCharge);
         }
 
         /// <summary>
@@ -3853,7 +3867,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double PowerDelta()
         {
-            return vc.ResourceDelta(MASLoader.ElectricCharge);
+            return vc.ResourceDelta(MASConfig.ElectricCharge);
         }
 
         /// <summary>
@@ -3863,7 +3877,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double PowerMax()
         {
-            return vc.ResourceMax(MASLoader.ElectricCharge);
+            return vc.ResourceMax(MASConfig.ElectricCharge);
         }
 
         /// <summary>
@@ -3874,7 +3888,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double PowerPercent()
         {
-            return vc.ResourcePercent(MASLoader.ElectricCharge);
+            return vc.ResourcePercent(MASConfig.ElectricCharge);
         }
 
         /// <summary>

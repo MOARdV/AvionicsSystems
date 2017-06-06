@@ -423,7 +423,7 @@ namespace AvionicsSystems
 
                     // Precompute the disruption effects.
                     // TODO: Don't do the string lookup every FixedUpdate...
-                    isPowered = (!requiresPower || vc.ResourceCurrent(MASLoader.ElectricCharge) > 0.0001);
+                    isPowered = (!requiresPower || vc.ResourceCurrent(MASConfig.ElectricCharge) > 0.0001);
 
                     if (vessel.geeForce_immediate > gLimit)
                     {
@@ -493,18 +493,18 @@ namespace AvionicsSystems
                     // Update some Lua variables - user configurable, so lower-
                     // spec machines aren't as badly affected.
                     int startLuaIdx, endLuaIdx;
-                    if (MASLoader.LuaUpdateDenominator == 1)
+                    if (MASConfig.LuaUpdatePriority == 1)
                     {
                         startLuaIdx = 0;
                         endLuaIdx = luaVariables.Length;
                     }
                     else
                     {
-                        long modulo = samplecount % MASLoader.LuaUpdateDenominator;
-                        int span = luaVariables.Length / (int)MASLoader.LuaUpdateDenominator;
+                        long modulo = samplecount % MASConfig.LuaUpdatePriority;
+                        int span = luaVariables.Length / MASConfig.LuaUpdatePriority;
                         startLuaIdx = (int)modulo * span;
 
-                        if (modulo == MASLoader.LuaUpdateDenominator - 1)
+                        if (modulo == MASConfig.LuaUpdatePriority - 1)
                         {
                             endLuaIdx = luaVariables.Length;
                         }

@@ -819,7 +819,7 @@ namespace AvionicsSystems
                             ModuleAlternator alternator = module as ModuleAlternator;
                             for (int i = alternator.resHandler.outputResources.Count - 1; i >= 0; --i)
                             {
-                                if (alternator.resHandler.outputResources[i].name == MASLoader.ElectricCharge)
+                                if (alternator.resHandler.outputResources[i].name == MASConfig.ElectricCharge)
                                 {
                                     alternatorList.Add(alternator);
                                     alternatorOutputList.Add((float)alternator.resHandler.outputResources[i].rate);
@@ -836,7 +836,7 @@ namespace AvionicsSystems
                             ModuleGenerator generator = module as ModuleGenerator;
                             for (int i = generator.resHandler.outputResources.Count - 1; i >= 0; --i)
                             {
-                                if (generator.resHandler.outputResources[i].name == MASLoader.ElectricCharge)
+                                if (generator.resHandler.outputResources[i].name == MASConfig.ElectricCharge)
                                 {
                                     generatorList.Add(generator);
                                     generatorOutputList.Add((float)generator.resHandler.outputResources[i].rate);

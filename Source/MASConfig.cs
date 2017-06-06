@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -23,62 +23,112 @@
  * 
  ****************************************************************************/
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
 using System.Text;
 
 namespace AvionicsSystems
 {
-    class MASConfig : GameParameters.CustomParameterNode
+    [KSPScenario(ScenarioCreationOptions.AddToAllGames | ScenarioCreationOptions.AddToExistingGames, GameScenes.SPACECENTER)]
+    class MASConfig : ScenarioModule
     {
-        public override string Title { get { return "MOARdV Avionics Systems Options"; } }
-        public override GameParameters.GameMode GameMode { get { return GameParameters.GameMode.ANY; } }
-        public override string Section { get { return "MAS"; } }
-        public override string DisplaySection { get { return "MAS"; } }
-        public override int SectionOrder { get { return 1; } }
-        public override bool HasPresets { get { return false; } }
-
-        [GameParameters.CustomParameterUI("Verbose Message Logging?", toolTip = "Enable to generate logging for debug purposes")]
-        public bool VerboseLogging = true;
-
-        [GameParameters.CustomParameterUI("Power Resource", toolTip = "Resource to use as power")]
-        public string ElectricCharge = "ElectricCharge";
-
-        [GameParameters.CustomIntParameterUI("Lua Update Priority", toolTip="Larger numbers generate garbage slower, but will feel less responsive", minValue = 1, maxValue=4, stepSize=1)]
-        public int LuaUpdateDenominator = 1;
-
-        [GameParameters.CustomStringParameterUI("Test String UI", autoPersistance = true, lines = 2, title = "Radio Navigation Settings", toolTip = "Tuning parameters for MAS Radio Navigation")]
-        public string UIstring = "";
-
-        [GameParameters.CustomFloatParameterUI("General Signal Propagation", minValue = 0.9f, maxValue = 1.6f, asPercentage = true, toolTip="Controls overall range of MAS Radio Nav signals.  Affects all nav beacons.")]
-        public float GeneralPropagation = 1.0f;
-
-        [GameParameters.CustomFloatParameterUI("NDB Signal Propagation", minValue = 0.9f, maxValue = 1.6f, asPercentage = true, toolTip="Controls range of NDB signals")]
-        public float NDBPropagation = 1.0f;
-
-        [GameParameters.CustomFloatParameterUI("VOR Signal Propagation", minValue = 0.9f, maxValue = 1.6f, asPercentage = true, toolTip="Controls range of VOR signals")]
-        public float VORPropagation = 1.2f;
-
-        [GameParameters.CustomFloatParameterUI("DME Signal Propagation", minValue = 0.9f, maxValue = 1.6f, asPercentage = true, toolTip="Controls range of DME signals")]
-        public float DMEPropagation = 1.4f;
-
-        public override IList ValidValues(MemberInfo member)
+        /// <summary>
+        /// User-configurable parameters related to radio signal propagation.
+        /// </summary>
+        public struct Navigation
         {
-            if (member.Name == "ElectricCharge")
+            /// <summary>
+            /// Overall scalar to change general signal propagation.  The small radius of Kerbin makes
+            /// values swing wildly on altitude.  Defaults to 1.0.
+            /// </summary>
+            public double generalPropagation;
+
+            /// <summary>
+            /// Propagation scalar for NDB stations.  Defaults to 1.0.
+            /// </summary>
+            public double NDBPropagation;
+
+            /// <summary>
+            /// Propagation scalar of VOR stations.  Defaults to 1.2.
+            /// </summary>
+            public double VORPropagation;
+
+            /// <summary>
+            /// Propagation scalar of DME stations.  Defaults to 1.4.
+            /// </summary>
+            public double DMEPropagation;
+        };
+
+        static internal bool VerboseLogging = true;
+        static internal string ElectricCharge = "ElectricCharge";
+        static internal int LuaUpdatePriority = 1;
+
+        static internal Navigation navigation = new Navigation();
+
+        /// <summary>
+        /// Initialize the static structure.
+        /// </summary>
+        MASConfig()
+        {
+            navigation.generalPropagation = 1.0;
+            navigation.NDBPropagation = 1.0;
+            navigation.VORPropagation = 1.2;
+            navigation.DMEPropagation = 1.4;
+        }
+
+        /// <summary>
+        /// Read our config settings, setting defaults where needed.
+        /// </summary>
+        /// <param name="node"></param>
+        public override void OnLoad(ConfigNode node)
+        {
+            if (!node.TryGetValue("VerboseLogging", ref VerboseLogging))
             {
-                List<string> myList = new List<string>();
-                foreach (var thatResource in PartResourceLibrary.Instance.resourceDefinitions)
-                {
-                    myList.Add(thatResource.name);
-                }
-                IList myIlist = myList;
-                return myIlist;
+                VerboseLogging = true;
             }
-            else
+
+            if (!node.TryGetValue("ElectricCharge", ref ElectricCharge))
             {
-                return null;
+                ElectricCharge = "ElectricCharge";
             }
+
+            if (!node.TryGetValue("LuaUpdatePriority", ref LuaUpdatePriority))
+            {
+                LuaUpdatePriority = 1;
+            }
+
+            if (!node.TryGetValue("GeneralPropagation", ref navigation.generalPropagation))
+            {
+                navigation.generalPropagation = 1.0;
+            }
+
+            if (!node.TryGetValue("NDBPropagation", ref navigation.NDBPropagation))
+            {
+                navigation.NDBPropagation = 1.0;
+            }
+
+            if (!node.TryGetValue("VORPropagation", ref navigation.VORPropagation))
+            {
+                navigation.VORPropagation = 1.2;
+            }
+
+            if (!node.TryGetValue("DMEPropagation", ref navigation.DMEPropagation))
+            {
+                navigation.DMEPropagation = 1.4;
+            }
+        }
+
+        /// <summary>
+        /// Save the config values to the persistent file.
+        /// </summary>
+        /// <param name="node">The node to which we write.</param>
+        public override void OnSave(ConfigNode node)
+        {
+            node.AddValue("VerboseLogging", VerboseLogging);
+            node.AddValue("ElectricCharge", ElectricCharge);
+            node.AddValue("LuaUpdatePriority", LuaUpdatePriority);
+            node.AddValue("GeneralPropagation", navigation.generalPropagation);
+            node.AddValue("NDBPropagation", navigation.NDBPropagation);
+            node.AddValue("VORPropagation", navigation.VORPropagation);
+            node.AddValue("DMEPropagation", navigation.DMEPropagation);
         }
     }
 }

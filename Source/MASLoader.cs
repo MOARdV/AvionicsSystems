@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -44,41 +44,9 @@ namespace AvionicsSystems
     public class MASLoader : MonoBehaviour
     {
         /// <summary>
-        /// User-configurable parameters related to radio signal propagation.
-        /// </summary>
-        public struct Navigation
-        {
-            /// <summary>
-            /// Overall scalar to change general signal propagation.  The small radius of Kerbin makes
-            /// values swing wildly on altitude.  Defaults to 1.0.
-            /// </summary>
-            public double generalPropagation;
-
-            /// <summary>
-            /// Propagation scalar for NDB stations.  Defaults to 1.0.
-            /// </summary>
-            public double NDBPropagation;
-
-            /// <summary>
-            /// Propagation scalar of VOR stations.  Defaults to 1.2.
-            /// </summary>
-            public double VORPropagation;
-
-            /// <summary>
-            /// Propagation scalar of DME stations.  Defaults to 1.4.
-            /// </summary>
-            public double DMEPropagation;
-        };
-
-        /// <summary>
         /// Version of the DLL.
         /// </summary>
         static public string asVersion;
-
-        /// <summary>
-        /// Name for electric charge (can be overridden in config).
-        /// </summary>
-        static public string ElectricCharge = "ElectricCharge";
 
         /// <summary>
         /// Fonts that have been loaded (AssetBundle fonts, user bitmap fonts,
@@ -108,27 +76,9 @@ namespace AvionicsSystems
 
         static public HashSet<string> knownAssemblies = new HashSet<string>();
 
-        /// <summary>
-        /// Does the config file say I should use verbose logging?
-        /// </summary>
-        static public bool VerboseLogging = false;
-
-        /// <summary>
-        /// The inverse ration of the number of Lua variables updated per
-        /// FixedUpdate (ie: 1 = 100%, 2 = 1/2, 3 = 1/3).
-        /// </summary>
-        static public long LuaUpdateDenominator = 1;
-
-        static public Navigation navigation = new Navigation();
-
         MASLoader()
         {
             DontDestroyOnLoad(this);
-
-            navigation.generalPropagation = 1.0;
-            navigation.NDBPropagation = 1.0;
-            navigation.VORPropagation = 1.2;
-            navigation.DMEPropagation = 1.4;
         }
 
         /// <summary>
@@ -202,9 +152,6 @@ namespace AvionicsSystems
                 throw new Exception("MASLoader: GameDatabase is not ready.  Unable to continue.");
             }
 
-            GameEvents.OnGameSettingsApplied.Add(OnGameSettingsApplied);
-            GameEvents.onGameStateLoad.Add(OnGameStateLoad);
-
             // HACK: Pass only one of the asset definitions, since LoadAssets
             // behaves badly if we ask it to load more than one.  If that ever
             // gets fixed, I can clean up AssetsLoaded drastically.
@@ -217,69 +164,6 @@ namespace AvionicsSystems
             {
                 string assemblyName = AssemblyLoader.loadedAssemblies[i].assembly.GetName().Name;
                 knownAssemblies.Add(assemblyName);
-            }
-        }
-
-        /// <summary>
-        /// Callback for once the game has been loaded, so we can read our configs.
-        /// </summary>
-        /// <param name="data"></param>
-        private void OnGameStateLoad(ConfigNode data)
-        {
-            OnGameSettingsApplied();
-        }
-
-        /// <summary>
-        /// Callback for when game settings are changed.
-        /// </summary>
-        private void OnGameSettingsApplied()
-        {
-            try
-            {
-                MASConfig masConfig = HighLogic.CurrentGame.Parameters.CustomParams<MASConfig>();
-                if (masConfig != null)
-                {
-                    if (VerboseLogging != masConfig.VerboseLogging)
-                    {
-                        VerboseLogging = masConfig.VerboseLogging;
-                        Utility.LogMessage(this, "Updating Verbose Logging to {0}", VerboseLogging);
-                    }
-                    if (ElectricCharge != masConfig.ElectricCharge)
-                    {
-                        ElectricCharge = masConfig.ElectricCharge;
-                        Utility.LogMessage(this, "Updating Electric Charge to {0}", ElectricCharge);
-                    }
-                    if (LuaUpdateDenominator != masConfig.LuaUpdateDenominator)
-                    {
-                        LuaUpdateDenominator = masConfig.LuaUpdateDenominator;
-                        Utility.LogMessage(this, "Updating Lua Update Denominator to {0}", LuaUpdateDenominator);
-                    }
-
-                    if (navigation.generalPropagation != masConfig.GeneralPropagation)
-                    {
-                        navigation.generalPropagation = masConfig.GeneralPropagation;
-                        Utility.LogMessage(this, "Updating General Propagation to {0}", navigation.generalPropagation);
-                    }
-                    if (navigation.NDBPropagation != masConfig.NDBPropagation)
-                    {
-                        navigation.NDBPropagation = masConfig.NDBPropagation;
-                        Utility.LogMessage(this, "Updating NDB Propagation to {0}", navigation.NDBPropagation);
-                    }
-                    if (navigation.VORPropagation != masConfig.VORPropagation)
-                    {
-                        navigation.VORPropagation = masConfig.VORPropagation;
-                        Utility.LogMessage(this, "Updating VOR Propagation to {0}", navigation.VORPropagation);
-                    }
-                    if (navigation.DMEPropagation != masConfig.DMEPropagation)
-                    {
-                        navigation.DMEPropagation = masConfig.DMEPropagation;
-                        Utility.LogMessage(this, "Updating DME Propagation to {0}", navigation.DMEPropagation);
-                    }
-                }
-            }
-            catch
-            {
-                ; //no-op
             }
         }
 
