@@ -93,6 +93,7 @@
     <Compile Include="Source\MASPageCamera.cs" />
     <Compile Include="Source\MASPersistent.cs" />
     <Compile Include="Source\MASRadar.cs" />
+    <Compile Include="Source\MASSettings.cs" />
     <Compile Include="Source\MASTypes.cs" />
     <Compile Include="Source\MASLoader.cs" />
     <Compile Include="Source\MASFlightComputer.cs" />
