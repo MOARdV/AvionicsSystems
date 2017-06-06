@@ -339,6 +339,13 @@ namespace AvionicsSystems
                     }
                 }
             }
+
+            if (nameMenu != null)
+            {
+                InputLockManager.RemoveControlLock("MASCamera-UI");
+                nameMenu.Dismiss();
+                nameMenu = null;
+            }
         }
         #endregion
 
@@ -397,6 +404,20 @@ namespace AvionicsSystems
                     maxFovRenderer.enabled = showFov;
                 }
             }
+            if (showGui)
+            {
+                if (nameMenu == null)
+                {
+                    ShowNameMenu();
+                }
+            }
+            else if (nameMenu != null)
+            {
+                InputLockManager.RemoveControlLock("MASCamera-UI");
+                nameMenu.Dismiss();
+                nameMenu = null;
+            }
+
         }
 
         /// <summary>
@@ -504,30 +525,55 @@ namespace AvionicsSystems
         }
 
         private bool showGui = false;
-        private Rect windowPos = new Rect(Screen.width / 4, Screen.height / 4, 10f, 10f);
-        private void mainGUI(int windowID)
+        private PopupDialog nameMenu = null;
+
+        /// <summary>
+        /// Create the PopupDialog that allows the user to edit the name of the camera.
+        /// </summary>
+        private void ShowNameMenu()
         {
-            GUILayout.Label("Camera Name");
-            newCameraName = GUILayout.TextArea(newCameraName);
-            if (GUILayout.Button("Cancel", GUILayout.Height(30)))
+            if (nameMenu == null)
             {
-                showGui = false;
-            }
-            if (GUILayout.Button("OK", GUILayout.Height(30)))
-            {
-                cameraName = newCameraName;
-                showGui = false;
+                nameMenu = PopupDialog.SpawnPopupDialog(
+                   new Vector2(0.5f, 0.5f),
+                   new Vector2(0.5f, 0.5f),
+                   new MultiOptionDialog(
+                       "MASCamera-Name",
+                       "Name this camera:",
+                       "MASCamera Name",
+                       HighLogic.UISkin,
+                       new Rect(0.5f, 0.5f, 150.0f, 60.0f),
+                       new DialogGUIFlexibleSpace(),
+                       new DialogGUIVerticalLayout(
+                           new DialogGUIFlexibleSpace(),
+                           new DialogGUITextInput(newCameraName, false, 40, SetTextCallback, 140.0f, 30.0f),
+                           new DialogGUIButton(KSP.Localization.Localizer.GetStringByTag("#autoLOC_174783"), // Cancel
+                               delegate { showGui = false; }, 140.0f, 30.0f, false),
+                           new DialogGUIButton(KSP.Localization.Localizer.GetStringByTag("#autoLOC_174814"), // OK
+                               delegate { showGui = false; cameraName = newCameraName; }, 140.0f, 30.0f, false)
+                           )
+                       ),
+                       false,
+                       HighLogic.UISkin);
+                InputLockManager.SetControlLock(ControlTypes.KEYBOARDINPUT, "MASCamera-UI");
             }
         }
 
-        internal void OnGUI()
+        /// <summary>
+        /// I assume the return parameter means I can edit this string before returning it.
+        /// </summary>
+        /// <param name="newString"></param>
+        /// <returns></returns>
+        private string SetTextCallback(string newString)
         {
-            if ((HighLogic.LoadedScene == GameScenes.EDITOR || HighLogic.LoadedScene == GameScenes.FLIGHT) && showGui)
-            {
-                windowPos = GUILayout.Window(-524628, windowPos, mainGUI, "MASCamera Name", GUILayout.Width(300), GUILayout.Height(100));
-            }
+            newCameraName = newString;
+            return newString;
         }
 
+        /// <summary>
+        /// TODO: Meaningful string.
+        /// </summary>
+        /// <returns></returns>
         public override string GetInfo()
         {
             return "Cameras rule!";
