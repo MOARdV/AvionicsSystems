@@ -39,22 +39,22 @@ namespace AvionicsSystems
             /// Overall scalar to change general signal propagation.  The small radius of Kerbin makes
             /// values swing wildly on altitude.  Defaults to 1.0.
             /// </summary>
-            public double generalPropagation;
+            public float generalPropagation;
 
             /// <summary>
             /// Propagation scalar for NDB stations.  Defaults to 1.0.
             /// </summary>
-            public double NDBPropagation;
+            public float NDBPropagation;
 
             /// <summary>
             /// Propagation scalar of VOR stations.  Defaults to 1.2.
             /// </summary>
-            public double VORPropagation;
+            public float VORPropagation;
 
             /// <summary>
             /// Propagation scalar of DME stations.  Defaults to 1.4.
             /// </summary>
-            public double DMEPropagation;
+            public float DMEPropagation;
         };
 
         static internal bool VerboseLogging = true;
@@ -68,10 +68,10 @@ namespace AvionicsSystems
         /// </summary>
         MASConfig()
         {
-            navigation.generalPropagation = 1.0;
-            navigation.NDBPropagation = 1.0;
-            navigation.VORPropagation = 1.2;
-            navigation.DMEPropagation = 1.4;
+            navigation.generalPropagation = 1.0f;
+            navigation.NDBPropagation = 1.0f;
+            navigation.VORPropagation = 1.2f;
+            navigation.DMEPropagation = 1.4f;
         }
 
         /// <summary>
@@ -97,22 +97,22 @@ namespace AvionicsSystems
 
             if (!node.TryGetValue("GeneralPropagation", ref navigation.generalPropagation))
             {
-                navigation.generalPropagation = 1.0;
+                navigation.generalPropagation = 1.0f;
             }
 
             if (!node.TryGetValue("NDBPropagation", ref navigation.NDBPropagation))
             {
-                navigation.NDBPropagation = 1.0;
+                navigation.NDBPropagation = 1.0f;
             }
 
             if (!node.TryGetValue("VORPropagation", ref navigation.VORPropagation))
             {
-                navigation.VORPropagation = 1.2;
+                navigation.VORPropagation = 1.2f;
             }
 
             if (!node.TryGetValue("DMEPropagation", ref navigation.DMEPropagation))
             {
-                navigation.DMEPropagation = 1.4;
+                navigation.DMEPropagation = 1.4f;
             }
         }
 

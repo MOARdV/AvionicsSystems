@@ -97,25 +97,53 @@ namespace AvionicsSystems
                        "",
                        "MAS Settings",
                        HighLogic.UISkin,
-                       new Rect(0.5f, 0.5f, 150.0f, 60.0f),
+                       new Rect(0.5f, 0.5f, 300.0f, 60.0f),
                        new DialogGUIFlexibleSpace(),
                        new DialogGUIVerticalLayout(
-                           new DialogGUIFlexibleSpace(),
-                           new DialogGUIToggle(verboseLogging, "Verbose Logging",
-                               ToggleLogging),
-                           new DialogGUIButton(KSP.Localization.Localizer.GetStringByTag("#autoLOC_174783"), // Cancel
-                               delegate 
-                               { 
-                                   onAppLauncherHide();
-                                   appLauncherButton.SetFalse(false); 
-                               }, 140.0f, 30.0f, false),
-                           new DialogGUIButton(KSP.Localization.Localizer.GetStringByTag("#autoLOC_174814"), // OK
-                               delegate 
-                               { 
-                                   onAppLauncherHide();
-                                   appLauncherButton.SetFalse(false);
-                                   ApplyChanges();
-                               }, 140.0f, 30.0f, false)
+                           new DialogGUIHorizontalLayout(
+                               new DialogGUIVerticalLayout(
+                                   //new DialogGUIFlexibleSpace(),
+                                   new DialogGUIToggle(verboseLogging, "Verbose Logging", ToggleLogging),
+                                   new DialogGUISpace(5.0f),
+                                   new DialogGUILabel(delegate { return string.Format("Lua Update Priority: {0}", luaUpdatePriority); }, true),
+                                   new DialogGUISlider(delegate { return (float)luaUpdatePriority; }, 1.0f, 4.0f, true, 140.0f, 30.0f, UpdatePriority),
+                                   new DialogGUISpace(5.0f),
+                                   new DialogGUIFlexibleSpace()
+                                   ),
+                                new DialogGUIVerticalLayout(
+                                   //new DialogGUIFlexibleSpace(),
+                                   new DialogGUILabel("<b>Radio Navigation</b>", true),
+                                   new DialogGUISpace(10.0f),
+                                   new DialogGUILabel(delegate { return string.Format("Radio Propagation: {0:##0}%", generalPropagation * 100.0f); }, true),
+                                   new DialogGUISlider(delegate { return generalPropagation; }, 1.0f, 2.0f, false, 140.0f, 30.0f, UpdateGeneralPropagation),
+                                   new DialogGUISpace(5.0f),
+                                   new DialogGUILabel(delegate { return string.Format("NDB Propagation: {0:##0}%", NDBPropagation * 100.0f); }, true),
+                                   new DialogGUISlider(delegate { return NDBPropagation; }, 1.0f, 2.0f, false, 140.0f, 30.0f, UpdateNDBPropagation),
+                                   new DialogGUISpace(5.0f),
+                                   new DialogGUILabel(delegate { return string.Format("VOR Propagation: {0:##0}%", VORPropagation * 100.0f); }, true),
+                                   new DialogGUISlider(delegate { return VORPropagation; }, 1.0f, 2.0f, false, 140.0f, 30.0f, UpdateVORPropagation),
+                                   new DialogGUISpace(5.0f),
+                                   new DialogGUILabel(delegate { return string.Format("DME Propagation: {0:##0}%", DMEPropagation * 100.0f); }, true),
+                                   new DialogGUISlider(delegate { return DMEPropagation; }, 1.0f, 2.0f, false, 140.0f, 30.0f, UpdateDMEPropagation),
+                                   new DialogGUIFlexibleSpace()
+                                    )
+                               ),
+                           new DialogGUIHorizontalLayout(
+                               new DialogGUIFlexibleSpace(),
+                               new DialogGUIButton(KSP.Localization.Localizer.GetStringByTag("#autoLOC_174783"), // Cancel
+                                   delegate
+                                   {
+                                       onAppLauncherHide();
+                                       appLauncherButton.SetFalse(false);
+                                   }, 140.0f, 30.0f, false),
+                               new DialogGUIButton(KSP.Localization.Localizer.GetStringByTag("#autoLOC_174814"), // OK
+                                   delegate
+                                   {
+                                       onAppLauncherHide();
+                                       appLauncherButton.SetFalse(false);
+                                       ApplyChanges();
+                                   }, 140.0f, 30.0f, false)
+                               )
                            )
                        ),
                        false,
@@ -124,19 +152,59 @@ namespace AvionicsSystems
         }
 
         private bool verboseLogging;
+        private int luaUpdatePriority;
+        private float generalPropagation;
+        private float NDBPropagation;
+        private float VORPropagation;
+        private float DMEPropagation;
         private void InitValues()
         {
             verboseLogging = MASConfig.VerboseLogging;
-        }
-
-        private void ApplyChanges()
-        {
-            MASConfig.VerboseLogging = verboseLogging;
+            luaUpdatePriority = MASConfig.LuaUpdatePriority;
+            generalPropagation = MASConfig.navigation.generalPropagation;
+            NDBPropagation = MASConfig.navigation.NDBPropagation;
+            VORPropagation = MASConfig.navigation.VORPropagation;
+            DMEPropagation = MASConfig.navigation.DMEPropagation;
         }
 
         private void ToggleLogging(bool newValue)
         {
             verboseLogging = newValue;
+        }
+
+        private void UpdateGeneralPropagation(float newValue)
+        {
+            generalPropagation = newValue;
+        }
+
+        private void UpdateNDBPropagation(float newValue)
+        {
+            generalPropagation = newValue;
+        }
+
+        private void UpdateVORPropagation(float newValue)
+        {
+            generalPropagation = newValue;
+        }
+
+        private void UpdateDMEPropagation(float newValue)
+        {
+            generalPropagation = newValue;
+        }
+
+        private void UpdatePriority(float newValue)
+        {
+            luaUpdatePriority = (int)newValue;
+        }
+
+        private void ApplyChanges()
+        {
+            MASConfig.VerboseLogging = verboseLogging;
+            MASConfig.LuaUpdatePriority = luaUpdatePriority;
+            MASConfig.navigation.generalPropagation = generalPropagation;
+            MASConfig.navigation.NDBPropagation = NDBPropagation;
+            MASConfig.navigation.VORPropagation = VORPropagation;
+            MASConfig.navigation.DMEPropagation = DMEPropagation;
         }
 
         private void onAppLauncherShow()
