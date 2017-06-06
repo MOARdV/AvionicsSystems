@@ -143,6 +143,8 @@ namespace Documentor
             }
             docToken = null;
 
+            List<string> contents = new List<string>();
+
             //System.Console.WriteLine("Potential Tokens:");
             StringBuilder docString = new StringBuilder();
             docString.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
@@ -167,7 +169,9 @@ namespace Documentor
                 else if (tokens[i].rawName.StartsWith("#region"))
                 {
                     tokens[i].rawSummary.Append("<region>");
-                    tokens[i].rawSummary.Append(tokens[i].rawName.Substring(tokens[i].rawName.IndexOf(' ') + 1));
+                    string regionName = tokens[i].rawName.Substring(tokens[i].rawName.IndexOf(' ') + 1);
+                    contents.Add(regionName);
+                    tokens[i].rawSummary.Append(regionName);
                     tokens[i].rawSummary.AppendLine("</region>");
                 }
                 tokens[i].rawSummary.AppendLine("</token>");
@@ -198,6 +202,26 @@ namespace Documentor
             docString.Append("# ");
             docString.AppendLine(sourceFileName);
             docString.AppendLine();
+
+            if (contents.Count > 1)
+            {
+                docString.AppendLine("## Contents");
+                docString.AppendLine();
+                for (int i = 0; i < contents.Count; ++i)
+                {
+                    docString.Append("* [");
+                    docString.Append(contents[i]);
+                    docString.Append("](#");
+                    string anchor = contents[i].ToLower().Replace(' ', '-');
+                    string[] finalAnchor = anchor.Split(',');
+                    foreach (string a in finalAnchor)
+                    {
+                        docString.Append(a);
+                    }
+                    docString.AppendLine("-category)");
+                }
+                docString.AppendLine();
+            }
 
             if (root.HasChildNodes)
             {
