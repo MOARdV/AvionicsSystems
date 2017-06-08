@@ -43,9 +43,22 @@ namespace AvionicsSystems
         /// <summary>
         /// Structure to track active propellant use.  Stores in units of kg, not KSP units.
         /// </summary>
-        internal ResourceData propellant = new ResourceData();
+        internal ResourceData enginePropellant = new ResourceData();
 
-        private HashSet<int> propellantIds = new HashSet<int>();
+        /// <summary>
+        /// A listing of which resource IDs have been flagged as active propellants.
+        /// </summary>
+        private HashSet<int> enginePropellantIds = new HashSet<int>();
+
+        /// <summary>
+        /// Structure to track active RCS use.  Stores in units of kg, not KSP units.
+        /// </summary>
+        internal ResourceData rcsPropellant = new ResourceData();
+
+        /// <summary>
+        /// A listing of which resource IDs have been flagged as RCS resources.
+        /// </summary>
+        private HashSet<int> rcsPropellantIds = new HashSet<int>();
 
         /// <summary>
         /// HashSet to track active resources.
@@ -512,11 +525,24 @@ namespace AvionicsSystems
         /// a ModuleEngine.
         /// </summary>
         /// <param name="propellantId"></param>
-        private void MarkActivePropellant(int propellantId)
+        private void MarkActiveEnginePropellant(int propellantId)
         {
-            if (!propellantIds.Contains(propellantId))
+            if (!enginePropellantIds.Contains(propellantId))
             {
-                propellantIds.Add(propellantId);
+                enginePropellantIds.Add(propellantId);
+            }
+        }
+
+        /// <summary>
+        /// Add the resourceID of a resource being used as a propellant in
+        /// a ModuleRCS.
+        /// </summary>
+        /// <param name="propellantId"></param>
+        private void MarkActiveRcsPropellant(int propellantId)
+        {
+            if (!rcsPropellantIds.Contains(propellantId))
+            {
+                rcsPropellantIds.Add(propellantId);
             }
         }
         #endregion
@@ -557,13 +583,22 @@ namespace AvionicsSystems
             // cheaper than a string search.
             Array.Sort(resources, resourceNameComparer);
 
-            propellant.name = "Propellant Mass";
-            propellant.currentQuantity = 0.0f;
-            propellant.maxQuantity = 0.0f;
-            propellant.previousQuantity = 0.0f;
-            propellant.deltaPerSecond = 0.0f;
-            propellant.currentStage = 0.0f;
-            propellant.maxStage = 0.0f;
+            enginePropellant.name = "Engine Propellant Mass";
+            enginePropellant.currentQuantity = 0.0f;
+            enginePropellant.maxQuantity = 0.0f;
+            enginePropellant.previousQuantity = 0.0f;
+            enginePropellant.deltaPerSecond = 0.0f;
+            enginePropellant.currentStage = 0.0f;
+            enginePropellant.maxStage = 0.0f;
+            // Balance of fields are "don't care".
+
+            rcsPropellant.name = "RCS Propellant Mass";
+            rcsPropellant.currentQuantity = 0.0f;
+            rcsPropellant.maxQuantity = 0.0f;
+            rcsPropellant.previousQuantity = 0.0f;
+            rcsPropellant.deltaPerSecond = 0.0f;
+            rcsPropellant.currentStage = 0.0f;
+            rcsPropellant.maxStage = 0.0f;
             // Balance of fields are "don't care".
         }
 
@@ -604,7 +639,9 @@ namespace AvionicsSystems
                 }
                 resources[i].deltaPerSecond = 0.0f;
             }
-            propellantIds.Clear();
+
+            enginePropellantIds.Clear();
+            rcsPropellantIds.Clear();
         }
 
         /// <summary>
@@ -612,10 +649,15 @@ namespace AvionicsSystems
         /// </summary>
         private void ProcessResourceData()
         {
-            propellant.currentStage = 0.0f;
-            propellant.maxStage = 0.0f;
-            propellant.currentQuantity = 0.0f;
-            propellant.maxQuantity = 0.0f;
+            enginePropellant.currentStage = 0.0f;
+            enginePropellant.maxStage = 0.0f;
+            enginePropellant.currentQuantity = 0.0f;
+            enginePropellant.maxQuantity = 0.0f;
+
+            rcsPropellant.currentStage = 0.0f;
+            rcsPropellant.maxStage = 0.0f;
+            rcsPropellant.currentQuantity = 0.0f;
+            rcsPropellant.maxQuantity = 0.0f;
 
             float timeDelta = 1.0f / TimeWarp.fixedDeltaTime;
             for (int i = resources.Length - 1; i >= 0; --i)
@@ -647,25 +689,44 @@ namespace AvionicsSystems
 
                     resources[i].previousQuantity = resources[i].currentQuantity;
                 }
-                if (propellantIds.Contains(resources[i].id))
+
+                float density = 1000.0f * resources[i].density;
+                if (enginePropellantIds.Contains(resources[i].id))
                 {
-                    float density = 1000.0f * resources[i].density;
-                    propellant.currentStage += resources[i].currentStage * density;
-                    propellant.maxStage += resources[i].maxStage * density;
-                    propellant.currentQuantity += resources[i].currentQuantity * density;
-                    propellant.maxQuantity += resources[i].maxQuantity * density;
+                    enginePropellant.currentStage += resources[i].currentStage * density;
+                    enginePropellant.maxStage += resources[i].maxStage * density;
+                    enginePropellant.currentQuantity += resources[i].currentQuantity * density;
+                    enginePropellant.maxQuantity += resources[i].maxQuantity * density;
+                }
+
+                if (rcsPropellantIds.Contains(resources[i].id))
+                {
+                    rcsPropellant.currentStage += resources[i].currentStage * density;
+                    rcsPropellant.maxStage += resources[i].maxStage * density;
+                    rcsPropellant.currentQuantity += resources[i].currentQuantity * density;
+                    rcsPropellant.maxQuantity += resources[i].maxQuantity * density;
                 }
             }
 
-            if (propellant.previousQuantity > 0.0f)
+            if (enginePropellant.previousQuantity > 0.0f)
             {
-                propellant.deltaPerSecond = timeDelta * (propellant.previousQuantity - propellant.currentQuantity);
+                enginePropellant.deltaPerSecond = timeDelta * (enginePropellant.previousQuantity - enginePropellant.currentQuantity);
             }
             else
             {
-                propellant.deltaPerSecond = 0.0f;
+                enginePropellant.deltaPerSecond = 0.0f;
             }
-            propellant.previousQuantity = propellant.currentQuantity;
+            enginePropellant.previousQuantity = enginePropellant.currentQuantity;
+
+            if (rcsPropellant.previousQuantity > 0.0f)
+            {
+                rcsPropellant.deltaPerSecond = timeDelta * (rcsPropellant.previousQuantity - rcsPropellant.currentQuantity);
+            }
+            else
+            {
+                rcsPropellant.deltaPerSecond = 0.0f;
+            }
+            rcsPropellant.previousQuantity = rcsPropellant.currentQuantity;
 
             // sort the array of installed indices.
             Array.Sort<int>(this.vesselActiveResource);

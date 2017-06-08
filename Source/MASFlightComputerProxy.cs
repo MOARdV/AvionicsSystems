@@ -3852,7 +3852,17 @@ namespace AvionicsSystems
         /// report the state of the resource identified in the MAS config file.  By default,
         /// this is `ElectricCharge`, but mods may use a different resource for power, instead.
         /// By using the 'Power' methods, IVA makers do not have to worry about adapting their
-        /// IVA configurations for use with modded configurations.
+        /// IVA configurations for use with modded configurations, as long as the player has
+        /// correctly configured MAS to use the alternative power name.
+        /// 
+        /// 'Propellant' methods track all of the active fuel types being used by ModuleEngines
+        /// and ModuleEnginesFX.  Instead of reporting the current and maximum amounts in units,
+        /// like the 'Resource' methods do, these methods report amounts in kilograms.  Using
+        /// the propellant mass allows these methods to track alternate fuel types (such as mods
+        /// using LHyd + Oxidizer).
+        /// 
+        /// 'Rcs' methods work similarly to the 'Propellant' methods, but they track resource types
+        /// consumed by ModuleRCS and ModuleRCSFX.
         /// 
         /// 'Resource' methods that take a numeric parameter are ordinal resource listers.  The
         /// numeric parameter is a number from 0 to fc.ResourceCount() - 1.  This allows the
@@ -3860,9 +3870,6 @@ namespace AvionicsSystems
         /// 
         /// 'Resource' methods that take a string parameter return the named resource.  The name
         /// must match the `name` field of a `RESOURCE_DEFINITION` config node, or 0 will be returned.
-        /// 
-        /// At present, there is no support for alternate fuels, since that gets really complex
-        /// really quickly.
         /// </summary>
         #region Resources
         /// <summary>
@@ -3916,7 +3923,7 @@ namespace AvionicsSystems
         /// <returns>The current mass of the active propellants in the vessel, in kg.</returns>
         public double PropellantCurrent()
         {
-            return vc.propellant.currentQuantity;
+            return vc.enginePropellant.currentQuantity;
         }
 
         /// <summary>
@@ -3929,7 +3936,7 @@ namespace AvionicsSystems
         /// <returns>The current propellant consumption rate, in kg/s.</returns>
         public double PropellantDelta()
         {
-            return vc.propellant.deltaPerSecond;
+            return vc.enginePropellant.deltaPerSecond;
         }
 
         /// <summary>
@@ -3942,7 +3949,7 @@ namespace AvionicsSystems
         /// <returns>The maximum propellant capacity, in kg.</returns>
         public double PropellantMax()
         {
-            return vc.propellant.maxQuantity;
+            return vc.enginePropellant.maxQuantity;
         }
 
         /// <summary>
@@ -3955,7 +3962,7 @@ namespace AvionicsSystems
         /// <returns>The percentage of maximum propellant capacity that contains propellant, between 0 and 1.</returns>
         public double PropellantPercent()
         {
-            return (vc.propellant.maxQuantity > 0.0f) ? (vc.propellant.currentQuantity / vc.propellant.maxQuantity) : 0.0;
+            return (vc.enginePropellant.maxQuantity > 0.0f) ? (vc.enginePropellant.currentQuantity / vc.enginePropellant.maxQuantity) : 0.0;
         }
 
         /// <summary>
@@ -3968,7 +3975,7 @@ namespace AvionicsSystems
         /// <returns>The current mass of propellant accessible by the current stage, in kg.</returns>
         public double PropellantStageCurrent()
         {
-            return vc.propellant.currentStage;
+            return vc.enginePropellant.currentStage;
         }
 
         /// <summary>
@@ -3981,7 +3988,7 @@ namespace AvionicsSystems
         /// <returns>The maximum mass of propellant accessibly by the current stage, in kg.</returns>
         public double PropellantStageMax()
         {
-            return vc.propellant.maxStage;
+            return vc.enginePropellant.maxStage;
         }
 
         /// <summary>
@@ -3994,7 +4001,70 @@ namespace AvionicsSystems
         /// <returns>The percentage of maximum stage propellant capacity that contains propellant, between 0 and 1.</returns>
         public double PropellantStagePercent()
         {
-            return (vc.propellant.maxStage > 0.0f) ? (vc.propellant.currentStage / vc.propellant.maxStage) : 0.0;
+            return (vc.enginePropellant.maxStage > 0.0f) ? (vc.enginePropellant.currentStage / vc.enginePropellant.maxStage) : 0.0;
+        }
+
+        /// <summary>
+        /// Tracks the current total mass of all resources consumed by installed RCS thrusters.
+        /// </summary>
+        /// <returns>Total RCS propellant mass in kg.</returns>
+        public double RcsCurrent()
+        {
+            return vc.rcsPropellant.currentQuantity;
+        }
+
+        /// <summary>
+        /// Tracks the current resource consumption rate by installed RCS thrusters.
+        /// </summary>
+        /// <returns>RCS propellant consumption rate in kg/s.</returns>
+        public double RcsDelta()
+        {
+            return vc.rcsPropellant.deltaPerSecond;
+        }
+
+        /// <summary>
+        /// Tracks the total mass that can be carried in all RCS propellant tanks.
+        /// </summary>
+        /// <returns>Maximum propellant capacity in kg.</returns>
+        public double RcsMax()
+        {
+            return vc.rcsPropellant.maxQuantity;
+        }
+
+        /// <summary>
+        /// Tracks the percentage of total RCS propellant mass currently onboard.
+        /// </summary>
+        /// <returns>Current RCS propellant supply, between 0 and 1.</returns>
+        public double RcsPercent()
+        {
+            return (vc.rcsPropellant.maxQuantity > 0.0f) ? (vc.rcsPropellant.currentQuantity / vc.rcsPropellant.maxQuantity) : 0.0;
+        }
+
+        /// <summary>
+        /// Reports the current amount of RCS propellant available to the active stage.
+        /// </summary>
+        /// <returns>Available RCS propellant, in kg.</returns>
+        public double RcsStageCurrent()
+        {
+            return vc.rcsPropellant.currentStage;
+        }
+
+        /// <summary>
+        /// Reports the maximum amount of RCS propellant storage accessible by the current stage.
+        /// </summary>
+        /// <returns>Maximum stage RCS propellant mass, in kg.</returns>
+        public double RcsStageMax()
+        {
+            return vc.rcsPropellant.maxStage;
+        }
+
+        /// <summary>
+        /// Reports the percentage of RCS propellant mass available to the current stage.
+        /// </summary>
+        /// <returns>Current stage percentage, between 0 and 1.</returns>
+        public double RcsStagePercent()
+        {
+            return (vc.rcsPropellant.maxStage > 0.0f) ? (vc.rcsPropellant.currentStage / vc.rcsPropellant.maxStage) : 0.0;
         }
 
         /// <summary>

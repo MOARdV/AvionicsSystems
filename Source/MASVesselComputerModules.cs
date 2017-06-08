@@ -370,7 +370,7 @@ namespace AvionicsSystems
                     List<PartResourceDefinition> propellants = me.GetConsumedResources();
                     for (int res = propellants.Count - 1; res >= 0; --res)
                     {
-                        MarkActivePropellant(propellants[res].id);
+                        MarkActiveEnginePropellant(propellants[res].id);
                     }
                 }
 
@@ -629,6 +629,12 @@ namespace AvionicsSystems
                 {
                     netThrust += moduleRcs[i].thrusterPower;
                     rcsWeightedThrustLimit += moduleRcs[i].thrusterPower * moduleRcs[i].thrustPercentage;
+
+                    List<PartResourceDefinition> propellants = moduleRcs[i].GetConsumedResources();
+                    for (int res = propellants.Count - 1; res >= 0; --res)
+                    {
+                        MarkActiveRcsPropellant(propellants[res].id);
+                    }
                 }
             }
 
