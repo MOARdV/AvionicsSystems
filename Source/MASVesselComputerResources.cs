@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -39,6 +39,13 @@ namespace AvionicsSystems
         /// Array of all known resources.
         /// </summary>
         private ResourceData[] resources = new ResourceData[0];
+
+        /// <summary>
+        /// Structure to track active propellant use.  Stores in units of kg, not KSP units.
+        /// </summary>
+        internal ResourceData propellant = new ResourceData();
+
+        private HashSet<int> propellantIds = new HashSet<int>();
 
         /// <summary>
         /// HashSet to track active resources.
@@ -499,6 +506,19 @@ namespace AvionicsSystems
                 return 0.0;
             }
         }
+
+        /// <summary>
+        /// Add the resourceID of a resource being used as a propellant in
+        /// a ModuleEngine.
+        /// </summary>
+        /// <param name="propellantId"></param>
+        private void MarkActivePropellant(int propellantId)
+        {
+            if (!propellantIds.Contains(propellantId))
+            {
+                propellantIds.Add(propellantId);
+            }
+        }
         #endregion
 
         #region Resource Data Management
@@ -536,6 +556,15 @@ namespace AvionicsSystems
             // TODO: Should I sort on resource ID instead?  That would be
             // cheaper than a string search.
             Array.Sort(resources, resourceNameComparer);
+
+            propellant.name = "Propellant Mass";
+            propellant.currentQuantity = 0.0f;
+            propellant.maxQuantity = 0.0f;
+            propellant.previousQuantity = 0.0f;
+            propellant.deltaPerSecond = 0.0f;
+            propellant.currentStage = 0.0f;
+            propellant.maxStage = 0.0f;
+            // Balance of fields are "don't care".
         }
 
         /// <summary>
@@ -575,6 +604,7 @@ namespace AvionicsSystems
                 }
                 resources[i].deltaPerSecond = 0.0f;
             }
+            propellantIds.Clear();
         }
 
         /// <summary>
@@ -582,6 +612,11 @@ namespace AvionicsSystems
         /// </summary>
         private void ProcessResourceData()
         {
+            propellant.currentStage = 0.0f;
+            propellant.maxStage = 0.0f;
+            propellant.currentQuantity = 0.0f;
+            propellant.maxQuantity = 0.0f;
+
             float timeDelta = 1.0f / TimeWarp.fixedDeltaTime;
             for (int i = resources.Length - 1; i >= 0; --i)
             {
@@ -612,7 +647,25 @@ namespace AvionicsSystems
 
                     resources[i].previousQuantity = resources[i].currentQuantity;
                 }
+                if (propellantIds.Contains(resources[i].id))
+                {
+                    float density = 1000.0f * resources[i].density;
+                    propellant.currentStage += resources[i].currentStage * density;
+                    propellant.maxStage += resources[i].maxStage * density;
+                    propellant.currentQuantity += resources[i].currentQuantity * density;
+                    propellant.maxQuantity += resources[i].maxQuantity * density;
+                }
             }
+
+            if (propellant.previousQuantity > 0.0f)
+            {
+                propellant.deltaPerSecond = timeDelta * (propellant.previousQuantity - propellant.currentQuantity);
+            }
+            else
+            {
+                propellant.deltaPerSecond = 0.0f;
+            }
+            propellant.previousQuantity = propellant.currentQuantity;
 
             // sort the array of installed indices.
             Array.Sort<int>(this.vesselActiveResource);

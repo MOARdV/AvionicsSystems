@@ -2108,6 +2108,21 @@ namespace AvionicsSystems
         #region Math
 
         /// <summary>
+        /// Clamps `value` to stay within the range `a` to `b`, inclusive.  `a` does not
+        /// have to be less than `b`.
+        /// </summary>
+        /// <param name="value">The value to clamp.</param>
+        /// <param name="a">The first bound.</param>
+        /// <param name="b">The second bound.</param>
+        /// <returns>The clamped value.</returns>
+        public double Clamp(double value, double a, double b)
+        {
+            double max = Math.Max(a, b);
+            double min = Math.Min(a, b);
+            return Math.Max(Math.Min(value, max), min);
+        }
+
+        /// <summary>
         /// Return the larger value
         /// </summary>
         /// <param name="a">The first value to test.</param>
@@ -3889,6 +3904,97 @@ namespace AvionicsSystems
         public double PowerPercent()
         {
             return vc.ResourcePercent(MASConfig.ElectricCharge);
+        }
+
+        /// <summary>
+        /// Since different engines may consume different types of resources, it can be challenging to
+        /// configure a prop that meaningfully displays current resource levels.  To assist with this
+        /// task, MAS scans all active engines and keeps track of which resources they consume.  The
+        /// masses of these resources are summed and tracked in a similar manner to the specific
+        /// resource queries.
+        /// </summary>
+        /// <returns>The current mass of the active propellants in the vessel, in kg.</returns>
+        public double PropellantCurrent()
+        {
+            return vc.propellant.currentQuantity;
+        }
+
+        /// <summary>
+        /// Since different engines may consume different types of resources, it can be challenging to
+        /// configure a prop that meaningfully displays current resource levels.  To assist with this
+        /// task, MAS scans all active engines and keeps track of which resources they consume.  The
+        /// masses of these resources are summed and tracked in a similar manner to the specific
+        /// resource queries.
+        /// </summary>
+        /// <returns>The current propellant consumption rate, in kg/s.</returns>
+        public double PropellantDelta()
+        {
+            return vc.propellant.deltaPerSecond;
+        }
+
+        /// <summary>
+        /// Since different engines may consume different types of resources, it can be challenging to
+        /// configure a prop that meaningfully displays current resource levels.  To assist with this
+        /// task, MAS scans all active engines and keeps track of which resources they consume.  The
+        /// masses of these resources are summed and tracked in a similar manner to the specific
+        /// resource queries.
+        /// </summary>
+        /// <returns>The maximum propellant capacity, in kg.</returns>
+        public double PropellantMax()
+        {
+            return vc.propellant.maxQuantity;
+        }
+
+        /// <summary>
+        /// Since different engines may consume different types of resources, it can be challenging to
+        /// configure a prop that meaningfully displays current resource levels.  To assist with this
+        /// task, MAS scans all active engines and keeps track of which resources they consume.  The
+        /// masses of these resources are summed and tracked in a similar manner to the specific
+        /// resource queries.
+        /// </summary>
+        /// <returns>The percentage of maximum propellant capacity that contains propellant, between 0 and 1.</returns>
+        public double PropellantPercent()
+        {
+            return (vc.propellant.maxQuantity > 0.0f) ? (vc.propellant.currentQuantity / vc.propellant.maxQuantity) : 0.0;
+        }
+
+        /// <summary>
+        /// Since different engines may consume different types of resources, it can be challenging to
+        /// configure a prop that meaningfully displays current resource levels.  To assist with this
+        /// task, MAS scans all active engines and keeps track of which resources they consume.  The
+        /// masses of these resources are summed and tracked in a similar manner to the specific
+        /// resource queries.
+        /// </summary>
+        /// <returns>The current mass of propellant accessible by the current stage, in kg.</returns>
+        public double PropellantStageCurrent()
+        {
+            return vc.propellant.currentStage;
+        }
+
+        /// <summary>
+        /// Since different engines may consume different types of resources, it can be challenging to
+        /// configure a prop that meaningfully displays current resource levels.  To assist with this
+        /// task, MAS scans all active engines and keeps track of which resources they consume.  The
+        /// masses of these resources are summed and tracked in a similar manner to the specific
+        /// resource queries.
+        /// </summary>
+        /// <returns>The maximum mass of propellant accessibly by the current stage, in kg.</returns>
+        public double PropellantStageMax()
+        {
+            return vc.propellant.maxStage;
+        }
+
+        /// <summary>
+        /// Since different engines may consume different types of resources, it can be challenging to
+        /// configure a prop that meaningfully displays current resource levels.  To assist with this
+        /// task, MAS scans all active engines and keeps track of which resources they consume.  The
+        /// masses of these resources are summed and tracked in a similar manner to the specific
+        /// resource queries.
+        /// </summary>
+        /// <returns>The percentage of maximum stage propellant capacity that contains propellant, between 0 and 1.</returns>
+        public double PropellantStagePercent()
+        {
+            return (vc.propellant.maxStage > 0.0f) ? (vc.propellant.currentStage / vc.propellant.maxStage) : 0.0;
         }
 
         /// <summary>

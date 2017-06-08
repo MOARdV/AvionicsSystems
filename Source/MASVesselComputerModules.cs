@@ -314,6 +314,8 @@ namespace AvionicsSystems
             float maxIspContribution = 0.0f;
             float averageIspContribution = 0.0f;
 
+
+            // Move these to private variables, don't re create them every fixed update?
             List<Part> visitedParts = new List<Part>(vessel.parts.Count);
 
             bool requestReset = false;
@@ -363,6 +365,12 @@ namespace AvionicsSystems
                     if (invMaxISP[i] > 0.0f)
                     {
                         maxIspContribution += maxThrust * invMaxISP[i];
+                    }
+
+                    List<PartResourceDefinition> propellants = me.GetConsumedResources();
+                    for (int res = propellants.Count - 1; res >= 0; --res)
+                    {
+                        MarkActivePropellant(propellants[res].id);
                     }
                 }
 
