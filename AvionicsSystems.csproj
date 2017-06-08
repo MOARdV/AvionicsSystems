@@ -67,6 +67,7 @@
     <Compile Include="Source\MASActionColliderEvent.cs" />
     <Compile Include="Source\MASActionColorShift.cs" />
     <Compile Include="Source\MASActionDynamicTextureShift.cs" />
+    <Compile Include="Source\MASActionImage.cs" />
     <Compile Include="Source\MASActionIntLight.cs" />
     <Compile Include="Source\MASActionModelScale.cs" />
     <Compile Include="Source\MASActionRotation.cs" />
