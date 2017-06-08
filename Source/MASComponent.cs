@@ -46,58 +46,37 @@ namespace AvionicsSystems
         /// <returns></returns>
         private static IMASSubComponent CreateAction(ConfigNode config, InternalProp prop, MASFlightComputer comp)
         {
-            if (config.name == "ANIMATION")
+            switch (config.name)
             {
-                return new MASActionAnimation(config, prop, comp);
-            }
-            else if (config.name == "ANIMATION_PLAYER")
-            {
-                return new MASActionAnimationPlayer(config, prop, comp);
-            }
-            else if (config.name == "AUDIO_PLAYER")
-            {
-                return new MASActionAudioPlayer(config, prop, comp);
-            }
-            else if (config.name == "COLOR_SHIFT")
-            {
-                return new MASActionColorShift(config, prop, comp);
-            }
-            else if (config.name == "COLLIDER_EVENT")
-            {
-                return new MASActionColliderEvent(config, prop, comp);
-            }
-            else if (config.name == "DYNAMIC_TEXTURE_SHIFT")
-            {
-                return new MASActionDynamicTextureShift(config, prop, comp);
-            }
-            else if (config.name == "INT_LIGHT")
-            {
-                return new MASActionIntLight(config, prop, comp);
-            }
-            else if (config.name == "MODEL_SCALE")
-            {
-                return new MASActionModelScale(config, prop, comp);
-            }
-            else if (config.name == "ROTATION")
-            {
-                return new MASActionRotation(config, prop, comp);
-            }
-            else if (config.name == "TEXT_LABEL")
-            {
-                return new MASActionTextLabel(config, prop, comp);
-            }
-            else if (config.name == "TEXTURE_SHIFT")
-            {
-                return new MASActionTextureShift(config, prop, comp);
-            }
-            else if (config.name == "TRANSLATION")
-            {
-                return new MASActionTranslation(config, prop, comp);
-            }
-            else
-            {
-                Utility.LogErrorMessage(config, "Unrecognized MASComponent child node {0} found", config.name);
-                return null;
+                case "ANIMATION":
+                    return new MASActionAnimation(config, prop, comp);
+                case "ANIMATION_PLAYER":
+                    return new MASActionAnimationPlayer(config, prop, comp);
+                case "AUDIO_PLAYER":
+                    return new MASActionAudioPlayer(config, prop, comp);
+                case "COLOR_SHIFT":
+                    return new MASActionColorShift(config, prop, comp);
+                case "COLLIDER_EVENT":
+                    return new MASActionColliderEvent(config, prop, comp);
+                case "DYNAMIC_TEXTURE_SHIFT":
+                    return new MASActionDynamicTextureShift(config, prop, comp);
+                case "IMAGE":
+                    return new MASActionImage(config, prop, comp);
+                case "INT_LIGHT":
+                    return new MASActionIntLight(config, prop, comp);
+                case "MODEL_SCALE":
+                    return new MASActionModelScale(config, prop, comp);
+                case "ROTATION":
+                    return new MASActionRotation(config, prop, comp);
+                case "TEXT_LABEL":
+                    return new MASActionTextLabel(config, prop, comp);
+                case "TEXTURE_SHIFT":
+                    return new MASActionTextureShift(config, prop, comp);
+                case "TRANSLATION":
+                    return new MASActionTranslation(config, prop, comp);
+                default:
+                    Utility.LogErrorMessage(config, "Unrecognized MASComponent child node {0} found", config.name);
+                    return null;
             }
         }
 

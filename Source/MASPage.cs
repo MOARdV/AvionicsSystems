@@ -37,49 +37,30 @@ namespace AvionicsSystems
 
         private static IMASMonitorComponent CreatePageComponent(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
-            if (config.name == "CAMERA")
+            switch(config.name)
             {
-                return new MASPageCamera(config, prop, comp, monitor, pageRoot, depth);
-            }
-            else if (config.name == "HORIZON")
-            {
-                return new MASPageHorizon(config, prop, comp, monitor, pageRoot, depth);
-            }
-            else if (config.name == "HORIZONTAL_BAR")
-            {
-                return new MASPageHorizontalBar(config, prop, comp, monitor, pageRoot, depth);
-            }
-            else if (config.name == "HORIZONTAL_STRIP")
-            {
-                return new MASPageHorizontalStrip(config, prop, comp, monitor, pageRoot, depth);
-            }
-            else if (config.name == "IMAGE")
-            {
-                return new MASPageImage(config, prop, comp, monitor, pageRoot, depth);
-            }
-            else if (config.name == "LINE_GRAPH")
-            {
-                return new MASPageLineGraph(config, prop, comp, monitor, pageRoot, depth);
-            }
-            else if (config.name == "NAVBALL")
-            {
-                return new MASPageNavBall(config, prop, comp, monitor, pageRoot, depth);
-            }
-            else if (config.name == "TEXT")
-            {
-                return new MASPageText(config, prop, comp, monitor, pageRoot, depth);
-            }
-            else if (config.name == "VERTICAL_BAR")
-            {
-                return new MASPageVerticalBar(config, prop, comp, monitor, pageRoot, depth);
-            }
-            else if (config.name == "VERTICAL_STRIP")
-            {
-                return new MASPageVerticalStrip(config, prop, comp, monitor, pageRoot, depth);
-            }
-            else
-            {
-                throw new ArgumentException("Unrecognized MAS_PAGE component " + config.name);
+                case "CAMERA":
+                    return new MASPageCamera(config, prop, comp, monitor, pageRoot, depth);
+                case "HORIZON":
+                    return new MASPageHorizon(config, prop, comp, monitor, pageRoot, depth);
+                case "HORIZONTAL_BAR":
+                    return new MASPageHorizontalBar(config, prop, comp, monitor, pageRoot, depth);
+                case "HORIZONTAL_STRIP":
+                    return new MASPageHorizontalStrip(config, prop, comp, monitor, pageRoot, depth);
+                case "IMAGE":
+                    return new MASPageImage(config, prop, comp, monitor, pageRoot, depth);
+                case "LINE_GRAPH":
+                    return new MASPageLineGraph(config, prop, comp, monitor, pageRoot, depth);
+                case "NAVBALL":
+                    return new MASPageNavBall(config, prop, comp, monitor, pageRoot, depth);
+                case "TEXT":
+                    return new MASPageText(config, prop, comp, monitor, pageRoot, depth);
+                case "VERTICAL_BAR":
+                    return new MASPageVerticalBar(config, prop, comp, monitor, pageRoot, depth);
+                case "VERTICAL_STRIP":
+                    return new MASPageVerticalStrip(config, prop, comp, monitor, pageRoot, depth);
+                default:
+                    throw new ArgumentException("Unrecognized MASPage child node " + config.name);
             }
         }
 
