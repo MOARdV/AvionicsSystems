@@ -2108,6 +2108,15 @@ namespace AvionicsSystems
         #region Math
 
         /// <summary>
+        /// Returns the absolute value of `value`.
+        /// </summary>
+        /// <returns>The absolute value of `value`.</returns>
+        public double Abs(double value)
+        {
+            return Math.Abs(value);
+        }
+
+        /// <summary>
         /// Clamps `value` to stay within the range `a` to `b`, inclusive.  `a` does not
         /// have to be less than `b`.
         /// </summary>
@@ -3913,6 +3922,33 @@ namespace AvionicsSystems
         {
             return vc.ResourcePercent(MASConfig.ElectricCharge);
         }
+        /// <summary>
+        /// Reports whether the vessel's power percentage falls between the two listed bounds.
+        /// The bounds do not need to be in numerical order.
+        /// 
+        /// If there is no power onboard, returns 0.  Doing so makes this
+        /// function useful for alerts, for example.
+        /// </summary>
+        /// <param name="firstBound">The first boundary percentage, between 0 and 1.</param>
+        /// <param name="secondBound">The second boundary percentage, between 0 and 1.</param>
+        /// <returns>1 if the power percentage is between the listed bounds.</returns>
+        public double PowerThreshold(double firstBound, double secondBound)
+        {
+            double vesselMax = vc.ResourceMax(MASConfig.ElectricCharge);
+            if (vesselMax > 0.0f)
+            {
+                double min = Math.Min(firstBound, secondBound);
+                double max = Math.Max(firstBound, secondBound);
+                double percent = vc.ResourcePercent(MASConfig.ElectricCharge);
+
+                if (percent >= min && percent <= max)
+                {
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+        }
 
         /// <summary>
         /// Reports the total mass, in kg, of resources consumed by all currently-active engines on the vessel.
@@ -3979,6 +4015,60 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Reports whether the current stage propellant percentage falls between the two listed bounds.
+        /// The bounds do not need to be in numerical order.
+        /// 
+        /// If there is no propellant on the current stage, returns 0.  Doing so makes this
+        /// function useful for alerts, for example.
+        /// </summary>
+        /// <param name="firstBound">The first boundary percentage, between 0 and 1.</param>
+        /// <param name="secondBound">The second boundary percentage, between 0 and 1.</param>
+        /// <returns>1 if current stage propellant is between the listed bounds.</returns>
+        public double PropellantStageThreshold(double firstBound, double secondBound)
+        {
+            if (vc.enginePropellant.maxStage > 0.0f)
+            {
+                double min = Math.Min(firstBound, secondBound);
+                double max = Math.Max(firstBound, secondBound);
+                double percent = vc.enginePropellant.currentStage / vc.enginePropellant.maxStage;
+
+                if (percent >= min && percent <= max)
+                {
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Reports whether the vessel's propellant percentage falls between the two listed bounds.
+        /// The bounds do not need to be in numerical order.
+        /// 
+        /// If there is no propellant or active engines, returns 0.  Doing so makes this
+        /// function useful for alerts, for example.
+        /// </summary>
+        /// <param name="firstBound">The first boundary percentage, between 0 and 1.</param>
+        /// <param name="secondBound">The second boundary percentage, between 0 and 1.</param>
+        /// <returns>1 if propellant is between the listed bounds.</returns>
+        public double PropellantThreshold(double firstBound, double secondBound)
+        {
+            if (vc.enginePropellant.maxQuantity > 0.0f)
+            {
+                double min = Math.Min(firstBound, secondBound);
+                double max = Math.Max(firstBound, secondBound);
+                double percent = vc.enginePropellant.currentQuantity / vc.enginePropellant.maxQuantity;
+
+                if (percent >= min && percent <= max)
+                {
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Tracks the current total mass of all resources consumed by installed RCS thrusters.
         /// </summary>
         /// <returns>Total RCS propellant mass in kg.</returns>
@@ -4039,6 +4129,60 @@ namespace AvionicsSystems
         public double RcsStagePercent()
         {
             return (vc.rcsPropellant.maxStage > 0.0f) ? (vc.rcsPropellant.currentStage / vc.rcsPropellant.maxStage) : 0.0;
+        }
+
+        /// <summary>
+        /// Reports whether the current stage RCS propellant percentage falls between the two listed bounds.
+        /// The bounds do not need to be in numerical order.
+        /// 
+        /// If there is no RCS propellant on the current stage, returns 0.  Doing so makes this
+        /// function useful for alerts, for example.
+        /// </summary>
+        /// <param name="firstBound">The first boundary percentage, between 0 and 1.</param>
+        /// <param name="secondBound">The second boundary percentage, between 0 and 1.</param>
+        /// <returns>1 if current stage RCS propellant is between the listed bounds.</returns>
+        public double RcsStageThreshold(double firstBound, double secondBound)
+        {
+            if (vc.rcsPropellant.maxStage > 0.0f)
+            {
+                double min = Math.Min(firstBound, secondBound);
+                double max = Math.Max(firstBound, secondBound);
+                double percent = vc.rcsPropellant.currentStage / vc.rcsPropellant.maxStage;
+
+                if (percent >= min && percent <= max)
+                {
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Reports whether the vessel's RCS propellant percentage falls between the two listed bounds.
+        /// The bounds do not need to be in numerical order.
+        /// 
+        /// If there is no RCS propellant, returns 0.  Doing so makes this
+        /// function useful for alerts, for example.
+        /// </summary>
+        /// <param name="firstBound">The first boundary percentage, between 0 and 1.</param>
+        /// <param name="secondBound">The second boundary percentage, between 0 and 1.</param>
+        /// <returns>1 if RCS propellant is between the listed bounds.</returns>
+        public double RcsThreshold(double firstBound, double secondBound)
+        {
+            if (vc.rcsPropellant.maxQuantity > 0.0f)
+            {
+                double min = Math.Min(firstBound, secondBound);
+                double max = Math.Max(firstBound, secondBound);
+                double percent = vc.rcsPropellant.currentQuantity / vc.rcsPropellant.maxQuantity;
+
+                if (percent >= min && percent <= max)
+                {
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
         }
 
         /// <summary>
@@ -4312,6 +4456,62 @@ namespace AvionicsSystems
             {
                 return 0.0;
             }
+        }
+
+        /// <summary>
+        /// Reports whether the named resource's current stage percentage falls between the two listed bounds.
+        /// The bounds do not need to be in numerical order.
+        /// 
+        /// If there is no such resource on the current stage, returns 0.  Doing so makes this
+        /// function useful for alerts, for example.
+        /// </summary>
+        /// <param name="firstBound">The first boundary percentage, between 0 and 1.</param>
+        /// <param name="secondBound">The second boundary percentage, between 0 and 1.</param>
+        /// <returns>1 if current stage resource percentage is between the listed bounds.</returns>
+        public double ResourceStageThreshold(string resourceName, double firstBound, double secondBound)
+        {
+            double stageMax = vc.ResourceStageMax(resourceName);
+            if (stageMax > 0.0f)
+            {
+                double min = Math.Min(firstBound, secondBound);
+                double max = Math.Max(firstBound, secondBound);
+                double percent = vc.ResourceStageCurrent(resourceName) / stageMax;
+
+                if (percent >= min && percent <= max)
+                {
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Reports whether the vessel's total resource percentage falls between the two listed bounds.
+        /// The bounds do not need to be in numerical order.
+        /// 
+        /// If there is no resource capacity onboard, returns 0.  Doing so makes this
+        /// function useful for alerts, for example.
+        /// </summary>
+        /// <param name="firstBound">The first boundary percentage, between 0 and 1.</param>
+        /// <param name="secondBound">The second boundary percentage, between 0 and 1.</param>
+        /// <returns>1 if the resource percentage is between the listed bounds.</returns>
+        public double ResourceThreshold(string resourceName, double firstBound, double secondBound)
+        {
+            double vesselMax = vc.ResourceMax(resourceName);
+            if (vesselMax > 0.0f)
+            {
+                double min = Math.Min(firstBound, secondBound);
+                double max = Math.Max(firstBound, secondBound);
+                double percent = vc.ResourcePercent(resourceName);
+
+                if (percent >= min && percent <= max)
+                {
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
         }
 
         /// <summary>
