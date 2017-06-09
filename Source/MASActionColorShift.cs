@@ -44,8 +44,8 @@ namespace AvionicsSystems
         private bool currentState = false;
         private float currentBlend = 0.0f;
         private readonly float flashRate = 0.0f;
-        private Color32 activeColor = XKCDColors.Black;
-        private Color32 passiveColor;
+        private Color activeColor = XKCDColors.Black;
+        private Color passiveColor;
 
         internal MASActionColorShift(ConfigNode config, InternalProp prop, MASFlightComputer comp)
         {
@@ -175,7 +175,7 @@ namespace AvionicsSystems
                 if (!Mathf.Approximately(newBlend, currentBlend))
                 {
                     currentBlend = newBlend;
-                    Color32 newColor = Color32.Lerp(passiveColor, activeColor, currentBlend);
+                    Color newColor = Color.Lerp(passiveColor, activeColor, currentBlend);
                     for (int i = localMaterial.Length - 1; i >= 0; --i)
                     {
                         localMaterial[i].SetColor(colorIndex, newColor);
