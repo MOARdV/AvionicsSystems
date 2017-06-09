@@ -3859,7 +3859,8 @@ namespace AvionicsSystems
         /// and ModuleEnginesFX.  Instead of reporting the current and maximum amounts in units,
         /// like the 'Resource' methods do, these methods report amounts in kilograms.  Using
         /// the propellant mass allows these methods to track alternate fuel types (such as mods
-        /// using LHyd + Oxidizer).
+        /// using LHyd + Oxidizer), with the downside being mixed engine configurations, such as
+        /// solid rockets + liquid-fueled engines) may be less helpful
         /// 
         /// 'Rcs' methods work similarly to the 'Propellant' methods, but they track resource types
         /// consumed by ModuleRCS and ModuleRCSFX.
@@ -3876,7 +3877,7 @@ namespace AvionicsSystems
         /// Returns the current level of available power for the designated
         /// "Power" resource; by default, this is ElectricCharge.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Current units of power.</returns>
         public double PowerCurrent()
         {
             return vc.ResourceCurrent(MASConfig.ElectricCharge);
@@ -3914,11 +3915,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Since different engines may consume different types of resources, it can be challenging to
-        /// configure a prop that meaningfully displays current resource levels.  To assist with this
-        /// task, MAS scans all active engines and keeps track of which resources they consume.  The
-        /// masses of these resources are summed and tracked in a similar manner to the specific
-        /// resource queries.
+        /// Reports the total mass, in kg, of resources consumed by all currently-active engines on the vessel.
         /// </summary>
         /// <returns>The current mass of the active propellants in the vessel, in kg.</returns>
         public double PropellantCurrent()
@@ -3927,11 +3924,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Since different engines may consume different types of resources, it can be challenging to
-        /// configure a prop that meaningfully displays current resource levels.  To assist with this
-        /// task, MAS scans all active engines and keeps track of which resources they consume.  The
-        /// masses of these resources are summed and tracked in a similar manner to the specific
-        /// resource queries.
+        /// Reports the propellant consumption rate in kg/s for all active engines on the vessel.
         /// </summary>
         /// <returns>The current propellant consumption rate, in kg/s.</returns>
         public double PropellantDelta()
@@ -3940,11 +3933,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Since different engines may consume different types of resources, it can be challenging to
-        /// configure a prop that meaningfully displays current resource levels.  To assist with this
-        /// task, MAS scans all active engines and keeps track of which resources they consume.  The
-        /// masses of these resources are summed and tracked in a similar manner to the specific
-        /// resource queries.
+        /// Reports the maximum amount of propellant, in kg, that may be carried aboard the vessel.
         /// </summary>
         /// <returns>The maximum propellant capacity, in kg.</returns>
         public double PropellantMax()
@@ -3953,11 +3942,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Since different engines may consume different types of resources, it can be challenging to
-        /// configure a prop that meaningfully displays current resource levels.  To assist with this
-        /// task, MAS scans all active engines and keeps track of which resources they consume.  The
-        /// masses of these resources are summed and tracked in a similar manner to the specific
-        /// resource queries.
+        /// Reports the current percentage of propellant aboard the vessel.
         /// </summary>
         /// <returns>The percentage of maximum propellant capacity that contains propellant, between 0 and 1.</returns>
         public double PropellantPercent()
@@ -3966,11 +3951,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Since different engines may consume different types of resources, it can be challenging to
-        /// configure a prop that meaningfully displays current resource levels.  To assist with this
-        /// task, MAS scans all active engines and keeps track of which resources they consume.  The
-        /// masses of these resources are summed and tracked in a similar manner to the specific
-        /// resource queries.
+        /// Reports the current amount of propellant available, in kg, to active engines on the current stage.
         /// </summary>
         /// <returns>The current mass of propellant accessible by the current stage, in kg.</returns>
         public double PropellantStageCurrent()
@@ -3979,11 +3960,8 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Since different engines may consume different types of resources, it can be challenging to
-        /// configure a prop that meaningfully displays current resource levels.  To assist with this
-        /// task, MAS scans all active engines and keeps track of which resources they consume.  The
-        /// masses of these resources are summed and tracked in a similar manner to the specific
-        /// resource queries.
+        /// Reports the maximum amount of propellant available, in kg, to the active engiens on the
+        /// current stage.
         /// </summary>
         /// <returns>The maximum mass of propellant accessibly by the current stage, in kg.</returns>
         public double PropellantStageMax()
@@ -3992,11 +3970,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Since different engines may consume different types of resources, it can be challenging to
-        /// configure a prop that meaningfully displays current resource levels.  To assist with this
-        /// task, MAS scans all active engines and keeps track of which resources they consume.  The
-        /// masses of these resources are summed and tracked in a similar manner to the specific
-        /// resource queries.
+        /// Reports the percentage of propellant remaining on the current stage for the active engines.
         /// </summary>
         /// <returns>The percentage of maximum stage propellant capacity that contains propellant, between 0 and 1.</returns>
         public double PropellantStagePercent()

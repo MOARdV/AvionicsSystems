@@ -163,12 +163,15 @@ namespace AvionicsSystems
         /// <summary>
         /// Reduce flap setting one step, unless flaps are already at 0.
         /// </summary>
-        public void DecreaseFlapSetting()
+        /// <returns>1 if flap settings were decreased, 0 otherwise.</returns>
+        public double DecreaseFlapSetting()
         {
             if (farFound && flapSetting > 0)
             {
                 VesselDecreaseFlapDeflection(vessel);
+                return 1.0;
             }
+            return 0.0;
         }
 
         /// <summary>
@@ -222,12 +225,15 @@ namespace AvionicsSystems
         /// <summary>
         /// Increase flap setting one step, unless flaps are already at 3.
         /// </summary>
-        public void IncreaseFlapSetting()
+        /// <returns>1 if flap settings were increased, 0 otherwise.</returns>
+        public double IncreaseFlapSetting()
         {
             if (farFound && flapSetting < 3)
             {
                 VesselIncreaseFlapDeflection(vessel);
+                return 1.0;
             }
+            return 0.0;
         }
 
         /// <summary>
@@ -250,12 +256,15 @@ namespace AvionicsSystems
         /// Deploy or retract spoilers.
         /// </summary>
         /// <param name="newState">true to deploy spoilers, false to retract spoilers.</param>
-        public void SetSpoilers(bool newState)
+        /// <returns>1 if the spoiler state changed, 0 otherwise.</returns>
+        public double SetSpoilers(bool newState)
         {
             if (farFound && newState != spoilerSetting)
             {
                 VesselSetSpoilers(vessel, newState);
+                return 1.0;
             }
+            return 0.0;
         }
 
         /// <summary>

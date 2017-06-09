@@ -103,11 +103,14 @@ namespace AvionicsSystems
         /// <summary>
         /// Cut all deployed parachutes (RealChute as well as stock).
         /// </summary>
-        public void CutParachute()
+        /// <returns>The number of parachutes receiving the instruction.</returns>
+        public double CutParachute()
         {
+            int chuteCount = 0;
             for (int i = cutRealChute.Length - 1; i >= 0; --i)
             {
                 cutRealChute[i]();
+                ++chuteCount;
             }
 
             for (int i = vc.moduleParachute.Length - 1; i >= 0; --i)
@@ -115,18 +118,24 @@ namespace AvionicsSystems
                 if (vc.moduleParachute[i].deploymentState == ModuleParachute.deploymentStates.DEPLOYED || vc.moduleParachute[i].deploymentState == ModuleParachute.deploymentStates.SEMIDEPLOYED)
                 {
                     vc.moduleParachute[i].CutParachute();
+                    ++chuteCount;
                 }
             }
+
+            return (double)chuteCount;
         }
 
         /// <summary>
         /// Deploy all parachutes (RealChute as well as stock).
         /// </summary>
-        public void DeployParachute()
+        /// <returns>The number of parachutes receiving the deploy command.</returns>
+        public double DeployParachute()
         {
+            int chuteCount = 0;
             for (int i = deployRealChute.Length - 1; i >= 0; --i)
             {
                 deployRealChute[i]();
+                ++chuteCount;
             }
 
             for (int i = vc.moduleParachute.Length - 1; i >= 0; --i)
@@ -134,8 +143,11 @@ namespace AvionicsSystems
                 if (vc.moduleParachute[i].deploymentState == ModuleParachute.deploymentStates.STOWED)
                 {
                     vc.moduleParachute[i].Deploy();
+                    ++chuteCount;
                 }
             }
+
+            return (double)chuteCount;
         }
 
         /// <summary>
