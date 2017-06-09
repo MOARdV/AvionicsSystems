@@ -48,12 +48,14 @@ namespace AvionicsSystems
         {
             GameEvents.onGUIApplicationLauncherReady.Add(AddAppLauncherButton);
             GameEvents.onGUIApplicationLauncherDestroyed.Add(RemoveAppLauncherButton);
+            GameEvents.onGUIApplicationLauncherUnreadifying.Add(UnreadifyAppLauncherButton);
         }
 
         public void OnDestroy()
         {
             GameEvents.onGUIApplicationLauncherReady.Remove(AddAppLauncherButton);
             GameEvents.onGUIApplicationLauncherDestroyed.Remove(RemoveAppLauncherButton);
+            GameEvents.onGUIApplicationLauncherUnreadifying.Remove(UnreadifyAppLauncherButton);
         }
 
         private void AddAppLauncherButton()
@@ -70,6 +72,18 @@ namespace AvionicsSystems
             {
                 ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
                 appLauncherButton = null;
+            }
+        }
+
+        private void UnreadifyAppLauncherButton(GameScenes scene)
+        {
+            if (scene != GameScenes.SPACECENTER)
+            {
+                RemoveAppLauncherButton();
+            }
+            else
+            {
+                AddAppLauncherButton();
             }
         }
 
