@@ -46,7 +46,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Version of the DLL.
         /// </summary>
-        static public string asVersion;
+        static public string masVersion;
 
         /// <summary>
         /// Fonts that have been loaded (AssetBundle fonts, user bitmap fonts,
@@ -130,8 +130,8 @@ namespace AvionicsSystems
         /// </summary>
         public void Awake()
         {
-            asVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
-            UnityEngine.Debug.Log(String.Format("[MASLoader] MOARdV's Avionics Systems version {0}", asVersion));
+            masVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
+            UnityEngine.Debug.Log(String.Format("[MASLoader] MOARdV's Avionics Systems version {0}", masVersion));
 
             if (KSPAssets.Loaders.AssetLoader.Ready == false)
             {

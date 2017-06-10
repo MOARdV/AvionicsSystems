@@ -2291,7 +2291,7 @@ namespace AvionicsSystems
         /// <returns>MAS Version in string format.</returns>
         public string MASVersion()
         {
-            return MASLoader.asVersion;
+            return MASLoader.masVersion;
         }
 
         /// <summary>
@@ -2322,6 +2322,40 @@ namespace AvionicsSystems
             else
             {
                 return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// The ScrollingMarquee function takes a string, `input`, and it returns a substring 
+        /// of maximum length `maxChars`.  The substring that is returned changes every
+        /// `scrollRate` seconds if the string length is greater than `maxChars`, allowing
+        /// for a scrolling marquee effect.  Using this method with the Repetition Scrolling
+        /// font can simulate an LED / LCD display.
+        /// 
+        /// Note that characters advance one character width at a time - it is not a smooth
+        /// sliding movement.
+        /// </summary>
+        /// <param name="inputString">The string to use for the marquee.</param>
+        /// <param name="maxChars">The maximum number of characters in the string to display.</param>
+        /// <param name="scrollRate">The frequency, in seconds, that the marquee advances.</param>
+        /// <returns>A substring of no more than `maxChars` length.</returns>
+        public string ScrollingMarquee(string inputString, double maxChars, double scrollRate)
+        {
+            int maxCh = (int)maxChars;
+            int strlen = inputString.Length;
+            if (strlen <= maxCh)
+            {
+                return inputString;
+            }
+            else if(scrollRate <= 0.0)
+            {
+                return inputString.Substring(0, maxCh);
+            }
+            else
+            {
+                double adjustedTime = vc.universalTime / scrollRate;
+                double start = adjustedTime % (double)(1 + strlen - maxCh);
+                return inputString.Substring((int)start, maxCh);
             }
         }
 
