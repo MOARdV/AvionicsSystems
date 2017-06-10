@@ -56,6 +56,7 @@ namespace AvionicsSystems
             GameEvents.onGUIApplicationLauncherReady.Remove(AddAppLauncherButton);
             GameEvents.onGUIApplicationLauncherDestroyed.Remove(RemoveAppLauncherButton);
             GameEvents.onGUIApplicationLauncherUnreadifying.Remove(UnreadifyAppLauncherButton);
+            RemoveAppLauncherButton();
         }
 
         private void AddAppLauncherButton()
