@@ -699,6 +699,11 @@ namespace AvionicsSystems
                             DynamicMethod<object, double, double, double> dm = DynamicMethodFactory.CreateFunc<object, double, double, double>(method);
                             return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].SafeValue(), parms[2].SafeValue()), cacheable, mutable);
                         }
+                        else if (methodParams[0].ParameterType == typeof(string) && methodParams[1].ParameterType == typeof(double) && methodParams[2].ParameterType == typeof(double))
+                        {
+                            DynamicMethod<object, string, double, double> dm = DynamicMethodFactory.CreateFunc<object, string, double, double>(method);
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].String(), parms[1].SafeValue(), parms[2].SafeValue()), cacheable, mutable);
+                        }
                         else
                         {
                             Utility.LogErrorMessage(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0}, with parameters {1}, {2}, and {3}", canonical, methodParams[0].ParameterType, methodParams[1].ParameterType, methodParams[2].ParameterType);
