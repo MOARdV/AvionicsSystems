@@ -274,7 +274,7 @@ namespace AvionicsSystems
         /// Instead of everyone instantiating one of these, just keep it
         /// available here for temporary use.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Global string builder, cleared and ready for use.</returns>
         internal static StringBuilder GetStringBuilder()
         {
             strb.Remove(0, strb.Length);
