@@ -606,6 +606,19 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the number of worlds orbiting the selected body.  If the body
+        /// is a planet, this is the number of moons.  If the body is the Sun, this
+        /// number is the number of planets.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>The number of moons, or 0 if an invalid value was provided.</returns>
+        public double BodyNumMoons(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+            return (cb != null) ? cb.orbitingBodies.Count : 0.0;
+        }
+
+        /// <summary>
         /// Returns the radius of the selected body.
         /// </summary>
         /// <param name="id">The name or index of the body of interest.</param>
@@ -1529,7 +1542,7 @@ namespace AvionicsSystems
         {
             if (vc.currentThrust > 0.0f)
             {
-                return vc.currentThrust / ((useThrottleLimits) ? vc.currentLimitedThrust : vc.currentMaxThrust);
+                return vc.currentThrust / ((useThrottleLimits) ? vc.currentLimitedMaxThrust : vc.currentMaxThrust);
             }
             else
             {
@@ -1594,10 +1607,20 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns a count of the number of engines tracked.
+        /// Returns a count of the total number of engines that are active.
         /// </summary>
         /// <returns></returns>
-        public double EngineCount()
+        public double EngineCountActive()
+        {
+            return vc.activeEngineCount;
+        }
+
+        /// <summary>
+        /// Returns a count of the total number of engines tracked.  This
+        /// count includes engines that have not staged.
+        /// </summary>
+        /// <returns></returns>
+        public double EngineCountTotal()
         {
             return vc.moduleEngines.Length;
         }
@@ -1663,7 +1686,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double MaxThrustkN(bool useThrottleLimits)
         {
-            return (useThrottleLimits) ? vc.currentLimitedThrust : vc.currentMaxThrust;
+            return (useThrottleLimits) ? vc.currentLimitedMaxThrust : vc.currentMaxThrust;
         }
 
         /// <summary>
@@ -1673,6 +1696,27 @@ namespace AvionicsSystems
         public double MaxTWR()
         {
             return vc.currentMaxThrust / (vessel.totalMass * vc.surfaceAccelerationFromGravity);
+        }
+
+        /// <summary>
+        /// Set the throttle.  May be set to any value between 0 and 1.  Values outside
+        /// that range are clamped to [0, 1].
+        /// </summary>
+        /// <param name="throttlePercentage">Throttle setting, between 0 and 1.</param>
+        /// <returns>The new throttle setting.</returns>
+        public double SetThrottle(double throttlePercentage)
+        {
+            float throttle = Mathf.Clamp01((float)throttlePercentage);
+            try
+            {
+                FlightInputHandler.state.mainThrottle = throttle;
+            }
+            catch (Exception e)
+            {
+                // RPM had a try-catch.  Why?
+                Utility.LogErrorMessage(this, "SetThrottle({0:0.00}) threw {1}", throttle, e);
+            }
+            return throttle;
         }
 
         /// <summary>
@@ -1721,6 +1765,10 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double VesselFlying()
         {
+            if (vessel.Landed != (vesselSituationConverted <= 2))
+            {
+                Utility.LogMessage(this, "vessel.Landed and vesselSituationConverted disagree!");
+            }
             return (vesselSituationConverted > 2) ? 1.0 : 0.0;
         }
 
@@ -2347,15 +2395,29 @@ namespace AvionicsSystems
             {
                 return inputString;
             }
-            else if(scrollRate <= 0.0)
+            else if (scrollRate <= 0.0)
             {
                 return inputString.Substring(0, maxCh);
             }
             else
             {
                 double adjustedTime = vc.universalTime / scrollRate;
-                double start = adjustedTime % (double)(1 + strlen - maxCh);
-                return inputString.Substring((int)start, maxCh);
+                double startD = adjustedTime % (double)(strlen + 1);
+                int start = (int)startD;
+
+                if (start + maxCh <= strlen)
+                {
+                    return inputString.Substring(start, maxCh);
+                }
+                else
+                {
+                    int tail = maxCh - strlen + start - 1;
+
+                    StringBuilder sb = Utility.GetStringBuilder();
+                    sb.Append(inputString.Substring(start)).Append(' ').Append(inputString.Substring(0, tail));
+
+                    return sb.ToString();
+                }
             }
         }
 
@@ -5359,6 +5421,53 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Sets the target to the next moon of the body that vessel currently orbits.  If there
+        /// are no moons orbiting the current body, nothing happens.
+        /// 
+        /// If the vessel is currently targeting anything other than a moon of the current body,
+        /// that target is cleared and the first moon is selected, instead.
+        /// 
+        /// Moon order is based on the order that the moons appear in the CelestialBody's list of
+        /// worlds.
+        /// 
+        /// If the vessel is currently orbiting the Sun, this method will target planets.
+        /// </summary>
+        /// <returns>Returns 1 if a moon was targeted.  0 otherwise.</returns>
+        public double TargetNextMoon()
+        {
+            if (vc.mainBody.orbitingBodies != null)
+            {
+                int numMoons = vc.mainBody.orbitingBodies.Count;
+
+                if (numMoons > 0)
+                {
+                    int moonIndex = -1;
+
+                    if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
+                    {
+                        CelestialBody targetWorld = vc.activeTarget as CelestialBody;
+                        moonIndex = vc.mainBody.orbitingBodies.FindIndex(t => (t == targetWorld));
+                    }
+
+                    if (moonIndex >= 0)
+                    {
+                        moonIndex = (moonIndex + 1) % numMoons;
+                    }
+                    else
+                    {
+                        moonIndex = 0;
+                    }
+
+                    FlightGlobals.fetch.SetVesselTarget(vc.mainBody.orbitingBodies[moonIndex]);
+
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the target's periapsis.
         /// </summary>
         /// <returns>Target's Pe in meters, or 0 if there is no target.</returns>
@@ -5407,6 +5516,20 @@ namespace AvionicsSystems
             {
                 return 0.0;
             }
+        }
+
+        /// <summary>
+        /// Returns the semi-major axis of the target's orbit.
+        /// </summary>
+        /// <returns>SMA in meters, or 0 if there is no target.</returns>
+        public double TargetSMA()
+        {
+            if (vc.activeTarget != null)
+            {
+                return vc.targetOrbit.semiMajorAxis;
+            }
+            
+            return 0.0;
         }
 
         /// <summary>

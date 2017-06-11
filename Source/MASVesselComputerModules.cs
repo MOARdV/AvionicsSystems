@@ -283,7 +283,7 @@ namespace AvionicsSystems
         internal ModuleEngines[] moduleEngines = new ModuleEngines[0];
         private float[] invMaxISP = new float[0];
         internal float currentThrust; // current net thrust, kN
-        internal float currentLimitedThrust; // Max thrust, accounting for throttle limits, kN
+        internal float currentLimitedMaxThrust; // Max thrust, accounting for throttle limits, kN
         internal float currentMaxThrust; // Max possible thrust at current altitude, kN
         internal float maxRatedThrust; // Max possible thrust, kN
         internal float maxEngineFuelFlow; // max fuel flow, g/s
@@ -296,12 +296,13 @@ namespace AvionicsSystems
         internal int activeEngineCount;
         internal bool anyEnginesFlameout;
         internal bool anyEnginesEnabled;
+        private List<Part> visitedParts = new List<Part>();
         private bool UpdateEngines()
         {
             this.currentThrust = 0.0f;
             this.maxRatedThrust = 0.0f;
             maxGimbal = 0.0f;
-            currentLimitedThrust = 0.0f;
+            currentLimitedMaxThrust = 0.0f;
             currentMaxThrust = 0.0f;
             hottestEngineTemperature = 0.0f;
             hottestEngineMaxTemperature = 0.0f;
@@ -309,14 +310,13 @@ namespace AvionicsSystems
             currentEngineFuelFlow = 0.0f;
             anyEnginesFlameout = false;
             anyEnginesEnabled = false;
+            activeEngineCount = 0;
 
             float hottestEngine = float.MaxValue;
             float maxIspContribution = 0.0f;
             float averageIspContribution = 0.0f;
 
-
-            // Move these to private variables, don't re create them every fixed update?
-            List<Part> visitedParts = new List<Part>(vessel.parts.Count);
+            visitedParts.Clear();
 
             bool requestReset = false;
             for (int i = moduleEngines.Length - 1; i >= 0; --i)
@@ -349,7 +349,7 @@ namespace AvionicsSystems
                     float rawMaxThrust = me.GetMaxThrust() * me.realIsp * invMaxISP[i];
                     currentMaxThrust += rawMaxThrust;
                     float maxThrust = rawMaxThrust * me.thrustPercentage * 0.01f;
-                    currentLimitedThrust += maxThrust;
+                    currentLimitedMaxThrust += maxThrust;
                     float realIsp = me.realIsp;
 
                     if (realIsp > 0.0f)
@@ -390,7 +390,7 @@ namespace AvionicsSystems
 
             if (averageIspContribution > 0.0f)
             {
-                currentIsp = currentLimitedThrust / averageIspContribution;
+                currentIsp = currentLimitedMaxThrust / averageIspContribution;
             }
             else
             {
@@ -399,7 +399,7 @@ namespace AvionicsSystems
 
             if (maxIspContribution > 0.0f)
             {
-                maxIsp = currentLimitedThrust / maxIspContribution;
+                maxIsp = currentLimitedMaxThrust / maxIspContribution;
             }
             else
             {
