@@ -62,13 +62,138 @@ namespace AvionicsSystems
         private double transferEjectionAngle;
         private double timeUntilEjection;
 
-        //private double transferDeltaV;
+        private double initialDeltaV;
+        private double finalDeltaV;
 
         [MoonSharpHidden]
         public MASITransfer(Vessel vessel)
         {
             this.vessel = vessel;
         }
+
+
+        /// <summary>
+        /// The Delta-V section provides information on the amount of velocity
+        /// change needed to change orbits.  This information can be computed
+        /// based on the current target, or a target altitude, depending on the
+        /// specific method called.
+        /// 
+        /// These values are estimates based on circular orbits, assuming
+        /// no plane change is required.  Eccentric orbits, or non-coplanar
+        /// orbits, will not reflect the total ΔV required.
+        /// </summary>
+        #region Delta-V
+
+        /// <summary>
+        /// Returns an estimate of the ΔV required to circularize a Hohmann transfer at
+        /// the target's orbit.
+        /// 
+        /// Negative values indicate a retrograde burn.  Positive values indicate a
+        /// prograde burn.
+        /// </summary>
+        /// <returns>The ΔV in m/s to finialize the transfer.</returns>
+        public double DeltaVFinal()
+        {
+            if (vc.activeTarget != null)
+            {
+                if (invalid)
+                {
+                    UpdateTransferParameters();
+                }
+
+                return finalDeltaV;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns and estimate of the ΔV required to circularize the vessel's orbit
+        /// at the altitude provided.
+        /// 
+        /// Negative values indicate a retrograde burn.  Positive values indicate a
+        /// prograde burn.
+        /// </summary>
+        /// <param name="destinationAltitude">Destination altitude, in meters.</param>
+        /// <returns>ΔV in m/s to circularize at the requested altitude, or 0 if the vessel is not in flight.</returns>
+        public double DeltaVFinal(double destinationAltitude)
+        {
+            if (!vessel.Landed)
+            {
+                double GM = vessel.mainBody.gravParameter;
+                double rA = vessel.orbit.semiMajorAxis;
+                double rB = destinationAltitude + vessel.mainBody.Radius;
+
+                double atx = 0.5 * (rA + rB);
+                double Vf = Math.Sqrt(GM / rB);
+
+                double Vtxf = Math.Sqrt(GM * (2.0 / rB - 1.0 / atx));
+
+                return Vf - Vtxf;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns an estimate of the ΔV required to start a Hohmann transfer to
+        /// the target's orbit.
+        /// 
+        /// Negative values indicate a retrograde burn.  Positive values indicate a
+        /// prograde burn.
+        /// </summary>
+        /// <returns>The ΔV in m/s to start the transfer.</returns>
+        public double DeltaVInitial()
+        {
+            if (vc.activeTarget != null)
+            {
+                if (invalid)
+                {
+                    UpdateTransferParameters();
+                }
+
+                return initialDeltaV;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns and estimate of the ΔV required to change the vessel's orbit
+        /// to the altitude provided.
+        /// 
+        /// Negative values indicate a retrograde burn.  Positive values indicate a
+        /// prograde burn.
+        /// </summary>
+        /// <param name="destinationAltitude">Destination altitude, in meters.</param>
+        /// <returns>ΔV in m/s to reach the requested altitude, or 0 if the vessel is not in flight.</returns>
+        public double DeltaVInitial(double destinationAltitude)
+        {
+            if (!vessel.Landed)
+            {
+                double GM = vessel.mainBody.gravParameter;
+                double rA = vessel.orbit.semiMajorAxis;
+                double rB = destinationAltitude + vessel.mainBody.Radius;
+
+                double atx = 0.5 * (rA + rB);
+                double Vi = Math.Sqrt(GM / rA);
+
+                double Vtxi = Math.Sqrt(GM * (2.0 / rA - 1.0 / atx));
+
+                return Vtxi - Vi;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+        #endregion
 
         /// <summary>
         /// The Ejection Angle provides information on the ejection angle.  The
@@ -122,7 +247,7 @@ namespace AvionicsSystems
                     UpdateTransferParameters();
                 }
 
-                return Utility.NormalizeAngle(currentEjectionAngle - transferEjectionAngle); 
+                return Utility.NormalizeAngle(currentEjectionAngle - transferEjectionAngle);
             }
             else
             {
@@ -183,7 +308,7 @@ namespace AvionicsSystems
 
         /// <summary>
         /// The Phase Angle section provides measurements of the phase angle, the
-        /// measure of the angle created by drawing lines from the object being
+        /// measure of the angle created by drawing lines from the body being
         /// orbited to the vessel and to the target.  This angle shows relative
         /// position of the two objects, and it is continuously changing as long as
         /// the craft are not in the same orbit.
@@ -323,7 +448,11 @@ namespace AvionicsSystems
 #endif
 
         /// <summary>
-        /// For
+        /// For a given orbit, find the orbit of the object that orbits the sun.
+        /// 
+        /// If the orbit provided orbits the sun, this orbit is returned.  If the
+        /// orbit is around a body that orbits the sun, the body's orbit is returned.
+        /// If the orbit is around a moon, return the orbit of the moon's parent.
         /// </summary>
         static private Orbit GetSolarOrbit(Orbit orbit, out int numHops)
         {
@@ -410,6 +539,31 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Compute the delta-V required for the injection and circularization burns for the
+        /// given orbits.
+        /// 
+        /// Equation from http://www.braeunig.us/space/
+        /// </summary>
+        /// <param name="startOrbit"></param>
+        /// <param name="destinationOrbit"></param>
+        private void UpdateTransferDeltaV(Orbit startOrbit, Orbit destinationOrbit)
+        {
+            double GM = startOrbit.referenceBody.gravParameter;
+            double rA = startOrbit.semiMajorAxis;
+            double rB = destinationOrbit.semiMajorAxis;
+
+            double atx = 0.5 * (rA + rB);
+            double Vi = Math.Sqrt(GM / rA);
+            double Vf = Math.Sqrt(GM / rB);
+
+            double Vtxi = Math.Sqrt(GM * (2.0 / rA - 1.0 / atx));
+            double Vtxf = Math.Sqrt(GM * (2.0 / rB - 1.0 / atx));
+
+            initialDeltaV = Vtxi - Vi;
+            finalDeltaV = Vf - Vtxf;
+        }
+
+        /// <summary>
         /// Updater method - called at most once per FixedUpdate when the
         /// transfer parameters are being queried.
         /// </summary>
@@ -423,6 +577,9 @@ namespace AvionicsSystems
             currentEjectionAngle = 0.0;
             transferEjectionAngle = 0.0;
             timeUntilEjection = 0.0;
+
+            initialDeltaV = 0.0;
+            finalDeltaV = 0.0;
 
             if (vc.activeTarget != null)
             {
@@ -452,6 +609,8 @@ namespace AvionicsSystems
                     // Relative inclination is very out-of-spec.  Bail out.
                     return;
                 }
+
+                UpdateTransferDeltaV(vesselOrbit, destinationOrbit);
 
                 // Transfer phase angle: use the mean radii of the orbits.
                 double r1 = (vesselOrbit.PeR + vesselOrbit.ApR) * 0.5;
