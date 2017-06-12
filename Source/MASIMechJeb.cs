@@ -841,10 +841,10 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// MechJeb's SmartASS attitude control system can be queried and controlled using
+        /// MechJeb's SASS attitude control system can be queried and controlled using
         /// methods from this category.
         /// </summary>
-        #region SmartASS
+        #region SASS
         /// <summary>
         /// Returns the number of the currently active SASS mode, or zero if MechJeb
         /// is unavailable.
@@ -929,7 +929,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns true if SmartASS is off
+        /// Returns true if SASS is off
         /// </summary>
         /// <returns></returns>
         public double SASSOff()
@@ -945,7 +945,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Set the SmartASS pilot to the specified mode.  Some modes may not
+        /// Set the SASS pilot to the specified mode.  Some modes may not
         /// be 'settable', such as `AUTO` or `ADVANCED`.
         /// 
         /// * OFF = 0,
