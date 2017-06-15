@@ -35,12 +35,15 @@ namespace AvionicsSystems
         private string variableName = string.Empty;
         private string pitchVariableName = string.Empty;
         private string volumeVariableName = string.Empty;
+        private string soundVariableName = string.Empty;
         private float pitch = 1.0f;
         private float volume = 1.0f;
         private MASFlightComputer.Variable range1, range2;
+        private MASFlightComputer.Variable soundVariable;
         private AudioSource audioSource;
         private readonly bool rangeMode = false;
         private readonly bool mustPlayOnce = false;
+        private bool hasAudioClip = false;
         private bool currentState = false;
         private readonly PlaybackMode playbackTrigger = PlaybackMode.ON;
 
@@ -72,7 +75,10 @@ namespace AvionicsSystems
             string sound = string.Empty;
             if (!config.TryGetValue("sound", ref sound) || string.IsNullOrEmpty(sound))
             {
-                throw new ArgumentException("Missing or invalid parameter 'sound' in AUDIO_PLAYER " + name);
+                if (!config.TryGetValue("variableSound", ref soundVariableName) || string.IsNullOrEmpty(soundVariableName))
+                {
+                    throw new ArgumentException("Missing or invalid parameters 'sound' and/or 'soundVariable' in AUDIO_PLAYER " + name);
+                }
             }
 
             if (!config.TryGetValue("mustPlayOnce", ref mustPlayOnce))
@@ -81,10 +87,18 @@ namespace AvionicsSystems
             }
 
             //Try Load audio
-            AudioClip clip = GameDatabase.Instance.GetAudioClip(sound);
-            if (clip == null)
+            AudioClip clip = null;
+            if (!string.IsNullOrEmpty(sound))
             {
-                throw new ArgumentException("Unable to load 'sound' " + sound + " in AUDIO_PLAYER " + name);
+                clip = GameDatabase.Instance.GetAudioClip(sound);
+                if (clip == null)
+                {
+                    throw new ArgumentException("Unable to load 'sound' " + sound + " in AUDIO_PLAYER " + name);
+                }
+                else
+                {
+                    hasAudioClip = true;
+                }
             }
 
             string playbackTrigger = string.Empty;
@@ -122,7 +136,12 @@ namespace AvionicsSystems
                 }
             }
 
-            audioSource = internalProp.gameObject.AddComponent<AudioSource>();
+            Transform audioTransform = new GameObject().transform;
+            audioTransform.gameObject.name = "MASActionAudioPlayer-" + internalProp.propID + "-" + name;
+            audioTransform.gameObject.layer = internalProp.transform.gameObject.layer;
+            audioTransform.SetParent(internalProp.transform, false);
+            audioSource = audioTransform.gameObject.AddComponent<AudioSource>();
+
             audioSource.clip = clip;
             audioSource.Stop();
             audioSource.volume = GameSettings.SHIP_VOLUME;
@@ -165,6 +184,12 @@ namespace AvionicsSystems
             comp.RegisterNumericVariable(pitchVariableName, internalProp, PitchCallback);
             comp.RegisterNumericVariable(volumeVariableName, internalProp, VolumeCallback);
             comp.RegisterNumericVariable(variableName, internalProp, VariableCallback);
+            if (!string.IsNullOrEmpty(soundVariableName))
+            {
+                soundVariable = comp.RegisterOnVariableChange(soundVariableName, internalProp, SoundClipCallback);
+                // Initialize the audio.
+                SoundClipCallback();
+            }
         }
 
         /// <summary>
@@ -174,6 +199,27 @@ namespace AvionicsSystems
         private void OnCameraChange(CameraManager.CameraMode newCameraMode)
         {
             audioSource.mute = (newCameraMode != CameraManager.CameraMode.IVA);
+        }
+
+        /// <summary>
+        /// Callback that allows changing the audio clip attached to this player.
+        /// </summary>
+        private void SoundClipCallback()
+        {
+            audioSource.Stop();
+
+            AudioClip clip = GameDatabase.Instance.GetAudioClip(soundVariable.String());
+            if (clip == null)
+            {
+                Utility.LogErrorMessage(this, "Unable to load audio clip '{0}'.", soundVariable.String());
+                hasAudioClip = false;
+            }
+            else
+            {
+                audioSource.clip = clip;
+                hasAudioClip = true;
+                PlayAudio();
+            }
         }
 
         /// <summary>
@@ -197,7 +243,42 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Variable callback used to update the animation when it is playing.
+        /// Update the audio play state.
+        /// </summary>
+        private void PlayAudio()
+        {
+            if (currentState)
+            {
+                if (playbackTrigger != PlaybackMode.OFF)
+                {
+                    if (hasAudioClip)
+                    {
+                        audioSource.Play();
+                    }
+                }
+                else
+                {
+                    if (!mustPlayOnce)
+                    {
+                        audioSource.Stop();
+                    }
+                }
+            }
+            else if (playbackTrigger == PlaybackMode.ON || playbackTrigger == PlaybackMode.LOOP)
+            {
+                if (!mustPlayOnce)
+                {
+                    audioSource.Stop();
+                }
+            }
+            else if (hasAudioClip)
+            {
+                audioSource.Play();
+            }
+        }
+
+        /// <summary>
+        /// Variable callback used to update the autio source when it is playing.
         /// </summary>
         /// <param name="newValue"></param>
         private void VariableCallback(double newValue)
@@ -212,31 +293,10 @@ namespace AvionicsSystems
             if (newState != currentState)
             {
                 currentState = newState;
-
-                if (currentState)
+                if (hasAudioClip == true)
                 {
-                    if (playbackTrigger != PlaybackMode.OFF)
-                    {
-                        audioSource.Play();
-                    }
-                    else
-                    {
-                        if (!mustPlayOnce)
-                        {
-                            audioSource.Stop();
-                        }
-                    }
-                }
-                else if (playbackTrigger == PlaybackMode.ON || playbackTrigger == PlaybackMode.LOOP)
-                {
-                    if (!mustPlayOnce)
-                    {
-                        audioSource.Stop();
-                    }
-                }
-                else
-                {
-                    audioSource.Play();
+                    // No audio clip: return early.
+                    PlayAudio();
                 }
             }
         }
@@ -259,6 +319,10 @@ namespace AvionicsSystems
             comp.UnregisterNumericVariable(pitchVariableName, internalProp, PitchCallback);
             comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
             comp.UnregisterNumericVariable(volumeVariableName, internalProp, VolumeCallback);
+            if (!string.IsNullOrEmpty(soundVariableName))
+            {
+                comp.UnregisterOnVariableChange(soundVariableName, internalProp, SoundClipCallback);
+            }
             audioSource.Stop();
             audioSource.clip = null;
             audioSource = null;
