@@ -133,6 +133,9 @@ namespace AvionicsSystems
         Vector2[] uv = new Vector2[0];
         int[] triangles = new int[0];
 
+        // We use only one tangent value ever.
+        private readonly Vector4 tangent = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+
         private static readonly string[] VariableListSeparator = { "$&$" };
         //private static readonly string[] MangledLineSeparator = { "$$$" };
         private static readonly string[] LineSeparator = { Environment.NewLine };
@@ -802,28 +805,28 @@ namespace AvionicsSystems
                                 // characters and clamping to the width.
                                 vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (minX * widthScaling)) + xOffset), characterSize * ((float)(yPos + maxY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
-                                tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+                                tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvTopLeft;
 
                                 ++arrayIndex;
 
                                 vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (maxX * widthScaling)) + xOffset), characterSize * ((float)(yPos + maxY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
-                                tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+                                tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvTopRight;
 
                                 ++arrayIndex;
 
                                 vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (minX * widthScaling)) + xOffset), characterSize * ((float)(yPos + minY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
-                                tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+                                tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvBottomLeft;
 
                                 ++arrayIndex;
 
                                 vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (maxX * widthScaling)) + xOffset), characterSize * ((float)(yPos + minY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
-                                tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+                                tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvBottomRight;
 
                                 ++arrayIndex;
@@ -1166,28 +1169,28 @@ namespace AvionicsSystems
 
                                 vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (charInfo.minX) * widthScaling) + xOffset), characterSize * ((float)(yPos + charInfo.maxY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
-                                tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+                                tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvTopLeft;
 
                                 ++arrayIndex;
 
                                 vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (charInfo.maxX) * widthScaling) + xOffset), characterSize * ((float)(yPos + charInfo.maxY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
-                                tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+                                tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvTopRight;
 
                                 ++arrayIndex;
 
                                 vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (charInfo.minX) * widthScaling) + xOffset), characterSize * ((float)(yPos + charInfo.minY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
-                                tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+                                tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvBottomLeft;
 
                                 ++arrayIndex;
 
                                 vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (charInfo.maxX) * widthScaling) + xOffset), characterSize * ((float)(yPos + charInfo.minY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
-                                tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+                                tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvBottomRight;
 
                                 ++arrayIndex;
@@ -1330,28 +1333,28 @@ namespace AvionicsSystems
 
                         vertices[arrayIndex] = new Vector3(characterSize * (float)(xPos + charInfo.minX), characterSize * (float)(yPos + charInfo.maxY), 0.0f);
                         colors32[arrayIndex] = color;
-                        tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+                        tangents[arrayIndex] = tangent;
                         uv[arrayIndex] = charInfo.uvTopLeft;
 
                         ++arrayIndex;
 
                         vertices[arrayIndex] = new Vector3(characterSize * (float)(xPos + charInfo.maxX), characterSize * (float)(yPos + charInfo.maxY), 0.0f);
                         colors32[arrayIndex] = color;
-                        tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+                        tangents[arrayIndex] = tangent;
                         uv[arrayIndex] = charInfo.uvTopRight;
 
                         ++arrayIndex;
 
                         vertices[arrayIndex] = new Vector3(characterSize * (float)(xPos + charInfo.minX), characterSize * (float)(yPos + charInfo.minY), 0.0f);
                         colors32[arrayIndex] = color;
-                        tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+                        tangents[arrayIndex] = tangent;
                         uv[arrayIndex] = charInfo.uvBottomLeft;
 
                         ++arrayIndex;
 
                         vertices[arrayIndex] = new Vector3(characterSize * (float)(xPos + charInfo.maxX), characterSize * (float)(yPos + charInfo.minY), 0.0f);
                         colors32[arrayIndex] = color;
-                        tangents[arrayIndex] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+                        tangents[arrayIndex] = tangent;
                         uv[arrayIndex] = charInfo.uvBottomRight;
 
                         ++arrayIndex;
