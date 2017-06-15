@@ -3033,13 +3033,33 @@ namespace AvionicsSystems
         /// frequency.
         /// </summary>
         #region Periodic Variables
+
+        /// <summary>
+        /// Returns a periodic variable that follows a sine-wave curve.
+        /// </summary>
+        /// <param name="period">The period of the change, in cycles/second (Hertz).</param>
+        /// <returns>A number between -1 and +1.</returns>
+        public double PeriodSine(double period)
+        {
+            if (period > 0.0)
+            {
+                double invPeriod = 1.0 / period;
+
+                double remainder = vc.universalTime % invPeriod;
+
+                return Math.Sin(remainder * period * Math.PI * 2.0);
+            }
+
+            return 0.0;
+        }
+
         /// <summary>
         /// Returns a stair-step periodic variable (changes from 0 to 1 to 0 with
         /// no ramps between values).
         /// </summary>
         /// <param name="period">The period of the change, in cycles/second (Hertz).</param>
         /// <returns>0 or 1</returns>
-        public double Period(double period)
+        public double PeriodStep(double period)
         {
             if (period > 0.0)
             {
