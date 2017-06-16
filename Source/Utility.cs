@@ -52,8 +52,29 @@ namespace AvionicsSystems
         };
 
         #region Message Logging
+
         /// <summary>
-        /// Log a message
+        /// Log a message.  Logged regardless of the MAS Settings debug flag.
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="values"></param>
+        internal static void LogInfo(string format, params object[] values)
+        {
+            UnityEngine.Debug.Log(String.Format("[AvionicsSystems] " + format, values));
+        }
+
+        /// <summary>
+        /// Log a message.  Logged regardless of the MAS Settings debug flag.
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="values"></param>
+        internal static void LogInfo(object who, string format, params object[] values)
+        {
+            UnityEngine.Debug.Log(String.Format("[" + who.GetType().Name + "] " + format, values));
+        }
+
+        /// <summary>
+        /// Log a message.  Suppressed by the MAS Settings debug flag.
         /// </summary>
         /// <param name="format"></param>
         /// <param name="values"></param>
@@ -63,7 +84,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Log a message associated with an object.
+        /// Log a message associated with an object.  Suppressed by the MAS Settings debug flag.
         /// </summary>
         /// <param name="who"></param>
         /// <param name="format"></param>

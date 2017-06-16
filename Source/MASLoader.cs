@@ -405,7 +405,7 @@ namespace AvionicsSystems
                 {
                     // If we found our bundle, set up our shaders
                     // dictionary and bail - our mission is complete.
-                    Utility.LogMessage(this, "Found {0} MAS shaders and {1} fonts.", foundShaders.Length, foundFonts.Length);
+                    Utility.LogInfo(this, "Found {0} MAS shaders and {1} fonts.", foundShaders.Length, foundFonts.Length);
                     for (int j = 0; j < foundShaders.Length; ++j)
                     {
                         if (!foundShaders[j].isSupported)

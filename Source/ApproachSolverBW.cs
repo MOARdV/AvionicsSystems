@@ -205,7 +205,7 @@ namespace AvionicsSystems
             }
             catch(Exception e)
             {
-                Utility.LogMessage("ApproachSolver threw {0}", e);
+                Utility.LogInfo("ApproachSolver threw {0}", e);
             }
 #endif
         }

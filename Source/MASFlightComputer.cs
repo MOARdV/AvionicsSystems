@@ -32,8 +32,6 @@ using UnityEngine;
 // 
 // Research Attributes - can I come up with attributes for methods to automate
 // which ones can be cached and which ones are variable?
-//
-// Store propID as a global, updated by each caller.
 namespace AvionicsSystems
 {
     /// <summary>
@@ -459,7 +457,7 @@ namespace AvionicsSystems
                     }
                     catch(Exception)
                     {
-                        Utility.LogMessage(this, "Exception trapped trying to update kerbal expressions - resetting kerbal data");
+                        Utility.LogInfo(this, "Exception trapped trying to update kerbal expressions - resetting kerbal data");
                         UpdateLocalCrew();
                     }
 
@@ -559,16 +557,15 @@ namespace AvionicsSystems
                 GameEvents.onVesselChange.Remove(onVesselChanged);
                 GameEvents.onVesselCrewWasModified.Remove(onVesselChanged);
 
-                Utility.LogMessage(this, "{3} variables created: {0} constant variables, {1} native variables, and {2} Lua variables",
+                Utility.LogInfo(this, "{3} variables created: {0} constant variables, {1} native variables, and {2} Lua variables",
                     constantVariableCount, nativeVariableCount, luaVariableCount, variables.Count);
                 double msPerFixedUpdate = 1000.0 * (double)(nativeStopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
                 double samplesPerMs = (double)nativeVariablesCount / (1000.0 * (double)(nativeStopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
-                //Utility.LogMessage(this, "MoonSharp time average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, (double)mutableVariables.Length / msPerFixedUpdate);
-                Utility.LogMessage(this, "FixedUpdate native average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
+                Utility.LogInfo(this, "FixedUpdate native average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
 
                 msPerFixedUpdate = 1000.0 * (double)(luaStopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
                 samplesPerMs = (double)luaVariablesCount / (1000.0 * (double)(luaStopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
-                Utility.LogMessage(this, "FixedUpdate Lua    average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
+                Utility.LogInfo(this, "FixedUpdate Lua    average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
             }
         }
 
@@ -683,7 +680,7 @@ namespace AvionicsSystems
                         script.DoString(MASLoader.userScripts[i]);
                     }
 
-                    Utility.LogMessage(this, "{1}: Loaded {0} user scripts", MASLoader.userScripts.Count, flightComputerId);
+                    Utility.LogInfo(this, "{1}: Loaded {0} user scripts", MASLoader.userScripts.Count, flightComputerId);
                 }
                 catch (MoonSharp.Interpreter.SyntaxErrorException e)
                 {

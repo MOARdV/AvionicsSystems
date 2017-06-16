@@ -180,7 +180,7 @@ namespace AvionicsSystems
                     }
                     else
                     {
-                        Utility.LogMessage(this, "Discarding flight computer {0} because it did not stored vessel ID",
+                        Utility.LogMessage(this, "Discarding flight computer {0} because it did not store vessel ID",
                             fc.Key);
                     }
                 }
