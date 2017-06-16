@@ -618,6 +618,7 @@ namespace AvionicsSystems
                 {
                     bool cacheable = true;
                     bool mutable = true;
+                    bool pushable = false;
                     object[] attrs = method.GetCustomAttributes(typeof(MASProxyAttribute), true);
                     if (attrs.Length > 0)
                     {
@@ -625,6 +626,7 @@ namespace AvionicsSystems
                         {
                             cacheable = !(attrs[i] as MASProxyAttribute).Uncacheable;
                             mutable = !(attrs[i] as MASProxyAttribute).Immutable;
+                            pushable = (attrs[i] as MASProxyAttribute).Pushable;
                         }
                     }
                     ParameterInfo[] methodParams = method.GetParameters();
@@ -652,6 +654,11 @@ namespace AvionicsSystems
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
                             DynamicMethod<object, string> dm = DynamicMethodFactory.CreateFunc<object, string>(method);
+                            //if (!parms[0].mutable && pushable)
+                            //{
+                            //    Utility.LogMessage(this, "--- GenerateCallVariable(): Found a candidate for pushable variable: {0} using {1}",
+                            //        canonical,parms[0].String());
+                            //}
                             return new Variable(canonical, () => dm(tableInstance, parms[0].String()), cacheable, mutable);
                         }
                         else if (methodParams[0].ParameterType == typeof(bool))

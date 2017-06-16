@@ -3185,6 +3185,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="persistentName">The name of the persistent variable to query.</param>
         /// <returns>The value of the persistent, or its name if it does not exist.</returns>
+        [MASProxyAttribute(Pushable = true)]
         public object GetPersistent(string persistentName)
         {
             return fc.GetPersistent(persistentName);
@@ -3198,6 +3199,7 @@ namespace AvionicsSystems
         /// <param name="persistentName">The name of the persistent variable to query.</param>
         /// <returns>The numeric value of the persistent, or 0 if it either does not
         /// exist, or it cannot be converted to a number.</returns>
+        [MASProxyAttribute(Pushable = true)]
         public double GetPersistentAsNumber(string persistentName)
         {
             return fc.GetPersistentAsNumber(persistentName);
@@ -6237,6 +6239,12 @@ namespace AvionicsSystems
     /// A method flagged as Immutable is evaluated once when it's created, and never
     /// again (useful for values that never change in a game session).
     /// 
+    /// A method flagged as Pushable is a value that can change, but it does not need
+    /// to be queried each FixedUpdate.  This method is primarily intended for the
+    /// GetPersistent and GetPersistentAsNumber queries, which are called often but
+    /// do not update frequently.  The various persistent variable manipulation routines
+    /// will update the variable directly, instead of MAS polling them each FixedUpdate.
+    /// 
     /// A method flagged as Uncacheable is expected to change each time it's called,
     /// such as random number generators.
     /// 
@@ -6247,6 +6255,7 @@ namespace AvionicsSystems
     public class MASProxyAttribute : System.Attribute
     {
         private bool immutable;
+        private bool pushable;
         private bool uncacheable;
 
         public bool Immutable
@@ -6258,6 +6267,18 @@ namespace AvionicsSystems
             set
             {
                 immutable = value;
+            }
+        }
+
+        public bool Pushable
+        {
+            get
+            {
+                return pushable;
+            }
+            set
+            {
+                pushable = value;
             }
         }
 
