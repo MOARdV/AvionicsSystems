@@ -49,8 +49,23 @@ namespace AvionicsSystems
         private bool currentState;
         private bool coroutineActive;
 
+        private static readonly string[] knownCameraNames = 
+        {
+            "GalaxyCamera",
+            "Camera ScaledSpace",
+            "Camera 01",
+            "Camera 00",
+            "FXCamera"
+        };
+        private readonly Camera[] cameras = { null, null, null, null, null };
+
         internal MASPageCamera(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
+            if (knownCameraNames.Length != cameras.Length)
+            {
+                throw new NotImplementedException("MASCamera: Camera Names array has a different size than cameras array!");
+            }
+
             this.comp = comp;
             if (!config.TryGetValue("name", ref name))
             {
@@ -68,6 +83,7 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Unable to find 'size' in CAMERA " + name);
             }
+            float aspectRatio = size.x / size.y;
 
             cameraTexture = new RenderTexture((int)size.x, (int)size.y, 24, RenderTextureFormat.ARGB32);
 
@@ -221,9 +237,67 @@ namespace AvionicsSystems
                 comp.RegisterNumericVariable(propertyValue[i], prop, propertyCallback[i]);
             }
 
+            CreateFlightCameras(aspectRatio);
+
             if (coroutineActive == false)
             {
                 comp.StartCoroutine(CameraRenderCoroutine());
+            }
+        }
+
+        /// <summary>
+        /// Helper function to locate flight cameras.
+        /// </summary>
+        /// <param name="cameraName">Name of the camera we're looking for.</param>
+        /// <returns>The named camera, or null if it was not found.</returns>
+        private static Camera GetCameraByName(string cameraName)
+        {
+            for (int i = 0; i < Camera.allCamerasCount; ++i)
+            {
+                if (Camera.allCameras[i].name == cameraName)
+                {
+                    return Camera.allCameras[i];
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Create the cameras used during flight.
+        /// </summary>
+        private void CreateFlightCameras(float aspectRatio)
+        {
+            for (int i = 0; i < cameras.Length; ++i)
+            {
+                Camera sourceCamera = GetCameraByName(knownCameraNames[i]);
+                if (sourceCamera != null)
+                {
+                    GameObject cameraBody = new GameObject();
+                    cameraBody.name = "MASCamera-" + i + "-" + cameraBody.GetInstanceID();
+                    cameras[i] = cameraBody.AddComponent<Camera>();
+
+                    // Just in case to support JSITransparentPod.
+                    cameras[i].cullingMask &= ~(1 << 16 | 1 << 20);
+
+                    cameras[i].CopyFrom(sourceCamera);
+                    cameras[i].enabled = false;
+                    cameras[i].aspect = aspectRatio;
+
+                    // These get stomped on at render time:
+                    cameras[i].fieldOfView = 40.0f;
+                    cameras[i].transform.rotation = Quaternion.identity;
+
+                    // Minor hack to bring the near clip plane for the "up close"
+                    // cameras drastically closer to where the cameras notionally
+                    // are.  Experimentally, these two cameras have N/F of 0.4 / 300.0,
+                    // or 750:1 Far/Near ratio.  Changing this to 8192:1 brings the
+                    // near plane to 37cm or so, which hopefully is close enough to
+                    // see nearby details without creating z-fighting artifacts.
+                    if (i == 3 || i == 4)
+                    {
+                        cameras[i].nearClipPlane = cameras[i].farClipPlane / 8192.0f;
+                    }
+                }
             }
         }
 
@@ -284,6 +358,28 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Manually render the scene.
+        /// </summary>
+        /// <param name="target"></param>
+        private void Render(RenderTexture target)
+        {
+            for (int i = 0; i < cameras.Length; ++i)
+            {
+                if (cameras[i] != null)
+                {
+                    cameras[i].targetTexture = target;
+                    if (i > 0)
+                    {
+                        cameras[i].transform.position = activeCamera.cameraPosition;
+                    }
+                    cameras[i].transform.rotation = activeCamera.cameraRotation;
+                    cameras[i].fieldOfView = activeCamera.currentFov;
+                    cameras[i].Render();
+                }
+            }
+        }
+
+        /// <summary>
         /// Coroutine for rendering the active camera.
         /// </summary>
         /// <returns></returns>
@@ -308,6 +404,7 @@ namespace AvionicsSystems
                         cameraTexture.DiscardContents();
                         RenderTexture backup = RenderTexture.active;
                         RenderTexture.active = cameraTexture;
+                        // TODO: Blank or error texture.
                         GL.Clear(true, true, new Color(1.0f, 0.0f, 0.0f));
                         RenderTexture.active = backup;
                     }
@@ -316,13 +413,13 @@ namespace AvionicsSystems
                         cameraTexture.DiscardContents();
                         if (postProcShader == null)
                         {
-                            activeCamera.Render(cameraTexture);
+                            Render(cameraTexture);
                         }
                         else
                         {
                             RenderTexture targetTexture = RenderTexture.GetTemporary(cameraTexture.width, cameraTexture.height, cameraTexture.depth, cameraTexture.format);
                             targetTexture.DiscardContents(); // needed?
-                            activeCamera.Render(targetTexture);
+                            Render(targetTexture);
                             Graphics.Blit(targetTexture, cameraTexture, postProcShader);
                             RenderTexture.ReleaseTemporary(targetTexture);
                         }
@@ -396,6 +493,25 @@ namespace AvionicsSystems
             if (!string.IsNullOrEmpty(cameraSelector.name))
             {
                 comp.UnregisterOnVariableChange(cameraSelector.name, internalProp, CameraSelectCallback);
+            }
+
+            if (cameras[0] != null)
+            {
+                for (int i = 0; i < cameras.Length; ++i)
+                {
+                    try
+                    {
+                        UnityEngine.Object.Destroy(cameras[i]);
+                    }
+                    catch
+                    {
+
+                    }
+                    finally
+                    {
+                        cameras[i] = null;
+                    }
+                }
             }
         }
     }

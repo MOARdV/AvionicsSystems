@@ -112,18 +112,8 @@ namespace AvionicsSystems
         public bool showFov = false;
         const float rayLength = 10.0f;
 
-        private static readonly string[] knownCameraNames = 
-        {
-            "GalaxyCamera",
-            "Camera ScaledSpace",
-            //"Camera VE Underlay", // Environmental Visual Enhancements plugin camera
-            //"Camera VE Overlay",  // Environmental Visual Enhancements plugin camera
-            "Camera 01",
-            "Camera 00",
-            "FXCamera"
-        };
-        private readonly Camera[] cameras = { null, null, null, null, null };//, null, null };
-        private Quaternion cameraRotation = Quaternion.identity;
+        internal Quaternion cameraRotation = Quaternion.identity;
+        internal Vector3 cameraPosition = Vector3.zero;
 
         /// <summary>
         /// Is this object ready to use?
@@ -158,11 +148,6 @@ namespace AvionicsSystems
                 {
                     Utility.LogMessage(this, "FltCam[{0,2}]: {1} on {2:X}", i, flight.cameras[i].name, flight.cameras[i].cullingMask);
                 }
-            }
-
-            if (knownCameraNames.Length != cameras.Length)
-            {
-                throw new NotImplementedException("MASCamera: Camera Names array has a different size than cameras array!");
             }
 
             if (!string.IsNullOrEmpty(cameraTransformName))
@@ -223,10 +208,6 @@ namespace AvionicsSystems
                 {
                     CreateFovRenderer();
                 }
-                else // must be flight
-                {
-                    CreateFlightCameras();
-                }
             }
             else if (string.IsNullOrEmpty(cameraTransformName))
             {
@@ -236,60 +217,6 @@ namespace AvionicsSystems
             else
             {
                 Utility.LogErrorMessage(this, "Unable to find transform \"{0}\" in part", cameraTransformName);
-            }
-        }
-
-        /// <summary>
-        /// Helper function to locate flight cameras.
-        /// </summary>
-        /// <param name="cameraName">Name of the camera we're looking for.</param>
-        /// <returns>The named camera, or null if it was not found.</returns>
-        private static Camera GetCameraByName(string cameraName)
-        {
-            for (int i = 0; i < Camera.allCamerasCount; ++i)
-            {
-                if (Camera.allCameras[i].name == cameraName)
-                {
-                    return Camera.allCameras[i];
-                }
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// Create the cameras used during flight.
-        /// </summary>
-        private void CreateFlightCameras()
-        {
-            for (int i = 0; i < cameras.Length; ++i)
-            {
-                Camera sourceCamera = GetCameraByName(knownCameraNames[i]);
-                if (sourceCamera != null)
-                {
-                    GameObject cameraBody = new GameObject();
-                    cameraBody.name = "MASCamera-" + i + "-" + cameraBody.GetInstanceID();
-                    cameras[i] = cameraBody.AddComponent<Camera>();
-
-                    // Just in case to support JSITransparentPod.
-                    cameras[i].cullingMask &= ~(1 << 16 | 1 << 20);
-
-                    cameras[i].CopyFrom(sourceCamera);
-                    cameras[i].enabled = false;
-                    cameras[i].aspect = 1.0f;
-                    cameras[i].fieldOfView = currentFov;
-                    cameras[i].transform.rotation = cameraRotation;
-
-                    // Minor hack to bring the near clip plane for the "up close"
-                    // cameras drastically closer to where the cameras notionally
-                    // are.  Experimentally, these two cameras have N/F of 0.4 / 300.0,
-                    // or 750:1 Far/Near ratio.  Changing this to 8192:1 brings the
-                    // near plane to 37cm or so, which hopefully is close enough to
-                    // see nearby details without creating z-fighting artifacts.
-                    if (i == 3 || i == 4)
-                    {
-                        cameras[i].nearClipPlane = cameras[i].farClipPlane / 8192.0f;
-                    }
-                }
             }
         }
 
@@ -336,24 +263,6 @@ namespace AvionicsSystems
                 Destroy(maxFovPosition);
                 maxFovPosition = null;
             }
-            if (cameras[0] != null)
-            {
-                for (int i = 0; i < cameras.Length; ++i)
-                {
-                    try
-                    {
-                        UnityEngine.Object.Destroy(cameras[i]);
-                    }
-                    catch
-                    {
-
-                    }
-                    finally
-                    {
-                        cameras[i] = null;
-                    }
-                }
-            }
 
             if (nameMenu != null)
             {
@@ -374,13 +283,6 @@ namespace AvionicsSystems
         public void AddFoV(float deltaFoV)
         {
             currentFov = Mathf.Clamp(currentFov + deltaFoV, fovRange.x, fovRange.y);
-            for (int i = cameras.Length - 1; i >= 0; --i)
-            {
-                if (cameras[i] != null)
-                {
-                    cameras[i].fieldOfView = currentFov;
-                }
-            }
         }
 
         /// <summary>
@@ -390,13 +292,6 @@ namespace AvionicsSystems
         public void SetFoV(float fieldOfView)
         {
             currentFov = Mathf.Clamp(fieldOfView, fovRange.x, fovRange.y);
-            for (int i = cameras.Length - 1; i >= 0; --i)
-            {
-                if (cameras[i] != null)
-                {
-                    cameras[i].fieldOfView = currentFov;
-                }
-            }
         }
 
         /// <summary>
@@ -436,73 +331,10 @@ namespace AvionicsSystems
             if (HighLogic.LoadedSceneIsFlight)
             {
                 cameraRotation = cameraTransform.rotation * Quaternion.Euler(currentPan, currentTilt, 0.0f);
-                for (int i = 0; i < cameras.Length; ++i)
-                {
-                    if (cameras[i] != null)
-                    {
-                        // Comment from RPM:
-                        // ScaledSpace camera and its derived cameras from Visual Enhancements mod are special - they don't move.
-                        // TODO: But the EVE overlay camera is at 3 - so is this right?  Or should it be 4?
-                        // Actually, it seems only the galaxy camera is a problem.
-                        if (i > 0)
-                        {
-                            cameras[i].transform.position = cameraTransform.position;
-                        }
-                        //cameras[i].targetTexture = renderTarget;
-                        //cameras[i].aspect = aspectRatio;
-                        cameras[i].transform.rotation = cameraRotation;
-                        //cameras[i].fieldOfView = currentFov;
-                        //cameras[i].Render();
-                    }
-
-                }
+                cameraPosition = cameraTransform.position;
             }
         }
 
-        /// <summary>
-        /// Render the scenes onto the supplied render texture.
-        /// </summary>
-        /// <param name="renderTarget">The RenderTexture to draw on.</param>
-        /// <returns>true if cameras rendered, false otherwise.</returns>
-        public bool Render(RenderTexture renderTarget)
-        {
-            if (!HighLogic.LoadedSceneIsFlight)
-            {
-                return false;
-            }
-
-            float width = renderTarget.width;
-            float height = renderTarget.height;
-            float aspectRatio = width / height;
-            int camerasLength = cameras.Length;
-
-            //cameraRotation = cameraTransform.rotation * Quaternion.Euler(currentPan, currentTilt, 0.0f);
-
-            // Comment from RPM:
-            // This is a hack - FXCamera isn't always available, so I need to add and remove it in flight.
-            // I don't know if there's a callback I can use to find when it's added, so brute force it for now.
-            // TODO: Is that still operational?  It does not appear to be the case.
-
-            for (int i = 0; i < camerasLength; ++i)
-            {
-                if (cameras[i] != null)
-                {
-                    // Comment from RPM:
-                    // ScaledSpace camera and its derived cameras from Visual Enhancements mod are special - they don't move.
-                    // TODO: But the EVE overlay camera is at 3 - so is this right?  Or should it be 4?
-                    //if (i >= 1)
-                    //{
-                    //    cameras[i].transform.position = cameraTransform.position;
-                    //}
-                    cameras[i].targetTexture = renderTarget;
-                    cameras[i].aspect = aspectRatio;
-                    //cameras[i].transform.rotation = cameraRotation;
-                    cameras[i].fieldOfView = currentFov;
-                    cameras[i].Render();
-                }
-            }
-            return true;
-        }
         #endregion
 
         #region Editor
