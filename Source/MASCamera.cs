@@ -116,13 +116,13 @@ namespace AvionicsSystems
         {
             "GalaxyCamera",
             "Camera ScaledSpace",
-            "Camera VE Underlay", // Environmental Visual Enhancements plugin camera
-            "Camera VE Overlay",  // Environmental Visual Enhancements plugin camera
+            //"Camera VE Underlay", // Environmental Visual Enhancements plugin camera
+            //"Camera VE Overlay",  // Environmental Visual Enhancements plugin camera
             "Camera 01",
             "Camera 00",
             "FXCamera"
         };
-        private readonly Camera[] cameras = { null, null, null, null, null, null, null };
+        private readonly Camera[] cameras = { null, null, null, null, null };//, null, null };
         private Quaternion cameraRotation = Quaternion.identity;
 
         /// <summary>
@@ -135,6 +135,7 @@ namespace AvionicsSystems
         }
 
         #region Setup - Teardown
+        private static bool dumped = false;
         /// <summary>
         /// Configure everything.
         /// </summary>
@@ -143,6 +144,20 @@ namespace AvionicsSystems
             if (!(HighLogic.LoadedScene == GameScenes.EDITOR || HighLogic.LoadedScene == GameScenes.FLIGHT))
             {
                 return;
+            }
+            if (!dumped)
+            {
+                dumped = true;
+                for (int i = 0; i < Camera.allCamerasCount; ++i)
+                {
+                    Utility.LogMessage(this, "AllCam[{0,2}]: {1} on {2:X}", i, Camera.allCameras[i].name, Camera.allCameras[i].cullingMask);
+                }
+                FlightCamera flight = FlightCamera.fetch;
+                Utility.LogMessage(this, "CameraMain: {0} on {1:X}", flight.mainCamera.name, flight.mainCamera.cullingMask);
+                for (int i = 0; i < flight.cameras.Length; ++i)
+                {
+                    Utility.LogMessage(this, "FltCam[{0,2}]: {1} on {2:X}", i, flight.cameras[i].name, flight.cameras[i].cullingMask);
+                }
             }
 
             if (knownCameraNames.Length != cameras.Length)
@@ -270,7 +285,7 @@ namespace AvionicsSystems
                     // or 750:1 Far/Near ratio.  Changing this to 8192:1 brings the
                     // near plane to 37cm or so, which hopefully is close enough to
                     // see nearby details without creating z-fighting artifacts.
-                    if (i == 5 || i == 6)
+                    if (i == 3 || i == 4)
                     {
                         cameras[i].nearClipPlane = cameras[i].farClipPlane / 8192.0f;
                     }
@@ -418,6 +433,30 @@ namespace AvionicsSystems
                 nameMenu = null;
             }
 
+            if (HighLogic.LoadedSceneIsFlight)
+            {
+                cameraRotation = cameraTransform.rotation * Quaternion.Euler(currentPan, currentTilt, 0.0f);
+                for (int i = 0; i < cameras.Length; ++i)
+                {
+                    if (cameras[i] != null)
+                    {
+                        // Comment from RPM:
+                        // ScaledSpace camera and its derived cameras from Visual Enhancements mod are special - they don't move.
+                        // TODO: But the EVE overlay camera is at 3 - so is this right?  Or should it be 4?
+                        // Actually, it seems only the galaxy camera is a problem.
+                        if (i > 0)
+                        {
+                            cameras[i].transform.position = cameraTransform.position;
+                        }
+                        //cameras[i].targetTexture = renderTarget;
+                        //cameras[i].aspect = aspectRatio;
+                        cameras[i].transform.rotation = cameraRotation;
+                        //cameras[i].fieldOfView = currentFov;
+                        //cameras[i].Render();
+                    }
+
+                }
+            }
         }
 
         /// <summary>
@@ -436,9 +475,9 @@ namespace AvionicsSystems
             float height = renderTarget.height;
             float aspectRatio = width / height;
             int camerasLength = cameras.Length;
-            
-            cameraRotation = cameraTransform.rotation * Quaternion.Euler(currentPan, currentTilt, 0.0f);
-            
+
+            //cameraRotation = cameraTransform.rotation * Quaternion.Euler(currentPan, currentTilt, 0.0f);
+
             // Comment from RPM:
             // This is a hack - FXCamera isn't always available, so I need to add and remove it in flight.
             // I don't know if there's a callback I can use to find when it's added, so brute force it for now.
@@ -451,13 +490,13 @@ namespace AvionicsSystems
                     // Comment from RPM:
                     // ScaledSpace camera and its derived cameras from Visual Enhancements mod are special - they don't move.
                     // TODO: But the EVE overlay camera is at 3 - so is this right?  Or should it be 4?
-                    if (i >= 3)
-                    {
-                        cameras[i].transform.position = cameraTransform.position;
-                    }
+                    //if (i >= 1)
+                    //{
+                    //    cameras[i].transform.position = cameraTransform.position;
+                    //}
                     cameras[i].targetTexture = renderTarget;
                     cameras[i].aspect = aspectRatio;
-                    cameras[i].transform.rotation = cameraRotation;
+                    //cameras[i].transform.rotation = cameraRotation;
                     cameras[i].fieldOfView = currentFov;
                     cameras[i].Render();
                 }
