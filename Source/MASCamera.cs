@@ -125,7 +125,6 @@ namespace AvionicsSystems
         }
 
         #region Setup - Teardown
-        private static bool dumped = false;
         /// <summary>
         /// Configure everything.
         /// </summary>
@@ -134,20 +133,6 @@ namespace AvionicsSystems
             if (!(HighLogic.LoadedScene == GameScenes.EDITOR || HighLogic.LoadedScene == GameScenes.FLIGHT))
             {
                 return;
-            }
-            if (!dumped)
-            {
-                dumped = true;
-                for (int i = 0; i < Camera.allCamerasCount; ++i)
-                {
-                    Utility.LogMessage(this, "AllCam[{0,2}]: {1} on {2:X}", i, Camera.allCameras[i].name, Camera.allCameras[i].cullingMask);
-                }
-                FlightCamera flight = FlightCamera.fetch;
-                Utility.LogMessage(this, "CameraMain: {0} on {1:X}", flight.mainCamera.name, flight.mainCamera.cullingMask);
-                for (int i = 0; i < flight.cameras.Length; ++i)
-                {
-                    Utility.LogMessage(this, "FltCam[{0,2}]: {1} on {2:X}", i, flight.cameras[i].name, flight.cameras[i].cullingMask);
-                }
             }
 
             if (!string.IsNullOrEmpty(cameraTransformName))
