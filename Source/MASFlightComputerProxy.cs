@@ -2165,6 +2165,16 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Rounds a number up to the next integer.
+        /// </summary>
+        /// <param name="value">The value to round</param>
+        /// <returns></returns>
+        public double Ceiling(double value)
+        {
+            return Math.Ceiling(value);
+        }
+
+        /// <summary>
         /// Clamps `value` to stay within the range `a` to `b`, inclusive.  `a` does not
         /// have to be less than `b`.
         /// </summary>
@@ -2177,6 +2187,17 @@ namespace AvionicsSystems
             double max = Math.Max(a, b);
             double min = Math.Min(a, b);
             return Math.Max(Math.Min(value, max), min);
+        }
+
+
+        /// <summary>
+        /// Rounds a number down to the next integer.
+        /// </summary>
+        /// <param name="value">The value to round</param>
+        /// <returns></returns>
+        public double Floor(double value)
+        {
+            return Math.Floor(value);
         }
 
         /// <summary>
@@ -3147,6 +3168,8 @@ namespace AvionicsSystems
         /// 
         /// If the variable cannot converted to a number, the variable's name is
         /// returned, instead.
+        /// 
+        /// If minValue and maxValue are the same, `amount` is treated as zero (nothing is added).
         /// </summary>
         /// <param name="persistentName">The name of the persistent variable to change.</param>
         /// <param name="amount">The amount to add to the persistent variable.</param>
