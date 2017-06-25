@@ -156,31 +156,26 @@ namespace AvionicsSystems
                 minValue = extent1;
                 maxValue = extent2;
             }
-            else
+            else if(extent2 > extent1)
             {
                 minValue = extent2;
                 maxValue = extent1;
             }
+            else
+            {
+                return v;
+            }
 
             v += amount;
             double range = maxValue - minValue;
-            if (range > 0.0)
+            while (v < minValue)
             {
-                double iLerp = (v - minValue) / range;
-                if (iLerp < 0.0)
-                {
-                    iLerp = 1.0 - (Math.Abs(iLerp) % 1.0);
-                }
-                else if (iLerp > 1.0)
-                {
-                    iLerp = iLerp % 1.0;
-                }
-                // The two extents are effectively aliases for one another.
-                if (iLerp == 1.0)
-                {
-                    iLerp = 0.0;
-                }
-                v = minValue + iLerp * range;
+                v += range;
+            }
+            
+            while(v >= maxValue)
+            {
+                v -= range;
             }
 
             persistentVars[persistentName] = v;
