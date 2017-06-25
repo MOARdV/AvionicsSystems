@@ -1,4 +1,5 @@
-﻿/*****************************************************************************
+﻿//#define DEBUG_DUMP_CAMERAS
+/*****************************************************************************
  * The MIT License (MIT)
  * 
  * Copyright (c) 2017 MOARdV
@@ -245,6 +246,27 @@ namespace AvionicsSystems
             }
         }
 
+#if DEBUG_DUMP_CAMERAS
+        private static bool dumped = false;
+        private void DumpCameraStuff()
+        {
+            if (!dumped)
+            {
+                dumped = true;
+                for (int i = 0; i < Camera.allCamerasCount; ++i)
+                {
+                    Utility.LogMessage(this, "AllCam[{0,2}]: {1} on {2:X}", i, Camera.allCameras[i].name, Camera.allCameras[i].cullingMask);
+                }
+                FlightCamera flight = FlightCamera.fetch;
+                Utility.LogMessage(this, "CameraMain: {0} on {1:X}", flight.mainCamera.name, flight.mainCamera.cullingMask);
+                for (int i = 0; i < flight.cameras.Length; ++i)
+                {
+                    Utility.LogMessage(this, "FltCam[{0,2}]: {1} on {2:X}", i, flight.cameras[i].name, flight.cameras[i].cullingMask);
+                }
+            }
+        }
+#endif
+
         /// <summary>
         /// Helper function to locate flight cameras.
         /// </summary>
@@ -267,6 +289,9 @@ namespace AvionicsSystems
         /// </summary>
         private void CreateFlightCameras(float aspectRatio)
         {
+#if DEBUG_DUMP_CAMERAS
+            DumpCameraStuff();
+#endif
             for (int i = 0; i < cameras.Length; ++i)
             {
                 Camera sourceCamera = GetCameraByName(knownCameraNames[i]);
