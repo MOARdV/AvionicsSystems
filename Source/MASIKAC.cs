@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -41,6 +41,7 @@ namespace AvionicsSystems
     {
         internal Vessel vessel;
         private double[] alarms;
+        private string[] alarmIDs = new string[0];
 
         [MoonSharpHidden]
         public MASIKAC(Vessel vessel)
@@ -60,7 +61,9 @@ namespace AvionicsSystems
             if (KACWrapper.InstanceExists)
             {
                 KACWrapper.KACAPI.KACAlarmList alarms = KACWrapper.KAC.Alarms;
+
                 int alarmCount = alarms.Count;
+
                 if (alarmCount > 0)
                 {
                     double UT = Planetarium.GetUniversalTime();
@@ -77,6 +80,7 @@ namespace AvionicsSystems
                     if (this.alarms.Length != vesselAlarmCount)
                     {
                         this.alarms = new double[vesselAlarmCount];
+                        alarmIDs = new string[vesselAlarmCount];
                     }
 
                     if (vesselAlarmCount > 0)
@@ -86,6 +90,7 @@ namespace AvionicsSystems
                             if (alarms[i].VesselID == id && alarms[i].AlarmTime > UT)
                             {
                                 --vesselAlarmCount;
+                                alarmIDs[i] = alarms[i].ID;
                                 this.alarms[vesselAlarmCount] = alarms[i].AlarmTime - UT;
                             }
                         }
@@ -97,6 +102,7 @@ namespace AvionicsSystems
                 else if (this.alarms.Length > 0)
                 {
                     this.alarms = new double[0];
+                    alarmIDs = new string[0];
                 }
             }
         }
@@ -113,6 +119,24 @@ namespace AvionicsSystems
             return alarms.Length;
         }
 
+        /// <summary>
+        /// Scans the list of alarms assigned to this vessel to see if the alarm identified by `alarmID`
+        /// exists.  Returns 1 if it is found, 0 otherwise.
+        /// </summary>
+        /// <param name="alarmID">The ID of the alarm, typically from the return value of `fc.CreateAlarm()`.</param>
+        /// <returns>1 if the alarm exists, 0 otherwise.</returns>
+        public double AlarmExists(string alarmID)
+        {
+            if (alarmIDs.Length > 0)
+            {
+                int idx = alarmIDs.IndexOf(alarmID);
+
+                return (idx == -1) ? 0.0 : 1.0;
+            }
+
+            return 0.0;
+        }
+
         [MASProxyAttribute(Immutable = true)]
         /// <summary>
         /// Returns 1 if Kerbal Alarm Clock is installed and available on this craft, 0 if it
@@ -122,6 +146,54 @@ namespace AvionicsSystems
         public double Available()
         {
             return (KACWrapper.InstanceExists) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Create a Raw alarm at the time specified by `UT`, using the name `name`.  This alarm is
+        /// assigned to the current vessel ID.
+        /// </summary>
+        /// <param name="name">The short name to apply to the alarm.</param>
+        /// <param name="UT">The UT when the alarm should fire.</param>
+        /// <returns>The alarm ID (a string), or an empty string if the method failed.</returns>
+        public string CreateAlarm(string name, double UT)
+        {
+            if (KACWrapper.InstanceExists)
+            {
+                string alarmID = KACWrapper.KAC.CreateAlarm(KACWrapper.KACAPI.AlarmTypeEnum.Raw, name, UT);
+
+                if (string.IsNullOrEmpty(alarmID))
+                {
+                    return string.Empty;
+                }
+                else
+                {
+                    var newAlarm = KACWrapper.KAC.Alarms.Find(x => x.ID == alarmID);
+                    if (newAlarm != null)
+                    {
+                        newAlarm.VesselID = vessel.id.ToString();
+                    }
+
+                    return alarmID;
+                }
+
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Attempts to remove the alarm identified by `alarmID`.  Normally, `alarmID` is the return
+        /// value from `fc.CreateAlarm()`.
+        /// </summary>
+        /// <param name="alarmID">The ID of the alarm to remove</param>
+        /// <returns>1 if the alarm was removed, 0 if it was not, or it did not exist, or the Kerbal Alarm Clock is not available.</returns>
+        public double DeleteAlarm(string alarmID)
+        {
+            if (alarms.Length > 0)
+            {
+                return (KACWrapper.KAC.DeleteAlarm(alarmID)) ? 1.0 : 0.0;
+            }
+            return 0.0;
         }
 
         /// <summary>
