@@ -104,8 +104,50 @@ namespace AvionicsSystems
             {
                 return FormatLatLon(formatSpecification, value);
             }
+            if (formatSpecification.StartsWith("BAR"))
+            {
+                return FormatBar(formatSpecification, value);
+            }
 
             return DefaultFormat(formatSpecification, arg, formatProvider);
+        }
+
+        /// <summary>
+        /// Generates a textual ("ASCII") bar graph scaled based on the provided value.
+        /// </summary>
+        /// <param name="formatSpecification"></param>
+        /// <param name="value">The value to use as the scale, ranging [0, 1]/</param>
+        /// <returns>The bar graph as specified.</returns>
+        private static string FormatBar(string formatSpecification, double value)
+        {
+            value.Clamp(0.0, 1.0);
+
+            string[] s = formatSpecification.Split(',');
+            if (s.Length != 3)
+            {
+                return formatSpecification;
+            }
+
+            if (s[1].Length < 2)
+            {
+                Utility.LogErrorMessage("Invalid second parameter.  Must be two characters minimum length. \"{1}\"", value, formatSpecification);
+                return formatSpecification;
+            }
+
+            int numChars = 0;
+            if (!int.TryParse(s[2], out numChars) || numChars < 1)
+            {
+                Utility.LogErrorMessage("Invalid third parameter.  Must be an integer. \"{1}\"", value, formatSpecification);
+                return formatSpecification;
+            }
+
+            int fillLength = (int)Math.Floor((double)numChars * value + 0.5);
+
+            StringBuilder sb = Utility.GetStringBuilder();
+            sb.Append(s[1][0], fillLength);
+            sb.Append(s[1][1], numChars - fillLength);
+
+            return sb.ToString();
         }
 
         /// <summary>
