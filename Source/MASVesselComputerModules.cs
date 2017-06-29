@@ -613,12 +613,18 @@ namespace AvionicsSystems
         private List<ModuleRCS> rcsList = new List<ModuleRCS>();
         internal ModuleRCS[] moduleRcs = new ModuleRCS[0];
         internal bool anyRcsDisabled = false;
+        internal bool anyRcsFiring = false;
         internal float rcsWeightedThrustLimit;
+        internal float rcsActiveThrustPercent;
         private void UpdateRcs()
         {
             anyRcsDisabled = false;
+            anyRcsFiring = false;
             float netThrust = 0.0f;
             rcsWeightedThrustLimit = 0.0f;
+            rcsActiveThrustPercent = 0.0f;
+            float numActiveThrusters = 0.0f;
+
             for (int i = moduleRcs.Length - 1; i >= 0; --i)
             {
                 if (moduleRcs[i].rcsEnabled == false)
@@ -627,6 +633,19 @@ namespace AvionicsSystems
                 }
                 else
                 {
+                    if (moduleRcs[i].rcs_active)
+                    {
+                        anyRcsFiring = true;
+                        
+                        for (int q = 0; q < moduleRcs[i].thrustForces.Length; ++q)
+                        {
+                            if (moduleRcs[i].thrustForces[q] > 0.0f)
+                            {
+                                rcsActiveThrustPercent += moduleRcs[i].thrustForces[q] / moduleRcs[i].thrusterPower;
+                                numActiveThrusters += 1.0f;
+                            }
+                        }
+                    }
                     netThrust += moduleRcs[i].thrusterPower;
                     rcsWeightedThrustLimit += moduleRcs[i].thrusterPower * moduleRcs[i].thrustPercentage;
 
@@ -636,6 +655,11 @@ namespace AvionicsSystems
                         MarkActiveRcsPropellant(propellants[res].id);
                     }
                 }
+            }
+
+            if (numActiveThrusters > 0.0f)
+            {
+                rcsActiveThrustPercent /= numActiveThrusters;
             }
 
             if (netThrust > 0.0f)

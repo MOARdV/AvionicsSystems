@@ -1040,27 +1040,30 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the current X translation state.
+        /// Returns the current X translation state.  Note that this value is the direction
+        /// the thrust is firing, not the direction the vessel will move.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A value between -1 (full left) and +1 (full right).</returns>
         public double StickTranslationX()
         {
             return vessel.ctrlState.X;
         }
 
         /// <summary>
-        /// Returns the current Y translation state.
+        /// Returns the current Y translation state.  Note that this value is the direction
+        /// the thrust is firing, not the direction the vessel will move.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A value between -1 (full top) and +1 (full bottom).</returns>
         public double StickTranslationY()
         {
             return vessel.ctrlState.Y;
         }
 
         /// <summary>
-        /// Returns the current Z translation state.
+        /// Returns the current Z translation state.  Note that this value is the direction
+        /// the thrust is firing, not the direction the vessel will move.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A value between -1 (full aft) and +1 (full forward).</returns>
         public double StickTranslationZ()
         {
             return vessel.ctrlState.Z;
@@ -3649,6 +3652,21 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the current thrust percentage of all enabled RCS thrusters.  This number counts only active
+        /// RCS ports.  Even so, it is possible for the result to be less than 1.0. For instance, if some thrusters
+        /// are firing at less than full power to maintain orientation while translating, the net thrust will be
+        /// less than 1.0.
+        /// 
+        /// The result does not account for thrust reductions in the atmosphere due to lower ISP, so sea level thrust
+        /// will be a fraction of full thrust.
+        /// </summary>
+        /// <returns>A value between 0.0 and 1.0.</returns>
+        public double CurrentRCSThrust()
+        {
+            return vc.rcsActiveThrustPercent;
+        }
+
+        /// <summary>
         /// Enables any RCS ports that have been disabled.
         /// </summary>
         public void EnableAllRCS()
@@ -3665,7 +3683,8 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if the RCS action group has any actions attached to it.
+        /// Returns 1 if the RCS action group has any actions attached to it.  Note that
+        /// RCS thrusters don't neccessarily appear here.
         /// </summary>
         /// <returns>1 if any actions are assigned to the RCS group.</returns>
         public double RCSHasActions()
@@ -3683,6 +3702,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns 1 if any RCS thrusters are firing, 0 otherwise.
+        /// </summary>
+        /// <returns></returns>
+        public double GetRCSActive()
+        {
+            return (vc.anyRcsFiring) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Returns the thrust-weighted average of the RCS thrust limit for
         /// all enabled RCS thrusters.
         /// </summary>
@@ -3690,6 +3718,15 @@ namespace AvionicsSystems
         public double GetRCSThrustLimit()
         {
             return vc.rcsWeightedThrustLimit;
+        }
+
+        /// <summary>
+        /// Returns 1 if there is at least once RCS module on the vessel.
+        /// </summary>
+        /// <returns></returns>
+        public double HasRCS()
+        {
+            return (vc.moduleRcs.Length > 0) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -3784,7 +3821,7 @@ namespace AvionicsSystems
         /// Returns the current amount of torque being applied for roll.
         /// 
         /// When `absoluteTorque` is true, the value that is returns is a signed
-        /// value that ranges from the -PitchRoll to + PitchRoll.
+        /// value that ranges from the -PitchTorque to + PitchTorque.
         /// 
         /// When `absoluteTorque` is false, the value is a percentage of maximum,
         /// ranging from -1 to +1, where -1 indicates maximum torque in the negative
@@ -3952,7 +3989,7 @@ namespace AvionicsSystems
         /// Returns the current amount of torque being applied for yaw.
         /// 
         /// When `absoluteTorque` is true, the value that is returns is a signed
-        /// value that ranges from the -YawRoll to +YawRoll.
+        /// value that ranges from the -YawTorque to +YawTorque.
         /// 
         /// When `absoluteTorque` is false, the value is a percentage of maximum,
         /// ranging from -1 to +1, where -1 indicates maximum torque in the negative
@@ -5573,7 +5610,7 @@ namespace AvionicsSystems
             {
                 return vc.targetOrbit.semiMajorAxis;
             }
-            
+
             return 0.0;
         }
 
