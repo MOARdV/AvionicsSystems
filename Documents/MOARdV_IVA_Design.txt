@@ -3,6 +3,8 @@ Notes on the Summer 2017 MOARdV Flight Systems IVA design patterns.
 Toggle switches, modular push buttons: size = 0.4
 When switches / buttons are parented to another switch / button, relative spacing is:
  bordered button: lateral spacing 0.06
+ non-bordered (Action Groups, etc): 0.045
+ bordered, no labels: 0.055
 
 Signal lamp: 0.5
 
