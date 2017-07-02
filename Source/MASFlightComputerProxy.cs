@@ -109,6 +109,110 @@ namespace AvionicsSystems
                     break;
                 }
             }
+
+            for (int i = neighboringVessels.Length - 1; i >= 0; --i)
+            {
+                neighboringVessels[i] = null;
+            }
+            neighboringVesselsCurrent = false;
+        }
+        /// <summary>
+        /// Private method to map a string or number to a CelestialBody.
+        /// </summary>
+        /// <param name="id">A string or number identifying the celestial body.</param>
+        [MoonSharpHidden]
+        private CelestialBody SelectBody(object id)
+        {
+            CelestialBody cb = null;
+
+            if (id is double)
+            {
+                int idx = (int)(double)id;
+                if (idx == -1)
+                {
+                    cb = vessel.mainBody;
+                }
+                else if (idx == -2)
+                {
+                    if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
+                    {
+                        cb = vc.activeTarget as CelestialBody;
+                    }
+                }
+                else if (idx >= 0 && idx < FlightGlobals.Bodies.Count)
+                {
+                    cb = FlightGlobals.Bodies[idx];
+                }
+            }
+            else if (id is string)
+            {
+                string bodyName = id as string;
+                cb = FlightGlobals.Bodies.Find(x => (x.bodyName == bodyName));
+            }
+
+            return cb;
+        }
+
+
+        // Keep a scratch list handy.  The members of the array are null'd after TargetNextVessel
+        // executes to make sure we're not holding dangling references.  This could be written more
+        // efficiently, but I don't see this being used extensively.
+        private Vessel[] neighboringVessels = new Vessel[0];
+        private VesselDistanceComparer distanceComparer = new VesselDistanceComparer();
+        private bool neighboringVesselsCurrent = false;
+
+        [MoonSharpHidden]
+        private void UpdateNeighboringVessels()
+        {
+            if (!neighboringVesselsCurrent)
+            {
+                // Populate 
+                var allVessels = FlightGlobals.fetch.vessels;
+                int allVesselCount = allVessels.Count;
+                int localVesselCount = 0;
+                CelestialBody mainBody = vessel.mainBody;
+                for (int i = 0; i < allVesselCount; ++i)
+                {
+                    Vessel v = allVessels[i];
+                    if (v.mainBody == mainBody && v.vesselType != global::VesselType.Debris)
+                    {
+                        ++localVesselCount;
+                    }
+                }
+
+                --localVesselCount;
+
+                if (neighboringVessels.Length != localVesselCount)
+                {
+                    neighboringVessels = new Vessel[localVesselCount];
+                }
+
+                int arrayIndex = 0;
+                for (int i = 0; i < allVesselCount; ++i)
+                {
+                    Vessel v = allVessels[i];
+                    if (v.mainBody == mainBody && v.vesselType != global::VesselType.Debris && v != vessel)
+                    {
+                        neighboringVessels[arrayIndex++] = v;
+                    }
+                }
+
+                distanceComparer.vesselPosition = vessel.GetTransform().position;
+                Array.Sort(neighboringVessels, distanceComparer);
+
+                neighboringVesselsCurrent = true;
+            }
+        }
+
+        private class VesselDistanceComparer : IComparer<Vessel>
+        {
+            internal Vector3 vesselPosition;
+            public int Compare(Vessel a, Vessel b)
+            {
+                float distA = Vector3.SqrMagnitude(a.GetTransform().position - vesselPosition);
+                float distB = Vector3.SqrMagnitude(b.GetTransform().position - vesselPosition);
+                return (int)(distA - distB);
+            }
         }
 
         /// <summary>
@@ -417,42 +521,6 @@ namespace AvionicsSystems
         /// when -2 is used.
         /// </summary>
         #region Body
-        /// <summary>
-        /// Private method to map a string or number to a CelestialBody.
-        /// </summary>
-        /// <param name="id">A string or number identifying the celestial body.</param>
-        private CelestialBody SelectBody(object id)
-        {
-            CelestialBody cb = null;
-
-            if (id is double)
-            {
-                int idx = (int)(double)id;
-                if (idx == -1)
-                {
-                    cb = vessel.mainBody;
-                }
-                else if (idx == -2)
-                {
-                    if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
-                    {
-                        cb = vc.activeTarget as CelestialBody;
-                    }
-                }
-                else if (idx >= 0 && idx < FlightGlobals.Bodies.Count)
-                {
-                    cb = FlightGlobals.Bodies[idx];
-                }
-            }
-            else if (id is string)
-            {
-                string bodyName = id as string;
-                cb = FlightGlobals.Bodies.Find(x => (x.bodyName == bodyName));
-            }
-
-            return cb;
-        }
-
         /// <summary>
         /// Returns the surface area of the selected body.
         /// </summary>
@@ -1519,13 +1587,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the current maximum deflection of any active gimbals,
-        /// accounting for gimbal limits.
+        /// Returns the average deflection of active, unlocked gimbals, from 0 (no deflection) to 1 (max deflection).
+        /// 
+        /// The direction of the deflection is ignored, but the value accounts for assymetrical gimbal configurations,
+        /// eg, if X+ is 5.0, and X- is -3.0, the deflection percentage accounts for this difference.
         /// </summary>
-        /// <returns>Gimbal limit in degrees.</returns>
-        public double CurrentGimbal()
+        /// <returns></returns>
+        public double CurrentGimbalDeflection()
         {
-            return vc.maxGimbal;
+            return vc.gimbalDeflection;
         }
 
         /// <summary>
@@ -1647,6 +1717,25 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the currently-configured limit of active gimbals, as set in the right-click part menus.
+        /// This value ranges between 0 (no gimbal) and 1 (100% gimbal).
+        /// </summary>
+        /// <returns></returns>
+        public double GetGimbalLimit()
+        {
+            return vc.gimbalLimit;
+        }
+
+        /// <summary>
+        /// Returns 1 if any gimbals are currently active.
+        /// </summary>
+        /// <returns></returns>
+        public double GetGimbalsActive()
+        {
+            return (vc.anyGimbalsActive) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Returns 1 if at least one active gimbal is locked.
         /// </summary>
         /// <returns></returns>
@@ -1662,6 +1751,16 @@ namespace AvionicsSystems
         public double GetThrottle()
         {
             return vessel.ctrlState.mainThrottle;
+        }
+
+        /// <summary>
+        /// Returns the average of the throttle limit for the active engines,
+        /// ranging from 0 (no thrust) to 1 (maximum thrust).
+        /// </summary>
+        /// <returns></returns>
+        public double GetThrottleLimit()
+        {
+            return vc.throttleLimit;
         }
 
         /// <summary>
@@ -1702,6 +1801,28 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Change the gimbal limit for active gimbals.  Values less than 0 or greater than 1 are
+        /// clamped to that range.
+        /// </summary>
+        /// <param name="newLimit">The new gimbal limit, between 0 and 1.</param>
+        /// <returns>1 if any gimbals were updated, 0 otherwise.</returns>
+        public double SetGimbalLimit(double newLimit)
+        {
+            float limit = Mathf.Clamp01((float)newLimit) * 100.0f;
+            bool updated = false;
+
+            for (int i = vc.moduleGimbals.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleGimbals[i].gimbalActive)
+                {
+                    vc.moduleGimbals[i].gimbalLimiter = limit;
+                }
+            }
+
+            return (updated) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Set the throttle.  May be set to any value between 0 and 1.  Values outside
         /// that range are clamped to [0, 1].
         /// </summary>
@@ -1723,6 +1844,20 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Set the throttle limit.  May be set to any value between 0 and 1.  Values outside
+        /// that range are clamped to [0, 1].
+        /// </summary>
+        /// <param name="newLimit"></param>
+        /// <returns></returns>
+        public double SetThrottleLimit(double newLimit)
+        {
+            float limit = Mathf.Clamp01((float)newLimit) * 100.0f;
+            bool updated = vc.SetThrottleLimit(limit);
+
+            return (updated) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Turns on/off engines for the current stage
         /// </summary>
         /// <returns>1 if engines are now enabled, 0 if they are disabled.</returns>
@@ -1734,13 +1869,16 @@ namespace AvionicsSystems
         /// <summary>
         /// Toggles gimbal lock on/off for the current stage.
         /// </summary>
-        /// <returns>1 if the gimbals are now locked, 0 if they are unlocked.</returns>
+        /// <returns>1 if active gimbals are now locked, 0 if they are unlocked.</returns>
         public double ToggleGimbalLock()
         {
             bool newState = !vc.anyGimbalsLocked;
             for (int i = vc.moduleGimbals.Length - 1; i >= 0; --i)
             {
-                vc.moduleGimbals[i].gimbalLock = newState;
+                if (vc.moduleGimbals[i].gimbalActive)
+                {
+                    vc.moduleGimbals[i].gimbalLock = newState;
+                }
             }
 
             return (newState) ? 1.0 : 0.0;
@@ -5550,6 +5688,57 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Sets the target to the nearest vessel in same SoI as the current vessel.
+        /// 
+        /// If the vessel is alreadying targeting a vessel in the same SoI, the next closest one will
+        /// be targeted, instead.  If the current target is the closest vessel, the most distant one
+        /// is selected.
+        /// </summary>
+        /// <returns>1 if a vessel was targeted, 0 otherwise.</returns>
+        public double TargetNextVessel()
+        {
+            UpdateNeighboringVessels();
+
+            int numVessels = neighboringVessels.Length;
+            if (numVessels > 0)
+            {
+                if (vc.targetType != MASVesselComputer.TargetType.Vessel && vc.targetType != MASVesselComputer.TargetType.DockingPort)
+                {
+                    // Simple case: We're not currently targeting a vessel.
+                    FlightGlobals.fetch.SetVesselTarget(neighboringVessels[0]);
+                }
+                else
+                {
+                    Vessel targetVessel;
+                    if (vc.targetType == MASVesselComputer.TargetType.Vessel)
+                    {
+                        targetVessel = vc.activeTarget as Vessel;
+                    }
+                    else // Docking port
+                    {
+                        targetVessel = (vc.activeTarget as ModuleDockingNode).vessel;
+                    }
+
+                    int vesselIdx = Array.FindIndex(neighboringVessels, v => v.id == targetVessel.id);
+                    int selectedIdx = 0;
+                    if (vesselIdx == 0)
+                    {
+                        selectedIdx = neighboringVessels.Length - 1;
+                    }
+                    else
+                    {
+                        selectedIdx = vesselIdx - 1;
+                    }
+
+                    FlightGlobals.fetch.SetVesselTarget(neighboringVessels[selectedIdx]);
+                }
+                return 1.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the target's periapsis.
         /// </summary>
         /// <returns>Target's Pe in meters, or 0 if there is no target.</returns>
@@ -5721,6 +5910,19 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the number of other non-debris vessels in the current SoI.  This count
+        /// includes landed vessels as well as vessels in flight, but it does not count the
+        /// current vessel.
+        /// </summary>
+        /// <returns>The number of other non-debris vessels, or 0 if there are none.</returns>
+        public double TargetVesselCount()
+        {
+            UpdateNeighboringVessels();
+
+            return neighboringVessels.Length;
+        }
+
+        /// <summary>
         /// **UNIMPLEMENTED:** This function is a placeholder that does not return
         /// valid numbers at the present.
         /// 
@@ -5821,6 +6023,16 @@ namespace AvionicsSystems
         public double RadiatorActive()
         {
             return (vc.radiatorActive) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the number of radiators installed on the craft, regardless of their status
+        /// (enabled / disabled / damaged).
+        /// </summary>
+        /// <returns></returns>
+        public double RadiatorCount()
+        {
+            return vc.moduleRadiator.Length;
         }
 
         /// <summary>

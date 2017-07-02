@@ -294,6 +294,7 @@ namespace AvionicsSystems
         internal float hottestEngineMaxTemperature;
         internal int currentEngineCount;
         internal int activeEngineCount;
+        internal float throttleLimit;
         internal bool anyEnginesFlameout;
         internal bool anyEnginesEnabled;
         private List<Part> visitedParts = new List<Part>();
@@ -301,13 +302,14 @@ namespace AvionicsSystems
         {
             this.currentThrust = 0.0f;
             this.maxRatedThrust = 0.0f;
-            maxGimbal = 0.0f;
             currentLimitedMaxThrust = 0.0f;
             currentMaxThrust = 0.0f;
             hottestEngineTemperature = 0.0f;
             hottestEngineMaxTemperature = 0.0f;
             maxEngineFuelFlow = 0.0f;
             currentEngineFuelFlow = 0.0f;
+            throttleLimit = 0.0f;
+            float throttleCount = 0.0f;
             anyEnginesFlameout = false;
             anyEnginesEnabled = false;
             activeEngineCount = 0;
@@ -343,6 +345,9 @@ namespace AvionicsSystems
 
                 if (me.EngineIgnited && me.isEnabled && me.isOperational)
                 {
+                    throttleLimit += me.thrustPercentage;
+                    throttleCount += 1.0f;
+
                     float currentThrust = me.finalThrust;
                     this.currentThrust += currentThrust;
                     this.maxRatedThrust += me.GetMaxThrust();
@@ -386,6 +391,11 @@ namespace AvionicsSystems
                     hottestEngineMaxTemperature = (float)thatPart.maxTemp;
                     hottestEngine = hottestEngineMaxTemperature - hottestEngineTemperature;
                 }
+            }
+
+            if (throttleCount > 0.0f)
+            {
+                throttleLimit /= (throttleCount * 100.0f);
             }
 
             if (averageIspContribution > 0.0f)
@@ -433,33 +443,89 @@ namespace AvionicsSystems
 
             return newState;
         }
+
+        internal bool SetThrottleLimit(float newLimit)
+        {
+            bool anyUpdated = false;
+            for (int i = moduleEngines.Length - 1; i >= 0; --i)
+            {
+                Part thatPart = moduleEngines[i].part;
+
+                if (thatPart.inverseStage == StageManager.CurrentStage)
+                {
+                    if (moduleEngines[i].EngineIgnited)
+                    {
+                        moduleEngines[i].thrustPercentage = newLimit;
+                        anyUpdated = true;
+                    }
+                }
+            }
+
+            return anyUpdated;
+        }
         #endregion
 
         #region Gimbal
         private List<ModuleGimbal> gimbalsList = new List<ModuleGimbal>(8);
         internal ModuleGimbal[] moduleGimbals = new ModuleGimbal[0];
         internal bool anyGimbalsLocked = false;
-        internal float maxGimbal = 0.0f;
+        internal bool anyGimbalsActive = false;
+        internal float gimbalDeflection = 0.0f;
+        internal float gimbalLimit = 0.0f;
         void UpdateGimbals()
         {
-            maxGimbal = 0.0f;
+            gimbalLimit = 0.0f;
             anyGimbalsLocked = false;
+            anyGimbalsActive = false;
+            UnityEngine.Vector2 localDeflection = UnityEngine.Vector2.zero;
+            float gimbalCount = 0.0f;
+
             for (int i = moduleGimbals.Length - 1; i >= 0; --i)
             {
                 if (moduleGimbals[i].gimbalLock)
                 {
-                    anyGimbalsLocked |= moduleGimbals[i].gimbalLock;
+                    anyGimbalsLocked = true;
                 }
-                else
+
+                if (moduleGimbals[i].gimbalActive)
                 {
-                    float limit = 0.01f * moduleGimbals[i].gimbalLimiter;
-                    maxGimbal = Math.Max(maxGimbal, limit * moduleGimbals[i].gimbalRange);
-                    // TODO: Is XN and YN negative?  I don't remember.
-                    maxGimbal = Math.Max(maxGimbal, limit * moduleGimbals[i].gimbalRangeXN);
-                    maxGimbal = Math.Max(maxGimbal, limit * moduleGimbals[i].gimbalRangeXP);
-                    maxGimbal = Math.Max(maxGimbal, limit * moduleGimbals[i].gimbalRangeYN);
-                    maxGimbal = Math.Max(maxGimbal, limit * moduleGimbals[i].gimbalRangeYP);
+                    anyGimbalsActive = true;
+                    if (!moduleGimbals[i].gimbalLock)
+                    {
+                        gimbalCount += 1.0f;
+
+                        gimbalLimit += moduleGimbals[i].gimbalLimiter;
+
+                        localDeflection.x = moduleGimbals[i].actuationLocal.x;
+                        if (localDeflection.x < 0.0f)
+                        {
+                            localDeflection.x /= moduleGimbals[i].gimbalRangeXN;
+                        }
+                        else
+                        {
+                            localDeflection.x /= moduleGimbals[i].gimbalRangeXP;
+                        }
+
+                        localDeflection.y = moduleGimbals[i].actuationLocal.y;
+                        if (localDeflection.y < 0.0f)
+                        {
+                            localDeflection.y /= moduleGimbals[i].gimbalRangeYN;
+                        }
+                        else
+                        {
+                            localDeflection.y /= moduleGimbals[i].gimbalRangeYP;
+                        }
+
+                        gimbalDeflection += localDeflection.magnitude;
+                    }
                 }
+            }
+
+            if (gimbalCount > 0.0f)
+            {
+                gimbalDeflection /= gimbalCount;
+                // Must convert from [0, 100] to [0, 1], so multiply by 0.01.
+                gimbalLimit /= (gimbalCount * 100.0f);
             }
         }
         #endregion
@@ -636,7 +702,7 @@ namespace AvionicsSystems
                     if (moduleRcs[i].rcs_active)
                     {
                         anyRcsFiring = true;
-                        
+
                         for (int q = 0; q < moduleRcs[i].thrustForces.Length; ++q)
                         {
                             if (moduleRcs[i].thrustForces[q] > 0.0f)
