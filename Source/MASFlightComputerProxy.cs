@@ -2391,6 +2391,25 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Divides `numerator` by `denominator`.  If the denominator is zero, this method
+        /// returns 0 instead of infinity or throwing a divide-by-zero exception.
+        /// </summary>
+        /// <param name="numerator">The numerator</param>
+        /// <param name="denominator">The denominator</param>
+        /// <returns>numerator / denominator, or 0 if the denominator is zero.</returns>
+        public double SafeDivide(double numerator, double denominator)
+        {
+            if (Math.Abs(denominator) > 0.0)
+            {
+                return numerator / denominator;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
         #endregion
 
         /// <summary>
@@ -3367,6 +3386,18 @@ namespace AvionicsSystems
         public double GetPersistentAsNumber(string persistentName)
         {
             return fc.GetPersistentAsNumber(persistentName);
+        }
+
+        /// <summary>
+        /// Returns 1 if the named persistent variable has been initialized.  Returns 0
+        /// if the variable does not exist yet.
+        /// </summary>
+        /// <param name="persistentName">The persistent variable name to check.</param>
+        /// <returns>1 if the variable contains initialized data, 0 if it does not.</returns>
+        [MASProxyAttribute(Pushable = true)]
+        public double GetPersistentExists(string persistentName)
+        {
+            return fc.GetPersistentExists(persistentName) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -5106,6 +5137,23 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the rate at which the vessel's distance to the ground
+        /// is changing.  This is the vertical speed as measured from vessel
+        /// to surface, as opposed to measuring from a fixed altitude.  When
+        /// over an ocean, sea level is used as the ground height (in other
+        /// words, `fc.AltitudeTerrain(false)`).
+        /// 
+        /// Because terrain may be rough, this value may be noisy.  It is
+        /// smoothed using exponential smoothing, so the rate is not
+        /// instantaneously precise.
+        /// </summary>
+        /// <returns>Rate of change of terrain altitude in m/s.</returns>
+        public double AltitudeTerrainRate()
+        {
+            return vc.altitudeTerrainRate;
+        }
+
+        /// <summary>
         /// Returns the approach speed (the rate of closure directly towards
         /// the target).  Returns 0 if there's no target or all relative
         /// movement is perpendicular to the approach direction.
@@ -5279,23 +5327,6 @@ namespace AvionicsSystems
         public double TargetSpeed()
         {
             return vc.targetSpeed;
-        }
-
-        /// <summary>
-        /// Returns the rate at which the vessel's distance to the ground
-        /// is changing.  This is the vertical speed as measured from vessel
-        /// to surface, as opposed to measuring from a fixed altitude.  When
-        /// over an ocean, sea level is used as the ground height (in other
-        /// words, `fc.AltitudeTerrain(false)`).
-        /// 
-        /// Because terrain may be rough, this value may be noisy.  It is
-        /// smoothed using exponential smoothing, so the rate is not
-        /// instantaneously precise.
-        /// </summary>
-        /// <returns>Rate of change of terrain altitude in m/s.</returns>
-        public double AltitudeTerrainRate()
-        {
-            return vc.altitudeTerrainRate;
         }
 
         /// <summary>

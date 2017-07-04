@@ -233,6 +233,16 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Indicates if the named persistent is already in the database.
+        /// </summary>
+        /// <param name="persistentName"></param>
+        /// <returns></returns>
+        internal bool GetPersistentExists(string persistentName)
+        {
+            return persistentVars.ContainsKey(persistentName);
+        }
+
+        /// <summary>
         /// Try to force the named persistent to a numeric value, returning 0
         /// if the persistent doesn't exist, or it can't be converted.
         /// </summary>
