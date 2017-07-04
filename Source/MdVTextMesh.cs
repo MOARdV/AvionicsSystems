@@ -545,6 +545,9 @@ namespace AvionicsSystems
             float widthScaling = 1.0f;
             for (int line = 0; line < numTextRows; ++line)
             {
+                bold = false;
+                italic = false;
+                widthScaling = 1.0f;
                 textRow[line].textLength = 0;
 
                 int stringLength = textRow[line].formattedData.Length;
@@ -674,6 +677,9 @@ namespace AvionicsSystems
 
             for (int line = 0; line < numTextRows; ++line)
             {
+                bold = false;
+                italic = false;
+                widthScaling = 1.0f;
                 int xPos = xAnchor;
 
                 Color32 fontColor = color;
@@ -873,6 +879,9 @@ namespace AvionicsSystems
             float widthScaling = 1.0f;
             for (int line = 0; line < numTextRows; ++line)
             {
+                bold = false;
+                italic = false;
+                widthScaling = 1.0f;
                 textRow[line].textLength = 0;
 
                 int stringLength = textRow[line].formattedData.Length;
@@ -1036,6 +1045,9 @@ namespace AvionicsSystems
             int lineAdvance = (int)(lineSpacing * font.lineHeight);
             for (int line = 0; line < numTextRows; ++line)
             {
+                bold = false;
+                italic = false;
+                widthScaling = 1.0f;
                 int xPos = 0;
                 if (alignment_ == TextAlignment.Center)
                 {
