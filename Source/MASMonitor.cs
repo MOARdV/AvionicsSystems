@@ -62,6 +62,9 @@ namespace AvionicsSystems
         public string monitorID;
         private MASFlightComputer.Variable pageSelector;
 
+        [KSPField]
+        public string startupScript;
+
         private RenderTexture screen;
         private GameObject screenSpace;
         private Camera screenCamera;
@@ -174,6 +177,7 @@ namespace AvionicsSystems
                     if (!screen.IsCreated())
                     {
                         screen.Create();
+                        screen.DiscardContents();
                     }
 
                     Camera.onPreCull += EnablePage;
@@ -213,6 +217,13 @@ namespace AvionicsSystems
                     if (moduleConfig == null)
                     {
                         throw new ArgumentNullException("No ConfigNode found for MASMonitor in " + internalProp.propName + "!");
+                    }
+
+                    // If an initialization script was supplied, call it.
+                    if (!string.IsNullOrEmpty(startupScript))
+                    {
+                        Action startup = comp.GetAction(startupScript, internalProp);
+                        startup();
                     }
 
                     string[] pages = moduleConfig.GetValues("page");
