@@ -475,6 +475,7 @@ namespace AvionicsSystems
         void UpdateGimbals()
         {
             gimbalLimit = 0.0f;
+            gimbalDeflection = 0.0f;
             anyGimbalsLocked = false;
             anyGimbalsActive = false;
             UnityEngine.Vector2 localDeflection = UnityEngine.Vector2.zero;
@@ -540,8 +541,6 @@ namespace AvionicsSystems
         #region Power Production
         private List<ModuleAlternator> alternatorList = new List<ModuleAlternator>();
         internal ModuleAlternator[] moduleAlternator = new ModuleAlternator[0];
-        internal List<float> alternatorOutputList = new List<float>();
-        internal float[] alternatorOutput = new float[0];
         private List<ModuleResourceConverter> fuelCellList = new List<ModuleResourceConverter>();
         internal ModuleResourceConverter[] moduleFuelCell = new ModuleResourceConverter[0];
         internal List<float> fuelCellOutputList = new List<float>();
@@ -606,7 +605,7 @@ namespace AvionicsSystems
             for (int i = moduleAlternator.Length - 1; i >= 0; --i)
             {
                 // I assume there's only one ElectricCharge output in a given ModuleAlternator
-                netAlternatorOutput += alternatorOutput[i] * moduleAlternator[i].outputRate;
+                netAlternatorOutput += moduleAlternator[i].outputRate;
             }
 
             for (int i = moduleSolarPanel.Length - 1; i >= 0; --i)
@@ -926,7 +925,6 @@ namespace AvionicsSystems
                                 if (alternator.resHandler.outputResources[i].name == MASConfig.ElectricCharge)
                                 {
                                     alternatorList.Add(alternator);
-                                    alternatorOutputList.Add((float)alternator.resHandler.outputResources[i].rate);
                                     break;
                                 }
                             }
@@ -1038,7 +1036,6 @@ namespace AvionicsSystems
             }
 
             TransferModules<ModuleAlternator>(alternatorList, ref moduleAlternator);
-            TransferModules<float>(alternatorOutputList, ref alternatorOutput);
             TransferModules<ModuleDeployableAntenna>(antennaList, ref moduleAntenna);
             TransferModules<ModuleDeployableRadiator>(deployableRadiatorList, ref moduleDeployableRadiator);
             TransferModules<ModuleResourceConverter>(fuelCellList, ref moduleFuelCell);
