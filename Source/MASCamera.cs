@@ -187,7 +187,7 @@ namespace AvionicsSystems
                 tiltRange.y = Mathf.Clamp(tiltRange.y, -180.0f, 180.0f);
                 currentTilt = Mathf.Clamp(currentTilt, tiltRange.x, tiltRange.y);
 
-                cameraRotation = cameraTransform.rotation * Quaternion.Euler(currentPan, currentTilt, 0.0f);
+                cameraRotation = cameraTransform.rotation * Quaternion.Euler(currentTilt, currentPan, 0.0f);
 
                 if (HighLogic.LoadedSceneIsEditor)
                 {
@@ -265,18 +265,74 @@ namespace AvionicsSystems
         /// camera FoV limits.
         /// </summary>
         /// <param name="deltaFoV">The amount to add or subtract to FoV in degrees.</param>
-        public void AddFoV(float deltaFoV)
+        /// <returns>The adjusted field of view.</returns>
+        public float AddFoV(float deltaFoV)
         {
             currentFov = Mathf.Clamp(currentFov + deltaFoV, fovRange.x, fovRange.y);
+
+            return currentFov;
+        }
+
+        /// <summary>
+        /// Change the current field of view by `deltaFoV` degrees, remaining within
+        /// camera FoV limits.
+        /// </summary>
+        /// <param name="deltaPan">The amount to add or subtract to FoV in degrees.</param>
+        /// <returns>The adjusted pan.</returns>
+        public float AddPan(float deltaPan)
+        {
+            currentPan = Mathf.Clamp(currentPan + deltaPan, panRange.x, panRange.y);
+
+            return currentPan;
+        }
+
+        /// <summary>
+        /// Change the current field of view by `deltaFoV` degrees, remaining within
+        /// camera FoV limits.
+        /// </summary>
+        /// <param name="deltaTilt">The amount to add or subtract to FoV in degrees.</param>
+        /// <returns>The adjusted tilt.</returns>
+        public float AddTilt(float deltaTilt)
+        {
+            currentTilt = Mathf.Clamp(currentTilt + deltaTilt, tiltRange.x, tiltRange.y);
+
+            return currentTilt;
         }
 
         /// <summary>
         /// Set the current field of view, remaining within camera FoV limits.
         /// </summary>
         /// <param name="fieldOfView">The new FoV in degrees.</param>
-        public void SetFoV(float fieldOfView)
+        /// <returns>The adjusted field of view.</returns>
+        public float SetFoV(float fieldOfView)
         {
             currentFov = Mathf.Clamp(fieldOfView, fovRange.x, fovRange.y);
+
+            return currentFov;
+        }
+
+        /// <summary>
+        /// Set the current pan location within the pan limits.
+        /// </summary>
+        /// <param name="pan"></param>
+        /// <returns>The adjusted pan setting.</returns>
+        public float SetPan(float pan)
+        {
+            currentPan = Mathf.Clamp(pan, panRange.x, panRange.y);
+
+            return currentPan;
+        }
+
+        /// <summary>
+        /// Set the current pan location within the pan limits.
+        /// </summary>
+        /// <param name="tilt"></param>
+        /// <returns>The current tilt position</returns>
+        public float SetTilt(float tilt)
+        {
+            currentTilt = Mathf.Clamp(tilt, tiltRange.x, tiltRange.y);
+
+            return currentTilt;
         }
 
         /// <summary>
@@ -315,7 +371,7 @@ namespace AvionicsSystems
 
             if (HighLogic.LoadedSceneIsFlight)
             {
-                cameraRotation = cameraTransform.rotation * Quaternion.Euler(currentPan, currentTilt, 0.0f);
+                cameraRotation = cameraTransform.rotation * Quaternion.Euler(currentTilt, currentPan, 0.0f);
                 cameraPosition = cameraTransform.position;
             }
         }

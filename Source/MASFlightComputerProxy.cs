@@ -855,6 +855,57 @@ namespace AvionicsSystems
         #region Cameras
 
         /// <summary>
+        /// Adjusts the field of view setting on the selected camera.
+        /// </summary>
+        /// <returns>The new field of view setting, or 0 if an invalid index was supplied.</returns>
+        public double AddFoV(double index, double deltaFoV)
+        {
+            double pan = 0.0;
+
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                pan = vc.moduleCamera[i].AddFoV((float)deltaFoV);
+            }
+
+            return pan;
+        }
+
+        /// <summary>
+        /// Adjusts the pan setting on the selected camera.
+        /// </summary>
+        /// <returns>The new pan setting, or 0 if an invalid index was supplied.</returns>
+        public double AddPan(double index, double deltaPan)
+        {
+            double pan = 0.0;
+
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                pan = vc.moduleCamera[i].AddPan((float)deltaPan);
+            }
+
+            return pan;
+        }
+
+        /// <summary>
+        /// Adjusts the tilt setting on the selected camera.
+        /// </summary>
+        /// <returns>The new tilt setting, or 0 if an invalid index was supplied.</returns>
+        public double AddTilt(double index, double deltaTilt)
+        {
+            double tilt = 0.0;
+
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                tilt = vc.moduleCamera[i].AddTilt((float)deltaTilt);
+            }
+
+            return tilt;
+        }
+
+        /// <summary>
         /// Returns a count of the valid MASCamera modules found on this vessel.
         /// </summary>
         /// <returns>The number of valid MASCamera modules installed on this vessel.</returns>
@@ -877,6 +928,108 @@ namespace AvionicsSystems
                 return vc.moduleCamera[i].cameraName;
             }
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Retrieve the field of view setting on the selected camera.
+        /// </summary>
+        /// <returns>The current field of view setting, or 0 if an invalid index was supplied.</returns>
+        public double GetFoV(double index)
+        {
+            double fov = 0.0;
+
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                fov = vc.moduleCamera[i].currentFov;
+            }
+
+            return fov;
+        }
+
+        /// <summary>
+        /// Retrieve the pan setting on the selected camera.
+        /// </summary>
+        /// <returns>The current pan setting, or 0 if an invalid index was supplied.</returns>
+        public double GetPan(double index)
+        {
+            double pan = 0.0;
+
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                pan = vc.moduleCamera[i].currentPan;
+            }
+
+            return pan;
+        }
+
+        /// <summary>
+        /// Retrieve the tilt setting on the selected camera.
+        /// </summary>
+        /// <returns>The current tilt setting, or 0 if an invalid index was supplied.</returns>
+        public double GetTilt(double index)
+        {
+            double tilt = 0.0;
+
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                tilt = vc.moduleCamera[i].currentTilt;
+            }
+
+            return tilt;
+        }
+
+        /// <summary>
+        /// Adjusts the field of view setting on the selected camera.
+        /// </summary>
+        /// <returns>The new field of view setting, or 0 if an invalid index was supplied.</returns>
+        public double SetFoV(double index, double newFoV)
+        {
+            double pan = 0.0;
+
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                pan = vc.moduleCamera[i].SetFoV((float)newFoV);
+            }
+
+            return pan;
+        }
+
+        /// <summary>
+        /// Adjusts the pan setting on the selected camera.
+        /// </summary>
+        /// <returns>The new pan setting, or 0 if an invalid index was supplied.</returns>
+        public double SetPan(double index, double setPan)
+        {
+            double pan = 0.0;
+
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                pan = vc.moduleCamera[i].SetPan((float)setPan);
+            }
+
+            return pan;
+        }
+
+        /// <summary>
+        /// Adjusts the tilt setting on the selected camera.
+        /// </summary>
+        /// <returns>The new tilt setting, or 0 if an invalid index was supplied.</returns>
+        public double SetTilt(double index, double setTilt)
+        {
+            double tilt = 0.0;
+
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                tilt = vc.moduleCamera[i].SetTilt((float)setTilt);
+            }
+
+            return tilt;
         }
         #endregion
 
