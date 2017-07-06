@@ -2644,6 +2644,43 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the name of the body that the vessel will be orbiting after the
+        /// next SoI change.  If the craft is not changing SoI, returns an empty string.
+        /// </summary>
+        /// <returns>Name of the body, or an empty string if the orbit does not change SoI.</returns>
+        public string NextBodyName()
+        {
+            if (vesselSituationConverted > 2)
+            {
+                if (vc.orbit.patchEndTransition == Orbit.PatchTransitionType.ENCOUNTER)
+                {
+                    return vessel.orbit.nextPatch.referenceBody.bodyName;
+                }
+                else if (vc.orbit.patchEndTransition == Orbit.PatchTransitionType.ESCAPE)
+                {
+                    return vessel.mainBody.referenceBody.bodyName;
+                }
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Returns the time to the next SoI transition.  If the current orbit does not change
+        /// SoI, returns 0.
+        /// </summary>
+        /// <returns></returns>
+        public double TimeToNextSoI()
+        {
+            if (vessel.orbit.patchEndTransition == Orbit.PatchTransitionType.ENCOUNTER ||
+                vessel.orbit.patchEndTransition == Orbit.PatchTransitionType.ESCAPE)
+            {
+                return vessel.orbit.UTsoi - Planetarium.GetUniversalTime();
+            }
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns 1 if the next SoI change is an 'encounter', -1 if it is an
         /// 'escape', and 0 if the orbit is not changing SoI.
         /// </summary>
@@ -5417,7 +5454,7 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// The Target and Rendezvous section providesd functions and methods related to
+        /// The Target and Rendezvous section provides functions and methods related to
         /// targets and rendezvous operations with a target.  These methods include raw
         /// distance and velocities as well as target name and classifiers (is it a vessel,
         /// a celestial body, etc).
@@ -5485,6 +5522,23 @@ namespace AvionicsSystems
             else
             {
                 return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the name of the body that the target orbits, or an empty string if
+        /// there is no target.
+        /// </summary>
+        /// <returns></returns>
+        public string TargetBodyName()
+        {
+            if (vc.targetType > 0)
+            {
+                return vc.targetOrbit.referenceBody.bodyName;
+            }
+            else
+            {
+                return string.Empty;
             }
         }
 
@@ -5951,25 +6005,6 @@ namespace AvionicsSystems
             UpdateNeighboringVessels();
 
             return neighboringVessels.Length;
-        }
-
-        /// <summary>
-        /// **UNIMPLEMENTED:** This function is a placeholder that does not return
-        /// valid numbers at the present.
-        /// 
-        /// Reports the delta-V required to transfer to the target's orbit.
-        /// </summary>
-        /// <returns>ΔV in m/s to transfer to the target. 0 if there is no target.</returns>
-        public double TransferDeltaV()
-        {
-            if (vc.activeTarget != null)
-            {
-                return 1.0;
-            }
-            else
-            {
-                return 0.0;
-            }
         }
         #endregion
 
