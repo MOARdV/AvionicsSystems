@@ -4,3 +4,5 @@
 
 {0,8:0.0}         {1:METhh:mm:ss} $&$ fc.SemiMajorAxis() * 0.001; fc.Min(fc.OrbitPeriod(), 359999)
 {0,8:0.0} $&$ fc.OrbitSpeed()
+
+{0,8:0.0} $&$ transfer.DeltaVInitial(40000)
