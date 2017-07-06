@@ -1,0 +1,13 @@
+    [#9bff9b]{0}$&$ fc.ScrollingMarquee(fc.TargetName(), 24, 0.75)
+{0,8:0.0} $&$ fc.Min(fc.TargetDistance() * 0.001, 999999.9)
+{0,8:0.0}       {1:METddd/hh:mm:ss} $&$ fc.Min(fc.TargetApoapsis() * 0.001, 999999.9); fc.TargetTimeToAp()
+[#ffffcd]{0,8:0.0}       {1:METddd/hh:mm:ss} $&$ fc.Min(fc.TargetPeriapsis() * 0.001, 999999.9); fc.TargetTimeToPe()
+  {0,6:0.0} $&$ fc.TargetRelativeInclination()
+
+{0,8:0.0}       {1:METddd/hh:mm:ss} $&$ fc.Min(fc.TargetClosestApproachDistance(), 999999.9); fc.TargetClosestApproachTime()
+
+{0:METddd/hh:mm:ss} $&$ fc.TimeToANTarget()
+[#ffffcd]{0:METddd/hh:mm:ss} $&$ fc.TimeToDNTarget()
+
+  {0,6:0.0}       {1:METddd/hh:mm:ss} $&$ transfer.RelativePhaseAngle(); transfer.TimeUntilPhaseAngle()
+ [#9bff9b]{0,6:0.0}          [#ffffcd]{1,6:0.0} $&$ fc.Min(fc.Abs(transfer.DeltaVInitial()), 9999.9); fc.Min(fc.Abs(transfer.DeltaVFinal()), 9999.9)

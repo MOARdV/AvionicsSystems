@@ -1,0 +1,13 @@
+T  :
+ΔV :        m/s
+
+ΔVP:        m/s
+ΔVN:        m/s
+ΔVR:        m/s
+
+Pit:        °    Yaw:       °
+
+Post Maneuver:
+Ap :        km
+Pe :        km
+Inc:        °   Ecc:

@@ -1,0 +1,6 @@
+{0,8:0.0}     {1:METddd/hh:mm:ss} $&$ fc.Apoapsis() * 0.001; fc.TimeToAp()
+[#ffffcd]{0,8:0.0}     {1:METddd/hh:mm:ss} $&$ fc.Periapsis() * 0.001; fc.TimeToPe()
+  {0,6:0.0}       {1,8:0.000} $&$ fc.Inclination() ; fc.Eccentricity()
+
+[#ffffcd]{0,8:0.0}     {1:METddd/hh:mm:ss} $&$ fc.SemiMajorAxis() * 0.001; fc.OrbitPeriod()
+{0,8:0.0} $&$ fc.OrbitSpeed()

@@ -1,0 +1,10 @@
+[#9bff9b]{0,7:0.0} $&$ fc.Altitude() * 0.001
+[#9bffff]{0,7:0.0}   {1:METhh:mm:ss} $&$ fc.Apoapsis() * 0.001; fc.TimeToAp()
+[#ffffcd]{0,7:0.0}   {1:METhh:mm:ss} $&$ fc.Periapsis() * 0.001; fc.TimeToPe()
+
+
+[#ff9bff]{0,5:0}    {1,5:0.0}$&$ fc.ResourceMass("Ablator"); fc.ResourceDelta("Ablator") * fc.ResourceDensity("Ablator")
+[#9bffff]{0,9:0.000}$&$ fc.StaticPressureKPa()
+[#ffffcd]{0,9:0.000} $&$ fc.DynamicPressure()
+[#9bffff]{0,7:0.0} $&$ fc.VerticalSpeed()
+[#9bff9b]{0,7:0.0}           [#ffffcd]{1,7:0.0} $&$ fc.SurfaceSpeed(); fc.OrbitSpeed()

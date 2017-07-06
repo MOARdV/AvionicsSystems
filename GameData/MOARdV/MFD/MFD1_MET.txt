@@ -1,0 +1,1 @@
+MET[#ffffcd]{0:METddd/hh:mm:ss} $&$ fc.MET()

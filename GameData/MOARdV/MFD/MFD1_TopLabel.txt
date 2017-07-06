@@ -1,0 +1,1 @@
+[hw]  <=0=>    ORBIT    MNVR     RNDZ    DOCK     -----   ------ $&$ fc.GetPersistent("%AUTOID%-Acapt")

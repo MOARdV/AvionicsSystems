@@ -1,0 +1,13 @@
+{0:METddd/hh:mm:ss} $&$ fc.ManeuverNodeTime()
+[#9bff9b]{0,8:0.0}$&$ fc.ManeuverNodeDV()
+
+{0,8:0.0} $&$ fc.ManeuverNodeDVPrograde()
+{0,8:0.0} $&$ fc.ManeuverNodeDVNormal()
+{0,8:0.0} $&$ fc.ManeuverNodeDVRadial()
+
+  {0,6:0.0}          {1,6:0.0} $&$ fc.PitchManeuver() ; fc.YawManeuver()
+
+
+{0,8:0.0} $&$ fc.ManeuverNodeAp() * 0.001
+{0,8:0.0} $&$ fc.ManeuverNodePe() * 0.001
+  {0,6:0.0}          {1,8:0.000} $&$ fc.ManeuverNodeInc() ; fc.ManeuverNodeEcc()

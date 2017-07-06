@@ -1,0 +1,6 @@
+ENGINE {1:"[#9bff9b]ARMED";"[#ff9b9b]FAULT";"[#ff9bff]OFF  "}  [#ffff9b]{0,3:0} engines $&$ fc.EngineCountActive(); fc.GetEnginesEnabled() - 2*fc.EngineFlameout()
+Thr:[#9bffff]{0,8:0.0}[#ffff9b]kN $&$ fc.CurrentThrustkN()
+Throttle: [#9bff9b]{0,3:0}[#ffff9b]% $&$ fc.GetThrottle() * 100
+Isp:[#ff9bff]{0,8:0.0}[#ffff9b]s $&$ fc.CurrentIsp()
+Temp: [#9bffff]{0,6:0}[#ffff9b]°C $&$ fc.HottestEngineTemperature(false)
+ΔV:[#9bff9b]{0,8:0.0}[#ffff9b]m/s $&$ fc.DeltaVStage()

@@ -1,0 +1,14 @@
+ASL        km
+Ap         km
+Pe         km
+Inc       °
+AoA     °   SS     °    Hdg    °
+                        Pit    °
+SPr          kPa        Rol    °
+DPr          kPa       Mode    
+VSpd       m/s
+Srf        m/s    Obt        m/s
+
+                 G:
+
+[hw]-1[/hw]  [@x8]0   1   2[@x0]   3

@@ -1,0 +1,14 @@
+{0,7:0.00}           {1,7:0.00} $&$ fc.Clamp(fc.TargetDistanceX(), -999.99, 999.99); fc.Clamp(fc.TargetVelocityX(), -999.99, 999.99)
+{0,7:0.00}           {1,7:0.00} $&$ fc.Clamp(fc.TargetDistanceY(), -999.99, 999.99); fc.Clamp(fc.TargetVelocityY(), -999.99, 999.99)
+{0,7:0.00}           {1,7:0.00} $&$ fc.Clamp(fc.TargetDistanceZ(), -999.99, 999.99); fc.Clamp(fc.TargetVelocityZ(), -999.99, 999.99)
+
+
+
+
+
+
+
+
+
+   {0,6:0.0}            {1,6:0.0} $&$ fc.PitchDockingAlignment(); fc.YawDockingAlignment()
+   {0,6:0.0} $&$ fc.RollDockingAlignment()
