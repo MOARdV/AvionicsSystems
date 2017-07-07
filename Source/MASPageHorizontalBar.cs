@@ -253,6 +253,7 @@ namespace AvionicsSystems
             imageMaterial.SetColor("_Color", sourceColor);
             //imageMaterial.mainTextureScale = new Vector2(textureSpan, 1.0f);
             meshRenderer.material = imageMaterial;
+            EnableRender(false);
 
             comp.RegisterNumericVariable(sourceName, prop, SourceCallback);
             if (!string.IsNullOrEmpty(variableName))
@@ -340,6 +341,15 @@ namespace AvionicsSystems
         {
             meshRenderer.enabled = enable;
             lineRenderer.enabled = enable;
+        }
+
+        /// <summary>
+        /// Enables / disables overall page rendering.
+        /// </summary>
+        /// <param name="enable"></param>
+        public void EnablePage(bool enable)
+        {
+
         }
 
         /// <summary>

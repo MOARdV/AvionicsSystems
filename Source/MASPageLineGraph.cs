@@ -195,6 +195,7 @@ namespace AvionicsSystems
             lineRenderer.material = graphMaterial;
             lineRenderer.SetColors(sourceColor, sourceColor);
             lineRenderer.SetWidth(2.5f, 2.5f);
+            EnableRender(false);
 
             for (int i = 0; i < maxSamples; ++i)
             {
@@ -275,6 +276,15 @@ namespace AvionicsSystems
         {
             borderRenderer.enabled = enable;
             lineRenderer.enabled = enable;
+        }
+
+        /// <summary>
+        /// Enables / disables overall page rendering.
+        /// </summary>
+        /// <param name="enable"></param>
+        public void EnablePage(bool enable)
+        {
+
         }
 
         /// <summary>

@@ -26,6 +26,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using UnityEngine;
 
@@ -48,7 +49,10 @@ namespace AvionicsSystems
         private MASCamera activeCamera = null;
         private MASFlightComputer comp;
         private bool currentState;
+        private bool pageEnabled = false;
         private bool coroutineActive;
+        private Stopwatch renderStopwatch = new Stopwatch();
+        private long renderFrames = 0;
 
         private static readonly string[] knownCameraNames = 
         {
@@ -86,7 +90,7 @@ namespace AvionicsSystems
             }
             float aspectRatio = size.x / size.y;
 
-            cameraTexture = new RenderTexture((int)size.x, (int)size.y, 24, RenderTextureFormat.ARGB32);
+            cameraTexture = new RenderTexture(((int)size.x) >> MASConfig.CameraTextureScale, ((int)size.y) >> MASConfig.CameraTextureScale, 24, RenderTextureFormat.ARGB32);
 
             string cameraName = string.Empty;
             if (config.TryGetValue("camera", ref cameraName))
@@ -214,6 +218,7 @@ namespace AvionicsSystems
             imageMaterial = new Material(Shader.Find("KSP/Alpha/Unlit Transparent"));
             imageMaterial.mainTexture = cameraTexture;
             meshRenderer.material = imageMaterial;
+            EnableRender(false);
 
             if (!string.IsNullOrEmpty(variableName))
             {
@@ -404,6 +409,7 @@ namespace AvionicsSystems
             }
         }
 
+        private WaitForFixedUpdate waitForFixedUpdate;
         /// <summary>
         /// Coroutine for rendering the active camera.
         /// </summary>
@@ -411,12 +417,13 @@ namespace AvionicsSystems
         private IEnumerator CameraRenderCoroutine()
         {
             coroutineActive = true;
+            waitForFixedUpdate = new WaitForFixedUpdate();
 
             while (this.comp != null)
             {
-                yield return new WaitForFixedUpdate();
+                yield return waitForFixedUpdate;
 
-                if (currentState == true)
+                if ((pageEnabled && currentState) == true)
                 {
                     if (!cameraTexture.IsCreated())
                     {
@@ -438,15 +445,21 @@ namespace AvionicsSystems
                         cameraTexture.DiscardContents();
                         if (postProcShader == null)
                         {
+                            renderStopwatch.Start();
                             Render(cameraTexture);
+                            renderStopwatch.Stop();
+                            ++renderFrames;
                         }
                         else
                         {
+                            renderStopwatch.Start();
                             RenderTexture targetTexture = RenderTexture.GetTemporary(cameraTexture.width, cameraTexture.height, cameraTexture.depth, cameraTexture.format);
                             targetTexture.DiscardContents(); // needed?
                             Render(targetTexture);
                             Graphics.Blit(targetTexture, cameraTexture, postProcShader);
                             RenderTexture.ReleaseTemporary(targetTexture);
+                            renderStopwatch.Stop();
+                            ++renderFrames;
                         }
                     }
                 }
@@ -469,6 +482,15 @@ namespace AvionicsSystems
         public void EnableRender(bool enable)
         {
             meshRenderer.enabled = enable;
+        }
+
+        /// <summary>
+        /// Enables / disables overall page rendering.
+        /// </summary>
+        /// <param name="enable"></param>
+        public void EnablePage(bool enable)
+        {
+            pageEnabled = enable;
         }
 
         /// <summary>
@@ -537,6 +559,13 @@ namespace AvionicsSystems
                         cameras[i] = null;
                     }
                 }
+            }
+
+            if (renderFrames > 0)
+            {
+                double msPerFrame = 1000.0 * (double)(renderStopwatch.ElapsedTicks) / (double)(renderFrames * Stopwatch.Frequency);
+                Utility.LogMessage(this, "Camera page {0}: {1} frames rendered, {2}/frame",
+                    name, renderFrames, msPerFrame);
             }
         }
     }

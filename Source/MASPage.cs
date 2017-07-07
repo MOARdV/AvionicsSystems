@@ -94,6 +94,11 @@ namespace AvionicsSystems
         internal void EnablePage(bool enable)
         {
             pageRoot.SetActive(enable);
+            int numComponents = component.Count;
+            for (int i = 0; i < numComponents; ++i)
+            {
+                component[i].EnablePage(enable);
+            }
         }
 
         /// <summary>

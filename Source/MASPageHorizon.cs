@@ -228,6 +228,7 @@ namespace AvionicsSystems
             imageMaterial.mainTextureScale = textureScale;
             meshRenderer.material = imageMaterial;
             imageMaterial.SetVector("_ClipCoords", clipCoords);
+            EnableRender(false);
 
             comp.RegisterNumericVariable(pitchName, prop, PitchCallback);
             comp.RegisterNumericVariable(rollName, prop, RollCallback);
@@ -303,6 +304,15 @@ namespace AvionicsSystems
         public void EnableRender(bool enable)
         {
             meshRenderer.enabled = enable;
+        }
+
+        /// <summary>
+        /// Enables / disables overall page rendering.
+        /// </summary>
+        /// <param name="enable"></param>
+        public void EnablePage(bool enable)
+        {
+
         }
 
         /// <summary>

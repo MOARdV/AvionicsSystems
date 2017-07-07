@@ -140,6 +140,7 @@ namespace AvionicsSystems
             imageMaterial = new Material(Shader.Find("KSP/Alpha/Unlit Transparent"));
             imageMaterial.mainTexture = mainTexture;
             meshRenderer.material = imageMaterial;
+            EnableRender(false);
 
             if (!string.IsNullOrEmpty(variableName))
             {
@@ -180,6 +181,15 @@ namespace AvionicsSystems
         public void EnableRender(bool enable)
         {
             meshRenderer.enabled = enable;
+        }
+
+        /// <summary>
+        /// Enables / disables overall page rendering.
+        /// </summary>
+        /// <param name="enable"></param>
+        public void EnablePage(bool enable)
+        {
+
         }
 
         /// <summary>

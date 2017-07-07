@@ -182,6 +182,7 @@ namespace AvionicsSystems
             imageMaterial.mainTexture = mainTexture;
             imageMaterial.mainTextureScale = new Vector2(1.00f, textureSpan);
             meshRenderer.material = imageMaterial;
+            EnableRender(false);
 
             comp.RegisterNumericVariable(inputName, prop, InputCallback);
             if (!string.IsNullOrEmpty(variableName))
@@ -237,6 +238,15 @@ namespace AvionicsSystems
         public void EnableRender(bool enable)
         {
             meshRenderer.enabled = enable;
+        }
+
+        /// <summary>
+        /// Enables / disables overall page rendering.
+        /// </summary>
+        /// <param name="enable"></param>
+        public void EnablePage(bool enable)
+        {
+
         }
 
         /// <summary>

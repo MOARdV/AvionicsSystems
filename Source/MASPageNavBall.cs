@@ -244,6 +244,7 @@ namespace AvionicsSystems
             navballCamera.transform.LookAt(navballModel.transform, Vector3.up);
 
             InitMarkers(cameraObject.transform);
+            EnableRender(false);
 
             if (!string.IsNullOrEmpty(variableName))
             {
@@ -537,6 +538,15 @@ namespace AvionicsSystems
             {
                 meshRenderer[i].enabled = enable;
             }
+        }
+
+        /// <summary>
+        /// Enables / disables overall page rendering.
+        /// </summary>
+        /// <param name="enable"></param>
+        public void EnablePage(bool enable)
+        {
+
         }
 
         /// <summary>

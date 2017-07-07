@@ -157,6 +157,7 @@ namespace AvionicsSystems
 
             // text, immutable, preserveWhitespace, comp
             textObj.SetText(text, false, true, comp, prop);
+            EnableRender(false);
 
             if (!string.IsNullOrEmpty(variableName))
             {
@@ -193,6 +194,15 @@ namespace AvionicsSystems
         public void EnableRender(bool enable)
         {
             textObj.SetRenderEnabled(enable);
+        }
+
+        /// <summary>
+        /// Enables / disables overall page rendering.
+        /// </summary>
+        /// <param name="enable"></param>
+        public void EnablePage(bool enable)
+        {
+
         }
 
         /// <summary>
