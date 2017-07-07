@@ -306,7 +306,15 @@ namespace AvionicsSystems
                             tr.callback = () => { invalidated = true; tr.rowInvalidated = true; };
                             for (int var = 0; var < tr.variable.Length; ++var)
                             {
-                                tr.variable[var] = comp.RegisterOnVariableChange(variables[var], internalProp, tr.callback);
+                                try
+                                {
+                                    tr.variable[var] = comp.RegisterOnVariableChange(variables[var], internalProp, tr.callback);
+                                }
+                                catch(Exception e)
+                                {
+                                    Utility.LogErrorMessage(this, "Variable {0} threw an exception", variables[var]);
+                                    throw e;
+                                }
                             }
                             tr.rowInvalidated = true;
                             tr.EvaluateVariables();
