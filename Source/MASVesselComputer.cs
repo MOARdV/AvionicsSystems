@@ -56,7 +56,6 @@ namespace AvionicsSystems
         /// Our current reference transform.
         /// </summary>
         internal Transform referenceTransform;
-        //private bool refreshReferenceTransform = false;
 
         /// <summary>
         /// Type of object that the reference transform is attached to.
@@ -188,14 +187,10 @@ namespace AvionicsSystems
                 universalTime = Planetarium.GetUniversalTime();
                 deltaTime = universalTime - oldUT;
 
-                //if (refreshReferenceTransform)
-                {
-                    // GetReferenceTransformPart() seems to be pointing at the
-                    // previous part when the callback fires, so I use this hack
-                    // to manually recompute it here.
-                    UpdateReferenceTransform(vessel.ReferenceTransform);
-                    //refreshReferenceTransform = false;
-                }
+                // GetReferenceTransformPart() seems to be pointing at the
+                // previous part when the callback fires, so I use this hack
+                // to manually recompute it here.
+                UpdateReferenceTransform(vessel.ReferenceTransform);
 
                 // If there was a mouse double-click event, and we think there's
                 // a target, and KSP says there isn't a target, the user likely
@@ -353,13 +348,9 @@ namespace AvionicsSystems
 
                 InitResourceData();
 
+                UpdateReferenceTransform(vessel.ReferenceTransform);
                 if (vesselCrewed)
                 {
-                    //Utility.LogMessage(this, "Start for {0}", vessel.id);
-
-                    UpdateReferenceTransform(vessel.ReferenceTransform);
-                    //refreshReferenceTransform = true;
-
                     RefreshData();
                 }
             }
@@ -773,11 +764,11 @@ namespace AvionicsSystems
         };
         internal ITargetable activeTarget = null;
         internal ApproachSolverBW approachSolverBW = new ApproachSolverBW();
-        internal Vector3 targetDisplacement;
-        internal Vector3 targetDirection;
-        internal Vector3d targetRelativeVelocity;
-        internal TargetType targetType;
-        internal string targetName;
+        internal Vector3 targetDisplacement = Vector3.zero;
+        internal Vector3 targetDirection = Vector3.zero;
+        internal Vector3d targetRelativeVelocity = Vector3.zero;
+        internal TargetType targetType = TargetType.None;
+        internal string targetName = string.Empty;
         internal Transform targetDockingTransform; // Docking node transform - valid only for docking port targets.
         internal Orbit targetOrbit;
         internal double targetClosestUT
@@ -1033,7 +1024,6 @@ namespace AvionicsSystems
         private void onVesselReferenceTransformSwitch(Transform fromXform, Transform toXform)
         {
             UpdateReferenceTransform(toXform);
-            //refreshReferenceTransform = true;
             //Utility.LogMessage(this, "onVesselReferenceTransformSwitch from {0} to {1}; fromMatch = {2}", 
             //    (fromXform == null) ? "(null)" : fromXform.name,
             //    (toXform == null) ? "(null)" : toXform.name,
