@@ -123,6 +123,9 @@ namespace AvionicsSystems
                                    new DialogGUILabel(delegate { return string.Format("Lua Update Priority: {0}", luaUpdatePriority); }, true),
                                    new DialogGUISlider(delegate { return (float)luaUpdatePriority; }, 1.0f, 4.0f, true, 140.0f, 30.0f, UpdatePriority),
                                    new DialogGUISpace(5.0f),
+                                   new DialogGUILabel(delegate { return string.Format("Camera Texture Size: 1/{0}", 1 << cameraTextureScale); }, true),
+                                   new DialogGUISlider(delegate { return (float)cameraTextureScale; }, 0.0f, 2.0f, true, 140.0f, 30.0f, UpdateCamera),
+                                   new DialogGUISpace(5.0f),
                                    new DialogGUIFlexibleSpace()
                                    ),
                                 new DialogGUIVerticalLayout(
@@ -168,6 +171,7 @@ namespace AvionicsSystems
 
         private bool verboseLogging;
         private int luaUpdatePriority;
+        private int cameraTextureScale;
         private float generalPropagation;
         private float NDBPropagation;
         private float VORPropagation;
@@ -176,6 +180,7 @@ namespace AvionicsSystems
         {
             verboseLogging = MASConfig.VerboseLogging;
             luaUpdatePriority = MASConfig.LuaUpdatePriority;
+            cameraTextureScale = MASConfig.CameraTextureScale;
             generalPropagation = MASConfig.navigation.generalPropagation;
             NDBPropagation = MASConfig.navigation.NDBPropagation;
             VORPropagation = MASConfig.navigation.VORPropagation;
@@ -212,10 +217,16 @@ namespace AvionicsSystems
             luaUpdatePriority = (int)newValue;
         }
 
+        private void UpdateCamera(float newValue)
+        {
+            cameraTextureScale = (int)newValue;
+        }
+
         private void ApplyChanges()
         {
             MASConfig.VerboseLogging = verboseLogging;
             MASConfig.LuaUpdatePriority = luaUpdatePriority;
+            MASConfig.CameraTextureScale = cameraTextureScale;
             MASConfig.navigation.generalPropagation = generalPropagation;
             MASConfig.navigation.NDBPropagation = NDBPropagation;
             MASConfig.navigation.VORPropagation = VORPropagation;

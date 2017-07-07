@@ -60,6 +60,7 @@ namespace AvionicsSystems
         static internal bool VerboseLogging = true;
         static internal string ElectricCharge = "ElectricCharge";
         static internal int LuaUpdatePriority = 1;
+        static internal int CameraTextureScale = 0;
 
         static internal Navigation navigation = new Navigation();
 
