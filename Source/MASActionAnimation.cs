@@ -166,7 +166,7 @@ namespace AvionicsSystems
             coroutineActive = true;
             while (!Mathf.Approximately(goalBlend, currentBlend))
             {
-                yield return new WaitForFixedUpdate();
+                yield return MASConfig.waitForFixedUpdate;
 
                 currentBlend = RateLimitBlend(goalBlend);
 

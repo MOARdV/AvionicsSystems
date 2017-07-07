@@ -130,12 +130,12 @@ namespace AvionicsSystems
         /// <returns></returns>
         private IEnumerator RepeatEvent()
         {
-            yield return new WaitForFixedUpdate();
+            yield return MASConfig.waitForFixedUpdate;
 
             while (currentState)
             {
                 triggerEvent();
-                yield return new WaitForFixedUpdate();
+                yield return MASConfig.waitForFixedUpdate;
             }
         }
 

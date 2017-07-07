@@ -218,12 +218,15 @@ namespace AvionicsSystems
             }
         }
 
+        private WaitForSeconds waitToSample;
+
         /// <summary>
         /// Coroutine that samples data.
         /// </summary>
         /// <returns></returns>
         private IEnumerator SampleData()
         {
+            waitToSample = new WaitForSeconds(sampleRate);
             while (lineRenderer != null)
             {
                 float newSample = verticalSpan * Mathf.InverseLerp((float)sourceRange1.SafeValue(), (float)sourceRange2.SafeValue(), (float)sourceValue.SafeValue());
@@ -244,7 +247,7 @@ namespace AvionicsSystems
                 }
                 lineRenderer.SetPositions(graphPoints);
 
-                yield return new WaitForSeconds(sampleRate);
+                yield return waitToSample;
             }
         }
 

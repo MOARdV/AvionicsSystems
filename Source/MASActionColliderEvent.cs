@@ -84,7 +84,7 @@ namespace AvionicsSystems
             /// <returns></returns>
             public IEnumerator AutoRepeat()
             {
-                yield return new WaitForFixedUpdate();
+                yield return MASConfig.waitForFixedUpdate;
 
                 while (buttonState)
                 {
@@ -94,7 +94,7 @@ namespace AvionicsSystems
                         repeatCounter -= repeatRate;
                         onClick();
                     }
-                    yield return new WaitForFixedUpdate();
+                    yield return MASConfig.waitForFixedUpdate;
                 }
             }
 

@@ -409,7 +409,6 @@ namespace AvionicsSystems
             }
         }
 
-        private WaitForFixedUpdate waitForFixedUpdate;
         /// <summary>
         /// Coroutine for rendering the active camera.
         /// </summary>
@@ -417,11 +416,10 @@ namespace AvionicsSystems
         private IEnumerator CameraRenderCoroutine()
         {
             coroutineActive = true;
-            waitForFixedUpdate = new WaitForFixedUpdate();
 
             while (this.comp != null)
             {
-                yield return waitForFixedUpdate;
+                yield return MASConfig.waitForFixedUpdate;
 
                 if ((pageEnabled && currentState) == true)
                 {

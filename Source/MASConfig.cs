@@ -24,6 +24,7 @@
  ****************************************************************************/
 using System;
 using System.Text;
+using UnityEngine;
 
 namespace AvionicsSystems
 {
@@ -63,6 +64,9 @@ namespace AvionicsSystems
         static internal int CameraTextureScale = 0;
 
         static internal Navigation navigation = new Navigation();
+
+        // This is used a lot.  Not much sense creating / discarding these all over the place.
+        static internal WaitForFixedUpdate waitForFixedUpdate = new WaitForFixedUpdate();
 
         /// <summary>
         /// Initialize the static structure.
