@@ -5607,6 +5607,23 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
+        /// Information related to the survivability of the current pod are grouped in the Survival
+        /// category.
+        /// </summary>
+        #region Survival
+
+        /// <summary>
+        /// Reports the maximum impact speed of the current part, in meters per second.
+        /// </summary>
+        /// <returns>Max impact speed of the command pod, in m/s.</returns>
+        public double MaxImpactSpeed()
+        {
+            return (fc!=null && fc.part !=null) ? fc.part.crashTolerance : 0.0;
+        }
+
+        #endregion
+
+        /// <summary>
         /// The Target and Rendezvous section provides functions and methods related to
         /// targets and rendezvous operations with a target.  These methods include raw
         /// distance and velocities as well as target name and classifiers (is it a vessel,
