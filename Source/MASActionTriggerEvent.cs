@@ -45,6 +45,7 @@ namespace AvionicsSystems
         private bool autoRepeat = false;
         MASFlightComputer comp;
         Action triggerEvent;
+        Action exitEvent = null;
 
         internal MASActionTriggerEvent(ConfigNode config, InternalProp prop, MASFlightComputer comp)
         {
@@ -89,6 +90,20 @@ namespace AvionicsSystems
             }
 
             triggerEvent = comp.GetAction(triggerEventName, prop);
+            if (triggerEvent == null)
+            {
+                throw new ArgumentException("Unable to create event '"+triggerEventName+"' in TRIGGER_EVENT " + name);
+            }
+
+            triggerEventName = string.Empty;
+            if (config.TryGetValue("exitEvent", ref triggerEventName))
+            {
+                exitEvent = comp.GetAction(triggerEventName, prop);
+                if (exitEvent == null)
+                {
+                    throw new ArgumentException("Unable to create event '" + triggerEventName + "' in TRIGGER_EVENT " + name);
+                }
+            }
 
             this.comp = comp;
             comp.RegisterNumericVariable(variableName, prop, VariableCallback);
@@ -119,6 +134,10 @@ namespace AvionicsSystems
                     {
                         comp.StartCoroutine(RepeatEvent());
                     }
+                }
+                else if(exitEvent != null)
+                {
+                    exitEvent();
                 }
             }
         }

@@ -74,6 +74,8 @@ namespace AvionicsSystems
                     return new MASActionTextureShift(config, prop, comp);
                 case "TRANSLATION":
                     return new MASActionTranslation(config, prop, comp);
+                case "TRIGGER_EVENT":
+                    return new MASActionTriggerEvent(config, prop, comp);
                 default:
                     Utility.LogErrorMessage(config, "Unrecognized MASComponent child node {0} found", config.name);
                     return null;
