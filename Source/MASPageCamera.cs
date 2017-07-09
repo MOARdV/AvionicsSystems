@@ -54,23 +54,8 @@ namespace AvionicsSystems
         private Stopwatch renderStopwatch = new Stopwatch();
         private long renderFrames = 0;
 
-        private static readonly string[] knownCameraNames = 
-        {
-            "GalaxyCamera",
-            "Camera ScaledSpace",
-            "Camera 01",
-            "Camera 00",
-            "FXCamera"
-        };
-        private readonly Camera[] cameras = { null, null, null, null, null };
-
         internal MASPageCamera(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
-            if (knownCameraNames.Length != cameras.Length)
-            {
-                throw new NotImplementedException("MASCamera: Camera Names array has a different size than cameras array!");
-            }
-
             this.comp = comp;
             if (!config.TryGetValue("name", ref name))
             {
@@ -233,6 +218,17 @@ namespace AvionicsSystems
                 imageObject.SetActive(true);
             }
 
+            if (!cameraTexture.IsCreated())
+            {
+                cameraTexture.Create();
+            }
+            cameraTexture.DiscardContents();
+            RenderTexture backup = RenderTexture.active;
+            RenderTexture.active = cameraTexture;
+            // TODO: Blank or error texture.
+            GL.Clear(true, true, new Color(1.0f, 0.0f, 0.0f));
+            RenderTexture.active = backup;
+
             cameraSelector = comp.RegisterOnVariableChange(cameraName, prop, CameraSelectCallback);
             CameraSelectCallback();
 
@@ -241,93 +237,6 @@ namespace AvionicsSystems
                 int propertyId = Shader.PropertyToID(propertyName[i]);
                 propertyCallback[i] = delegate(double a) { PropertyCallback(propertyId, a); };
                 comp.RegisterNumericVariable(propertyValue[i], prop, propertyCallback[i]);
-            }
-
-            CreateFlightCameras(aspectRatio);
-
-            if (coroutineActive == false)
-            {
-                comp.StartCoroutine(CameraRenderCoroutine());
-            }
-        }
-
-#if DEBUG_DUMP_CAMERAS
-        private static bool dumped = false;
-        private void DumpCameraStuff()
-        {
-            if (!dumped)
-            {
-                dumped = true;
-                for (int i = 0; i < Camera.allCamerasCount; ++i)
-                {
-                    Utility.LogMessage(this, "AllCam[{0,2}]: {1} on {2:X}", i, Camera.allCameras[i].name, Camera.allCameras[i].cullingMask);
-                }
-                FlightCamera flight = FlightCamera.fetch;
-                Utility.LogMessage(this, "CameraMain: {0} on {1:X}", flight.mainCamera.name, flight.mainCamera.cullingMask);
-                for (int i = 0; i < flight.cameras.Length; ++i)
-                {
-                    Utility.LogMessage(this, "FltCam[{0,2}]: {1} on {2:X}", i, flight.cameras[i].name, flight.cameras[i].cullingMask);
-                }
-            }
-        }
-#endif
-
-        /// <summary>
-        /// Helper function to locate flight cameras.
-        /// </summary>
-        /// <param name="cameraName">Name of the camera we're looking for.</param>
-        /// <returns>The named camera, or null if it was not found.</returns>
-        private static Camera GetCameraByName(string cameraName)
-        {
-            for (int i = 0; i < Camera.allCamerasCount; ++i)
-            {
-                if (Camera.allCameras[i].name == cameraName)
-                {
-                    return Camera.allCameras[i];
-                }
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// Create the cameras used during flight.
-        /// </summary>
-        private void CreateFlightCameras(float aspectRatio)
-        {
-#if DEBUG_DUMP_CAMERAS
-            DumpCameraStuff();
-#endif
-            for (int i = 0; i < cameras.Length; ++i)
-            {
-                Camera sourceCamera = GetCameraByName(knownCameraNames[i]);
-                if (sourceCamera != null)
-                {
-                    GameObject cameraBody = new GameObject();
-                    cameraBody.name = "MASCamera-" + i + "-" + cameraBody.GetInstanceID();
-                    cameras[i] = cameraBody.AddComponent<Camera>();
-
-                    // Just in case to support JSITransparentPod.
-                    cameras[i].cullingMask &= ~(1 << 16 | 1 << 20);
-
-                    cameras[i].CopyFrom(sourceCamera);
-                    cameras[i].enabled = false;
-                    cameras[i].aspect = aspectRatio;
-
-                    // These get stomped on at render time:
-                    cameras[i].fieldOfView = 40.0f;
-                    cameras[i].transform.rotation = Quaternion.identity;
-
-                    // Minor hack to bring the near clip plane for the "up close"
-                    // cameras drastically closer to where the cameras notionally
-                    // are.  Experimentally, these two cameras have N/F of 0.4 / 300.0,
-                    // or 750:1 Far/Near ratio.  Changing this to 8192:1 brings the
-                    // near plane to 37cm or so, which hopefully is close enough to
-                    // see nearby details without creating z-fighting artifacts.
-                    if (i == 3 || i == 4)
-                    {
-                        cameras[i].nearClipPlane = cameras[i].farClipPlane / 8192.0f;
-                    }
-                }
             }
         }
 
@@ -370,6 +279,24 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Coroutine whose purpose is to re-attempt to select a camera when CameraSelectCallback returns null
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator CameraSelectCoroutine()
+        {
+            coroutineActive = true;
+
+            while (this.comp != null && activeCamera == null)
+            {
+                yield return MASConfig.waitForFixedUpdate;
+
+                CameraSelectCallback();
+            }
+
+            coroutineActive = false;
+        }
+
+        /// <summary>
         /// Callback used to select active cameras
         /// </summary>
         private void CameraSelectCallback()
@@ -379,98 +306,59 @@ namespace AvionicsSystems
                 // This can return null at startup when the VC hasn't had a chance
                 // to run.  Unfortunately, that means we have to call this callback
                 // every time the camera should be enabled.
-                activeCamera = comp.vc.FindCameraModule(cameraSelector.String());
+                MASCamera newCamera = comp.vc.FindCameraModule(cameraSelector.String());
+                if (activeCamera != null)
+                {
+                    activeCamera.renderCallback -= ReadCamera;
+                }
+                activeCamera = newCamera;
+                if (activeCamera != null)
+                {
+                    if (pageEnabled)
+                    {
+                        activeCamera.renderCallback += ReadCamera;
+                    }
+                }
+                else if (!coroutineActive)
+                {
+                    comp.StartCoroutine(CameraSelectCoroutine());
+                }
             }
             catch
             {
+                if (activeCamera != null)
+                {
+                    activeCamera.renderCallback -= ReadCamera;
+                }
+
                 activeCamera = null;
             }
         }
 
         /// <summary>
-        /// Manually render the scene.
+        /// Callback to process the rentex sent by the camera.
         /// </summary>
-        /// <param name="target"></param>
-        private void Render(RenderTexture target)
+        /// <param name="rentex"></param>
+        private void ReadCamera(RenderTexture rentex)
         {
-            for (int i = 0; i < cameras.Length; ++i)
+            if (rentex == null)
             {
-                if (cameras[i] != null)
-                {
-                    cameras[i].targetTexture = target;
-                    if (i > 0)
-                    {
-                        cameras[i].transform.position = activeCamera.cameraPosition;
-                    }
-                    cameras[i].transform.rotation = activeCamera.cameraRotation;
-                    cameras[i].fieldOfView = activeCamera.currentFov;
-                    cameras[i].Render();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Coroutine for rendering the active camera.
-        /// </summary>
-        /// <returns></returns>
-        private IEnumerator CameraRenderCoroutine()
-        {
-            coroutineActive = true;
-
-            while (this.comp != null)
-            {
-                yield return MASConfig.waitForFixedUpdate;
-
-                if ((pageEnabled && currentState) == true)
-                {
-                    if (!cameraTexture.IsCreated())
-                    {
-                        cameraTexture.Create();
-                    }
-                    if (activeCamera == null)
-                    {
-                        CameraSelectCallback();
-
-                        cameraTexture.DiscardContents();
-                        RenderTexture backup = RenderTexture.active;
-                        RenderTexture.active = cameraTexture;
-                        // TODO: Blank or error texture.
-                        GL.Clear(true, true, new Color(1.0f, 0.0f, 0.0f));
-                        RenderTexture.active = backup;
-                    }
-                    else
-                    {
-                        cameraTexture.DiscardContents();
-                        if (postProcShader == null)
-                        {
-                            renderStopwatch.Start();
-                            Render(cameraTexture);
-                            renderStopwatch.Stop();
-                            ++renderFrames;
-                        }
-                        else
-                        {
-                            renderStopwatch.Start();
-                            RenderTexture targetTexture = RenderTexture.GetTemporary(cameraTexture.width, cameraTexture.height, cameraTexture.depth, cameraTexture.format);
-                            targetTexture.DiscardContents(); // needed?
-                            Render(targetTexture);
-                            Graphics.Blit(targetTexture, cameraTexture, postProcShader);
-                            RenderTexture.ReleaseTemporary(targetTexture);
-                            renderStopwatch.Stop();
-                            ++renderFrames;
-                        }
-                    }
-                }
-                else
-                {
-                    if (cameraTexture.IsCreated())
-                    {
-                        cameraTexture.Release();
-                    }
-                }
+                activeCamera = null;
+                return;
             }
 
-            coroutineActive = false;
+            cameraTexture.DiscardContents();
+            renderStopwatch.Start();
+            if (postProcShader == null)
+            {
+                Graphics.Blit(rentex, cameraTexture);
+            }
+            else
+            {
+                Graphics.Blit(rentex, cameraTexture, postProcShader);
+            }
+            renderStopwatch.Stop();
+            ++renderFrames;
         }
 
         /// <summary>
@@ -489,6 +377,17 @@ namespace AvionicsSystems
         public void EnablePage(bool enable)
         {
             pageEnabled = enable;
+            if (activeCamera != null)
+            {
+                if (enable)
+                {
+                    activeCamera.renderCallback += ReadCamera;
+                }
+                else
+                {
+                    activeCamera.renderCallback -= ReadCamera;
+                }
+            }
         }
 
         /// <summary>
@@ -538,25 +437,6 @@ namespace AvionicsSystems
             if (!string.IsNullOrEmpty(cameraSelector.name))
             {
                 comp.UnregisterOnVariableChange(cameraSelector.name, internalProp, CameraSelectCallback);
-            }
-
-            if (cameras[0] != null)
-            {
-                for (int i = 0; i < cameras.Length; ++i)
-                {
-                    try
-                    {
-                        UnityEngine.Object.Destroy(cameras[i]);
-                    }
-                    catch
-                    {
-
-                    }
-                    finally
-                    {
-                        cameras[i] = null;
-                    }
-                }
             }
 
             if (renderFrames > 0)

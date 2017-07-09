@@ -112,8 +112,18 @@ namespace AvionicsSystems
         public bool showFov = false;
         const float rayLength = 10.0f;
 
-        internal Quaternion cameraRotation = Quaternion.identity;
-        internal Vector3 cameraPosition = Vector3.zero;
+        private static readonly string[] knownCameraNames = 
+        {
+            "GalaxyCamera",
+            "Camera ScaledSpace",
+            "Camera 01",
+            "Camera 00",
+            "FXCamera"
+        };
+        private readonly Camera[] cameras = { null, null, null, null, null };
+        private readonly GameObject[] cameraBody = { null, null, null, null, null };
+        internal RenderTexture cameraRentex;
+        internal event Action<RenderTexture> renderCallback;
 
         /// <summary>
         /// Is this object ready to use?
@@ -133,6 +143,15 @@ namespace AvionicsSystems
             if (!(HighLogic.LoadedScene == GameScenes.EDITOR || HighLogic.LoadedScene == GameScenes.FLIGHT))
             {
                 return;
+            }
+
+            if (knownCameraNames.Length != cameras.Length)
+            {
+                throw new NotImplementedException("MASCamera: Camera Names array has a different size than cameras array!");
+            }
+            if (cameraBody.Length != cameras.Length)
+            {
+                throw new NotImplementedException("MASCamera: Camera bodies array has a different size than cameras array!");
             }
 
             if (!string.IsNullOrEmpty(cameraTransformName))
@@ -187,8 +206,6 @@ namespace AvionicsSystems
                 tiltRange.y = Mathf.Clamp(tiltRange.y, -180.0f, 180.0f);
                 currentTilt = Mathf.Clamp(currentTilt, tiltRange.x, tiltRange.y);
 
-                cameraRotation = cameraTransform.rotation * Quaternion.Euler(currentTilt, currentPan, 0.0f);
-
                 if (HighLogic.LoadedSceneIsEditor)
                 {
                     CreateFovRenderer();
@@ -203,8 +220,73 @@ namespace AvionicsSystems
             {
                 Utility.LogErrorMessage(this, "Unable to find transform \"{0}\" in part", cameraTransformName);
             }
+            if (HighLogic.LoadedScene == GameScenes.FLIGHT)
+            {
+                CreateFlightCameras(1.0f);
+            }
         }
 
+        /// <summary>
+        /// Helper function to locate flight cameras.
+        /// </summary>
+        /// <param name="cameraName">Name of the camera we're looking for.</param>
+        /// <returns>The named camera, or null if it was not found.</returns>
+        private static Camera GetCameraByName(string cameraName)
+        {
+            for (int i = 0; i < Camera.allCamerasCount; ++i)
+            {
+                if (Camera.allCameras[i].name == cameraName)
+                {
+                    return Camera.allCameras[i];
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Create the cameras used during flight.
+        /// </summary>
+        private void CreateFlightCameras(float aspectRatio)
+        {
+            cameraRentex = new RenderTexture(512, 512, 24);
+            for (int i = 0; i < cameras.Length; ++i)
+            {
+                Camera sourceCamera = GetCameraByName(knownCameraNames[i]);
+                if (sourceCamera != null)
+                {
+                    cameraBody[i] = new GameObject();
+                    cameraBody[i].name = "MASCamera-" + i + "-" + cameraBody[i].GetInstanceID();
+                    cameras[i] = cameraBody[i].AddComponent<Camera>();
+
+                    // Just in case to support JSITransparentPod.
+                    cameras[i].cullingMask &= ~(1 << 16 | 1 << 20);
+
+                    cameras[i].CopyFrom(sourceCamera);
+                    cameras[i].enabled = false;
+                    cameras[i].aspect = aspectRatio;
+
+                    // These get stomped on at render time:
+                    cameras[i].fieldOfView = currentFov;
+                    cameras[i].transform.rotation = Quaternion.identity;
+                    cameras[i].targetTexture = cameraRentex;
+
+                    // Minor hack to bring the near clip plane for the "up close"
+                    // cameras drastically closer to where the cameras notionally
+                    // are.  Experimentally, these two cameras have N/F of 0.4 / 300.0,
+                    // or 750:1 Far/Near ratio.  Changing this to 8192:1 brings the
+                    // near plane to 37cm or so, which hopefully is close enough to
+                    // see nearby details without creating z-fighting artifacts.
+                    if (i == 3 || i == 4)
+                    {
+                        cameras[i].nearClipPlane = cameras[i].farClipPlane / 8192.0f;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set up the FoV renderer when a part is attached.
+        /// </summary>
         private void AttachPart()
         {
             Vector3 origin = cameraTransform.TransformPoint(Vector3.zero);
@@ -254,6 +336,17 @@ namespace AvionicsSystems
                 InputLockManager.RemoveControlLock("MASCamera-UI");
                 nameMenu.Dismiss();
                 nameMenu = null;
+            }
+
+            if (renderCallback != null)
+            {
+                renderCallback.Invoke(null);
+            }
+
+            if (cameraRentex != null)
+            {
+                cameraRentex.Release();
+                cameraRentex = null;
             }
         }
         #endregion
@@ -369,10 +462,26 @@ namespace AvionicsSystems
                 nameMenu = null;
             }
 
-            if (HighLogic.LoadedSceneIsFlight)
+            if (HighLogic.LoadedSceneIsFlight && renderCallback != null)
             {
-                cameraRotation = cameraTransform.rotation * Quaternion.Euler(currentTilt, currentPan, 0.0f);
-                cameraPosition = cameraTransform.position;
+                Quaternion cameraRotation = cameraTransform.rotation * Quaternion.Euler(currentTilt, currentPan, 0.0f);
+                Vector3 cameraPosition = cameraTransform.position;
+
+                if (!cameraRentex.IsCreated())
+                {
+                    cameraRentex.Create();
+                }
+
+                cameraRentex.DiscardContents();
+                for (int i = 0; i < cameraBody.Length; ++i)
+                {
+                    cameraBody[i].transform.rotation = cameraRotation;
+                    cameraBody[i].transform.position = cameraPosition;
+                    cameras[i].fieldOfView = currentFov;
+                    cameras[i].Render();
+                }
+
+                renderCallback.Invoke(cameraRentex);
             }
         }
 
