@@ -405,6 +405,11 @@ namespace AvionicsSystems
         public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
             this.comp = null;
+
+            if (activeCamera != null)
+            {
+                activeCamera.renderCallback -= ReadCamera;
+            }
             activeCamera = null;
 
             if (cameraTexture.IsCreated())
