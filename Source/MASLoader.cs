@@ -133,29 +133,13 @@ namespace AvionicsSystems
             masVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
             UnityEngine.Debug.Log(String.Format("[MASLoader] MOARdV's Avionics Systems version {0}", masVersion));
 
-            if (KSPAssets.Loaders.AssetLoader.Ready == false)
-            {
-                //Utility.LogErrorMessage(this, "Unable to load shaders - AssetLoader is not ready.");
-                throw new Exception("MASLoader: Unable to load shaders - AssetLoader is not ready.");
-            }
-
-            KSPAssets.AssetDefinition[] asShaders = KSPAssets.Loaders.AssetLoader.GetAssetDefinitionsWithType("MOARdV/AvionicsSystems/avionicssystems", typeof(Shader));
-            if (asShaders == null || asShaders.Length == 0)
-            {
-                Utility.LogErrorMessage(this, "Unable to load shaders - No shaders found in AS asset bundle.");
-                throw new Exception("MASLoader: No shaders in asset bundle.");
-            }
-
             if (!GameDatabase.Instance.IsReady())
             {
                 Utility.LogErrorMessage(this, "GameDatabase.IsReady is false");
                 throw new Exception("MASLoader: GameDatabase is not ready.  Unable to continue.");
             }
 
-            // HACK: Pass only one of the asset definitions, since LoadAssets
-            // behaves badly if we ask it to load more than one.  If that ever
-            // gets fixed, I can clean up AssetsLoaded drastically.
-            KSPAssets.Loaders.AssetLoader.LoadAssets(AssetsLoaded, asShaders[0]);
+            LoadAssets();
 
             StartCoroutine("LoadAvionicsSystemAssets");
             RegisterWithModuleManager();
@@ -332,148 +316,133 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Callback that fires once the requested assets have loaded.
+        /// Locate the requested asset bundle, load it, and return it.
         /// </summary>
-        /// <param name="loader">Object containing our loaded assets (see comments in this method)</param>
-        private void AssetsLoaded(KSPAssets.Loaders.AssetLoader.Loader loader)
+        /// <param name="formatString">The format string to apply to the suffix.</param>
+        /// <param name="suffix">The suffix to apply to the formatString.</param>
+        /// <returns>null on error, otherwise, the asset bundle.</returns>
+        private AssetBundle LoadAssetBundle(string formatString, string suffix)
         {
-            // This is an unforunate hack.  AssetLoader.LoadAssets barfs if
-            // multiple assets are loaded, leaving us with only one valid asset
-            // and some nulls afterwards in loader.objects.  We are forced to
-            // traverse the LoadedBundles list to find our loaded bundle so we
-            // can find the rest of our shaders.
-            string aShaderName = string.Empty;
-            for (int i = 0; i < loader.objects.Length; ++i)
+            string assetBundleName = string.Format(formatString, suffix);
+            WWW www = new WWW(assetBundleName);
+
+            if (!string.IsNullOrEmpty(www.error))
             {
-                UnityEngine.Object o = loader.objects[i];
-                if (o != null && o is Shader)
-                {
-                    // We'll remember the name of whichever shader we were
-                    // able to load.
-                    aShaderName = o.name;
+                Utility.LogErrorMessage(this, "Error loading AssetBundle {1}: {0}", www.error, assetBundleName);
+                return null;
+            }
+            else if (www.assetBundle == null)
+            {
+                Utility.LogErrorMessage(this, "Unable to load AssetBundle {0}", assetBundleName);
+                return null;
+            }
+
+            return www.assetBundle;
+        }
+
+        /// <summary>
+        /// Load out assets through the asset bundle system.
+        /// </summary>
+        private void LoadAssets()
+        {
+            StringBuilder sb = Utility.GetStringBuilder();
+            sb.Append("file://").Append(KSPUtil.ApplicationRootPath).Append("GameData/MOARdV/AvionicsSystems/mas-{0}.assetbundle");
+            string assetFormat = sb.ToString();
+
+            string platform = string.Empty;
+            switch (Application.platform)
+            {
+                case RuntimePlatform.LinuxPlayer:
+                    platform = "linux";
                     break;
-                }
+                case RuntimePlatform.OSXPlayer:
+                    platform = "osx";
+                    break;
+                case RuntimePlatform.WindowsPlayer:
+                    platform = "windows";
+                    break;
+                default:
+                    Utility.LogErrorMessage(this, "Unsupported/unexpected platform {0}", Application.platform);
+                    return;
             }
 
-            if (string.IsNullOrEmpty(aShaderName))
+            shaders.Clear();
+            AssetBundle bundle = LoadAssetBundle(assetFormat, platform);
+            if (bundle == null)
             {
-                Utility.LogErrorMessage(this, "Unable to find a named shader in loader.objects");
                 return;
             }
 
-            var loadedBundles = KSPAssets.Loaders.AssetLoader.LoadedBundles;
-            if (loadedBundles == null)
+            string[] assetNames = bundle.GetAllAssetNames();
+            int len = assetNames.Length;
+
+            Shader shader;
+            for (int i = 0; i < len; i++)
             {
-                Utility.LogErrorMessage(this, "Unable to find any loaded bundles in AssetLoader");
+                if (assetNames[i].EndsWith(".shader"))
+                {
+                    shader = bundle.LoadAsset<Shader>(assetNames[i]);
+                    if (!shader.isSupported)
+                    {
+                        Utility.LogErrorMessage(this, "Shader {0} - unsupported in this configuration", shader.name);
+                    }
+                    shaders[shader.name] = shader;
+                }
+            }
+
+            bundle.Unload(false);
+
+            fonts.Clear();
+            bundle = LoadAssetBundle(assetFormat, "font");
+            if (bundle == null)
+            {
                 return;
             }
 
-            // Iterate over all loadedBundles.  Experimentally, my bundle was
-            // the only one in the array, but I expect that to change as other
-            // mods use asset bundles (maybe none of the mods I have load this
-            // early).
-            int bundleCount = loadedBundles.Count;
-            for (int i = 0; i < bundleCount; ++i)
+            assetNames = bundle.GetAllAssetNames();
+            len = assetNames.Length;
+
+            Font font;
+            for (int i = 0; i < len; i++)
             {
-                Shader[] foundShaders = null;
-                Font[] foundFonts = null;
-                bool theRightBundle = false;
-
-                try
+                if (assetNames[i].EndsWith(".ttf"))
                 {
-                    // Try to get a list of all the shaders in the bundle.
-                    foundShaders = loadedBundles[i].LoadAllAssets<Shader>();
-                    if (foundShaders != null)
-                    {
-                        // Look through all the shaders to see if our named
-                        // shader is one of them.  If so, we assume this is
-                        // the bundle we want.
-                        for (int shaderIdx = 0; shaderIdx < foundShaders.Length; ++shaderIdx)
-                        {
-                            if (foundShaders[shaderIdx].name == aShaderName)
-                            {
-                                theRightBundle = true;
-                                break;
-                            }
-                        }
-                    }
-                    foundFonts = loadedBundles[i].LoadAllAssets<Font>();
-                }
-                catch { }
+                    font = bundle.LoadAsset<Font>(assetNames[i]);
 
-                if (theRightBundle)
-                {
-                    // If we found our bundle, set up our shaders
-                    // dictionary and bail - our mission is complete.
-                    Utility.LogInfo(this, "Found {0} MAS shaders and {1} fonts.", foundShaders.Length, foundFonts.Length);
-                    for (int j = 0; j < foundShaders.Length; ++j)
+                    string[] fnames = font.fontNames;
+                    if (fnames.Length == 0)
                     {
-                        if (!foundShaders[j].isSupported)
-                        {
-                            Utility.LogErrorMessage(this, "Shader {0} - unsupported in this configuration", foundShaders[j].name);
-                        }
-                        shaders[foundShaders[j].name] = foundShaders[j];
+                        Utility.LogErrorMessage(this, "Font {0} - did not find fontName.", font.name);
                     }
-
-                    for (int j = 0; j < foundFonts.Length; ++j)
+                    else
                     {
-                        string[] fnames = foundFonts[j].fontNames;
-                        if (fnames.Length == 0)
+                        if (fonts.ContainsKey(fnames[0]))
                         {
-                            Utility.LogErrorMessage(this, "Font {0} - did not find fontName.", foundFonts[j].name);
+                            // TODO: Do I need to keep all of the fonts in this dictionary?  Or is one
+                            // adequate?
+                            fonts[fnames[0]].Add(font);
                         }
                         else
                         {
-                            //Utility.LogMessage(this, "Font '{0}':", foundFonts[j].name);
-                            //if (fnames != null)
-                            //{
-                            //    CharacterInfo rci;
-                            //    CharacterInfo bci;
-                            //    CharacterInfo ici;
-                            //    bool hasRci, hasBci, hasIci;
-                            //    foundFonts[j].RequestCharactersInTexture("a", 32, FontStyle.Normal);
-                            //    foundFonts[j].RequestCharactersInTexture("a", 32, FontStyle.Bold);
-                            //    foundFonts[j].RequestCharactersInTexture("a", 32, FontStyle.Italic);
-                            //    hasRci = foundFonts[j].GetCharacterInfo('a', out rci, 32, FontStyle.Normal);
-                            //    hasBci = foundFonts[j].GetCharacterInfo('a', out bci, 32, FontStyle.Bold);
-                            //    hasIci = foundFonts[j].GetCharacterInfo('a', out ici, 32, FontStyle.Italic);
-
-                            //    Utility.LogMessage("... regular? {0,5}, style {1}", hasRci, rci.style);
-                            //    Utility.LogMessage("... bold?    {0,5}, style {1}", hasBci, bci.style);
-                            //    Utility.LogMessage("... italic?  {0,5}, style {1}", hasIci, ici.style);
-                            //    for (int fn = 0; fn < fnames.Length; ++fn)
-                            //    {
-                            //        Utility.LogMessage(this, "... {0}", fnames[i]);
-                            //    }
-                            //}
-                            if (fonts.ContainsKey(fnames[0]))
-                            {
-                                // TODO: Do I need to keep all of the fonts in this dictionary?  Or is one
-                                // adequate?
-                                fonts[fnames[0]].Add(foundFonts[j]);
-                            }
-                            else
-                            {
-                                Utility.LogMessage(this, "Adding font \"{0}\" from asset bundle.", fnames[0]);
-                                List<Font> fontList = new List<Font>();
-                                fontList.Add(foundFonts[j]);
-                                fonts[fnames[0]] = fontList;
-                            }
+                            Utility.LogMessage(this, "Adding font \"{0}\" from asset bundle.", fnames[0]);
+                            List<Font> fontList = new List<Font>();
+                            fontList.Add(font);
+                            fonts[fnames[0]] = fontList;
                         }
                     }
-
-                    // User fonts.  We put them here to make sure that internal
-                    // shaders exist already.
-                    ConfigNode[] masBitmapFont = GameDatabase.Instance.GetConfigNodes("MAS_BITMAP_FONT");
-                    for (int masFontIdx = 0; masFontIdx < masBitmapFont.Length; ++masFontIdx)
-                    {
-                        LoadBitmapFont(masBitmapFont[masFontIdx]);
-                    }
-                    return;
                 }
             }
+            bundle.Unload(false);
 
-            Utility.LogErrorMessage(this, "No AvionicsSystems bundled assets were loaded - how did this callback execute?");
+            Utility.LogInfo(this, "Found {0} RPM shaders and {1} fonts.", shaders.Count, fonts.Count);
+
+            // User fonts.  We put them here to make sure that internal
+            // shaders exist already.
+            ConfigNode[] masBitmapFont = GameDatabase.Instance.GetConfigNodes("MAS_BITMAP_FONT");
+            for (int masFontIdx = 0; masFontIdx < masBitmapFont.Length; ++masFontIdx)
+            {
+                LoadBitmapFont(masBitmapFont[masFontIdx]);
+            }
         }
 
         /// <summary>
