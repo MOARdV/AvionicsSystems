@@ -1,21 +1,18 @@
-Bluedog Design Bureau Kane Command Pod README
+Yarbrough08 Mk1-1A2 Command Pod README
 
-This IVA uses a modified version of the KP0110 IVA
-(http://forum.kerbalspaceprogram.com/index.php?/topic/74147-k-p0110-apollo-like-crew-module-now-with-source-files-included/)
+This IVA uses the Yarbrough08 Mk1-1A2 two seat command pod
+(http://forum.kerbalspaceprogram.com/index.php?/topic/88604-wip-105-2-kerbal-command-pod-mk-1-1-a2-alpha-04-spacedock/).
+Note that the command pod and heat shield config files may need fixes, since this pod has not been updated in over
+a year.
 
-The KP0110 IVA in a Kane Command Pod was a development platform for MOARdV's
-Avionics Systems.  It is not a completed MAS command pod, but it
+The Mk1-1A2 Command Pod is the current development platform for MOARdV's
+Avionics Systems.  It is the most complete MAS command pod, and it
 illustrates some of what is possible in MAS.  Some of those capabilities
-are very difficult to duplicate using RasterPropMonitor.
-
-This is *not* a complete IVA.  You can probably do most orbital transfer
-and rendezvous tasks from this IVA, but it's not meant to be a play IVA
-yet - it's intended to showcase MAS and give me an in-game environment
-to test things out.
+are very difficult or impossible to duplicate using RasterPropMonitor.
 
 You will need to install Module Manager and the ASET Props development
 build (dev 1.4.3 from 3-May-2017 or later - see the ASET Props thread).
-Obviously, you need Bluedog Design Bureau (at least the Kane pod).
+Obviously, you need Yarbrough08 command pod.
 
 MechJeb is very strongly recommended.  Chatterer and RealChute are
 recommended.
@@ -23,16 +20,16 @@ recommended.
 A short orientation to the cockpit layout:
 
 Most of the pilot functionality is focused on the left (first IVA) seat.
-The MFD is mostly functional.
+The second seat is not developed yet.
 
 Several sections of the cockpit have separate power switches located near
-them (the digital fuel monitor, the ARRT, the X-pointer, the FDAI, the
-IMP/Globus, the clocks, and the MechJeb data entry panels).
+them (the X-pointer, the FDAI, the IMP/Globus, the clocks, and the MechJeb
+data entry panels).
 
 Some of the features to look at in this build:
 
 The instrument backlight is a dimmer switch, not an on-off switch (it's near
-the lower-center of the left seat's console).
+the center of the left seat's left side panel).
 
 Action Group buttons do not illuminate if there are no actions assigned
 to that group.
