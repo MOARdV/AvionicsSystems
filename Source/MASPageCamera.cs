@@ -166,6 +166,14 @@ namespace AvionicsSystems
                 }
             }
 
+            // If I simply blit the output of the camera, I have black sections in the image.  I suspect
+            // they're regions where alpha = 0.  So, if the prop config doesn't select a shader, I use a
+            // simple pass-through shader that drives alpha to 1.
+            if (postProcShader == null)
+            {
+                postProcShader = new Material(MASLoader.shaders["MOARdV/PassThrough"]);
+            }
+
             imageObject = new GameObject();
             imageObject.name = pageRoot.gameObject.name + "-MASPageImage-" + name + "-" + depth.ToString();
             imageObject.layer = pageRoot.gameObject.layer;
