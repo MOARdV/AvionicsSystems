@@ -661,6 +661,26 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Procedural Fairings
+        private List<ModuleProceduralFairing> proceduralFairingList = new List<ModuleProceduralFairing>();
+        internal ModuleProceduralFairing[] moduleProceduralFairing = new ModuleProceduralFairing[0];
+        internal bool fairingsCanDeploy = false;
+        private void UpdateProceduralFairing()
+        {
+            fairingsCanDeploy = false;
+
+            for (int i = moduleProceduralFairing.Length - 1; i >= 0; --i)
+            {
+                if (moduleProceduralFairing[i].CanMove)
+                {
+                    fairingsCanDeploy = true;
+                }
+                //Utility.LogMessage(this, "fairing {0}: CanMove {1}",
+                //    i, moduleProceduralFairing[i].CanMove);
+            }
+        }
+        #endregion
+
         #region Radar
         private List<MASRadar> radarList = new List<MASRadar>();
         internal MASRadar[] moduleRadar = new MASRadar[0];
@@ -1065,6 +1085,10 @@ namespace AvionicsSystems
                         {
                             cameraList.Add(module as MASCamera);
                         }
+                        else if (module is ModuleProceduralFairing)
+                        {
+                            proceduralFairingList.Add(module as ModuleProceduralFairing);
+                        }
 
                         foreach (BaseAction ba in module.Actions)
                         {
@@ -1124,6 +1148,7 @@ namespace AvionicsSystems
             TransferModules<ModuleReactionWheel>(reactionWheelList, ref moduleReactionWheel);
             TransferModules<ModuleDeployableSolarPanel>(solarPanelList, ref moduleSolarPanel);
             TransferModules<MASCamera>(cameraList, ref moduleCamera);
+            TransferModules<ModuleProceduralFairing>(proceduralFairingList, ref moduleProceduralFairing);
         }
 
         /// <summary>
@@ -1157,6 +1182,7 @@ namespace AvionicsSystems
             requestReset |= UpdateEngines();
             UpdateGimbals();
             UpdatePower();
+            UpdateProceduralFairing();
             UpdateRadars();
             UpdateRadiators();
             UpdateRcs();

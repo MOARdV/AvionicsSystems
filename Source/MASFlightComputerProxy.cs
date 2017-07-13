@@ -3922,6 +3922,53 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
+        /// This section contains the functions used to interact with the stock procedural
+        /// fairings system.
+        /// </summary>
+        #region Procedural Fairings
+
+        /// <summary>
+        /// Deploys all stock procedural fairings that are currently available to
+        /// deploy.
+        /// </summary>
+        /// <returns>1 if any fairings deployed, 0 otherwise.</returns>
+        public double DeployFairings()
+        {
+            bool deployed = false;
+            
+            for (int i = vc.moduleProceduralFairing.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleProceduralFairing[i].CanMove)
+                {
+                    vc.moduleProceduralFairing[i].DeployFairing();
+                    deployed = true;
+                }
+            }
+            
+            return (deployed) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if at least one installed stock procedural fairing is available to
+        /// deploy.
+        /// </summary>
+        /// <returns>1 if any fairings can deploy, 0 otherwise.</returns>
+        public double FairingsCanDeploy()
+        {
+            return (vc.fairingsCanDeploy) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the number of stock procedural fairings installed on the vessel.
+        /// </summary>
+        /// <returns>The total number of stock p-fairings on the vessel.</returns>
+        public double FairingsCount()
+        {
+            return vc.moduleProceduralFairing.Length;
+        }
+        #endregion
+
+        /// <summary>
         /// The Radar category provides the interface for controlling MASRadar
         /// modules installed on the craft.
         /// </summary>
