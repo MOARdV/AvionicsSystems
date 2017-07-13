@@ -26,6 +26,7 @@ using KSP.UI.Screens;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 
 namespace AvionicsSystems
 {
@@ -737,23 +738,95 @@ namespace AvionicsSystems
         #region Reaction Wheels
         private List<ModuleReactionWheel> reactionWheelList = new List<ModuleReactionWheel>();
         internal ModuleReactionWheel[] moduleReactionWheel = new ModuleReactionWheel[0];
+        internal float reactionWheelNetTorque = 0.0f;
+        internal float reactionWheelPitch = 0.0f;
+        internal float reactionWheelRoll = 0.0f;
+        internal float reactionWheelYaw = 0.0f;
+        internal bool reactionWheelActive = false;
+        internal bool reactionWheelDamaged = false;
         private void UpdateReactionWheels()
         {
-            /*
-            for(int i=moduleReactionWheel.Length-1; i>=0; --i)
+            // wheelState == Disabled, unit is disabled.
+            // wheelState == Active and inputSum == 0, unit is idle
+            // wheelState == Active and inputSum > 0, unit is torquing.
+            // inputVector provides current torque demand as ( pitch, roll, yaw )
+            reactionWheelNetTorque = 0.0f;
+            reactionWheelPitch = 0.0f;
+            reactionWheelRoll = 0.0f;
+            reactionWheelYaw = 0.0f;
+            reactionWheelActive = false;
+            reactionWheelDamaged = false;
+
+            float activeWheels = 0.0f;
+            float activePitch = 0.0f;
+            float activeRoll = 0.0f;
+            float activeYaw = 0.0f;
+
+            for (int i = moduleReactionWheel.Length - 1; i >= 0; --i)
             {
-                // wheelState == Disabled, unit is disabled.
-                // wheelState == Active and inputSum == 0, unit is idle
-                // wheelState == Active and inputSum > 0, unit is torquing.
-                // inputVector provides current torque demand as ( pitch, roll, yaw )
-                //Utility.LogMessage(this, "Reac[{0}]: inputSum = {1:0.00}, inputVector = {2:0.00}, {3:0.00}. {4:0.00}",
-                //    i,
-                //    moduleReactionWheel[i].inputSum,
-                //    moduleReactionWheel[i].inputVector.x,
-                //    moduleReactionWheel[i].inputVector.y,
-                //    moduleReactionWheel[i].inputVector.z);
+                if (moduleReactionWheel[i].wheelState == ModuleReactionWheel.WheelState.Active)
+                {
+                    if (moduleReactionWheel[i].inputVector.sqrMagnitude > 0.0f)
+                    {
+                        float partMaxTorque = 0.0f;
+                        if (moduleReactionWheel[i].PitchTorque > 0.0f)
+                        {
+                            float torque = moduleReactionWheel[i].inputVector.x / moduleReactionWheel[i].PitchTorque;
+                            if (Mathf.Abs(torque) > 0.0f)
+                            {
+                                reactionWheelPitch += torque;
+                                activePitch += 1.0f;
+                                partMaxTorque = Mathf.Max(partMaxTorque, Mathf.Abs(torque));
+                            }
+                        }
+                        if (moduleReactionWheel[i].RollTorque > 0.0f)
+                        {
+                            float torque = moduleReactionWheel[i].inputVector.y / moduleReactionWheel[i].RollTorque;
+                            if (Mathf.Abs(torque) > 0.0f)
+                            {
+                                reactionWheelRoll += torque;
+                                activeRoll += 1.0f;
+                                partMaxTorque = Mathf.Max(partMaxTorque, Mathf.Abs(torque));
+                            }
+                        }
+                        if (moduleReactionWheel[i].YawTorque > 0.0f)
+                        {
+                            float torque = moduleReactionWheel[i].inputVector.z / moduleReactionWheel[i].YawTorque;
+                            if (Mathf.Abs(torque) > 0.0f)
+                            {
+                                reactionWheelYaw += torque;
+                                activeYaw += 1.0f;
+                                partMaxTorque = Mathf.Max(partMaxTorque, Mathf.Abs(torque));
+                            }
+                        }
+
+                        reactionWheelActive = true;
+                        reactionWheelNetTorque += partMaxTorque;
+                        activeWheels += 1.0f;
+                    }
+                }
+                else if (moduleReactionWheel[i].wheelState == ModuleReactionWheel.WheelState.Broken)
+                {
+                    reactionWheelDamaged = true;
+                }
             }
-             */
+
+            if (activeWheels > 1.0f)
+            {
+                reactionWheelNetTorque /= activeWheels;
+            }
+            if (activePitch > 1.0f)
+            {
+                reactionWheelPitch /= activePitch;
+            }
+            if (activeRoll > 1.0f)
+            {
+                reactionWheelRoll /= activeRoll;
+            }
+            if (activeYaw > 1.0f)
+            {
+                reactionWheelYaw /= activeYaw;
+            }
         }
         #endregion
 
