@@ -34,8 +34,8 @@ plugin or separately, but please do not distrubute altered versions of this docu
 
 ---
 
-Lua scripts included in MOARdV's Avionics Systems are public domain.  If you reuse them, I'd appreciate
-acknowledgment, but they are otherwise unrestricted.
+Lua scripts included in MOARdV's Avionics Systems are public domain.  If you
+reuse them, I'd appreciate acknowledgment.
 
 ---
 
@@ -50,7 +50,7 @@ http://forum.kerbalspaceprogram.com/index.php?/topic/74147-k-p0110-apollo-like-c
 
 ---
 
-MAS incorporates code derived from the Bantam Java-based Pratt parser:
+MAS incorporates code derived from the Bantam Java language Pratt parser:
 
 https://github.com/munificent/bantam
 
