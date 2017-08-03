@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016 - 2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -336,12 +336,7 @@ namespace AvionicsSystems.CodeGen
             PrefixParselet prefix = null;
 
             var type = token.getType();
-            if (mPrefixParselets.ContainsKey(type))
-            {
-                prefix = mPrefixParselets[type];
-            }
-
-            if (prefix == null)
+            if (!mPrefixParselets.TryGetValue(type, out prefix))
             {
                 throw new Exception("Could not parse \"" + token.Text + "\".");
             }
@@ -430,9 +425,9 @@ namespace AvionicsSystems.CodeGen
         private int getPrecedence()
         {
             var type = lookAhead(0).getType();
-            if (mInfixParselets.ContainsKey(type))
+            InfixParselet parser;
+            if (mInfixParselets.TryGetValue(type, out parser))
             {
-                InfixParselet parser = mInfixParselets[type];
                 return parser.getPrecedence();
             }
             else

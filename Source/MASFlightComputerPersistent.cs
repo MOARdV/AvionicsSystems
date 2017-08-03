@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016 - 2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -50,9 +50,9 @@ namespace AvionicsSystems
         internal object AddPersistent(string persistentName, double amount)
         {
             double v;
-            if (persistentVars.ContainsKey(persistentName))
+            object o;
+            if (persistentVars.TryGetValue(persistentName, out o))
             {
-                object o = persistentVars[persistentName];
                 if (o is double)
                 {
                     v = (double)o;
@@ -86,9 +86,9 @@ namespace AvionicsSystems
         internal object AddPersistentClamped(string persistentName, double amount, double minValue, double maxValue)
         {
             double v;
-            if (persistentVars.ContainsKey(persistentName))
+            object o;
+            if (persistentVars.TryGetValue(persistentName, out o))
             {
-                object o = persistentVars[persistentName];
                 if (o is double)
                 {
                     v = (double)o;
@@ -130,9 +130,9 @@ namespace AvionicsSystems
         internal object AddPersistentWrapped(string persistentName, double amount, double extent1, double extent2)
         {
             double v;
-            if (persistentVars.ContainsKey(persistentName))
+            object o;
+            if (persistentVars.TryGetValue(persistentName, out o))
             {
-                object o = persistentVars[persistentName];
                 if (o is double)
                 {
                     v = (double)o;
@@ -156,7 +156,7 @@ namespace AvionicsSystems
                 minValue = extent1;
                 maxValue = extent2;
             }
-            else if(extent2 > extent1)
+            else if (extent2 > extent1)
             {
                 minValue = extent2;
                 maxValue = extent1;
@@ -172,8 +172,8 @@ namespace AvionicsSystems
             {
                 v += range;
             }
-            
-            while(v >= maxValue)
+
+            while (v >= maxValue)
             {
                 v -= range;
             }
@@ -193,10 +193,9 @@ namespace AvionicsSystems
         /// <returns></returns>
         internal object AppendPersistent(string persistentName, string addon, int maxLength)
         {
-            if (persistentVars.ContainsKey(persistentName))
+            object pvo;
+            if (persistentVars.TryGetValue(persistentName, out pvo))
             {
-                object pvo = persistentVars[persistentName];
-
                 // Can this be more efficient?
                 string persistBuffer = pvo.ToString() + addon;
                 if (persistBuffer.Length > maxLength)
@@ -222,9 +221,10 @@ namespace AvionicsSystems
         /// <returns></returns>
         internal object GetPersistent(string persistentName)
         {
-            if (persistentVars.ContainsKey(persistentName))
+            object o;
+            if (persistentVars.TryGetValue(persistentName, out o))
             {
-                return persistentVars[persistentName];
+                return o;
             }
             else
             {
@@ -250,9 +250,9 @@ namespace AvionicsSystems
         /// <returns></returns>
         internal double GetPersistentAsNumber(string persistentName)
         {
-            if (persistentVars.ContainsKey(persistentName))
+            object val;
+            if (persistentVars.TryGetValue(persistentName, out val))
             {
-                object val = persistentVars[persistentName];
                 if (val is double)
                 {
                     return (double)val;
@@ -260,7 +260,7 @@ namespace AvionicsSystems
                 else
                 {
                     double result;
-                    if(double.TryParse(val as string, out result))
+                    if (double.TryParse(val as string, out result))
                     {
                         return result;
                     }
@@ -292,10 +292,9 @@ namespace AvionicsSystems
         /// <returns></returns>
         internal object TogglePersistent(string persistentName)
         {
-            if (persistentVars.ContainsKey(persistentName))
+            object o;
+            if (persistentVars.TryGetValue(persistentName, out o))
             {
-                object o = persistentVars[persistentName];
-
                 if (o is double)
                 {
                     double v = (double)o;

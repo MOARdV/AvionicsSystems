@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016 - 2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -301,17 +301,17 @@ namespace AvionicsSystems
         /// <returns></returns>
         internal Color32 GetNamedColor(string namedColor)
         {
-            if (namedColors.ContainsKey(namedColor))
+            Color32 colorValue;
+            if (namedColors.TryGetValue(namedColor, out colorValue))
             {
-                return namedColors[namedColor];
+                return colorValue;
             }
             else
             {
-                if (MASLoader.namedColors.ContainsKey(namedColor))
+                if (MASLoader.namedColors.TryGetValue(namedColor, out colorValue))
                 {
-                    Color32 newColor = MASLoader.namedColors[namedColor];
-                    namedColors.Add(namedColor, newColor);
-                    return newColor;
+                    namedColors.Add(namedColor, colorValue);
+                    return colorValue;
                 }
             }
 
@@ -337,9 +337,10 @@ namespace AvionicsSystems
             //    Utility.LogMessage(this, "OUT: {0}", result.canonicalSource);
             //}
 
-            if (actions.ContainsKey(actionName))
+            Action action;
+            if (actions.TryGetValue(actionName, out action))
             {
-                return actions[actionName];
+                return action;
             }
             else
             {
@@ -347,7 +348,7 @@ namespace AvionicsSystems
                 {
                     DynValue dv = script.LoadString(actionName);
 
-                    Action a = () =>
+                    action = () =>
                     {
                         try
                         {
@@ -362,8 +363,8 @@ namespace AvionicsSystems
                     };
 
                     //Utility.LogMessage(this, "Adding new Action '{0}'", actionName);
-                    actions.Add(actionName, a);
-                    return a;
+                    actions.Add(actionName, action);
+                    return action;
                 }
                 catch
                 {
@@ -390,14 +391,14 @@ namespace AvionicsSystems
                         nativeVariables = new Variable[nativeVariableCount];
                         luaVariables = new Variable[luaVariableCount];
                         int nativeIdx = 0, luaIdx = 0;
-                        foreach(Variable var in mutableVariablesList)
+                        foreach (Variable var in mutableVariablesList)
                         {
                             if (var.variableType == Variable.VariableType.LuaScript)
                             {
                                 luaVariables[luaIdx] = var;
                                 ++luaIdx;
                             }
-                            else if(var.variableType == Variable.VariableType.Func)
+                            else if (var.variableType == Variable.VariableType.Func)
                             {
                                 nativeVariables[nativeIdx] = var;
                                 ++nativeIdx;
@@ -455,7 +456,7 @@ namespace AvionicsSystems
                             }
                         }
                     }
-                    catch(Exception)
+                    catch (Exception)
                     {
                         Utility.LogInfo(this, "Exception trapped trying to update kerbal expressions - resetting kerbal data");
                         UpdateLocalCrew();

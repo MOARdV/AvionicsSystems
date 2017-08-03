@@ -5,7 +5,7 @@
 /*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016 - 2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -290,11 +290,7 @@ namespace AvionicsSystems
             }
 
             Variable v = null;
-            if (variables.ContainsKey(result.canonicalName))
-            {
-                v = variables[result.canonicalName];
-            }
-            else
+            if (!variables.TryGetValue(result.canonicalName, out v))
             {
 #if PLENTIFUL_LOGGING
                 Utility.LogMessage(this, "*  *  *");
@@ -364,12 +360,12 @@ namespace AvionicsSystems
         private Variable GenerateVariable(CodeGen.Expression expression)
         {
             string canonical = expression.CanonicalName();
-            if (variables.ContainsKey(canonical))
+            Variable v = null;
+            if (variables.TryGetValue(canonical, out v))
             {
-                return variables[canonical];
+                return v;
             }
 
-            Variable v = null;
             switch (expression.ExpressionType())
             {
                 case CodeGen.ExpressionIs.ConstantNumber:
@@ -725,7 +721,7 @@ namespace AvionicsSystems
                             methodParams[4].ParameterType == typeof(double))
                         {
                             DynamicMethodDelegate dm = DynamicMethodFactory.CreateFunc(method);
-                            return new Variable(canonical, () => dm(tableInstance, new object[] {parms[0].SafeValue(), parms[1].SafeValue(), parms[2].SafeValue(), parms[3].SafeValue(), parms[4].SafeValue()}), cacheable, mutable);
+                            return new Variable(canonical, () => dm(tableInstance, new object[] { parms[0].SafeValue(), parms[1].SafeValue(), parms[2].SafeValue(), parms[3].SafeValue(), parms[4].SafeValue() }), cacheable, mutable);
                         }
                         else
                         {
