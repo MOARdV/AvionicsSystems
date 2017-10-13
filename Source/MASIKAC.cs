@@ -90,7 +90,7 @@ namespace AvionicsSystems
                             if (alarms[i].VesselID == id && alarms[i].AlarmTime > UT)
                             {
                                 --vesselAlarmCount;
-                                alarmIDs[i] = alarms[i].ID;
+                                alarmIDs[vesselAlarmCount] = alarms[i].ID;
                                 this.alarms[vesselAlarmCount] = alarms[i].AlarmTime - UT;
                             }
                         }
