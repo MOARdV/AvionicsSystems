@@ -79,6 +79,7 @@
     <Compile Include="Source\MASClimateControl.cs" />
     <Compile Include="Source\MASComponent.cs" />
     <Compile Include="Source\MASConfig.cs" />
+    <Compile Include="Source\MASContextMenu.cs" />
     <Compile Include="Source\MASFlightComputerFlash.cs" />
     <Compile Include="Source\MASFlightComputerPersistent.cs" />
     <Compile Include="Source\MASFlightComputerProxy.cs" />
