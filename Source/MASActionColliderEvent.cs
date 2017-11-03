@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016 - 2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -39,6 +39,9 @@ namespace AvionicsSystems
     {
         private string name = "(anonymous)";
         private ButtonObject buttonObject;
+        private string variableName = string.Empty;
+        private MASFlightComputer.Variable range1, range2;
+        private bool rangeMode = false;
 
         /// <summary>
         /// Self-contained monobehaviour to provide button click and release
@@ -52,6 +55,7 @@ namespace AvionicsSystems
             internal AudioSource audioSource;
             private bool buttonState = false;
             internal bool autoRepeat = false;
+            internal bool colliderEnabled = true;
             internal float repeatRate = float.MaxValue;
             private float repeatCounter;
 
@@ -60,7 +64,7 @@ namespace AvionicsSystems
             /// </summary>
             public void OnMouseDown()
             {
-                if (onClick != null)
+                if (colliderEnabled && onClick != null)
                 {
                     onClick();
 
@@ -86,7 +90,7 @@ namespace AvionicsSystems
             {
                 yield return MASConfig.waitForFixedUpdate;
 
-                while (buttonState)
+                while (colliderEnabled && buttonState)
                 {
                     repeatCounter += TimeWarp.fixedDeltaTime;
                     if (repeatCounter > repeatRate)
@@ -104,14 +108,14 @@ namespace AvionicsSystems
             public void OnMouseUp()
             {
                 buttonState = false;
-                if (onRelease != null)
+                if (colliderEnabled && onRelease != null)
                 {
                     onRelease();
                 }
             }
         }
 
-        internal MASActionColliderEvent(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        internal MASActionColliderEvent(ConfigNode config, InternalProp internalProp, MASFlightComputer comp)
         {
             if (!config.TryGetValue("name", ref name))
             {
@@ -132,7 +136,7 @@ namespace AvionicsSystems
                 throw new ArgumentException("Neither 'onClick' nor 'onRelease' found in COLLIDER_EVENT " + name);
             }
 
-            Transform tr = prop.FindModelTransform(collider.Trim());
+            Transform tr = internalProp.FindModelTransform(collider.Trim());
             if (tr == null)
             {
                 throw new ArgumentException("Unable to find transform '" + collider + "' in prop for COLLIDER_EVENT " + name);
@@ -181,6 +185,31 @@ namespace AvionicsSystems
             buttonObject.autoRepeat = (autoRepeat > 0.0f);
             buttonObject.repeatRate = autoRepeat;
 
+            if (config.TryGetValue("variable", ref variableName) || string.IsNullOrEmpty(variableName))
+            {
+                variableName = variableName.Trim();
+
+                string range = string.Empty;
+                if (config.TryGetValue("range", ref range))
+                {
+                    string[] ranges = range.Split(',');
+                    if (ranges.Length != 2)
+                    {
+                        throw new ArgumentException("Incorrect number of values in 'range' in COLLIDER_EVENT " + name);
+                    }
+                    range1 = comp.GetVariable(ranges[0], internalProp);
+                    range2 = comp.GetVariable(ranges[1], internalProp);
+                    rangeMode = true;
+                }
+                else
+                {
+                    rangeMode = false;
+                }
+
+                buttonObject.colliderEnabled = false;
+                comp.RegisterNumericVariable(variableName, internalProp, VariableCallback);
+            }
+
             if (clip != null)
             {
                 AudioSource audioSource = tr.gameObject.AddComponent<AudioSource>();
@@ -200,11 +229,30 @@ namespace AvionicsSystems
 
             if (!string.IsNullOrEmpty(clickEvent))
             {
-                buttonObject.onClick = comp.GetAction(clickEvent, prop);
+                buttonObject.onClick = comp.GetAction(clickEvent, internalProp);
             }
             if (!string.IsNullOrEmpty(releaseEvent))
             {
-                buttonObject.onRelease = comp.GetAction(releaseEvent, prop);
+                buttonObject.onRelease = comp.GetAction(releaseEvent, internalProp);
+            }
+        }
+
+        /// <summary>
+        /// Variable callback used to enable the collider.
+        /// </summary>
+        /// <param name="newValue"></param>
+        private void VariableCallback(double newValue)
+        {
+            if (rangeMode)
+            {
+                newValue = (newValue.Between(range1.SafeValue(), range2.SafeValue())) ? 1.0 : 0.0;
+            }
+
+            bool newState = (newValue > 0.0);
+
+            if (newState != buttonObject.colliderEnabled)
+            {
+                buttonObject.colliderEnabled = newState;
             }
         }
 
@@ -227,6 +275,10 @@ namespace AvionicsSystems
                 buttonObject.onClick = null;
                 buttonObject.onRelease = null;
                 buttonObject.parent = null;
+            }
+            if (!string.IsNullOrEmpty(variableName))
+            {
+                comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
             }
         }
     }
