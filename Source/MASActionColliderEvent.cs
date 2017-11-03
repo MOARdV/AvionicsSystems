@@ -185,7 +185,7 @@ namespace AvionicsSystems
             buttonObject.autoRepeat = (autoRepeat > 0.0f);
             buttonObject.repeatRate = autoRepeat;
 
-            if (config.TryGetValue("variable", ref variableName) || string.IsNullOrEmpty(variableName))
+            if (config.TryGetValue("variable", ref variableName))
             {
                 variableName = variableName.Trim();
 
