@@ -278,7 +278,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Variable callback used to update the autio source when it is playing.
+        /// Variable callback used to update the audio source when it is playing.
         /// </summary>
         /// <param name="newValue"></param>
         private void VariableCallback(double newValue)
