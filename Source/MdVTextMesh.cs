@@ -304,7 +304,7 @@ namespace AvionicsSystems
                                 {
                                     tr.variable[var] = comp.RegisterOnVariableChange(variables[var], internalProp, tr.callback);
                                 }
-                                catch(Exception e)
+                                catch (Exception e)
                                 {
                                     Utility.LogErrorMessage(this, "Variable {0} threw an exception", variables[var]);
                                     throw e;
@@ -674,9 +674,11 @@ namespace AvionicsSystems
 
             int charWritten = 0;
             int arrayIndex = 0;
-            int yPos = -fixedLineSpacing;
+            int yPos = (int)(-font.ascent * characterSize);
             int xAnchor = 0;
 
+            //Utility.LogMessage(this, "Font {0}: ascent = {1}, fontSize = {2}, lineHeight = {3}",
+            //    font.fontNames[0], font.ascent, font.fontSize, font.lineHeight);
             for (int line = 0; line < numTextRows; ++line)
             {
                 bold = false;
@@ -797,11 +799,34 @@ namespace AvionicsSystems
                         {
                             if (charInfo.minX != charInfo.maxX && charInfo.minY != charInfo.maxY)
                             {
-                                // TODO: Tune this
-                                float minX = Math.Max(charInfo.minX * characterSize, 0.0f);
-                                float maxX = Math.Min(charInfo.maxX * characterSize, fixedAdvance);
-                                float minY = charInfo.minY * characterSize;// Math.Max(charInfo.minY, 0);
-                                float maxY = charInfo.maxY * characterSize;// Math.Min(charInfo.maxY, (int)characterBound.y);
+
+                                //Utility.LogMessage("{0}: glyph width = {1}, advance = {2}",
+                                //    textRow[line].formattedData[charIndex], charInfo.glyphWidth, charInfo.advance);
+
+                                float minX, maxX;
+                                // Some characters have a large advance (Inconsolata-Go filled triangle (arrowhead)
+                                // and delta characters, for instance).  Instead of letting them overwrite
+                                // neighboring characters, force them to fit the fixedAdvance space.
+                                if ((int)(charInfo.advance * characterSize) > fixedAdvance)
+                                {
+                                    minX = 0.0f;
+                                    // don't need to multiply by character size, since fixedAdvance accounts for
+                                    // that.
+                                    maxX = fixedAdvance * widthScaling;
+                                }
+                                else
+                                {
+                                    minX = charInfo.minX * characterSize * widthScaling;
+                                    maxX = charInfo.maxX * characterSize * widthScaling;
+                                }
+                                minX += (float)xPos + xOffset;
+                                maxX += (float)xPos + xOffset;
+
+                                float minY = charInfo.minY * characterSize;
+                                float maxY = charInfo.maxY * characterSize;
+                                minY += yPos + yOffset;
+                                maxY += yPos + yOffset;
+
                                 triangles[charWritten * 6 + 0] = arrayIndex + 0;
                                 triangles[charWritten * 6 + 1] = arrayIndex + 3;
                                 triangles[charWritten * 6 + 2] = arrayIndex + 2;
@@ -809,30 +834,28 @@ namespace AvionicsSystems
                                 triangles[charWritten * 6 + 4] = arrayIndex + 1;
                                 triangles[charWritten * 6 + 5] = arrayIndex + 3;
 
-                                // TODO: make this work correctly by centering the
-                                // characters and clamping to the width.
-                                vertices[arrayIndex] = new Vector3(((float)(xPos + (minX * widthScaling)) + xOffset), ((float)(yPos + maxY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(minX, maxY, 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvTopLeft;
 
                                 ++arrayIndex;
 
-                                vertices[arrayIndex] = new Vector3(((float)(xPos + (maxX * widthScaling)) + xOffset), ((float)(yPos + maxY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(maxX, maxY, 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvTopRight;
 
                                 ++arrayIndex;
 
-                                vertices[arrayIndex] = new Vector3(((float)(xPos + (minX * widthScaling)) + xOffset), ((float)(yPos + minY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(minX, minY, 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvBottomLeft;
 
                                 ++arrayIndex;
 
-                                vertices[arrayIndex] = new Vector3(((float)(xPos + (maxX * widthScaling)) + xOffset), ((float)(yPos + minY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(maxX, minY, 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvBottomRight;
