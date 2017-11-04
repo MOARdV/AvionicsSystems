@@ -42,6 +42,7 @@ namespace AvionicsSystems
         private MeshRenderer meshRenderer;
         private string variableName;
         private MASFlightComputer.Variable range1, range2;
+        private string rotationVariableName;
         private readonly bool rangeMode;
         private bool currentState;
 
@@ -108,17 +109,17 @@ namespace AvionicsSystems
             imageObject.layer = pageRoot.gameObject.layer;
             imageObject.transform.parent = pageRoot;
             imageObject.transform.position = pageRoot.position;
-            imageObject.transform.Translate(monitor.screenSize.x * -0.5f + position.x, monitor.screenSize.y * 0.5f - position.y, depth);
+            imageObject.transform.Translate(monitor.screenSize.x * -0.5f + position.x + size.x * 0.5f, monitor.screenSize.y * 0.5f - position.y - size.y * 0.5f, depth);
             // add renderer stuff
             MeshFilter meshFilter = imageObject.AddComponent<MeshFilter>();
             meshRenderer = imageObject.AddComponent<MeshRenderer>();
             Mesh mesh = new Mesh();
             mesh.vertices = new[]
                 {
-                    new Vector3(0.0f, 0.0f, depth),
-                    new Vector3(size.x, 0.0f, depth),
-                    new Vector3(0.0f, -size.y, depth),
-                    new Vector3(size.x, -size.y, depth),
+                    new Vector3(-0.5f * size.x, 0.5f * size.y, depth),
+                    new Vector3(0.5f * size.x, 0.5f * size.y, depth),
+                    new Vector3(-0.5f * size.x, -0.5f * size.y, depth),
+                    new Vector3(0.5f * size.x, -0.5f * size.y, depth),
                 };
             mesh.uv = new[]
                 {
@@ -152,6 +153,12 @@ namespace AvionicsSystems
             {
                 imageObject.SetActive(true);
             }
+
+            if (config.TryGetValue("rotation", ref rotationVariableName))
+            {
+                comp.RegisterNumericVariable(rotationVariableName, prop, RotationCallback);
+                //rotationVariable = comp.GetVariable(rotationVariableName, prop);
+            }
         }
 
         /// <summary>
@@ -172,6 +179,16 @@ namespace AvionicsSystems
                 currentState = newState;
                 imageObject.SetActive(currentState);
             }
+        }
+
+        /// <summary>
+        /// Apply a rotation to the image.
+        /// </summary>
+        /// <param name="newValue"></param>
+        private void RotationCallback(double newValue)
+        {
+            newValue = newValue % 360.0;
+            imageObject.transform.localRotation = Quaternion.Euler(new Vector3(0.0f, 0.0f, (float)newValue));
         }
 
         /// <summary>
@@ -213,6 +230,10 @@ namespace AvionicsSystems
             if (!string.IsNullOrEmpty(variableName))
             {
                 comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
+            }
+            if (!string.IsNullOrEmpty(rotationVariableName))
+            {
+                comp.UnregisterNumericVariable(rotationVariableName, internalProp, RotationCallback);
             }
         }
     }
