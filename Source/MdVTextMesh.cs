@@ -141,16 +141,6 @@ namespace AvionicsSystems
         private static readonly string[] LineSeparator = { Environment.NewLine };
 
         /// <summary>
-        /// Set / change the characterSize field
-        /// </summary>
-        /// <param name="characterSize"></param>
-        public void SetCharacterSize(float characterSize)
-        {
-            this.characterSize = characterSize;
-            invalidated = true;
-        }
-
-        /// <summary>
         /// Set the default text color
         /// </summary>
         /// <param name="color"></param>
@@ -174,10 +164,11 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="font"></param>
         /// <param name="fontSize"></param>
-        public void SetFont(Font font, int fontSize)
+        public void SetFont(Font font, int fontSize, float characterSize)
         {
             this.font = font;
             this.fontSize = fontSize;
+            this.characterSize = characterSize;
             boundedText = false;
             meshRenderer.material.mainTexture = font.material.mainTexture;
             invalidated = true;
@@ -190,10 +181,13 @@ namespace AvionicsSystems
         /// <param name="fontDimensions"></param>
         public void SetFont(Font font, Vector2 fontDimensions)
         {
+            float characterSize = fontDimensions.y / (float)font.fontSize;
+
             this.font = font;
             this.fontSize = font.fontSize;
             this.fixedAdvance = (int)fontDimensions.x;
             this.fixedLineSpacing = (int)fontDimensions.y;
+            this.characterSize = characterSize;
             boundedText = true;
             meshRenderer.material.mainTexture = font.material.mainTexture;
             invalidated = true;
@@ -804,10 +798,10 @@ namespace AvionicsSystems
                             if (charInfo.minX != charInfo.maxX && charInfo.minY != charInfo.maxY)
                             {
                                 // TODO: Tune this
-                                int minX = Math.Max(charInfo.minX, 0);
-                                int maxX = Math.Min(charInfo.maxX, fixedAdvance);
-                                int minY = charInfo.minY;// Math.Max(charInfo.minY, 0);
-                                int maxY = charInfo.maxY;// Math.Min(charInfo.maxY, (int)characterBound.y);
+                                float minX = Math.Max(charInfo.minX * characterSize, 0.0f);
+                                float maxX = Math.Min(charInfo.maxX * characterSize, fixedAdvance);
+                                float minY = charInfo.minY * characterSize;// Math.Max(charInfo.minY, 0);
+                                float maxY = charInfo.maxY * characterSize;// Math.Min(charInfo.maxY, (int)characterBound.y);
                                 triangles[charWritten * 6 + 0] = arrayIndex + 0;
                                 triangles[charWritten * 6 + 1] = arrayIndex + 3;
                                 triangles[charWritten * 6 + 2] = arrayIndex + 2;
@@ -817,28 +811,28 @@ namespace AvionicsSystems
 
                                 // TODO: make this work correctly by centering the
                                 // characters and clamping to the width.
-                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (minX * widthScaling)) + xOffset), characterSize * ((float)(yPos + maxY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(((float)(xPos + (minX * widthScaling)) + xOffset), ((float)(yPos + maxY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvTopLeft;
 
                                 ++arrayIndex;
 
-                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (maxX * widthScaling)) + xOffset), characterSize * ((float)(yPos + maxY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(((float)(xPos + (maxX * widthScaling)) + xOffset), ((float)(yPos + maxY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvTopRight;
 
                                 ++arrayIndex;
 
-                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (minX * widthScaling)) + xOffset), characterSize * ((float)(yPos + minY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(((float)(xPos + (minX * widthScaling)) + xOffset), ((float)(yPos + minY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvBottomLeft;
 
                                 ++arrayIndex;
 
-                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (maxX * widthScaling)) + xOffset), characterSize * ((float)(yPos + minY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(((float)(xPos + (maxX * widthScaling)) + xOffset), ((float)(yPos + minY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvBottomRight;

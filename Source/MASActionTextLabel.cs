@@ -131,9 +131,8 @@ namespace AvionicsSystems
                 lineSpacing = 1.0f;
             }
 
-            textObj.SetFont(font, font.fontSize);
             float sizeScalar = 32.0f / (float)font.fontSize;
-            textObj.SetCharacterSize(fontSize * 0.00005f * sizeScalar);
+            textObj.SetFont(font, font.fontSize, fontSize * 0.00005f * sizeScalar);
             textObj.SetLineSpacing(lineSpacing);
             textObj.fontStyle = style;
 

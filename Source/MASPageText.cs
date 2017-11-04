@@ -102,6 +102,9 @@ namespace AvionicsSystems
             }
             else
             {
+                // Position is based on default font size
+                //position = Vector2.Scale(position, monitor.fontSize);
+                // Position is based on local font size.
                 position = Vector2.Scale(position, fontSize);
             }
 
