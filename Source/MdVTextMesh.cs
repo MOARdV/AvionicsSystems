@@ -799,20 +799,45 @@ namespace AvionicsSystems
                         {
                             if (charInfo.minX != charInfo.maxX && charInfo.minY != charInfo.maxY)
                             {
+                                // Reminders for next time I need to tweak things:
+                                // charInfo .glyphWidth and .glyphHeight describe the footprint of the character.
+                                // charInfo.bearing is the X displacement from the origin to the start of the glyph.
+                                // charInfo.advance is the advance to the next character.  Ideally, a fixed font will
+                                // have .advance * characterSize == fixedAdvance.
+                                // font.ascent is the distance from the baseline to the top of the glyphs.
+                                // if (font.ascent - charInfo.minY) * characterSize > fixedLineSpacing, the descender
+                                // will hang over to the next line.  This seems to be a problem more with variable-advance
+                                // fonts (Arial, for instance) than with convenient fixed-width fonts (Inconsolata Go).
 
-                                //Utility.LogMessage("{0}: glyph width = {1}, advance = {2}",
-                                //    textRow[line].formattedData[charIndex], charInfo.glyphWidth, charInfo.advance);
+                                //if (charInfo.glyphWidth > 2 && (charInfo.glyphHeight * characterSize) > fixedLineSpacing)
+                                //{
+                                //    Utility.LogMessage(this, "{0}: glyph width = {1}, advance = {2}, x span {3} - {4}, height {5}, y span {6} - {7}",
+                                //       textRow[line].formattedData[charIndex], charInfo.glyphWidth, charInfo.advance,
+                                //       charInfo.minX, charInfo.maxX,
+                                //       charInfo.glyphHeight,
+                                //       charInfo.minY, charInfo.maxY);
+                                //}
 
                                 float minX, maxX;
                                 // Some characters have a large advance (Inconsolata-Go filled triangle (arrowhead)
                                 // and delta characters, for instance).  Instead of letting them overwrite
                                 // neighboring characters, force them to fit the fixedAdvance space.
+                                // This also affects wide characters in variable-advance fonts.
                                 if ((int)(charInfo.advance * characterSize) > fixedAdvance)
                                 {
                                     minX = 0.0f;
                                     // don't need to multiply by character size, since fixedAdvance accounts for
                                     // that.
                                     maxX = fixedAdvance * widthScaling;
+                                }
+                                else if ((int)(charInfo.advance * characterSize) < fixedAdvance)
+                                {
+                                    // Characters that have smaller advance than our fixed-size setting
+                                    // need to be pushed towards the center so they don't look out of place.
+                                    int nudge = (fixedAdvance - (int)(charInfo.advance * characterSize)) / 2;
+
+                                    minX = (nudge + charInfo.minX * characterSize) * widthScaling;
+                                    maxX = (nudge + charInfo.maxX * characterSize) * widthScaling;
                                 }
                                 else
                                 {
@@ -822,8 +847,22 @@ namespace AvionicsSystems
                                 minX += (float)xPos + xOffset;
                                 maxX += (float)xPos + xOffset;
 
-                                float minY = charInfo.minY * characterSize;
-                                float maxY = charInfo.maxY * characterSize;
+                                float minY;
+                                float maxY;
+                                // Excessively tall characters need tweaked to fit
+                                maxY = Math.Min(charInfo.maxY, font.ascent) * characterSize;
+
+                                if ((font.ascent - charInfo.minY) * characterSize > fixedLineSpacing)
+                                {
+                                    // Push the bottom of the character upwards so it's not
+                                    // hanging over the next line.
+                                    minY = font.ascent * characterSize - fixedLineSpacing;
+                                }
+                                else
+                                {
+                                    minY = charInfo.minY * characterSize;
+                                }
+
                                 minY += yPos + yOffset;
                                 maxY += yPos + yOffset;
 
