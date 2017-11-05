@@ -113,7 +113,7 @@ namespace AvionicsSystems
         private TextRow[] textRow;
         private Color32 color;
         private int fontSize;
-        private float characterSize = 1.0f;
+        private float characterScalar = 1.0f;
         private float lineSpacing = 1.0f;
         private int fixedAdvance = 0;
         private int fixedLineSpacing = 0;
@@ -164,11 +164,11 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="font"></param>
         /// <param name="fontSize"></param>
-        public void SetFont(Font font, int fontSize, float characterSize)
+        public void SetFont(Font font, int fontSize, float characterScalar)
         {
             this.font = font;
             this.fontSize = fontSize;
-            this.characterSize = characterSize;
+            this.characterScalar = characterScalar;
             boundedText = false;
             meshRenderer.material.mainTexture = font.material.mainTexture;
             invalidated = true;
@@ -181,13 +181,13 @@ namespace AvionicsSystems
         /// <param name="fontDimensions"></param>
         public void SetFont(Font font, Vector2 fontDimensions)
         {
-            float characterSize = fontDimensions.y / (float)font.fontSize;
+            float characterScalar = fontDimensions.y / (float)font.lineHeight;
 
             this.font = font;
             this.fontSize = font.fontSize;
             this.fixedAdvance = (int)fontDimensions.x;
             this.fixedLineSpacing = (int)fontDimensions.y;
-            this.characterSize = characterSize;
+            this.characterScalar = characterScalar;
             boundedText = true;
             meshRenderer.material.mainTexture = font.material.mainTexture;
             invalidated = true;
@@ -674,7 +674,7 @@ namespace AvionicsSystems
 
             int charWritten = 0;
             int arrayIndex = 0;
-            int yPos = (int)(-font.ascent * characterSize);
+            int yPos = (int)(-font.ascent * characterScalar);
             int xAnchor = 0;
 
             //Utility.LogMessage(this, "Font {0}: ascent = {1}, fontSize = {2}, lineHeight = {3}",
@@ -823,26 +823,26 @@ namespace AvionicsSystems
                                 // and delta characters, for instance).  Instead of letting them overwrite
                                 // neighboring characters, force them to fit the fixedAdvance space.
                                 // This also affects wide characters in variable-advance fonts.
-                                if ((int)(charInfo.advance * characterSize) > fixedAdvance)
+                                if ((int)(charInfo.advance * characterScalar) > fixedAdvance)
                                 {
                                     minX = 0.0f;
                                     // don't need to multiply by character size, since fixedAdvance accounts for
                                     // that.
                                     maxX = fixedAdvance * widthScaling;
                                 }
-                                else if ((int)(charInfo.advance * characterSize) < fixedAdvance)
+                                else if ((int)(charInfo.advance * characterScalar) < fixedAdvance)
                                 {
                                     // Characters that have smaller advance than our fixed-size setting
                                     // need to be pushed towards the center so they don't look out of place.
-                                    int nudge = (fixedAdvance - (int)(charInfo.advance * characterSize)) / 2;
+                                    int nudge = (fixedAdvance - (int)(charInfo.advance * characterScalar)) / 2;
 
-                                    minX = (nudge + charInfo.minX * characterSize) * widthScaling;
-                                    maxX = (nudge + charInfo.maxX * characterSize) * widthScaling;
+                                    minX = (nudge + charInfo.minX * characterScalar) * widthScaling;
+                                    maxX = (nudge + charInfo.maxX * characterScalar) * widthScaling;
                                 }
                                 else
                                 {
-                                    minX = charInfo.minX * characterSize * widthScaling;
-                                    maxX = charInfo.maxX * characterSize * widthScaling;
+                                    minX = charInfo.minX * characterScalar * widthScaling;
+                                    maxX = charInfo.maxX * characterScalar * widthScaling;
                                 }
                                 minX += (float)xPos + xOffset;
                                 maxX += (float)xPos + xOffset;
@@ -850,17 +850,17 @@ namespace AvionicsSystems
                                 float minY;
                                 float maxY;
                                 // Excessively tall characters need tweaked to fit
-                                maxY = Math.Min(charInfo.maxY, font.ascent) * characterSize;
+                                maxY = Math.Min(charInfo.maxY, font.ascent) * characterScalar;
 
-                                if ((font.ascent - charInfo.minY) * characterSize > fixedLineSpacing)
+                                if ((font.ascent - charInfo.minY) * characterScalar > fixedLineSpacing)
                                 {
                                     // Push the bottom of the character upwards so it's not
                                     // hanging over the next line.
-                                    minY = font.ascent * characterSize - fixedLineSpacing;
+                                    minY = font.ascent * characterScalar - fixedLineSpacing;
                                 }
                                 else
                                 {
-                                    minY = charInfo.minY * characterSize;
+                                    minY = charInfo.minY * characterScalar;
                                 }
 
                                 minY += yPos + yOffset;
@@ -1243,28 +1243,28 @@ namespace AvionicsSystems
                                 triangles[charWritten * 6 + 4] = arrayIndex + 1;
                                 triangles[charWritten * 6 + 5] = arrayIndex + 3;
 
-                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (charInfo.minX) * widthScaling) + xOffset), characterSize * ((float)(yPos + charInfo.maxY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(characterScalar * ((float)(xPos + (charInfo.minX) * widthScaling) + xOffset), characterScalar * ((float)(yPos + charInfo.maxY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvTopLeft;
 
                                 ++arrayIndex;
 
-                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (charInfo.maxX) * widthScaling) + xOffset), characterSize * ((float)(yPos + charInfo.maxY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(characterScalar * ((float)(xPos + (charInfo.maxX) * widthScaling) + xOffset), characterScalar * ((float)(yPos + charInfo.maxY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvTopRight;
 
                                 ++arrayIndex;
 
-                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (charInfo.minX) * widthScaling) + xOffset), characterSize * ((float)(yPos + charInfo.minY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(characterScalar * ((float)(xPos + (charInfo.minX) * widthScaling) + xOffset), characterScalar * ((float)(yPos + charInfo.minY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvBottomLeft;
 
                                 ++arrayIndex;
 
-                                vertices[arrayIndex] = new Vector3(characterSize * ((float)(xPos + (charInfo.maxX) * widthScaling) + xOffset), characterSize * ((float)(yPos + charInfo.minY) + yOffset), 0.0f);
+                                vertices[arrayIndex] = new Vector3(characterScalar * ((float)(xPos + (charInfo.maxX) * widthScaling) + xOffset), characterScalar * ((float)(yPos + charInfo.minY) + yOffset), 0.0f);
                                 colors32[arrayIndex] = fontColor;
                                 tangents[arrayIndex] = tangent;
                                 uv[arrayIndex] = charInfo.uvBottomRight;
@@ -1407,28 +1407,28 @@ namespace AvionicsSystems
                         triangles[charWritten * 6 + 4] = arrayIndex + 1;
                         triangles[charWritten * 6 + 5] = arrayIndex + 3;
 
-                        vertices[arrayIndex] = new Vector3(characterSize * (float)(xPos + charInfo.minX), characterSize * (float)(yPos + charInfo.maxY), 0.0f);
+                        vertices[arrayIndex] = new Vector3(characterScalar * (float)(xPos + charInfo.minX), characterScalar * (float)(yPos + charInfo.maxY), 0.0f);
                         colors32[arrayIndex] = color;
                         tangents[arrayIndex] = tangent;
                         uv[arrayIndex] = charInfo.uvTopLeft;
 
                         ++arrayIndex;
 
-                        vertices[arrayIndex] = new Vector3(characterSize * (float)(xPos + charInfo.maxX), characterSize * (float)(yPos + charInfo.maxY), 0.0f);
+                        vertices[arrayIndex] = new Vector3(characterScalar * (float)(xPos + charInfo.maxX), characterScalar * (float)(yPos + charInfo.maxY), 0.0f);
                         colors32[arrayIndex] = color;
                         tangents[arrayIndex] = tangent;
                         uv[arrayIndex] = charInfo.uvTopRight;
 
                         ++arrayIndex;
 
-                        vertices[arrayIndex] = new Vector3(characterSize * (float)(xPos + charInfo.minX), characterSize * (float)(yPos + charInfo.minY), 0.0f);
+                        vertices[arrayIndex] = new Vector3(characterScalar * (float)(xPos + charInfo.minX), characterScalar * (float)(yPos + charInfo.minY), 0.0f);
                         colors32[arrayIndex] = color;
                         tangents[arrayIndex] = tangent;
                         uv[arrayIndex] = charInfo.uvBottomLeft;
 
                         ++arrayIndex;
 
-                        vertices[arrayIndex] = new Vector3(characterSize * (float)(xPos + charInfo.maxX), characterSize * (float)(yPos + charInfo.minY), 0.0f);
+                        vertices[arrayIndex] = new Vector3(characterScalar * (float)(xPos + charInfo.maxX), characterScalar * (float)(yPos + charInfo.minY), 0.0f);
                         colors32[arrayIndex] = color;
                         tangents[arrayIndex] = tangent;
                         uv[arrayIndex] = charInfo.uvBottomRight;
