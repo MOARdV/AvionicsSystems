@@ -274,21 +274,21 @@ namespace AvionicsSystems
             }
         }
 
-        private static void HackWalkTransforms(Transform transform, int p)
-        {
-            StringBuilder sb = new StringBuilder(p + 3);
-            for (int i = 0; i < p; ++i)
-            {
-                sb.Append(" ");
-            }
-            sb.Append("+");
-            sb.Append(transform.name);
-            Utility.LogMessage(transform, "{0} @ ({1:0.0}, {2:0.0}, {3:0.000}) face ({4:0.0}, {5:0.0}, {6:0.0})", sb.ToString(), transform.position.x, transform.position.y, transform.position.z, transform.eulerAngles.x, transform.eulerAngles.y, transform.eulerAngles.z);
-            for (int i = 0; i < transform.childCount; ++i)
-            {
-                HackWalkTransforms(transform.GetChild(i), p + 1);
-            }
-        }
+        //private static void HackWalkTransforms(Transform transform, int p)
+        //{
+        //    StringBuilder sb = new StringBuilder(p + 3);
+        //    for (int i = 0; i < p; ++i)
+        //    {
+        //        sb.Append(" ");
+        //    }
+        //    sb.Append("+");
+        //    sb.Append(transform.name);
+        //    Utility.LogMessage(transform, "{0} @ ({1:0.0}, {2:0.0}, {3:0.000}) face ({4:0.0}, {5:0.0}, {6:0.0})", sb.ToString(), transform.position.x, transform.position.y, transform.position.z, transform.eulerAngles.x, transform.eulerAngles.y, transform.eulerAngles.z);
+        //    for (int i = 0; i < transform.childCount; ++i)
+        //    {
+        //        HackWalkTransforms(transform.GetChild(i), p + 1);
+        //    }
+        //}
 
         /// <summary>
         /// Tear things down
@@ -342,6 +342,25 @@ namespace AvionicsSystems
                     screen.Create();
                     screenCamera.targetTexture = screen;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Call the startupScript, if it exists.
+        /// </summary>
+        /// <param name="comp">The MASFlightComputer for this prop.</param>
+        /// <returns>true if a script exists, false otherwise.</returns>
+        internal bool RunStartupScript(MASFlightComputer comp)
+        {
+            if (!string.IsNullOrEmpty(startupScript))
+            {
+                Action startup = comp.GetAction(startupScript, internalProp);
+                startup();
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 

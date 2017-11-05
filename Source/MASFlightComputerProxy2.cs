@@ -563,6 +563,34 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Run the `startupScript` on every monitor in the pod that has a defined `startupScript`.
+        /// </summary>
+        /// <returns>The number of scripts executed.</returns>
+        public double RunMonitorStartupScript()
+        {
+            double scriptCount = 0.0;
+            List<InternalProp> props = fc.part.internalModel.props;
+            int numProps = props.Count;
+            for (int propIndex = 0; propIndex < numProps; ++propIndex)
+            {
+                List<InternalModule> modules = props[propIndex].internalModules;
+                int numModules = modules.Count;
+                for (int moduleIndex = 0; moduleIndex < numModules; ++moduleIndex)
+                {
+                    if (modules[moduleIndex] is MASMonitor)
+                    {
+                        if ((modules[moduleIndex] as MASMonitor).RunStartupScript(fc))
+                        {
+                            scriptCount += 1.0;
+                        }
+                    }
+                }
+            }
+
+            return scriptCount;
+        }
+
+        /// <summary>
         /// The ScrollingMarquee function takes a string, `input`, and it returns a substring 
         /// of maximum length `maxChars`.  The substring that is returned changes every
         /// `scrollRate` seconds if the string length is greater than `maxChars`, allowing
