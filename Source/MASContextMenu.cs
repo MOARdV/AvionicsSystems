@@ -39,33 +39,39 @@ namespace AvionicsSystems
     {
         [KSPField]
         public string activateAction = string.Empty;
-        
+        private Action onActivate;
+
         [KSPField]
         public string deactivateAction = string.Empty;
+        private Action onDeactivate;
 
         [KSPField]
-        public string passiveText = "Activate";
+        public string activateText = "Activate";
 
         [KSPField]
-        public string activeText = "Deactivate";
+        public string deactivateText = "Deactivate";
 
-        [KSPField]
-        public string variable = string.Empty;
+        [KSPField(guiActive = true, guiActiveEditor = false, guiName = "MAS: ")]
+        public string menuName = "MASContextMenu";
 
-        [UI_Toggle(disabledText = "Activate", enabledText = "Deactivate")]
-        [KSPField(guiActive = true, guiActiveEditor = false, isPersistant = true)]
+        [UI_Toggle(disabledText = "Do Activate", enabledText = "Do Deactivate")]
+        [KSPField(guiActive = true, guiActiveEditor = false, guiName = "MAS: ", isPersistant = true)]
         public bool actionState = false;
 
-        public bool lastState;
-        
+        private bool lastState;
+        private bool initialized = false;
+
         MASFlightComputer comp = null;
 
         public void Start()
         {
             if (HighLogic.LoadedSceneIsFlight)
             {
-                Utility.LogMessage(this, "Start()");
                 lastState = actionState;
+
+                comp = part.FindModuleImplementing<MASFlightComputer>();
+
+                menuName = (lastState) ? deactivateText : activateText;
             }
         }
 
@@ -73,24 +79,77 @@ namespace AvionicsSystems
         {
             if (comp != null)
             {
+                // This module could be called before MASFlightComputer is initialized,
+                // so we need to wait for comp.isInitialized before creating our actions.
+                // This does create a race condition, but I'd be surprised if someone could
+                // get the menu open and clicked within about 1 FixedUpdate.
+                if (!initialized && comp.isInitialized)
+                {
+                    if (!string.IsNullOrEmpty(activateAction))
+                    {
+                        onActivate = comp.GetAction(activateAction, null);
+
+                        if (onActivate == null)
+                        {
+                            Utility.LogErrorMessage(this, "Failed to initialize action '{1}' for {0}", menuName, activateAction);
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(deactivateAction))
+                    {
+                        onDeactivate = comp.GetAction(deactivateAction, null);
+
+                        if (onDeactivate == null)
+                        {
+                            Utility.LogErrorMessage(this, "Failed to initialize action '{1}' for {0}", menuName, deactivateAction);
+                        }
+                    }
+                    initialized = true;
+                }
+
                 if (lastState != actionState)
                 {
+                    if (actionState && onActivate != null)
+                    {
+                        onActivate();
+                    }
+                    else if (onDeactivate != null)
+                    {
+                        onDeactivate();
+                    }
 
+                    lastState = actionState;
+
+                    menuName = (lastState) ? deactivateText : activateText;
                 }
             }
         }
 
         public override string GetInfo()
         {
-            return "MASContextMenu doesn't work yet.";
+            return "Supports MASContextMenu actions";
         }
-        
+
         public void OnDestroy()
         {
-            if (comp != null)
-            {
-                Utility.LogMessage(this, "OnDestroy()");
-            }
+            // Nothing to do?
+        }
+
+        [KSPAction("Deactivate MAS Action")]
+        public void MASOffAction(KSPActionParam param)
+        {
+            actionState = false;
+        }
+
+        [KSPAction("Activate MAS Action")]
+        public void MASOnAction(KSPActionParam param)
+        {
+            actionState = true;
+        }
+
+        [KSPAction("Toggle MAS Action")]
+        public void ToggleMASAction(KSPActionParam param)
+        {
+            actionState = !actionState;
         }
     }
 }
