@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016 - 2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -103,23 +103,29 @@ namespace AvionicsSystems
                 rangeMode = false;
             }
 
+            Vector2 rotationOffset = Vector2.zero;
+            if (config.TryGetValue("rotation", ref rotationVariableName))
+            {
+                config.TryGetValue("rotationOffset", ref rotationOffset);
+            }
+
             // Set up our surface.
             imageObject = new GameObject();
             imageObject.name = pageRoot.gameObject.name + "-MASPageImage-" + name + "-" + depth.ToString();
             imageObject.layer = pageRoot.gameObject.layer;
             imageObject.transform.parent = pageRoot;
             imageObject.transform.position = pageRoot.position;
-            imageObject.transform.Translate(monitor.screenSize.x * -0.5f + position.x + size.x * 0.5f, monitor.screenSize.y * 0.5f - position.y - size.y * 0.5f, depth);
+            imageObject.transform.Translate(monitor.screenSize.x * -0.5f + position.x + rotationOffset.x + size.x * 0.5f, monitor.screenSize.y * 0.5f - position.y - rotationOffset.y - size.y * 0.5f, depth);
             // add renderer stuff
             MeshFilter meshFilter = imageObject.AddComponent<MeshFilter>();
             meshRenderer = imageObject.AddComponent<MeshRenderer>();
             Mesh mesh = new Mesh();
             mesh.vertices = new[]
                 {
-                    new Vector3(-0.5f * size.x, 0.5f * size.y, depth),
-                    new Vector3(0.5f * size.x, 0.5f * size.y, depth),
-                    new Vector3(-0.5f * size.x, -0.5f * size.y, depth),
-                    new Vector3(0.5f * size.x, -0.5f * size.y, depth),
+                    new Vector3(-0.5f * size.x - rotationOffset.x, 0.5f * size.y + rotationOffset.y, depth),
+                    new Vector3(0.5f * size.x - rotationOffset.x, 0.5f * size.y+ rotationOffset.y, depth),
+                    new Vector3(-0.5f * size.x - rotationOffset.x, -0.5f * size.y+ rotationOffset.y, depth),
+                    new Vector3(0.5f * size.x - rotationOffset.x, -0.5f * size.y+ rotationOffset.y, depth),
                 };
             mesh.uv = new[]
                 {
@@ -154,10 +160,9 @@ namespace AvionicsSystems
                 imageObject.SetActive(true);
             }
 
-            if (config.TryGetValue("rotation", ref rotationVariableName))
+            if (!string.IsNullOrEmpty(rotationVariableName))
             {
                 comp.RegisterNumericVariable(rotationVariableName, prop, RotationCallback);
-                //rotationVariable = comp.GetVariable(rotationVariableName, prop);
             }
         }
 
