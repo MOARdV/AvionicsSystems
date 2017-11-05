@@ -130,6 +130,7 @@ namespace AvionicsSystems
         /// Have we initialized?
         /// </summary>
         private bool initialized = false;
+        internal bool isInitialized { get { return initialized; } }
 
         /// <summary>
         /// Has there been an addition or subtraction to the mutable variables list?
