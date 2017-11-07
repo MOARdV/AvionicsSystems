@@ -314,7 +314,6 @@ namespace AvionicsSystems
             UnityEngine.Object.Destroy(borderObject);
             borderObject = null;
 
-            //comp.UnregisterNumericVariable(inputName, internalProp, InputCallback);
             if (!string.IsNullOrEmpty(variableName))
             {
                 comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
