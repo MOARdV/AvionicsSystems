@@ -495,6 +495,40 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Splits an arbitrary comma-delimited string of variables which may include Lua functions that
+        /// themselves contain commas.
+        /// Returns an array of strings, or a zero-length array if the string could not be
+        /// split.
+        /// </summary>
+        /// <param name="variableListString">The string to parse</param>
+        /// <returns>Array of strings split at the commas</returns>
+        internal static string[] SplitVariableList(string variableListString)
+        {
+            // Instead of having to create a specialized parser to handle an arbitrary
+            // comma-delimited string, we wrap the provided list in parenthesis to convince
+            // the parser that it's a multi-parameter function.
+            StringBuilder sb = Utility.GetStringBuilder();
+            sb.Append("fn(");
+            sb.Append(variableListString);
+            sb.Append(")");
+            CodeGen.Parser.CompilerResult result = CodeGen.Parser.TryParse(sb.ToString());
+            if (result.type == CodeGen.Parser.ResultType.EXPRESSION_TREE)
+            {
+                CodeGen.CallExpression callExpression = result.expressionTree as CodeGen.CallExpression;
+
+                int numArgs = callExpression.NumArgs();
+
+                string[] returnString = new string[numArgs];
+                for (int i = 0; i < numArgs; ++i)
+                {
+                    returnString[i] = callExpression.Arg(i).CanonicalName();
+                }
+                return returnString;
+            }
+
+            return new string[0];
+        }
 
         /// <summary>
         /// Computes Stagnation Pressure using gamma (ratio of specific heats)
