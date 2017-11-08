@@ -50,6 +50,9 @@ namespace AvionicsSystems
         private readonly bool rangeMode;
         private bool currentState;
 
+        private bool usesTexture;
+        private float inverseTextureWidth = 1.0f;
+
         private List<string> registeredVariables = new List<string>();
         private List<Action<double>> registeredCallbacks = new List<Action<double>>();
 
@@ -142,6 +145,18 @@ namespace AvionicsSystems
             lineRenderer.SetVertexCount(numVertices);
             vertices = new Vector3[numVertices];
 
+            string textureName = string.Empty;
+            if (config.TryGetValue("texture", ref textureName))
+            {
+                Texture tex = GameDatabase.Instance.GetTexture(textureName, false);
+                if (tex != null)
+                {
+                    lineMaterial.mainTexture = tex;
+                    inverseTextureWidth = 1.0f / (float)tex.width;
+                    usesTexture = true;
+                }
+            }
+
             for (int i = 0; i < numVertices; ++i)
             {
                 // Need to make a copy of the value for the lambda capture,
@@ -159,6 +174,10 @@ namespace AvionicsSystems
                 {
                     vertices[index].x = (float)newValue;
                     lineRenderer.SetPosition(index, vertices[index]);
+                    if (usesTexture)
+                    {
+                        RecalculateTextureScale();
+                    }
                 };
                 comp.RegisterNumericVariable(vtx[0], prop, vertexX);
                 AddRegistration(vtx[0], vertexX);
@@ -168,12 +187,15 @@ namespace AvionicsSystems
                     // Invert the value, since we stipulate +y is down on the monitor.
                     vertices[index].y = -(float)newValue;
                     lineRenderer.SetPosition(index, vertices[index]);
+                    if (usesTexture)
+                    {
+                        RecalculateTextureScale();
+                    }
                 };
                 comp.RegisterNumericVariable(vtx[1], prop, vertexY);
                 AddRegistration(vtx[1], vertexY);
             }
             lineRenderer.SetPositions(vertices);
-
             EnableRender(false);
 
             if (!string.IsNullOrEmpty(variableName))
@@ -365,6 +387,22 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Recalculate the texture scale based on the new line length.  This attempts to
+        /// minimize the stretching of the texture as the length changes.
+        /// </summary>
+        private void RecalculateTextureScale()
+        {
+            int numSegments = vertices.Length - 1;
+            float netLength = 0.0f;
+            for(int i=0; i<numSegments; ++i)
+            {
+                netLength += Vector2.SqrMagnitude(vertices[i] - vertices[i + 1]);
+            }
+            netLength = Mathf.Sqrt(netLength);
+            lineMaterial.SetTextureScale("_MainTex", new Vector2(netLength * inverseTextureWidth, 1.0f));
+        }
+
+        /// <summary>
         /// Handle a changed value
         /// </summary>
         /// <param name="newValue"></param>
@@ -441,6 +479,8 @@ namespace AvionicsSystems
             {
                 comp.UnregisterNumericVariable(registeredVariables[i], internalProp, registeredCallbacks[i]);
             }
+            registeredVariables.Clear();
+            registeredCallbacks.Clear();
         }
     }
 }
