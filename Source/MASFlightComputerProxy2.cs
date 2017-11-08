@@ -800,6 +800,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Return the heading of the surface velocity vector relative to the surface in degrees [0, 360)
+        /// </summary>
+        /// <returns></returns>
+        public double HeadingPrograde()
+        {
+            return vc.progradeHeading;
+        }
+
+        /// <summary>
         /// Return pitch relative to the surface [-90, 90]
         /// </summary>
         /// <returns></returns>

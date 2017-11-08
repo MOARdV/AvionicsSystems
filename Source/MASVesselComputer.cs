@@ -491,6 +491,7 @@ namespace AvionicsSystems
         internal Vector3 forward;
         internal Vector3 top;
 
+        internal float progradeHeading;
 
         /// <summary>
         /// Because the gimbal is reflected for presentation, we need to
@@ -531,7 +532,7 @@ namespace AvionicsSystems
 
             up = vessel.upAxis;
             prograde = vessel.obt_velocity.normalized;
-            surfacePrograde = vessel.srf_velocity.normalized;
+            surfacePrograde = vessel.srf_vel_direction;
             radialOut = Vector3.ProjectOnPlane(up, prograde).normalized;
             normal = -Vector3.Cross(radialOut, prograde).normalized;
 
@@ -549,6 +550,13 @@ namespace AvionicsSystems
             {
                 surfaceForward = Vector3.Cross(up, right);
                 surfaceRight = Vector3.Cross(surfaceForward, up);
+            }
+
+            Vector3 surfaceProgradeProjected = Vector3.ProjectOnPlane(surfacePrograde, up);
+            progradeHeading = Vector3.Angle(surfaceProgradeProjected, vessel.north);
+            if (Vector3.Dot(surfaceProgradeProjected, vessel.east) < 0.0)
+            {
+                progradeHeading = 360.0f - progradeHeading;
             }
 
             // TODO: Am I computing normal wrong?
