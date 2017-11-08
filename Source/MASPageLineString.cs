@@ -46,7 +46,6 @@ namespace AvionicsSystems
         private Material lineMaterial;
         private LineRenderer lineRenderer;
 
-        private readonly string variableName;
         private MASFlightComputer.Variable range1, range2;
         private readonly bool rangeMode;
         private bool currentState;
@@ -98,10 +97,14 @@ namespace AvionicsSystems
                 throw new ArgumentException("Unable to find 'position' in LINE_STRING " + name);
             }
 
+            string variableName = string.Empty;
             if (config.TryGetValue("variable", ref variableName))
             {
                 variableName = variableName.Trim();
             }
+
+            string rotationVariableName = string.Empty;
+            config.TryGetValue("rotation", ref rotationVariableName);
 
             string range = string.Empty;
             if (config.TryGetValue("range", ref range))
@@ -183,6 +186,12 @@ namespace AvionicsSystems
             else
             {
                 lineOrigin.SetActive(true);
+            }
+
+            if (!string.IsNullOrEmpty(rotationVariableName))
+            {
+                comp.RegisterNumericVariable(rotationVariableName, prop, RotationCallback);
+                AddRegistration(rotationVariableName, RotationCallback);
             }
 
             if (string.IsNullOrEmpty(endColorString))
@@ -373,6 +382,16 @@ namespace AvionicsSystems
                 currentState = newState;
                 lineOrigin.SetActive(currentState);
             }
+        }
+
+        /// <summary>
+        /// Apply a rotation to the line string.
+        /// </summary>
+        /// <param name="newValue"></param>
+        private void RotationCallback(double newValue)
+        {
+            newValue = newValue % 360.0;
+            lineOrigin.transform.localRotation = Quaternion.Euler(new Vector3(0.0f, 0.0f, (float)newValue));
         }
 
         /// <summary>
