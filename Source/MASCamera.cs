@@ -106,7 +106,16 @@ namespace AvionicsSystems
         /// problems with lower-end machines.
         /// </summary>
         [KSPField]
-        public int cameraResolution = 512;
+        public int cameraResolution = 256;
+
+        /// <summary>
+        /// Allows a camera to refresh less often than every Update().  Values
+        /// larger than 1 indicate an update of every Nth Update() (for instance,
+        /// 2 means "Render every other frame").
+        /// </summary>
+        [KSPField]
+        public int refreshRate = 1;
+        private int frameCount = 0;
 
         /// <summary>
         /// A unique name for the camera.  Note that cameras missing a name can not
@@ -234,6 +243,8 @@ namespace AvionicsSystems
             {
                 CreateFlightCameras(1.0f);
             }
+
+            refreshRate = Math.Max(refreshRate, 1);
         }
 
         /// <summary>
@@ -492,24 +503,29 @@ namespace AvionicsSystems
 
             if (HighLogic.LoadedSceneIsFlight && renderCallback != null)
             {
-                Quaternion cameraRotation = cameraTransform.rotation * Quaternion.Euler(currentTilt, currentPan, 0.0f);
-                Vector3 cameraPosition = cameraTransform.position;
-
                 if (!cameraRentex.IsCreated())
                 {
                     cameraRentex.Create();
                 }
 
-                cameraRentex.DiscardContents();
-                for (int i = 0; i < cameraBody.Length; ++i)
+                if (refreshRate == 1 || (frameCount % refreshRate) == 0)
                 {
-                    cameraBody[i].transform.rotation = cameraRotation;
-                    cameraBody[i].transform.position = cameraPosition;
-                    cameras[i].fieldOfView = currentFov;
-                    cameras[i].Render();
+                    Quaternion cameraRotation = cameraTransform.rotation * Quaternion.Euler(currentTilt, currentPan, 0.0f);
+                    Vector3 cameraPosition = cameraTransform.position;
+
+                    cameraRentex.DiscardContents();
+                    for (int i = 0; i < cameraBody.Length; ++i)
+                    {
+                        cameraBody[i].transform.rotation = cameraRotation;
+                        cameraBody[i].transform.position = cameraPosition;
+                        cameras[i].fieldOfView = currentFov;
+                        cameras[i].Render();
+                    }
+
+                    renderCallback.Invoke(cameraRentex);
                 }
 
-                renderCallback.Invoke(cameraRentex);
+                ++frameCount;
             }
         }
 
