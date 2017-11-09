@@ -99,6 +99,16 @@ namespace AvionicsSystems
         public Vector3 rotation = Vector3.zero;
 
         /// <summary>
+        /// The resolution of the camera in pixels.  Cameras render a square
+        /// image.  Valid values are 64 to 2048.  Values outside that range are
+        /// clamped.  The value will be adjusted
+        /// to a power-of-2 if needed.  Note that large values may cause
+        /// problems with lower-end machines.
+        /// </summary>
+        [KSPField]
+        public int cameraResolution = 512;
+
+        /// <summary>
         /// A unique name for the camera.  Note that cameras missing a name can not
         /// be selected in-flight, and if several cameras have the same name,
         /// only one of them will be selectable.
@@ -248,7 +258,25 @@ namespace AvionicsSystems
         /// </summary>
         private void CreateFlightCameras(float aspectRatio)
         {
-            cameraRentex = new RenderTexture(512, 512, 24);
+            // Force cameraResolution to a legal value.
+            if (cameraResolution > 2048)
+            {
+                cameraResolution = 2048;
+            }
+            else if (cameraResolution < 64)
+            {
+                cameraResolution = 64;
+            }
+            cameraResolution &= 0x00000fc0;
+            for (int i = 0x800; i != 0; i >>= 1)
+            {
+                if ((cameraResolution & i) != 0)
+                {
+                    cameraResolution = cameraResolution & i;
+                    break;
+                }
+            }
+            cameraRentex = new RenderTexture(cameraResolution, cameraResolution, 24);
             for (int i = 0; i < cameras.Length; ++i)
             {
                 Camera sourceCamera = GetCameraByName(knownCameraNames[i]);
