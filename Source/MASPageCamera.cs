@@ -1,5 +1,4 @@
-﻿//#define DEBUG_DUMP_CAMERAS
-/*****************************************************************************
+﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
  * Copyright (c) 2017 MOARdV
@@ -40,6 +39,7 @@ namespace AvionicsSystems
         private Material postProcShader = null;
         private MeshRenderer meshRenderer;
         private RenderTexture cameraTexture;
+        private Texture missingCameraTexture;
         private string variableName;
         private MASFlightComputer.Variable range1, range2;
         string[] propertyValue = new string[0];
@@ -85,6 +85,12 @@ namespace AvionicsSystems
             else
             {
                 throw new ArgumentException("Unable to find 'cameraName' in CAMERA " + name);
+            }
+
+            string missingTextureName = string.Empty;
+            if (config.TryGetValue("missingTexture", ref missingTextureName))
+            {
+                missingCameraTexture = GameDatabase.Instance.GetTexture(missingTextureName, false);
             }
 
             if (config.TryGetValue("variable", ref variableName))
@@ -157,7 +163,7 @@ namespace AvionicsSystems
                 }
                 else
                 {
-                    Texture2D auxTexture = GameDatabase.Instance.GetTexture(textureName, false);
+                    Texture auxTexture = GameDatabase.Instance.GetTexture(textureName, false);
                     if (auxTexture == null)
                     {
                         throw new ArgumentException("Unable to find 'texture' " + textureName + " for CAMERA " + name);
@@ -231,11 +237,7 @@ namespace AvionicsSystems
                 cameraTexture.Create();
             }
             cameraTexture.DiscardContents();
-            RenderTexture backup = RenderTexture.active;
-            RenderTexture.active = cameraTexture;
-            // TODO: Blank or error texture.
-            GL.Clear(true, true, new Color(1.0f, 0.0f, 0.0f));
-            RenderTexture.active = backup;
+            ApplyMissingCamera();
 
             cameraSelector = comp.RegisterOnVariableChange(cameraName, prop, CameraSelectCallback);
             CameraSelectCallback();
@@ -245,6 +247,24 @@ namespace AvionicsSystems
                 int propertyId = Shader.PropertyToID(propertyName[i]);
                 propertyCallback[i] = delegate(double a) { PropertyCallback(propertyId, a); };
                 comp.RegisterNumericVariable(propertyValue[i], prop, propertyCallback[i]);
+            }
+        }
+
+        /// <summary>
+        /// Apply the "missing camera" effect.
+        /// </summary>
+        private void ApplyMissingCamera()
+        {
+            if (missingCameraTexture != null)
+            {
+                Graphics.Blit(missingCameraTexture, cameraTexture);
+            }
+            else
+            {
+                RenderTexture backup = RenderTexture.active;
+                RenderTexture.active = cameraTexture;
+                GL.Clear(true, true, new Color(0.016f, 0.016f, 0.031f));
+                RenderTexture.active = backup;
             }
         }
 
@@ -330,6 +350,11 @@ namespace AvionicsSystems
                 else if (!coroutineActive)
                 {
                     comp.StartCoroutine(CameraSelectCoroutine());
+                }
+
+                if (activeCamera == null)
+                {
+                    ApplyMissingCamera();
                 }
             }
             catch
