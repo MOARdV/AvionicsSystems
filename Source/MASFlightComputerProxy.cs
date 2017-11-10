@@ -371,7 +371,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the terrain height relative to the planet's datum (sea
+        /// Returns the terrain height beneath the vessel relative to the planet's datum (sea
         /// level or equivalent).  Height in meters.
         /// </summary>
         /// <returns></returns>
@@ -760,6 +760,73 @@ namespace AvionicsSystems
             }
 
             return syncOrbitPeriod;
+        }
+
+        /// <summary>
+        /// Returns the terrain height at a given latitude and longitude relative to the
+        /// planet's datum (sea level or equivalent).  Height in meters.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <param name="latitude">Latitude of the location of interest in degrees.</param>
+        /// <param name="longitude">Longitude of the location of interest in degrees.</param>
+        /// <returns>Terrain height in meters.  Will return negative values for locations below sea level.</returns>
+        public double BodyTerrainHeight(object id, double latitude, double longitude)
+        {
+            CelestialBody cb = SelectBody(id);
+            if (cb != null)
+            {
+                return cb.TerrainAltitude(latitude, longitude, true);
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns an estimate of the terrain slope at a given latitude and longitude.
+        /// If the location is beneath the ocean, it provides the slope of the ocean floor.
+        /// Values near the poles may be very inaccurate.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <param name="latitude">Latitude of the location of interest in degrees.</param>
+        /// <param name="longitude">Longitude of the location of interest in degrees.</param>
+        /// <returns>Slope in degrees.</returns>
+        public double BodyTerrainSlope(object id, double latitude, double longitude)
+        {
+            CelestialBody cb = SelectBody(id);
+            if (cb != null)
+            {
+                double displacementInMeters = 5.0;
+
+                // We compute a simple normal for the point of interest by sampling
+                // altitudes approximately 5m meters away from the location in the four
+                // cardinal directions and computing the cross product of the two vectors
+                // we generate.
+                double displacementInDegreesLatitude = 360.0 * displacementInMeters / (2.0 * Math.PI * cb.Radius);
+                // Clamp latitude
+                latitude = Math.Max(-90.0 + displacementInDegreesLatitude, Math.Min(90.0 - displacementInDegreesLatitude, latitude));
+                // Account for longitudinal compression.
+                double displacementInDegreesLongitude = displacementInDegreesLatitude / Math.Cos(latitude * Mathf.Deg2Rad);
+
+                double westAltitude = cb.TerrainAltitude(longitude - displacementInDegreesLongitude, latitude, true);
+                double eastAltitude = cb.TerrainAltitude(longitude + displacementInDegreesLongitude, latitude, true);
+                Vector3d westEastSlope = new Vector3d(displacementInMeters * 2.0, 0.0, eastAltitude - westAltitude);
+                westEastSlope.Normalize();
+
+                double southAltitude = cb.TerrainAltitude(longitude, latitude - displacementInDegreesLatitude, true);
+                double northAltitude = cb.TerrainAltitude(longitude, latitude + displacementInDegreesLatitude, true);
+                Vector3d southNorthSlope = new Vector3d(0.0, displacementInMeters * 2.0, northAltitude - southAltitude);
+                southNorthSlope.Normalize();
+
+                Vector3d normal = Vector3d.Cross(westEastSlope, southNorthSlope);
+
+                return Vector3d.Angle(normal, Vector3d.forward);
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         #endregion
