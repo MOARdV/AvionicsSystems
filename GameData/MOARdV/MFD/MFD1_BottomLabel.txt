@@ -1,1 +1,1 @@
-[hw]    RSRC   ENGINE   ------   ------   -----    -----   CAMERA
+[hw]    RSRC   ENGINE   ------   ------   -----   {0:"SCANSAT";" ----- "}  CAMERA $&$ fc.AssemblyLoaded("SCANsat") - 0.5
