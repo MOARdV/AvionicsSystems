@@ -28,11 +28,8 @@ development, there are three IVAs included in this package.
 
 Please understand that the IVA is
 not guaranteed to be a full-featured IVA ideal for regular gameplay.
-The Yarbrough08 Mk. 1-1 A2 is the current development pod, and it is mostly complete.
 
-The included IVAs are:
-
-* The Yarbrough08 Mk. 1-1 A2 Command Pod from [Yarbrough08](http://forum.kerbalspaceprogram.com/index.php?/topic/88604-wip-105-2-kerbal-command-pod-mk-1-1-a2-alpha-04-spacedock/):
+The included IVA is the Yarbrough08 Mk. 1-1 A2 Command Pod from [Yarbrough08](http://forum.kerbalspaceprogram.com/index.php?/topic/88604-wip-105-2-kerbal-command-pod-mk-1-1-a2-alpha-04-spacedock/):
 this pod is the current pod, and it is mostly feature complete.  Note that you may need to so some config file tweaking for this pod if you're
 going to play with it a lot, since it was last updated for KSP 1.0.5.
 
