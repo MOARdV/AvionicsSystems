@@ -445,7 +445,7 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Search through loaded assemblies to find the specified Type that's
-        /// in the specified assemlby.
+        /// in the specified assembly.
         /// </summary>
         /// <param name="assemblyName"></param>
         /// <param name="fullTypeName"></param>
@@ -543,6 +543,5 @@ namespace AvionicsSystems
             double term = 1.0 + 0.5 * (gamma - 1.0) * M * M;
             return Math.Pow(term, gamma / (gamma - 1.0));
         }
-
     }
 }
