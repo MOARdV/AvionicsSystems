@@ -26,20 +26,15 @@ IVAs using MAS will include at least one of alexustas's props packs - [ASET Prop
 However, since it is important to have *something* to look at before deciding to adopt this mod for IVA
 development, there are three IVAs included in this package.
 
-Please understand that these IVAs are
-not guaranteed to be a full-featured IVA ideal for regular gameplay.  Some IVAs may not
-work if I have not updated them, since I may make changes to props, and not update older IVAs.
+Please understand that the IVA is
+not guaranteed to be a full-featured IVA ideal for regular gameplay.
 The Yarbrough08 Mk. 1-1 A2 is the current development pod, and it is mostly complete.
 
 The included IVAs are:
 
-* The Mk3-9 Orbital Command Pod from [Near Future Spacecraft](http://forum.kerbalspaceprogram.com/index.php?/topic/155465-130-near-future-technologies-new-pack-nf-launch-vehicles/):
-the initial development IVA for MAS, not very developed.
-* A modified version (included in this mod) of the Kane command pod from [Bluedog Design Bureau](http://forum.kerbalspaceprogram.com/index.php?/topic/122020-13-bluedog-design-bureau-stockalike-saturn-apollo-and-more-v12-текстура-3jun2017/):
-more extensively developed, still not complete.
 * The Yarbrough08 Mk. 1-1 A2 Command Pod from [Yarbrough08](http://forum.kerbalspaceprogram.com/index.php?/topic/88604-wip-105-2-kerbal-command-pod-mk-1-1-a2-alpha-04-spacedock/):
 this pod is the current pod, and it is mostly feature complete.  Note that you may need to so some config file tweaking for this pod if you're
-going to play with this pod a lot, since it was last updated for KSP 1.0.5.
+going to play with it a lot, since it was last updated for KSP 1.0.5.
 
 ## What about RPM?
 
