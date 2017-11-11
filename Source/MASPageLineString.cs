@@ -86,7 +86,6 @@ namespace AvionicsSystems
             }
 
             string[] vertexStrings = config.GetValues("vertex");
-            Utility.LogMessage(this, "vertex - found {0} entries", vertexStrings.Length);
 
             if (vertexStrings.Length < 2)
             {
