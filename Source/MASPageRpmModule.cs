@@ -50,7 +50,6 @@ namespace AvionicsSystems
         private DynamicMethod<object, bool, int> pageActiveMethod;
         private DynamicMethod<object, int> buttonClickMethod;
 
-        //private string variableName;
         private MASFlightComputer.Variable range1, range2;
         private readonly bool rangeMode;
         private bool currentState;
@@ -145,7 +144,7 @@ namespace AvionicsSystems
                         Vector2 renderSize = Vector2.zero;
                         if (!config.TryGetValue("renderSize", ref renderSize))
                         {
-                            renderSize = new Vector2(640.0f, 640.0f);
+                            renderSize = size;
                         }
 
                         if (renderSize != size)
