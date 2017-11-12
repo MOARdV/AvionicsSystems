@@ -95,6 +95,27 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Log a message.  Suppressed by the MAS Settings debug flag.
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="values"></param>
+        internal static void LogWarning(string format, params object[] values)
+        {
+            UnityEngine.Debug.LogWarning(String.Format("[AvionicsSystems] " + format, values));
+        }
+
+        /// <summary>
+        /// Log a message associated with an object.  Suppressed by the MAS Settings debug flag.
+        /// </summary>
+        /// <param name="who"></param>
+        /// <param name="format"></param>
+        /// <param name="values"></param>
+        internal static void LogWarning(object who, string format, params object[] values)
+        {
+            UnityEngine.Debug.LogWarning(String.Format("[" + who.GetType().Name + "] " + format, values));
+        }
+
+        /// <summary>
         /// Log an error
         /// </summary>
         /// <param name="format"></param>
