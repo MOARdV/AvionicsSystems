@@ -805,7 +805,7 @@ namespace AvionicsSystems
                 // we generate.
                 double displacementInDegreesLatitude = 360.0 * displacementInMeters / (2.0 * Math.PI * cb.Radius);
                 // Clamp latitude
-                latitude = Math.Max(-90.0 + displacementInDegreesLatitude, Math.Min(90.0 - displacementInDegreesLatitude, latitude));
+                latitude = Math.Max(-90.0 + (displacementInDegreesLatitude * 1.5), Math.Min(90.0 - (displacementInDegreesLatitude * 1.5), latitude));
                 // Account for longitudinal compression.
                 double displacementInDegreesLongitude = displacementInDegreesLatitude / Math.Cos(latitude * Mathf.Deg2Rad);
 

@@ -98,6 +98,7 @@
     <Compile Include="Source\MASPageLineString.cs" />
     <Compile Include="Source\MASPersistent.cs" />
     <Compile Include="Source\MASRadar.cs" />
+    <Compile Include="Source\MASPageRpmModule.cs" />
     <Compile Include="Source\MASSettings.cs" />
     <Compile Include="Source\MASTypes.cs" />
     <Compile Include="Source\MASLoader.cs" />
@@ -137,6 +138,7 @@
     <Compile Include="Source\Parser\PrefixOperatorParselet.cs" />
     <Compile Include="Source\Parser\PrefixParselet.cs" />
     <Compile Include="Source\Utility.cs" />
+    <Compile Include="Source\VariableRegistrar.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Documents\FormattedRichText.txt" />
