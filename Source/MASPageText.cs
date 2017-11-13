@@ -23,8 +23,10 @@
  * 
  ****************************************************************************/
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -42,6 +44,11 @@ namespace AvionicsSystems
         private readonly bool rangeMode;
         private bool currentState;
 
+        private object rpmModule;
+        private DynamicMethod<object, int, int> rpmModuleTextMethod;
+        private MASFlightComputer comp;
+        private InternalProp prop;
+
         internal MASPageText(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
             if (!config.TryGetValue("name", ref name))
@@ -54,11 +61,53 @@ namespace AvionicsSystems
                 string textfile = string.Empty;
                 if (!config.TryGetValue("textfile", ref textfile))
                 {
-                    throw new ArgumentException("Unable to find 'text' or 'textfile' in TEXT " + name);
-                }
+                    string rpmModText = string.Empty;
+                    if (!config.TryGetValue("textmethod", ref rpmModText))
+                    {
+                        throw new ArgumentException("Unable to find 'text', 'textfile', or 'textmethod' in TEXT " + name);
+                    }
 
-                // Load text
-                text = string.Join(Environment.NewLine, File.ReadAllLines(KSPUtil.ApplicationRootPath + "GameData/" + textfile.Trim(), Encoding.UTF8));
+                    string[] rpmMod = rpmModText.Split(':');
+                    if (rpmMod.Length != 2)
+                    {
+                        throw new ArgumentException("Invalid 'textmethod' in TEXT " + name);
+                    }
+                    bool moduleFound = false;
+
+                    int numModules = prop.internalModules.Count;
+                    int moduleIndex;
+                    for (moduleIndex = 0; moduleIndex < numModules; ++moduleIndex)
+                    {
+                        if (prop.internalModules[moduleIndex].ClassName == rpmMod[0])
+                        {
+                            moduleFound = true;
+                            break;
+                        }
+                    }
+
+                    if (moduleFound)
+                    {
+                        rpmModule = prop.internalModules[moduleIndex];
+                        Type moduleType = prop.internalModules[moduleIndex].GetType();
+                        MethodInfo method = moduleType.GetMethod(rpmMod[1]);
+                        if (method != null && method.GetParameters().Length == 2 && method.GetParameters()[0].ParameterType == typeof(int) && method.GetParameters()[1].ParameterType == typeof(int))
+                        {
+                            rpmModuleTextMethod = DynamicMethodFactory.CreateFunc<object, int, int>(method);
+                        }
+                    }
+
+                    if (rpmModuleTextMethod != null)
+                    {
+                        this.comp = comp;
+                        this.prop = prop;
+                    }
+                    text = " ";
+                }
+                else
+                {
+                    // Load text
+                    text = string.Join(Environment.NewLine, File.ReadAllLines(KSPUtil.ApplicationRootPath + "GameData/" + textfile.Trim(), Encoding.UTF8));
+                }
             }
 
             string localFonts = string.Empty;
@@ -158,7 +207,7 @@ namespace AvionicsSystems
             textObj.material.SetFloat(Shader.PropertyToID("_EmissiveFactor"), 1.0f);
             textObj.fontStyle = style;
 
-            // text, immutable, preserveWhitespace, comp
+            // text, immutable, preserveWhitespace, comp, prop
             textObj.SetText(text, false, true, comp, prop);
             EnableRender(false);
 
@@ -167,6 +216,39 @@ namespace AvionicsSystems
                 // Disable the mesh if we're in variable mode
                 meshObject.SetActive(false);
                 comp.RegisterNumericVariable(variableName, prop, VariableCallback);
+            }
+            else
+            {
+                currentState = true;
+            }
+
+            if (rpmModuleTextMethod != null)
+            {
+                comp.StartCoroutine(TextMethodUpdate());
+            }
+        }
+
+        /// <summary>
+        /// Check to see if the RPM module has updated its text.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator TextMethodUpdate()
+        {
+            string oldText = string.Empty;
+
+            while (comp != null && prop != null)
+            {
+                // TODO: real values.
+                if (currentState)
+                {
+                    object rv = rpmModuleTextMethod(rpmModule, 40, 32);
+                    if (rv != null && (rv is string) && (rv as string) != oldText)
+                    {
+                        oldText = rv as string;
+                        textObj.SetText(oldText, true, true, comp, prop);
+                    }
+                }
+                yield return MASConfig.waitForFixedUpdate;
             }
         }
 
@@ -222,6 +304,10 @@ namespace AvionicsSystems
         /// </summary>
         public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
+            rpmModule = null;
+            this.comp = null;
+            this.prop = null;
+
             UnityEngine.GameObject.Destroy(meshObject);
             meshObject = null;
             if (!string.IsNullOrEmpty(variableName))
