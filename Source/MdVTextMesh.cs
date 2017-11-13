@@ -633,6 +633,16 @@ namespace AvionicsSystems
                             widthScaling = 1.0f;
                             charIndex += nextBracket + 1;
                         }
+                        else if (tagText == "sup")
+                        {
+                            // RPM "superscript" tag.  We'll consume it, but not do anything with it.
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "/sup")
+                        {
+                            // RPM "superscript" tag.  We'll consume it, but not do anything with it.
+                            charIndex += nextBracket + 1;
+                        }
                         else // Else we didn't recognise anything so it's not a tag.
                         {
                             break;
@@ -783,6 +793,16 @@ namespace AvionicsSystems
                         else if (tagText == "/dw")
                         {
                             widthScaling = 1.0f;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "sup")
+                        {
+                            // RPM "superscript" tag.  We'll consume it, but not do anything with it.
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "/sup")
+                        {
+                            // RPM "superscript" tag.  We'll consume it, but not do anything with it.
                             charIndex += nextBracket + 1;
                         }
                         else // Else we didn't recognise anything so it's not a tag.
@@ -1029,6 +1049,16 @@ namespace AvionicsSystems
                             widthScaling = 1.0f;
                             charIndex += nextBracket + 1;
                         }
+                        else if (tagText == "sup")
+                        {
+                            // RPM "superscript" tag.  We'll consume it, but not do anything with it.
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "/sup")
+                        {
+                            // RPM "superscript" tag.  We'll consume it, but not do anything with it.
+                            charIndex += nextBracket + 1;
+                        }
                         else // Else we didn't recognise anything so it's not a tag.
                         {
                             break;
@@ -1220,6 +1250,16 @@ namespace AvionicsSystems
                         else if (tagText == "/dw")
                         {
                             widthScaling = 1.0f;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "sup")
+                        {
+                            // RPM "superscript" tag.  We'll consume it, but not do anything with it.
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText == "/sup")
+                        {
+                            // RPM "superscript" tag.  We'll consume it, but not do anything with it.
                             charIndex += nextBracket + 1;
                         }
                         else // Else we didn't recognise anything so it's not a tag.
