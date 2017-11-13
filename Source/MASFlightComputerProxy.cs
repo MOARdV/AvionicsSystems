@@ -775,7 +775,14 @@ namespace AvionicsSystems
             CelestialBody cb = SelectBody(id);
             if (cb != null)
             {
-                return cb.TerrainAltitude(latitude, longitude, true);
+                if (cb.pqsController != null)
+                {
+                    return cb.pqsController.GetSurfaceHeight(QuaternionD.AngleAxis(longitude, Vector3d.down) * QuaternionD.AngleAxis(latitude, Vector3d.forward) * Vector3d.right) - cb.Radius;
+                }
+                else
+                {
+                    return cb.TerrainAltitude(latitude, longitude, true);
+                }
             }
             else
             {
@@ -803,25 +810,47 @@ namespace AvionicsSystems
                 // altitudes approximately 5m meters away from the location in the four
                 // cardinal directions and computing the cross product of the two vectors
                 // we generate.
+
                 double displacementInDegreesLatitude = 360.0 * displacementInMeters / (2.0 * Math.PI * cb.Radius);
                 // Clamp latitude
                 latitude = Math.Max(-90.0 + (displacementInDegreesLatitude * 1.5), Math.Min(90.0 - (displacementInDegreesLatitude * 1.5), latitude));
                 // Account for longitudinal compression.
                 double displacementInDegreesLongitude = displacementInDegreesLatitude / Math.Cos(latitude * Mathf.Deg2Rad);
 
-                double westAltitude = cb.TerrainAltitude(longitude - displacementInDegreesLongitude, latitude, true);
-                double eastAltitude = cb.TerrainAltitude(longitude + displacementInDegreesLongitude, latitude, true);
-                Vector3d westEastSlope = new Vector3d(displacementInMeters * 2.0, 0.0, eastAltitude - westAltitude);
-                westEastSlope.Normalize();
+                PQS pqs = cb.pqsController;
+                if (pqs != null)
+                {
+                    double westAltitude = pqs.GetSurfaceHeight(QuaternionD.AngleAxis(longitude - displacementInDegreesLongitude, Vector3d.down) * QuaternionD.AngleAxis(latitude, Vector3d.forward) * Vector3d.right);
+                    double eastAltitude = pqs.GetSurfaceHeight(QuaternionD.AngleAxis(longitude + displacementInDegreesLongitude, Vector3d.down) * QuaternionD.AngleAxis(latitude, Vector3d.forward) * Vector3d.right);
+                    Vector3d westEastSlope = new Vector3d(displacementInMeters * 2.0, 0.0, eastAltitude - westAltitude);
+                    westEastSlope.Normalize();
 
-                double southAltitude = cb.TerrainAltitude(longitude, latitude - displacementInDegreesLatitude, true);
-                double northAltitude = cb.TerrainAltitude(longitude, latitude + displacementInDegreesLatitude, true);
-                Vector3d southNorthSlope = new Vector3d(0.0, displacementInMeters * 2.0, northAltitude - southAltitude);
-                southNorthSlope.Normalize();
+                    double southAltitude = pqs.GetSurfaceHeight(QuaternionD.AngleAxis(longitude, Vector3d.down) * QuaternionD.AngleAxis(latitude - displacementInDegreesLatitude, Vector3d.forward) * Vector3d.right);
+                    double northAltitude = pqs.GetSurfaceHeight(QuaternionD.AngleAxis(longitude, Vector3d.down) * QuaternionD.AngleAxis(latitude + displacementInDegreesLatitude, Vector3d.forward) * Vector3d.right);
+                    Vector3d southNorthSlope = new Vector3d(0.0, displacementInMeters * 2.0, northAltitude - southAltitude);
+                    southNorthSlope.Normalize();
 
-                Vector3d normal = Vector3d.Cross(westEastSlope, southNorthSlope);
+                    Vector3d normal = Vector3d.Cross(westEastSlope, southNorthSlope);
 
-                return Vector3d.Angle(normal, Vector3d.forward);
+                    return Vector3d.Angle(normal, Vector3d.forward);
+                }
+                else
+                {
+                    // No PQS controller?  Have to use TerrainAltitude(), which seems to report bogus values.
+                    double westAltitude = cb.TerrainAltitude(longitude - displacementInDegreesLongitude, latitude, true);
+                    double eastAltitude = cb.TerrainAltitude(longitude + displacementInDegreesLongitude, latitude, true);
+                    Vector3d westEastSlope = new Vector3d(displacementInMeters * 2.0, 0.0, eastAltitude - westAltitude);
+                    westEastSlope.Normalize();
+
+                    double southAltitude = cb.TerrainAltitude(longitude, latitude - displacementInDegreesLatitude, true);
+                    double northAltitude = cb.TerrainAltitude(longitude, latitude + displacementInDegreesLatitude, true);
+                    Vector3d southNorthSlope = new Vector3d(0.0, displacementInMeters * 2.0, northAltitude - southAltitude);
+                    southNorthSlope.Normalize();
+
+                    Vector3d normal = Vector3d.Cross(westEastSlope, southNorthSlope);
+
+                    return Vector3d.Angle(normal, Vector3d.forward);
+                }
             }
             else
             {
