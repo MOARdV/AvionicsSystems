@@ -141,23 +141,9 @@
     <Compile Include="Source\VariableRegistrar.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Documents\FormattedRichText.txt" />
-    <Content Include="Documents\MASComponent.txt" />
-    <Content Include="Documents\ConfigFile.txt" />
-    <Content Include="Documents\FAQ.txt" />
-    <Content Include="Documents\Introduction.txt" />
-    <Content Include="Documents\License.txt" />
-    <Content Include="Documents\MASMonitor.txt" />
-    <Content Include="Documents\MASNavBall.txt" />
-    <Content Include="Documents\Persistent.txt" />
-    <Content Include="Documents\PortingRPM.txt" />
-    <Content Include="Documents\QuickStart.txt" />
+    <Content Include="Documents\MOARdV_IVA_Design.txt" />
     <Content Include="Documents\ReadMe-Documents.txt" />
     <Content Include="Documents\RPM-VariableList.txt" />
-    <Content Include="Documents\TipsAndTricks.txt" />
-    <Content Include="Documents\ToDo.txt" />
-    <Content Include="Documents\UnderTheHood.txt" />
-    <Content Include="Documents\Variables.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Monitor.shader" />
