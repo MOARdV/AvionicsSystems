@@ -503,6 +503,24 @@ namespace AvionicsSystems
         {
             return new Quaternion(input.x, -input.y, -input.z, input.w);
         }
+
+        /// <summary>
+        /// Do a ray-cast to determine slope beneath the vessel.
+        /// </summary>
+        /// <returns>Slope, or 0 if it can not be computed.</returns>
+        internal double GetSlopeAngle()
+        {
+            RaycastHit sfc;
+            if (Physics.Raycast(vessel.CoM, -up, out sfc, (float)altitudeASL + 1000.0f, 1 << 15))
+            {
+                return Vector3.Angle(up, sfc.normal);
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
         void UpdateAttitude()
         {
             Quaternion relativeGimbal = navBall.relativeGymbal;
