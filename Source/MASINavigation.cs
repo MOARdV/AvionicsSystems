@@ -126,8 +126,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// **UNTESTED**
-        /// 
         /// Returns the latitude found at the given range along the given bearing.
         /// 
         /// **TODO:** Replace `fc.DestinationLatitude` and `fc.DestinationLongitude` with
@@ -156,8 +154,6 @@ where	φ is latitude, λ is longitude, θ is the bearing (clockwise from north),
         }
 
         /// <summary>
-        /// **UNTESTED**
-        /// 
         /// Returns the latitude found at the given range along the given bearing from the current vessel.
         /// </summary>
         /// <param name="range">Distance to travel along the bearing, in meters.</param>
@@ -169,8 +165,6 @@ where	φ is latitude, λ is longitude, θ is the bearing (clockwise from north),
         }
 
         /// <summary>
-        /// **UNTESTED**
-        /// 
         /// Returns the longitude found at the given range along the given bearing from the point of origin.
         /// </summary>
         /// <param name="latitude">Latitude of the point of origin.  Negative values indicate south, positive is north.</param>
@@ -198,8 +192,6 @@ where	φ is latitude, λ is longitude, θ is the bearing (clockwise from north),
         }
 
         /// <summary>
-        /// **UNTESTED**
-        /// 
         /// Returns the longitude found at the given range along the given bearing from the current vessel.
         /// </summary>
         /// <param name="range">Distance to travel along the bearing, in meters.</param>
