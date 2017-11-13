@@ -3,7 +3,7 @@ most of the variables in RasterPropMonitor, along with the MAS equivalent.  I'm 
 as a master list of how much work I still need to do, although it doubles as a handy
 translation guide for anyone else who needs it.
 
-Incomplete variables (to-do list): 79 variables
+Incomplete variables (to-do list): 70 variables
 "ACCELFORWARD":
 "ACCELNORMAL":
 "ACCELPROGRADE":
@@ -22,7 +22,6 @@ Incomplete variables (to-do list): 79 variables
 "EFFECTIVERAWTHROTTLE":
 "EFFECTIVETHROTTLE":
 "ENCOUNTERBODY":
-"ENGINECOUNT":
 "FUNDS":
 "HEATSHIELDTEMPERATURE":
 "HEATSHIELDTEMPERATUREKELVIN":
@@ -52,15 +51,8 @@ Incomplete variables (to-do list): 79 variables
 "PODSKINTEMPERATUREKELVIN":
 "PREDICTEDLANDINGERROR":
 "REPUTATION":
-"SASMODEMANEUVER":
-"SASMODENORMAL":
-"SASMODEPROGRADE":
-"SASMODERADIAL":
-"SASMODESTABILITY":
-"SASMODETARGET":
 "SCIENCECOUNT":
 "SCIENCEDATA":
-"SLOPEANGLE":
 "SPEEDATIMPACT":
 "SUICIDEBURNSTARTSECS":
 "TARGETANGLEX":
@@ -81,7 +73,6 @@ Incomplete variables (to-do list): 79 variables
 "TARGETSIZECLASS":
 "TERMINALVELOCITY":
 "TERRAINDELTA":
-"THRUSTLIMIT":
 "TIMETOIMPACTSECS":
 
 
@@ -138,7 +129,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "ENCOUNTERBODY":
 "ENCOUNTEREXISTS": fc.NextSoI()
 "ENCOUNTERTIME": fc.TimeToSoI()
-"ENGINECOUNT":
+"ENGINECOUNT": fc.EngineCountTotal()
 "ENGINEFLAMEOUTALARM": fc.EngineFlameout()
 "ENGINEOVERHEATALARM": -replaced with Lua scripting-
 "EXTERNALTEMPERATURE": fc.ExternalTemperature(false)
@@ -281,12 +272,12 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "ROLLRATE": fc.RollRate()
 "RPMVERSION": -no replacement-
 "SAS": fc.GetSAS()
-"SASMODEMANEUVER":
-"SASMODENORMAL":
-"SASMODEPROGRADE":
-"SASMODERADIAL":
-"SASMODESTABILITY":
-"SASMODETARGET":
+"SASMODEMANEUVER": fc.GetSASMode() == 9
+"SASMODENORMAL": fc.GetSASMode() == 3 or fc.GetSASMode() == 4
+"SASMODEPROGRADE": fc.GetSASMode() == 1 or fc.GetSASMode() == 2
+"SASMODERADIAL": fc.GetSASMode() == 5 or fc.GetSASMode() == 6
+"SASMODESTABILITY": fc.GetSASMode() == 0
+"SASMODETARGET": fc.GetSASMode() == y or fc.GetSASMode() == 8
 "SCIENCECOUNT":
 "SCIENCEDATA":
 "SELECT": -replaced with Lua scripting-
@@ -295,7 +286,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "SIDESLIP": fc.Sideslip()
 "SITUATION": fc.VesselSituation() returns a number instead of a string
 "SLOPEALARM": -replaced with Lua scripting-
-"SLOPEANGLE":
+"SLOPEANGLE": fc.SlopeAngle()
 "SPEEDATIMPACT":
 "SPEEDDISPLAYMODE": fc.SpeedDisplayMode()
 "STAGE": fc.CurrentStage()
@@ -390,7 +381,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "TGTRELZ": fc.TargetVelocityZ()
 "THROTTLE": fc.GetThrottle()
 "THRUST": fc.CurrentThrustkN()
-"THRUSTLIMIT":
+"THRUSTLIMIT": fc.GetThrottleLimit()
 "THRUSTMAX": fc.MaxThrustkN(true)
 "THRUSTMAXRAW": fc.MaxThrustkN(false)
 "TIMEOFDAYSECS": fc.TimeOfDay(fc.UT())
