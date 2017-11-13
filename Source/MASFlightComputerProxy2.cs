@@ -1101,6 +1101,16 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the slope of the terrain directly below the vessel.  If the vessel's altitude
+        /// is too high to read the slope, returns 0.
+        /// </summary>
+        /// <returns>Slope of the terrain below the vessel, or 0 if the slope cannot be read.</returns>
+        public double SlopeAngle()
+        {
+            return vc.GetSlopeAngle();
+        }
+
+        /// <summary>
         /// Yaw of the vessel relative to the orbit's anti-normal vector.
         /// </summary>
         /// <returns></returns>
