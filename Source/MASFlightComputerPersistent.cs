@@ -283,6 +283,64 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Set a persistent to a value, but limit the amount that the persistent may change
+        /// in a given period of time.
+        /// </summary>
+        /// <param name="persistentName"></param>
+        /// <param name="value"></param>
+        /// <param name="maxRatePerSecond"></param>
+        /// <returns></returns>
+        internal double SetPersistentBlended(string persistentName, double value, double maxRatePerSecond)
+        {
+            double result;
+            object val;
+            if (persistentVars.TryGetValue(persistentName, out val))
+            {
+                if (val is double)
+                {
+                    result = (double)val;
+                }
+                else if (!double.TryParse(val as string, out result))
+                {
+                    result = value;
+                }
+            }
+            else
+            {
+                result = value;
+                persistentVars[persistentName] = result;
+                // Early return: Initializing the value
+                return result;
+            }
+
+            if(maxRatePerSecond > 0.0)
+            {
+                double delta = Math.Abs(value - result);
+                delta = Math.Min(delta, maxRatePerSecond * TimeWarp.fixedDeltaTime);
+
+                if (value < result)
+                {
+                    result -= delta;
+                }
+                else
+                {
+                    result += delta;
+                }
+            }
+            else
+            {
+                result = value;
+            }
+
+            if (result != value)
+            { 
+                persistentVars[persistentName] = result; 
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Treat the persistent as a boolean value (0 or 1) and toggle it.
         /// Treat it like it was 0 if it wasn't found (thus setting it to 1).
         /// If it is a string, try to convert it to a numeric before toggling.

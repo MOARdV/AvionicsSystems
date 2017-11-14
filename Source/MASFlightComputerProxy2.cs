@@ -1505,6 +1505,30 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Set a persistent to `value`, but allow the persistent to change by at most `maxChangePerSecond`
+        /// from its initial value.
+        /// 
+        /// If the persistent did not already exist, or if it was a string that could not be converted to
+        /// a number, it is set to value immediately.
+        /// 
+        /// For other cases, the persistent's value is updated by adding or subtracting the minimum of
+        /// (maxChangePerSecond * timestep) or Abs(old value - value).
+        /// 
+        /// While this method is a "setter" method, it is best applied where its results are displayed,
+        /// such as a number on an MFD, or controlling the animation of a prop.  This will ensure that
+        /// the number continually updates, whereas using this method in a collider action will cause it
+        /// to only update the value when the collider is hit.
+        /// </summary>
+        /// <param name="persistentName">The name of the persistent variable to change.</param>
+        /// <param name="value">The new value for this variable.</param>
+        /// <param name="maxChangePerSecond">The maximum amount the existing variable may change per second.</param>
+        /// <returns>The resulting value.</returns>
+        public double SetPersistentBlended(string persistentName, double value, double maxChangePerSecond)
+        {
+            return fc.SetPersistentBlended(persistentName, value, maxChangePerSecond);
+        }
+
+        /// <summary>
         /// Toggle a persistent between 0 and 1.
         /// 
         /// If the persistent is a number, it becomes 0 if it was a
