@@ -561,13 +561,16 @@ namespace AvionicsSystems
 
                 Utility.LogInfo(this, "{3} variables created: {0} constant variables, {1} native variables, and {2} Lua variables",
                     constantVariableCount, nativeVariableCount, luaVariableCount, variables.Count);
-                double msPerFixedUpdate = 1000.0 * (double)(nativeStopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
-                double samplesPerMs = (double)nativeVariablesCount / (1000.0 * (double)(nativeStopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
-                Utility.LogInfo(this, "FixedUpdate native average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
+                if (samplecount > 0)
+                {
+                    double msPerFixedUpdate = 1000.0 * (double)(nativeStopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
+                    double samplesPerMs = (double)nativeVariablesCount / (1000.0 * (double)(nativeStopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
+                    Utility.LogInfo(this, "FixedUpdate native average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
 
-                msPerFixedUpdate = 1000.0 * (double)(luaStopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
-                samplesPerMs = (double)luaVariablesCount / (1000.0 * (double)(luaStopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
-                Utility.LogInfo(this, "FixedUpdate Lua    average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
+                    msPerFixedUpdate = 1000.0 * (double)(luaStopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
+                    samplesPerMs = (double)luaVariablesCount / (1000.0 * (double)(luaStopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
+                    Utility.LogInfo(this, "FixedUpdate Lua    average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
+                }
             }
         }
 
