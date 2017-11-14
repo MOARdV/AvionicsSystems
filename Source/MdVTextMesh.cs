@@ -110,7 +110,7 @@ namespace AvionicsSystems
         private Font font;
         private MeshRenderer meshRenderer;
         private MeshFilter meshFilter;
-        private TextRow[] textRow;
+        private TextRow[] textRow = new TextRow[0];
         private Color32 color;
         private int fontSize;
         private float characterScalar = 1.0f;
@@ -408,6 +408,7 @@ namespace AvionicsSystems
                     textRow[i].callback = null;
                 }
             }
+
             internalProp = null;
             comp = null;
 
