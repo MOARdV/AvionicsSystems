@@ -65,6 +65,8 @@ namespace AvionicsSystems
                     return new MASPageVerticalBar(config, prop, comp, monitor, pageRoot, depth);
                 case "VERTICAL_STRIP":
                     return new MASPageVerticalStrip(config, prop, comp, monitor, pageRoot, depth);
+                case "VIEWPORT":
+                    return new MASPageViewport(config, prop, comp, monitor, pageRoot, depth);
                 default:
                     throw new ArgumentException("Unrecognized MASPage child node " + config.name);
             }
