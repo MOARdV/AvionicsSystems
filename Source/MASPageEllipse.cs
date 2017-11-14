@@ -48,6 +48,10 @@ namespace AvionicsSystems
         private MASFlightComputer.Variable range1, range2;
         private readonly bool rangeMode;
         private bool currentState;
+        
+        private readonly int numVertices;
+        private readonly float radiansPerVertex;
+        private float radiusX, radiusY;
 
         private bool usesTexture;
         private float inverseTextureWidth = 1.0f;
@@ -85,7 +89,7 @@ namespace AvionicsSystems
                 endWidthString = string.Empty;
             }
 
-            int numVertices = 0;
+            numVertices = 0;
             if (!config.TryGetValue("vertexCount", ref numVertices))
             {
                 throw new ArgumentException("Unable to find 'vertexCount' in ELLIPSE " + name);
@@ -94,17 +98,7 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("'vertexCount' must be at least 3 in ELLIPSE " + name);
             }
-
-            float radiusX = 0.0f;
-            if (!config.TryGetValue("radiusX", ref radiusX))
-            {
-                throw new ArgumentException("Unable to find 'radiusX' in ELLIPSE " + name);
-            }
-            float radiusY = 0.0f;
-            if (!config.TryGetValue("radiusY", ref radiusY))
-            {
-                radiusY = radiusX;
-            }
+            radiansPerVertex = (2.0f * Mathf.PI) / (float)numVertices;
 
             Vector2 position = Vector2.zero;
             if (!config.TryGetValue("position", ref position))
@@ -169,29 +163,39 @@ namespace AvionicsSystems
                 }
             }
 
-            float radiansPerVertex = (2.0f * Mathf.PI) / (float)numVertices;
-            float theta = 0.0f;
-            for (int i = 0; i < numVertices; ++i)
+            string radiusXName = string.Empty;
+            if (!config.TryGetValue("radiusX", ref radiusXName))
             {
-                float sinTheta = Mathf.Sin(theta);
-                float cosTheta = Mathf.Cos(theta);
-                theta += radiansPerVertex;
-
-                vertices[i] = Vector3.zero;
-                vertices[i].x = radiusX * cosTheta;
-                vertices[i].y = radiusY * sinTheta;
+                throw new ArgumentException("Unable to find 'radiusX' in ELLIPSE " + name);
             }
-            // Unity 5.4 doesn't support closed loops, so we have to do that manually.
-            vertices[numVertices] = Vector3.zero;
-            vertices[numVertices].x = radiusX;
+            string radiusYName = string.Empty;
+            if (!config.TryGetValue("radiusY", ref radiusYName))
+            {
+                Action<double> newRadius = (double newValue) =>
+                {
+                    radiusX = (float)newValue;
+                    radiusY = radiusX;
+                    RecalculateVertices();
+                };
+                registeredVariables.RegisterNumericVariable(radiusXName, newRadius);
+            }
+            else
+            {
+                Action<double> newRadiusX = (double newValue) =>
+                {
+                    radiusX = (float)newValue;
+                    RecalculateVertices();
+                };
+                registeredVariables.RegisterNumericVariable(radiusXName, newRadiusX);
+                Action<double> newRadiusY = (double newValue) =>
+                {
+                    radiusY = (float)newValue;
+                    RecalculateVertices();
+                };
+                registeredVariables.RegisterNumericVariable(radiusYName, newRadiusY);
+            }
 
-            lineRenderer.SetPositions(vertices);
             EnableRender(false);
-
-            if (usesTexture)
-            {
-                RecalculateTextureScale();
-            }
 
             if (!string.IsNullOrEmpty(variableName))
             {
@@ -354,18 +358,40 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Recalculate the vertices of the ellipse.
+        /// </summary>
+        private void RecalculateVertices()
+        {
+            float theta = 0.0f;
+            for (int i = 0; i < numVertices; ++i)
+            {
+                float sinTheta = Mathf.Sin(theta);
+                float cosTheta = Mathf.Cos(theta);
+                theta += radiansPerVertex;
+
+                vertices[i] = Vector3.zero;
+                vertices[i].x = radiusX * cosTheta;
+                vertices[i].y = radiusY * sinTheta;
+            }
+            // Unity 5.4 doesn't support closed loops, so we have to do that manually.
+            vertices[numVertices] = Vector3.zero;
+            vertices[numVertices].x = radiusX;
+
+            lineRenderer.SetPositions(vertices);
+
+            if (usesTexture)
+            {
+                RecalculateTextureScale();
+            }
+        }
+
+        /// <summary>
         /// Recalculate the texture scale based on the new line length.  This attempts to
         /// minimize the stretching of the texture as the length changes.
         /// </summary>
         private void RecalculateTextureScale()
         {
-            int numSegments = vertices.Length - 1;
-            float netLength = 0.0f;
-            for (int i = 0; i < numSegments; ++i)
-            {
-                netLength += Vector2.SqrMagnitude(vertices[i] - vertices[i + 1]);
-            }
-            netLength = Mathf.Sqrt(netLength);
+            float netLength = Mathf.PI * (3.0f * (radiusX + radiusY) - Mathf.Sqrt((3.0f * radiusX + radiusY) * (3.0f * radiusY + radiusX)));
             lineMaterial.SetTextureScale("_MainTex", new Vector2(netLength * inverseTextureWidth, 1.0f));
         }
 
