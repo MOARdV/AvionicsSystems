@@ -58,8 +58,6 @@ namespace AvionicsSystems
                     return new MASActionColorShift(config, prop, comp);
                 case "COLLIDER_EVENT":
                     return new MASActionColliderEvent(config, prop, comp);
-                case "DYNAMIC_TEXTURE_SHIFT":
-                    return new MASActionDynamicTextureShift(config, prop, comp);
                 case "IMAGE":
                     return new MASActionImage(config, prop, comp);
                 case "INT_LIGHT":

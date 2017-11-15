@@ -66,7 +66,6 @@
     <Compile Include="Source\MASActionAudioPlayer.cs" />
     <Compile Include="Source\MASActionColliderEvent.cs" />
     <Compile Include="Source\MASActionColorShift.cs" />
-    <Compile Include="Source\MASActionDynamicTextureShift.cs" />
     <Compile Include="Source\MASActionImage.cs" />
     <Compile Include="Source\MASActionIntLight.cs" />
     <Compile Include="Source\MASActionModelScale.cs" />
@@ -102,7 +101,6 @@
     <Compile Include="Source\MASRadar.cs" />
     <Compile Include="Source\MASPageRpmModule.cs" />
     <Compile Include="Source\MASSettings.cs" />
-    <Compile Include="Source\MASTypes.cs" />
     <Compile Include="Source\MASLoader.cs" />
     <Compile Include="Source\MASFlightComputer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

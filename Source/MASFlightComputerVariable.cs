@@ -1060,13 +1060,6 @@ namespace AvionicsSystems
                         doubleValue = double.NaN;
                         stringValue = bValue.ToString();
                     }
-                    else if (value is MASVector2)
-                    {
-                        Vector2 v = (Vector2)(MASVector2)value;
-                        safeValue = v.sqrMagnitude;
-                        doubleValue = safeValue;
-                        stringValue = v.ToString();
-                    }
                     else if (value == null)
                     {
                         safeValue = 0.0;

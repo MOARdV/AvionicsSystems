@@ -643,8 +643,6 @@ namespace AvionicsSystems
                     fcProxy = new MASFlightComputerProxy(this, farProxy, mjProxy);
                     UserData.RegisterType<MASFlightComputerProxy>();
                     script.Globals["fc"] = fcProxy;
-
-                    UserData.RegisterType<MASVector2>();
                 }
                 catch (Exception e)
                 {

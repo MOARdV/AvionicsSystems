@@ -2428,17 +2428,6 @@ namespace AvionicsSystems
         {
             return value.Remap(bound1, bound2, map1, map2);
         }
-
-        /// <summary>
-        /// Returns a Vector2 proxy object initialized to the specified parameters.
-        /// </summary>
-        /// <param name="x">The X parameter of the vector</param>
-        /// <param name="y">The Y parameter of the vector</param>
-        /// <returns>An object that represents a two-element vector.</returns>
-        public DynValue Vector2(double x, double y)
-        {
-            return UserData.Create(new MASVector2((float)x, (float)y));
-        }
         #endregion
 
         /// <summary>
