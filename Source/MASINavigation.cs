@@ -86,8 +86,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// **UNTESTED**
-        /// 
         /// Returns the great-circle route bearing from (lat1, lon1) to (lat2, lon2).
         /// </summary>
         /// <param name="latitude1">Latitude of position 1 in degrees.  Negative values indicate south, positive is north.</param>
@@ -108,12 +106,10 @@ namespace AvionicsSystems
             //double y = Math.Sin(lon2 - lon1) * Math.Cos(lat2);
             //double x = Math.Cos(lat1) * Math.Sin(lat2) -
             //        Math.Sin(lat1) * Math.Cos(lat2) * Math.Cos(lon2 - lon1);
-            return Math.Atan2(y, x) * Rad2Deg;
+            return Utility.NormalizeAngle(Math.Atan2(y, x) * Rad2Deg);
         }
 
         /// <summary>
-        /// **UNTESTED**
-        /// 
         /// Returns the great-circle bearing from the vessel to the specified
         /// lat/lon coordinates.
         /// </summary>
@@ -139,12 +135,10 @@ namespace AvionicsSystems
         /// <returns>Latitude in degrees.</returns>
         public double DestinationLatitude(double latitude, double longitude, double range, double bearing)
         {
-            /*
-Formula:	
-φ2 = asin( sin φ1 ⋅ cos δ + cos φ1 ⋅ sin δ ⋅ cos θ )
-λ2 = λ1 + atan2( sin θ ⋅ sin δ ⋅ cos φ1, cos δ − sin φ1 ⋅ sin φ2 )
-where	φ is latitude, λ is longitude, θ is the bearing (clockwise from north), δ is the angular distance d/R; d being the distance travelled, R the earth’s radius
-             */
+            //Formula:	
+            //φ2 = asin( sin φ1 ⋅ cos δ + cos φ1 ⋅ sin δ ⋅ cos θ )
+            //λ2 = λ1 + atan2( sin θ ⋅ sin δ ⋅ cos φ1, cos δ − sin φ1 ⋅ sin φ2 )
+            //where	φ is latitude, λ is longitude, θ is the bearing (clockwise from north), δ is the angular distance d/R; d being the distance travelled, R the earth’s radius
             double phi1 = latitude * Deg2Rad;
             double theta = bearing * Deg2Rad;
             double delta = range / bodyRadius;
@@ -174,12 +168,10 @@ where	φ is latitude, λ is longitude, θ is the bearing (clockwise from north),
         /// <returns>Longitude in degrees.</returns>
         public double DestinationLongitude(double latitude, double longitude, double range, double bearing)
         {
-            /*
-Formula:	
-φ2 = asin( sin φ1 ⋅ cos δ + cos φ1 ⋅ sin δ ⋅ cos θ )
-λ2 = λ1 + atan2( sin θ ⋅ sin δ ⋅ cos φ1, cos δ − sin φ1 ⋅ sin φ2 )
-where	φ is latitude, λ is longitude, θ is the bearing (clockwise from north), δ is the angular distance d/R; d being the distance travelled, R the earth’s radius
-             */
+            //Formula:	
+            //φ2 = asin( sin φ1 ⋅ cos δ + cos φ1 ⋅ sin δ ⋅ cos θ )
+            //λ2 = λ1 + atan2( sin θ ⋅ sin δ ⋅ cos φ1, cos δ − sin φ1 ⋅ sin φ2 )
+            //where	φ is latitude, λ is longitude, θ is the bearing (clockwise from north), δ is the angular distance d/R; d being the distance travelled, R the earth’s radius
             double phi1 = latitude * Deg2Rad;
             double lambda1 = longitude * Deg2Rad;
             double theta = bearing * Deg2Rad;
