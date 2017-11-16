@@ -721,14 +721,13 @@ namespace AvionicsSystems
                 {
                     if (moduleRcs[i].rcs_active)
                     {
-                        anyRcsFiring = true;
-
                         for (int q = 0; q < moduleRcs[i].thrustForces.Length; ++q)
                         {
                             if (moduleRcs[i].thrustForces[q] > 0.0f)
                             {
                                 rcsActiveThrustPercent += moduleRcs[i].thrustForces[q] / moduleRcs[i].thrusterPower;
                                 numActiveThrusters += 1.0f;
+                                anyRcsFiring = true;
                             }
                         }
                     }
