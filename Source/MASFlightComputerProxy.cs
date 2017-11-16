@@ -1991,7 +1991,7 @@ namespace AvionicsSystems
         /// Returns the maximum thrust in kN for the current altitude.
         /// </summary>
         /// <param name="useThrottleLimits">Apply throttle limits?</param>
-        /// <returns></returns>
+        /// <returns>Maximum thrust in kN</returns>
         public double MaxThrustkN(bool useThrottleLimits)
         {
             return (useThrottleLimits) ? vc.currentLimitedMaxThrust : vc.currentMaxThrust;
@@ -2000,10 +2000,11 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the maximum thrust-to-weight ratio.
         /// </summary>
-        /// <returns></returns>
-        public double MaxTWR()
+        /// <param name="useThrottleLimits">Apply throttle limits?</param>
+        /// <returns>Thrust-to-weight ratio, between 0 and 1.</returns>
+        public double MaxTWR(bool useThrottleLimits)
         {
-            return vc.currentMaxThrust / (vessel.totalMass * vc.surfaceAccelerationFromGravity);
+            return ((useThrottleLimits) ? vc.currentLimitedMaxThrust : vc.currentMaxThrust) / (vessel.totalMass * vc.surfaceAccelerationFromGravity);
         }
 
         /// <summary>
