@@ -338,8 +338,11 @@ namespace AvionicsSystems
         /// <param name="enable"></param>
         public void EnableRender(bool enable)
         {
-            lineRenderer.enabled = enable;
             meshRenderer.enabled = enable;
+            if (lineRenderer != null)
+            {
+                lineRenderer.enabled = enable;
+            }
         }
 
         /// <summary>
