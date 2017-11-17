@@ -168,6 +168,51 @@ namespace AvionicsSystems
             ProcessResourceData();
         }
 
+        /// <summary>
+        /// This method is called when a vessel computer awakens since the waypoint manager doesn't
+        /// appear to be initialized before the Flight scene.  This method ensures that all of the
+        /// MAS NAVAIDS are registered in the waypoint manager.
+        /// </summary>
+        private void InitializeNavAids()
+        {
+            FinePrint.WaypointManager waypointManager = FinePrint.WaypointManager.Instance();
+            List<FinePrint.Waypoint> knownWaypoints = waypointManager.Waypoints;
+
+            int numNavAids = MASLoader.navaids.Count;
+            for (int i = 0; i < numNavAids; ++i)
+            {
+                FinePrint.Waypoint newwp = MASLoader.navaids[i].ToWaypoint(i);
+                if (newwp != null)
+                {
+                    FinePrint.Waypoint wp = knownWaypoints.Find(x => x.name == newwp.name);
+                    if (wp == null)
+                    {
+                        // Note: this is round-about, but it appears to be the way to register
+                        // waypoints to show up in Waypoint Manager.  If I simply add the
+                        // waypoint directly using FinePrint.WaypointManager, it's present there, but
+                        // not in the Waypoint Manager mod's GUI list.  So this is a simple
+                        // way to get compatibility.
+                        ConfigNode master = new ConfigNode("CUSTOM_WAYPOINTS");
+
+                        ConfigNode child = new ConfigNode("WAYPOINT");
+                        child.AddValue("latitude", newwp.latitude);
+                        child.AddValue("longitude", newwp.longitude);
+                        child.AddValue("altitude", newwp.altitude);
+                        child.AddValue("celestialName", newwp.celestialName);
+                        child.AddValue("name", newwp.name);
+                        child.AddValue("id", newwp.id);
+                        child.AddValue("index", newwp.index);
+
+                        master.AddNode(child);
+                        ScenarioCustomWaypoints.Instance.OnLoad(master);
+
+                        //FinePrint.WaypointManager.AddWaypoint(newwp);
+                    }
+                    // else: do I verify that values appear to match?
+                }
+            }
+        }
+
         #region Monobehaviour
         /// <summary>
         /// Update per-Vessel fields.
@@ -260,6 +305,11 @@ namespace AvionicsSystems
             // Note: VesselModule.vessel is useless at this stage.
             if (HighLogic.LoadedSceneIsFlight)
             {
+                if (FinePrint.WaypointManager.Instance() != null)
+                {
+                    InitializeNavAids();
+                }
+
                 navBall = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.NavBall>();
                 if (navBall == null)
                 {
@@ -339,6 +389,23 @@ namespace AvionicsSystems
                 mainBody = vessel.mainBody;
                 vesselId = vessel.id;
                 orbit = vessel.orbit;
+
+                // Just so I don't forget how to find this info...
+                //if (mainBody.pqsSurfaceObjects != null && mainBody.pqsController != null)
+                //{
+                //    foreach (PQSSurfaceObject o in mainBody.pqsSurfaceObjects)
+                //    {
+                //        double lat1, lon1, alt1;
+                //        Vector2d latlon=
+                //        mainBody.GetLatitudeAndLongitude(o.transform.position);
+                //        lat1 = latlon.x;
+                //        lon1 = latlon.y;
+                //        alt1 = mainBody.pqsController.GetSurfaceHeight(QuaternionD.AngleAxis(latlon.y, Vector3d.down) * QuaternionD.AngleAxis(latlon.x, Vector3d.forward) * Vector3d.right) - mainBody.Radius;
+                //        Utility.LogMessage(this, "PQSSurfaceObject {0} / {3} @ {1}N/S {2}E/W, {4}m", o.SurfaceObjectName, lat1, lon1, o.DisplaySurfaceObjectName, alt1);
+                //    }
+                //    double vesselaltitude = mainBody.pqsController.GetSurfaceHeight(QuaternionD.AngleAxis(vessel.longitude, Vector3d.down) * QuaternionD.AngleAxis(vessel.latitude, Vector3d.forward) * Vector3d.right) - mainBody.Radius;
+                //    Utility.LogMessage(this, "vessel @ {0}N/S {1}E/W, {2}m", vessel.latitude, vessel.longitude, vesselaltitude);
+                //}
 
                 knownModules[vesselId] = this;
 

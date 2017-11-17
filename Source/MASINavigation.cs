@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using UnityEngine;
 
 namespace AvionicsSystems
 {
@@ -248,16 +249,50 @@ namespace AvionicsSystems
         }
     }
 
-    /*
-    public struct NavObject
+    public enum NavAidType
     {
-        double latitude;
-        double longitude;
-        double altitude;
-        float frequency;
-        string name;
-        string identifier;
-        int todo_navType;
-    }
-     */
+        NDB,
+        NDB_DME,
+        VOR,
+        VOR_DME,
+        ILS,
+        ILS_DME,
+    };
+
+    public struct NavAid
+    {
+        public string name;
+        public string identifier;
+        public string celestialName;
+        public double latitude;
+        public double longitude;
+        public double altitude; // ASL
+        public float frequency;
+        public NavAidType type;
+
+        public FinePrint.Waypoint ToWaypoint(int index)
+        {
+            string cName = celestialName;
+            CelestialBody cb = FlightGlobals.Bodies.Find(x => x.name == cName);
+            if (cb == null)
+            {
+                return null;
+            }
+            else
+            {
+                FinePrint.Waypoint wp = new FinePrint.Waypoint();
+
+                wp.latitude = latitude;
+                wp.longitude = longitude - 1.0;
+                wp.celestialName = celestialName;
+                wp.height = cb.pqsController.GetSurfaceHeight(QuaternionD.AngleAxis(wp.longitude, Vector3d.down) * QuaternionD.AngleAxis(wp.latitude, Vector3d.forward) * Vector3d.right) - cb.Radius;
+                wp.altitude = altitude - wp.height;
+                wp.name = string.Format("{0} ({1}) {2} @ {3:0.00}", name, identifier, type, frequency);
+                wp.index = index;
+                wp.id = "vessel"; // seems to be icon name.  May be WPM-specific.
+
+                return wp;
+            }
+        }
+    };
 }

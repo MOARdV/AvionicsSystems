@@ -55,6 +55,11 @@ namespace AvionicsSystems
         static public Dictionary<string, List<Font>> fonts = new Dictionary<string, List<Font>>();
 
         /// <summary>
+        /// List of all radio navigation beacons found in the installation.
+        /// </summary>
+        static public List<NavAid> navaids = new List<NavAid>();
+
+        /// <summary>
         /// List of the known system fonts.
         /// </summary>
         static private string[] systemFonts;
@@ -442,6 +447,105 @@ namespace AvionicsSystems
             for (int masFontIdx = 0; masFontIdx < masBitmapFont.Length; ++masFontIdx)
             {
                 LoadBitmapFont(masBitmapFont[masFontIdx]);
+            }
+
+            // Generate our list of radio navigation beacons.
+            navaids.Clear();
+            ConfigNode[] navaidGroupNode = GameDatabase.Instance.GetConfigNodes("MAS_NAVAID");
+            for (int navaidGroupIdx = 0; navaidGroupIdx  < navaidGroupNode.Length; ++navaidGroupIdx )
+            {
+                ConfigNode[] navaidNode = navaidGroupNode[navaidGroupIdx].GetNodes("NAVAID");
+                for (int navaidIdx = 0; navaidIdx < navaidNode.Length; ++navaidIdx)
+                {
+                    bool canAdd = true;
+                    NavAid navaid = new NavAid();
+
+                    navaid.name = string.Empty;
+                    if (!navaidNode[navaidIdx].TryGetValue("name", ref navaid.name))
+                    {
+                        Utility.LogErrorMessage(this, "Did not get 'name' for NAVAID");
+                        canAdd = false;
+                    }
+
+                    navaid.identifier = string.Empty;
+                    if (!navaidNode[navaidIdx].TryGetValue("id", ref navaid.identifier))
+                    {
+                        Utility.LogErrorMessage(this, "Did not get 'id' for NAVAID {0}", navaid.name);
+                        canAdd = false;
+                    }
+
+                    navaid.celestialName = string.Empty;
+                    if (!navaidNode[navaidIdx].TryGetValue("celestialName", ref navaid.celestialName))
+                    {
+                        Utility.LogErrorMessage(this, "Did not get 'celestialName' for NAVAID {0}", navaid.name);
+                        canAdd = false;
+                    }
+
+                    navaid.frequency = 0.0f;
+                    if (!navaidNode[navaidIdx].TryGetValue("frequency", ref navaid.frequency))
+                    {
+                        Utility.LogErrorMessage(this, "Did not get 'frequency' for NAVAID {0}", navaid.name);
+                        canAdd = false;
+                    }
+
+                    navaid.latitude = 0.0;
+                    if (!navaidNode[navaidIdx].TryGetValue("latitude", ref navaid.latitude))
+                    {
+                        Utility.LogErrorMessage(this, "Did not get 'latitude' for NAVAID {0}", navaid.name);
+                        canAdd = false;
+                    }
+
+                    navaid.longitude = 0.0;
+                    if (!navaidNode[navaidIdx].TryGetValue("longitude", ref navaid.longitude))
+                    {
+                        Utility.LogErrorMessage(this, "Did not get 'longitude' for NAVAID {0}", navaid.name);
+                        canAdd = false;
+                    }
+
+                    navaid.altitude = 0.0;
+                    if (!navaidNode[navaidIdx].TryGetValue("altitude", ref navaid.altitude))
+                    {
+                        Utility.LogErrorMessage(this, "Did not get 'altitude' for NAVAID {0}", navaid.name);
+                        canAdd = false;
+                    }
+
+                    string type = string.Empty;
+                    if (!navaidNode[navaidIdx].TryGetValue("type", ref type))
+                    {
+                        Utility.LogErrorMessage(this, "Did not get 'type' for NAVAID {0}", navaid.name);
+                        canAdd = false;
+                    }
+                    switch (type)
+                    {
+                        case "NDB":
+                            navaid.type = NavAidType.NDB;
+                            break;
+                        case "NDB DME":
+                            navaid.type = NavAidType.NDB_DME;
+                            break;
+                        case "VOR":
+                            navaid.type = NavAidType.VOR;
+                            break;
+                        case "VOR DME":
+                            navaid.type = NavAidType.VOR_DME;
+                            break;
+                        case "ILS":
+                            navaid.type = NavAidType.ILS;
+                            break;
+                        case "ILS DME":
+                            navaid.type = NavAidType.ILS_DME;
+                            break;
+                        default:
+                            Utility.LogErrorMessage(this, "Did not get valid 'type' for NAVAID {0}", navaid.name);
+                            canAdd = false;
+                            break;
+                    }
+
+                    if (canAdd)
+                    {
+                        navaids.Add(navaid);
+                    }
+                }
             }
         }
 
