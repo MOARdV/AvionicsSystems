@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016 - 2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 
 namespace AvionicsSystems
 {
@@ -43,6 +44,11 @@ namespace AvionicsSystems
         /// Dictionary of all registered MASFlightComputers with references to their persistent data.
         /// </summary>
         static private Dictionary<Guid, Dictionary<string, object>> knownPersistents = new Dictionary<Guid, Dictionary<string, object>>();
+
+        /// <summary>
+        /// Dictionary of all registered MASFlightComputers with reference to their nav radios.
+        /// </summary>
+        static private Dictionary<Guid, Dictionary<int, float>> knownRadios = new Dictionary<Guid, Dictionary<int, float>>();
 
         /// <summary>
         /// Static boolean used to indicate when the ScenarioModule has had a chance to initialize.
@@ -134,6 +140,27 @@ namespace AvionicsSystems
                     }
 
                     knownPersistents.Add(new Guid(fcId), persistentVars);
+
+                    Dictionary<int, float> radioSettings = new Dictionary<int, float>();
+                    ConfigNode radioNode = fc[fcNodeIndex].GetNode("NavRadio");
+                    if (radioNode != null)
+                    {
+                        string[] radios = radioNode.GetValues("radio");
+                        for (int radioIdx = radios.Length - 1; radioIdx >= 0; --radioIdx)
+                        {
+                            string[] settings= radios[radioIdx].Split(',');
+                            if (settings.Length == 2)
+                            {
+                                int radio;
+                                float frequency;
+                                if (int.TryParse(settings[0], out radio) && float.TryParse(settings[1], out frequency))
+                                {
+                                    radioSettings[radio] = frequency;
+                                }
+                            }
+                        }
+                    }
+                    knownRadios.Add(new Guid(fcId), radioSettings);
                 }
             }
 
@@ -166,6 +193,20 @@ namespace AvionicsSystems
                     {
                         string value = string.Format("{0},{1}", keyValPair.Value.GetType().ToString(), keyValPair.Value.ToString());
                         saveNode.AddValue(keyValPair.Key, value);
+                    }
+
+                    Dictionary<int, float> radios;
+                    if (knownRadios.TryGetValue(fc.Key, out radios))
+                    {
+                        if (radios.Count > 0)
+                        {
+                            ConfigNode radioNode = new ConfigNode("NavRadio");
+                            foreach(var radio in radios)
+                            {
+                                radioNode.AddValue("radio", new Vector2((int)radio.Key, radio.Value));
+                            }
+                            saveNode.AddNode(radioNode);
+                        }
                     }
 
                     node.AddNode(saveNode);
@@ -203,6 +244,21 @@ namespace AvionicsSystems
                 knownPersistents[fcId] = existingPersistents;
             }
             return knownPersistents[fcId];
+        }
+
+        /// <summary>
+        /// Accessor method to restore Nav Radio settings in the flight computers
+        /// </summary>
+        /// <param name="fcId">GUID of the MASFlightComputer</param>
+        /// <param name="existingRadios">An existing flight radio.  If the fcId isn't found, this dictionary will be used.</param>
+        /// <returns>The persistent dictionary that the MASFlightComputer should use.</returns>
+        internal static Dictionary<int, float> RestoreNavRadio(Guid fcId, Dictionary<int, float> existingRadios)
+        {
+            if (!knownRadios.ContainsKey(fcId))
+            {
+                knownRadios[fcId] = existingRadios;
+            }
+            return knownRadios[fcId];
         }
     }
 }

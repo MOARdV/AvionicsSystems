@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016 - 2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -55,13 +55,15 @@ namespace AvionicsSystems
         private Vessel vessel;
         private CelestialBody body;
         private double bodyRadius;
+        private MASFlightComputer fc;
 
         [MoonSharpHidden]
-        public MASINavigation(Vessel vessel)
+        public MASINavigation(Vessel vessel, MASFlightComputer fc)
         {
             this.vessel = vessel;
             this.body = vessel.mainBody;
             this.bodyRadius = this.body.Radius;
+            this.fc = fc;
         }
 
         ~MASINavigation()
@@ -87,6 +89,12 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// The General Navigation section contains general-purpose navigational formulae that can be used
+        /// for navigation near a planet's surface.
+        /// </summary>
+        #region General Navigation
+
+        /// <summary>
         /// Returns the great-circle route bearing from (lat1, lon1) to (lat2, lon2).
         /// </summary>
         /// <param name="latitude1">Latitude of position 1 in degrees.  Negative values indicate south, positive is north.</param>
@@ -98,15 +106,11 @@ namespace AvionicsSystems
         {
             double lat1 = latitude1 * Deg2Rad;
             double lat2 = latitude2 * Deg2Rad;
-            //double lon1 = longitude1 * Deg2Rad;
-            //double lon2 = longitude2 * Deg2Rad;
             double dLon = (longitude2 - longitude1) * Deg2Rad;
 
             double y = Math.Sin(dLon) * Math.Cos(lat2);
             double x = Math.Cos(lat1) * Math.Sin(lat2) - Math.Sin(lat1) * Math.Cos(lat2) * Math.Cos(dLon);
-            //double y = Math.Sin(lon2 - lon1) * Math.Cos(lat2);
-            //double x = Math.Cos(lat1) * Math.Sin(lat2) -
-            //        Math.Sin(lat1) * Math.Cos(lat2) * Math.Cos(lon2 - lon1);
+
             return Utility.NormalizeAngle(Math.Atan2(y, x) * Rad2Deg);
         }
 
@@ -245,54 +249,89 @@ namespace AvionicsSystems
         /// <returns>Distance to the horizon, in meters.</returns>
         public double LineOfSight(double altitude)
         {
-            return Math.Sqrt(2.0 * bodyRadius * altitude + altitude * altitude);
+            return Math.Sqrt(altitude * (2.0 * bodyRadius + altitude));
         }
-    }
 
-    public enum NavAidType
-    {
-        NDB,
-        NDB_DME,
-        VOR,
-        VOR_DME,
-        ILS,
-        ILS_DME,
-    };
+        #endregion
 
-    public struct NavAid
-    {
-        public string name;
-        public string identifier;
-        public string celestialName;
-        public double latitude;
-        public double longitude;
-        public double altitude; // ASL
-        public float frequency;
-        public NavAidType type;
+        /// <summary>
+        /// The Radio Navigation section provides methods for emulating navigational radio
+        /// on board aircraft (or ships, or whatever).
+        /// 
+        /// Most methods are centered around a selected radio (the `radioId` parameter, and
+        /// they assume all computations in relation to the current active vessel.  Because
+        /// these methods emulate navigational radios, they account for limitations caused
+        /// by the curvature of the planet as well as limited radio broadcasting distances.
+        /// 
+        /// Because of this, methods may return values indicating "no signal" even if the
+        /// radio is tuned to a correct value.
+        /// 
+        /// The `radioId` parameter may be any integer (non-integer numbers are converted to
+        /// integers).  MAS does not place any restrictions on how many radios are used
+        /// on a vessel, not does it place restrictions on what radio ids may be used.  If
+        /// the IVA creator wishes to use ids 2, 17, and 21, then MAS allows it.
+        /// 
+        /// Frequency is assumed to be in MHz, and MAS assumes radios have about a 10kHz
+        /// minimum frequency separation (real-world VOR uses 50kHz), so setting a radio
+        /// to 105.544 will select any navaids on a frequency between 105.494 and 105.594.
+        /// </summary>
+        #region Radio Navigation
 
-        public FinePrint.Waypoint ToWaypoint(int index)
+        /// <summary>
+        /// Queries the radio beacon selected by radioId to determine if it includes
+        /// DME equipment.  Returns one of three values:
+        /// 
+        /// * -1: No navaid beacons are in range on the current frequency.
+        /// * 0: A navaid beacon is in range, but it does not support DME.
+        /// * 1: A navaid beacon is in range, and it supports DME.
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <returns>As described in the summary.</returns>
+        public double GetNavAidDME(double radioId)
         {
-            string cName = celestialName;
-            CelestialBody cb = FlightGlobals.Bodies.Find(x => x.name == cName);
-            if (cb == null)
-            {
-                return null;
-            }
-            else
-            {
-                FinePrint.Waypoint wp = new FinePrint.Waypoint();
-
-                wp.latitude = latitude;
-                wp.longitude = longitude - 1.0;
-                wp.celestialName = celestialName;
-                wp.height = cb.pqsController.GetSurfaceHeight(QuaternionD.AngleAxis(wp.longitude, Vector3d.down) * QuaternionD.AngleAxis(wp.latitude, Vector3d.forward) * Vector3d.right) - cb.Radius;
-                wp.altitude = altitude - wp.height;
-                wp.name = string.Format("{0} ({1}) {2} @ {3:0.00}", name, identifier, type, frequency);
-                wp.index = index;
-                wp.id = "vessel"; // seems to be icon name.  May be WPM-specific.
-
-                return wp;
-            }
+            return fc.GetNavAidDME((int)radioId);
         }
-    };
+
+        /// <summary>
+        /// Returns the type of radio beacon the radio currently is detecting.  Returns
+        /// one of three values:
+        /// 
+        /// * 0: No navaid beacons are in range on the current frequency.
+        /// * 1: Beacon is NDB.
+        /// * 2: Beacon is VOR.
+        /// * 3: Beacon is ILS.
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <returns>As described in the summary.</returns>
+        public double GetNavAidType(double radioId)
+        {
+            return fc.GetNavAidType((int)radioId);
+        }
+
+        /// <summary>
+        /// Returns the radio frequency setting for the specified radio.
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <returns>0 if the radio does not have a frequency set, otherwise, the frequency.</returns>
+        public double GetRadioFrequency(double radioId)
+        {
+            return fc.GetRadioFrequency((int)radioId);
+        }
+
+        /// <summary>
+        /// Sets the specified navigational radio to the frequency.
+        /// 
+        /// If frequency is less than or equal to 0.0, the radio is
+        /// switched off.
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <param name="frequency">The frequency of the radio, assumed in MHz.</param>
+        /// <returns>1 if the radio was switched off, or if any radios have a frequency within 10kHz of the requested frequency (regardless of range).</returns>
+        public double SetRadioFrequency(double radioId, double frequency)
+        {
+            //LatLon
+            return (fc.SetRadioFrequency((int)radioId, (float)frequency)) ? 1.0 : 0.0;
+        }
+        #endregion
+    }
 }

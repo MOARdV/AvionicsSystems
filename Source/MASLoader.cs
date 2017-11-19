@@ -459,6 +459,8 @@ namespace AvionicsSystems
                 {
                     bool canAdd = true;
                     NavAid navaid = new NavAid();
+                    navaid.distanceToHorizon = -1.0;
+                    navaid.distanceToHorizonDME = -1.0;
 
                     navaid.name = string.Empty;
                     if (!navaidNode[navaidIdx].TryGetValue("name", ref navaid.name))

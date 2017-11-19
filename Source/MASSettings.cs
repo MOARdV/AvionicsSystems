@@ -231,6 +231,12 @@ namespace AvionicsSystems
             MASConfig.navigation.NDBPropagation = NDBPropagation;
             MASConfig.navigation.VORPropagation = VORPropagation;
             MASConfig.navigation.DMEPropagation = DMEPropagation;
+
+            int numNavAids = MASLoader.navaids.Count;
+            for (int i = 0; i < numNavAids; ++i)
+            {
+                MASLoader.navaids[i].UpdateHorizonDistance();
+            }
         }
 
         private void onAppLauncherShow()

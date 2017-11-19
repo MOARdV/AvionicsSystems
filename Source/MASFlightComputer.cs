@@ -420,6 +420,7 @@ namespace AvionicsSystems
                     navProxy.Update();
                     realChuteProxy.Update();
                     transferProxy.Update();
+                    UpdateRadios();
 
                     // Precompute the disruption effects.
                     // TODO: Don't do the string lookup every FixedUpdate...
@@ -628,7 +629,7 @@ namespace AvionicsSystems
                     UserData.RegisterType<MASIMechJeb>();
                     script.Globals["mechjeb"] = mjProxy;
 
-                    navProxy = new MASINavigation(vessel);
+                    navProxy = new MASINavigation(vessel, this);
                     UserData.RegisterType<MASINavigation>();
                     script.Globals["nav"] = navProxy;
 
@@ -657,6 +658,11 @@ namespace AvionicsSystems
                     throw new ArgumentNullException("MASPersistent.PersistentsLoaded has not loaded!");
                 }
                 persistentVars = MASPersistent.RestoreDictionary(fcId, persistentVars);
+                navRadioFrequency = MASPersistent.RestoreNavRadio(fcId, navRadioFrequency);
+                foreach(var radio in navRadioFrequency)
+                {
+                    ReloadRadio(radio.Key, radio.Value);
+                }
 
                 // Always make sure we set the vessel ID in the persistent table
                 // based on what it currently is.
