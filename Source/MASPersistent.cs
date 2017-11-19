@@ -68,6 +68,7 @@ namespace AvionicsSystems
             //Utility.LogMessage(this, "OnAwake(): ");
             PersistentsLoaded = false;
             knownPersistents.Clear();
+            knownRadios.Clear();
         }
 
         /// <summary>
@@ -78,6 +79,7 @@ namespace AvionicsSystems
             //Utility.LogMessage(this, "OnDestroy(): ");
             PersistentsLoaded = false;
             knownPersistents.Clear();
+            knownRadios.Clear();
         }
 
         /// <summary>
