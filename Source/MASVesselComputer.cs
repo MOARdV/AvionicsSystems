@@ -176,7 +176,7 @@ namespace AvionicsSystems
         private void InitializeNavAids()
         {
             FinePrint.WaypointManager waypointManager = FinePrint.WaypointManager.Instance();
-            List<FinePrint.Waypoint> knownWaypoints = waypointManager.Waypoints;
+            List<FinePrint.Waypoint> knownWaypoints = (waypointManager) ? waypointManager.Waypoints : null;
 
             int numNavAids = MASLoader.navaids.Count;
             for (int i = 0; i < numNavAids; ++i)
@@ -189,7 +189,7 @@ namespace AvionicsSystems
                 FinePrint.Waypoint newwp = MASLoader.navaids[i].ToWaypoint(i);
                 if (newwp != null)
                 {
-                    FinePrint.Waypoint wp = knownWaypoints.Find(x => x.name == newwp.name);
+                    FinePrint.Waypoint wp = (knownWaypoints == null) ? null : knownWaypoints.Find(x => x.name == newwp.name);
                     if (wp == null)
                     {
                         // Note: this is round-about, but it appears to be the way to register
@@ -207,6 +207,7 @@ namespace AvionicsSystems
                         child.AddValue("name", newwp.name);
                         child.AddValue("id", newwp.id);
                         child.AddValue("index", newwp.index);
+                        child.AddValue("navigationId", newwp.navigationId.ToString());
 
                         master.AddNode(child);
                         ScenarioCustomWaypoints.Instance.OnLoad(master);
@@ -310,11 +311,8 @@ namespace AvionicsSystems
             // Note: VesselModule.vessel is useless at this stage.
             if (HighLogic.LoadedSceneIsFlight)
             {
-                if (FinePrint.WaypointManager.Instance() != null)
-                {
-                    InitializeNavAids();
-                }
-
+                InitializeNavAids(); 
+                
                 navBall = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.NavBall>();
                 if (navBall == null)
                 {

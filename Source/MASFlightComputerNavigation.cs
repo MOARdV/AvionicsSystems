@@ -110,6 +110,7 @@ namespace AvionicsSystems
                 wp.altitude = Math.Max(altitude - wp.height, 0.0);
                 wp.name = string.Format("{0} ({1}) {2} @ {3:0.00}", name, identifier, type, frequency);
                 wp.index = index;
+                //wp.navigationId = new Guid(wp.name); // TODO: Generate a GUID based on wp.name
                 wp.id = "vessel"; // seems to be icon name.  May be WPM-specific.
 
                 return wp;
