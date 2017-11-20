@@ -264,16 +264,16 @@ namespace AvionicsSystems
         /// by the curvature of the planet as well as limited radio broadcasting distances.
         /// 
         /// Because of this, methods may return values indicating "no signal" even if the
-        /// radio is tuned to a correct value.
+        /// radio is tuned to a valid beacon.
         /// 
-        /// The `radioId` parameter may be any integer (non-integer numbers are converted to
+        /// The `radioId` parameter should be an integer (non-integer numbers are converted to
         /// integers).  MAS does not place any restrictions on how many radios are used
         /// on a vessel, not does it place restrictions on what radio ids may be used.  If
         /// the IVA creator wishes to use ids 2, 17, and 21, then MAS allows it.
         /// 
         /// Frequency is assumed to be in MHz, and MAS assumes radios have about a 10kHz
         /// minimum frequency separation (real-world VOR uses 50kHz), so setting a radio
-        /// to 105.544 will select any navaids on a frequency between 105.494 and 105.594.
+        /// to 105.544 will select any navaids on a frequency between 105.499 and 105.599.
         /// </summary>
         #region Radio Navigation
 
@@ -293,6 +293,29 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Get the identifier for the beacon on the selected radio.  The identifier is typically a
+        /// three letter code, such as 'CST'.  If no beacon is selected, or no beacon is in range,
+        /// returns an empty string.
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <returns>Beacon identifier, or an empty string if no beacon is in range on the current frequency.</returns>
+        public string GetNavAidIdentifier(double radioId)
+        {
+            return fc.GetNavAidIdentifier((int)radioId);
+        }
+
+        /// <summary>
+        /// Get the name for the beacon on the selected radio.  If no beacon is selected, or no beacon is in range,
+        /// returns an empty string.
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <returns>Beacon name, or an empty string if no beacon is in range on the current frequency.</returns>
+        public string GetNavAidName(double radioId)
+        {
+            return fc.GetNavAidName((int)radioId);
+        }
+
+        /// <summary>
         /// Returns the type of radio beacon the radio currently is detecting.  Returns
         /// one of three values:
         /// 
@@ -309,6 +332,17 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the NDB bearing for the given radio.  This is bearing relative to the vessel's heading, not
+        /// absolute heading to the NDB beacon.
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <returns>Vessel-relative bearing to the NDB beacon, in the range [0, 360).  If the radio is not tuned to an NDB, or the NDB is out of range, returns -1.</returns>
+        public double GetNDBBearing(double radioId)
+        {
+            return fc.GetNDBBearing((int)radioId);
+        }
+
+        /// <summary>
         /// Returns the radio frequency setting for the specified radio.
         /// </summary>
         /// <param name="radioId">The id of the radio, any integer value.</param>
@@ -316,6 +350,32 @@ namespace AvionicsSystems
         public double GetRadioFrequency(double radioId)
         {
             return fc.GetRadioFrequency((int)radioId);
+        }
+
+        /// <summary>
+        /// Returns a number representing TO/FROM on the given VOR / bearing.
+        /// 
+        /// * -1: FROM
+        /// * 0: No VOR info
+        /// * 1: TO
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <param name="bearing">VOR bearing</param>
+        /// <returns>-1, 0, or 1 as described in the summary.</returns>
+        public double GetVORApproach(double radioId, double bearing)
+        {
+            return fc.GetVORApproach((int)radioId, bearing);
+        }
+
+        /// <summary>
+        /// Returns the deviation from the desired bearing line on the VOR in degrees.
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <param name="bearing">VOR bearing</param>
+        /// <returns>Deviation in degrees, 0 if no in-range VOR.</returns>
+        public double GetVORDeviation(double radioId, double bearing)
+        {
+            return fc.GetVORDeviation((int)radioId, bearing);
         }
 
         /// <summary>

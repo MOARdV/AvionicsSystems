@@ -105,9 +105,10 @@ namespace AvionicsSystems
                 wp.latitude = latitude;
                 wp.longitude = longitude;
                 wp.celestialName = celestialName;
-                // TODO: Add support for Kopernicus / Sigma Dimensions / etc.
+                // TODO: Add support for Kopernicus / Sigma Dimensions / etc to handle rescaled planets.
                 wp.height = cb.pqsController.GetSurfaceHeight(QuaternionD.AngleAxis(wp.longitude, Vector3d.down) * QuaternionD.AngleAxis(wp.latitude, Vector3d.forward) * Vector3d.right) - cb.Radius;
-                wp.altitude = Math.Max(altitude - wp.height, 0.0);
+                // Make sure the beacon is above ground level, in case of planet rescales or errors.
+                wp.altitude = Math.Max(altitude - wp.height, 10.0);
                 wp.name = string.Format("{0} ({1}) {2} @ {3:0.00}", name, identifier, type, frequency);
                 wp.index = index;
                 //wp.navigationId = new Guid(wp.name); // TODO: Generate a GUID based on wp.name
@@ -169,6 +170,25 @@ namespace AvionicsSystems
             }
 
             return slantDistance;
+        }
+
+        public double GetBearing(double vesselLat, double vesselLon)
+        {
+            if (beaconIndex >= 0)
+            {
+                double lat1 = vesselLat * Utility.Deg2Rad;
+                double lat2 = beacon[beaconIndex].latitude * Utility.Deg2Rad;
+                double dLon = (beacon[beaconIndex].longitude - vesselLon) * Utility.Deg2Rad;
+
+                double y = Math.Sin(dLon) * Math.Cos(lat2);
+                double x = Math.Cos(lat1) * Math.Sin(lat2) - Math.Sin(lat1) * Math.Cos(lat2) * Math.Cos(dLon);
+
+                return Utility.NormalizeAngle(Math.Atan2(y, x) * Utility.Rad2Deg);
+            }
+            else
+            {
+                return -1.0;
+            }
         }
 
         /// <summary>
@@ -340,6 +360,47 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Get the identifier for the beacon on the selected radio.  The identifier is typically a
+        /// three letter code, such as 'CST'.  If no beacon is selected, or no beacon is in range,
+        /// returns an empty string.
+        /// </summary>
+        /// <param name="radioId"></param>
+        /// <returns></returns>
+        internal string GetNavAidIdentifier(int radioId)
+        {
+            NavRadio radio;
+            if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
+            {
+                if (radio.GetSlantDistance(vessel) < radio.beacon[radio.beaconIndex].distanceToHorizon)
+                {
+                    return radio.beacon[radio.beaconIndex].identifier;
+                }
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Get the name for the beacon on the selected radio.  If no beacon is selected, or no beacon is in range,
+        /// returns an empty string.
+        /// </summary>
+        /// <param name="radioId"></param>
+        /// <returns></returns>
+        internal string GetNavAidName(int radioId)
+        {
+            NavRadio radio;
+            if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
+            {
+                if (radio.GetSlantDistance(vessel) < radio.beacon[radio.beaconIndex].distanceToHorizon)
+                {
+                    return radio.beacon[radio.beaconIndex].name;
+                }
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Returns the basic type of radio navigational aid the selected radio detects:
         /// 
         /// * 0: No NavAid in range.
@@ -377,13 +438,23 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Get the bearing to the radio.  This method is a generic method that ignores the beacon type.
+        /// Returns the NDB bearing for the given radio.  This is bearing relative to the vessel's heading, not
+        /// absolute heading to the NDB beacon.
         /// </summary>
-        /// <param name="radioId">Radio ID (arbitrary integer).</param>
-        /// <returns>-1 if no valid nav beacon is in range, otherise a bearing in the range [0, 360).</returns>
-        internal float GetNavAidBearing(int radioId)
+        /// <param name="radioId"></param>
+        /// <returns>NDB heading (heading relative to the vessel's orientation), in the range [0, 360); -1 if the beacon is out of range, or it is not an NDB.</returns>
+        internal double GetNDBBearing(int radioId)
         {
-            return -1.0f;
+            NavRadio radio;
+            if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
+            {
+                if (radio.isNDB && radio.GetSlantDistance(vessel) < radio.beacon[radio.beaconIndex].distanceToHorizon)
+                {
+                    return Utility.NormalizeAngle(radio.GetBearing(vessel.latitude, vessel.longitude) - vc.heading);
+                }
+            }
+
+            return -1.0;
         }
 
         /// <summary>
@@ -391,7 +462,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="radioId"></param>
         /// <returns>Frequency in MHz, or 0 if the radio has never been set.</returns>
-        internal float GetRadioFrequency(int radioId)
+        internal double GetRadioFrequency(int radioId)
         {
             float radioFrequency;
             if (navRadioFrequency.TryGetValue(radioId, out radioFrequency))
@@ -400,8 +471,74 @@ namespace AvionicsSystems
             }
             else
             {
-                return 0.0f;
+                return 0.0;
             }
+        }
+
+        /// <summary>
+        /// Returns a number representing TO/FROM on the given VOR / bearing.
+        /// 
+        /// * -1: FROM
+        /// * 0: No VOR info
+        /// * 1: TO
+        /// </summary>
+        /// <param name="radioId">Radio to use</param>
+        /// <param name="bearing">VOR bearing</param>
+        /// <returns>-1, 0, or 1 as described in the summary.</returns>
+        internal double GetVORApproach(int radioId, double bearing)
+        {
+            NavRadio radio;
+            if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
+            {
+                if (radio.isVOR && radio.GetSlantDistance(vessel) < radio.beacon[radio.beaconIndex].distanceToHorizon)
+                {
+                    double absoluteBearing = radio.GetBearing(vessel.latitude, vessel.longitude);
+                    // Make it a range between -180 and +180.
+                    double deviation = Utility.NormalizeLongitude(bearing - absoluteBearing);
+                    if (deviation > 90.0 || deviation < -90.0)
+                    {
+                        return 1.0;
+                    }
+                    else
+                    {
+                        return -1.0;
+                    }
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the deviation from the desired bearing line on the VOR in degrees.
+        /// </summary>
+        /// <param name="radioId">Radio to use</param>
+        /// <param name="bearing">VOR bearing</param>
+        /// <returns>Deviation in degrees, 0 if no in-range VOR.</returns>
+        internal double GetVORDeviation(int radioId, double bearing)
+        {
+            NavRadio radio;
+            if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
+            {
+                if (radio.isVOR && radio.GetSlantDistance(vessel) < radio.beacon[radio.beaconIndex].distanceToHorizon)
+                {
+                    double absoluteBearing = radio.GetBearing(vessel.latitude, vessel.longitude);
+                    // Make it a range between -180 and +180.
+                    double deviation = Utility.NormalizeLongitude(bearing - absoluteBearing);
+                    if (deviation > 90.0)
+                    {
+                        deviation = 180.0 - deviation;
+                    }
+                    else if(deviation < -90.0)
+                    {
+                        deviation = -180.0 - deviation;
+                    }
+
+                    return deviation;
+                }
+            }
+
+            return 0.0;
         }
     }
 }
