@@ -32,6 +32,9 @@ namespace AvionicsSystems
 {
     internal static class Utility
     {
+        internal static readonly double Deg2Rad = Math.PI / 180.0;
+        internal static readonly double Rad2Deg = 180.0 / Math.PI;
+
         internal static readonly string[] NewLine = { Environment.NewLine };
 
         internal static Dictionary<VesselType, string> typeDict = new Dictionary<VesselType, string>
@@ -52,7 +55,9 @@ namespace AvionicsSystems
         };
 
         #region Message Logging
-
+        
+        private static StringBuilder logSb = new StringBuilder();
+        
         /// <summary>
         /// Log a message.  Logged regardless of the MAS Settings debug flag.
         /// </summary>
@@ -60,7 +65,9 @@ namespace AvionicsSystems
         /// <param name="values"></param>
         internal static void LogInfo(string format, params object[] values)
         {
-            UnityEngine.Debug.Log(String.Format("[AvionicsSystems] " + format, values));
+            logSb.Remove(0, logSb.Length);
+            logSb.Append("[AvionicsSystems] ").AppendFormat(format, values);
+            UnityEngine.Debug.Log(logSb.ToString());
         }
 
         /// <summary>
@@ -70,7 +77,10 @@ namespace AvionicsSystems
         /// <param name="values"></param>
         internal static void LogInfo(object who, string format, params object[] values)
         {
-            UnityEngine.Debug.Log(String.Format("[" + who.GetType().Name + "] " + format, values));
+            logSb.Remove(0, logSb.Length);
+            logSb.Append("[").Append(who.GetType().Name).Append("] ").AppendFormat(format, values);
+
+            UnityEngine.Debug.Log(logSb.ToString());
         }
 
         /// <summary>
@@ -80,7 +90,12 @@ namespace AvionicsSystems
         /// <param name="values"></param>
         internal static void LogMessage(string format, params object[] values)
         {
-            UnityEngine.Debug.Log(String.Format("[AvionicsSystems] " + format, values));
+            if (MASConfig.VerboseLogging)
+            {
+                logSb.Remove(0, logSb.Length);
+                logSb.Append("[AvionicsSystems] ").AppendFormat(format, values);
+                UnityEngine.Debug.Log(logSb.ToString());
+            }
         }
 
         /// <summary>
@@ -91,7 +106,13 @@ namespace AvionicsSystems
         /// <param name="values"></param>
         internal static void LogMessage(object who, string format, params object[] values)
         {
-            UnityEngine.Debug.Log(String.Format("[" + who.GetType().Name + "] " + format, values));
+            if (MASConfig.VerboseLogging)
+            {
+                logSb.Remove(0, logSb.Length);
+                logSb.Append("[").Append(who.GetType().Name).Append("] ").AppendFormat(format, values);
+
+                UnityEngine.Debug.Log(logSb.ToString());
+            }
         }
 
         /// <summary>
@@ -101,7 +122,9 @@ namespace AvionicsSystems
         /// <param name="values"></param>
         internal static void LogWarning(string format, params object[] values)
         {
-            UnityEngine.Debug.LogWarning(String.Format("[AvionicsSystems] " + format, values));
+            logSb.Remove(0, logSb.Length);
+            logSb.Append("[AvionicsSystems] ").AppendFormat(format, values);
+            UnityEngine.Debug.LogWarning(logSb.ToString());
         }
 
         /// <summary>
@@ -112,7 +135,10 @@ namespace AvionicsSystems
         /// <param name="values"></param>
         internal static void LogWarning(object who, string format, params object[] values)
         {
-            UnityEngine.Debug.LogWarning(String.Format("[" + who.GetType().Name + "] " + format, values));
+            logSb.Remove(0, logSb.Length);
+            logSb.Append("[").Append(who.GetType().Name).Append("] ").AppendFormat(format, values);
+
+            UnityEngine.Debug.LogWarning(logSb.ToString());
         }
 
         /// <summary>
@@ -122,7 +148,9 @@ namespace AvionicsSystems
         /// <param name="values"></param>
         internal static void LogErrorMessage(string format, params object[] values)
         {
-            UnityEngine.Debug.LogError(String.Format("[AvionicsSystems] " + format, values));
+            logSb.Remove(0, logSb.Length);
+            logSb.Append("[AvionicsSystems] ").AppendFormat(format, values);
+            UnityEngine.Debug.LogError(logSb.ToString());
         }
 
         /// <summary>
@@ -133,7 +161,10 @@ namespace AvionicsSystems
         /// <param name="values"></param>
         internal static void LogErrorMessage(object who, string format, params object[] values)
         {
-            UnityEngine.Debug.LogError(String.Format("[" + who.GetType().Name + "] " + format, values));
+            logSb.Remove(0, logSb.Length);
+            logSb.Append("[").Append(who.GetType().Name).Append("] ").AppendFormat(format, values);
+
+            UnityEngine.Debug.LogError(logSb.ToString());
         }
         #endregion
 
