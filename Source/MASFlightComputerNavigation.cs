@@ -179,6 +179,11 @@ namespace AvionicsSystems
         public double slantDistance;
 
         /// <summary>
+        /// Distance to the horizon for the vessel, scaled by the global Radio Propagation scalar.
+        /// </summary>
+        public double vesselLoS;
+
+        /// <summary>
         /// The bearing to the beacon from the vessel.  Cached in NavRadio, cleared every FixedUpdate.
         /// </summary>
         public double bearing;
@@ -199,22 +204,30 @@ namespace AvionicsSystems
         /// </summary>
         public NavAid[] beacon;
 
-        /// <summary>
-        /// Recompute the slant distance (if needed) and return it.  Should be called instead
-        /// of reading slantDistance directly.
-        /// </summary>
-        /// <param name="vessel">The active vessel.</param>
-        /// <returns></returns>
-        public double GetSlantDistance(Vessel vessel)
+        public bool DMEInRange(Vessel vessel)
         {
             if (slantDistance <= 0.0 && beaconIndex >= 0)
             {
                 Vector3d vesselPos = vessel.mainBody.GetRelSurfacePosition(vessel.CoMD);
 
                 slantDistance = Vector3d.Distance(beacon[beaconIndex].worldPosition, vesselPos);
+                vesselLoS = Math.Sqrt(vessel.altitude * (2.0 * vessel.mainBody.Radius + vessel.altitude)) * MASConfig.navigation.generalPropagation;
             }
 
-            return slantDistance;
+            return (slantDistance < (vesselLoS + beacon[beaconIndex].maximumRangeDME));
+        }
+
+        public bool NavAidInRange(Vessel vessel)
+        {
+            if (slantDistance <= 0.0 && beaconIndex >= 0)
+            {
+                Vector3d vesselPos = vessel.mainBody.GetRelSurfacePosition(vessel.CoMD);
+
+                slantDistance = Vector3d.Distance(beacon[beaconIndex].worldPosition, vesselPos);
+                vesselLoS = Math.Sqrt(vessel.altitude * (2.0 * vessel.mainBody.Radius + vessel.altitude)) * MASConfig.navigation.generalPropagation;
+            }
+
+            return (slantDistance < (vesselLoS + beacon[beaconIndex].maximumRange));
         }
 
         /// <summary>
@@ -245,6 +258,23 @@ namespace AvionicsSystems
             {
                 return -1.0;
             }
+        }
+
+        /// <summary>
+        /// Determine the distance to the horizon for the vessel for radio propagation purposes.
+        /// </summary>
+        /// <param name="altitude"></param>
+        /// <param name="bodyRadius"></param>
+        /// <returns></returns>
+        public double GetLineOfSight(double altitude, double bodyRadius)
+        {
+            if (vesselLoS <= 0.0)
+            {
+                vesselLoS = Math.Sqrt(altitude * (2.0 * bodyRadius + altitude)) * MASConfig.navigation.generalPropagation;
+
+            }
+
+            return vesselLoS;
         }
 
         /// <summary>
@@ -298,6 +328,7 @@ namespace AvionicsSystems
                     // Reset slant distance each FixedUpdate.
                     radio.slantDistance = 0.0;
                     radio.bearing = -1.0;
+                    radio.vesselLoS = 0.0;
 
                     if (radio.beacon.Length > 1)
                     {
@@ -346,6 +377,7 @@ namespace AvionicsSystems
                 radio.isDME = false;
                 radio.slantDistance = 0.0;
                 radio.bearing = -1.0;
+                radio.vesselLoS = 0.0;
                 radio.beacon = navaids.ToArray();
 
                 if (radio.beacon.Length == 1)
@@ -381,6 +413,7 @@ namespace AvionicsSystems
                 radio.isDME = false;
                 radio.slantDistance = 0.0;
                 radio.bearing = -1.0;
+                radio.vesselLoS = 0.0;
                 radio.beacon = navaids.ToArray();
 
                 if (radio.beacon.Length == 1)
@@ -407,10 +440,9 @@ namespace AvionicsSystems
             NavRadio radio;
             if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
             {
-                double beaconDmeDistance = radio.beacon[radio.beaconIndex].maximumRangeDME;
-                if (radio.isDME && radio.GetSlantDistance(vessel) < beaconDmeDistance)
+                if (radio.isDME && radio.DMEInRange(vessel))
                 {
-                    return radio.GetSlantDistance(vessel);
+                    return radio.slantDistance;
                 }
             }
 
@@ -422,7 +454,7 @@ namespace AvionicsSystems
             NavRadio radio;
             if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
             {
-                if (radio.isILS && radio.GetSlantDistance(vessel) < radio.beacon[radio.beaconIndex].maximumRange)
+                if (radio.isILS && radio.NavAidInRange(vessel))
                 {
                     double absoluteBearing = radio.GetBearing(vessel.latitude, vessel.longitude);
 
@@ -444,7 +476,7 @@ namespace AvionicsSystems
             NavRadio radio;
             if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
             {
-                if (radio.isILS && radio.GetSlantDistance(vessel) < radio.beacon[radio.beaconIndex].maximumRange)
+                if (radio.isILS && radio.NavAidInRange(vessel))
                 {
                     double absoluteBearing = radio.GetBearing(vessel.latitude, vessel.longitude);
 
@@ -461,7 +493,7 @@ namespace AvionicsSystems
             NavRadio radio;
             if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
             {
-                if (radio.isILS && radio.GetSlantDistance(vessel) < radio.beacon[radio.beaconIndex].maximumRange)
+                if (radio.isILS && radio.NavAidInRange(vessel))
                 {
                     NavAid beacon = radio.beacon[radio.beaconIndex];
                     double absoluteBearing = radio.GetBearing(vessel.latitude, vessel.longitude);
@@ -490,7 +522,7 @@ namespace AvionicsSystems
             NavRadio radio;
             if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
             {
-                if (radio.isILS && radio.GetSlantDistance(vessel) < radio.beacon[radio.beaconIndex].maximumRange)
+                if (radio.isILS && radio.NavAidInRange(vessel))
                 {
                     NavAid beacon = radio.beacon[radio.beaconIndex];
                     double absoluteBearing = radio.GetBearing(vessel.latitude, vessel.longitude);
@@ -526,7 +558,7 @@ namespace AvionicsSystems
             if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
             {
                 double beaconDmeDistance = radio.beacon[radio.beaconIndex].maximumRangeDME;
-                if (radio.GetSlantDistance(vessel) < beaconDmeDistance)
+                if (radio.DMEInRange(vessel))
                 {
                     return (radio.isDME) ? 1.0 : 0.0;
                 }
@@ -547,7 +579,7 @@ namespace AvionicsSystems
             NavRadio radio;
             if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
             {
-                if (radio.GetSlantDistance(vessel) < radio.beacon[radio.beaconIndex].maximumRange)
+                if (radio.NavAidInRange(vessel))
                 {
                     return radio.beacon[radio.beaconIndex].identifier;
                 }
@@ -567,7 +599,7 @@ namespace AvionicsSystems
             NavRadio radio;
             if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
             {
-                if (radio.GetSlantDistance(vessel) < radio.beacon[radio.beaconIndex].maximumRange)
+                if (radio.NavAidInRange(vessel))
                 {
                     return radio.beacon[radio.beaconIndex].name;
                 }
@@ -593,7 +625,7 @@ namespace AvionicsSystems
             NavRadio radio;
             if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
             {
-                if (radio.GetSlantDistance(vessel) < radio.beacon[radio.beaconIndex].maximumRange)
+                if (radio.NavAidInRange(vessel))
                 {
                     if (radio.isNDB)
                     {
@@ -624,7 +656,7 @@ namespace AvionicsSystems
             NavRadio radio;
             if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
             {
-                if (radio.isNDB && radio.GetSlantDistance(vessel) < radio.beacon[radio.beaconIndex].maximumRange)
+                if (radio.isNDB && radio.NavAidInRange(vessel))
                 {
                     return Utility.NormalizeAngle(radio.GetBearing(vessel.latitude, vessel.longitude) - vc.heading);
                 }
@@ -666,7 +698,7 @@ namespace AvionicsSystems
             NavRadio radio;
             if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
             {
-                if (radio.isVOR && radio.GetSlantDistance(vessel) < radio.beacon[radio.beaconIndex].maximumRange)
+                if (radio.isVOR && radio.NavAidInRange(vessel))
                 {
                     double absoluteBearing = radio.GetBearing(vessel.latitude, vessel.longitude);
                     // Make it a range between -180 and +180.
@@ -696,7 +728,7 @@ namespace AvionicsSystems
             NavRadio radio;
             if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
             {
-                if (radio.isVOR && radio.GetSlantDistance(vessel) < radio.beacon[radio.beaconIndex].maximumRange)
+                if (radio.isVOR && radio.NavAidInRange(vessel))
                 {
                     double absoluteBearing = radio.GetBearing(vessel.latitude, vessel.longitude);
                     // Make it a range between -180 and +180.
