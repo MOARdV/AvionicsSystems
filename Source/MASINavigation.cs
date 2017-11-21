@@ -278,6 +278,67 @@ namespace AvionicsSystems
         #region Radio Navigation
 
         /// <summary>
+        /// Returns the slant distance in meters to a DME beacon selected on the given radio.  If there is
+        /// no DME equipment in range, returns -1.
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <returns>Distance to DME in meters, or -1 if no DME equipment is in range on the given radio frequency.</returns>
+        public double GetDMESlantDistance(double radioId)
+        {
+            return fc.GetDMESlantDistance((int)radioId);
+        }
+
+        /// <summary>
+        /// Returns the horizontal error from the ILS localizer beam, up to the
+        /// limit set by the ILS beacon's `localizerSectorILS` parameter.  If there
+        /// is no ILS localizer, or the vessel is outside the localizer's
+        /// sector, returns 0.
+        /// 
+        /// A negative value indicates that the vessel is to the left of the localizer
+        /// beam, while a positive value indicates that the vessel is to the right of the beam.
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <returns>Localizer error, or 0.</returns>
+        public double GetILSLocalizerError(double radioId)
+        {
+            return fc.GetILSLocalizerError((int)radioId);
+        }
+
+        /// <summary>
+        /// Returns 1 if the localizer signal is valid, 0 if it is not (or the beacon is not an ILS).
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <returns>1 if a valid ILS localizer is detected; 0 otherwise.</returns>
+        public double GetILSLocalizerValid(double radioId)
+        {
+            return fc.GetILSLocalizerValid((int)radioId) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the vertical deviation from the ILS glide path beam, up to the
+        /// limit set by the ILS beacon's `glidePathSectorILS`.  If there is no ILS
+        /// beacon, or the vessel is outside the glide path's sector, returns 0.
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <param name="glideSlope">The desired glide slope.</param>
+        /// <returns>The deflection from the desired glide slope, or 0.</returns>
+        public double GetILSGlideSlopeError(double radioId, double glideSlope)
+        {
+            return fc.GetILSGlideSlopeError((int)radioId, glideSlope);
+        }
+
+        /// <summary>
+        /// Returns whether the glide slope error is valid.
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <param name="glideSlope">The desired glide slope.</param>
+        /// <returns>1 if the vessel is within the glide slope limits of a valid ILS glide path, 0 otherwise</returns>
+        public double GetILSGlideSlopeValid(double radioId, double glideSlope)
+        {
+            return fc.GetILSGlideSlopeValid((int)radioId, glideSlope) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Queries the radio beacon selected by radioId to determine if it includes
         /// DME equipment.  Returns one of three values:
         /// 
@@ -392,6 +453,34 @@ namespace AvionicsSystems
             //LatLon
             return (fc.SetRadioFrequency((int)radioId, (float)frequency)) ? 1.0 : 0.0;
         }
+        #endregion
+
+        /// <summary>
+        /// The Waypoint Navigation section provides methods used to interact with stock and custom waypoints.
+        /// 
+        /// These methods differ from the Radio Nagivation section in that they do not include any gameplay
+        /// simulation of radio navigation - these methods are more suited for Global Navigation Satellite Systems.
+        /// </summary>
+        #region Waypoint Navigation
+
+        /// <summary>
+        /// Returns the number of waypoints in the custom waypoints table.
+        /// </summary>
+        /// <returns>The number of waypoints.</returns>
+        public double GetWaypointCount()
+        {
+            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
+
+            if (instance != null)
+            {
+                return instance.Waypoints.Count;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
         #endregion
     }
 }

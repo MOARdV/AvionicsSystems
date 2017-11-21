@@ -181,7 +181,7 @@ namespace AvionicsSystems
             int numNavAids = MASLoader.navaids.Count;
             for (int i = 0; i < numNavAids; ++i)
             {
-                if (MASLoader.navaids[i].distanceToHorizon == -1.0)
+                if (MASLoader.navaids[i].maximumRange == -1.0)
                 {
                     MASLoader.navaids[i].UpdateHorizonDistance();
                 }

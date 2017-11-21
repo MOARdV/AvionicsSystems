@@ -452,15 +452,15 @@ namespace AvionicsSystems
             // Generate our list of radio navigation beacons.
             navaids.Clear();
             ConfigNode[] navaidGroupNode = GameDatabase.Instance.GetConfigNodes("MAS_NAVAID");
-            for (int navaidGroupIdx = 0; navaidGroupIdx  < navaidGroupNode.Length; ++navaidGroupIdx )
+            for (int navaidGroupIdx = 0; navaidGroupIdx < navaidGroupNode.Length; ++navaidGroupIdx)
             {
                 ConfigNode[] navaidNode = navaidGroupNode[navaidGroupIdx].GetNodes("NAVAID");
                 for (int navaidIdx = 0; navaidIdx < navaidNode.Length; ++navaidIdx)
                 {
                     bool canAdd = true;
                     NavAid navaid = new NavAid();
-                    navaid.distanceToHorizon = -1.0;
-                    navaid.distanceToHorizonDME = -1.0;
+                    navaid.maximumRange = -1.0;
+                    navaid.maximumRangeDME = -1.0;
 
                     navaid.name = string.Empty;
                     if (!navaidNode[navaidIdx].TryGetValue("name", ref navaid.name))
@@ -541,6 +541,34 @@ namespace AvionicsSystems
                             Utility.LogErrorMessage(this, "Did not get valid 'type' for NAVAID {0}", navaid.name);
                             canAdd = false;
                             break;
+                    }
+
+                    navaid.maximumRangeILS = 0.0;
+                    navaid.approachHeadingILS = 0.0f;
+                    navaid.localizerSectorILS = 0.0f;
+                    navaid.glidePathSectorILS = 0.0f;
+                    if (navaid.type == NavAidType.ILS || navaid.type == NavAidType.ILS_DME)
+                    {
+                        if (!navaidNode[navaidIdx].TryGetValue("maximumRangeILS", ref navaid.maximumRangeILS))
+                        {
+                            Utility.LogErrorMessage(this, "Did not get 'maximumRangeILS' for {1} {0}", navaid.name, navaid.type);
+                            canAdd = false;
+                        }
+                        if (!navaidNode[navaidIdx].TryGetValue("approachHeadingILS", ref navaid.approachHeadingILS))
+                        {
+                            Utility.LogErrorMessage(this, "Did not get 'approachBearingILS' for {1} {0}", navaid.name, navaid.type);
+                            canAdd = false;
+                        }
+                        if (!navaidNode[navaidIdx].TryGetValue("localizerSectorILS", ref navaid.localizerSectorILS))
+                        {
+                            Utility.LogErrorMessage(this, "Did not get 'horizontalSectorILS' for {1} {0}", navaid.name, navaid.type);
+                            canAdd = false;
+                        }
+                        if (!navaidNode[navaidIdx].TryGetValue("glidePathSectorILS", ref navaid.glidePathSectorILS))
+                        {
+                            Utility.LogErrorMessage(this, "Did not get 'verticalSectorILS' for {1} {0}", navaid.name, navaid.type);
+                            canAdd = false;
+                        }
                     }
 
                     if (canAdd)
