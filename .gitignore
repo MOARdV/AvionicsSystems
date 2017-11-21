@@ -256,7 +256,7 @@ Source/*.md
 *.zip
 GameData/MOARdV/AvionicsSystems/MoonSharp.Interpreter.dll
 
-*.wav
+# *.wav
 *.7z
 *.pdn
 *.assetbundle
