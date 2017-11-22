@@ -148,6 +148,11 @@ namespace AvionicsSystems
         private Dictionary<string, Action> actions = new Dictionary<string, Action>();
 
         /// <summary>
+        /// Dictionary of named monitors, for routing softkeys.
+        /// </summary>
+        private Dictionary<string, MASMonitor> monitors = new Dictionary<string, MASMonitor>();
+
+        /// <summary>
         /// Reference to the current vessel computer.
         /// </summary>
         internal MASVesselComputer vc;
@@ -290,6 +295,54 @@ namespace AvionicsSystems
             {
                 variables[canonicalVariableName[variableName]].changeCallbacks -= callback;
             }
+        }
+
+        /// <summary>
+        /// Register a monitor so it will receive softkey events.  If the monitor's name
+        /// already exists, this is a no-op.
+        /// </summary>
+        /// <param name="monitorName">Name of the monitor</param>
+        /// <param name="monitor"></param>
+        internal void RegisterMonitor(string monitorName, InternalProp prop, MASMonitor monitor)
+        {
+            monitorName = ConditionVariableName(monitorName, prop);
+
+            if (!monitors.ContainsKey(monitorName))
+            {
+                monitors[monitorName] = monitor;
+            }
+        }
+
+        /// <summary>
+        /// Unregister a monitor so it will no longer receive softkey events.
+        /// </summary>
+        /// <param name="monitorName"></param>
+        /// <param name="monitor"></param>
+        internal void UnregisterMonitor(string monitorName, InternalProp prop, MASMonitor monitor)
+        {
+            monitorName = ConditionVariableName(monitorName, prop);
+
+            if (monitors.ContainsKey(monitorName))
+            {
+                monitors.Remove(monitorName);
+            }
+        }
+
+        /// <summary>
+        /// Handle a softkey event by forwarding it to the named monitor (if it exists).
+        /// </summary>
+        /// <param name="monitorName"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        internal bool HandleSoftkey(string monitorName, int key)
+        {
+            MASMonitor monitor;
+            if (monitors.TryGetValue(monitorName, out monitor))
+            {
+                return monitor.HandleSoftkey(key);
+            }
+
+            return false;
         }
 
         /// <summary>

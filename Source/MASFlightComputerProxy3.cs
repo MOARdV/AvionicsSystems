@@ -2411,6 +2411,19 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Send a softkey event to the named monitor.  A softkey is a numeric integer code that
+        /// may be interpreted by the active page on that monitor, or it may be forwarded to
+        /// the components of that page (such as an `RPM_MODULE` node).
+        /// </summary>
+        /// <param name="monitorName">The name of the monitor.</param>
+        /// <param name="softkeyNumber">The softkey code to send.</param>
+        /// <returns>1 if the code was processed, 0 otherwise.</returns>
+        public double SendSoftkey(string monitorName, double softkeyNumber)
+        {
+            return (fc.HandleSoftkey(monitorName, (int)softkeyNumber)) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Remaps `value` from the range [`bound1`, `bound2`] to the range
         /// [`map1`, `map2`].
         /// 

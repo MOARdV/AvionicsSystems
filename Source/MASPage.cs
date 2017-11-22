@@ -32,6 +32,7 @@ namespace AvionicsSystems
     internal class MASPage
     {
         private List<IMASMonitorComponent> component = new List<IMASMonitorComponent>();
+        private Dictionary<int, Action> softkeyAction = new Dictionary<int, Action>();
         private string name = string.Empty;
         private GameObject pageRoot;
 
@@ -79,6 +80,25 @@ namespace AvionicsSystems
                 throw new ArgumentException("Invalid or missing 'name' in MASPage");
             }
 
+            string[] softkeys = config.GetValues("softkey");
+            int numSoftkeys = softkeys.Length;
+            for (int i = 0; i < numSoftkeys; ++i)
+            {
+                string[] pair = Utility.SplitVariableList(softkeys[i]);
+                if (pair.Length == 2)
+                {
+                    int id;
+                    if(int.TryParse(pair[0], out id))
+                    {
+                        Action action = comp.GetAction(pair[1], prop);
+                        if(action != null)
+                        {
+                            softkeyAction[id] = action;
+                        }
+                    }
+                }
+            }
+
             pageRoot = new GameObject();
             pageRoot.name = "MASPage-" + prop.propID + "-" + name;
             pageRoot.layer = rootTransform.gameObject.layer;
@@ -120,6 +140,31 @@ namespace AvionicsSystems
             {
                 component[i].EnableRender(enable);
             }
+        }
+
+        /// <summary>
+        /// Handle a softkey event, either directly or by forwarding it to components of this page.
+        /// </summary>
+        /// <param name="keyId">The softkey id.</param>
+        /// <returns>True if the key was handled, false otherwise.</returns>
+        internal bool HandleSoftkey(int keyId)
+        {
+            Action keyHandler;
+            if (softkeyAction.TryGetValue(keyId, out keyHandler))
+            {
+                keyHandler();
+                return true;
+            }
+            else
+            {
+                int componentCount = component.Count;
+                for(int i=0; i<componentCount; ++i)
+                {
+                    // Submit to each component.
+                }
+            }
+
+            return false;
         }
 
         /// <summary>

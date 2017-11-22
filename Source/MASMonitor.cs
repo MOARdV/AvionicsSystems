@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016 - 2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -260,6 +260,7 @@ namespace AvionicsSystems
                         {
                             currentPage = page[pageSelector.String()];
                         }
+                        comp.RegisterMonitor(monitorID, internalProp, this);
                     }
                     currentPage.EnablePage(true);
                     initialized = true;
@@ -324,6 +325,8 @@ namespace AvionicsSystems
                 }
                 page.Clear();
 
+                comp.UnregisterMonitor(monitorID, internalProp, this);
+
                 GameObject.DestroyObject(screenSpace);
                 screenSpace = null;
                 screenCamera = null;
@@ -362,6 +365,21 @@ namespace AvionicsSystems
             {
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Method to handle softkeys.
+        /// </summary>
+        /// <param name="keyId">The keyId to process</param>
+        /// <returns>True if the softkey was handled, false if it was ignored.</returns>
+        internal bool HandleSoftkey(int keyId)
+        {
+            if (currentPage != null)
+            {
+                return currentPage.HandleSoftkey(keyId);
+            }
+
+            return false;
         }
 
         /// <summary>
