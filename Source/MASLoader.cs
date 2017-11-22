@@ -55,6 +55,11 @@ namespace AvionicsSystems
         static public Dictionary<string, List<Font>> fonts = new Dictionary<string, List<Font>>();
 
         /// <summary>
+        /// Morse code audio clips.
+        /// </summary>
+        static public Dictionary<char, AudioClip> morseCode = new Dictionary<char,AudioClip>(26);
+
+        /// <summary>
         /// List of all radio navigation beacons found in the installation.
         /// </summary>
         static public List<NavAid> navaids = new List<NavAid>();
@@ -574,6 +579,33 @@ namespace AvionicsSystems
                     if (canAdd)
                     {
                         navaids.Add(navaid);
+                    }
+                }
+            }
+
+            morseCode.Clear();
+            ConfigNode[] morseCodeNode = GameDatabase.Instance.GetConfigNodes("MAS_MORSE_CODE");
+            for (int morseCodeGroupIdx = 0; morseCodeGroupIdx < morseCodeNode.Length; ++morseCodeGroupIdx)
+            {
+                int numEntries = morseCodeNode[morseCodeGroupIdx].CountValues;
+                for (int entry = 0; entry < numEntries; ++entry)
+                {
+                    ConfigNode.Value val = morseCodeNode[morseCodeGroupIdx].values[entry];
+                    if (val.name.Length > 1)
+                    {
+                        Utility.LogErrorMessage(this, "Got an invalid morse code of '{0}'", val.name);
+                    }
+                    else
+                    {
+                        AudioClip clip = GameDatabase.Instance.GetAudioClip(val.value);
+                        if (clip == null)
+                        {
+                            Utility.LogErrorMessage(this, "Could not load audio clip {0} for morse code '{1}", val.value, val.name);
+                        }
+                        else
+                        {
+                            morseCode[val.value[0]] = clip;
+                        }
                     }
                 }
             }
