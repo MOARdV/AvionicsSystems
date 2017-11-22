@@ -215,6 +215,16 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Handle a softkey event.
+        /// </summary>
+        /// <param name="keyId">The numeric ID of the key to handle.</param>
+        /// <returns>true if the component handled the key, false otherwise.</returns>
+        public bool HandleSoftkey(int keyId)
+        {
+            return false;
+        }
+
+        /// <summary>
         ///  Return the name of the action.
         /// </summary>
         /// <returns></returns>

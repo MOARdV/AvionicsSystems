@@ -158,13 +158,18 @@ namespace AvionicsSystems
             else
             {
                 int componentCount = component.Count;
+                bool handled = false;
                 for(int i=0; i<componentCount; ++i)
                 {
                     // Submit to each component.
+                    if (component[i].HandleSoftkey(keyId))
+                    {
+                        handled = true;
+                    }
                 }
-            }
 
-            return false;
+                return handled;
+            }
         }
 
         /// <summary>

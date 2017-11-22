@@ -182,35 +182,35 @@ namespace AvionicsSystems
                         buttonClickMethod = DynamicMethodFactory.CreateFunc<object, int>(method);
                     }
 
-                    if (buttonClickMethod != null)
-                    {
-                        string[] buttonMappings = config.GetValues("buttonMapping");
-                        int numMappings = buttonMappings.Length;
+                    //if (buttonClickMethod != null)
+                    //{
+                    //    string[] buttonMappings = config.GetValues("buttonMapping");
+                    //    int numMappings = buttonMappings.Length;
 
-                        for (int i = 0; i < numMappings; ++i)
-                        {
-                            string[] pair = Utility.SplitVariableList(buttonMappings[i]);
-                            if (pair.Length == 2)
-                            {
-                                MASFlightComputer.Variable buttonIdVar = comp.GetVariable(pair[0], prop);
-                                int buttonId = (int)buttonIdVar.SafeValue();
+                    //    for (int i = 0; i < numMappings; ++i)
+                    //    {
+                    //        string[] pair = Utility.SplitVariableList(buttonMappings[i]);
+                    //        if (pair.Length == 2)
+                    //        {
+                    //            MASFlightComputer.Variable buttonIdVar = comp.GetVariable(pair[0], prop);
+                    //            int buttonId = (int)buttonIdVar.SafeValue();
 
-                                Action<double> varCallback = delegate(double newValue)
-                                {
-                                    if (pageEnabled && currentState && newValue > 0.0)
-                                    {
-                                        buttonClickMethod(rpmModule, buttonId);
-                                    }
-                                };
+                    //            Action<double> varCallback = delegate(double newValue)
+                    //            {
+                    //                if (pageEnabled && currentState && newValue > 0.0)
+                    //                {
+                    //                    buttonClickMethod(rpmModule, buttonId);
+                    //                }
+                    //            };
 
-                                variableRegistrar.RegisterNumericVariable(pair[1], varCallback);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        throw new ArgumentException("Unable to initialize 'buttonClickMethod' " + buttonClickMethodName + " in RPM_MODULE " + name);
-                    }
+                    //            variableRegistrar.RegisterNumericVariable(pair[1], varCallback);
+                    //        }
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    throw new ArgumentException("Unable to initialize 'buttonClickMethod' " + buttonClickMethodName + " in RPM_MODULE " + name);
+                    //}
                 }
             }
             else
@@ -422,6 +422,21 @@ namespace AvionicsSystems
             //        activeCamera.renderCallback -= ReadCamera;
             //    }
             //}
+        }
+
+        /// <summary>
+        /// Handle a softkey event.
+        /// </summary>
+        /// <param name="keyId">The numeric ID of the key to handle.</param>
+        /// <returns>true if the component handled the key, false otherwise.</returns>
+        public bool HandleSoftkey(int keyId)
+        {
+            if (buttonClickMethod != null)
+            {
+                buttonClickMethod(rpmModule, keyId);
+                return true;
+            }
+            return false;
         }
 
         /// <summary>

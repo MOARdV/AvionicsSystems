@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016 - 2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -38,6 +38,13 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="enable"></param>
         void EnablePage(bool enable);
+
+        /// <summary>
+        /// Handle a softkey event.
+        /// </summary>
+        /// <param name="keyId">The numeric ID of the key to handle.</param>
+        /// <returns>true if the component handled the key, false otherwise.</returns>
+        bool HandleSoftkey(int keyId);
     }
 
     internal interface IMASSubComponent
