@@ -14,24 +14,29 @@ MAS is under intermittent development (basically, when I feel like it and I have
 The [wiki](https://github.com/MOARdV/AvionicsSystems/wiki) contains most of the documentation for this mod, including guides to
 configuring props and integrating scripting.
 
-Development builds appear under [Releases](https://github.com/MOARdV/AvionicsSystems/releases).
+Releases appear under [Releases](https://github.com/MOARdV/AvionicsSystems/releases).  Development builds
+occasionally show up on DropBox, but they are not formally announced.
 
 ## Where are the IVAs?
 
 MAS is intended to be a toolkit for developing IVAs.  I do not intend to include a wide range of example
-IVAs like RPM had - they're too time consuming, and I'm not including sample props.  My expectation is that
+IVAs like RPM had - good IVAs take a lot of time to create, and I am not packaging stock-derived sample
+props with this mod.  My expectation is that
 IVAs using MAS will include at least one of alexustas's props packs - [ASET Props Pack](http://forum.kerbalspaceprogram.com/index.php?/topic/116430-aset-props-pack-v14-for-the-modders-who-create-iva/) and/or
 [ASET Avionics Pack](http://forum.kerbalspaceprogram.com/index.php?/topic/116479-aset-avionics-pack-v-20-for-the-modders-who-create-iva/).
 
 However, since it is important to have *something* to look at before deciding to adopt this mod for IVA
-development, there are three IVAs included in this package.
+development, there is one IVA included in this package.
 
-Please understand that the IVA is
-not guaranteed to be a full-featured IVA ideal for regular gameplay.
+Please understand that the IVA is not guaranteed to be a full-featured IVA ideal for regular gameplay,
+although it is the command pod I use almost excluively in my own games.
 
 The included IVA is the Yarbrough08 Mk. 1-1 A2 Command Pod from [Yarbrough08](http://forum.kerbalspaceprogram.com/index.php?/topic/88604-wip-105-2-kerbal-command-pod-mk-1-1-a2-alpha-04-spacedock/):
 this pod is the current pod, and it is mostly feature complete.  Note that you may need to so some config file tweaking for this pod if you're
 going to play with it a lot, since it was last updated for KSP 1.0.5.
+
+You will need to download and install [Module Manager](https://forum.kerbalspaceprogram.com/index.php?/topic/50533-130-module-manager-281-june-29th-2017-with-n-cats-physics/), the Yarbrough08 command pod, and a development
+build of the ASET Props in order to fly this IVA.
 
 ## What about RPM?
 
