@@ -38,7 +38,7 @@ namespace AvionicsSystems
         {
             /// <summary>
             /// Overall scalar to change general signal propagation.  The small radius of Kerbin makes
-            /// values swing wildly on altitude.  Defaults to 1.0.
+            /// values swing wildly on altitude.  Defaults to 2.0.
             /// </summary>
             public float generalPropagation;
 
@@ -63,6 +63,8 @@ namespace AvionicsSystems
         static internal int LuaUpdatePriority = 1;
         static internal int CameraTextureScale = 0;
 
+        static internal bool ResetWaypoints = false;
+
         static internal Navigation navigation = new Navigation();
 
         // This is used a lot.  Not much sense creating / discarding these all over the place.
@@ -73,7 +75,7 @@ namespace AvionicsSystems
         /// </summary>
         MASConfig()
         {
-            navigation.generalPropagation = 1.0f;
+            navigation.generalPropagation = 2.0f;
             navigation.NDBPropagation = 1.0f;
             navigation.VORPropagation = 1.2f;
             navigation.DMEPropagation = 1.4f;
@@ -102,7 +104,7 @@ namespace AvionicsSystems
 
             if (!node.TryGetValue("GeneralPropagation", ref navigation.generalPropagation))
             {
-                navigation.generalPropagation = 1.0f;
+                navigation.generalPropagation = 2.0f;
             }
 
             if (!node.TryGetValue("NDBPropagation", ref navigation.NDBPropagation))

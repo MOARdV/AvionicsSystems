@@ -133,7 +133,7 @@ namespace AvionicsSystems
                                    new DialogGUILabel("<b>Radio Navigation</b>", true),
                                    new DialogGUISpace(10.0f),
                                    new DialogGUILabel(delegate { return string.Format("Radio Propagation: {0:##0}%", generalPropagation * 100.0f); }, true),
-                                   new DialogGUISlider(delegate { return generalPropagation; }, 1.0f, 2.0f, false, 140.0f, 30.0f, UpdateGeneralPropagation),
+                                   new DialogGUISlider(delegate { return generalPropagation; }, 1.0f, 3.0f, false, 140.0f, 30.0f, UpdateGeneralPropagation),
                                    new DialogGUISpace(5.0f),
                                    new DialogGUILabel(delegate { return string.Format("NDB Propagation: {0:##0}%", NDBPropagation * 100.0f); }, true),
                                    new DialogGUISlider(delegate { return NDBPropagation; }, 1.0f, 2.0f, false, 140.0f, 30.0f, UpdateNDBPropagation),
@@ -143,6 +143,9 @@ namespace AvionicsSystems
                                    new DialogGUISpace(5.0f),
                                    new DialogGUILabel(delegate { return string.Format("DME Propagation: {0:##0}%", DMEPropagation * 100.0f); }, true),
                                    new DialogGUISlider(delegate { return DMEPropagation; }, 1.0f, 2.0f, false, 140.0f, 30.0f, UpdateDMEPropagation),
+                                   new DialogGUISpace(5.0f),
+                                   new DialogGUIToggle(resetWaypoints, "Reset Waypoints", (bool selected) => { resetWaypoints = selected; }, 140.0f, 30.0f),
+                                   //new DialogGUILabel(delegate { return "CAUTION!  Reset Waypoints";}, false, true),
                                    new DialogGUIFlexibleSpace()
                                     )
                                ),
@@ -176,6 +179,7 @@ namespace AvionicsSystems
         private float NDBPropagation;
         private float VORPropagation;
         private float DMEPropagation;
+        private bool resetWaypoints;
         private void InitValues()
         {
             verboseLogging = MASConfig.VerboseLogging;
@@ -185,6 +189,7 @@ namespace AvionicsSystems
             NDBPropagation = MASConfig.navigation.NDBPropagation;
             VORPropagation = MASConfig.navigation.VORPropagation;
             DMEPropagation = MASConfig.navigation.DMEPropagation;
+            resetWaypoints = MASConfig.ResetWaypoints;
         }
 
         private void ToggleLogging(bool newValue)
@@ -231,6 +236,8 @@ namespace AvionicsSystems
             MASConfig.navigation.NDBPropagation = NDBPropagation;
             MASConfig.navigation.VORPropagation = VORPropagation;
             MASConfig.navigation.DMEPropagation = DMEPropagation;
+            MASConfig.ResetWaypoints = resetWaypoints;
+            Utility.LogMessage(this, "ResetWaypoints -> {0}", resetWaypoints);
 
             int numNavAids = MASLoader.navaids.Count;
             for (int i = 0; i < numNavAids; ++i)

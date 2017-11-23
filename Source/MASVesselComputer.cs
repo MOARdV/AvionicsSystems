@@ -190,6 +190,11 @@ namespace AvionicsSystems
                 if (newwp != null)
                 {
                     FinePrint.Waypoint wp = (knownWaypoints == null) ? null : knownWaypoints.Find(x => x.name == newwp.name);
+                    if (MASConfig.ResetWaypoints && wp != null)
+                    {
+                        ScenarioCustomWaypoints.RemoveWaypoint(wp);
+                        wp = null;
+                    }
                     if (wp == null)
                     {
                         // Note: this is round-about, but it appears to be the way to register
@@ -217,6 +222,8 @@ namespace AvionicsSystems
                     // else: do I verify that values appear to match?
                 }
             }
+            
+            MASConfig.ResetWaypoints = false;
         }
 
         #region Monobehaviour
