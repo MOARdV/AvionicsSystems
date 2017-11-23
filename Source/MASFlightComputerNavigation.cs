@@ -546,6 +546,55 @@ namespace AvionicsSystems
             return false;
         }
 
+        internal double GetNavAidBearing(int radioId, bool relative)
+        {
+            NavRadio radio;
+            if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
+            {
+                if (radio.NavAidInRange(vessel) || (radio.isDME && radio.DMEInRange(vessel)))
+                {
+                    double absoluteBearing = radio.GetBearing(vessel.latitude, vessel.longitude);
+                    if(relative)
+                    {
+                        return Utility.NormalizeAngle(absoluteBearing - vc.heading);
+                    }
+                    else
+                    {
+                        return absoluteBearing;
+                    }
+                }
+            }
+            return 0.0;
+        }
+
+        internal double GetNavAidLatitude(int radioId)
+        {
+            NavRadio radio;
+            if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
+            {
+                if ((radio.isDME && radio.DMEInRange(vessel)) || radio.NavAidInRange(vessel))
+                {
+                    return radio.beacon[radio.beaconIndex].latitude;
+                }
+            }
+
+            return 0.0;
+        }
+
+        internal double GetNavAidLongitude(int radioId)
+        {
+            NavRadio radio;
+            if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
+            {
+                if ((radio.isDME && radio.DMEInRange(vessel)) || radio.NavAidInRange(vessel))
+                {
+                    return radio.beacon[radio.beaconIndex].longitude;
+                }
+            }
+
+            return 0.0;
+        }
+
         /// <summary>
         /// Reports whether the navigational aid on the selected radio includes DME capability.
         /// 
@@ -557,7 +606,7 @@ namespace AvionicsSystems
             NavRadio radio;
             if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
             {
-                double beaconDmeDistance = radio.beacon[radio.beaconIndex].maximumRangeDME;
+                //double beaconDmeDistance = radio.beacon[radio.beaconIndex].maximumRangeDME;
                 if (radio.DMEInRange(vessel))
                 {
                     return (radio.isDME) ? 1.0 : 0.0;

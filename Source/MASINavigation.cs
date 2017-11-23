@@ -49,13 +49,12 @@ namespace AvionicsSystems
     /// </mdDoc>
     internal class MASINavigation
     {
-        private static readonly double Deg2Rad = Math.PI / 180.0;
-        private static readonly double Rad2Deg = 180.0 / Math.PI;
-
         private Vessel vessel;
         private CelestialBody body;
         private double bodyRadius;
         private MASFlightComputer fc;
+
+        private int activeWaypoint = -1;
 
         [MoonSharpHidden]
         public MASINavigation(Vessel vessel, MASFlightComputer fc)
@@ -78,6 +77,25 @@ namespace AvionicsSystems
             // Probably oughtn't need to poll this
             body = vessel.mainBody;
             bodyRadius = body.Radius;
+
+            // Be nice if this could be done more efficiently.
+            activeWaypoint = -1;
+            if (NavWaypoint.fetch.IsActive)
+            {
+                double wpLat = NavWaypoint.fetch.Latitude;
+                double wpLon = NavWaypoint.fetch.Longitude;
+
+                var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+                int numWP = waypoints.Count;
+                for(int i=0; i<numWP; ++i)
+                {
+                    if(waypoints[i].latitude == wpLat && waypoints[i].longitude == wpLon)
+                    {
+                        activeWaypoint = i;
+                        break;
+                    }
+                }
+            }
         }
 
         [MoonSharpHidden]
@@ -104,14 +122,14 @@ namespace AvionicsSystems
         /// <returns>Bearing (heading) in degrees.</returns>
         public double Bearing(double latitude1, double longitude1, double latitude2, double longitude2)
         {
-            double lat1 = latitude1 * Deg2Rad;
-            double lat2 = latitude2 * Deg2Rad;
-            double dLon = (longitude2 - longitude1) * Deg2Rad;
+            double lat1 = latitude1 * Utility.Deg2Rad;
+            double lat2 = latitude2 * Utility.Deg2Rad;
+            double dLon = (longitude2 - longitude1) * Utility.Deg2Rad;
 
             double y = Math.Sin(dLon) * Math.Cos(lat2);
             double x = Math.Cos(lat1) * Math.Sin(lat2) - Math.Sin(lat1) * Math.Cos(lat2) * Math.Cos(dLon);
 
-            return Utility.NormalizeAngle(Math.Atan2(y, x) * Rad2Deg);
+            return Utility.NormalizeAngle(Math.Atan2(y, x) * Utility.Rad2Deg);
         }
 
         /// <summary>
@@ -144,12 +162,12 @@ namespace AvionicsSystems
             //φ2 = asin( sin φ1 ⋅ cos δ + cos φ1 ⋅ sin δ ⋅ cos θ )
             //λ2 = λ1 + atan2( sin θ ⋅ sin δ ⋅ cos φ1, cos δ − sin φ1 ⋅ sin φ2 )
             //where	φ is latitude, λ is longitude, θ is the bearing (clockwise from north), δ is the angular distance d/R; d being the distance travelled, R the earth’s radius
-            double phi1 = latitude * Deg2Rad;
-            double theta = bearing * Deg2Rad;
+            double phi1 = latitude * Utility.Deg2Rad;
+            double theta = bearing * Utility.Deg2Rad;
             double delta = range / bodyRadius;
 
             double phi2 = Math.Asin(Math.Sin(phi1) * Math.Cos(delta) + Math.Cos(phi1) * Math.Sin(delta) * Math.Cos(theta));
-            return phi2 * Rad2Deg;
+            return phi2 * Utility.Rad2Deg;
         }
 
         /// <summary>
@@ -177,15 +195,15 @@ namespace AvionicsSystems
             //φ2 = asin( sin φ1 ⋅ cos δ + cos φ1 ⋅ sin δ ⋅ cos θ )
             //λ2 = λ1 + atan2( sin θ ⋅ sin δ ⋅ cos φ1, cos δ − sin φ1 ⋅ sin φ2 )
             //where	φ is latitude, λ is longitude, θ is the bearing (clockwise from north), δ is the angular distance d/R; d being the distance travelled, R the earth’s radius
-            double phi1 = latitude * Deg2Rad;
-            double lambda1 = longitude * Deg2Rad;
-            double theta = bearing * Deg2Rad;
+            double phi1 = latitude * Utility.Deg2Rad;
+            double lambda1 = longitude * Utility.Deg2Rad;
+            double theta = bearing * Utility.Deg2Rad;
             double delta = range / bodyRadius;
 
             double phi2 = Math.Asin(Math.Sin(phi1) * Math.Cos(delta) + Math.Cos(phi1) * Math.Sin(delta) * Math.Cos(theta));
             double lambda2 = lambda1 + Math.Atan2(Math.Sin(theta) * Math.Sin(delta) * Math.Cos(phi1), Math.Cos(delta) - Math.Sin(phi1) * Math.Sin(phi2));
 
-            return Utility.NormalizeLongitude(lambda2 * Rad2Deg);
+            return Utility.NormalizeLongitude(lambda2 * Utility.Rad2Deg);
         }
 
         /// <summary>
@@ -212,10 +230,10 @@ namespace AvionicsSystems
         /// <returns>Distance in meters between the two points, following the surface of the planet.</returns>
         public double GroundDistance(double latitude1, double longitude1, double latitude2, double longitude2)
         {
-            double lat1 = latitude1 * Deg2Rad;
-            double lat2 = latitude2 * Deg2Rad;
-            double sinLat = Math.Sin((latitude2 - latitude1) * Deg2Rad * 0.5);
-            double sinLon = Math.Sin((longitude2 - longitude1) * Deg2Rad * 0.5);
+            double lat1 = latitude1 * Utility.Deg2Rad;
+            double lat2 = latitude2 * Utility.Deg2Rad;
+            double sinLat = Math.Sin((latitude2 - latitude1) * Utility.Deg2Rad * 0.5);
+            double sinLon = Math.Sin((longitude2 - longitude1) * Utility.Deg2Rad * 0.5);
             double a = sinLat * sinLat + Math.Cos(lat1) * Math.Cos(lat2) * sinLon * sinLon;
 
             double c = 2.0 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1.0 - a));
@@ -339,6 +357,19 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the bearing to the navaid selected by radioId.  If no radio is in range,
+        /// returns 0.
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <param name="relativeBearing">If true, returns the bearing to the beacon relative to the vessel's front.
+        /// If false, returns the absolute bearing to the beacon (relative to north).</param>
+        /// <returns>Absolute or relative bearing to the navaid beacon, or 0.</returns>
+        public double GetNavAidBearing(double radioId, bool relativeBearing)
+        {
+            return fc.GetNavAidBearing((int)radioId, relativeBearing);
+        }
+
+        /// <summary>
         /// Queries the radio beacon selected by radioId to determine if it includes
         /// DME equipment.  Returns one of three values:
         /// 
@@ -363,6 +394,28 @@ namespace AvionicsSystems
         public string GetNavAidIdentifier(double radioId)
         {
             return fc.GetNavAidIdentifier((int)radioId);
+        }
+
+        /// <summary>
+        /// Returns the latitude of the active beacon.  If no beacon is selected, or no beacon is
+        /// in range, returns 0.
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <returns>Latitude, or 0</returns>
+        public double GetNavAidLatitude(double radioId)
+        {
+            return fc.GetNavAidLatitude((int)radioId);
+        }
+
+        /// <summary>
+        /// Returns the longitude of the active beacon.  If no beacon is selected, or no beacon is
+        /// in range, returns 0.
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <returns>Longitude, or 0</returns>
+        public double GetNavAidLongitude(double radioId)
+        {
+            return fc.GetNavAidLongitude((int)radioId);
         }
 
         /// <summary>
@@ -479,6 +532,58 @@ namespace AvionicsSystems
             {
                 return 0.0;
             }
+        }
+
+        /// <summary>
+        /// Returns the name of waypoint identified by waypointIndex.
+        /// 
+        /// If waypointIndex is -1, returns the name of the active waypoint.
+        /// If waypointIndex is between 0 and `nav.GetWaypointCount()`, returns that
+        /// waypoint's name.  Otherwise, returns an empty string.
+        /// </summary>
+        /// <param name="waypointIndex">The waypoint to name, or -1 to select the current active waypoint.</param>
+        /// <returns>The name of the waypoint, or an empty string.</returns>
+        public string GetWaypointName(double waypointIndex)
+        {
+            int index = (int)waypointIndex;
+            if (index == -1)
+            {
+                index = activeWaypoint;
+            }
+
+            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+            if (index >= 0 && index < waypoints.Count)
+            {
+                return waypoints[index].name;
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Set the stock waypoint system to the waypoint number selected.
+        /// 
+        /// A negative value, or a value equal to or greater than `nav.GetWaypointCount()`
+        /// will clear the current waypoint.
+        /// </summary>
+        /// <param name="waypointIndex">The waypoint to select.</param>
+        /// <returns>1 if a waypoint was selected, 0 otherwise.</returns>
+        public double SetWaypoint(double waypointIndex)
+        {
+            int index = (int)waypointIndex;
+            NavWaypoint.fetch.Deactivate();
+
+            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+
+            if (index >= 0 && index < waypoints.Count)
+            {
+                NavWaypoint.fetch.Setup(waypoints[index]);
+                NavWaypoint.fetch.Activate();
+            }
+
+            return 0.0;
         }
 
         #endregion
