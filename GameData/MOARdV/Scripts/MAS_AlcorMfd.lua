@@ -7,290 +7,44 @@
 --
 -- This script is public domain (although acknowledgement that MOARdV wrote it would be nice).
 
+-- What does this do?
+--
+-- For the sake of illustration, button A on the MFD can toggle between LAUNCH and LAND
+-- pages when the player presses either NEXT or PREV.  For this to work, we must
+-- initialize a couple of persistent variables.  One of them is used to automatically
+-- update the top-row button legend.  The other is used to control which page
+--  button A displays.
+--
+-- When the player changes pages using NEXT or PREV, we need to do three things: we
+-- need to update the currently displayed page, we need to remember which page button
+-- A should display in the future, and we need to update what the caption displays.
+--
+-- MAS_AlcorMfdInit is the initialization script executed at load time.  If the 
+-- persistent %AUTOID%-Acapt has not been created, we set it to LAUNCH.  This
+-- persistent is used to label the first button on the top of the MFD.  We also
+-- set %AUTOID%-A to the launch page, so that when button A is pressed, we'll
+-- know what page to show.
+--
+-- MAS_AlcorMfdPageA takes care of the complex updates required to support button A
+-- being able to select more than one page.  It changes the page.  It also remembers
+-- which page it's selecting, so that the next time the player presses button A,
+-- we will select the correct page.  We also update the caption to the new caption.
+
 -- Initialization script for the ALCOR MFD.  This script may set up multiple variables if needed.
 function MAS_AlcorMfdInit(propId)
-	
+
 	if fc.GetPersistentExists(propId .. "-Acapt") < 1 then
 		fc.SetPersistent(propId .. "-A", "MAS_ALCOR_MFD_A_Launch")
 		fc.SetPersistent(propId .. "-Acapt", "LAUNCH")
 	end
 end
 
--- table (array) indices as follows:
---  1 = R1
---  2 = R2
---  3 = R3
---  4 = R4
---  5 = R5
---  6 = R6
---  7 = R7
---  8 = A
---  9 = B
--- 10 = C
--- 11 = D
--- 12 = E
--- 13 = F
--- 14 = G
-
-------------------------------------------------------------------------------
--- local selectors
-local function MAS_AlcorPage7(propId, direction)
-	
-	fc.AddPersistentWrapped(propId .. "-CameraIndex", direction, 0, fc.CameraCount())
-
-end
-
-local function MAS_AlcorPageA(propId, direction)
-	local newPage = fc.AddPersistentWrapped(propId .. "-LaunchLand", direction, 0, 2)
-	if newPage == 0 then
-		-- Set the page
-		fc.SetPersistent(propId, "MAS_ALCOR_MFD_A_Launch")
-		-- Remember which page was set, so we can set it again next time
-		fc.SetPersistent(propId .. "-A", "MAS_ALCOR_MFD_A_Launch")
-		-- Set the caption for the MFD top-row menu
-		fc.SetPersistent(propId .. "-Acapt", "LAUNCH")
-	elseif newPage == 1 then
-		fc.SetPersistent(propId, "MAS_ALCOR_MFD_A_Land")
-		fc.SetPersistent(propId .. "-A", "MAS_ALCOR_MFD_A_Land")
-		fc.SetPersistent(propId .. "-Acapt", " LAND ")
-	end
-end
-
-local pageSelector =
-{
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	MAS_AlcorPage7,
-	MAS_AlcorPageA,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-}
-
--- Router function that handles the Next/Prev buttons
-function MAS_AlcorMFD_NextPrev(propId, direction)
-	
-	local btnName = propId .. "-btn"
-	local currentPage = fc.GetPersistentAsNumber(btnName)
-
-	-- If currentPage is 0, then there's no 'next' action.
-	if currentPage > 0 then
-		local handler = pageSelector[currentPage]
-		if handler ~= nil then
-			handler(propId, direction)
-		end
-	end
-	
-end
-
-------------------------------------------------------------------------------
-local function MAS_AlcorLeftRightPage7(propId, direction)
-	
-	local cameraId = fc.GetPersistentAsNumber(propId .. "-CameraIndex")
-	
-	return fc.AddPan(cameraId, direction * 0.5)
-end
-
-local pageLeftRight =
-{
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	MAS_AlcorLeftRightPage7,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-}
-
--- Router function that handles the Left/Right buttons
-function MAS_AlcorMFD_LeftRight(propId, direction)
-	local btnName = propId .. "-btn"
-	local currentPage = fc.GetPersistentAsNumber(btnName)
-	local handler = pageLeftRight[currentPage]
-	
-	if handler ~= nil then
-		return handler(propId, direction)
-	else
-		return 0
-	end
-end
-
-
-------------------------------------------------------------------------------
-local function MAS_AlcorUpDownPage7(propId, direction)
-	
-	local cameraId = fc.GetPersistentAsNumber(propId .. "-CameraIndex")
-	
-	return fc.AddTilt(cameraId, direction)
-end
-
-local pageUpDown =
-{
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	MAS_AlcorUpDownPage7,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-}
-
--- Router function that handles the Up/Down buttons
-function MAS_AlcorMFD_UpDown(propId, direction)
-	local btnName = propId .. "-btn"
-	local currentPage = fc.GetPersistentAsNumber(btnName)
-	local handler = pageUpDown[currentPage]
-	
-	if handler ~= nil then
-		return handler(propId, direction)
-	else
-		return 0
-	end
-end
-
-
-------------------------------------------------------------------------------
-local function MAS_AlcorEnterPage7(propId)
-	
-	local cameraId = fc.GetPersistentAsNumber(propId .. "-CameraIndex")
-	
-	return fc.AddFoV(cameraId, -1)
-end
-
-local pageEnter =
-{
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	MAS_AlcorEnterPage7,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-}
-
--- Router function that handles the Enter button
-function MAS_AlcorMFD_Enter(propId)
-	local btnName = propId .. "-btn"
-	local currentPage = fc.GetPersistentAsNumber(btnName)
-	local handler = pageEnter[currentPage]
-	
-	if handler ~= nil then
-		return handler(propId)
-	else
-		return 0
-	end
-end
-
-------------------------------------------------------------------------------
-local function MAS_AlcorEscPage7(propId)
-	
-	local cameraId = fc.GetPersistentAsNumber(propId .. "-CameraIndex")
-	
-	return fc.AddFoV(cameraId, 1)
-end
-
-local pageEsc =
-{
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	MAS_AlcorEscPage7,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-}
-
--- Router function that handles the Esc button
-function MAS_AlcorMFD_Esc(propId)
-	local btnName = propId .. "-btn"
-	local currentPage = fc.GetPersistentAsNumber(btnName)
-	local handler = pageEsc[currentPage]
-	
-	if handler ~= nil then
-		return handler(propId)
-	else
-		return 0
-	end
-end
-
-------------------------------------------------------------------------------
-local function MAS_AlcorHomePage7(propId)
-	
-	local cameraId = fc.GetPersistentAsNumber(propId .. "-CameraIndex")
-	
-	-- Set it to a large number at let the camera clamp it
-	fc.SetFoV(cameraId, 180)
-
-	-- Zero these out.
-	-- TODO: Smoothly blend these values, instead of an insta-snap.
-	fc.SetPan(cameraId, 0)
-	fc.SetTilt(cameraId, 0)
-	
-	return 0
-end
-
-local pageHome =
-{
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	MAS_AlcorHomePage7,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-	nil,
-}
-
--- Router function that handles the Home button
-function MAS_AlcorMFD_Home(propId)
-	local btnName = propId .. "-btn"
-	local currentPage = fc.GetPersistentAsNumber(btnName)
-	local handler = pageHome[currentPage]
-	
-	if handler ~= nil then
-		return handler(propId)
-	else
-		return 0
-	end
+-- Toggle button A mode.
+function MAS_AlcorMfdPageA(propId, pageName, caption)
+	-- Change page.
+	fc.SetPersistent(propId, pageName)
+	-- Remember what button A will do
+	fc.SetPersistent(propId .. "-A", pageName)
+	-- Update the caption for button A
+	fc.SetPersistent(propId .. "-Acapt", caption)
 end
