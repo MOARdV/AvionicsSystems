@@ -335,14 +335,14 @@ namespace AvionicsSystems
                         // If we have multiple radios on the same frequency, we need to determine the closest one every
                         // fixed update...
 
-                        QuaternionD vesselPosition = QuaternionD.Euler(0.0, vessel.longitude, vessel.latitude);
+                        Quaternion vesselPosition = Quaternion.Euler(0.0f, (float)vessel.longitude, (float)vessel.latitude);
                         int oldIndex = radio.beaconIndex;
                         radio.beaconIndex = -1;
-                        double angle = 180.0;
+                        float angle = 180.0f;
                         for (int i = radio.beacon.Length - 1; i >= 0; --i)
                         {
-                            QuaternionD beaconPosition = QuaternionD.Euler(0.0, radio.beacon[i].longitude, radio.beacon[i].latitude);
-                            double angleBetween = QuaternionD.Angle(vesselPosition, beaconPosition);
+                            Quaternion beaconPosition = Quaternion.Euler(0.0f, (float)radio.beacon[i].longitude, (float)radio.beacon[i].latitude);
+                            float angleBetween = Quaternion.Angle(vesselPosition, beaconPosition);
                             if (angleBetween < angle)
                             {
                                 angle = angleBetween;
