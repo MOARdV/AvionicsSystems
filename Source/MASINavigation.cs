@@ -87,9 +87,9 @@ namespace AvionicsSystems
 
                 var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
                 int numWP = waypoints.Count;
-                for(int i=0; i<numWP; ++i)
+                for (int i = 0; i < numWP; ++i)
                 {
-                    if(waypoints[i].latitude == wpLat && waypoints[i].longitude == wpLon)
+                    if (waypoints[i].latitude == wpLat && waypoints[i].longitude == wpLon)
                     {
                         activeWaypoint = i;
                         break;
@@ -268,6 +268,37 @@ namespace AvionicsSystems
         public double LineOfSight(double altitude)
         {
             return Math.Sqrt(altitude * (2.0 * bodyRadius + altitude));
+        }
+
+        /// <summary>
+        /// Returns the slant distance (direct distance) between two locations on the current world.
+        /// </summary>
+        /// <param name="latitude1">Latitude of the origin.</param>
+        /// <param name="longitude1">Longitude of the origin.</param>
+        /// <param name="altitude1">Altitude of the origin.</param>
+        /// <param name="latitude2">Latitude of the destination.</param>
+        /// <param name="longitude2">Longitude of the destination.</param>
+        /// <param name="altitude2">Altitude of the destination.</param>
+        /// <returns></returns>
+        public double SlantDistance(double latitude1, double longitude1, double altitude1, double latitude2, double longitude2, double altitude2)
+        {
+            Vector3d origin = vessel.mainBody.GetRelSurfacePosition(latitude1, longitude1, altitude1);
+            Vector3d destination = vessel.mainBody.GetRelSurfacePosition(latitude2, longitude2, altitude2);
+
+            return Vector3d.Distance(origin, destination);
+        }
+
+        /// <summary>
+        /// Returns the slant distance (direct distance) between the vessel and a given location and altitude on the current
+        /// planet.
+        /// </summary>
+        /// <param name="latitude">Latitude of the destination.</param>
+        /// <param name="longitude">Longitude of the destination.</param>
+        /// <param name="altitude">Altitude of the destination.</param>
+        /// <returns>Distance in meters from the vessel to the selected location.</returns>
+        public double SlantDistanceFromVessel(double latitude, double longitude, double altitude)
+        {
+            return SlantDistance(vessel.latitude, Utility.NormalizeLongitude(vessel.longitude), vessel.altitude, latitude, longitude, altitude);
         }
 
         #endregion
@@ -513,20 +544,186 @@ namespace AvionicsSystems
         /// 
         /// These methods differ from the Radio Nagivation section in that they do not include any gameplay
         /// simulation of radio navigation - these methods are more suited for Global Navigation Satellite Systems.
+        /// 
+        /// Most waypoint queries take a `waypointIndex` parameter.  This parameter must be in the range
+        /// of [0, nav.GetWaypointCount()-1] to select a custom waypoint, or -1 to select the current active
+        /// waypoint.
         /// </summary>
         #region Waypoint Navigation
+
+        /// <summary>
+        /// Get the custom waypoint index of the current waypoint.  If there is no active
+        /// waypoint, or the current waypoint is not a custom waypoint, return -1.
+        /// </summary>
+        /// <returns>Index of the active waypoint, or -1 if no waypoint is active or the waypoint is not a custom waypoint.</returns>
+        public double GetWaypointIndex()
+        {
+            return activeWaypoint;
+        }
+
+        /// <summary>
+        /// Set the stock waypoint system to the waypoint number selected.
+        /// 
+        /// A negative value, or a value equal to or greater than `nav.GetWaypointCount()`
+        /// will clear the current waypoint.
+        /// </summary>
+        /// <param name="waypointIndex">The waypoint to select.</param>
+        /// <returns>1 if a waypoint was selected, 0 otherwise.</returns>
+        public double SetWaypoint(double waypointIndex)
+        {
+            int index = (int)waypointIndex;
+
+            if (NavWaypoint.fetch.IsActive)
+            {
+                NavWaypoint.fetch.Clear();
+                NavWaypoint.fetch.Deactivate();
+            }
+
+            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+
+            if (index >= 0 && index < waypoints.Count)
+            {
+                NavWaypoint.fetch.Setup(waypoints[index]);
+                NavWaypoint.fetch.Activate();
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if there is a waypoint active.
+        /// </summary>
+        /// <returns>1 if a waypoint is active, 0 otherwise.</returns>
+        public double WaypointActive()
+        {
+            return (NavWaypoint.fetch.IsActive) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Get the altitude of the waypoint selected by waypointIndex, or the current active
+        /// waypoint if waypointIndex is -1.
+        /// </summary>
+        /// <param name="waypointIndex">The waypoint to name, or -1 to select the current active waypoint.</param>
+        /// <returns>Altitude of the selected waypoint, or 0.</returns>
+        public double WaypointAltitude(double waypointIndex)
+        {
+            int index = (int)waypointIndex;
+
+            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+            if (index >= 0 && index < waypoints.Count)
+            {
+                return waypoints[index].altitude;
+            }
+            else if (index == -1 && NavWaypoint.fetch.IsActive)
+            {
+                return NavWaypoint.fetch.Altitude;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Get the absolute bearing to the selected waypoint (bearing relative to North).
+        /// </summary>
+        /// <param name="waypointIndex">The waypoint index, or -1 to select the current active waypoint.</param>
+        /// <returns>The bearing to the waypoint, or -1 if there is no selected waypoint.</returns>
+        public double WaypointBearing(double waypointIndex)
+        {
+            int index = (int)waypointIndex;
+
+            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+            if (index >= 0 && index < waypoints.Count)
+            {
+                return BearingFromVessel(waypoints[index].latitude, waypoints[index].longitude);
+            }
+            else if (index == -1 && NavWaypoint.fetch.IsActive)
+            {
+                return BearingFromVessel(NavWaypoint.fetch.Latitude, NavWaypoint.fetch.Longitude);
+            }
+            else
+            {
+                return -1.0;
+            }
+        }
 
         /// <summary>
         /// Returns the number of waypoints in the custom waypoints table.
         /// </summary>
         /// <returns>The number of waypoints.</returns>
-        public double GetWaypointCount()
+        public double WaypointCount()
         {
-            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
+            return FinePrint.WaypointManager.Instance().Waypoints.Count;
+        }
 
-            if (instance != null)
+        /// <summary>
+        /// Get the slant distance to the selected waypoint in meters.
+        /// </summary>
+        /// <param name="waypointIndex">The waypoint index, or -1 to select the current active waypoint.</param>
+        /// <returns>The distance to the waypoint in meters, or -1 if there is no selected waypoint.</returns>
+        public double WaypointDistance(double waypointIndex)
+        {
+            int index = (int)waypointIndex;
+
+            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+            if (index >= 0 && index < waypoints.Count)
             {
-                return instance.Waypoints.Count;
+                return SlantDistanceFromVessel(waypoints[index].latitude, waypoints[index].longitude, waypoints[index].altitude);
+            }
+            else if (index == -1 && NavWaypoint.fetch.IsActive)
+            {
+                return SlantDistanceFromVessel(NavWaypoint.fetch.Latitude, NavWaypoint.fetch.Longitude, NavWaypoint.fetch.Altitude);
+            }
+            else
+            {
+                return -1.0;
+            }
+        }
+
+        /// <summary>
+        /// Get the latitude of the waypoint selected by waypointIndex, or the current active
+        /// waypoint if waypointIndex is -1.
+        /// </summary>
+        /// <param name="waypointIndex">The waypoint index, or -1 to select the current active waypoint.</param>
+        /// <returns>Latitude of the selected waypoint, or 0.</returns>
+        public double WaypointLatitude(double waypointIndex)
+        {
+            int index = (int)waypointIndex;
+
+            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+            if (index >= 0 && index < waypoints.Count)
+            {
+                return waypoints[index].latitude;
+            }
+            else if (index == -1 && NavWaypoint.fetch.IsActive)
+            {
+                return NavWaypoint.fetch.Latitude;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Get the longitude of the waypoint selected by waypointIndex, or the current active
+        /// waypoint if waypointIndex is -1.
+        /// </summary>
+        /// <param name="waypointIndex">The waypoint index, or -1 to select the current active waypoint.</param>
+        /// <returns>Longitude of the selected waypoint, or 0.</returns>
+        public double WaypointLongitude(double waypointIndex)
+        {
+            int index = (int)waypointIndex;
+
+            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+            if (index >= 0 && index < waypoints.Count)
+            {
+                return waypoints[index].longitude;
+            }
+            else if (index == -1 && NavWaypoint.fetch.IsActive)
+            {
+                return NavWaypoint.fetch.Longitude;
             }
             else
             {
@@ -543,7 +740,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="waypointIndex">The waypoint to name, or -1 to select the current active waypoint.</param>
         /// <returns>The name of the waypoint, or an empty string.</returns>
-        public string GetWaypointName(double waypointIndex)
+        public string WaypointName(double waypointIndex)
         {
             int index = (int)waypointIndex;
             if (index == -1)
@@ -560,30 +757,6 @@ namespace AvionicsSystems
             {
                 return string.Empty;
             }
-        }
-
-        /// <summary>
-        /// Set the stock waypoint system to the waypoint number selected.
-        /// 
-        /// A negative value, or a value equal to or greater than `nav.GetWaypointCount()`
-        /// will clear the current waypoint.
-        /// </summary>
-        /// <param name="waypointIndex">The waypoint to select.</param>
-        /// <returns>1 if a waypoint was selected, 0 otherwise.</returns>
-        public double SetWaypoint(double waypointIndex)
-        {
-            int index = (int)waypointIndex;
-            NavWaypoint.fetch.Deactivate();
-
-            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
-
-            if (index >= 0 && index < waypoints.Count)
-            {
-                NavWaypoint.fetch.Setup(waypoints[index]);
-                NavWaypoint.fetch.Activate();
-            }
-
-            return 0.0;
         }
 
         #endregion

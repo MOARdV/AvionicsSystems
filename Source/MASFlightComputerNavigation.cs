@@ -461,7 +461,7 @@ namespace AvionicsSystems
                     // Yeah, I could probably write this a little more succinctly.
                     // I want deviation to be 0 if the vessel is heading directly along the
                     // ILS approach line.
-                    double deviation = Utility.NormalizeLongitude(radio.beacon[radio.beaconIndex].approachHeadingILS - absoluteBearing + 180.0);
+                    double deviation = Utility.NormalizeLongitude(radio.beacon[radio.beaconIndex].approachHeadingILS - absoluteBearing);
                     if (Math.Abs(deviation) <= radio.beacon[radio.beaconIndex].localizerSectorILS)
                     {
                         return deviation;
