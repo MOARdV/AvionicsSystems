@@ -675,7 +675,7 @@ namespace AvionicsSystems
                         }
                         else
                         {
-                            Utility.LogErrorMessage(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0}, with parameter {1}", canonical, methodParams[0].ParameterType);
+                            Utility.LogWarning(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0}, with parameter {1}.  Falling back to Lua.", canonical, methodParams[0].ParameterType);
                         }
                     }
                     else if (numArgs == 2)
@@ -690,9 +690,14 @@ namespace AvionicsSystems
                             DynamicMethod<object, bool, double> dm = DynamicMethodFactory.CreateFunc<object, bool, double>(method);
                             return new Variable(canonical, () => dm(tableInstance, parms[0].BoolValue(), parms[1].SafeValue()), cacheable, mutable);
                         }
+                        else if (methodParams[0].ParameterType == typeof(double) && methodParams[1].ParameterType == typeof(bool))
+                        {
+                            DynamicMethod<object, double, bool> dm = DynamicMethodFactory.CreateFunc<object, double, bool>(method);
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].BoolValue()), cacheable, mutable);
+                        }
                         else
                         {
-                            Utility.LogErrorMessage(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0}, with parameters {1} and {2}", canonical, methodParams[0].ParameterType, methodParams[1].ParameterType);
+                            Utility.LogWarning(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0}, with parameters {1} and {2}.  Falling back to Lua.", canonical, methodParams[0].ParameterType, methodParams[1].ParameterType);
                         }
                     }
                     else if (numArgs == 3)
@@ -714,7 +719,7 @@ namespace AvionicsSystems
                         }
                         else
                         {
-                            Utility.LogErrorMessage(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0}, with parameters {1}, {2}, and {3}", canonical, methodParams[0].ParameterType, methodParams[1].ParameterType, methodParams[2].ParameterType);
+                            Utility.LogWarning(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0}, with parameters {1}, {2}, and {3}.  Falling back to Lua.", canonical, methodParams[0].ParameterType, methodParams[1].ParameterType, methodParams[2].ParameterType);
                         }
                     }
                     else if (numArgs == 5)
@@ -730,12 +735,12 @@ namespace AvionicsSystems
                         }
                         else
                         {
-                            Utility.LogErrorMessage(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0} with {1} parameters", canonical, numArgs);
+                            Utility.LogWarning(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0} with {1} parameters.  Falling back to Lua.", canonical, numArgs);
                         }
                     }
                     else
                     {
-                        Utility.LogErrorMessage(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0} with {1} parameters", canonical, numArgs);
+                        Utility.LogWarning(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0} with {1} parameters.  Falling back to Lua.", canonical, numArgs);
                     }
                 }
 #if PLENTIFUL_LOGGING
