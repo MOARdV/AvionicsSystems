@@ -55,7 +55,19 @@ namespace Documentor
             internal StringBuilder rawSummary;
         }
 
+        internal class IndexToken
+        {
+            internal string rawName;
+            internal string sourceFile;
+            internal string summary;
+            internal StringBuilder decoratedName;
+        };
+
+        static bool anyWritten = false;
+
         static List<DocumentToken> tokens = new List<DocumentToken>();
+        static List<IndexToken> index = new List<IndexToken>();
+
         static void Main(string[] args)
         {
             //System.Console.WriteLine("Documentifying:");
@@ -63,6 +75,49 @@ namespace Documentor
             {
                 //System.Console.WriteLine(string.Format(" ...{0}", args[i]));
                 Documentify(args[i]);
+            }
+
+            if (anyWritten)
+            {
+                int backslash = args[0].LastIndexOf('\\');
+                string indexFile = args[0].Substring(0, backslash + 1) + "index.md";
+
+                index.Sort(delegate(IndexToken a, IndexToken b)
+                {
+                    if (a.rawName == b.rawName)
+                    {
+                        return string.Compare(a.decoratedName.ToString(), b.decoratedName.ToString());
+                    }
+                    else
+                    {
+                        return string.Compare(a.rawName, b.rawName);
+                    }
+                });
+
+                StringBuilder indexContents = new StringBuilder();
+                indexContents.AppendLine("The following is an index to all functions available in MOARdV's Avionics Systems, sorted by function name.  Partially summaries are included, along with a link to the full documentation.").AppendLine();
+                indexContents.AppendFormat("Master Index, {0} functions:", index.Count).AppendLine().AppendLine();
+
+                foreach (var i in index)
+                {
+                    string[] b = i.sourceFile.Split('.');
+
+                    string decoratedName = i.decoratedName.ToString();
+                    i.decoratedName.Replace(' ', '-').Replace('(', '.').Replace(')', '.').Replace(',', '.');
+
+                    string[] linkName = i.decoratedName.ToString().Split('.');
+                    string link = string.Join("", linkName);
+                    link = link.ToLower();
+
+                    indexContents.AppendLine(string.Format("* **{0}:** `{1}` {4} ([see](https://github.com/MOARdV/AvionicsSystems/wiki/{2}#{3}))", i.rawName, decoratedName, b[0], link, i.summary));
+                }
+
+                indexContents.AppendLine().AppendLine("***");
+                DateTime now = DateTime.UtcNow;
+                indexContents.AppendLine(string.Format("*This documentation was automatically generated from source code at {0,2:00}:{1,2:00} UTC on {2}/{3}/{4}.*",
+                    now.Hour, now.Minute, now.Day, MonthAbbr[now.Month], now.Year));
+
+                File.WriteAllText(indexFile, indexContents.ToString(), Encoding.UTF8);
             }
         }
 
@@ -97,10 +152,6 @@ namespace Documentor
             int backslash = sourceFile.LastIndexOf('\\');
 
             string mdStr = sourceFile.Substring(0, tail) + ".md";
-            if (File.Exists(mdStr) && File.GetLastWriteTimeUtc(mdStr) > File.GetLastWriteTimeUtc(sourceFile))
-            {
-                return;
-            }
 
             // Read the file.
             string[] lines = File.ReadAllLines(sourceFile, Encoding.UTF8);
@@ -230,7 +281,12 @@ namespace Documentor
                 {
                     if (child is XmlElement && child.Name == "token")
                     {
-                        ParseToken(child, docString, ref luaNamespace);
+                        IndexToken indexEntry = ParseToken(child, docString, ref luaNamespace);
+                        if (indexEntry != null)
+                        {
+                            indexEntry.sourceFile = sourceFileName;
+                            index.Add(indexEntry);
+                        }
                         //System.Console.WriteLine(child.Name);
                     }
                     child = child.NextSibling;
@@ -241,7 +297,11 @@ namespace Documentor
             docString.AppendLine(string.Format("*This documentation was automatically generated from source code at {0,2:00}:{1,2:00} UTC on {2}/{3}/{4}.*",
                 now.Hour, now.Minute, now.Day, MonthAbbr[now.Month], now.Year));
             docString.AppendLine();
-            File.WriteAllText(mdStr, docString.ToString(), Encoding.UTF8);
+            if (File.Exists(mdStr) && File.GetLastWriteTimeUtc(mdStr) <= File.GetLastWriteTimeUtc(sourceFile))
+            {
+                File.WriteAllText(mdStr, docString.ToString(), Encoding.UTF8);
+                anyWritten = true;
+            }
 
             tokens.Clear();
         }
@@ -252,8 +312,10 @@ namespace Documentor
         /// <param name="child"></param>
         /// <param name="docString"></param>
         /// <param name="luaNamespace"></param>
-        private static void ParseToken(XmlNode child, StringBuilder docString, ref string luaNamespace)
+        private static IndexToken ParseToken(XmlNode child, StringBuilder docString, ref string luaNamespace)
         {
+            IndexToken indexEntry = null;
+
             XmlElement luaNameTag = child["LuaName"];
             if (luaNameTag != null)
             {
@@ -271,13 +333,21 @@ namespace Documentor
             XmlElement methodName = child["method"];
             if (methodName != null)
             {
+                indexEntry = new IndexToken();
+                indexEntry.decoratedName = new StringBuilder();
+
                 docString.Append("### ");
                 if (!string.IsNullOrEmpty(luaNamespace))
                 {
                     docString.Append(luaNamespace);
                     docString.Append('.');
+                    indexEntry.decoratedName.Append(luaNamespace).Append('.');
                 }
+                indexEntry.rawName = methodName.InnerText;
+                indexEntry.decoratedName.Append(methodName.InnerText);
+
                 docString.AppendLine(methodName.InnerText);
+
                 docString.AppendLine();
                 int paramCount = 0;
                 XmlNode param = child["param"];
@@ -323,6 +393,13 @@ namespace Documentor
                 if (summary != null && methodName != null)
                 {
                     string innerText = summary.InnerText.Replace("&lt;", "<").Replace("&gt;", ">");
+                    indexEntry.summary = innerText;
+                    indexEntry.summary = indexEntry.summary.Replace(Environment.NewLine, " ").Replace("`", " ").Trim(' ');
+                    if (indexEntry.summary.Length > 32)
+                    {
+                        indexEntry.summary = indexEntry.summary.Substring(0, 32);
+                        indexEntry.summary += "...";
+                    }
                     docString.AppendLine(innerText);
                     docString.AppendLine();
                 }
@@ -344,6 +421,8 @@ namespace Documentor
                     docString.AppendLine();
                 }
             }
+
+            return indexEntry;
         }
     }
 }
