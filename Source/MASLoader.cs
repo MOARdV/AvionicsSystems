@@ -548,15 +548,27 @@ namespace AvionicsSystems
                             break;
                     }
 
-                    navaid.maximumRangeILS = 0.0;
+                    navaid.maximumRangeLocalizer = 0.0;
+                    navaid.maximumRangeGlidePath = 0.0;
+                    navaid.glidePathDefault = 3.0;
                     navaid.approachHeadingILS = 0.0f;
                     navaid.localizerSectorILS = 0.0f;
                     navaid.glidePathSectorILS = 0.0f;
                     if (navaid.type == NavAidType.ILS || navaid.type == NavAidType.ILS_DME)
                     {
-                        if (!navaidNode[navaidIdx].TryGetValue("maximumRangeILS", ref navaid.maximumRangeILS))
+                        if (!navaidNode[navaidIdx].TryGetValue("maximumRangeLocalizer", ref navaid.maximumRangeLocalizer))
                         {
-                            Utility.LogErrorMessage(this, "Did not get 'maximumRangeILS' for {1} {0}", navaid.name, navaid.type);
+                            Utility.LogErrorMessage(this, "Did not get 'maximumRangeLocalizer' for {1} {0}", navaid.name, navaid.type);
+                            canAdd = false;
+                        }
+                        if (!navaidNode[navaidIdx].TryGetValue("maximumRangeGlidePath", ref navaid.maximumRangeGlidePath))
+                        {
+                            Utility.LogErrorMessage(this, "Did not get 'maximumRangeGlidePath' for {1} {0}", navaid.name, navaid.type);
+                            canAdd = false;
+                        }
+                        if (!navaidNode[navaidIdx].TryGetValue("glidePathDefault", ref navaid.glidePathDefault))
+                        {
+                            Utility.LogErrorMessage(this, "Did not get 'glidePathDefault' for {1} {0}", navaid.name, navaid.type);
                             canAdd = false;
                         }
                         if (!navaidNode[navaidIdx].TryGetValue("approachHeadingILS", ref navaid.approachHeadingILS))

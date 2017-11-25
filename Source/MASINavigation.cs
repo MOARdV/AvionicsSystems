@@ -363,6 +363,17 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Return the default glide slope for the given ILS beacon.  Returns 0
+        /// if ILS out of glide slope range, or radio is not tuned to an ILS beacon.
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <returns>Default glide slope, or 0.</returns>
+        public double GetILSGlideSlopeDefault(double radioId)
+        {
+            return fc.GetILSGlideSlopeDefault((int)radioId);
+        }
+
+        /// <summary>
         /// Returns the vertical deviation from the ILS glide path beam, up to the
         /// limit set by the ILS beacon's `glidePathSectorILS`.  If there is no ILS
         /// beacon, or the vessel is outside the glide path's sector, returns 0.

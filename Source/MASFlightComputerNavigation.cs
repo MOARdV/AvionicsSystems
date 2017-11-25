@@ -65,9 +65,11 @@ namespace AvionicsSystems
         /// </summary>
         public double maximumRangeDME;
         /// <summary>
-        /// Maximum range of the ILS transmitter (if applicable).  Configurable.
+        /// Maximum range of the ILS localizer transmitter (if applicable).  Configurable.
         /// </summary>
-        public double maximumRangeILS;
+        public double maximumRangeLocalizer;
+        public double maximumRangeGlidePath;
+        public double glidePathDefault;
         /// <summary>
         /// Bearing that corresponds to the ILS.
         /// </summary>
@@ -102,10 +104,6 @@ namespace AvionicsSystems
                 else if (type == NavAidType.VOR || type == NavAidType.VOR_DME)
                 {
                     maximumRange = baseDistanceToHorizon * MASConfig.navigation.VORPropagation;
-                }
-                else // ILS has a raw max range, not a horizon-scaled max range.
-                {
-                    maximumRange = Math.Min(baseDistanceToHorizon, maximumRangeILS);
                 }
 
                 if (type == NavAidType.ILS_DME || type == NavAidType.NDB_DME || type == NavAidType.VOR_DME)
@@ -227,7 +225,34 @@ namespace AvionicsSystems
                 vesselLoS = Math.Sqrt(vessel.altitude * (2.0 * vessel.mainBody.Radius + vessel.altitude)) * MASConfig.navigation.generalPropagation;
             }
 
-            return (slantDistance < (vesselLoS + beacon[beaconIndex].maximumRange));
+            if (isILS)
+            {
+                return (slantDistance < beacon[beaconIndex].maximumRangeLocalizer);
+            }
+            else
+            {
+                return (slantDistance < (vesselLoS + beacon[beaconIndex].maximumRange));
+            }
+        }
+
+        public bool GlidePathInRange(Vessel vessel)
+        {
+            if (slantDistance <= 0.0 && beaconIndex >= 0)
+            {
+                Vector3d vesselPos = vessel.mainBody.GetRelSurfacePosition(vessel.CoMD);
+
+                slantDistance = Vector3d.Distance(beacon[beaconIndex].worldPosition, vesselPos);
+                vesselLoS = Math.Sqrt(vessel.altitude * (2.0 * vessel.mainBody.Radius + vessel.altitude)) * MASConfig.navigation.generalPropagation;
+            }
+
+            if (isILS)
+            {
+                return (slantDistance < beacon[beaconIndex].maximumRangeGlidePath);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -488,12 +513,26 @@ namespace AvionicsSystems
             return false;
         }
 
+        internal double GetILSGlideSlopeDefault(int radioId)
+        {
+            NavRadio radio;
+            if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
+            {
+                if (radio.isILS && radio.GlidePathInRange(vessel))
+                {
+                    return radio.beacon[radio.beaconIndex].glidePathDefault;
+                }
+            }
+
+            return 0.0;
+        }
+
         internal double GetILSGlideSlopeError(int radioId, double glideSlope)
         {
             NavRadio radio;
             if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
             {
-                if (radio.isILS && radio.NavAidInRange(vessel))
+                if (radio.isILS && radio.GlidePathInRange(vessel))
                 {
                     NavAid beacon = radio.beacon[radio.beaconIndex];
                     double absoluteBearing = radio.GetBearing(vessel.latitude, vessel.longitude);
@@ -522,7 +561,7 @@ namespace AvionicsSystems
             NavRadio radio;
             if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
             {
-                if (radio.isILS && radio.NavAidInRange(vessel))
+                if (radio.isILS && radio.GlidePathInRange(vessel))
                 {
                     NavAid beacon = radio.beacon[radio.beaconIndex];
                     double absoluteBearing = radio.GetBearing(vessel.latitude, vessel.longitude);
