@@ -372,6 +372,48 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Normalizes an angle to the range [0, 360).
+        /// </summary>
+        /// <param name="angle">The de-normalized angle to correct.</param>
+        /// <returns>A value between 0 (inclusive) and 360 (exclusive).</returns>
+        public double NormalizeAngle(double angle)
+        {
+            return Utility.NormalizeAngle(angle);
+        }
+
+        /// <summary>
+        /// Normalizes an angle to the range [-180, 180).
+        /// </summary>
+        /// <param name="angle">The de-normalized angle to correct.</param>
+        /// <returns>A value between -180 (inclusive) and +180 (exclusive).</returns>
+        public double NormalizeLongitude(double angle)
+        {
+            return Utility.NormalizeLongitude(angle);
+        }
+
+        /// <summary>
+        /// Converts an angle to a pitch value in the range of [-90, +90].
+        /// </summary>
+        /// <param name="angle">The angle to convert</param>
+        /// <returns>A value between -90 and +90, inclusive.</returns>
+        public double NormalizePitch(double angle)
+        {
+            double pitch = Utility.NormalizeLongitude(angle);
+            if (pitch > 90.0)
+            {
+                return 180.0 - pitch;
+            }
+            else if(pitch < -90.0)
+            {
+                return -180.0 - pitch;
+            }
+            else
+            {
+                return pitch;
+            }
+        }
+
+        /// <summary>
         /// Apply a log10-like curve to the value.
         /// 
         /// The exact formula is:
