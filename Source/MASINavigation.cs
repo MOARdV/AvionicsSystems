@@ -25,7 +25,6 @@
 using MoonSharp.Interpreter;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -35,10 +34,10 @@ namespace AvionicsSystems
     /// The MASINavigation module encapsulates navigation-related functionality.
     /// </summary>
     /// <LuaName>nav</LuaName>
-    /// <mdDoc>**CAUTION:** These methods are subject to change as this code matures.
-    /// 
+    /// <mdDoc>
     /// MASINavigation encapsulates navigation functionality, including
-    /// emulating radio navigation.  It provides methods to determine the distance
+    /// emulating radio navigation and GNSS navigation (by using stock waypoints).
+    /// It provides methods to determine the distance
     /// from the vessel to a particular lat/lon location on the planet, and the
     /// distance between two arbitrary points on a planet.
     /// 
