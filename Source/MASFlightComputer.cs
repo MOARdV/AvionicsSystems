@@ -346,6 +346,32 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Convert an RPM-compatible named color to a Color32.  Returns true
+        /// if successful.
+        /// </summary>
+        /// <param name="namedColor">Color to convert</param>
+        /// <returns>True if the namedColor was a COLOR_ field, false otherwise.</returns>
+        internal bool TryGetNamedColor(string namedColor, out Color32 color)
+        {
+            namedColor = namedColor.Trim();
+            if (namedColor.StartsWith("COLOR_"))
+            {
+                if (namedColors.TryGetValue(namedColor, out color))
+                {
+                    return true;
+                }
+                else if (MASLoader.namedColors.TryGetValue(namedColor, out color))
+                {
+                    namedColors.Add(namedColor, color);
+                    return true;
+                }
+            }
+
+            color = Color.black;
+            return false;
+        }
+
+        /// <summary>
         /// Converts an RPM-compatible named color (COLOR_*) to a Color32.  If
         /// a part-local override exists, it will be chosen; otherwise, a check
         /// of the global table is made.  If the named color is not found, an
@@ -712,7 +738,7 @@ namespace AvionicsSystems
                 }
                 persistentVars = MASPersistent.RestoreDictionary(fcId, persistentVars);
                 navRadioFrequency = MASPersistent.RestoreNavRadio(fcId, navRadioFrequency);
-                foreach(var radio in navRadioFrequency)
+                foreach (var radio in navRadioFrequency)
                 {
                     ReloadRadio(radio.Key, radio.Value);
                 }
