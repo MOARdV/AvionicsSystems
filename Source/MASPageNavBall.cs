@@ -235,10 +235,12 @@ namespace AvionicsSystems
             // to be on a separate GO than the display.
             navballModel.transform.Translate(new Vector3(0.0f, 0.0f, 2.4f));
             navballRenderer = null;
-            navballMaterial = navballModel.GetComponentCached<Renderer>(ref navballRenderer).material;
+            navballModel.GetComponentCached<Renderer>(ref navballRenderer);
+            navballMaterial = new Material(displayShader);
             navballMaterial.shader = displayShader;
             navballMaterial.mainTexture = navballTexture;
             navballMaterial.SetFloat("_Opacity", opacity);
+            navballRenderer.material = navballMaterial;
             navballRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             navballModel.SetActive(true);
             navballCamera.transform.LookAt(navballModel.transform, Vector3.up);
@@ -533,11 +535,6 @@ namespace AvionicsSystems
         public void EnableRender(bool enable)
         {
             rentexRenderer.enabled = enable;
-            navballRenderer.enabled = enable;
-            for (int i = meshRenderer.Length - 1; i >= 0; --i)
-            {
-                meshRenderer[i].enabled = enable;
-            }
         }
 
         /// <summary>
