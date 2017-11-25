@@ -48,10 +48,10 @@ namespace AvionicsSystems
         private MASFlightComputer.Variable range1, range2;
         private readonly bool rangeMode;
         private bool currentState;
-        
+
         private readonly int numVertices;
-        private readonly float radiansPerVertex;
         private float radiusX, radiusY;
+        private float startAngle, endAngle;
 
         private bool usesTexture;
         private float inverseTextureWidth = 1.0f;
@@ -98,7 +98,6 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("'vertexCount' must be at least 3 in ELLIPSE " + name);
             }
-            radiansPerVertex = (2.0f * Mathf.PI) / (float)numVertices;
 
             Vector2 position = Vector2.zero;
             if (!config.TryGetValue("position", ref position))
@@ -121,7 +120,7 @@ namespace AvionicsSystems
                 string[] ranges = range.Split(',');
                 if (ranges.Length != 2)
                 {
-                    throw new ArgumentException("Incorrect number of values in 'range' in LINE_GRAPH " + name);
+                    throw new ArgumentException("Incorrect number of values in 'range' in ELLIPSE " + name);
                 }
                 range1 = comp.GetVariable(ranges[0], prop);
                 range2 = comp.GetVariable(ranges[1], prop);
@@ -134,7 +133,7 @@ namespace AvionicsSystems
             }
 
             lineOrigin = new GameObject();
-            lineOrigin.name = pageRoot.gameObject.name + "-MASPageLineString-" + name + "-" + depth.ToString();
+            lineOrigin.name = pageRoot.gameObject.name + "-MASPageEllipse-" + name + "-" + depth.ToString();
             lineOrigin.layer = pageRoot.gameObject.layer;
             lineOrigin.transform.parent = pageRoot;
             lineOrigin.transform.position = pageRoot.position;
@@ -147,9 +146,9 @@ namespace AvionicsSystems
             lineRenderer.SetColors(startColor, endColor);
             lineRenderer.SetWidth(startWidth, endWidth);
 
-            //int numVertices = vertexStrings.Length;
-            lineRenderer.SetVertexCount(numVertices + 1);
-            vertices = new Vector3[numVertices + 1];
+            ++numVertices;
+            lineRenderer.SetVertexCount(numVertices);
+            vertices = new Vector3[numVertices];
 
             string textureName = string.Empty;
             if (config.TryGetValue("texture", ref textureName))
@@ -161,6 +160,45 @@ namespace AvionicsSystems
                     inverseTextureWidth = 1.0f / (float)tex.width;
                     usesTexture = true;
                 }
+            }
+
+            string startAngleName = string.Empty;
+            if (config.TryGetValue("startAngle", ref startAngleName))
+            {
+                registeredVariables.RegisterNumericVariable(startAngleName, (double newValue) =>
+                {
+                    startAngle = (float)newValue;
+                    RecalculateVertices();
+                });
+            }
+            else
+            {
+                startAngle = 0.0f;
+            }
+
+            string endAngleName = string.Empty;
+            if (config.TryGetValue("endAngle", ref endAngleName))
+            {
+                if (string.IsNullOrEmpty(startAngleName))
+                {
+                    throw new ArgumentException("Missing 'startAngle', but found 'endAngle' in ELLIPSE " + name);
+                }
+                else
+                {
+                    registeredVariables.RegisterNumericVariable(endAngleName, (double newValue) =>
+                    {
+                        endAngle = (float)newValue;
+                        RecalculateVertices();
+                    });
+                }
+            }
+            else if (!string.IsNullOrEmpty(startAngleName))
+            {
+                throw new ArgumentException("Found 'startAngle', but missing 'endAngle' in ELLIPSE " + name);
+            }
+            else
+            {
+                endAngle = 360.0f;
             }
 
             string radiusXName = string.Empty;
@@ -215,117 +253,143 @@ namespace AvionicsSystems
 
             if (string.IsNullOrEmpty(endColorString))
             {
-                string[] startColors = Utility.SplitVariableList(startColorString);
-                if (startColors.Length < 3 || startColors.Length > 4)
+                Color32 namedColor;
+                if (comp.TryGetNamedColor(startColorString, out namedColor))
                 {
-                    throw new ArgumentException("startColor does not contain 3 or 4 values in ELLIPSE " + name);
+                    startColor = namedColor;
+                    lineRenderer.SetColors(startColor, startColor);
                 }
-
-                Action<double> startColorR = (double newValue) =>
+                else
                 {
-                    startColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                    lineRenderer.SetColors(startColor, startColor);
-                };
-                registeredVariables.RegisterNumericVariable(startColors[0], startColorR);
-
-                Action<double> startColorG = (double newValue) =>
-                {
-                    startColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                    lineRenderer.SetColors(startColor, startColor);
-                };
-                registeredVariables.RegisterNumericVariable(startColors[1], startColorG);
-
-                Action<double> startColorB = (double newValue) =>
-                {
-                    startColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                    lineRenderer.SetColors(startColor, startColor);
-                };
-                registeredVariables.RegisterNumericVariable(startColors[2], startColorB);
-
-                if (startColors.Length == 4)
-                {
-                    Action<double> startColorA = (double newValue) =>
+                    string[] startColors = Utility.SplitVariableList(startColorString);
+                    if (startColors.Length < 3 || startColors.Length > 4)
                     {
-                        startColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        throw new ArgumentException("startColor does not contain 3 or 4 values in ELLIPSE " + name);
+                    }
+
+                    Action<double> startColorR = (double newValue) =>
+                    {
+                        startColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.SetColors(startColor, startColor);
                     };
-                    registeredVariables.RegisterNumericVariable(startColors[3], startColorA);
+                    registeredVariables.RegisterNumericVariable(startColors[0], startColorR);
+
+                    Action<double> startColorG = (double newValue) =>
+                    {
+                        startColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer.SetColors(startColor, startColor);
+                    };
+                    registeredVariables.RegisterNumericVariable(startColors[1], startColorG);
+
+                    Action<double> startColorB = (double newValue) =>
+                    {
+                        startColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer.SetColors(startColor, startColor);
+                    };
+                    registeredVariables.RegisterNumericVariable(startColors[2], startColorB);
+
+                    if (startColors.Length == 4)
+                    {
+                        Action<double> startColorA = (double newValue) =>
+                        {
+                            startColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            lineRenderer.SetColors(startColor, startColor);
+                        };
+                        registeredVariables.RegisterNumericVariable(startColors[3], startColorA);
+                    }
                 }
             }
             else
             {
-                string[] startColors = Utility.SplitVariableList(startColorString);
-                if (startColors.Length < 3 || startColors.Length > 4)
+                Color32 namedColor;
+                if (comp.TryGetNamedColor(startColorString, out namedColor))
                 {
-                    throw new ArgumentException("startColor does not contain 3 or 4 values in ELLIPSE " + name);
+                    startColor = namedColor;
+                    lineRenderer.SetColors(startColor, endColor);
                 }
-
-                Action<double> startColorR = (double newValue) =>
+                else
                 {
-                    startColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                    lineRenderer.SetColors(startColor, endColor);
-                };
-                registeredVariables.RegisterNumericVariable(startColors[0], startColorR);
-
-                Action<double> startColorG = (double newValue) =>
-                {
-                    startColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                    lineRenderer.SetColors(startColor, endColor);
-                };
-                registeredVariables.RegisterNumericVariable(startColors[1], startColorG);
-
-                Action<double> startColorB = (double newValue) =>
-                {
-                    startColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                    lineRenderer.SetColors(startColor, endColor);
-                };
-                registeredVariables.RegisterNumericVariable(startColors[2], startColorB);
-
-                if (startColors.Length == 4)
-                {
-                    Action<double> startColorA = (double newValue) =>
+                    string[] startColors = Utility.SplitVariableList(startColorString);
+                    if (startColors.Length < 3 || startColors.Length > 4)
                     {
-                        startColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        throw new ArgumentException("startColor does not contain 3 or 4 values in ELLIPSE " + name);
+                    }
+
+                    Action<double> startColorR = (double newValue) =>
+                    {
+                        startColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.SetColors(startColor, endColor);
                     };
-                    registeredVariables.RegisterNumericVariable(startColors[3], startColorA);
-                }
+                    registeredVariables.RegisterNumericVariable(startColors[0], startColorR);
 
-                string[] endColors = Utility.SplitVariableList(endColorString);
-                if (endColors.Length < 3 || endColors.Length > 4)
-                {
-                    throw new ArgumentException("endColor does not contain 3 or 4 values in ELLIPSE " + name);
-                }
-
-                Action<double> endColorR = (double newValue) =>
-                {
-                    endColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                    lineRenderer.SetColors(startColor, endColor);
-                };
-                registeredVariables.RegisterNumericVariable(endColors[0], endColorR);
-
-                Action<double> endColorG = (double newValue) =>
-                {
-                    endColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                    lineRenderer.SetColors(startColor, endColor);
-                };
-                registeredVariables.RegisterNumericVariable(endColors[1], endColorG);
-
-                Action<double> endColorB = (double newValue) =>
-                {
-                    endColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                    lineRenderer.SetColors(startColor, endColor);
-                };
-                registeredVariables.RegisterNumericVariable(endColors[2], endColorB);
-
-                if (endColors.Length == 4)
-                {
-                    Action<double> endColorA = (double newValue) =>
+                    Action<double> startColorG = (double newValue) =>
                     {
-                        endColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        startColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.SetColors(startColor, endColor);
                     };
-                    registeredVariables.RegisterNumericVariable(endColors[3], endColorA);
+                    registeredVariables.RegisterNumericVariable(startColors[1], startColorG);
+
+                    Action<double> startColorB = (double newValue) =>
+                    {
+                        startColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer.SetColors(startColor, endColor);
+                    };
+                    registeredVariables.RegisterNumericVariable(startColors[2], startColorB);
+
+                    if (startColors.Length == 4)
+                    {
+                        Action<double> startColorA = (double newValue) =>
+                        {
+                            startColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            lineRenderer.SetColors(startColor, endColor);
+                        };
+                        registeredVariables.RegisterNumericVariable(startColors[3], startColorA);
+                    }
+                }
+
+                if (comp.TryGetNamedColor(endColorString, out namedColor))
+                {
+                    endColor = namedColor;
+                    lineRenderer.SetColors(startColor, endColor);
+                }
+                else
+                {
+                    string[] endColors = Utility.SplitVariableList(endColorString);
+                    if (endColors.Length < 3 || endColors.Length > 4)
+                    {
+                        throw new ArgumentException("endColor does not contain 3 or 4 values in ELLIPSE " + name);
+                    }
+
+                    Action<double> endColorR = (double newValue) =>
+                    {
+                        endColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer.SetColors(startColor, endColor);
+                    };
+                    registeredVariables.RegisterNumericVariable(endColors[0], endColorR);
+
+                    Action<double> endColorG = (double newValue) =>
+                    {
+                        endColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer.SetColors(startColor, endColor);
+                    };
+                    registeredVariables.RegisterNumericVariable(endColors[1], endColorG);
+
+                    Action<double> endColorB = (double newValue) =>
+                    {
+                        endColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer.SetColors(startColor, endColor);
+                    };
+                    registeredVariables.RegisterNumericVariable(endColors[2], endColorB);
+
+                    if (endColors.Length == 4)
+                    {
+                        Action<double> endColorA = (double newValue) =>
+                        {
+                            endColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            lineRenderer.SetColors(startColor, endColor);
+                        };
+                        registeredVariables.RegisterNumericVariable(endColors[3], endColorA);
+                    }
                 }
             }
 
@@ -362,7 +426,10 @@ namespace AvionicsSystems
         /// </summary>
         private void RecalculateVertices()
         {
-            float theta = 0.0f;
+            float theta = startAngle * Mathf.Deg2Rad;
+            float arcLength = (endAngle - startAngle) * Mathf.Deg2Rad;
+            arcLength = Mathf.Clamp(arcLength, -2.0f * Mathf.PI, 2.0f * Mathf.PI);
+            float radiansPerVertex = arcLength / (float)(numVertices - 1);
             for (int i = 0; i < numVertices; ++i)
             {
                 float sinTheta = Mathf.Sin(theta);
@@ -373,9 +440,6 @@ namespace AvionicsSystems
                 vertices[i].x = radiusX * cosTheta;
                 vertices[i].y = radiusY * sinTheta;
             }
-            // Unity 5.4 doesn't support closed loops, so we have to do that manually.
-            vertices[numVertices] = Vector3.zero;
-            vertices[numVertices].x = radiusX;
 
             lineRenderer.SetPositions(vertices);
 
