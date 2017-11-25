@@ -409,8 +409,8 @@ namespace AvionicsSystems
         /// </summary>
         private static readonly Color[] markerColor =
         {
-            XKCDColors.LimeGreen, // Prograde
-            XKCDColors.LimeGreen, // Retrograde
+            XKCDColors.Yellow, // Prograde
+            XKCDColors.Yellow, // Retrograde
             XKCDColors.Cyan, // RadialOut
             XKCDColors.Cyan, // RadialIn
             XKCDColors.HotMagenta, // NormalPlus
