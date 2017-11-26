@@ -35,13 +35,13 @@ namespace AvionicsSystems
     /// </summary>
     internal class MASActionImage : IMASSubComponent
     {
-        private string name = "(anonymous)";
+        private string name = "anonymous";
 
         internal MASActionImage(ConfigNode config, InternalProp prop, MASFlightComputer comp)
         {
             if (!config.TryGetValue("name", ref name))
             {
-                name = "(anonymous)";
+                name = "anonymous";
             }
 
             string textureName = string.Empty;

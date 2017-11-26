@@ -52,7 +52,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Optional name reported for this subcomponent.
         /// </summary>
-        /// <returns>Supplied name or "(anonymous)"</returns>
+        /// <returns>Supplied name or "anonymous"</returns>
         string Name();
 
         /// <summary>

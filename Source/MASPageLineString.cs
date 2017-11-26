@@ -35,7 +35,7 @@ namespace AvionicsSystems
     /// </summary>
     class MASPageLineString : IMASMonitorComponent
     {
-        private string name = "(anonymous)";
+        private string name = "anonymous";
 
         private Color startColor = Color.white, endColor = Color.white;
 
@@ -60,7 +60,7 @@ namespace AvionicsSystems
         {
             if (!config.TryGetValue("name", ref name))
             {
-                name = "(anonymous)";
+                name = "anonymous";
             }
 
             string startColorString = string.Empty;
@@ -127,7 +127,7 @@ namespace AvionicsSystems
             }
 
             lineOrigin = new GameObject();
-            lineOrigin.name = pageRoot.gameObject.name + "-MASPageLineString-" + name + "-" + depth.ToString();
+            lineOrigin.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
             lineOrigin.layer = pageRoot.gameObject.layer;
             lineOrigin.transform.parent = pageRoot;
             lineOrigin.transform.position = pageRoot.position;

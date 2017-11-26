@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016 - 2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -32,7 +32,7 @@ namespace AvionicsSystems
 {
     class MASActionTextLabel : IMASSubComponent
     {
-        private string name = "(anonymous)";
+        private string name = "anonymous";
         private string variableName = string.Empty;
         private MASFlightComputer.Variable range1, range2;
         private Color32 passiveColor = XKCDColors.White;
@@ -61,7 +61,7 @@ namespace AvionicsSystems
         {
             if (!config.TryGetValue("name", ref name))
             {
-                name = "(anonymous)";
+                name = "anonymous";
             }
 
             string transform = string.Empty;
@@ -112,7 +112,7 @@ namespace AvionicsSystems
             Vector3 localScale = prop.transform.localScale;
 
             Transform offsetTransform = new GameObject().transform;
-            offsetTransform.gameObject.name = "MASActionLabel-" + prop.propID + "-" + name;
+            offsetTransform.gameObject.name = Utility.ComposeObjectName(this.GetType().Name, name, prop.propID);
             offsetTransform.gameObject.layer = textObjTransform.gameObject.layer;
             offsetTransform.SetParent(textObjTransform, false);
             offsetTransform.Translate(transformOffset.x * localScale.x, transformOffset.y * localScale.y, 0.0f);

@@ -100,7 +100,7 @@ namespace AvionicsSystems
             }
 
             pageRoot = new GameObject();
-            pageRoot.name = "MASPage-" + prop.propID + "-" + name;
+            pageRoot.name = Utility.ComposeObjectName(this.GetType().Name, name, prop.propID);
             pageRoot.layer = rootTransform.gameObject.layer;
             pageRoot.transform.parent = rootTransform;
             pageRoot.transform.Translate(0.0f, 0.0f, 1.0f);

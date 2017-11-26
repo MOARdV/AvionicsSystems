@@ -77,7 +77,7 @@ namespace AvionicsSystems
 
         internal static readonly float maxDepth = 1.0f - depthDelta;
         internal static readonly float minDepth = 0.5f;
-        internal static readonly float depthDelta = 0.015625f;
+        internal static readonly float depthDelta = 1.0f / 256.0f;
         internal static readonly int drawingLayer = 30; // Pick a layer KSP isn't using.
 
         /// <summary>
@@ -168,7 +168,7 @@ namespace AvionicsSystems
                     screenHeight = (int)screenSize.y;
 
                     screenSpace = new GameObject();
-                    screenSpace.name = "MASMonitor-" + screenSpace.GetInstanceID();
+                    screenSpace.name = Utility.ComposeObjectName(internalProp.propName, this.GetType().Name, screenSpace.GetInstanceID());
                     screenSpace.layer = drawingLayer;
                     screenSpace.transform.position = Vector3.zero;
                     screenSpace.SetActive(true);

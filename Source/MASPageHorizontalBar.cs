@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016 - 2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -31,7 +31,7 @@ namespace AvionicsSystems
 {
     class MASPageHorizontalBar : IMASMonitorComponent
     {
-        private string name = "(anonymous)";
+        private string name = "anonymous";
         private GameObject imageObject;
         private GameObject borderObject;
         private Material imageMaterial;
@@ -62,7 +62,7 @@ namespace AvionicsSystems
         {
             if (!config.TryGetValue("name", ref name))
             {
-                name = "(anonymous)";
+                name = "anonymous";
             }
 
             string textureName = string.Empty;
@@ -191,7 +191,7 @@ namespace AvionicsSystems
             if (borderWidth > 0.0f)
             {
                 borderObject = new GameObject();
-                borderObject.name = pageRoot.gameObject.name + "-MASPageLineGraphBorder-" + name + "-" + depth.ToString();
+                borderObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name+"-border", (int)(-depth / MASMonitor.depthDelta));
                 borderObject.layer = pageRoot.gameObject.layer;
                 borderObject.transform.parent = pageRoot;
                 borderObject.transform.position = pageRoot.position;
@@ -217,7 +217,7 @@ namespace AvionicsSystems
                 lineRenderer.SetPositions(borderPoints);
             }
             imageObject = new GameObject();
-            imageObject.name = pageRoot.gameObject.name + "-MASPageHorizontalBar-" + name + "-" + depth.ToString();
+            imageObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
             imageObject.layer = pageRoot.gameObject.layer;
             imageObject.transform.parent = pageRoot;
             imageObject.transform.position = pageRoot.position;

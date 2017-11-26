@@ -31,7 +31,7 @@ namespace AvionicsSystems
 {
     internal class MASPageVerticalStrip : IMASMonitorComponent
     {
-        private string name = "(anonymous)";
+        private string name = "anonymous";
         private GameObject imageObject;
         private Material imageMaterial;
         private MeshRenderer meshRenderer;
@@ -49,7 +49,7 @@ namespace AvionicsSystems
         {
             if (!config.TryGetValue("name", ref name))
             {
-                name = "(anonymous)";
+                name = "anonymous";
             }
 
             string textureName = string.Empty;
@@ -146,7 +146,7 @@ namespace AvionicsSystems
 
             // Set up our display surface.
             imageObject = new GameObject();
-            imageObject.name = pageRoot.gameObject.name + "-MASPageVerticalStrip-" + name + "-" + depth.ToString();
+            imageObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
             imageObject.layer = pageRoot.gameObject.layer;
             imageObject.transform.parent = pageRoot;
             imageObject.transform.position = pageRoot.position;

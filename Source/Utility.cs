@@ -2,7 +2,7 @@
 /*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016 - 2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -352,6 +352,39 @@ namespace AvionicsSystems
         {
             strb.Remove(0, strb.Length);
             return strb;
+        }
+
+        /// <summary>
+        /// Helper method to construct a name for a game object.
+        /// </summary>
+        /// <param name="typeName"></param>
+        /// <param name="objectName"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        internal static string ComposeObjectName(string typeName, string objectName, int id)
+        {
+            StringBuilder sb = StringBuilderCache.Acquire();
+
+            sb.Append(typeName).Append("-").Append(objectName).AppendFormat("-{0}", id);
+
+            return sb.ToStringAndRelease();
+        }
+
+        /// <summary>
+        /// Helper method to construct a name for a game object.
+        /// </summary>
+        /// <param name="goName"></param>
+        /// <param name="typeName"></param>
+        /// <param name="objectName"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        internal static string ComposeObjectName(string goName, string typeName, string objectName, int id)
+        {
+            StringBuilder sb = StringBuilderCache.Acquire();
+
+            sb.Append(goName).Append("-").Append(typeName).Append("-").Append(objectName).AppendFormat("-{0}", id);
+
+            return sb.ToStringAndRelease();
         }
 
         private static void DumpConfigNode(ConfigNode node, int depth)

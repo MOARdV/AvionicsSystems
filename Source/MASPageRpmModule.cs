@@ -36,7 +36,7 @@ namespace AvionicsSystems
     /// </summary>
     internal class MASPageRpmModule : IMASMonitorComponent
     {
-        private string name = "(anonymous)";
+        private string name = "anonymous";
 
         private VariableRegistrar variableRegistrar;
         private GameObject imageObject;
@@ -64,7 +64,7 @@ namespace AvionicsSystems
             this.comp = comp;
             if (!config.TryGetValue("name", ref name))
             {
-                name = "(anonymous)";
+                name = "anonymous";
             }
 
             Vector2 position = Vector2.zero;
@@ -181,36 +181,6 @@ namespace AvionicsSystems
                     {
                         buttonClickMethod = DynamicMethodFactory.CreateFunc<object, int>(method);
                     }
-
-                    //if (buttonClickMethod != null)
-                    //{
-                    //    string[] buttonMappings = config.GetValues("buttonMapping");
-                    //    int numMappings = buttonMappings.Length;
-
-                    //    for (int i = 0; i < numMappings; ++i)
-                    //    {
-                    //        string[] pair = Utility.SplitVariableList(buttonMappings[i]);
-                    //        if (pair.Length == 2)
-                    //        {
-                    //            MASFlightComputer.Variable buttonIdVar = comp.GetVariable(pair[0], prop);
-                    //            int buttonId = (int)buttonIdVar.SafeValue();
-
-                    //            Action<double> varCallback = delegate(double newValue)
-                    //            {
-                    //                if (pageEnabled && currentState && newValue > 0.0)
-                    //                {
-                    //                    buttonClickMethod(rpmModule, buttonId);
-                    //                }
-                    //            };
-
-                    //            variableRegistrar.RegisterNumericVariable(pair[1], varCallback);
-                    //        }
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    throw new ArgumentException("Unable to initialize 'buttonClickMethod' " + buttonClickMethodName + " in RPM_MODULE " + name);
-                    //}
                 }
             }
             else
@@ -228,7 +198,7 @@ namespace AvionicsSystems
 
             // Set up our surface.
             imageObject = new GameObject();
-            imageObject.name = pageRoot.gameObject.name + "-MASPageRpmModule-" + name + "-" + depth.ToString();
+            imageObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
             imageObject.layer = pageRoot.gameObject.layer;
             imageObject.transform.parent = pageRoot;
             imageObject.transform.position = pageRoot.position;

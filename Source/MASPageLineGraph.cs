@@ -35,7 +35,7 @@ namespace AvionicsSystems
     /// </summary>
     internal class MASPageLineGraph : IMASMonitorComponent
     {
-        private string name = "(anonymous)";
+        private string name = "anonymous";
         private GameObject graphObject;
         private GameObject borderObject;
         private Material graphMaterial;
@@ -59,7 +59,7 @@ namespace AvionicsSystems
         {
             if (!config.TryGetValue("name", ref name))
             {
-                name = "(anonymous)";
+                name = "anonymous";
             }
 
             Vector2 position = Vector2.zero;
@@ -155,7 +155,7 @@ namespace AvionicsSystems
             if (borderWidth > 0.0f)
             {
                 borderObject = new GameObject();
-                borderObject.name = pageRoot.gameObject.name + "-MASPageLineGraphBorder-" + name + "-" + depth.ToString();
+                borderObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name+"-border", (int)(-depth / MASMonitor.depthDelta));
                 borderObject.layer = pageRoot.gameObject.layer;
                 borderObject.transform.parent = pageRoot;
                 borderObject.transform.position = pageRoot.position;
@@ -182,7 +182,7 @@ namespace AvionicsSystems
             }
 
             graphObject = new GameObject();
-            graphObject.name = pageRoot.gameObject.name + "-MASPageLineGraph-" + name + "-" + depth.ToString();
+            graphObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
             graphObject.layer = pageRoot.gameObject.layer;
             graphObject.transform.parent = pageRoot;
             graphObject.transform.position = pageRoot.position;

@@ -33,7 +33,7 @@ namespace AvionicsSystems
 {
     internal class MASPageCamera : IMASMonitorComponent
     {
-        private string name = "(anonymous)";
+        private string name = "anonymous";
         private GameObject imageObject;
         private Material imageMaterial;
         private Material postProcShader = null;
@@ -59,7 +59,7 @@ namespace AvionicsSystems
             this.comp = comp;
             if (!config.TryGetValue("name", ref name))
             {
-                name = "(anonymous)";
+                name = "anonymous";
             }
 
             Vector2 position = Vector2.zero;
@@ -181,7 +181,7 @@ namespace AvionicsSystems
             }
 
             imageObject = new GameObject();
-            imageObject.name = pageRoot.gameObject.name + "-MASPageImage-" + name + "-" + depth.ToString();
+            imageObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
             imageObject.layer = pageRoot.gameObject.layer;
             imageObject.transform.parent = pageRoot;
             imageObject.transform.position = pageRoot.position;

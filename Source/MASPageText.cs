@@ -34,7 +34,7 @@ namespace AvionicsSystems
 {
     internal class MASPageText : IMASMonitorComponent
     {
-        private string name = "(anonymous)";
+        private string name = "anonymous";
         private string text = string.Empty;
 
         private GameObject meshObject;
@@ -53,7 +53,7 @@ namespace AvionicsSystems
         {
             if (!config.TryGetValue("name", ref name))
             {
-                name = "(anonymous)";
+                name = "anonymous";
             }
 
             if (!config.TryGetValue("text", ref text))
@@ -182,7 +182,7 @@ namespace AvionicsSystems
 
             // Set up our text.
             meshObject = new GameObject();
-            meshObject.name = pageRoot.gameObject.name + "-MASPageText-" + name + "-" + depth.ToString();
+            meshObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
             meshObject.layer = pageRoot.gameObject.layer;
             meshObject.transform.parent = pageRoot;
             meshObject.transform.position = pageRoot.position;

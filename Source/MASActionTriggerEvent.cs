@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016 - 2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -37,7 +37,7 @@ namespace AvionicsSystems
     /// </summary>
     class MASActionTriggerEvent : IMASSubComponent
     {
-        private string name = "(anonymous)";
+        private string name = "anonymous";
         private string variableName;
         private MASFlightComputer.Variable range1, range2;
         private readonly bool rangeMode;
@@ -51,7 +51,7 @@ namespace AvionicsSystems
         {
             if (!config.TryGetValue("name", ref name))
             {
-                name = "(anonymous)";
+                name = "anonymous";
             }
 
             if (!config.TryGetValue("variable", ref variableName) || string.IsNullOrEmpty(variableName))

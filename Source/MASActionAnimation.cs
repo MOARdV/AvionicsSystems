@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016 - 2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -36,7 +36,7 @@ namespace AvionicsSystems
     /// </summary>
     class MASActionAnimation : IMASSubComponent
     {
-        private string name = "(anonymous)";
+        private string name = "anonymous";
         private string variableName = string.Empty;
         private string animationName = string.Empty;
         private MASFlightComputer comp;
@@ -55,7 +55,7 @@ namespace AvionicsSystems
 
             if (!config.TryGetValue("name", ref name))
             {
-                name = "(anonymous)";
+                name = "anonymous";
             }
 
             if (!config.TryGetValue("animation", ref animationName) || string.IsNullOrEmpty(animationName))

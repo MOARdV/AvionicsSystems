@@ -37,7 +37,7 @@ namespace AvionicsSystems
     /// </summary>
     class MASActionColliderEvent : IMASSubComponent
     {
-        private string name = "(anonymous)";
+        private string name = "anonymous";
         private ButtonObject buttonObject;
         private string variableName = string.Empty;
         private MASFlightComputer.Variable range1, range2;
@@ -119,7 +119,7 @@ namespace AvionicsSystems
         {
             if (!config.TryGetValue("name", ref name))
             {
-                name = "(anonymous)";
+                name = "anonymous";
             }
 
             string collider = string.Empty;

@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016 - 2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -31,7 +31,7 @@ namespace AvionicsSystems
 {
     internal class MASPageHorizontalStrip : IMASMonitorComponent
     {
-        private string name = "(anonymous)";
+        private string name = "anonymous";
         private GameObject imageObject;
         private Material imageMaterial;
         private MeshRenderer meshRenderer;
@@ -49,7 +49,7 @@ namespace AvionicsSystems
         {
             if (!config.TryGetValue("name", ref name))
             {
-                name = "(anonymous)";
+                name = "anonymous";
             }
 
             string textureName = string.Empty;
@@ -146,7 +146,7 @@ namespace AvionicsSystems
 
             // Set up our display surface.
             imageObject = new GameObject();
-            imageObject.name = pageRoot.gameObject.name + "-MASPageHorizontalStrip-" + name + "-" + depth.ToString();
+            imageObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
             imageObject.layer = pageRoot.gameObject.layer;
             imageObject.transform.parent = pageRoot;
             imageObject.transform.position = pageRoot.position;
