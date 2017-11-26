@@ -45,6 +45,7 @@ namespace AvionicsSystems
         private float currentBlend;
         private MASFlightComputer.Variable colorRange1, colorRange2;
         private readonly int colorField = Shader.PropertyToID("_Color");
+        private Vector2 uvScale = Vector2.one;
 
         private MASFlightComputer.Variable range1, range2;
         private readonly bool rangeMode;
@@ -313,6 +314,36 @@ namespace AvionicsSystems
                         });
                     }
                 }
+            }
+
+            string uvTilingString = string.Empty;
+            if (config.TryGetValue("tiling", ref uvTilingString))
+            {
+                string[] uvTile = Utility.SplitVariableList(uvTilingString);
+                if (uvTile.Length != 2)
+                {
+                    throw new ArgumentException("'tiling' does not contain 2 values in IMAGE " + name);
+                }
+
+                variableRegistrar.RegisterNumericVariable(uvTile[0], (double newValue) =>
+                {
+                    float rescale = Mathf.Max((float)newValue, 0.0f);
+                    if (!Mathf.Approximately(rescale, uvScale.x))
+                    {
+                        uvScale.x = rescale;
+                        imageMaterial.SetTextureScale("_MainTex", uvScale);
+                    }
+                });
+
+                variableRegistrar.RegisterNumericVariable(uvTile[1], (double newValue) =>
+                {
+                    float rescale = Mathf.Max((float)newValue, 0.0f);
+                    if (!Mathf.Approximately(rescale, uvScale.y))
+                    {
+                        uvScale.y = rescale;
+                        imageMaterial.SetTextureScale("_MainTex", uvScale);
+                    }
+                });
             }
 
             if (!string.IsNullOrEmpty(variableName))
