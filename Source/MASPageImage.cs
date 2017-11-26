@@ -46,6 +46,14 @@ namespace AvionicsSystems
         private MASFlightComputer.Variable colorRange1, colorRange2;
         private readonly int colorField = Shader.PropertyToID("_Color");
         private Vector2 uvScale = Vector2.one;
+        private Vector2 rotationOffset = Vector2.zero;
+
+        private Mesh mesh;
+        private Vector3[] vertices = new Vector3[4];
+        private Vector2 size = Vector2.zero;
+        private Vector2 position = Vector2.zero;
+        private Vector3 imageOrigin = Vector3.zero;
+        private readonly float depth;
 
         private MASFlightComputer.Variable range1, range2;
         private readonly bool rangeMode;
@@ -54,6 +62,7 @@ namespace AvionicsSystems
         internal MASPageImage(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
             variableRegistrar = new VariableRegistrar(comp, prop);
+            this.depth = depth;
 
             if (!config.TryGetValue("name", ref name))
             {
@@ -73,18 +82,6 @@ namespace AvionicsSystems
             if (mainTexture == null)
             {
                 throw new ArgumentException("Unable to find 'texture' " + textureName + " for IMAGE " + name);
-            }
-
-            Vector2 position = Vector2.zero;
-            if (!config.TryGetValue("position", ref position))
-            {
-                position = Vector2.zero;
-            }
-
-            Vector2 size = Vector2.zero;
-            if (!config.TryGetValue("size", ref size))
-            {
-                size = new Vector2(mainTexture.width, mainTexture.height);
             }
 
             string variableName = string.Empty;
@@ -111,31 +108,81 @@ namespace AvionicsSystems
                 rangeMode = false;
             }
 
-            Vector2 rotationOffset = Vector2.zero;
             string rotationVariableName = string.Empty;
             if (config.TryGetValue("rotation", ref rotationVariableName))
             {
                 config.TryGetValue("rotationOffset", ref rotationOffset);
             }
 
-            // Set up our surface.
+            // Need Mesh for UpdateVertices.
+            mesh = new Mesh();
+            string sizeString = string.Empty;
+            if (!config.TryGetValue("size", ref sizeString))
+            {
+                size = new Vector2(mainTexture.width, mainTexture.height);
+                UpdateVertices();
+            }
+            else
+            {
+                string[] sizes = Utility.SplitVariableList(sizeString);
+                if (sizes.Length != 2)
+                {
+                    throw new ArgumentException("Invalid number of values for 'size' in IMAGE " + name);
+                }
+
+                variableRegistrar.RegisterNumericVariable(sizes[0], (double newValue) =>
+                {
+                    size.x = (float)newValue;
+                    UpdateVertices();
+                });
+
+                variableRegistrar.RegisterNumericVariable(sizes[1], (double newValue) =>
+                {
+                    size.y = (float)newValue;
+                    UpdateVertices();
+                });
+            }
+
+            imageOrigin = pageRoot.position + new Vector3(monitor.screenSize.x * -0.5f, monitor.screenSize.y * 0.5f, depth);
+
+            // Need imageObject for UpdatePosition.
             imageObject = new GameObject();
+            imageObject.transform.parent = pageRoot;
+            string positionString = string.Empty;
+            if (!config.TryGetValue("position", ref positionString))
+            {
+                position = Vector2.zero;
+                imageObject.transform.position = imageOrigin + new Vector3(position.x + rotationOffset.x + size.x * 0.5f, -(position.y + rotationOffset.y + size.y * 0.5f), 0.0f);
+            }
+            else
+            {
+                string[] pos = Utility.SplitVariableList(positionString);
+                if (pos.Length != 2)
+                {
+                    throw new ArgumentException("Invalid number of values for 'position' in IMAGE " + name);
+                }
+
+                variableRegistrar.RegisterNumericVariable(pos[0], (double newValue) =>
+                {
+                    position.x = (float)newValue;
+                    imageObject.transform.position = imageOrigin + new Vector3(position.x + rotationOffset.x + size.x * 0.5f, -(position.y + rotationOffset.y + size.y * 0.5f), 0.0f);
+                });
+
+                variableRegistrar.RegisterNumericVariable(pos[1], (double newValue) =>
+                {
+                    position.y = (float)newValue;
+                    imageObject.transform.position = imageOrigin + new Vector3(position.x + rotationOffset.x + size.x * 0.5f, -(position.y + rotationOffset.y + size.y * 0.5f), 0.0f);
+                });
+            }
+
+            // Set up our surface.
             imageObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
             imageObject.layer = pageRoot.gameObject.layer;
-            imageObject.transform.parent = pageRoot;
-            imageObject.transform.position = pageRoot.position;
-            imageObject.transform.Translate(monitor.screenSize.x * -0.5f + position.x + rotationOffset.x + size.x * 0.5f, monitor.screenSize.y * 0.5f - position.y - rotationOffset.y - size.y * 0.5f, depth);
+
             // add renderer stuff
             MeshFilter meshFilter = imageObject.AddComponent<MeshFilter>();
             meshRenderer = imageObject.AddComponent<MeshRenderer>();
-            Mesh mesh = new Mesh();
-            mesh.vertices = new[]
-                {
-                    new Vector3(-0.5f * size.x - rotationOffset.x, 0.5f * size.y + rotationOffset.y, depth),
-                    new Vector3(0.5f * size.x - rotationOffset.x, 0.5f * size.y+ rotationOffset.y, depth),
-                    new Vector3(-0.5f * size.x - rotationOffset.x, -0.5f * size.y+ rotationOffset.y, depth),
-                    new Vector3(0.5f * size.x - rotationOffset.x, -0.5f * size.y+ rotationOffset.y, depth),
-                };
+
             mesh.uv = new[]
                 {
                     new Vector2(0.0f, 1.0f),
@@ -150,7 +197,7 @@ namespace AvionicsSystems
                 };
             mesh.RecalculateBounds();
             mesh.Optimize();
-            mesh.UploadMeshData(true);
+            mesh.UploadMeshData(false);
             meshFilter.mesh = mesh;
 
             imageMaterial = new Material(Shader.Find("KSP/Alpha/Unlit Transparent"));
@@ -361,6 +408,18 @@ namespace AvionicsSystems
             {
                 variableRegistrar.RegisterNumericVariable(rotationVariableName, RotationCallback);
             }
+        }
+
+        /// <summary>
+        /// Update the vertices (when size changes).
+        /// </summary>
+        private void UpdateVertices()
+        {
+            vertices[0] = new Vector3(-0.5f * size.x - rotationOffset.x, 0.5f * size.y + rotationOffset.y, depth);
+            vertices[1] = new Vector3(0.5f * size.x - rotationOffset.x, 0.5f * size.y + rotationOffset.y, depth);
+            vertices[2] = new Vector3(-0.5f * size.x - rotationOffset.x, -0.5f * size.y + rotationOffset.y, depth);
+            vertices[3] = new Vector3(0.5f * size.x - rotationOffset.x, -0.5f * size.y + rotationOffset.y, depth);
+            mesh.vertices = vertices;
         }
 
         /// <summary>
