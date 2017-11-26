@@ -37,17 +37,23 @@ namespace AvionicsSystems
     {
         private string name = "anonymous";
 
+        private VariableRegistrar variableRegistrar;
         private GameObject imageObject;
         private Material imageMaterial;
         private MeshRenderer meshRenderer;
-        private string variableName;
+        private Color passiveColor, activeColor;
+        private float currentBlend;
+        private MASFlightComputer.Variable colorRange1, colorRange2;
+        private readonly int colorField = Shader.PropertyToID("_Color");
+
         private MASFlightComputer.Variable range1, range2;
-        private string rotationVariableName;
         private readonly bool rangeMode;
         private bool currentState;
 
         internal MASPageImage(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
+            variableRegistrar = new VariableRegistrar(comp, prop);
+
             if (!config.TryGetValue("name", ref name))
             {
                 name = "anonymous";
@@ -80,6 +86,7 @@ namespace AvionicsSystems
                 size = new Vector2(mainTexture.width, mainTexture.height);
             }
 
+            string variableName = string.Empty;
             if (config.TryGetValue("variable", ref variableName))
             {
                 variableName = variableName.Trim();
@@ -91,7 +98,7 @@ namespace AvionicsSystems
                 string[] ranges = range.Split(',');
                 if (ranges.Length != 2)
                 {
-                    throw new ArgumentException("Incorrect number of values in 'range' in TEXT " + name);
+                    throw new ArgumentException("Incorrect number of values in 'range' in IMAGE " + name);
                 }
                 range1 = comp.GetVariable(ranges[0], prop);
                 range2 = comp.GetVariable(ranges[1], prop);
@@ -104,6 +111,7 @@ namespace AvionicsSystems
             }
 
             Vector2 rotationOffset = Vector2.zero;
+            string rotationVariableName = string.Empty;
             if (config.TryGetValue("rotation", ref rotationVariableName))
             {
                 config.TryGetValue("rotationOffset", ref rotationOffset);
@@ -149,11 +157,169 @@ namespace AvionicsSystems
             meshRenderer.material = imageMaterial;
             EnableRender(false);
 
+            currentBlend = 0.0f;
+
+            passiveColor = Color.white;
+            activeColor = Color.white;
+
+            string passiveColorName = string.Empty;
+            if (config.TryGetValue("passiveColor", ref passiveColorName))
+            {
+                Color32 color32;
+                if (comp.TryGetNamedColor(passiveColorName, out color32))
+                {
+                    passiveColor = color32;
+                }
+                else
+                {
+                    string[] startColors = Utility.SplitVariableList(passiveColorName);
+                    if (startColors.Length < 3 || startColors.Length > 4)
+                    {
+                        throw new ArgumentException("'passiveColor' does not contain 3 or 4 values in IMAGE " + name);
+                    }
+
+                    variableRegistrar.RegisterNumericVariable(startColors[0], (double newValue) =>
+                    {
+                        passiveColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        UpdateColor();
+                    });
+
+                    variableRegistrar.RegisterNumericVariable(startColors[1], (double newValue) =>
+                    {
+                        passiveColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        UpdateColor();
+                    });
+
+                    variableRegistrar.RegisterNumericVariable(startColors[2], (double newValue) =>
+                    {
+                        passiveColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        UpdateColor();
+                    });
+
+                    if (startColors.Length == 4)
+                    {
+                        variableRegistrar.RegisterNumericVariable(startColors[3], (double newValue) =>
+                        {
+                            passiveColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            UpdateColor();
+                        });
+                    }
+                }
+            }
+
+            string colorVariableName = string.Empty;
+            if (config.TryGetValue("colorVariable", ref colorVariableName))
+            {
+                if (string.IsNullOrEmpty(passiveColorName))
+                {
+                    throw new ArgumentException("'colorVariable' found, but no 'passiveColor' in IMAGE " + name);
+                }
+
+                string activeColorName = string.Empty;
+                if (!config.TryGetValue("activeColor", ref activeColorName))
+                {
+                    throw new ArgumentException("'colorVariable' found, but no 'activeColor' in IMAGE " + name);
+                }
+
+                string colorRangeString = string.Empty;
+                if (config.TryGetValue("colorRange", ref colorRangeString))
+                {
+                    string[] colorRanges = Utility.SplitVariableList(colorRangeString);
+                    if (colorRanges.Length != 2)
+                    {
+                        throw new ArgumentException("Expected 2 values for 'colorRange' in IMAGE " + name);
+                    }
+
+                    colorRange1 = comp.GetVariable(colorRanges[0], prop);
+                    colorRange2 = comp.GetVariable(colorRanges[1], prop);
+
+                    bool colorBlend = false;
+                    if (config.TryGetValue("colorBlend", ref colorBlend) && colorBlend == true)
+                    {
+                        variableRegistrar.RegisterNumericVariable(colorVariableName, (double newValue) =>
+                        {
+                            float newBlend = Mathf.InverseLerp((float)colorRange1.SafeValue(), (float)colorRange2.SafeValue(), (float)newValue);
+
+                            if (!Mathf.Approximately(newBlend, currentBlend))
+                            {
+                                currentBlend = newBlend;
+                                UpdateColor();
+                            }
+                        });
+                    }
+                    else
+                    {
+                        variableRegistrar.RegisterNumericVariable(colorVariableName, (double newValue) =>
+                        {
+                            float newBlend = (newValue.Between(colorRange1.SafeValue(), colorRange2.SafeValue())) ? 1.0f : 0.0f;
+                            if (newBlend != currentBlend)
+                            {
+                                currentBlend = newBlend;
+                                UpdateColor();
+                            }
+                        });
+                    }
+                }
+                else
+                {
+                    variableRegistrar.RegisterNumericVariable(colorVariableName, (double newValue) =>
+                        {
+                            float newBlend = (newValue > 0.0) ? 1.0f : 0.0f;
+                            if (newBlend != currentBlend)
+                            {
+                                currentBlend = newBlend;
+                                UpdateColor();
+                            }
+                        });
+                }
+
+                Color32 color32;
+                if (comp.TryGetNamedColor(activeColorName, out color32))
+                {
+                    activeColor = color32;
+                }
+                else
+                {
+                    string[] activeColors = Utility.SplitVariableList(activeColorName);
+                    if (activeColors.Length < 3 || activeColors.Length > 4)
+                    {
+                        throw new ArgumentException("'activeColor' does not contain 3 or 4 values in IMAGE " + name);
+                    }
+
+                    variableRegistrar.RegisterNumericVariable(activeColors[0], (double newValue) =>
+                    {
+                        activeColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        UpdateColor();
+                    });
+
+                    variableRegistrar.RegisterNumericVariable(activeColors[1], (double newValue) =>
+                    {
+                        activeColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        UpdateColor();
+                    });
+
+                    variableRegistrar.RegisterNumericVariable(activeColors[2], (double newValue) =>
+                    {
+                        activeColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        UpdateColor();
+                    });
+
+                    if (activeColors.Length == 4)
+                    {
+                        variableRegistrar.RegisterNumericVariable(activeColors[3], (double newValue) =>
+                        {
+                            activeColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            UpdateColor();
+                        });
+                    }
+                }
+            }
+
             if (!string.IsNullOrEmpty(variableName))
             {
                 // Disable the mesh if we're in variable mode
                 imageObject.SetActive(false);
-                comp.RegisterNumericVariable(variableName, prop, VariableCallback);
+                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
             }
             else
             {
@@ -162,8 +328,17 @@ namespace AvionicsSystems
 
             if (!string.IsNullOrEmpty(rotationVariableName))
             {
-                comp.RegisterNumericVariable(rotationVariableName, prop, RotationCallback);
+                variableRegistrar.RegisterNumericVariable(rotationVariableName, RotationCallback);
             }
+        }
+
+        /// <summary>
+        /// Update the image's master color.
+        /// </summary>
+        private void UpdateColor()
+        {
+            Color newColor = Color.Lerp(passiveColor, activeColor, currentBlend);
+            imageMaterial.SetColor(colorField, newColor);
         }
 
         /// <summary>
@@ -238,18 +413,12 @@ namespace AvionicsSystems
         /// </summary>
         public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
+            variableRegistrar.ReleaseResources(comp, internalProp);
+
             UnityEngine.GameObject.Destroy(imageObject);
             imageObject = null;
             UnityEngine.GameObject.Destroy(imageMaterial);
             imageMaterial = null;
-            if (!string.IsNullOrEmpty(variableName))
-            {
-                comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
-            }
-            if (!string.IsNullOrEmpty(rotationVariableName))
-            {
-                comp.UnregisterNumericVariable(rotationVariableName, internalProp, RotationCallback);
-            }
         }
     }
 }
