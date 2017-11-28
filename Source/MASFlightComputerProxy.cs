@@ -681,6 +681,32 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the longitude on the body that is directly below the sun (longitude of local noon).
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>Longitude of local noon, or 0 if it could not be determined.</returns>
+        public double BodySunLongitude(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+
+            if (cb != null)
+            {
+                CelestialBody sun = Planetarium.fetch.Sun;
+
+                Vector3d sunDirection = sun.position - cb.position;
+
+                if (sunDirection.sqrMagnitude > 0.0)
+                {
+                    sunDirection.Normalize();
+
+                    return Utility.NormalizeLongitude(cb.GetLongitude(sunDirection * cb.Radius));
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the temperature of the body at sea level.
         /// </summary>
         /// <param name="id">The name or index of the body of interest.</param>
