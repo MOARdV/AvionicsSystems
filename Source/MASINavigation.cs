@@ -146,12 +146,36 @@ namespace AvionicsSystems
         /// <summary>
         /// **UNTESTED**
         /// 
+        /// Returns the cross-track distance, in meters, of the specified location relative to the path specified by
+        /// `latitude1`, `longitude`, and `bearing1`.
+        /// </summary>
+        /// <param name="latitude1">Latitude of a point on the route to test.</param>
+        /// <param name="longitude1">Longitude of a point on the route to test.</param>
+        /// <param name="bearing1">Bearing from the lat/lon for the route to test.</param>
+        /// <param name="latitude2">Latitude of the location of interest.</param>
+        /// <param name="longitude2">Longitude of the location of interest.</param>
+        /// <returns>Distance in meters from the current route to the location.</returns>
+        public double CrossTrackDistance(double latitude1, double longitude1, double bearing1, double latitude2, double longitude2)
+        {
+            double targetBearing = Bearing(latitude1, longitude1, latitude2, longitude2);
+
+            // TODO: More efficient way to do this:
+            Vector3d vesselNormal = QuaternionD.AngleAxis(longitude1, Vector3d.down) * QuaternionD.AngleAxis(latitude1, Vector3d.forward) * Vector3d.right;
+            Vector3d targetNormal = QuaternionD.AngleAxis(longitude2, Vector3d.down) * QuaternionD.AngleAxis(latitude2, Vector3d.forward) * Vector3d.right;
+            double targetAngularDistance = Vector3d.Angle(vesselNormal, targetNormal) * Utility.Deg2Rad;
+
+            return Math.Asin(Math.Sin(targetAngularDistance) * Math.Sin((targetBearing - bearing1) * Utility.Deg2Rad)) * vessel.mainBody.Radius;
+        }
+
+        /// <summary>
+        /// **UNTESTED**
+        /// 
         /// Returns the cross-track distance, in meters, of the specified location relative to the vessel's current heading.
         /// </summary>
         /// <param name="latitude">Latitude of the location of interest.</param>
         /// <param name="longitude">Longitude of the location of interest.</param>
         /// <returns>Distance in meters from the current route to the location.</returns>
-        public double CrossTrackDistance(double latitude, double longitude)
+        public double CrossTrackDistanceFromVessel(double latitude, double longitude)
         {
             double targetBearing = BearingFromVessel(latitude, longitude);
 
@@ -519,7 +543,7 @@ namespace AvionicsSystems
         public double GetNavAidCrossTrackDistance(double radioId)
         {
             Vector2d latlon = fc.GetNavAidPosition((int)radioId);
-            return CrossTrackDistance(latlon.y, latlon.x);
+            return CrossTrackDistanceFromVessel(latlon.y, latlon.x);
         }
 
         /// <summary>
@@ -791,11 +815,11 @@ namespace AvionicsSystems
             var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
             if (index >= 0 && index < waypoints.Count)
             {
-                return CrossTrackDistance(waypoints[index].latitude, waypoints[index].longitude);
+                return CrossTrackDistanceFromVessel(waypoints[index].latitude, waypoints[index].longitude);
             }
             else if (index == -1 && NavWaypoint.fetch.IsActive)
             {
-                return CrossTrackDistance(NavWaypoint.fetch.Latitude, NavWaypoint.fetch.Longitude);
+                return CrossTrackDistanceFromVessel(NavWaypoint.fetch.Latitude, NavWaypoint.fetch.Longitude);
             }
             else
             {
