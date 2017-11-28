@@ -217,50 +217,65 @@ namespace AvionicsSystems
 
             if (string.IsNullOrEmpty(endColorString))
             {
-                string[] startColors = Utility.SplitVariableList(startColorString);
-                if (startColors.Length < 3 || startColors.Length > 4)
+                Color32 col;
+                if (comp.TryGetNamedColor(startColorString, out col))
                 {
-                    throw new ArgumentException("startColor does not contain 3 or 4 values in LINE_STRING " + name);
+                    startColor = endColor = col;
                 }
-
-                Action<double> startColorR = (double newValue) =>
+                else
                 {
-                    startColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                    lineRenderer.SetColors(startColor, startColor);
-                };
-                comp.RegisterNumericVariable(startColors[0], prop, startColorR);
-                AddRegistration(startColors[0], startColorR);
-
-                Action<double> startColorG = (double newValue) =>
-                {
-                    startColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                    lineRenderer.SetColors(startColor, startColor);
-                };
-                comp.RegisterNumericVariable(startColors[1], prop, startColorG);
-                AddRegistration(startColors[1], startColorG);
-
-                Action<double> startColorB = (double newValue) =>
-                {
-                    startColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                    lineRenderer.SetColors(startColor, startColor);
-                };
-                comp.RegisterNumericVariable(startColors[2], prop, startColorB);
-                AddRegistration(startColors[2], startColorB);
-
-                if (startColors.Length == 4)
-                {
-                    Action<double> startColorA = (double newValue) =>
+                    string[] startColors = Utility.SplitVariableList(startColorString);
+                    if (startColors.Length < 3 || startColors.Length > 4)
                     {
-                        startColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        throw new ArgumentException("startColor does not contain 3 or 4 values in LINE_STRING " + name);
+                    }
+
+                    Action<double> startColorR = (double newValue) =>
+                    {
+                        startColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.SetColors(startColor, startColor);
                     };
-                    comp.RegisterNumericVariable(startColors[3], prop, startColorA);
-                    AddRegistration(startColors[3], startColorA);
+                    comp.RegisterNumericVariable(startColors[0], prop, startColorR);
+                    AddRegistration(startColors[0], startColorR);
+
+                    Action<double> startColorG = (double newValue) =>
+                    {
+                        startColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer.SetColors(startColor, startColor);
+                    };
+                    comp.RegisterNumericVariable(startColors[1], prop, startColorG);
+                    AddRegistration(startColors[1], startColorG);
+
+                    Action<double> startColorB = (double newValue) =>
+                    {
+                        startColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer.SetColors(startColor, startColor);
+                    };
+                    comp.RegisterNumericVariable(startColors[2], prop, startColorB);
+                    AddRegistration(startColors[2], startColorB);
+
+                    if (startColors.Length == 4)
+                    {
+                        Action<double> startColorA = (double newValue) =>
+                        {
+                            startColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            lineRenderer.SetColors(startColor, startColor);
+                        };
+                        comp.RegisterNumericVariable(startColors[3], prop, startColorA);
+                        AddRegistration(startColors[3], startColorA);
+                    }
                 }
             }
             else
             {
-                string[] startColors = Utility.SplitVariableList(startColorString);
+                Color32 col;
+                if (comp.TryGetNamedColor(startColorString, out col))
+                {
+                    startColor = col;
+                }
+                else
+                {
+                    string[] startColors = Utility.SplitVariableList(startColorString);
                 if (startColors.Length < 3 || startColors.Length > 4)
                 {
                     throw new ArgumentException("startColor does not contain 3 or 4 values in LINE_STRING " + name);
@@ -300,48 +315,57 @@ namespace AvionicsSystems
                     comp.RegisterNumericVariable(startColors[3], prop, startColorA);
                     AddRegistration(startColors[3], startColorA);
                 }
-
-                string[] endColors = Utility.SplitVariableList(endColorString);
-                if (endColors.Length < 3 || endColors.Length > 4)
-                {
-                    throw new ArgumentException("endColor does not contain 3 or 4 values in LINE_STRING " + name);
                 }
 
-                Action<double> endColorR = (double newValue) =>
+                if (comp.TryGetNamedColor(endColorString, out col))
                 {
-                    endColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                    lineRenderer.SetColors(startColor, endColor);
-                };
-                comp.RegisterNumericVariable(endColors[0], prop, endColorR);
-                AddRegistration(endColors[0], endColorR);
-
-                Action<double> endColorG = (double newValue) =>
+                    endColor = col;
+                }
+                else
                 {
-                    endColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                    lineRenderer.SetColors(startColor, endColor);
-                };
-                comp.RegisterNumericVariable(endColors[1], prop, endColorG);
-                AddRegistration(endColors[1], endColorG);
-
-                Action<double> endColorB = (double newValue) =>
-                {
-                    endColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                    lineRenderer.SetColors(startColor, endColor);
-                };
-                comp.RegisterNumericVariable(endColors[2], prop, endColorB);
-                AddRegistration(endColors[2], endColorB);
-
-                if (endColors.Length == 4)
-                {
-                    Action<double> endColorA = (double newValue) =>
+                    string[] endColors = Utility.SplitVariableList(endColorString);
+                    if (endColors.Length < 3 || endColors.Length > 4)
                     {
-                        endColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        throw new ArgumentException("endColor does not contain 3 or 4 values in LINE_STRING " + name);
+                    }
+
+                    Action<double> endColorR = (double newValue) =>
+                    {
+                        endColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.SetColors(startColor, endColor);
                     };
-                    comp.RegisterNumericVariable(endColors[3], prop, endColorA);
-                    AddRegistration(endColors[3], endColorA);
+                    comp.RegisterNumericVariable(endColors[0], prop, endColorR);
+                    AddRegistration(endColors[0], endColorR);
+
+                    Action<double> endColorG = (double newValue) =>
+                    {
+                        endColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer.SetColors(startColor, endColor);
+                    };
+                    comp.RegisterNumericVariable(endColors[1], prop, endColorG);
+                    AddRegistration(endColors[1], endColorG);
+
+                    Action<double> endColorB = (double newValue) =>
+                    {
+                        endColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer.SetColors(startColor, endColor);
+                    };
+                    comp.RegisterNumericVariable(endColors[2], prop, endColorB);
+                    AddRegistration(endColors[2], endColorB);
+
+                    if (endColors.Length == 4)
+                    {
+                        Action<double> endColorA = (double newValue) =>
+                        {
+                            endColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            lineRenderer.SetColors(startColor, endColor);
+                        };
+                        comp.RegisterNumericVariable(endColors[3], prop, endColorA);
+                        AddRegistration(endColors[3], endColorA);
+                    }
                 }
             }
+            lineRenderer.SetColors(startColor, endColor);
 
             if (string.IsNullOrEmpty(endWidthString))
             {
