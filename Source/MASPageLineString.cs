@@ -220,7 +220,8 @@ namespace AvionicsSystems
                 Color32 col;
                 if (comp.TryGetNamedColor(startColorString, out col))
                 {
-                    startColor = endColor = col;
+                    startColor = col;
+                    endColor = col;
                 }
                 else
                 {
@@ -265,6 +266,8 @@ namespace AvionicsSystems
                         AddRegistration(startColors[3], startColorA);
                     }
                 }
+
+                lineRenderer.SetColors(startColor, startColor);
             }
             else
             {
@@ -364,8 +367,9 @@ namespace AvionicsSystems
                         AddRegistration(endColors[3], endColorA);
                     }
                 }
+
+                lineRenderer.SetColors(startColor, endColor);
             }
-            lineRenderer.SetColors(startColor, endColor);
 
             if (string.IsNullOrEmpty(endWidthString))
             {
