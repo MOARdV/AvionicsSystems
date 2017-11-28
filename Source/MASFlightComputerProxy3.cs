@@ -1509,18 +1509,16 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Returns whether the latitude / longitude of the target are
-        /// currently valid.  Only vessels, docking ports, and position
-        /// targets will have valid lat/lon.
+        /// currently valid.
         /// </summary>
         /// <returns>1 for vessel, docking port, or waypoint targets, 0 otherwise.</returns>
         public double TargetLatLonValid()
         {
-            return (vc.targetType == MASVesselComputer.TargetType.Vessel || vc.targetType == MASVesselComputer.TargetType.DockingPort || vc.targetType == MASVesselComputer.TargetType.PositionTarget) ? 1.0 : 0.0;
+            return (vc.targetType == MASVesselComputer.TargetType.CelestialBody || vc.targetType == MASVesselComputer.TargetType.Vessel || vc.targetType == MASVesselComputer.TargetType.DockingPort || vc.targetType == MASVesselComputer.TargetType.PositionTarget) ? 1.0 : 0.0;
         }
 
         /// <summary>
-        /// Returns the target latitude for targets that have valid latitudes
-        /// (vessel, docking port, position targets).
+        /// Returns the target latitude for targets that have valid latitudes.
         /// </summary>
         /// <returns>Latitude in degrees.  Positive values are north of the
         /// equator, and negative values are south.</returns>
@@ -1533,6 +1531,7 @@ namespace AvionicsSystems
                 case MASVesselComputer.TargetType.DockingPort:
                     return vc.activeTarget.GetVessel().latitude;
                 case MASVesselComputer.TargetType.PositionTarget:
+                case MASVesselComputer.TargetType.CelestialBody:
                     // TODO: Is there a better way to do this?  Can I use GetVessel?
                     return vessel.mainBody.GetLatitude(vc.activeTarget.GetTransform().position);
             }
@@ -1541,8 +1540,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the target longitude for targets that have valid longitudes
-        /// (vessel, docking port, position targets).
+        /// Returns the target longitude for targets that have valid longitudes.
         /// </summary>
         /// <returns>Longitude in degrees.  Negative values are west of the prime
         /// meridian, and positive values are east of it.</returns>
@@ -1555,6 +1553,7 @@ namespace AvionicsSystems
                 case MASVesselComputer.TargetType.DockingPort:
                     return Utility.NormalizeLongitude(vc.activeTarget.GetVessel().longitude);
                 case MASVesselComputer.TargetType.PositionTarget:
+                case MASVesselComputer.TargetType.CelestialBody:
                     // TODO: Is there a better way to do this?
                     return vessel.mainBody.GetLongitude(vc.activeTarget.GetTransform().position);
             }
@@ -1684,6 +1683,15 @@ namespace AvionicsSystems
             {
                 return 0.0;
             }
+        }
+
+        /// <summary>
+        /// Returns the heading of the target's prograde surface speed, or 0 if there is no target, or the target does not have a meaningful surface heading.
+        /// </summary>
+        /// <returns>Heading, or 0.</returns>
+        public double TargetHeadingPrograde()
+        {
+            return 0.0;
         }
 
         /// <summary>
