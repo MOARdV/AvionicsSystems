@@ -41,7 +41,7 @@ namespace AvionicsSystems
         private GameObject imageObject;
         private Material imageMaterial;
         private MeshRenderer meshRenderer;
-        private Color passiveColor, activeColor;
+        private Color passiveColor = Color.white, activeColor = Color.white;
         private float currentBlend;
         private MASFlightComputer.Variable colorRange1, colorRange2;
         private readonly int colorField = Shader.PropertyToID("_Color");
@@ -360,6 +360,9 @@ namespace AvionicsSystems
                     }
                 }
             }
+            
+            // In case fixed colors are being used.
+            UpdateColor();
 
             string uvTilingString = string.Empty;
             if (config.TryGetValue("tiling", ref uvTilingString))
