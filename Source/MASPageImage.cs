@@ -53,7 +53,6 @@ namespace AvionicsSystems
         private Vector2 size = Vector2.zero;
         private Vector2 position = Vector2.zero;
         private Vector3 imageOrigin = Vector3.zero;
-        private readonly float depth;
 
         private MASFlightComputer.Variable range1, range2;
         private readonly bool rangeMode;
@@ -62,7 +61,6 @@ namespace AvionicsSystems
         internal MASPageImage(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
             variableRegistrar = new VariableRegistrar(comp, prop);
-            this.depth = depth;
 
             if (!config.TryGetValue("name", ref name))
             {
@@ -415,10 +413,10 @@ namespace AvionicsSystems
         /// </summary>
         private void UpdateVertices()
         {
-            vertices[0] = new Vector3(-0.5f * size.x - rotationOffset.x, 0.5f * size.y + rotationOffset.y, depth);
-            vertices[1] = new Vector3(0.5f * size.x - rotationOffset.x, 0.5f * size.y + rotationOffset.y, depth);
-            vertices[2] = new Vector3(-0.5f * size.x - rotationOffset.x, -0.5f * size.y + rotationOffset.y, depth);
-            vertices[3] = new Vector3(0.5f * size.x - rotationOffset.x, -0.5f * size.y + rotationOffset.y, depth);
+            vertices[0] = new Vector3(-0.5f * size.x - rotationOffset.x, 0.5f * size.y + rotationOffset.y, 0.0f);
+            vertices[1] = new Vector3(0.5f * size.x - rotationOffset.x, 0.5f * size.y + rotationOffset.y, 0.0f);
+            vertices[2] = new Vector3(-0.5f * size.x - rotationOffset.x, -0.5f * size.y + rotationOffset.y, 0.0f);
+            vertices[3] = new Vector3(0.5f * size.x - rotationOffset.x, -0.5f * size.y + rotationOffset.y, 0.0f);
             mesh.vertices = vertices;
         }
 
