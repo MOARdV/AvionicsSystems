@@ -553,7 +553,6 @@ namespace AvionicsSystems
                     navaid.glidePathDefault = 3.0;
                     navaid.approachHeadingILS = 0.0f;
                     navaid.localizerSectorILS = 0.0f;
-                    navaid.glidePathSectorILS = 0.0f;
                     if (navaid.type == NavAidType.ILS || navaid.type == NavAidType.ILS_DME)
                     {
                         if (!navaidNode[navaidIdx].TryGetValue("maximumRangeLocalizer", ref navaid.maximumRangeLocalizer))
@@ -579,11 +578,6 @@ namespace AvionicsSystems
                         if (!navaidNode[navaidIdx].TryGetValue("localizerSectorILS", ref navaid.localizerSectorILS))
                         {
                             Utility.LogErrorMessage(this, "Did not get 'horizontalSectorILS' for {1} {0}", navaid.name, navaid.type);
-                            canAdd = false;
-                        }
-                        if (!navaidNode[navaidIdx].TryGetValue("glidePathSectorILS", ref navaid.glidePathSectorILS))
-                        {
-                            Utility.LogErrorMessage(this, "Did not get 'verticalSectorILS' for {1} {0}", navaid.name, navaid.type);
                             canAdd = false;
                         }
                     }

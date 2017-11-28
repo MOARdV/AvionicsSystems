@@ -78,7 +78,6 @@ namespace AvionicsSystems
         /// Maximum deflection in degrees off of the approach bearing for a signal.
         /// </summary>
         public float localizerSectorILS;
-        public float glidePathSectorILS;
         public float frequency;
         /// <summary>
         /// Primarily for distance measurement
@@ -506,7 +505,7 @@ namespace AvionicsSystems
                     double absoluteBearing = radio.GetBearing(vessel.latitude, vessel.longitude);
 
                     // Yeah, I could probably write this a little more succinctly.
-                    double deviation = Utility.NormalizeLongitude(radio.beacon[radio.beaconIndex].approachHeadingILS - absoluteBearing + 180.0);
+                    double deviation = Utility.NormalizeLongitude(radio.beacon[radio.beaconIndex].approachHeadingILS - absoluteBearing);
                     return (Math.Abs(deviation) <= radio.beacon[radio.beaconIndex].localizerSectorILS);
                 }
             }
@@ -545,7 +544,7 @@ namespace AvionicsSystems
                         Vector3d displacement = vesselPosition - beacon.worldPosition;
                         double angle = 90.0 - Vector3d.Angle(beacon.worldNormal, displacement);
 
-                        if (Math.Abs(angle - glideSlope) <= beacon.glidePathSectorILS)
+                        if (angle >= glideSlope * 0.45 && angle <= glideSlope * 1.75)
                         {
                             return angle - glideSlope;
                         }
@@ -567,14 +566,14 @@ namespace AvionicsSystems
                     double absoluteBearing = radio.GetBearing(vessel.latitude, vessel.longitude);
 
                     // Don't detect vertical deviation if we can't see horizontal deviation.
-                    double deviation = Utility.NormalizeLongitude(beacon.approachHeadingILS - absoluteBearing + 180.0);
+                    double deviation = Utility.NormalizeLongitude(beacon.approachHeadingILS - absoluteBearing);
                     if (Math.Abs(deviation) <= beacon.localizerSectorILS)
                     {
                         Vector3d vesselPosition = vc.mainBody.GetRelSurfacePosition(vessel.CoMD);
                         Vector3d displacement = vesselPosition - beacon.worldPosition;
                         double angle = 90.0 - Vector3d.Angle(beacon.worldNormal, displacement);
 
-                        if (Math.Abs(angle - glideSlope) <= beacon.glidePathSectorILS)
+                        if (angle >= glideSlope * 0.45 && angle <= glideSlope * 1.75)
                         {
                             return true;
                         }
