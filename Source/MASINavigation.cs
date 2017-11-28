@@ -144,11 +144,27 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the latitude found at the given range along the given bearing.
+        /// **UNTESTED**
         /// 
-        /// **TODO:** Replace `fc.DestinationLatitude` and `fc.DestinationLongitude` with
-        /// `fc.DestinationCoordinates` which returns latitude and longitude at the same time
-        /// so computations do not need to be made twice.
+        /// Returns the cross-track distance, in meters, of the specified location relative to the vessel's current heading.
+        /// </summary>
+        /// <param name="latitude">Latitude of the location of interest.</param>
+        /// <param name="longitude">Longitude of the location of interest.</param>
+        /// <returns>Distance in meters from the current route to the location.</returns>
+        public double CrossTrackDistance(double latitude, double longitude)
+        {
+            double targetBearing = BearingFromVessel(latitude, longitude);
+
+            // TODO: More efficient way to do this:
+            Vector3d vesselNormal = QuaternionD.AngleAxis(vessel.longitude, Vector3d.down) * QuaternionD.AngleAxis(vessel.latitude, Vector3d.forward) * Vector3d.right;
+            Vector3d targetNormal = QuaternionD.AngleAxis(longitude, Vector3d.down) * QuaternionD.AngleAxis(latitude, Vector3d.forward) * Vector3d.right;
+            double targetAngularDistance = Vector3d.Angle(vesselNormal, targetNormal) * Utility.Deg2Rad;
+
+            return Math.Asin(Math.Sin(targetAngularDistance) * Math.Sin((targetBearing - fc.vc.progradeHeading) * Utility.Deg2Rad)) * vessel.mainBody.Radius;
+        }
+
+        /// <summary>
+        /// Returns the latitude found at the given range along the given bearing.
         /// </summary>
         /// <param name="latitude">Latitude of the point of origin.  Negative values indicate south, positive is north.</param>
         /// <param name="longitude">Longitude of the point of origin.  Negative values indicate west, positive is east.</param>
@@ -252,6 +268,90 @@ namespace AvionicsSystems
         public double GroundDistanceFromVessel(double latitude, double longitude)
         {
             return GroundDistance(vessel.latitude, Utility.NormalizeLongitude(vessel.longitude), latitude, longitude);
+        }
+
+        /// <summary>
+        /// ** UNIMPLEMENTED **
+        /// Return the latitude where two great-circle paths intersect.
+        /// </summary>
+        /// <param name="latitude1">Latitude of the start of path 1.</param>
+        /// <param name="longitude1">Longitude of the start of path 1.</param>
+        /// <param name="bearing1">Initial bearing of path 1.</param>
+        /// <param name="latitude2">Latitude of the start of path 2.</param>
+        /// <param name="longitude2">Longitude of the start of path 2.</param>
+        /// <param name="bearing2">Initial bearing of path 2.</param>
+        /// <returns>The latitude where the two paths intersect.</returns>
+        public double IntersectionOfTwoPathsLatitude(double latitude1, double longitude1, double bearing1, double latitude2, double longitude2, double bearing2)
+        {
+            /*
+            δ12 = 2⋅asin( √(sin²(Δφ/2) + cos φ1 ⋅ cos φ2 ⋅ sin²(Δλ/2)) )	angular dist. p1–p2
+            θa = acos( ( sin φ2 − sin φ1 ⋅ cos δ12 ) / ( sin δ12 ⋅ cos φ1 ) )
+            θb = acos( ( sin φ1 − sin φ2 ⋅ cos δ12 ) / ( sin δ12 ⋅ cos φ2 ) )	initial / final bearings
+            between points 1 & 2
+            if sin(λ2−λ1) > 0
+                θ12 = θa
+                θ21 = 2π − θb
+            else
+                θ12 = 2π − θa
+                θ21 = θb	
+            α1 = θ13 − θ12
+            α2 = θ21 − θ23	angle p2–p1–p3
+            angle p1–p2–p3
+            α3 = acos( −cos α1 ⋅ cos α2 + sin α1 ⋅ sin α2 ⋅ cos δ12 )	angle p1–p2–p3
+            δ13 = atan2( sin δ12 ⋅ sin α1 ⋅ sin α2 , cos α2 + cos α1 ⋅ cos α3 )	angular dist. p1–p3
+            φ3 = asin( sin φ1 ⋅ cos δ13 + cos φ1 ⋅ sin δ13 ⋅ cos θ13 )	p3 lat
+            Δλ13 = atan2( sin θ13 ⋅ sin δ13 ⋅ cos φ1 , cos δ13 − sin φ1 ⋅ sin φ3 )	long p1–p3
+            λ3 = λ1 + Δλ13  
+            where	
+                φ1, λ1, θ13 : 1st start point & (initial) bearing from 1st point towards intersection point
+                φ2, λ2, θ23 : 2nd start point & (initial) bearing from 2nd point towards intersection point
+                φ3, λ3 : intersection point
+
+                % = (floating point) modulo
+             */
+            return 0.0;
+        }
+
+        /// <summary>
+        /// ** UNIMPLEMENTED **
+        /// Return the latitude where two great-circle paths intersect.
+        /// </summary>
+        /// <param name="latitude1">Latitude of the start of path 1.</param>
+        /// <param name="longitude1">Longitude of the start of path 1.</param>
+        /// <param name="bearing1">Initial bearing of path 1.</param>
+        /// <param name="latitude2">Latitude of the start of path 2.</param>
+        /// <param name="longitude2">Longitude of the start of path 2.</param>
+        /// <param name="bearing2">Initial bearing of path 2.</param>
+        /// <returns>The latitude where the two paths intersect.</returns>
+        public double IntersectionOfTwoPathsLongitude(double latitude1, double longitude1, double bearing1, double latitude2, double longitude2, double bearing2)
+        {
+            /*
+            δ12 = 2⋅asin( √(sin²(Δφ/2) + cos φ1 ⋅ cos φ2 ⋅ sin²(Δλ/2)) )	angular dist. p1–p2
+            θa = acos( ( sin φ2 − sin φ1 ⋅ cos δ12 ) / ( sin δ12 ⋅ cos φ1 ) )
+            θb = acos( ( sin φ1 − sin φ2 ⋅ cos δ12 ) / ( sin δ12 ⋅ cos φ2 ) )	initial / final bearings
+            between points 1 & 2
+            if sin(λ2−λ1) > 0
+                θ12 = θa
+                θ21 = 2π − θb
+            else
+                θ12 = 2π − θa
+                θ21 = θb	
+            α1 = θ13 − θ12
+            α2 = θ21 − θ23	angle p2–p1–p3
+            angle p1–p2–p3
+            α3 = acos( −cos α1 ⋅ cos α2 + sin α1 ⋅ sin α2 ⋅ cos δ12 )	angle p1–p2–p3
+            δ13 = atan2( sin δ12 ⋅ sin α1 ⋅ sin α2 , cos α2 + cos α1 ⋅ cos α3 )	angular dist. p1–p3
+            φ3 = asin( sin φ1 ⋅ cos δ13 + cos φ1 ⋅ sin δ13 ⋅ cos θ13 )	p3 lat
+            Δλ13 = atan2( sin θ13 ⋅ sin δ13 ⋅ cos φ1 , cos δ13 − sin φ1 ⋅ sin φ3 )	long p1–p3
+            λ3 = λ1 + Δλ13             
+            where	
+                φ1, λ1, θ13 : 1st start point & (initial) bearing from 1st point towards intersection point
+                φ2, λ2, θ23 : 2nd start point & (initial) bearing from 2nd point towards intersection point
+                φ3, λ3 : intersection point
+
+                % = (floating point) modulo
+             */
+            return 0.0;
         }
 
         /// <summary>
@@ -408,6 +508,18 @@ namespace AvionicsSystems
         public double GetNavAidBearing(double radioId, bool relativeBearing)
         {
             return fc.GetNavAidBearing((int)radioId, relativeBearing);
+        }
+
+        /// <summary>
+        /// Returns the cross-track distance in meters, to the navaid specified by radioId.  If no radio
+        /// is in range, returns 0.
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <returns>Cross-track distance in meters.</returns>
+        public double GetNavAidCrossTrackDistance(double radioId)
+        {
+            Vector2d latlon = fc.GetNavAidPosition((int)radioId);
+            return CrossTrackDistance(latlon.y, latlon.x);
         }
 
         /// <summary>
@@ -665,6 +777,30 @@ namespace AvionicsSystems
         public double WaypointCount()
         {
             return FinePrint.WaypointManager.Instance().Waypoints.Count;
+        }
+
+        /// <summary>
+        /// Get the cross-track distance to the selected waypoint in meters.
+        /// </summary>
+        /// <param name="waypointIndex">The waypoint index, or -1 to select the current active waypoint.</param>
+        /// <returns>Returns the cross-track distance in meters, or 0 if the selected waypoint is invalid.</returns>
+        public double WaypointCrossTrackDistance(double waypointIndex)
+        {
+            int index = (int)waypointIndex;
+
+            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+            if (index >= 0 && index < waypoints.Count)
+            {
+                return CrossTrackDistance(waypoints[index].latitude, waypoints[index].longitude);
+            }
+            else if (index == -1 && NavWaypoint.fetch.IsActive)
+            {
+                return CrossTrackDistance(NavWaypoint.fetch.Latitude, NavWaypoint.fetch.Longitude);
+            }
+            else
+            {
+                return -1.0;
+            }
         }
 
         /// <summary>

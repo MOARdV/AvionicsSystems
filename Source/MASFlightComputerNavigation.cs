@@ -538,7 +538,7 @@ namespace AvionicsSystems
                     double absoluteBearing = radio.GetBearing(vessel.latitude, vessel.longitude);
 
                     // Don't detect vertical deviation if we can't see horizontal deviation.
-                    double deviation = Utility.NormalizeLongitude(beacon.approachHeadingILS - absoluteBearing + 180.0);
+                    double deviation = Utility.NormalizeLongitude(beacon.approachHeadingILS - absoluteBearing);
                     if (Math.Abs(deviation) <= beacon.localizerSectorILS)
                     {
                         Vector3d vesselPosition = vc.mainBody.GetRelSurfacePosition(vessel.CoMD);
@@ -604,6 +604,20 @@ namespace AvionicsSystems
                 }
             }
             return 0.0;
+        }
+
+        internal Vector2d GetNavAidPosition(int radioId)
+        {
+            NavRadio radio;
+            if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
+            {
+                if ((radio.isDME && radio.DMEInRange(vessel)) || radio.NavAidInRange(vessel))
+                {
+                    return new Vector2d(radio.beacon[radio.beaconIndex].longitude, radio.beacon[radio.beaconIndex].latitude); ;
+                }
+            }
+
+            return Vector2d.zero;
         }
 
         internal double GetNavAidLatitude(int radioId)
