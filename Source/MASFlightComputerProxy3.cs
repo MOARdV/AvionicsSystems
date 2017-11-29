@@ -1687,11 +1687,48 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Returns the heading of the target's prograde surface speed, or 0 if there is no target, or the target does not have a meaningful surface heading.
+        /// 
+        /// **NOTE:** At present, only vessel targets return valid headings.  All others return 0.
         /// </summary>
         /// <returns>Heading, or 0.</returns>
         public double TargetHeadingPrograde()
         {
-            return 0.0;
+            // This VV gives me orbital velocity that matches with Vessel.obt_velocity.
+            //    Vector3d getVel = vc.Vessel.orbit.GetVel();
+            // Now I need to figure out how to get surface velocity from that information.
+
+            if (vc.targetType > 0 && vc.targetOrbit.referenceBody == vc.orbit.referenceBody)
+            {
+                if(vc.targetType == MASVesselComputer.TargetType.Vessel || vc.targetType == MASVesselComputer.TargetType.DockingPort)
+                {
+                    Vessel targetVessel;
+                    if (vc.targetType == MASVesselComputer.TargetType.Vessel)
+                    {
+                        targetVessel = vc.activeTarget as Vessel;
+                    }
+                    else // Docking port
+                    {
+                        targetVessel = (vc.activeTarget as ModuleDockingNode).vessel;
+                    }
+
+                    Vector3 surfaceProgradeProjected = Vector3.ProjectOnPlane(targetVessel.srf_vel_direction, targetVessel.up);
+                    double progradeHeading = Vector3.Angle(surfaceProgradeProjected, targetVessel.north);
+                    if (Vector3.Dot(surfaceProgradeProjected, targetVessel.east) < 0.0)
+                    {
+                        progradeHeading = 360.0 - progradeHeading;
+                    }
+
+                    return progradeHeading;
+                }
+                else
+                {
+                    return 0.0;
+                }
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
