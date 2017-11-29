@@ -35,10 +35,12 @@ namespace AvionicsSystems
         private Dictionary<int, Action> softkeyAction = new Dictionary<int, Action>();
         private string name = string.Empty;
         private GameObject pageRoot;
+        private Action onEntry, onExit;
+        private bool enabled;
 
         private static IMASMonitorComponent CreatePageComponent(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
-            switch(config.name)
+            switch (config.name)
             {
                 case "CAMERA":
                     return new MASPageCamera(config, prop, comp, monitor, pageRoot, depth);
@@ -88,15 +90,26 @@ namespace AvionicsSystems
                 if (pair.Length == 2)
                 {
                     int id;
-                    if(int.TryParse(pair[0], out id))
+                    if (int.TryParse(pair[0], out id))
                     {
                         Action action = comp.GetAction(pair[1], prop);
-                        if(action != null)
+                        if (action != null)
                         {
                             softkeyAction[id] = action;
                         }
                     }
                 }
+            }
+
+            string entryMethod = string.Empty;
+            if (config.TryGetValue("onEntry", ref entryMethod))
+            {
+                onEntry = comp.GetAction(entryMethod, prop);
+            }
+            string exitMethod = string.Empty;
+            if (config.TryGetValue("onExit", ref exitMethod))
+            {
+                onExit = comp.GetAction(exitMethod, prop);
             }
 
             pageRoot = new GameObject();
@@ -121,6 +134,24 @@ namespace AvionicsSystems
         /// <param name="enable"></param>
         internal void EnablePage(bool enable)
         {
+            if (enabled != enable)
+            {
+                if (enable)
+                {
+                    if (onEntry != null)
+                    {
+                        onEntry();
+                    }
+                }
+                else if (!enable)
+                {
+                    if (onExit != null)
+                    {
+                        onExit();
+                    }
+                }
+                enabled = enable;
+            }
             pageRoot.SetActive(enable);
             int numComponents = component.Count;
             for (int i = 0; i < numComponents; ++i)
@@ -159,7 +190,7 @@ namespace AvionicsSystems
             {
                 int componentCount = component.Count;
                 bool handled = false;
-                for(int i=0; i<componentCount; ++i)
+                for (int i = 0; i < componentCount; ++i)
                 {
                     // Submit to each component.
                     if (component[i].HandleSoftkey(keyId))
