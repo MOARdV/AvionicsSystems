@@ -98,28 +98,28 @@ namespace AvionicsSystems
             mesh.vertices = new[]
                 {
                     // LEFT
-                    new Vector3(-1.0f, screenSize.y + 1.0f, depth),
-                    new Vector3(64.0f, screenSize.y + 1.0f, depth),
-                    new Vector3(-1.0f, -1.0f, depth),
-                    new Vector3(64.0f, -1.0f, depth),
+                    new Vector3(-1.0f, screenSize.y + 1.0f, 0.0f),
+                    new Vector3(64.0f, screenSize.y + 1.0f, 0.0f),
+                    new Vector3(-1.0f, -1.0f, 0.0f),
+                    new Vector3(64.0f, -1.0f, 0.0f),
 
                     // RIGHT
-                    new Vector3(394.0f, screenSize.y + 1.0f, depth),
-                    new Vector3(screenSize.x + 1.0f, screenSize.y + 1.0f, depth),
-                    new Vector3(394.0f, -1.0f, depth),
-                    new Vector3(screenSize.x + 1.0f, -1.0f, depth),
+                    new Vector3(394.0f, screenSize.y + 1.0f, 0.0f),
+                    new Vector3(screenSize.x + 1.0f, screenSize.y + 1.0f, 0.0f),
+                    new Vector3(394.0f, -1.0f, 0.0f),
+                    new Vector3(screenSize.x + 1.0f, -1.0f, 0.0f),
 
                     // BOTTOM - note that Y increases from the bottom
-                    new Vector3(-1.0f, screenSize.y - 32.0f, depth),
-                    new Vector3(screenSize.x + 1.0f, screenSize.y - 32.0f, depth),
-                    new Vector3(-1.0f, -1.0f, depth),
-                    new Vector3(screenSize.x + 1.0f, -1.0f, depth),
+                    new Vector3(-1.0f, screenSize.y - 32.0f, 0.0f),
+                    new Vector3(screenSize.x + 1.0f, screenSize.y - 32.0f, 0.0f),
+                    new Vector3(-1.0f, -1.0f, 0.0f),
+                    new Vector3(screenSize.x + 1.0f, -1.0f, 0.0f),
 
                     // TOP - note that Y increases from the bottom
-                    new Vector3(-1.0f, screenSize.y + 1.0f, depth),
-                    new Vector3(screenSize.x + 1.0f, screenSize.y + 1.0f, depth),
-                    new Vector3(-1.0f, screenSize.y - 256.0f, depth),
-                    new Vector3(screenSize.x + 1.0f, screenSize.y - 256.0f, depth),
+                    new Vector3(-1.0f, screenSize.y + 1.0f, 0.0f),
+                    new Vector3(screenSize.x + 1.0f, screenSize.y + 1.0f, 0.0f),
+                    new Vector3(-1.0f, screenSize.y - 256.0f, 0.0f),
+                    new Vector3(screenSize.x + 1.0f, screenSize.y - 256.0f, 0.0f),
                 };
             mesh.uv = new[]
                 {
