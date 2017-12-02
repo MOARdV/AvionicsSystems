@@ -227,7 +227,8 @@ namespace AvionicsSystems
             navballCamera.clearFlags = CameraClearFlags.SolidColor;
             navballCamera.transparencySortMode = TransparencySortMode.Orthographic;
             navballCamera.targetTexture = navballRenTex;
-            Camera.onPreRender += CameraPrerender;
+            Camera.onPreCull += CameraPrerender;
+            Camera.onPostRender += CameraPostrender;
 
             navballModel.layer = navballLayer;
             navballModel.transform.parent = cameraObject.transform;
@@ -246,11 +247,10 @@ namespace AvionicsSystems
             navballCamera.transform.LookAt(navballModel.transform, Vector3.up);
 
             float iconScale = 1.0f;
-            // Scaling is not working yet - there's something screwy with the cameras.
-            //if (!config.TryGetValue("iconScale", ref iconScale))
-            //{
-            //    iconScale = 1.0f;
-            //}
+            if (!config.TryGetValue("iconScale", ref iconScale))
+            {
+                iconScale = 1.0f;
+            }
             InitMarkers(cameraObject.transform, iconScale);
             EnableRender(false);
 
@@ -291,10 +291,12 @@ namespace AvionicsSystems
         /// <param name="scaledDirection"></param>
         private void UpdateVectorPair(int index, Vector3 scaledDirection)
         {
+            meshRenderer[index].enabled = true;
             markers[index].transform.localPosition = new Vector3(scaledDirection.x, scaledDirection.y, iconDepth);
             activeMarkerColor[index].a = GetIconAlpha(scaledDirection.z);
             markerMaterial[index].SetColor(colorIdx, activeMarkerColor[index]);
 
+            meshRenderer[index + 1].enabled = true;
             markers[index + 1].transform.localPosition = new Vector3(-scaledDirection.x, -scaledDirection.y, iconDepth);
             activeMarkerColor[index + 1].a = GetIconAlpha(-scaledDirection.z);
             markerMaterial[index + 1].SetColor(colorIdx, activeMarkerColor[index + 1]);
@@ -307,19 +309,22 @@ namespace AvionicsSystems
         /// <param name="scaledDirection"></param>
         private void UpdateSingleVector(int index, Vector3 scaledDirection)
         {
+            meshRenderer[index].enabled = true;
             markers[index].transform.localPosition = new Vector3(scaledDirection.x, scaledDirection.y, iconDepth);
             activeMarkerColor[index].a = GetIconAlpha(scaledDirection.z);
             markerMaterial[index].SetColor(colorIdx, activeMarkerColor[index]);
         }
 
         /// <summary>
-        /// Callback called before rendering - we use this to update markers, etc.
+        /// Callback called before culling - we use this to update marker positions
+        /// and determine which markers (and the navball) should be rendered.
         /// </summary>
         /// <param name="whichCamera"></param>
         private void CameraPrerender(Camera whichCamera)
         {
             if (whichCamera == navballCamera)
             {
+                navballRenderer.enabled = true;
                 if (!navballRenTex.IsCreated())
                 {
                     navballRenTex.Create();
@@ -408,6 +413,23 @@ namespace AvionicsSystems
 
             }
         }
+
+        /// <summary>
+        /// Switch off our renderers once the navball camera is done.
+        /// </summary>
+        /// <param name="whichCamera"></param>
+        private void CameraPostrender(Camera whichCamera)
+        {
+            if (whichCamera == navballCamera)
+            {
+                navballRenderer.enabled = false;
+                for (int i = 0; i < 12; ++i)
+                {
+                    meshRenderer[i].enabled = false;
+                }
+            }
+        }
+
 
         /// <summary>
         /// UV offsets within the squad maneuver icon texture.
@@ -594,7 +616,8 @@ namespace AvionicsSystems
         /// </summary>
         public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
-            Camera.onPreRender -= CameraPrerender;
+            Camera.onPreCull -= CameraPrerender;
+            Camera.onPostRender -= CameraPostrender;
             UnityEngine.GameObject.Destroy(imageObject);
             imageObject = null;
             UnityEngine.Object.Destroy(imageMaterial);
