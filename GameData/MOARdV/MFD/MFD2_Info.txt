@@ -1,0 +1,27 @@
+The MAS MFD2 multi-function display / flight management system
+provides a task-oriented approach to operating orbital space
+craft.
+
+Most functions are triggered by pressing one of the soft keys
+along the top and bottom of the MFD.  A caption is adjacent to
+each enabled soft key, surrounded by a color-coded border.
+
+If a border is [#00ff00]GREEN[#afd3ff], it indicates that the softkey will open
+a new page on the MFD.  If the border is [#ffff9b]HIGHLIGHTED[#afd3ff], it
+means that the button is active.  If the border is [#839ebf]DIMMED[#afd3ff], it
+means that the button may be pressed to make it active.
+
+[#839ebf]DIMMED[#afd3ff] / [#ffff9b]HIGHLIGHTED[#afd3ff] soft keys may be used in one of two ways.
+First, they may be used as a toggle, such as switching the
+MechJeb Ascent Autopilot on or off.  Second, they may be used
+as a group of buttons, such as choosing which scale to apply
+when adjusting orbital parameters.
+
+The group of buttons in the lower-right corner of the MFD may
+be used for inputs on some pages.  When they are enabled, the
+page will display icons near the buttons to hint at what the
+buttons will do.
+
+Some pages, such as this one, will have a [#ffff9b]BACK[#afd3ff] softkey in the
+lower-right corner.  On those pages, pressing the [#ffff9b]-[#afd3ff] key returns
+you to the previous page.

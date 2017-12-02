@@ -1,0 +1,11 @@
+Alt :        km
+Ap  :        km
+Pe  :        km
+Inc :        °
+
+
+SPr :          kPa
+DPr :          kPa
+VSpd:        m/s
+Srf :        m/s
+Obt :        m/s
