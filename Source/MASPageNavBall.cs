@@ -245,8 +245,19 @@ namespace AvionicsSystems
             navballModel.SetActive(true);
             navballCamera.transform.LookAt(navballModel.transform, Vector3.up);
 
-            InitMarkers(cameraObject.transform);
+            float iconScale = 1.0f;
+            // Scaling is not working yet - there's something screwy with the cameras.
+            //if (!config.TryGetValue("iconScale", ref iconScale))
+            //{
+            //    iconScale = 1.0f;
+            //}
+            InitMarkers(cameraObject.transform, iconScale);
             EnableRender(false);
+
+            // Following icons are not currently supported:
+            markers[7].SetActive(false); // Maneuver minus (why did I want this?)
+            markers[10].SetActive(false); // Docking port alignment
+            markers[11].SetActive(false); // Waypoint
 
             if (!string.IsNullOrEmpty(variableName))
             {
@@ -290,6 +301,18 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Update a single direction marker
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="scaledDirection"></param>
+        private void UpdateSingleVector(int index, Vector3 scaledDirection)
+        {
+            markers[index].transform.localPosition = new Vector3(scaledDirection.x, scaledDirection.y, iconDepth);
+            activeMarkerColor[index].a = GetIconAlpha(scaledDirection.z);
+            markerMaterial[index].SetColor(colorIdx, activeMarkerColor[index]);
+        }
+
+        /// <summary>
         /// Callback called before rendering - we use this to update markers, etc.
         /// </summary>
         /// <param name="whichCamera"></param>
@@ -314,6 +337,7 @@ namespace AvionicsSystems
                     UpdateVectorPair(0, (attitudeGimbal * comp.vc.prograde) * navballExtents);
 
                     markers[2].SetActive(true);
+
                     markers[3].SetActive(true);
                     UpdateVectorPair(2, (attitudeGimbal * comp.vc.radialOut) * navballExtents);
 
@@ -344,13 +368,13 @@ namespace AvionicsSystems
                 if (comp.vc.maneuverNodeValid)
                 {
                     markers[6].SetActive(true);
-                    markers[7].SetActive(true);
-                    UpdateVectorPair(6, (attitudeGimbal * comp.vc.maneuverNodeVector.normalized) * navballExtents);
+                    //markers[7].SetActive(false);
+                    UpdateSingleVector(6, (attitudeGimbal * comp.vc.maneuverNodeVector.normalized) * navballExtents);
                 }
                 else
                 {
                     markers[6].SetActive(false);
-                    markers[7].SetActive(false);
+                    //markers[7].SetActive(false);
                 }
 
                 // Target +/-
@@ -358,29 +382,29 @@ namespace AvionicsSystems
                 {
                     markers[8].SetActive(true);
                     markers[9].SetActive(true);
-                    UpdateVectorPair(8, (attitudeGimbal * comp.vc.targetDisplacement) * navballExtents);
+                    UpdateVectorPair(8, (attitudeGimbal * comp.vc.targetDirection) * navballExtents);
 
                     // Docking Port
-                    if (comp.vc.targetType == MASVesselComputer.TargetType.DockingPort)
-                    {
-                        // TODO:
-                        markers[10].SetActive(false);
-                    }
-                    else
-                    {
-                        markers[10].SetActive(false);
-                    }
+                    //if (comp.vc.targetType == MASVesselComputer.TargetType.DockingPort)
+                    //{
+                    //    // TODO:
+                    //    markers[10].SetActive(false);
+                    //}
+                    //else
+                    //{
+                    //    markers[10].SetActive(false);
+                    //}
                 }
                 else
                 {
                     markers[8].SetActive(false);
                     markers[9].SetActive(false);
-                    markers[10].SetActive(false);
+                    //markers[10].SetActive(false);
                 }
 
                 // Waypoint
                 // TODO: This requires some additional effort, since the waypoint icon may change
-                markers[11].SetActive(false);
+                //markers[11].SetActive(false);
 
             }
         }
@@ -392,14 +416,14 @@ namespace AvionicsSystems
         {
             new Vector2(0.0f / 3.0f, 2.0f / 3.0f), // Prograde
             new Vector2(1.0f / 3.0f, 2.0f / 3.0f), // Retrograde
-            new Vector2(0.0f / 3.0f, 2.0f / 3.0f), // RadialOut
-            new Vector2(1.0f / 3.0f, 1.0f / 3.0f), // RadialIn
-            new Vector2(0.0f / 3.0f, 1.0f / 3.0f), // NormalPlus
+            new Vector2(1.0f / 3.0f, 1.0f / 3.0f), // RadialOut
+            new Vector2(0.0f / 3.0f, 1.0f / 3.0f), // RadialIn
+            new Vector2(0.0f / 3.0f, 0.0f / 3.0f), // NormalPlus
             new Vector2(1.0f / 3.0f, 0.0f / 3.0f), // NormalMinus
             new Vector2(2.0f / 3.0f, 0.0f / 3.0f), // ManeuverPlus
             new Vector2(1.0f / 3.0f, 2.0f / 3.0f), // ManeuverMinus
-            new Vector2(2.0f / 3.0f, 1.0f / 3.0f), // TargetPlus
-            new Vector2(2.0f / 3.0f, 2.0f / 3.0f), // TargetMinus
+            new Vector2(2.0f / 3.0f, 2.0f / 3.0f), // TargetPlus
+            new Vector2(2.0f / 3.0f, 1.0f / 3.0f), // TargetMinus
             new Vector2(0.0f / 3.0f, 2.0f / 3.0f), // DockingAlignment
             new Vector2(0.0f / 3.0f, 2.0f / 3.0f), // Waypoint
         };
@@ -407,18 +431,18 @@ namespace AvionicsSystems
         /// <summary>
         /// Default colors for markers.  May be overridden with the config file.
         /// </summary>
-        private static readonly Color[] markerColor =
+        private static readonly Color32[] markerColor =
         {
-            XKCDColors.Yellow, // Prograde
-            XKCDColors.Yellow, // Retrograde
-            XKCDColors.Cyan, // RadialOut
-            XKCDColors.Cyan, // RadialIn
-            XKCDColors.HotMagenta, // NormalPlus
-            XKCDColors.HotMagenta, // NormalMinus
-            XKCDColors.Magenta, // ManeuverPlus
-            XKCDColors.Magenta, // ManeuverMinus
-            XKCDColors.Magenta, // TargetPlus
-            XKCDColors.Magenta, // TargetMinus
+            new Color32(255, 203, 0, 255), // Prograde
+            new Color32(255, 203, 0, 255), // Retrograde
+            new Color32(0, 155, 255, 255), // RadialOut
+            new Color32(0, 155, 255, 255), // RadialIn
+            new Color32(156, 0, 206, 255), // NormalPlus
+            new Color32(156, 0, 206, 255), // NormalMinus
+            new Color32(0, 102, 249, 255), // ManeuverPlus
+            new Color32(0, 102, 249, 255), // ManeuverMinus
+            new Color32(255, 0, 255, 255), // TargetPlus
+            new Color32(255, 0, 255, 255), // TargetMinus
             XKCDColors.Red, // DockingAlignment
             XKCDColors.Red, // Waypoint
         };
@@ -431,7 +455,7 @@ namespace AvionicsSystems
         /// <param name="maneuverTexture"></param>
         /// <param name="markerIdx"></param>
         /// <returns></returns>
-        private GameObject MakeMarker(Transform rootTransform, Shader displayShader, Texture maneuverTexture, int markerIdx)
+        private GameObject MakeMarker(Transform rootTransform, Shader displayShader, Texture maneuverTexture, int markerIdx, float iconScale)
         {
             GameObject newMarker = new GameObject();
             newMarker.layer = navballLayer;
@@ -451,7 +475,7 @@ namespace AvionicsSystems
             Vector2 uv1 = uv0 + new Vector2(1.0f / 3.0f, 1.0f / 3.0f);
             // Half-extents based on centered position
             // relative to the navball
-            float markerExtents = navballExtents * 0.18f;
+            float markerExtents = navballExtents * 0.18f * iconScale;
             Mesh mesh = new Mesh();
             mesh.vertices = new[]
                 {
@@ -493,7 +517,7 @@ namespace AvionicsSystems
         /// Iterate over all of the markers and initiate them (basic position, color, etc).
         /// </summary>
         /// <param name="rootTransform"></param>
-        private void InitMarkers(Transform rootTransform)
+        private void InitMarkers(Transform rootTransform, float iconScale)
         {
             Shader displayShader = MASLoader.shaders["MOARdV/TextMonitor"];
             Texture2D maneuverTexture = GameDatabase.Instance.GetTexture("Squad/Props/IVANavBall/ManeuverNode_vectors", false);
@@ -501,7 +525,7 @@ namespace AvionicsSystems
             int markerCount = markers.Length;
             for (int markerId = 0; markerId < markerCount; ++markerId)
             {
-                markers[markerId] = MakeMarker(rootTransform, displayShader, maneuverTexture, markerId);
+                markers[markerId] = MakeMarker(rootTransform, displayShader, maneuverTexture, markerId, iconScale);
                 markers[markerId].transform.localPosition = new Vector3(0.0f, 0.0f, iconDepth);
                 activeMarkerColor[markerId] = markerColor[markerId];
             }
