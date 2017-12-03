@@ -1350,6 +1350,28 @@ namespace AvionicsSystems
         #region Periodic Variables
 
         /// <summary>
+        /// Returns a periodic variable that counts upwards from 0 to 'countTo'-1 before repeating,
+        /// with each change based on the 'period'.  Note that the counter is not guaranteed to start
+        /// at zero, since it is based on universal time.
+        /// </summary>
+        /// <param name="period">The period required to increase the counter, in cycles/second (Hertz).</param>
+        /// <param name="countTo">The exclusive upper limit of the count.</param>
+        /// <returns>An integer between [0 and countTo).</returns>
+        public double PeriodCount(double period, double countTo)
+        {
+            if (period > 0.0 && countTo >= 2.0)
+            {
+                double invPeriod = Math.Floor(countTo) / period;
+
+                double remainder = period * (vc.universalTime % invPeriod);
+
+                return Math.Floor(remainder);
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns a periodic variable that follows a sine-wave curve.
         /// </summary>
         /// <param name="period">The period of the change, in cycles/second (Hertz).</param>
@@ -1618,8 +1640,12 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double LandingLatitude()
         {
+            //double lat, lon;
+            //bool result = vc.mainBody.GetImpactLatitudeAndLongitude(vc.Vessel.GetWorldPos3D(), vc.Vessel.obt_velocity, out lat, out lon);
+            //Utility.LogMessage(this, "GetImpactLatitudeAndLongitude = {2} {0:0.0}, {1:0.0}", lat, lon, result);
             if (mjProxy.LandingComputerActive() > 0.0)
             {
+                //Utility.LogMessage(this, "mechjeb = {0:0.0}, {1:0.0}", mjProxy.LandingLatitude(), mjProxy.LandingLongitude());
                 return mjProxy.LandingLatitude();
             }
             else
