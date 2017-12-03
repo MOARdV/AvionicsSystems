@@ -465,7 +465,11 @@ namespace AvionicsSystems
                 }
                 else if (colorInvalidated)
                 {
-                    if (richText)
+                    if (boundedText)
+                    {
+                        GenerateRichBoundedText();
+                    }
+                    else if (richText)
                     {
                         GenerateRichText();
                     }
