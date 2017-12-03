@@ -106,6 +106,77 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Intersection of two paths on a sphere.
+        /// </summary>
+        /// <param name="lat1"></param>
+        /// <param name="lon1"></param>
+        /// <param name="bearing1"></param>
+        /// <param name="lat2"></param>
+        /// <param name="lon2"></param>
+        /// <param name="bearing2"></param>
+        /// <returns>Lat (x)/Lon (y) of intersection</returns>
+        [MoonSharpHidden]
+        internal Vector2d IntersectionOfTwoPaths(double lat1, double lon1, double bearing1, double lat2, double lon2, double bearing2)
+        {
+            // φ is latitude, λ is longitudem, θ is bearing
+            double phi1 = Utility.Deg2Rad * lat1;
+            double phi2 = Utility.Deg2Rad * lat2;
+            double lambda1 = Utility.Deg2Rad * lon1;
+            double lambda2 = Utility.Deg2Rad * lon2;
+            double theta13 = Utility.Deg2Rad * bearing1;
+            double theta23 = Utility.Deg2Rad * bearing2;
+
+            double delPhi = phi2 - phi1;
+            double delLamba = lambda2 - lambda1;
+
+            // δ12 = 2⋅asin( √(sin²(Δφ/2) + cos φ1 ⋅ cos φ2 ⋅ sin²(Δλ/2)) )	angular dist. p1–p2
+            double del12 = 2.0 * Math.Asin(Math.Sqrt(Math.Pow(Math.Sin(delPhi * 0.5), 2.0) + Math.Cos(lambda1) * Math.Cos(lambda2) * Math.Pow(Math.Sin(delLamba * 0.5), 2.0)));
+
+            // θa = acos( ( sin φ2 − sin φ1 ⋅ cos δ12 ) / ( sin δ12 ⋅ cos φ1 ) )
+            double thetaA = Math.Acos((Math.Sin(phi2) - Math.Sin(phi1) * Math.Cos(del12)) / (Math.Sin(del12) * Math.Cos(phi1)));
+            // θb = acos( ( sin φ1 − sin φ2 ⋅ cos δ12 ) / ( sin δ12 ⋅ cos φ2 ) )	initial / final bearings
+            double thetaB = Math.Acos((Math.Sin(phi1) - Math.Sin(phi2) * Math.Cos(del12)) / (Math.Sin(del12) * Math.Cos(phi2)));
+
+            double theta12;
+            double theta21;
+            /*
+            if sin(λ2−λ1) > 0
+                θ12 = θa
+                θ21 = 2π − θb
+            else
+                θ12 = 2π − θa
+                θ21 = θb	
+             */
+            if (Math.Sin(delLamba) > 0.0)
+            {
+                theta12 = thetaA;
+                theta21 = (Math.PI * 2.0) - thetaB;
+            }
+            else
+            {
+                theta12 = (Math.PI * 2.0) - thetaA;
+                theta21 =  thetaB;
+            }
+            // α1 = θ13 − θ12
+            double alpha1 = theta13 - theta12;
+            // α2 = θ21 − θ23	angle p2–p1–p3
+            double alpha2 = theta21 - theta21;
+            // α3 = acos( −cos α1 ⋅ cos α2 + sin α1 ⋅ sin α2 ⋅ cos δ12 )	angle p1–p2–p3
+            double alpha3 = Math.Acos(-Math.Cos(alpha1) * Math.Cos(alpha2) + Math.Sin(alpha1) * Math.Sin(alpha2) * Math.Cos(del12));
+            // δ13 = atan2( sin δ12 ⋅ sin α1 ⋅ sin α2 , cos α2 + cos α1 ⋅ cos α3 )	angular dist. p1–p3
+            double del13 = Math.Atan2(Math.Sin(del12) * Math.Sin(alpha1) * Math.Sin(alpha2),
+                Math.Cos(alpha2) + Math.Cos(alpha1) * Math.Cos(alpha3));
+            // φ3 = asin( sin φ1 ⋅ cos δ13 + cos φ1 ⋅ sin δ13 ⋅ cos θ13 )	p3 lat
+            double phi3 = Math.Asin(Math.Sin(phi1) * Math.Cos(del13) + Math.Cos(phi1) * Math.Sin(del13) * Math.Cos(del13));
+            // Δλ13 = atan2( sin θ13 ⋅ sin δ13 ⋅ cos φ1 , cos δ13 − sin φ1 ⋅ sin φ3 )	long p1–p3
+            double delL13 = Math.Atan2(Math.Sin(theta13) * Math.Sin(del13) * Math.Cos(phi1), Math.Cos(del13) - Math.Sin(phi1) * Math.Sin(phi3));
+            // λ3 = λ1 + Δλ13  
+            double lambda3 = lambda1 + delL13;
+
+            return new Vector2d(Utility.Rad2Deg * phi3, Utility.Rad2Deg * lambda3);
+        }
+
+        /// <summary>
         /// The General Navigation section contains general-purpose navigational formulae that can be used
         /// for navigation near a planet's surface.
         /// </summary>
@@ -295,7 +366,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// ** UNIMPLEMENTED **
+        /// **UNTESTED**
         /// Return the latitude where two great-circle paths intersect.
         /// </summary>
         /// <param name="latitude1">Latitude of the start of path 1.</param>
@@ -307,38 +378,12 @@ namespace AvionicsSystems
         /// <returns>The latitude where the two paths intersect.</returns>
         public double IntersectionOfTwoPathsLatitude(double latitude1, double longitude1, double bearing1, double latitude2, double longitude2, double bearing2)
         {
-            /*
-            δ12 = 2⋅asin( √(sin²(Δφ/2) + cos φ1 ⋅ cos φ2 ⋅ sin²(Δλ/2)) )	angular dist. p1–p2
-            θa = acos( ( sin φ2 − sin φ1 ⋅ cos δ12 ) / ( sin δ12 ⋅ cos φ1 ) )
-            θb = acos( ( sin φ1 − sin φ2 ⋅ cos δ12 ) / ( sin δ12 ⋅ cos φ2 ) )	initial / final bearings
-            between points 1 & 2
-            if sin(λ2−λ1) > 0
-                θ12 = θa
-                θ21 = 2π − θb
-            else
-                θ12 = 2π − θa
-                θ21 = θb	
-            α1 = θ13 − θ12
-            α2 = θ21 − θ23	angle p2–p1–p3
-            angle p1–p2–p3
-            α3 = acos( −cos α1 ⋅ cos α2 + sin α1 ⋅ sin α2 ⋅ cos δ12 )	angle p1–p2–p3
-            δ13 = atan2( sin δ12 ⋅ sin α1 ⋅ sin α2 , cos α2 + cos α1 ⋅ cos α3 )	angular dist. p1–p3
-            φ3 = asin( sin φ1 ⋅ cos δ13 + cos φ1 ⋅ sin δ13 ⋅ cos θ13 )	p3 lat
-            Δλ13 = atan2( sin θ13 ⋅ sin δ13 ⋅ cos φ1 , cos δ13 − sin φ1 ⋅ sin φ3 )	long p1–p3
-            λ3 = λ1 + Δλ13  
-            where	
-                φ1, λ1, θ13 : 1st start point & (initial) bearing from 1st point towards intersection point
-                φ2, λ2, θ23 : 2nd start point & (initial) bearing from 2nd point towards intersection point
-                φ3, λ3 : intersection point
-
-                % = (floating point) modulo
-             */
-            return 0.0;
+            return IntersectionOfTwoPaths(latitude1, longitude1, bearing1, latitude2, longitude2, bearing2).x;
         }
 
         /// <summary>
-        /// ** UNIMPLEMENTED **
-        /// Return the latitude where two great-circle paths intersect.
+        /// **UNTESTED**
+        /// Return the longitude where two great-circle paths intersect.
         /// </summary>
         /// <param name="latitude1">Latitude of the start of path 1.</param>
         /// <param name="longitude1">Longitude of the start of path 1.</param>
@@ -349,33 +394,7 @@ namespace AvionicsSystems
         /// <returns>The latitude where the two paths intersect.</returns>
         public double IntersectionOfTwoPathsLongitude(double latitude1, double longitude1, double bearing1, double latitude2, double longitude2, double bearing2)
         {
-            /*
-            δ12 = 2⋅asin( √(sin²(Δφ/2) + cos φ1 ⋅ cos φ2 ⋅ sin²(Δλ/2)) )	angular dist. p1–p2
-            θa = acos( ( sin φ2 − sin φ1 ⋅ cos δ12 ) / ( sin δ12 ⋅ cos φ1 ) )
-            θb = acos( ( sin φ1 − sin φ2 ⋅ cos δ12 ) / ( sin δ12 ⋅ cos φ2 ) )	initial / final bearings
-            between points 1 & 2
-            if sin(λ2−λ1) > 0
-                θ12 = θa
-                θ21 = 2π − θb
-            else
-                θ12 = 2π − θa
-                θ21 = θb	
-            α1 = θ13 − θ12
-            α2 = θ21 − θ23	angle p2–p1–p3
-            angle p1–p2–p3
-            α3 = acos( −cos α1 ⋅ cos α2 + sin α1 ⋅ sin α2 ⋅ cos δ12 )	angle p1–p2–p3
-            δ13 = atan2( sin δ12 ⋅ sin α1 ⋅ sin α2 , cos α2 + cos α1 ⋅ cos α3 )	angular dist. p1–p3
-            φ3 = asin( sin φ1 ⋅ cos δ13 + cos φ1 ⋅ sin δ13 ⋅ cos θ13 )	p3 lat
-            Δλ13 = atan2( sin θ13 ⋅ sin δ13 ⋅ cos φ1 , cos δ13 − sin φ1 ⋅ sin φ3 )	long p1–p3
-            λ3 = λ1 + Δλ13             
-            where	
-                φ1, λ1, θ13 : 1st start point & (initial) bearing from 1st point towards intersection point
-                φ2, λ2, θ23 : 2nd start point & (initial) bearing from 2nd point towards intersection point
-                φ3, λ3 : intersection point
-
-                % = (floating point) modulo
-             */
-            return 0.0;
+            return IntersectionOfTwoPaths(latitude1, longitude1, bearing1, latitude2, longitude2, bearing2).y;
         }
 
         /// <summary>
