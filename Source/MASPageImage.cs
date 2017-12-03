@@ -46,6 +46,7 @@ namespace AvionicsSystems
         private MASFlightComputer.Variable colorRange1, colorRange2;
         private readonly int colorField = Shader.PropertyToID("_Color");
         private Vector2 uvScale = Vector2.one;
+        private Vector2 uvShift = Vector2.zero;
         private Vector2 rotationOffset = Vector2.zero;
 
         private Mesh mesh;
@@ -360,7 +361,7 @@ namespace AvionicsSystems
                     }
                 }
             }
-            
+
             // In case fixed colors are being used.
             UpdateColor();
 
@@ -391,6 +392,31 @@ namespace AvionicsSystems
                         uvScale.y = rescale;
                         imageMaterial.SetTextureScale("_MainTex", uvScale);
                     }
+                });
+            }
+
+            string uvShiftString = string.Empty;
+            if (config.TryGetValue("uvShift", ref uvShiftString))
+            {
+                string[] uvShifting = Utility.SplitVariableList(uvShiftString);
+                if (uvShifting.Length != 2)
+                {
+                    throw new ArgumentException("'uvShift' does not contain 2 values in IMAGE " + name);
+                }
+
+                variableRegistrar.RegisterNumericVariable(uvShifting[0], (double newValue) =>
+                {
+                    float reshift = (float)newValue;
+
+                    uvShift.x = reshift;
+                    imageMaterial.SetTextureOffset("_MainTex", uvShift);
+                });
+                variableRegistrar.RegisterNumericVariable(uvShifting[1], (double newValue) =>
+                {
+                    float reshift = (float)newValue;
+
+                    uvShift.y = reshift;
+                    imageMaterial.SetTextureOffset("_MainTex", uvShift);
                 });
             }
 
