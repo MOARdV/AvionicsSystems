@@ -94,7 +94,7 @@ namespace AvionicsSystems
                 }
 
                 // Swizzle parameters and sign-shift normal.
-                Vector3d dV = new Vector3d(radialdV, -normaldV, progradedV);
+                Vector3d dV = new Vector3d(radialdV, normaldV, progradedV);
 
                 // No living in the past.
                 timeUT = Math.Max(timeUT, vc.universalTime);
