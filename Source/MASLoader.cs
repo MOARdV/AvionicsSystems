@@ -216,7 +216,43 @@ namespace AvionicsSystems
                 }
                 yield return new WaitForEndOfFrame();
             }
-            yield return null;
+
+            // Add XKCD colors
+            Type t = typeof(XKCDColors);
+            PropertyInfo[] properties = t.GetProperties();
+            int numProperties = properties.Length;
+            for (int i = 0; i < numProperties; ++i)
+            {
+                try
+                {
+                    // This is probably overkill in terms of checks.
+                    if (properties[i].PropertyType == typeof(Color) && properties[i].CanRead)
+                    {
+                        MethodInfo[] accessor = properties[i].GetAccessors();
+                        for (int j = 0; j < accessor.Length; ++j)
+                        {
+                            if (accessor[j].ReturnType == typeof(Color))
+                            {
+                                object o = accessor[j].Invoke(null, null);
+                                Color color = (Color)o;
+
+                                StringBuilder sb = StringBuilderCache.Acquire();
+                                sb.Append("COLOR_XKCD_").Append(properties[i].Name.ToUpperInvariant());
+                                string name = sb.ToStringAndRelease();
+                                if (namedColors.ContainsKey(name))
+                                {
+                                    namedColors[name] = color;
+                                }
+                                else
+                                {
+                                    namedColors.Add(name, color);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch { }
+            }
         }
 
         /// <summary>
