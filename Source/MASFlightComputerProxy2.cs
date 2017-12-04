@@ -74,8 +74,6 @@ namespace AvionicsSystems
         #region Maneuver Node
 
         /// <summary>
-        /// **UNTESTED**
-        /// 
         /// Replace any scheduled maneuver nodes with this maneuver node.
         /// </summary>
         /// <param name="progradedV">ΔV in the prograde direction at the time of the maneuver, in m/s.</param>
@@ -158,7 +156,7 @@ namespace AvionicsSystems
         {
             if (vc.maneuverNodeValid && vc.nodeOrbit != null)
             {
-                return vc.maneuverNodeComponent.z;
+                return vc.maneuverNodeComponent.y;
             }
             return 0.0;
         }
@@ -184,7 +182,7 @@ namespace AvionicsSystems
         {
             if (vc.maneuverNodeValid && vc.nodeOrbit != null)
             {
-                return vc.maneuverNodeComponent.y;
+                return vc.maneuverNodeComponent.z;
             }
             return 0.0;
         }

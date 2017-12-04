@@ -719,38 +719,24 @@ namespace AvionicsSystems
         {
             // Per KSP API wiki http://docuwiki-kspapi.rhcloud.com/#/classes/ManeuverNode:
             // The x-component of DeltaV represents the delta-V in the radial-plus direction.
-            // The y-component of DeltaV  represents the delta-V in the normal-minus direction.
+            // The y-component of DeltaV  represents the delta-V in the normal-plus direction.
             // The z-component of DeltaV represents the delta-V in the prograde direction.
             // However... it is not returned in the basis of the orbit at the time of the
             // maneuver.  It needs transformed into the right basis.
             maneuverVector = node.GetBurnVector(orbit);
             nodeDV = maneuverVector.magnitude;
-            maneuverNodeComponentVector = Orbit.Swizzle(maneuverVector);
 
-            Vector3d mnvrPrograde = orbit.getOrbitalVelocityAtUT(node.UT);
-            mnvrPrograde.Normalize(); // Prograde vector at maneuver time
+            // Swizzle these into the right order.
+            Vector3d mnvrVel = orbit.getOrbitalVelocityAtUT(node.UT).xzy;
+            Vector3d mnvrPos = orbit.getRelativePositionAtUT(node.UT).xzy;
 
-            // ? Radial ?  Not entirely sure it's right.
-            Vector3d mnvrRadial = orbit.getRelativePositionAtUT(node.UT);
-            mnvrRadial = Vector3.ProjectOnPlane(mnvrRadial, prograde);
-            mnvrRadial.Normalize();
+            Vector3d mnvrPrograde = mnvrVel.normalized; // Prograde vector at maneuver time
+            Vector3d mnvrNml = Vector3d.Cross(mnvrVel, mnvrPos).normalized;
+            Vector3d mnvrRadial = Vector3d.Cross(mnvrNml, mnvrPrograde);
 
-            Vector3d mnvrNml = -Vector3.Cross(mnvrRadial, mnvrPrograde);
-            mnvrNml.Normalize();
-
-            mnvrBasis.m00 = mnvrPrograde.x;
-            mnvrBasis.m01 = mnvrPrograde.y;
-            mnvrBasis.m02 = mnvrPrograde.z;
-            mnvrBasis.m10 = mnvrRadial.x;
-            mnvrBasis.m11 = mnvrRadial.y;
-            mnvrBasis.m12 = mnvrRadial.z;
-            mnvrBasis.m20 = mnvrNml.x;
-            mnvrBasis.m21 = mnvrNml.y;
-            mnvrBasis.m22 = mnvrNml.z;
-
-            mnvrBasis = mnvrBasis.Inverse();
-
-            maneuverNodeComponentVector = mnvrBasis.TransformPoint(maneuverNodeComponentVector);
+            maneuverNodeComponentVector.x = Vector3d.Dot(maneuverVector, mnvrPrograde);
+            maneuverNodeComponentVector.y = Vector3d.Dot(maneuverVector, mnvrNml);
+            maneuverNodeComponentVector.z = Vector3d.Dot(maneuverVector, mnvrRadial);
         }
 
         private Vector3d maneuverNodeComponentVector = Vector3d.zero;
