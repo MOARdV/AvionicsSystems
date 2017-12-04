@@ -83,6 +83,12 @@ namespace AvionicsSystems
                 throw new ArgumentException("Unable to find 'texture' " + textureName + " for IMAGE " + name);
             }
 
+            bool wrap = true;
+            if (config.TryGetValue("wrap", ref wrap))
+            {
+                mainTexture.wrapMode = (wrap) ? TextureWrapMode.Repeat : TextureWrapMode.Clamp;
+            }
+
             string variableName = string.Empty;
             if (config.TryGetValue("variable", ref variableName))
             {
