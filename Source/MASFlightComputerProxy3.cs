@@ -1323,6 +1323,31 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Set the active target to the vessel selected by id.  If the id
+        /// is invalid, the current target is cleared.  The id parameter
+        /// must be greater than or equal to 0, and less than fc.TargetVesselCount()
+        /// to be valid.
+        /// </summary>
+        /// <param name="id">The id of the vessel to target.</param>
+        /// <returns>1 if the target was successfully set, 0 otherwise.</returns>
+        public double SetTargetVessel(double id)
+        {
+            UpdateNeighboringVessels();
+
+            int index = (int)id;
+            if (index >= 0 && index < neighboringVessels.Length)
+            {
+                FlightGlobals.fetch.SetVesselTarget(neighboringVessels[index]); 
+                return 1.0;
+            }
+            else
+            {
+                ClearTarget();
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Returns the altitude of the target, or 0 if there is no target.
         /// </summary>
         /// <returns>Target altitude in meters.</returns>
@@ -1475,6 +1500,52 @@ namespace AvionicsSystems
             if (vc.targetType > 0)
             {
                 return vc.targetOrbit.eccentricity;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the heading of the target's prograde surface speed, or 0 if there is no target, or the target does not have a meaningful surface heading.
+        /// 
+        /// **NOTE:** At present, only vessel targets return valid headings.  All others return 0.
+        /// </summary>
+        /// <returns>Heading, or 0.</returns>
+        public double TargetHeadingPrograde()
+        {
+            // This VV gives me orbital velocity that matches with Vessel.obt_velocity.
+            //    Vector3d getVel = vc.Vessel.orbit.GetVel();
+            // Now I need to figure out how to get surface velocity from that information.
+
+            if (vc.targetType > 0 && vc.targetOrbit.referenceBody == vc.orbit.referenceBody)
+            {
+                if (vc.targetType == MASVesselComputer.TargetType.Vessel || vc.targetType == MASVesselComputer.TargetType.DockingPort)
+                {
+                    Vessel targetVessel;
+                    if (vc.targetType == MASVesselComputer.TargetType.Vessel)
+                    {
+                        targetVessel = vc.activeTarget as Vessel;
+                    }
+                    else // Docking port
+                    {
+                        targetVessel = (vc.activeTarget as ModuleDockingNode).vessel;
+                    }
+
+                    Vector3 surfaceProgradeProjected = Vector3.ProjectOnPlane(targetVessel.srf_vel_direction, targetVessel.up);
+                    double progradeHeading = Vector3.Angle(surfaceProgradeProjected, targetVessel.north);
+                    if (Vector3.Dot(surfaceProgradeProjected, targetVessel.east) < 0.0)
+                    {
+                        progradeHeading = 360.0 - progradeHeading;
+                    }
+
+                    return progradeHeading;
+                }
+                else
+                {
+                    return 0.0;
+                }
             }
             else
             {
@@ -1686,52 +1757,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the heading of the target's prograde surface speed, or 0 if there is no target, or the target does not have a meaningful surface heading.
-        /// 
-        /// **NOTE:** At present, only vessel targets return valid headings.  All others return 0.
-        /// </summary>
-        /// <returns>Heading, or 0.</returns>
-        public double TargetHeadingPrograde()
-        {
-            // This VV gives me orbital velocity that matches with Vessel.obt_velocity.
-            //    Vector3d getVel = vc.Vessel.orbit.GetVel();
-            // Now I need to figure out how to get surface velocity from that information.
-
-            if (vc.targetType > 0 && vc.targetOrbit.referenceBody == vc.orbit.referenceBody)
-            {
-                if(vc.targetType == MASVesselComputer.TargetType.Vessel || vc.targetType == MASVesselComputer.TargetType.DockingPort)
-                {
-                    Vessel targetVessel;
-                    if (vc.targetType == MASVesselComputer.TargetType.Vessel)
-                    {
-                        targetVessel = vc.activeTarget as Vessel;
-                    }
-                    else // Docking port
-                    {
-                        targetVessel = (vc.activeTarget as ModuleDockingNode).vessel;
-                    }
-
-                    Vector3 surfaceProgradeProjected = Vector3.ProjectOnPlane(targetVessel.srf_vel_direction, targetVessel.up);
-                    double progradeHeading = Vector3.Angle(surfaceProgradeProjected, targetVessel.north);
-                    if (Vector3.Dot(surfaceProgradeProjected, targetVessel.east) < 0.0)
-                    {
-                        progradeHeading = 360.0 - progradeHeading;
-                    }
-
-                    return progradeHeading;
-                }
-                else
-                {
-                    return 0.0;
-                }
-            }
-            else
-            {
-                return 0.0;
-            }
-        }
-
-        /// <summary>
         /// Returns the relative inclination between the vessel and the target.
         /// </summary>
         /// <returns>Inclination in degrees.  Returns 0 if there is no target, or the
@@ -1897,6 +1922,48 @@ namespace AvionicsSystems
             UpdateNeighboringVessels();
 
             return neighboringVessels.Length;
+        }
+
+        /// <summary>
+        /// Returns the distance to the non-debris target selected by id.  Distance
+        /// is in meters.  The id parameter must be between 0 and fc.TargetVesselCount() - 1.
+        /// </summary>
+        /// <param name="id">The id number of the desired vessel.</param>
+        /// <returns>Distance to the target in meters, or 0.</returns>
+        public double TargetVesselDistance(double id)
+        {
+            UpdateNeighboringVessels();
+
+            int index = (int)id;
+            if (index >= 0 && index < neighboringVessels.Length)
+            {
+                return (neighboringVessels[index].GetTransform().position - vessel.GetTransform().position).magnitude;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the name of the non-debris vessel selected by id.  The id parameter
+        /// must be between 0 and fc.TargetVesselCount() - 1.
+        /// </summary>
+        /// <param name="id">The id number of the desired vessel.</param>
+        /// <returns>The name of the selected vessel, or an empty string if no valid vessel was selected.</returns>
+        public string TargetVesselName(double id)
+        {
+            UpdateNeighboringVessels();
+
+            int index = (int)id;
+            if (index >=0 && index < neighboringVessels.Length)
+            {
+                return neighboringVessels[index].GetName();
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
         #endregion
 
