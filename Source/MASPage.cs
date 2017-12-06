@@ -46,6 +46,8 @@ namespace AvionicsSystems
                     return new MASPageCamera(config, prop, comp, monitor, pageRoot, depth);
                 case "ELLIPSE":
                     return new MASPageEllipse(config, prop, comp, monitor, pageRoot, depth);
+                case "GROUND_TRACK":
+                    return new MASPageGroundTrack(config, prop, comp, monitor, pageRoot, depth);
                 case "HORIZON":
                     return new MASPageHorizon(config, prop, comp, monitor, pageRoot, depth);
                 case "HORIZONTAL_BAR":
