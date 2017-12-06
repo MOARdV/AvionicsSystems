@@ -104,6 +104,10 @@ namespace AvionicsSystems
                 {
                     maximumRange = baseDistanceToHorizon * MASConfig.navigation.VORPropagation;
                 }
+                else if (type == NavAidType.ILS || type == NavAidType.ILS_DME)
+                {
+                    maximumRange = baseDistanceToHorizon;
+                }
 
                 if (type == NavAidType.ILS_DME || type == NavAidType.NDB_DME || type == NavAidType.VOR_DME)
                 {
