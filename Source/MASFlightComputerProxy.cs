@@ -619,6 +619,23 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the number of natural satellites (moons) orbiting the selected body.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>The number of moons, or 0.</returns>
+        public double BodyMoonCount(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+            double numBodies = 0.0;
+            if (cb != null && cb.orbitingBodies != null)
+            {
+                numBodies = cb.orbitingBodies.Count;
+            }
+
+            return numBodies;
+        }
+
+        /// <summary>
         /// Returns the name of the requested body.  While this method can be used
         /// with a name for its parameter, that is kind of pointless.
         /// </summary>
