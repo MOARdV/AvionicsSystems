@@ -638,6 +638,10 @@ namespace AvionicsSystems
                     resources[i].maxStage = 0.0f;
                 }
                 resources[i].deltaPerSecond = 0.0f;
+                if (maxAmount > 0.0)
+                {
+                    vesselActiveResource[i] = i;
+                }
             }
 
             enginePropellantIds.Clear();
