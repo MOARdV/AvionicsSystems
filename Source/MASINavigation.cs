@@ -871,6 +871,31 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the ground distance from the vessel to the selected waypoint in meters, assuming
+        /// both are at sea level.
+        /// </summary>
+        /// <param name="waypointIndex">The waypoint index, or -1 to select the current active waypoint.</param>
+        /// <returns>The distance to the waypoint in meters, or -1 if there is no selected waypoint.</returns>
+        public double WaypointGroundDistance(double waypointIndex)
+        {
+            int index = (int)waypointIndex;
+
+            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+            if (index >= 0 && index < waypoints.Count)
+            {
+                return GroundDistanceFromVessel(waypoints[index].latitude, waypoints[index].longitude);
+            }
+            else if (index == -1 && NavWaypoint.fetch.IsActive)
+            {
+                return GroundDistanceFromVessel(NavWaypoint.fetch.Latitude, NavWaypoint.fetch.Longitude);
+            }
+            else
+            {
+                return -1.0;
+            }
+        }
+
+        /// <summary>
         /// Get the latitude of the waypoint selected by waypointIndex, or the current active
         /// waypoint if waypointIndex is -1.
         /// </summary>
