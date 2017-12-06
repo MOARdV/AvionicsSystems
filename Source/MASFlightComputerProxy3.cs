@@ -799,10 +799,10 @@ namespace AvionicsSystems
                     mode = 4.0;
                     break;
                 case VesselAutopilot.AutopilotMode.RadialIn:
-                    mode = 5.0;
+                    mode = 6.0; // RadialIn and RadialOut appear to be backwards?!?
                     break;
                 case VesselAutopilot.AutopilotMode.RadialOut:
-                    mode = 6.0;
+                    mode = 5.0; // RadialIn and RadialOut appear to be backwards?!?
                     break;
                 case VesselAutopilot.AutopilotMode.Target:
                     mode = 7.0;
@@ -901,10 +901,12 @@ namespace AvionicsSystems
                     TrySetSASMode(VesselAutopilot.AutopilotMode.Antinormal);
                     break;
                 case 5:
-                    TrySetSASMode(VesselAutopilot.AutopilotMode.RadialIn);
+                    // RadialIn and RadialOut appear to be backwards?!?
+                    TrySetSASMode(VesselAutopilot.AutopilotMode.RadialOut);
                     break;
                 case 6:
-                    TrySetSASMode(VesselAutopilot.AutopilotMode.RadialOut);
+                    // RadialIn and RadialOut appear to be backwards?!?
+                    TrySetSASMode(VesselAutopilot.AutopilotMode.RadialIn);
                     break;
                 case 7:
                     TrySetSASMode(VesselAutopilot.AutopilotMode.Target);
