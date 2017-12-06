@@ -248,7 +248,7 @@ namespace AvionicsSystems
                         newPage.EnablePage(false);
 
                         page.Add(pages[i], newPage);
-                        Utility.LogMessage(this, "Page = {0}", pages[i]);
+                        //Utility.LogMessage(this, "Page = {0}", pages[i]);
                     }
                     //HackWalkTransforms(screenSpace.transform, 0);
                     if (!string.IsNullOrEmpty(monitorID))
