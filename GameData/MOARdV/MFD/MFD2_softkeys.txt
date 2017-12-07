@@ -1,0 +1,192 @@
+This is a plain text file to hold the softkey icon / text so all I have to do is copy/paste it
+
+// R1 / R7 @ 5.5
+// R2 / R8 @ 14
+// R3 / R9 @ 23
+// R4 / R10 @ 31.5
+// R5 / Home @ 40
+// R6 @ 49
+// Bottom cluster @ 56.5
+// STBY @ 57.5
+
+	IMAGE
+	{
+		name = Border R1
+		texture = MOARdV/MFD/frame6ch112x48
+		position = 40, -8
+		passiveColor = COLOR_MFD2_TEXT_GREEN
+	}
+	TEXT
+	{
+		name = Caption R1
+		text = ^
+		position = 5.5, 0
+	}
+	
+	IMAGE
+	{
+		name = Border R2
+		texture = MOARdV/MFD/frame6ch112x48
+		position = 176, -8
+		passiveColor = COLOR_MFD2_TEXT_GREEN
+	}
+	TEXT
+	{
+		name = Caption R2
+		text = ^
+		position = 14, 0
+	}
+	
+	IMAGE
+	{
+		name = Border R3
+		texture = MOARdV/MFD/frame6ch112x48
+		position = 320, -8
+		passiveColor = COLOR_MFD2_TEXT_GREEN
+	}
+	TEXT
+	{
+		name = Caption R3
+		text = ^
+		position = 23, 0
+	}
+	
+	IMAGE
+	{
+		name = Border R4
+		texture = MOARdV/MFD/frame6ch112x48
+		position = 456, -8
+		passiveColor = COLOR_MFD2_TEXT_GREEN
+	}
+	TEXT
+	{
+		name = Caption R4
+		text = ^
+		position = 31.5, 0
+	}
+
+	IMAGE
+	{
+		name = Border R5
+		texture = MOARdV/MFD/frame6ch112x48
+		position = 592, -8
+		passiveColor = COLOR_MFD2_TEXT_GREEN
+	}
+	TEXT
+	{
+		name = Caption R5
+		text = ^
+		position = 40, 0
+	}
+
+	IMAGE
+	{
+		name = Border R6
+		texture = MOARdV/MFD/frame6ch112x48
+		position = 736, -8
+		passiveColor = COLOR_MFD2_TEXT_GREEN
+	}
+	TEXT
+	{
+		name = Caption R6
+		text = ^
+		position = 49, 0
+	}
+
+	IMAGE
+	{
+		name = Standby Border STBY
+		texture = MOARdV/MFD/frame6ch112x48
+		position = 872, -8
+		passiveColor = COLOR_MFD2_TEXT_GREEN
+	}
+	TEXT
+	{
+		name = Standby Caption STBY
+		text = STBY
+		position = 56, 0
+	}
+	
+	IMAGE
+	{
+		name = Border R7
+		texture = MOARdV/MFD/frame6ch112x48
+		position = 40, 984
+		passiveColor = COLOR_MFD2_TEXT_GREEN
+	}
+	TEXT
+	{
+		name = Caption R7
+		text = v
+		position = 5.5, 31
+	}
+
+	IMAGE
+	{
+		name = Border R8
+		texture = MOARdV/MFD/frame6ch112x48
+		position = 176, 984
+		passiveColor = COLOR_MFD2_TEXT_GREEN
+	}
+	TEXT
+	{
+		name = Caption R8
+		text = v
+		position = 14, 31
+	}
+
+	IMAGE
+	{
+		name = Border R9
+		texture = MOARdV/MFD/frame6ch112x48
+		position = 320, 984
+		passiveColor = COLOR_MFD2_TEXT_GREEN
+	}
+	TEXT
+	{
+		name = Caption R9
+		text = v
+		position = 23, 31
+	}
+
+	IMAGE
+	{
+		name = Border R10
+		texture = MOARdV/MFD/frame6ch112x48
+		position = 456, 984
+		passiveColor = COLOR_MFD2_TEXT_GREEN
+	}
+	TEXT
+	{
+		name = Caption R10
+		text = v
+		position = 31.5, 31
+	}
+
+	IMAGE
+	{
+		name = Border HOME
+		texture = MOARdV/MFD/frame6ch112x48
+		position = 592, 984
+		passiveColor = COLOR_MFD2_TEXT_GREEN
+	}
+	TEXT
+	{
+		name = Caption HOME
+		text = v
+		position = 40, 31
+	}
+	
+	IMAGE
+	{
+		name = Back Border ESC
+		texture = MOARdV/MFD/frame6ch112x48
+		position = 912, 984
+		passiveColor = COLOR_MFD2_TEXT_GREEN
+	}
+	TEXT
+	{
+		name = Back Select
+		text = BACK
+		position = 58.5, 31
+	}
