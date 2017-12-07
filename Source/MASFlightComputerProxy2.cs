@@ -858,6 +858,28 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Pitch of the vessel relative to the current SAS prograde mode (orbit, surface, or target).
+        /// </summary>
+        /// <returns></returns>
+        public double PitchActivePrograde()
+        {
+            var mode = FlightGlobals.speedDisplayMode;
+
+            if (mode == FlightGlobals.SpeedDisplayModes.Orbit)
+            {
+                return vc.GetRelativePitch(vc.prograde);
+            }
+            else if (mode == FlightGlobals.SpeedDisplayModes.Target)
+            {
+                return vc.GetRelativePitch(vc.targetRelativeVelocity.normalized);
+            }
+            else
+            {
+                return vc.GetRelativePitch(vc.surfacePrograde);
+            }
+        }
+
+        /// <summary>
         /// Pitch of the vessel relative to the orbit anti-normal vector.
         /// </summary>
         /// <returns></returns>
@@ -983,6 +1005,22 @@ namespace AvionicsSystems
         public double PitchRetrograde()
         {
             return vc.GetRelativePitch(-vc.prograde);
+        }
+
+        /// <summary>
+        /// Pitch of the vessel relative to the current active SAS mode.  If SAS
+        /// is not enabled, or the current mode is Stability Assist, returns 0.
+        /// </summary>
+        /// <returns>Pitch in the range [+90, -90]</returns>
+        public double PitchSAS()
+        {
+            double relativePitch = 0.0;
+            if (vessel.ActionGroups[KSPActionGroup.SAS] && vessel.Autopilot != null && vessel.Autopilot.SAS != null && autopilotMode != VesselAutopilot.AutopilotMode.StabilityAssist)
+            {
+                relativePitch = vc.GetRelativePitch(vessel.Autopilot.SAS.targetOrientation);
+            }
+
+            return relativePitch;
         }
 
         /// <summary>
@@ -1151,6 +1189,28 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Yaw of the vessel relative to the current SAS prograde mode (orbit, surface, or target).
+        /// </summary>
+        /// <returns></returns>
+        public double YawActivePrograde()
+        {
+            var mode = FlightGlobals.speedDisplayMode;
+
+            if (mode == FlightGlobals.SpeedDisplayModes.Orbit)
+            {
+                return vc.GetRelativeYaw(vc.prograde);
+            }
+            else if (mode == FlightGlobals.SpeedDisplayModes.Target)
+            {
+                return vc.GetRelativeYaw(vc.targetRelativeVelocity.normalized);
+            }
+            else
+            {
+                return vc.GetRelativeYaw(vc.surfacePrograde);
+            }
+        }
+
+        /// <summary>
         /// Yaw of the vessel relative to the orbit's anti-normal vector.
         /// </summary>
         /// <returns></returns>
@@ -1272,6 +1332,22 @@ namespace AvionicsSystems
         public double YawRetrograde()
         {
             return vc.GetRelativeYaw(-vc.prograde);
+        }
+
+        /// <summary>
+        /// Yaw of the vessel relative to the current active SAS mode.  If SAS
+        /// is not enabled, or the current mode is Stability Assist, returns 0.
+        /// </summary>
+        /// <returns>Yaw in the range [+180, -180]</returns>
+        public double YawSAS()
+        {
+            double relativeYaw = 0.0;
+            if (vessel.ActionGroups[KSPActionGroup.SAS] && vessel.Autopilot!=null && vessel.Autopilot.SAS!=null && autopilotMode != VesselAutopilot.AutopilotMode.StabilityAssist)
+            {
+                relativeYaw = vc.GetRelativeYaw(vessel.Autopilot.SAS.targetOrientation);
+            }
+
+            return relativeYaw;
         }
 
         /// <summary>
