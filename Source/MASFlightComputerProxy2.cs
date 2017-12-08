@@ -401,7 +401,7 @@ namespace AvionicsSystems
             {
                 return 180.0 - pitch;
             }
-            else if(pitch < -90.0)
+            else if (pitch < -90.0)
             {
                 return -180.0 - pitch;
             }
@@ -1090,6 +1090,21 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Pitch of the vessel relative to the active waypoint.  0 if no active waypoint.
+        /// </summary>
+        /// <returns></returns>
+        public double PitchWaypoint()
+        {
+            if (NavWaypoint.fetch.IsActive)
+            {
+                Vector3d srfPos = vessel.mainBody.GetWorldSurfacePosition(NavWaypoint.fetch.Latitude, NavWaypoint.fetch.Longitude, NavWaypoint.fetch.Altitude);
+
+                return vc.GetRelativePitch(srfPos.normalized);
+            }
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns a number identifying what the current reference transform is:
         /// 1: The current IVA pod (if in IVA)
         /// 2: A command pod or probe control part.
@@ -1342,7 +1357,7 @@ namespace AvionicsSystems
         public double YawSAS()
         {
             double relativeYaw = 0.0;
-            if (vessel.ActionGroups[KSPActionGroup.SAS] && vessel.Autopilot!=null && vessel.Autopilot.SAS!=null && autopilotMode != VesselAutopilot.AutopilotMode.StabilityAssist)
+            if (vessel.ActionGroups[KSPActionGroup.SAS] && vessel.Autopilot != null && vessel.Autopilot.SAS != null && autopilotMode != VesselAutopilot.AutopilotMode.StabilityAssist)
             {
                 relativeYaw = vc.GetRelativeYaw(vessel.Autopilot.SAS.targetOrientation);
             }
@@ -1414,6 +1429,21 @@ namespace AvionicsSystems
             {
                 return vc.GetRelativeYaw(-vc.targetRelativeVelocity.normalized);
             }
+        }
+
+        /// <summary>
+        /// Yaw of the vessel relative to the active waypoint.  0 if no active waypoint.
+        /// </summary>
+        /// <returns></returns>
+        public double YawWaypoint()
+        {
+            if (NavWaypoint.fetch.IsActive)
+            {
+                Vector3d srfPos = vessel.mainBody.GetWorldSurfacePosition(NavWaypoint.fetch.Latitude, NavWaypoint.fetch.Longitude, NavWaypoint.fetch.Altitude);
+
+                return vc.GetRelativeYaw(srfPos.normalized);
+            }
+            return 0.0;
         }
         #endregion
 
