@@ -40,10 +40,10 @@ namespace AvionicsSystems
         {
             Vessel1,
             Vessel2,
+            Target1,
+            Target2,
             Maneuver1,
             Maneuver2,
-            Target1,
-            Target2
         };
 
         private GameObject[] lineOrigin = new GameObject[numObjects];
@@ -59,6 +59,8 @@ namespace AvionicsSystems
         private Vector3[] maneuverVertex2;
         private Vector3d[] positions;
         private Color vesselColor;
+        private Color targetColor;
+        private Color maneuverColor;
 
         private VariableRegistrar variableRegistrar;
         private readonly int vertexCount;
@@ -70,7 +72,9 @@ namespace AvionicsSystems
         private bool coroutineEnabled = true;
         private bool updateVessel = false;
         private bool updateTarget = false;
+        private bool validTarget = false;
         private bool updateManeuver = false;
+        private bool validManeuver = false;
         private float startLongitude = -180.0f;
         private MASFlightComputer comp;
 
@@ -128,7 +132,8 @@ namespace AvionicsSystems
                 lineOrigin[i].name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name + "-" + i.ToString(), (int)(-depth / MASMonitor.depthDelta));
                 lineOrigin[i].layer = pageRoot.gameObject.layer;
 
-                lineMaterial[i] = new Material(Shader.Find("Particles/Additive"));
+                lineMaterial[i] = new Material(MASLoader.shaders["MOARdV/Monitor"]);
+                //lineMaterial[i] = new Material(Shader.Find("Particles/Additive"));
                 //lineMaterial[i] = new Material(Shader.Find("KSP/Alpha/Unlit Transparent"));
                 lineRenderer[i] = lineOrigin[i].AddComponent<LineRenderer>();
                 lineRenderer[i].useWorldSpace = false;
@@ -201,6 +206,120 @@ namespace AvionicsSystems
                 updateVessel = false;
             }
 
+            string maneuverColorString = string.Empty;
+            if (config.TryGetValue("maneuverColor", ref maneuverColorString))
+            {
+                Color32 color;
+                if (comp.TryGetNamedColor(maneuverColorString, out color))
+                {
+                    maneuverColor = color;
+                    lineRenderer[4].SetColors(maneuverColor, maneuverColor);
+                    lineRenderer[5].SetColors(maneuverColor, maneuverColor);
+                }
+                else
+                {
+                    string[] maneuverColors = Utility.SplitVariableList(maneuverColorString);
+                    if (maneuverColors.Length < 3 || maneuverColors.Length > 4)
+                    {
+                        throw new ArgumentException("maneuverColor does not contain 3 or 4 values in GROUND_TRACK " + name);
+                    }
+
+                    variableRegistrar.RegisterNumericVariable(maneuverColors[0], (double newValue) =>
+                    {
+                        maneuverColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer[4].SetColors(maneuverColor, maneuverColor);
+                        lineRenderer[5].SetColors(maneuverColor, maneuverColor);
+                    });
+                    variableRegistrar.RegisterNumericVariable(maneuverColors[1], (double newValue) =>
+                    {
+                        maneuverColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer[4].SetColors(maneuverColor, maneuverColor);
+                        lineRenderer[5].SetColors(maneuverColor, maneuverColor);
+                    });
+                    variableRegistrar.RegisterNumericVariable(maneuverColors[2], (double newValue) =>
+                    {
+                        maneuverColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer[4].SetColors(maneuverColor, maneuverColor);
+                        lineRenderer[5].SetColors(maneuverColor, maneuverColor);
+                    });
+
+                    if (maneuverColors.Length == 4)
+                    {
+                        variableRegistrar.RegisterNumericVariable(maneuverColors[3], (double newValue) =>
+                        {
+                            maneuverColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            lineRenderer[4].SetColors(maneuverColor, maneuverColor);
+                            lineRenderer[5].SetColors(maneuverColor, maneuverColor);
+                        });
+                    }
+                }
+
+                updateManeuver = true;
+            }
+            else
+            {
+                lineOrigin[4].SetActive(false);
+                lineOrigin[5].SetActive(false);
+                updateManeuver = false;
+            }
+
+            string targetColorString = string.Empty;
+            if (config.TryGetValue("targetColor", ref targetColorString))
+            {
+                Color32 color;
+                if (comp.TryGetNamedColor(targetColorString, out color))
+                {
+                    targetColor = color;
+                    lineRenderer[2].SetColors(targetColor, targetColor);
+                    lineRenderer[3].SetColors(targetColor, targetColor);
+                }
+                else
+                {
+                    string[] targetColors = Utility.SplitVariableList(targetColorString);
+                    if (targetColors.Length < 3 || targetColors.Length > 4)
+                    {
+                        throw new ArgumentException("targetColor does not contain 3 or 4 values in GROUND_TRACK " + name);
+                    }
+
+                    variableRegistrar.RegisterNumericVariable(targetColors[0], (double newValue) =>
+                    {
+                        targetColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer[2].SetColors(targetColor, targetColor);
+                        lineRenderer[3].SetColors(targetColor, targetColor);
+                    });
+                    variableRegistrar.RegisterNumericVariable(targetColors[1], (double newValue) =>
+                    {
+                        targetColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer[2].SetColors(targetColor, targetColor);
+                        lineRenderer[3].SetColors(targetColor, targetColor);
+                    });
+                    variableRegistrar.RegisterNumericVariable(targetColors[2], (double newValue) =>
+                    {
+                        targetColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer[2].SetColors(targetColor, targetColor);
+                        lineRenderer[3].SetColors(targetColor, targetColor);
+                    });
+
+                    if (targetColors.Length == 4)
+                    {
+                        variableRegistrar.RegisterNumericVariable(targetColors[3], (double newValue) =>
+                        {
+                            targetColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            lineRenderer[2].SetColors(targetColor, targetColor);
+                            lineRenderer[3].SetColors(targetColor, targetColor);
+                        });
+                    }
+                }
+
+                updateTarget = true;
+            }
+            else
+            {
+                lineOrigin[2].SetActive(false);
+                lineOrigin[3].SetActive(false);
+                updateTarget = false;
+            }
+
             string startLongitudeString = string.Empty;
             if (!config.TryGetValue("startLongitude", ref startLongitudeString))
             {
@@ -267,6 +386,62 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Update the positions array to contain one orbit (or the portion of
+        /// the orbit prior to lithobraking).
+        /// </summary>
+        /// <param name="orbit"></param>
+        void updateOrbitPositions(Orbit orbit)
+        {
+            double dT = orbit.period / (double)(vertexCount - 1);
+            double T = orbit.StartUT;
+            double netDT = orbit.StartUT - Planetarium.GetUniversalTime();
+            if (orbit.inclination > 90.0 || orbit.inclination < -90.0)
+            {
+                // I want the positions to be in ascending longitudinal order in the array, if possible.
+                T += orbit.period;
+                dT = -dT;
+                netDT += orbit.period;
+            }
+            double rotationPerSecond = (orbit.referenceBody.rotates) ? (360.0 / orbit.referenceBody.rotationPeriod) : 0.0;
+            bool lithobrake = false;
+
+            for (int i = 0; i < vertexCount; ++i)
+            {
+                if (lithobrake)
+                {
+                    positions[i] = positions[i - 1];
+                }
+                else
+                {
+                    Vector3d pos = orbit.getPositionAtUT(T);
+                    // The following does not account for planetary rotation...
+                    orbit.referenceBody.GetLatLonAlt(pos, out positions[i].x, out positions[i].y, out positions[i].z);
+                    // ... so account for planetary rotation.  Although this won't handle
+                    // retrograde.
+                    positions[i].y = Utility.NormalizeLongitude(positions[i].y - rotationPerSecond * netDT);
+
+                    if (i > 0)
+                    {
+                        if (positions[i].z < 0.0)
+                        {
+                            lithobrake = true;
+                            // Approximate the point of impact
+                            float iLerp = Mathf.InverseLerp((float)positions[i - 1].z, (float)positions[i].z, 0.0f);
+                            positions[i].x = Mathf.Lerp((float)positions[i - 1].x, (float)positions[i].x, iLerp);
+                            positions[i].y = Mathf.Lerp((float)positions[i - 1].y, (float)positions[i].y, iLerp);
+                            positions[i].z = 0.0f;
+                        }
+                    }
+
+                    T += dT;
+                    netDT += dT;
+                }
+            }
+
+            // We now have the lat/lon of each sample of the orbit.
+        }
+
+        /// <summary>
         /// Coroutine to defer line updates so they're all processed in one location,
         /// since they may be expensive.
         /// </summary>
@@ -277,131 +452,130 @@ namespace AvionicsSystems
             {
                 if (currentState && pageActive)
                 {
+                    float dx = startLongitude / 360.0f;
+
                     if (updateVessel)
                     {
-                        // TODO: I've got to make this much more efficient.
-                        Orbit orbit = comp.vessel.orbit;
-                        double dT = orbit.period / (double)(vertexCount - 1);
-                        double T = Planetarium.GetUniversalTime();
-                        double netDT = 0.0;
-                        if (orbit.inclination > 90.0 || orbit.inclination < -90.0)
-                        {
-                            // I want the positions to be in ascending order in the array.
-                            T += orbit.period;
-                            dT = -dT;
-                            netDT += orbit.period;
-                        }
-                        double rotationPerSecond = (orbit.referenceBody.rotates) ? (360.0 / orbit.referenceBody.rotationPeriod) : 0.0;
-                        double longitudeOffset = (comp.vessel.longitude < startLongitude) ? 360.0 : 0.0;
-
-                        bool lithobrake = false;
-                        //Utility.LogMessage(this, "Update vessel:");
+                        updateOrbitPositions(comp.vessel.orbit);
+                        float offset = 0.0f;
                         for (int i = 0; i < vertexCount; ++i)
                         {
-                            if (lithobrake)
-                            {
-                                positions[i] = positions[i - 1];
-                            }
-                            else
-                            {
-                                // Account for SoI transition?
-                                Vector3d pos = orbit.getPositionAtUT(T);
-                                // The following does not account for planetary rotation.
-                                orbit.referenceBody.GetLatLonAlt(pos, out positions[i].x, out positions[i].y, out positions[i].z);
-                                // Account for planetary rotation
-                                positions[i].y = Utility.NormalizeLongitude(positions[i].y + longitudeOffset - rotationPerSecond * netDT);
-
-                                // Account for 180 -> -180 wrap around
-                                if (i > 0)
-                                {
-                                    if (positions[i].y < positions[i - 1].y && Math.Abs(positions[i].y - positions[i - 1].y) > Math.Abs(positions[i].y - positions[i - 1].y + 360.0))
-                                    {
-                                        positions[i].y += 360.0;
-                                    }
-                                    else if (Math.Abs(positions[i].y - positions[i - 1].y) > Math.Abs(positions[i].y - positions[i - 1].y - 360.0))
-                                    {
-                                        positions[i].y -= 360.0;
-                                    }
-
-
-                                    if (positions[i].z < 0.0)
-                                    {
-                                        lithobrake = true;
-                                        // Approximate the point of impact
-                                        float iLerp = Mathf.InverseLerp((float)positions[i - 1].z, (float)positions[i].z, 0.0f);
-                                        positions[i].x = Mathf.Lerp((float)positions[i - 1].x, (float)positions[i].x, iLerp);
-                                        positions[i].y = Mathf.Lerp((float)positions[i - 1].y, (float)positions[i].y, iLerp);
-                                        positions[i].z = 0.0f;
-                                    }
-                                }
-
-                                T += dT;
-                                netDT += dT;
-                            }
-                        }
-
-                        // To simplify things, I use two lines per orbit.  I truncate the lines to fit the
-                        // define bounds of the region.  pass2 applies 1 width's offset to the second line.
-                        float pass2 = (positions[0].y < startLongitude) ? size.x : -size.x;
-                        int overflow = -1;
-                        for (int i = 0; i < vertexCount; ++i)
-                        {
-                            vesselVertex1[i].x = size.x * (float)(positions[i].y - startLongitude) / 360.0f;
+                            // Remaps latitude to the correct y offset.
                             vesselVertex1[i].y = Utility.Remap(positions[i].x, 90.0, -90.0, 0.0, -size.y);
-
-                            vesselVertex2[i].x = vesselVertex1[i].x + pass2;
+                            // Both strings use the same latitude.
                             vesselVertex2[i].y = vesselVertex1[i].y;
 
-                            if (overflow == -1 && vesselVertex1[i].x > size.x - 1.0f)
-                            {
-                                overflow = i;
-                            }
-                        }
+                            vesselVertex1[i].x = size.x * ((float)(positions[i].y) / 360.0f - dx);
 
-                        if (overflow > 0) // this should always happen, unless we're suborbital.
-                        {
-                            float iLerp = Mathf.InverseLerp(vesselVertex1[overflow - 1].x, vesselVertex1[overflow].x, size.x - 1.0f);
-                            vesselVertex1[overflow].x = size.x - 1.0f;
-                            vesselVertex1[overflow].y = Mathf.Lerp(vesselVertex1[overflow - 1].y, vesselVertex1[overflow].y, iLerp);
-                            for (int i = overflow + 1; i < vertexCount; ++i)
+                            if (i == 0)
                             {
-                                vesselVertex1[i] = vesselVertex1[i - 1];
-                            }
-
-                            lineRenderer[0].SetPositions(vesselVertex1);
-
-                            if (vesselVertex2[overflow].x >= 0.0f)
-                            {
-                                iLerp = Mathf.InverseLerp(vesselVertex2[overflow - 1].x, vesselVertex2[overflow].x, 0.0f);
-                                vesselVertex2[overflow - 1].x = 0.0f;
-                                vesselVertex2[overflow - 1].y = Mathf.Lerp(vesselVertex2[overflow - 1].y, vesselVertex2[overflow].y, iLerp);
-                                for (int i = overflow - 1; i > 0; --i)
+                                if (vesselVertex1[i].x < 0.0f)
                                 {
-                                    vesselVertex2[i - 1] = vesselVertex2[i];
+                                    offset = size.x;
                                 }
-
-                                lineRenderer[1].SetPositions(vesselVertex2);
-                                // I don't think this code can execute without the page already being enabled,
-                                // so I could just set it to true.  I think...
-                                lineRenderer[1].enabled = lineRenderer[0].enabled;
+                                else
+                                {
+                                    offset = -size.x;
+                                }
                             }
-                            else
+                            else if ((vesselVertex1[i - 1].x - vesselVertex1[i].x) > size.x * 0.5f)
                             {
-                                lineRenderer[1].enabled = false;
+                                vesselVertex1[i].x += size.x;
                             }
+
+                            vesselVertex2[i].x = vesselVertex1[i].x + offset;
                         }
-                        else
-                        {
-                            lineRenderer[1].enabled = false;
-                        }
+
+                        lineRenderer[0].SetPositions(vesselVertex1);
+                        lineRenderer[1].SetPositions(vesselVertex2);
                     }
 
                     if (updateManeuver)
                     {
+                        if (comp.vc.nodeOrbit != null)
+                        {
+                            updateOrbitPositions(comp.vc.nodeOrbit);
+                            float offset = 0.0f;
+                            for (int i = 0; i < vertexCount; ++i)
+                            {
+                                // Remaps latitude to the correct y offset.
+                                maneuverVertex1[i].y = Utility.Remap(positions[i].x, 90.0, -90.0, 0.0, -size.y);
+                                // Both strings use the same latitude.
+                                maneuverVertex2[i].y = maneuverVertex1[i].y;
+
+                                maneuverVertex1[i].x = size.x * ((float)(positions[i].y) / 360.0f - dx);
+
+                                if (i == 0)
+                                {
+                                    if (maneuverVertex1[i].x < 0.0f)
+                                    {
+                                        offset = size.x;
+                                    }
+                                    else
+                                    {
+                                        offset = -size.x;
+                                    }
+                                }
+                                else if ((maneuverVertex1[i - 1].x - maneuverVertex1[i].x) > size.x * 0.5f)
+                                {
+                                    maneuverVertex1[i].x += size.x;
+                                }
+
+                                maneuverVertex2[i].x = maneuverVertex1[i].x + offset;
+                            }
+
+                            lineRenderer[4].SetPositions(maneuverVertex1);
+                            lineRenderer[5].SetPositions(maneuverVertex2);
+                            validManeuver = true;
+                        }
+                        else
+                        {
+                            validManeuver = false;
+                        }
                     }
-                    
+
                     if (updateTarget)
                     {
+                        if ((comp.vc.targetType == MASVesselComputer.TargetType.Vessel || comp.vc.targetType == MASVesselComputer.TargetType.DockingPort) && comp.vc.targetOrbit != null && comp.vc.targetOrbit.referenceBody == comp.vessel.mainBody)
+                        {
+                            updateOrbitPositions(comp.vc.targetOrbit);
+                            float offset = 0.0f;
+                            for (int i = 0; i < vertexCount; ++i)
+                            {
+                                // Remaps latitude to the correct y offset.
+                                targetVertex1[i].y = Utility.Remap(positions[i].x, 90.0, -90.0, 0.0, -size.y);
+                                // Both strings use the same latitude.
+                                targetVertex2[i].y = targetVertex1[i].y;
+
+                                targetVertex1[i].x = size.x * ((float)(positions[i].y) / 360.0f - dx);
+
+                                if (i == 0)
+                                {
+                                    if (targetVertex1[i].x < 0.0f)
+                                    {
+                                        offset = size.x;
+                                    }
+                                    else
+                                    {
+                                        offset = -size.x;
+                                    }
+                                }
+                                else if ((targetVertex1[i - 1].x - targetVertex1[i].x) > size.x * 0.5f)
+                                {
+                                    targetVertex1[i].x += size.x;
+                                }
+
+                                targetVertex2[i].x = targetVertex1[i].x + offset;
+                            }
+
+                            lineRenderer[2].SetPositions(targetVertex1);
+                            lineRenderer[3].SetPositions(targetVertex2);
+                            validTarget = true;
+                        }
+                        else
+                        {
+                            validTarget = false;
+                        }
                     }
                 }
 
@@ -420,12 +594,12 @@ namespace AvionicsSystems
                 lineOrigin[0].SetActive(newState);
                 lineOrigin[1].SetActive(newState);
             }
-            if (updateManeuver)
+            if (updateTarget)
             {
                 lineOrigin[2].SetActive(newState);
                 lineOrigin[3].SetActive(newState);
             }
-            if (updateTarget)
+            if (updateManeuver)
             {
                 lineOrigin[4].SetActive(newState);
                 lineOrigin[5].SetActive(newState);
@@ -443,15 +617,15 @@ namespace AvionicsSystems
                 lineRenderer[0].enabled = enable;
                 lineRenderer[1].enabled = enable;
             }
-            if (updateManeuver)
-            {
-                lineRenderer[2].enabled = enable;
-                lineRenderer[3].enabled = enable;
-            }
             if (updateTarget)
             {
-                lineRenderer[4].enabled = enable;
-                lineRenderer[5].enabled = enable;
+                lineRenderer[2].enabled = enable && validTarget;
+                lineRenderer[3].enabled = enable && validTarget;
+            }
+            if (updateManeuver)
+            {
+                lineRenderer[4].enabled = enable && validManeuver;
+                lineRenderer[5].enabled = enable && validManeuver;
             }
         }
 
