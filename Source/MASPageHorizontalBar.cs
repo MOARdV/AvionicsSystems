@@ -198,7 +198,7 @@ namespace AvionicsSystems
                 borderObject.transform.Translate(monitor.screenSize.x * -0.5f + position.x, monitor.screenSize.y * 0.5f - position.y - size.y, depth);
 
                 Color borderColor = Utility.ParseColor32(borderColorName, comp);
-                borderMaterial = new Material(Shader.Find("Particles/Additive"));
+                borderMaterial = new Material(MASLoader.shaders["MOARdV/Monitor"]);
                 lineRenderer = borderObject.AddComponent<LineRenderer>();
                 lineRenderer.useWorldSpace = false;
                 lineRenderer.material = borderMaterial;
@@ -214,6 +214,7 @@ namespace AvionicsSystems
                     new Vector3(-halfWidth, size.y+halfWidth, 0.0f),
                     new Vector3(-halfWidth, -halfWidth, 0.0f)
                 };
+                lineRenderer.SetVertexCount(5);
                 lineRenderer.SetPositions(borderPoints);
             }
             imageObject = new GameObject();
@@ -226,10 +227,10 @@ namespace AvionicsSystems
             MeshFilter meshFilter = imageObject.AddComponent<MeshFilter>();
             meshRenderer = imageObject.AddComponent<MeshRenderer>();
             mesh = new Mesh();
-            vertices[0] = new Vector3(0.0f, 0.0f, depth);
-            vertices[1] = new Vector3(size.x, 0.0f, depth);
-            vertices[2] = new Vector3(0.0f, -size.y, depth);
-            vertices[3] = new Vector3(size.x, -size.y, depth);
+            vertices[0] = new Vector3(0.0f, 0.0f, 0.0f);
+            vertices[1] = new Vector3(size.x, 0.0f, 0.0f);
+            vertices[2] = new Vector3(0.0f, -size.y, 0.0f);
+            vertices[3] = new Vector3(size.x, -size.y, 0.0f);
             mesh.vertices = vertices;
             uv[0] = new Vector2(0.0f, 1.0f);
             uv[1] = Vector2.one;
