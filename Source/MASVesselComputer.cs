@@ -829,6 +829,10 @@ namespace AvionicsSystems
                 {
                     nodeOrbit = node.nextPatch;
                 }
+                else
+                {
+                    nodeOrbit = null;
+                }
             }
             else
             {
