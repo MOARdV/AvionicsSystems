@@ -716,7 +716,7 @@ namespace AvionicsSystems
                 {
                     sunDirection.Normalize();
 
-                    return Utility.NormalizeLongitude(cb.GetLongitude(sunDirection * cb.Radius));
+                    return Utility.NormalizeLongitude(cb.GetLongitude(cb.position + sunDirection * cb.Radius));
                 }
             }
 
