@@ -140,6 +140,22 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns an estimate of the maneuver node burn time, in seconds.
+        /// </summary>
+        /// <returns>Approximate burn time in seconds, or 0 if no node is scheduled.</returns>
+        public double ManeuverNodeBurnTime()
+        {
+            if (vc.maneuverNodeValid)
+            {
+                return vc.currentIsp * (1.0f - Math.Exp(-vc.maneuverNodeDeltaV / vc.currentIsp / 9.81)) / (vc.currentMaxThrust / (vessel.totalMass * 9.81));
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Delta-V of the next scheduled node.
         /// </summary>
         /// <returns>ΔV in m/s, or 0 if no node is scheduled.</returns>
@@ -229,6 +245,58 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the index to the body that the vessel will encounter after a change in SoI caused by
+        /// a scheduled maneuver node.  If there is no maneuver node, or the vessel does not change SoI
+        /// because of the maneuver, returns -1 (current body).
+        /// </summary>
+        /// <returns></returns>
+        public double ManeuverNodeNextBody()
+        {
+            if (vc.maneuverNodeValid && vesselSituationConverted > 2)
+            {
+                if (vc.nodeOrbit.patchEndTransition == Orbit.PatchTransitionType.ENCOUNTER || vc.nodeOrbit.patchEndTransition == Orbit.PatchTransitionType.ESCAPE)
+                {
+                    Orbit o = vc.nodeOrbit.nextPatch;
+                    if (o != null)
+                    {
+                        int bodiesCount = FlightGlobals.Bodies.Count;
+                        for (int i = 0; i < bodiesCount; ++i)
+                        {
+                            if (FlightGlobals.Bodies[i].name == o.referenceBody.name)
+                            {
+                                return i;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return -1.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the SoI change after a scheduled maneuver is an 'encounter', -1 if it is an
+        /// 'escape', and 0 if the scheduled orbit does not change SoI.
+        /// </summary>
+        /// <returns>0 if the orbit does not transition.  1 if the vessel will encounter a body, -1 if the vessel will escape the current body.</returns>
+        public double ManeuverNodeNextSoI()
+        {
+            if (vc.maneuverNodeValid && vesselSituationConverted > 2)
+            {
+                if (vc.nodeOrbit.patchEndTransition == Orbit.PatchTransitionType.ENCOUNTER)
+                {
+                    return 1.0;
+                }
+                else if (vc.nodeOrbit.patchEndTransition == Orbit.PatchTransitionType.ESCAPE)
+                {
+                    return -1.0;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the periapsis of the orbit that results from the scheduled maneuver.
         /// </summary>
         /// <returns>New Pe in meters, or 0 if no node is scheduled.</returns>
@@ -263,6 +331,42 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Closest approach to the target after the next maneuver completes, in meters.  If there
+        /// is no maneuver scheduled, or no target, returns 0.
+        /// </summary>
+        /// <returns>Closest approach to the target, or 0.</returns>
+        public double ManeuverNodeTargetClosestApproachDistance()
+        {
+            if (vc.maneuverNodeValid && vc.targetType > 0 && vc.targetOrbit.referenceBody == vc.nodeOrbit.referenceBody)
+            {
+                solver.SolveApproach(vc.nodeOrbit, vc.targetOrbit, Planetarium.GetUniversalTime());
+                return solver.targetClosestDistance;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Time when the closest approach with a target occurs after the scheduled maneuver, in seconds.  If there
+        /// is no maneuver scheduled, or no target, returns 0.
+        /// </summary>
+        /// <returns>Time until closest approach after the maneuver.</returns>
+        public double ManeuverNodeTargetClosestApproachTime()
+        {
+            if (vc.maneuverNodeValid && vc.targetType > 0 && vc.targetOrbit.referenceBody == vc.nodeOrbit.referenceBody)
+            {
+                solver.SolveApproach(vc.nodeOrbit, vc.targetOrbit, Planetarium.GetUniversalTime());
+                return Math.Max(solver.targetClosestUT - Planetarium.GetUniversalTime(), 0.0);
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Returns time in seconds until the maneuver node; 0 if no node is
         /// valid.
         /// </summary>
@@ -271,6 +375,22 @@ namespace AvionicsSystems
         {
             return vc.maneuverNodeTime;
         }
+
+        /// <summary>
+        /// Returns the time to the next SoI transition in the scheduled maneuver, in seconds.  If the planned orbit does not change
+        /// SoI, or no node is scheduled, returns 0.
+        /// </summary>
+        /// <returns>Time until the next SoI after the scheduled maneuver, or 0</returns>
+        public double ManeuverNodeTimeToNextSoI()
+        {
+            if (vc.maneuverNodeValid &&
+                vc.nodeOrbit.patchEndTransition == Orbit.PatchTransitionType.ENCOUNTER ||
+                vc.nodeOrbit.patchEndTransition == Orbit.PatchTransitionType.ESCAPE)
+            {
+                return vc.nodeOrbit.UTsoi - Planetarium.GetUniversalTime();
+            }
+            return 0.0;
+        }
         #endregion
 
         /// <summary>
@@ -278,7 +398,9 @@ namespace AvionicsSystems
         /// </summary>
         #region Mass
         /// <summary>
-        /// Returns the mass of the vessel
+        /// Returns the mass of the vessel.
+        /// 
+        /// **NOT IMPLEMENTED**: Dry mass.
         /// </summary>
         /// <param name="wetMass">wet mass if true, dry mass otherwise</param>
         /// <returns>Vessel mass in kg.</returns>

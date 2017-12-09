@@ -3,7 +3,7 @@ most of the variables in RasterPropMonitor, along with the MAS equivalent.  I'm 
 as a master list of how much work I still need to do, although it doubles as a handy
 translation guide for anyone else who needs it.
 
-Incomplete variables (to-do list): 70 variables
+Incomplete variables (to-do list): 67 variables
 "ACCELFORWARD":
 "ACCELNORMAL":
 "ACCELPROGRADE":
@@ -38,9 +38,6 @@ Incomplete variables (to-do list): 70 variables
 "MASSPROPELLANTSTAGE":
 "MASSRESOURCES":
 "MAXACCEL":
-"MNODEBURNTIMESECS":
-"MNODETARGETCLOSESTAPPROACHDISTANCE":
-"MNODETARGETCLOSESTAPPROACHTIME":
 "PERIODRANDOM":
 "PLUGIN":
 "PODMAXSKINTEMPERATURE":
@@ -185,7 +182,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "MECHJEBAVAILABLE": mechjeb.Available()
 "METSECS": fc.MET()
 "MNODEAPOAPSIS": fc.ManeuverNodeAp()
-"MNODEBURNTIMESECS":
+"MNODEBURNTIMESECS": fc.ManeuverNodeBurnTime()
 "MNODEDV": fc.ManeuverNodeDV()
 "MNODEDVNORMAL": fc.ManeuverNodeDVNormal()
 "MNODEDVPROGRADE": fc.ManeuverNodeDVPrograde()
@@ -195,8 +192,8 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "MNODEINCLINATION": fc.ManeuverNodeInc()
 "MNODEPERIAPSIS": fc.ManeuverNodePe()
 "MNODERELATIVEINCLINATION": fc.ManeuverNodeRelativeInclination()
-"MNODETARGETCLOSESTAPPROACHDISTANCE":
-"MNODETARGETCLOSESTAPPROACHTIME":
+"MNODETARGETCLOSESTAPPROACHDISTANCE": fc.ManeuverNodeTargetClosestApproachDistance()
+"MNODETARGETCLOSESTAPPROACHTIME": fc.ManeuverNodeTargetClosestApproachTime()
 "MNODETIMESECS": fc.ManeuverNodeTime()
 "NAME": fc.VesselName()
 "NEXTAPSIS": -replaced with Lua scripting-

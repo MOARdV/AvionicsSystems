@@ -80,12 +80,15 @@ namespace AvionicsSystems
         private bool vesselPowered;
         private int vesselSituationConverted;
 
+        private ApproachSolverBW solver;
+
         [MoonSharpHidden]
         public MASFlightComputerProxy(MASFlightComputer fc, MASIFAR farProxy, MASIMechJeb mjProxy)
         {
             this.fc = fc;
             this.farProxy = farProxy;
             this.mjProxy = mjProxy;
+            this.solver = new ApproachSolverBW();
         }
 
         ~MASFlightComputerProxy()
