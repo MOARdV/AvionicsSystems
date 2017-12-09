@@ -35,8 +35,8 @@ The included IVA is the Yarbrough08 Mk. 1-1 A2 Command Pod from [Yarbrough08](ht
 this pod is the current pod, and it is mostly feature complete.  Note that you may need to so some config file tweaking for this pod if you're
 going to play with it a lot, since it was last updated for KSP 1.0.5.
 
-You will need to download and install [Module Manager](https://forum.kerbalspaceprogram.com/index.php?/topic/50533-130-module-manager-281-june-29th-2017-with-n-cats-physics/), the Yarbrough08 command pod, and a development
-build of the ASET Props in order to fly this IVA.
+You will need to download and install [Module Manager](https://forum.kerbalspaceprogram.com/index.php?/topic/50533-130-module-manager-281-june-29th-2017-with-n-cats-physics/), the Yarbrough08 command pod, and
+ASET Props Pack v1.5 or later in order to fly this IVA.
 
 ## What about RPM?
 
@@ -46,7 +46,7 @@ complex for me to test it adequately by myself in a reasonable time while workin
 substantially similar mod.  As long as RPM is still
 in wide use, I will strive to keep it working, but I can not guarantee much beyond that.
 
-IVAs will still work with RPM.  Props packs designed for RPM will still work with RPM.
+IVAs designed for RPM will still work with RPM.  Props packs designed for RPM will still work with RPM.
 
 ## Other questions?
 
