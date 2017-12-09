@@ -36,16 +36,6 @@ namespace AvionicsSystems
 
         private string name = "anonymous";
 
-        enum LineSegment
-        {
-            Vessel1,
-            Vessel2,
-            Target1,
-            Target2,
-            Maneuver1,
-            Maneuver2,
-        };
-
         private GameObject[] lineOrigin = new GameObject[numObjects];
         private Material[] lineMaterial = new Material[numObjects];
         private LineRenderer[] lineRenderer = new LineRenderer[numObjects];
@@ -76,6 +66,7 @@ namespace AvionicsSystems
         private bool updateManeuver = false;
         private bool validManeuver = false;
         private float startLongitude = -180.0f;
+        private float startLongitudeNormalized;
         private MASFlightComputer comp;
 
         internal MASPageGroundTrack(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
@@ -133,8 +124,6 @@ namespace AvionicsSystems
                 lineOrigin[i].layer = pageRoot.gameObject.layer;
 
                 lineMaterial[i] = new Material(MASLoader.shaders["MOARdV/Monitor"]);
-                //lineMaterial[i] = new Material(Shader.Find("Particles/Additive"));
-                //lineMaterial[i] = new Material(Shader.Find("KSP/Alpha/Unlit Transparent"));
                 lineRenderer[i] = lineOrigin[i].AddComponent<LineRenderer>();
                 lineRenderer[i].useWorldSpace = false;
                 lineRenderer[i].material = lineMaterial[i];
@@ -324,6 +313,7 @@ namespace AvionicsSystems
             if (!config.TryGetValue("startLongitude", ref startLongitudeString))
             {
                 startLongitude = -180.0f;
+                startLongitudeNormalized = startLongitude / 360.0f;
             }
             else
             {
@@ -333,6 +323,7 @@ namespace AvionicsSystems
                     if (!Mathf.Approximately(longitude, startLongitude))
                     {
                         startLongitude = longitude;
+                        startLongitudeNormalized = startLongitude / 360.0f;
                     }
                 });
             }
@@ -417,7 +408,7 @@ namespace AvionicsSystems
                     // The following does not account for planetary rotation...
                     orbit.referenceBody.GetLatLonAlt(pos, out positions[i].x, out positions[i].y, out positions[i].z);
                     // ... so account for planetary rotation.  Although this won't handle
-                    // retrograde.
+                    // retrograde rotation, unless the period is negative.
                     positions[i].y = Utility.NormalizeLongitude(positions[i].y - rotationPerSecond * netDT);
 
                     if (i > 0)
@@ -442,6 +433,100 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Convert the given lat/lon positions into screen coordinates in the
+        /// two vertex arrays supplied.
+        /// </summary>
+        /// <param name="vert1">Primary vertex array</param>
+        /// <param name="vert2">Seconary (wrap-around) vertex array</param>
+        private void convertPositions(Vector3[] vert1, Vector3[] vert2)
+        {
+            try
+            {
+                float offset = 0.0f;
+                int transition = -1;
+                float transitionLatitude = 0.0f;
+                for (int i = 0; i < vertexCount; ++i)
+                {
+                    // Remaps latitude to the correct y offset.
+                    vert1[i].y = Utility.Remap(positions[i].x, 90.0, -90.0, 0.0, -size.y);
+
+                    vert1[i].x = size.x * ((float)(positions[i].y) / 360.0f - startLongitudeNormalized) + offset;
+
+                    if (i == 0)
+                    {
+                        if (vert1[0].x < 0.0f)
+                        {
+                            offset = size.x;
+                            vert1[0].x += offset;
+                        }
+                        else if (vert1[0].x >= size.x)
+                        {
+                            offset = -size.x;
+                            vert1[0].x += offset;
+                        }
+                    }
+                    else if ((vert1[i - 1].x - vert1[i].x) > size.x * 0.5f)
+                    {
+                        vert1[i].x += size.x;
+                    }
+
+                    if (transition == -1)
+                    {
+                        if (vert1[i].x >= size.x)
+                        {
+                            if (i == 0)
+                            {
+                                // Try to trap Invalid index exceptions.  This seems to be the only
+                                // condition where it could happen.
+                                Utility.LogErrorMessage(this, "vert1[0].x overflowed: {0:0} >= {1:0}",
+                                    vert1[i].x, size.x);
+                                Utility.LogMessage(this, " ({0:0.000} - {1:0.000}) = {2:0.000}", (float)(positions[i].y) / 360.0f, startLongitudeNormalized, (float)(positions[i].y) / 360.0f - startLongitudeNormalized);
+                            }
+                            transition = i;
+                            vert2[i].x = vert1[i].x - size.x;
+                            float iLerpLat = Mathf.InverseLerp(vert1[i - 1].x, vert1[i].x, size.x);
+                            transitionLatitude = Mathf.Lerp(vert1[i - 1].y, vert1[i].y, iLerpLat);
+                            vert2[i].y = vert1[i].y;
+                            vert1[i].y = transitionLatitude;
+
+                            // Squish the previous wrap-around vertices to
+                            // the transition latitude.
+                            for (int j = 0; j < i; ++j)
+                            {
+                                vert2[j].y = transitionLatitude;
+                            }
+                        }
+                        else
+                        {
+                            vert2[i].x = 0.0f;
+                            vert2[i].y = 0.0f;
+                        }
+                    }
+                    else
+                    {
+                        vert2[i].x = vert1[i].x - size.x;
+                        vert2[i].y = vert1[i].y;
+
+                        vert1[i].y = transitionLatitude;
+                    }
+                }
+
+                if (transition >= 0)
+                {
+                    for (int i = transition; i < vertexCount; ++i)
+                    {
+                        vert1[i].x = size.x;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Utility.LogErrorMessage(this, "convertPositions threw an exception:");
+                Utility.LogErrorMessage(this, "{0}", e);
+            }
+        }
+
+        /// <summary>
         /// Coroutine to defer line updates so they're all processed in one location,
         /// since they may be expensive.
         /// </summary>
@@ -452,86 +537,13 @@ namespace AvionicsSystems
             {
                 if (currentState && pageActive)
                 {
-                    float dx = startLongitude / 360.0f;
-
                     if (updateVessel)
                     {
                         updateOrbitPositions(comp.vessel.orbit);
-                        float offset = 0.0f;
-                        for (int i = 0; i < vertexCount; ++i)
-                        {
-                            // Remaps latitude to the correct y offset.
-                            vesselVertex1[i].y = Utility.Remap(positions[i].x, 90.0, -90.0, 0.0, -size.y);
-                            // Both strings use the same latitude.
-                            vesselVertex2[i].y = vesselVertex1[i].y;
-
-                            vesselVertex1[i].x = size.x * ((float)(positions[i].y) / 360.0f - dx);
-
-                            if (i == 0)
-                            {
-                                if (vesselVertex1[i].x < 0.0f)
-                                {
-                                    offset = size.x;
-                                }
-                                else
-                                {
-                                    offset = -size.x;
-                                }
-                            }
-                            else if ((vesselVertex1[i - 1].x - vesselVertex1[i].x) > size.x * 0.5f)
-                            {
-                                vesselVertex1[i].x += size.x;
-                            }
-
-                            vesselVertex2[i].x = vesselVertex1[i].x + offset;
-                        }
+                        convertPositions(vesselVertex1, vesselVertex2);
 
                         lineRenderer[0].SetPositions(vesselVertex1);
                         lineRenderer[1].SetPositions(vesselVertex2);
-                    }
-
-                    if (updateManeuver)
-                    {
-                        if (comp.vc.nodeOrbit != null)
-                        {
-                            updateOrbitPositions(comp.vc.nodeOrbit);
-                            float offset = 0.0f;
-                            for (int i = 0; i < vertexCount; ++i)
-                            {
-                                // Remaps latitude to the correct y offset.
-                                maneuverVertex1[i].y = Utility.Remap(positions[i].x, 90.0, -90.0, 0.0, -size.y);
-                                // Both strings use the same latitude.
-                                maneuverVertex2[i].y = maneuverVertex1[i].y;
-
-                                maneuverVertex1[i].x = size.x * ((float)(positions[i].y) / 360.0f - dx);
-
-                                if (i == 0)
-                                {
-                                    if (maneuverVertex1[i].x < 0.0f)
-                                    {
-                                        offset = size.x;
-                                    }
-                                    else
-                                    {
-                                        offset = -size.x;
-                                    }
-                                }
-                                else if ((maneuverVertex1[i - 1].x - maneuverVertex1[i].x) > size.x * 0.5f)
-                                {
-                                    maneuverVertex1[i].x += size.x;
-                                }
-
-                                maneuverVertex2[i].x = maneuverVertex1[i].x + offset;
-                            }
-
-                            lineRenderer[4].SetPositions(maneuverVertex1);
-                            lineRenderer[5].SetPositions(maneuverVertex2);
-                            validManeuver = true;
-                        }
-                        else
-                        {
-                            validManeuver = false;
-                        }
                     }
 
                     if (updateTarget)
@@ -539,34 +551,7 @@ namespace AvionicsSystems
                         if ((comp.vc.targetType == MASVesselComputer.TargetType.Vessel || comp.vc.targetType == MASVesselComputer.TargetType.DockingPort) && comp.vc.targetOrbit != null && comp.vc.targetOrbit.referenceBody == comp.vessel.mainBody)
                         {
                             updateOrbitPositions(comp.vc.targetOrbit);
-                            float offset = 0.0f;
-                            for (int i = 0; i < vertexCount; ++i)
-                            {
-                                // Remaps latitude to the correct y offset.
-                                targetVertex1[i].y = Utility.Remap(positions[i].x, 90.0, -90.0, 0.0, -size.y);
-                                // Both strings use the same latitude.
-                                targetVertex2[i].y = targetVertex1[i].y;
-
-                                targetVertex1[i].x = size.x * ((float)(positions[i].y) / 360.0f - dx);
-
-                                if (i == 0)
-                                {
-                                    if (targetVertex1[i].x < 0.0f)
-                                    {
-                                        offset = size.x;
-                                    }
-                                    else
-                                    {
-                                        offset = -size.x;
-                                    }
-                                }
-                                else if ((targetVertex1[i - 1].x - targetVertex1[i].x) > size.x * 0.5f)
-                                {
-                                    targetVertex1[i].x += size.x;
-                                }
-
-                                targetVertex2[i].x = targetVertex1[i].x + offset;
-                            }
+                            convertPositions(targetVertex1, targetVertex2);
 
                             lineRenderer[2].SetPositions(targetVertex1);
                             lineRenderer[3].SetPositions(targetVertex2);
@@ -575,6 +560,23 @@ namespace AvionicsSystems
                         else
                         {
                             validTarget = false;
+                        }
+                    }
+
+                    if (updateManeuver)
+                    {
+                        if (comp.vc.nodeOrbit != null)
+                        {
+                            updateOrbitPositions(comp.vc.nodeOrbit);
+                            convertPositions(maneuverVertex1, maneuverVertex2);
+
+                            lineRenderer[4].SetPositions(maneuverVertex1);
+                            lineRenderer[5].SetPositions(maneuverVertex2);
+                            validManeuver = true;
+                        }
+                        else
+                        {
+                            validManeuver = false;
                         }
                     }
                 }
