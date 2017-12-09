@@ -133,7 +133,6 @@ namespace AvionicsSystems
             lineOrigin.transform.position = pageRoot.position;
             lineOrigin.transform.Translate(monitor.screenSize.x * -0.5f + position.x, monitor.screenSize.y * 0.5f - position.y, depth);
             // add renderer stuff
-            //lineMaterial = new Material(Shader.Find("Particles/Additive"));
             lineMaterial = new Material(MASLoader.shaders["MOARdV/Monitor"]);
             lineRenderer = lineOrigin.AddComponent<LineRenderer>();
             lineRenderer.useWorldSpace = false;

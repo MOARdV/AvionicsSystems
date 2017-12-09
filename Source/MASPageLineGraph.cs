@@ -162,7 +162,7 @@ namespace AvionicsSystems
                 borderObject.transform.Translate(monitor.screenSize.x * -0.5f + position.x, monitor.screenSize.y * 0.5f - position.y - size.y, depth);
 
                 Color borderColor = Utility.ParseColor32(borderColorName, comp);
-                borderMaterial = new Material(Shader.Find("Particles/Additive"));
+                borderMaterial = new Material(MASLoader.shaders["MOARdV/Monitor"]);
                 borderRenderer = borderObject.AddComponent<LineRenderer>();
                 borderRenderer.useWorldSpace = false;
                 borderRenderer.material = borderMaterial;
@@ -188,8 +188,7 @@ namespace AvionicsSystems
             graphObject.transform.position = pageRoot.position;
             graphObject.transform.Translate(monitor.screenSize.x * -0.5f + position.x, monitor.screenSize.y * 0.5f - position.y - size.y, depth);
             // add renderer stuff
-            //graphMaterial = new Material(MASLoader.shaders["MOARdV/TextMonitor"]);
-            graphMaterial = new Material(Shader.Find("Particles/Additive"));
+            graphMaterial = new Material(MASLoader.shaders["MOARdV/Monitor"]);
             lineRenderer = graphObject.AddComponent<LineRenderer>();
             lineRenderer.useWorldSpace = false;
             lineRenderer.material = graphMaterial;
