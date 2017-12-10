@@ -82,6 +82,8 @@ namespace AvionicsSystems
 
         private ApproachSolverBW solver;
 
+        private double timeToImpact;
+
         [MoonSharpHidden]
         public MASFlightComputerProxy(MASFlightComputer fc, MASIFAR farProxy, MASIMechJeb mjProxy)
         {
@@ -125,6 +127,15 @@ namespace AvionicsSystems
                 neighboringVessels[i] = null;
             }
             neighboringVesselsCurrent = false;
+
+            if (vessel.orbit.PeA < 0.0)
+            {
+                timeToImpact = TimeToAltitude(0.0);
+            }
+            else
+            {
+                timeToImpact = 0.0;
+            }
         }
         /// <summary>
         /// Private method to map a string or number to a CelestialBody.
