@@ -1400,6 +1400,75 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the number of available docking ports found on the target vessel when the following
+        /// conditions are met:
+        /// 
+        /// 1) There are docking ports on the target vessel compatible with the designated
+        /// docking port on the current vessel.  The designated docking port is either the
+        /// only docking port on the current vessel, or it is one of the docking ports selected
+        /// arbitrarily.
+        /// 
+        /// 2) There are no docking ports on the current vessel.  In this case, all docking
+        /// ports on the target vessel are counted.
+        /// 
+        /// Note that if the target is unloaded, this method will return 0.  If the target is
+        /// not a vessel, it also returns 0.
+        /// </summary>
+        /// <returns>Number of available compatible docking ports, or total available docking ports, or 0.</returns>
+        public double TargetAvailableDockingPorts()
+        {
+            Vessel targetVessel = null;
+            if (vc.targetType == MASVesselComputer.TargetType.Vessel)
+            {
+                targetVessel = vc.activeTarget as Vessel;
+            }
+            else if (vc.targetType == MASVesselComputer.TargetType.DockingPort)
+            {
+                targetVessel = (vc.activeTarget as ModuleDockingNode).vessel;
+            }
+
+            if (targetVessel != null)
+            {
+                List<ModuleDockingNode> docks = targetVessel.FindPartModulesImplementing<ModuleDockingNode>();
+                if (docks == null)
+                {
+                    // Can it return null?
+                    return 0.0;
+                }
+
+                int numAvailable = 0;
+                if (vc.dockingNode != null)
+                {
+                    for (int i = docks.Count - 1; i >= 0; --i)
+                    {
+                        ModuleDockingNode otherDock = docks[i];
+                        // Only lock on to an available dock of the same type that is either ungendered or the opposite gender.
+                        if (otherDock.state == "Ready" && (string.IsNullOrEmpty(vc.dockingNode.nodeType) || vc.dockingNode.nodeType == otherDock.nodeType) && (vc.dockingNode.gendered == false || vc.dockingNode.genderFemale != otherDock.genderFemale))
+                        {
+                            ++numAvailable;
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = docks.Count - 1; i >= 0; --i)
+                    {
+                        ModuleDockingNode otherDock = docks[i];
+                        // Only lock on to an available dock of the same type that is either ungendered or the opposite gender.
+                        if (otherDock.state == "Ready")
+                        {
+                            ++numAvailable;
+                        }
+                    }
+                }
+
+                return numAvailable;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the name of the body that the target orbits, or an empty string if
         /// there is no target.
         /// </summary>
@@ -1743,6 +1812,22 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the orbital speed of the current target, in m/s.  If there is no target, returns 0.
+        /// </summary>
+        /// <returns>Current orbital speed of the target, or 0.</returns>
+        public double TargetOrbitSpeed()
+        {
+            if (vc.targetType > 0)
+            {
+                return vc.targetOrbit.orbitalSpeed;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        /// <summary>
         /// Returns the target's periapsis.
         /// </summary>
         /// <returns>Target's Pe in meters, or 0 if there is no target.</returns>
@@ -1790,6 +1875,44 @@ namespace AvionicsSystems
             else
             {
                 return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the target's situation, based on the KSP variable:
+        /// 
+        /// * -1 - INVALID (no target)
+        /// * 0 - LANDED
+        /// * 1 - SPLASHED
+        /// * 2 - PRELAUNCH
+        /// * 3 - FLYING
+        /// * 4 - SUB_ORBITAL
+        /// * 5 - ORBITING
+        /// * 6 - ESCAPING
+        /// * 7 - DOCKED
+        /// 
+        /// For some Celestial Body target types, the situation is always
+        /// 5 (ORBITING).
+        /// </summary>
+        /// <returns>A number between -1 and 7 (inclusive).</returns>
+        public double TargetSituation()
+        {
+            switch (vc.targetType)
+            {
+                case MASVesselComputer.TargetType.None:
+                    return -1.0;
+                case MASVesselComputer.TargetType.Vessel:
+                    return ConvertVesselSituation((vc.activeTarget as Vessel).situation);
+                case MASVesselComputer.TargetType.DockingPort:
+                    return ConvertVesselSituation((vc.activeTarget as ModuleDockingNode).vessel.situation);
+                case MASVesselComputer.TargetType.CelestialBody:
+                    return 5.0;
+                case MASVesselComputer.TargetType.PositionTarget:
+                    return 0.0;
+                case MASVesselComputer.TargetType.Asteroid:
+                    return 5.0;
+                default:
+                    return -1.0;
             }
         }
 

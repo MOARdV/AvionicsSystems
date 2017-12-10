@@ -155,7 +155,7 @@ namespace AvionicsSystems
             else
             {
                 theta12 = (Math.PI * 2.0) - thetaA;
-                theta21 =  thetaB;
+                theta21 = thetaB;
             }
             // α1 = θ13 − θ12
             double alpha1 = theta13 - theta12;
@@ -441,6 +441,95 @@ namespace AvionicsSystems
         public double SlantDistanceFromVessel(double latitude, double longitude, double altitude)
         {
             return SlantDistance(vessel.latitude, Utility.NormalizeLongitude(vessel.longitude), vessel.altitude, latitude, longitude, altitude);
+        }
+
+        /// <summary>
+        /// Returns the bearing to the current active target.  If no target is active, returns 0.
+        /// </summary>
+        /// <param name="relative">If true, bearing is relative to the vessel's current bearing; if false, it is absolute hearing.</param>
+        /// <returns>Returns the bearing to the target, or 0.</returns>
+        public double TargetBearing(bool relative)
+        {
+            double latitude = 0.0;
+            switch (fc.vc.targetType)
+            {
+                case MASVesselComputer.TargetType.Vessel:
+                    latitude = fc.vc.activeTarget.GetVessel().latitude;
+                    break;
+                case MASVesselComputer.TargetType.DockingPort:
+                    latitude = fc.vc.activeTarget.GetVessel().latitude;
+                    break;
+                case MASVesselComputer.TargetType.PositionTarget:
+                case MASVesselComputer.TargetType.CelestialBody:
+                    // TODO: Is there a better way to do this?  Can I use GetVessel?
+                    latitude = vessel.mainBody.GetLatitude(fc.vc.activeTarget.GetTransform().position);
+                    break;
+                default:
+                    // Early return here!
+                    return 0.0;
+            }
+
+            double longitude = 0.0;
+            switch (fc.vc.targetType)
+            {
+                case MASVesselComputer.TargetType.Vessel:
+                    longitude = fc.vc.activeTarget.GetVessel().longitude;
+                    break;
+                case MASVesselComputer.TargetType.DockingPort:
+                    longitude = fc.vc.activeTarget.GetVessel().longitude;
+                    break;
+                case MASVesselComputer.TargetType.PositionTarget:
+                case MASVesselComputer.TargetType.CelestialBody:
+                    // TODO: Is there a better way to do this?  Can I use GetVessel?
+                    longitude = vessel.mainBody.GetLongitude(fc.vc.activeTarget.GetTransform().position);
+                    break;
+            }
+            double offset = (relative) ? fc.vc.progradeHeading : 0.0;
+            return Utility.NormalizeAngle(BearingFromVessel(latitude, longitude) - offset);
+        }
+
+        /// <summary>
+        /// Returns the ground distance in meters to the target, or 0 if there is no target.
+        /// </summary>
+        /// <returns>Distance in meters to the target, or 0.</returns>
+        public double TargetGroundDistance()
+        {
+            double latitude = 0.0;
+            switch (fc.vc.targetType)
+            {
+                case MASVesselComputer.TargetType.Vessel:
+                    latitude = fc.vc.activeTarget.GetVessel().latitude;
+                    break;
+                case MASVesselComputer.TargetType.DockingPort:
+                    latitude = fc.vc.activeTarget.GetVessel().latitude;
+                    break;
+                case MASVesselComputer.TargetType.PositionTarget:
+                case MASVesselComputer.TargetType.CelestialBody:
+                    // TODO: Is there a better way to do this?  Can I use GetVessel?
+                    latitude = vessel.mainBody.GetLatitude(fc.vc.activeTarget.GetTransform().position);
+                    break;
+                default:
+                    // Early return here!
+                    return 0.0;
+            }
+
+            double longitude = 0.0;
+            switch (fc.vc.targetType)
+            {
+                case MASVesselComputer.TargetType.Vessel:
+                    longitude = fc.vc.activeTarget.GetVessel().longitude;
+                    break;
+                case MASVesselComputer.TargetType.DockingPort:
+                    longitude = fc.vc.activeTarget.GetVessel().longitude;
+                    break;
+                case MASVesselComputer.TargetType.PositionTarget:
+                case MASVesselComputer.TargetType.CelestialBody:
+                    // TODO: Is there a better way to do this?  Can I use GetVessel?
+                    longitude = vessel.mainBody.GetLongitude(fc.vc.activeTarget.GetTransform().position);
+                    break;
+            }
+
+            return GroundDistanceFromVessel(latitude, longitude);
         }
 
         #endregion

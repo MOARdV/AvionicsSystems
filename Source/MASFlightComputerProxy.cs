@@ -104,6 +104,26 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Helper function to convert a vessel situation into
+        /// </summary>
+        /// <param name="vesselSituation"></param>
+        /// <returns></returns>
+        [MoonSharpHidden]
+        internal int ConvertVesselSituation(Vessel.Situations vesselSituation)
+        {
+            int situation = (int)vessel.situation;
+            for (int i = 0; i < 0x10; ++i)
+            {
+                if ((situation & (1 << i)) != 0)
+                {
+                    return i;
+                }
+            }
+
+            return 0;
+        }
+
+        /// <summary>
         /// Per-FixedUpdate updater method to read some of those values that are used a lot.
         /// </summary>
         [MoonSharpHidden]
@@ -112,15 +132,7 @@ namespace AvionicsSystems
             autopilotMode = vessel.Autopilot.Mode;
             vesselPowered = (vc.ResourceCurrent(MASConfig.ElectricCharge) > 0.0001);
 
-            int situation = (int)vessel.situation;
-            for (int i = 0; i < 0x10; ++i)
-            {
-                if ((situation & (1 << i)) != 0)
-                {
-                    vesselSituationConverted = i;
-                    break;
-                }
-            }
+            vesselSituationConverted = ConvertVesselSituation(vessel.situation);
 
             for (int i = neighboringVessels.Length - 1; i >= 0; --i)
             {
