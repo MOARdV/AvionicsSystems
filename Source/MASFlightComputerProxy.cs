@@ -537,6 +537,32 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the name of the biome at the given location on the selected body.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <param name="latitude">Latitude of the location of interest.</param>
+        /// <param name="longitude">Longitude of the location of interest.</param>
+        /// <returns>The name of the biome at the specified location, or an empty string.</returns>
+        public string BodyBiome(object id, double latitude, double longitude)
+        {
+            CelestialBody cb = SelectBody(id);
+            if (cb != null)
+            {
+                string biome = ScienceUtil.GetExperimentBiome(cb, latitude, longitude);
+                //ScienceUtil.GetBiomedisplayName(cb, biome);
+                // string biome = ScienceUtil.GetExperimentBiomeLocalized(cb, latitude, longitude);
+                if (ScienceUtil.BiomeIsUnlisted(cb, biome))
+                {
+                    // What causes this?  And what action should I take?
+                    Utility.LogWarning(this, "BodyBiome(): biome '{0}' is unlisted", biome);
+                }
+                return biome;
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Returns the escape velocity of the body.
         /// </summary>
         /// <param name="id">The name or index of the body of interest.</param>
