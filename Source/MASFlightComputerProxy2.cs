@@ -1953,7 +1953,9 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double LandingPredictorActive()
         {
-            if (mjProxy.LandingComputerActive() > 0.0)
+            // Landing predictor sometimes gets weird and insists it's on, but it spews
+            // 0N, 0E as the landing point.
+            if (mjProxy.LandingComputerActive() > 0.0 && mjProxy.LandingLongitude() != 0.0)
             {
                 return 1.0;
             }
