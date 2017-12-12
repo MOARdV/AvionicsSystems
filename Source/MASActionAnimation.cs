@@ -58,16 +58,22 @@ namespace AvionicsSystems
                 name = "anonymous";
             }
 
-            if (!config.TryGetValue("animation", ref animationName) || string.IsNullOrEmpty(animationName))
+            bool exterior = false;
+            if (!config.TryGetValue("animation", ref animationName))
             {
-                throw new ArgumentException("Invalid or missing 'animation' in ANIMATION " + name);
+                if (!config.TryGetValue("externalAnimation", ref animationName) || string.IsNullOrEmpty(animationName))
+                {
+                    throw new ArgumentException("Invalid or missing 'externalAnimation' or 'animation' in ANIMATION " + name);
+                }
+
+                exterior = true;
             }
 
             // Set up the animation.
-            Animation[] animators = prop.FindModelAnimators(animationName);
+            Animation[] animators = (exterior) ? prop.part.FindModelAnimators(animationName) : prop.FindModelAnimators(animationName);
             if (animators.Length == 0)
             {
-                throw new ArgumentException("Unable to find animation " + animationName + " for ANIMATION " + name);
+                throw new ArgumentException("Unable to find" + ((exterior) ? " external " : " ") + "animation " + animationName + " for ANIMATION " + name);
             }
             animation = animators[0];
             animationState = animation[animationName];
