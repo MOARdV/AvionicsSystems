@@ -1995,6 +1995,69 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns a number representing the target vessel type (eg, 1 = Ship, etc).
+        /// 
+        /// * 0 - Invalid (not one of the below types)
+        /// * 1 - Ship
+        /// * 2 - Plane
+        /// * 3 - Probe
+        /// * 4 - Lander
+        /// * 5 - Station
+        /// * 6 - Relay
+        /// * 7 - Rover
+        /// * 8 - Base
+        /// * 9 - EVA
+        /// * 10 - Flag
+        /// * 11 - Debris
+        /// * 12 - Space Object
+        /// * 13 - Unknown
+        /// * 14 - Celestial Body
+        /// </summary>
+        /// <returns>A value between 1 and 13 inclusive for a vessel-type target, or 14 for a Celestial Body, or 0 for no target, or another target type.</returns>
+        public double TargetTypeId()
+        {
+            if (vc.targetType == MASVesselComputer.TargetType.Vessel || vc.targetType == MASVesselComputer.TargetType.DockingPort)
+            {
+                VesselType type = (vc.targetType == MASVesselComputer.TargetType.DockingPort) ? (vc.activeTarget as ModuleDockingNode).vessel.vesselType : (vc.activeTarget as Vessel).vesselType;
+                switch (type)
+                {
+                    case global::VesselType.Ship:
+                        return 1.0;
+                    case global::VesselType.Plane:
+                        return 2.0;
+                    case global:: VesselType.Probe:
+                        return 3.0;
+                    case global::VesselType.Lander:
+                        return 4.0;
+                    case global::VesselType.Station:
+                        return 5.0;
+                    case global::VesselType.Relay:
+                        return 6.0;
+                    case global::VesselType.Rover:
+                        return 7.0;
+                    case global::VesselType.Base:
+                        return 8.0;
+                    case global::VesselType.EVA:
+                        return 9.0;
+                    case global::VesselType.Flag:
+                        return 10.0;
+                    case global::VesselType.Debris:
+                        return 11.0;
+                    case global::VesselType.SpaceObject:
+                        return 12.0;
+                    case global::VesselType.Unknown:
+                        return 13.0;
+                }
+            }
+            else if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
+            {
+                return 14.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// **UNTESTED:** signs may be incorrect.  Please report results testing this
         /// method.
         /// 
@@ -2089,6 +2152,24 @@ namespace AvionicsSystems
             {
                 return string.Empty;
             }
+        }
+
+        /// <summary>
+        /// Returns the name of the target vessel type (eg, "Ship", "Plane", "Station", etc).
+        /// </summary>
+        /// <returns>Name of the target vessel type, or an empty string if there is no target, or the target is not a vessel.</returns>
+        public string TargetVesselType()
+        {
+            if (vc.targetType == MASVesselComputer.TargetType.Vessel)
+            {
+                return Utility.typeDict[(vc.activeTarget as Vessel).vesselType];
+            }
+            else if(vc.targetType == MASVesselComputer.TargetType.DockingPort)
+            {
+                return Utility.typeDict[(vc.activeTarget as ModuleDockingNode).vessel.vesselType];
+            }
+
+            return string.Empty;
         }
         #endregion
 

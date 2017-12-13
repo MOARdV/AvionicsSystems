@@ -682,6 +682,190 @@ namespace AvionicsSystems
             Utility.LogMessage(this, message);
         }
 
+        /// <summary>
+        /// Returns the U texture shift required to display the map icon listed below.
+        /// This function is intended to be used in conjunction with the '%MAP_ICON%' texture in
+        /// MASMonitor IMAGE nodes.
+        /// 
+        /// * 0 - Invalid (not one of the below types)
+        /// * 1 - Ship target
+        /// * 2 - Plane target
+        /// * 3 - Probe target
+        /// * 4 - Lander target
+        /// * 5 - Station target
+        /// * 6 - Relay target
+        /// * 7 - Rover target
+        /// * 8 - Base target
+        /// * 9 - EVA target
+        /// * 10 - Flag target
+        /// * 11 - Debris target
+        /// * 12 - Space Object target
+        /// * 13 - Unknown target
+        /// * 14 - Celestial Body (planet)
+        /// * 15 - Ap Icon
+        /// * 16 - Pe Icon
+        /// * 17 - AN Icon
+        /// * 18 - DN Icon
+        /// * 19 - Maneuver Node Icon
+        /// * 20 - Ship location at intercept
+        /// * 21 - Target location at intercept
+        /// * 22 - Enter an SoI
+        /// * 23 - Exit an SoI
+        /// 
+        /// Note that entries 0 - 14 correspond to the results of `fc.TargetTypeId()`.
+        /// </summary>
+        /// <param name="iconId">The Icon Id - either `fc.TargetTypeId()` or one of the numbers listed in the description.</param>
+        /// <returns>The U shift to select the icon from the '%MAP_ICON%' texture.</returns>
+        public double MapIconU(double iconId)
+        {
+            int index = (int)iconId;
+            switch (index)
+            {
+                case 0:
+                    return 0.6; // WRONG - using Unknown Target
+                case 1:
+                    return 0.0;
+                case 2:
+                    return 0.0; // WRONG - using SHIP
+                case 3:
+                    return 0.2;
+                case 4:
+                    return 0.6;
+                case 5:
+                    return 0.6;
+                case 6:
+                    return 0.2; // WRONG! - using Probe
+                case 7:
+                    return 0.0;
+                case 8:
+                    return 0.4;
+                case 9:
+                    return 0.4;
+                case 10:
+                    return 0.8;
+                case 11:
+                    return 0.2;
+                case 12:
+                    return 0.8;
+                case 13:
+                    return 0.6;
+                case 14:
+                    return 0.4;
+                case 15:
+                    return 0.2;
+                case 16:
+                    return 0.0;
+                case 17:
+                    return 0.4;
+                case 18:
+                    return 0.6;
+                case 19:
+                    return 0.4;
+                case 20:
+                    return 0.0;
+                case 21:
+                    return 0.2;
+                case 22:
+                    return 0.0;
+                case 23:
+                    return 0.2;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the U texture shift required to display the map icon listed below.
+        /// This function is intended to be used in conjunction with the '%MAP_ICON%' texture in
+        /// MASMonitor IMAGE nodes.
+        /// 
+        /// * 0 - Invalid (not one of the below types)
+        /// * 1 - Ship target
+        /// * 2 - Plane target
+        /// * 3 - Probe target
+        /// * 4 - Lander target
+        /// * 5 - Station target
+        /// * 6 - Relay target
+        /// * 7 - Rover target
+        /// * 8 - Base target
+        /// * 9 - EVA target
+        /// * 10 - Flag target
+        /// * 11 - Debris target
+        /// * 12 - Space Object target
+        /// * 13 - Unknown target
+        /// * 14 - Celestial Body (planet)
+        /// * 15 - Ap Icon
+        /// * 16 - Pe Icon
+        /// * 17 - AN Icon
+        /// * 18 - DN Icon
+        /// * 19 - Maneuver Node Icon
+        /// * 20 - Ship location at intercept
+        /// * 21 - Target location at intercept
+        /// * 22 - Enter an SoI
+        /// * 23 - Exit an SoI
+        /// 
+        /// Note that entries 0 - 14 correspond to the results of `fc.TargetTypeId()`.
+        /// </summary>
+        /// <param name="iconId">The Icon Id - either `fc.TargetTypeId()` or one of the numbers listed in the description.</param>
+        /// <returns>The U shift to select the icon from the '%MAP_ICON%' texture.</returns>
+        public double MapIconV(double iconId)
+        {
+            int index = (int)iconId;
+            switch (index)
+            {
+                case 0:
+                    return 0.6; // WRONG - Using Unknown Target
+                case 1:
+                    return 0.6;
+                case 2:
+                    return 0.6; // WRONG - Using Ship
+                case 3:
+                    return 0.0;
+                case 4:
+                    return 0.0;
+                case 5:
+                    return 0.2;
+                case 6:
+                    return 0.0; // WRONG! - using Probe
+                case 7:
+                    return 0.0;
+                case 8:
+                    return 0.0;
+                case 9:
+                    return 0.4;
+                case 10:
+                    return 0.0;
+                case 11:
+                    return 0.6;
+                case 12:
+                    return 0.2;
+                case 13:
+                    return 0.6;
+                case 14:
+                    return 0.6;
+                case 15:
+                    return 0.8;
+                case 16:
+                    return 0.8;
+                case 17:
+                    return 0.8;
+                case 18:
+                    return 0.8;
+                case 19:
+                    return 0.2;
+                case 20:
+                    return 0.2;
+                case 21:
+                    return 0.2;
+                case 22:
+                    return 0.4;
+                case 23:
+                    return 0.4;
+            }
+
+            return 0.0;
+        }
+
         [MASProxyAttribute(Immutable = true)]
         /// <summary>
         /// Returns the version number of the MAS plugin, as a string,

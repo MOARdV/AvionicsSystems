@@ -73,11 +73,19 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Unable to find 'texture' in IMAGE " + name);
             }
-            if (textureName == "%FLAG%")
+            Texture2D mainTexture= null;
+            if (textureName == "%MAP_ICON%")
             {
-                textureName = prop.part.flagURL;
+                mainTexture = MapView.OrbitIconsMap;
             }
-            Texture2D mainTexture = GameDatabase.Instance.GetTexture(textureName, false);
+            else
+            {
+                if (textureName == "%FLAG%")
+                {
+                    textureName = prop.part.flagURL;
+                }
+                mainTexture = GameDatabase.Instance.GetTexture(textureName, false);
+            }
             if (mainTexture == null)
             {
                 throw new ArgumentException("Unable to find 'texture' " + textureName + " for IMAGE " + name);
