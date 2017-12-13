@@ -2164,7 +2164,7 @@ namespace AvionicsSystems
             {
                 return Utility.typeDict[(vc.activeTarget as Vessel).vesselType];
             }
-            else if(vc.targetType == MASVesselComputer.TargetType.DockingPort)
+            else if (vc.targetType == MASVesselComputer.TargetType.DockingPort)
             {
                 return Utility.typeDict[(vc.activeTarget as ModuleDockingNode).vessel.vesselType];
             }
@@ -2787,6 +2787,61 @@ namespace AvionicsSystems
         public string VesselType()
         {
             return Utility.typeDict[vessel.vesselType];
+        }
+
+        /// <summary>
+        /// Returns a number representing the vessel type (eg, 1 = Ship, etc).
+        /// 
+        /// * 0 - Invalid (not one of the below types)
+        /// * 1 - Ship
+        /// * 2 - Plane
+        /// * 3 - Probe
+        /// * 4 - Lander
+        /// * 5 - Station
+        /// * 6 - Relay
+        /// * 7 - Rover
+        /// * 8 - Base
+        /// * 9 - EVA
+        /// * 10 - Flag
+        /// * 11 - Debris
+        /// * 12 - Space Object
+        /// * 13 - Unknown
+        /// * 14 - Celestial Body
+        /// </summary>
+        /// <returns>A value between 1 and 13 inclusive for a vessel, or 14 for a Celestial Body, or 0 another target type.</returns>
+        public double VesselTypeId()
+        {
+            switch (vessel.vesselType)
+            {
+                case global::VesselType.Ship:
+                    return 1.0;
+                case global::VesselType.Plane:
+                    return 2.0;
+                case global:: VesselType.Probe:
+                    return 3.0;
+                case global::VesselType.Lander:
+                    return 4.0;
+                case global::VesselType.Station:
+                    return 5.0;
+                case global::VesselType.Relay:
+                    return 6.0;
+                case global::VesselType.Rover:
+                    return 7.0;
+                case global::VesselType.Base:
+                    return 8.0;
+                case global::VesselType.EVA:
+                    return 9.0;
+                case global::VesselType.Flag:
+                    return 10.0;
+                case global::VesselType.Debris:
+                    return 11.0;
+                case global::VesselType.SpaceObject:
+                    return 12.0;
+                case global::VesselType.Unknown:
+                    return 13.0;
+            }
+
+            return 0.0;
         }
         #endregion
     }
