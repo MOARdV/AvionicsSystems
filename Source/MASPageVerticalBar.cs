@@ -260,12 +260,18 @@ namespace AvionicsSystems
             {
                 // Disable the mesh if we're in variable mode
                 imageObject.SetActive(false);
-                borderObject.SetActive(false);
+                if (borderObject != null)
+                {
+                    borderObject.SetActive(false);
+                }
                 comp.RegisterNumericVariable(variableName, prop, VariableCallback);
             }
             else
             {
-                borderObject.SetActive(true);
+                if (borderObject != null)
+                {
+                    borderObject.SetActive(true);
+                }
                 imageObject.SetActive(true);
             }
         }
@@ -331,7 +337,10 @@ namespace AvionicsSystems
             if (newState != currentState)
             {
                 currentState = newState;
-                borderObject.SetActive(currentState);
+                if (borderObject != null)
+                {
+                    borderObject.SetActive(currentState);
+                }
                 imageObject.SetActive(currentState);
             }
         }
