@@ -157,10 +157,10 @@ namespace AvionicsSystems
             Mesh mesh = new Mesh();
             mesh.vertices = new[]
                 {
-                    new Vector3(0.0f, 0.0f, depth),
-                    new Vector3(size.x, 0.0f, depth),
-                    new Vector3(0.0f, -size.y, depth),
-                    new Vector3(size.x, -size.y, depth),
+                    new Vector3(0.0f, 0.0f, 0.0f),
+                    new Vector3(size.x, 0.0f, 0.0f),
+                    new Vector3(0.0f, -size.y, 0.0f),
+                    new Vector3(size.x, -size.y, 0.0f),
                 };
             mesh.uv = new[]
                 {
