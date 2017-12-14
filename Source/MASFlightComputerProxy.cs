@@ -91,6 +91,17 @@ namespace AvionicsSystems
             this.farProxy = farProxy;
             this.mjProxy = mjProxy;
             this.solver = new ApproachSolverBW();
+
+            enabledVesselTypes |= (1 << (int)global::VesselType.Probe);
+            enabledVesselTypes |= (1 << (int)global::VesselType.Relay);
+            enabledVesselTypes |= (1 << (int)global::VesselType.Rover);
+            enabledVesselTypes |= (1 << (int)global::VesselType.Lander);
+            enabledVesselTypes |= (1 << (int)global::VesselType.Ship);
+            enabledVesselTypes |= (1 << (int)global::VesselType.Plane);
+            enabledVesselTypes |= (1 << (int)global::VesselType.Station);
+            enabledVesselTypes |= (1 << (int)global::VesselType.Base);
+            enabledVesselTypes |= (1 << (int)global::VesselType.EVA);
+            enabledVesselTypes |= (1 << (int)global::VesselType.Flag);
         }
 
         ~MASFlightComputerProxy()
@@ -192,7 +203,15 @@ namespace AvionicsSystems
         // efficiently, but I don't see this being used extensively.
         private Vessel[] neighboringVessels = new Vessel[0];
         private VesselDistanceComparer distanceComparer = new VesselDistanceComparer();
+        private List<Vessel> localVessels = new List<Vessel>();
         private bool neighboringVesselsCurrent = false;
+        private int enabledVesselTypes = 0;
+
+        [MoonSharpHidden]
+        private bool EnabledType(global::VesselType type)
+        {
+            return (enabledVesselTypes & (1 << (int)type)) != 0;
+        }
 
         [MoonSharpHidden]
         private void UpdateNeighboringVessels()
@@ -202,33 +221,29 @@ namespace AvionicsSystems
                 // Populate 
                 var allVessels = FlightGlobals.fetch.vessels;
                 int allVesselCount = allVessels.Count;
-                int localVesselCount = 0;
                 CelestialBody mainBody = vessel.mainBody;
                 for (int i = 0; i < allVesselCount; ++i)
                 {
                     Vessel v = allVessels[i];
-                    if (v.mainBody == mainBody && v.vesselType != global::VesselType.Debris)
+                    if (v.mainBody == mainBody && EnabledType(v.vesselType) && v != vessel)
                     {
-                        ++localVesselCount;
+                        localVessels.Add(v);
                     }
                 }
 
-                --localVesselCount;
-
-                if (neighboringVessels.Length != localVesselCount)
+                int arrayLength = neighboringVessels.Length;
+                if (arrayLength!= localVessels.Count)
                 {
-                    neighboringVessels = new Vessel[localVesselCount];
+                    neighboringVessels = localVessels.ToArray();
                 }
-
-                int arrayIndex = 0;
-                for (int i = 0; i < allVesselCount; ++i)
+                else
                 {
-                    Vessel v = allVessels[i];
-                    if (v.mainBody == mainBody && v.vesselType != global::VesselType.Debris && v != vessel)
+                    for (int i = 0; i < arrayLength; ++i)
                     {
-                        neighboringVessels[arrayIndex++] = v;
+                        neighboringVessels[i] = localVessels[i];
                     }
                 }
+                localVessels.Clear();
 
                 distanceComparer.vesselPosition = vessel.GetTransform().position;
                 Array.Sort(neighboringVessels, distanceComparer);
