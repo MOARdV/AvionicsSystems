@@ -2462,13 +2462,10 @@ namespace AvionicsSystems
                 double taAtAltitude = vc.orbit.TrueAnomalyAtRadius(altitude + vc.mainBody.Radius);
                 // GetUTForTrueAnomaly gives us a time for when that will occur.  I don't know
                 // what parameter 2 is really supposed to do (wrapAfterSeconds), because after
-                // subtracting vc.UT, I see values sometimes 2 orbits in the past.  Which is why...
-                double timeToTa1 = vc.orbit.GetUTforTrueAnomaly(taAtAltitude, vc.orbit.period) - vc.universalTime;
-                // ... we have to normalize it here to the next time we cross that TA.
-                while (timeToTa1 < 0.0)
-                {
-                    timeToTa1 += vc.orbit.period;
-                }
+                // subtracting vc.UT, I see values sometimes 2 orbits in the past.  Which is why
+                // we have to normalize it here to the next time we cross that TA.
+                double timeToTa1 = Utility.NormalizeOrbitTime(vc.orbit.GetUTforTrueAnomaly(taAtAltitude, vc.orbit.period) - vc.universalTime, vc.orbit);
+
                 // Now, what about the other time we cross that altitude (in the range of -PI to 0)?
                 // Easy.  The orbit is symmetrical around 0, so the other TA is -taAtAltitude.
                 // I *could* use TrueAnomalyAtRadius and normalize the result, but I don't know the
@@ -2487,16 +2484,7 @@ namespace AvionicsSystems
 
                 // Then, we subtract the interval from TA1 to the Pe from the time
                 // until the Pe (that is, T(Pe) - (T(TA1) - T(Pe)), rearranging terms:
-                double timeToTa2 = 2.0 * relevantPe - timeToTa1;
-                if (timeToTa2 < 0.0)
-                {
-                    // If the relevant Pe occurred in the past, advance the time to
-                    // the next time in the future.  I could probably do some
-                    // optimizations by saying "well, this is in the past, so I know
-                    // TA1 is the future", but I doubt that buys enough of a
-                    // performance difference.
-                    timeToTa2 += vc.orbit.period;
-                }
+                double timeToTa2 = Utility.NormalizeOrbitTime(2.0 * relevantPe - timeToTa1, vc.orbit);
 
                 // Whichever occurs first is the one we care about:
                 return Math.Min(timeToTa1, timeToTa2);
