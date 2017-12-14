@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016 - 2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -191,7 +191,7 @@ namespace AvionicsSystems
             if (borderWidth > 0.0f)
             {
                 borderObject = new GameObject();
-                borderObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name+"-border", (int)(-depth / MASMonitor.depthDelta));
+                borderObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name + "-border", (int)(-depth / MASMonitor.depthDelta));
                 borderObject.layer = pageRoot.gameObject.layer;
                 borderObject.transform.parent = pageRoot;
                 borderObject.transform.position = pageRoot.position;
@@ -205,13 +205,13 @@ namespace AvionicsSystems
                 lineRenderer.SetColors(borderColor, borderColor);
                 lineRenderer.SetWidth(borderWidth, borderWidth);
 
-                float halfWidth = borderWidth * 0.5f;
+                float halfWidth = borderWidth * 0.5f - 0.5f;
                 Vector3[] borderPoints = new Vector3[]
                 {
                     new Vector3(-halfWidth, -halfWidth, 0.0f),
                     new Vector3(size.x + halfWidth, -halfWidth, 0.0f),
                     new Vector3(size.x + halfWidth, size.y + halfWidth, 0.0f),
-                    new Vector3(-halfWidth, size.y+halfWidth, 0.0f),
+                    new Vector3(-halfWidth, size.y + halfWidth, 0.0f),
                     new Vector3(-halfWidth, -halfWidth, 0.0f)
                 };
                 lineRenderer.SetVertexCount(5);
@@ -260,10 +260,12 @@ namespace AvionicsSystems
             {
                 // Disable the mesh if we're in variable mode
                 imageObject.SetActive(false);
+                borderObject.SetActive(false);
                 comp.RegisterNumericVariable(variableName, prop, VariableCallback);
             }
             else
             {
+                borderObject.SetActive(true);
                 imageObject.SetActive(true);
             }
         }
@@ -329,6 +331,7 @@ namespace AvionicsSystems
             if (newState != currentState)
             {
                 currentState = newState;
+                borderObject.SetActive(currentState);
                 imageObject.SetActive(currentState);
             }
         }
