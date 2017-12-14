@@ -266,25 +266,14 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Constrain longitude to the range (-180, 180].  KSP does not
-        /// appear to normalize the value in Vessel.
+        /// Constrain longitude to the range [-180, 180).  KSP does not
+        /// appear to normalize the value in Vessel consistently.
         /// </summary>
-        /// <param name="angle"></param>
-        /// <returns></returns>
+        /// <param name="angle">Longitudinal angle to normalize.</param>
+        /// <returns>Normalized value in the range [-180, +180)</returns>
         internal static double NormalizeLongitude(double longitude)
         {
-            if (longitude > 180.0)
-            {
-                return longitude - 360.0;
-            }
-            else if (longitude <= -180.0)
-            {
-                return longitude + 360.0;
-            }
-            else
-            {
-                return longitude;
-            }
+            return NormalizeAngle(longitude + 180.0) - 180.0;
         }
 
         /// <summary>
@@ -293,17 +282,16 @@ namespace AvionicsSystems
         /// Assumes this is not an absolute time, so events in the past are moved
         /// forward to the next occurrence.
         /// </summary>
-        /// <param name="time"></param>
-        /// <param name="o"></param>
-        /// <returns></returns>
+        /// <param name="time">Relative time to normalize.</param>
+        /// <param name="o">Orbit to normalize to</param>
+        /// <returns>Number in the range [0, o.period).</returns>
         internal static double NormalizeOrbitTime(double time, Orbit o)
         {
             if (time < 0.0)
             {
-                time = o.period + time;
+                return o.period - (-time % o.period);
             }
-
-            if (time < o.period)
+            else if (time < o.period)
             {
                 return time;
             }
