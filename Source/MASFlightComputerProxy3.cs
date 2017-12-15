@@ -2058,9 +2058,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// **UNTESTED:** signs may be incorrect.  Please report results testing this
-        /// method.
-        /// 
         /// Returns the target's velocity relative to the left-right axis of the vessel.
         /// </summary>
         /// <returns>Velocity in m/s.  Positive means the vessel is moving 'right' relative
@@ -2071,9 +2068,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// **UNTESTED:** signs may be incorrect.  Please report results testing this
-        /// method.
-        /// 
         /// Returns the target's velocity relative to the top-bottom axis of the
         /// vessel (the top / bottom of the vessel from the typical inline IVA's
         /// perspective).
@@ -2086,9 +2080,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// **UNTESTED:** signs may be incorrect.  Please report results testing this
-        /// method.
-        /// 
         /// Returns the target's velocity relative to the forward-aft axis of
         /// the vessel (the nose of an aircraft, the 'top' of a vertically-launched
         /// craft).
