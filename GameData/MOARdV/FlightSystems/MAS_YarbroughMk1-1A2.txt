@@ -2,16 +2,16 @@ Yarbrough08 Mk. 1-1 A2 Command Pod README
 
 This IVA uses the Yarbrough08 Mk. 1-1 A2 two seat command pod
 (http://forum.kerbalspaceprogram.com/index.php?/topic/88604-wip-105-2-kerbal-command-pod-mk-1-1-a2-alpha-04-spacedock/).
-Note that the command pod and heat shield config files may need fixes, since this pod has not been updated in over
-a year.
+The YarbroughMk1-1A2_Update.cfg file in this directory is a Module
+Manager patch that updates the pod and its heatshield to be similar to
+current KSP pods.
 
 The Mk. 1-1 A2 Command Pod is the current development platform for MOARdV's
 Avionics Systems.  It is the most complete MAS command pod, and it
 illustrates some of what is possible in MAS.  Some of those capabilities
 are very difficult or impossible to duplicate using RasterPropMonitor.
 
-You will need to install Module Manager and the ASET Props development
-build (dev 1.4.3 from 3-May-2017 or later - see the ASET Props thread).
+You will need to install Module Manager and the ASET Props pack.
 Obviously, you need the Yarbrough08 command pod.
 
 MechJeb is very strongly recommended.  Chatterer and RealChute are
@@ -24,15 +24,15 @@ The second primarily duplicates the first seat's functionality and instruments.
 
 Several sections of the cockpit have separate power switches located near
 them (the X-pointer, the FDAI, the IMP/Globus, the clocks, and the MechJeb
-data entry panels).
+data entry panels on the upper center column).
 
 Some of the features to look at in this build:
 
 The instrument backlight is a dimmer switch, not an on-off switch (it's near
 the center of the left seat's left side panel).
 
-Action Group buttons do not illuminate if there are no actions assigned
-to that group.
+Action Group buttons above the window do not illuminate if there are no actions
+assigned to that group.
 
 The MechJeb control panel (upper center) has a numeric
 keypad that allows the crew to type in numbers, and mode buttons
@@ -43,3 +43,10 @@ Some multi-mode buttons have dimmed backlights on some captions -
 for instance, the speed mode button (switch between surface, orbit,
 and target) and the FDAI scale buttons illuminate when enabled,
 but inactive options are dimmer than the active one.
+
+The center and right MFDs in the left (pilot) seat are advanced designs that include scrolling maps,
+MechJeb programming, virtual "mechanical" gauges, a user-configurable set of resource
+gauges, the ability to set waypoints from the list of customized waypoints,
+and more.  They also demonstrate actual softkeys, where a given key on the
+upper or lower edge of the display can have different behavior depending on
+which page is visible.
