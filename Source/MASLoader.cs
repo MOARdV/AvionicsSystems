@@ -84,7 +84,35 @@ namespace AvionicsSystems
         /// </summary>
         static public Dictionary<string, Color32> namedColors = new Dictionary<string, Color32>();
 
+        /// <summary>
+        /// Listing of all assemblies in the game.
+        /// </summary>
         static public HashSet<string> knownAssemblies = new HashSet<string>();
+
+        static private Texture2D orbitIconsAtlas;
+        /// <summary>
+        /// Accessor function to grab the updated orbit icons texture atlas, since MapView.OrbitIconsMap
+        /// is an older version of the texture that does not include planes or relays.
+        /// </summary>
+        /// <returns></returns>
+        static public Texture2D OrbitIconsAtlas()
+        {
+            if (orbitIconsAtlas == null)
+            {
+                // Courtesy DMagic and SCANSat
+                foreach (Texture2D t in Resources.FindObjectsOfTypeAll<Texture2D>())
+                {
+                    if (t.name == "OrbitIcons")
+                    {
+                        orbitIconsAtlas = t;
+                        break;
+                    }
+                }
+            }
+
+            return orbitIconsAtlas;
+        }
+
 
         MASLoader()
         {

@@ -73,10 +73,10 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Unable to find 'texture' in IMAGE " + name);
             }
-            Texture2D mainTexture= null;
+            Texture2D mainTexture = null;
             if (textureName == "%MAP_ICON%")
             {
-                mainTexture = MapView.OrbitIconsMap;
+                mainTexture = MASLoader.OrbitIconsAtlas();
             }
             else
             {
