@@ -340,7 +340,15 @@ namespace AvionicsSystems
             if (vc.maneuverNodeValid && vc.targetType > 0 && vc.targetOrbit.referenceBody == vc.nodeOrbit.referenceBody)
             {
                 solver.SolveApproach(vc.nodeOrbit, vc.targetOrbit, Planetarium.GetUniversalTime());
-                return solver.targetClosestDistance;
+
+                if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
+                {
+                    return Math.Max(0.0, solver.targetClosestDistance - (vc.activeTarget as CelestialBody).Radius);
+                }
+                else
+                {
+                    return solver.targetClosestDistance;
+                }
             }
             else
             {
