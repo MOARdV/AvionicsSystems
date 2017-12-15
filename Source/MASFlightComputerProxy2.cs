@@ -711,6 +711,7 @@ namespace AvionicsSystems
         /// * 21 - Target location at intercept
         /// * 22 - Enter an SoI
         /// * 23 - Exit an SoI
+        /// * 24 - Point of Impact (?)
         /// 
         /// Note that entries 0 - 14 correspond to the results of `fc.TargetTypeId()`.
         /// </summary>
@@ -726,7 +727,7 @@ namespace AvionicsSystems
                 case 1:
                     return 0.0;
                 case 2:
-                    return 0.0; // WRONG - using SHIP
+                    return 0.8;
                 case 3:
                     return 0.2;
                 case 4:
@@ -734,7 +735,7 @@ namespace AvionicsSystems
                 case 5:
                     return 0.6;
                 case 6:
-                    return 0.2; // WRONG! - using Probe
+                    return 0.8;
                 case 7:
                     return 0.0;
                 case 8:
@@ -769,13 +770,15 @@ namespace AvionicsSystems
                     return 0.0;
                 case 23:
                     return 0.2;
+                case 24:
+                    return 0.8;
             }
 
             return 0.0;
         }
 
         /// <summary>
-        /// Returns the U texture shift required to display the map icon listed below.
+        /// Returns the V texture shift required to display the map icon listed below.
         /// This function is intended to be used in conjunction with the '%MAP_ICON%' texture in
         /// MASMonitor IMAGE nodes.
         /// 
@@ -803,11 +806,12 @@ namespace AvionicsSystems
         /// * 21 - Target location at intercept
         /// * 22 - Enter an SoI
         /// * 23 - Exit an SoI
+        /// * 24 - Point of Impact (?)
         /// 
         /// Note that entries 0 - 14 correspond to the results of `fc.TargetTypeId()`.
         /// </summary>
         /// <param name="iconId">The Icon Id - either `fc.TargetTypeId()` or one of the numbers listed in the description.</param>
-        /// <returns>The U shift to select the icon from the '%MAP_ICON%' texture.</returns>
+        /// <returns>The V shift to select the icon from the '%MAP_ICON%' texture.</returns>
         public double MapIconV(double iconId)
         {
             int index = (int)iconId;
@@ -818,7 +822,7 @@ namespace AvionicsSystems
                 case 1:
                     return 0.6;
                 case 2:
-                    return 0.6; // WRONG - Using Ship
+                    return 0.8;
                 case 3:
                     return 0.0;
                 case 4:
@@ -826,7 +830,7 @@ namespace AvionicsSystems
                 case 5:
                     return 0.2;
                 case 6:
-                    return 0.0; // WRONG! - using Probe
+                    return 0.6;
                 case 7:
                     return 0.0;
                 case 8:
@@ -860,6 +864,8 @@ namespace AvionicsSystems
                 case 22:
                     return 0.4;
                 case 23:
+                    return 0.4;
+                case 24:
                     return 0.4;
             }
 
