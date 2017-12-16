@@ -43,6 +43,10 @@ Prop configs included in MAS are CC-BY-SA by MOARdV.
 
 ---
 
+Alexustas created the surface maps of the Mun and Minmus.  Used with permission.
+
+---
+
 MAS previously included a modified version of the KP0110 IVA originally created by
 Ledenko and released into the public domain.
 
