@@ -612,6 +612,25 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Cancel time warp.
+        /// </summary>
+        /// <returns>1 if time warp was successfully adjusted, 0 if it could not be adjusted.</returns>
+        public double CancelTimeWarp()
+        {
+            if (TimeWarp.fetch != null)
+            {
+                TimeWarp.fetch.CancelAutoWarp();
+                TimeWarp.SetRate(0, false);
+
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Applies some "realism" conditions to the variable to cause it to
         /// return zero under two general conditions:
         /// 
