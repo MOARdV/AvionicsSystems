@@ -6,7 +6,7 @@ The YarbroughMk1-1A2_Update.cfg file in this directory is a Module
 Manager patch that updates the pod and its heatshield to be similar to
 current KSP pods.
 
-The Mk. 1-1 A2 Command Pod is the current development platform for MOARdV's
+The Mk. 1-1 A2 Command Pod was the primary development platform for MOARdV's
 Avionics Systems.  It is the most complete MAS command pod, and it
 illustrates some of what is possible in MAS.  Some of those capabilities
 are very difficult or impossible to duplicate using RasterPropMonitor.
@@ -44,9 +44,10 @@ for instance, the speed mode button (switch between surface, orbit,
 and target) and the FDAI scale buttons illuminate when enabled,
 but inactive options are dimmer than the active one.
 
-The center and right MFDs in the left (pilot) seat are advanced designs that include scrolling maps,
+The MFDs in the left (pilot) seat are advanced designs that include scrolling maps,
 MechJeb programming, virtual "mechanical" gauges, a user-configurable set of resource
 gauges, the ability to set waypoints from the list of customized waypoints,
 and more.  They also demonstrate actual softkeys, where a given key on the
 upper or lower edge of the display can have different behavior depending on
-which page is visible.
+which page is visible.  On the center console between the two crew is an older-style
+MFD whose behavior is more like a RasterPropMonitor MFD.
