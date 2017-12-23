@@ -1,0 +1,41 @@
+MRK DM and DM(r) Command Pod README
+
+This IVA updates the MRK Descent Module found as part of the Commonwealth Rockets
+mod (https://forum.kerbalspaceprogram.com/index.php?/topic/164365-13-commonwealth-rockets-tea-powered-spaceflight-in-development/).
+
+You will need to install Module Manager and the ASET Props pack, as well as
+Near Future Props (https://forum.kerbalspaceprogram.com/index.php?/topic/166941-131-near-future-props-prop-assets-for-iva-developers-december-15th-2017/).
+Obviously, you need the MRK command pod.
+
+MechJeb is very strongly recommended.  Chatterer and RealChute are
+recommended.
+
+A short orientation to the cockpit layout:
+
+Most of the pilot functionality is focused on the left (first IVA) seat.
+
+Several sections of the cockpit have separate power switches located near
+them (the X-pointer, the FDAI, the IMP/Globus, the clocks, and the MechJeb
+data entry panels).
+
+Some of the features to look at in this build:
+
+The instrument backlight is a dimmer switch, not an on-off switch (it's on
+the left seat's left panel).
+
+Action Group buttons between the windows do not illuminate if there are no actions
+assigned to that group.
+
+The MechJeb control panel (lower center) has a numeric
+keypad that allows the crew to type in numbers, and mode buttons
+that allow the panel to read from or write to various MJ autopilot
+"registers" (launch altitude, launch inclination, Ap, Pe, and Altitude).
+
+Some multi-mode buttons have dimmed backlights on some captions -
+for instance, the speed mode button (switch between surface, orbit,
+and target) and the FDAI scale buttons illuminate when enabled,
+but inactive options are dimmer than the active one.
+
+In addition to the advanced MFDs available to the pilot, there is a
+basic data monitor.  This monitor can be set to display one of several
+types of information by simply tapping on it to change pages.
