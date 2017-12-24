@@ -429,6 +429,8 @@ namespace AvionicsSystems
         /// Provides MAS-native methods for common math primitives.  These methods generally
         /// duplicate the functions in the Lua math table, but by placing them in MAS, MAS
         /// can use native delegates instead of having to call into Lua (which is slower).
+        /// 
+        /// This region also contains other useful mathematical methods.
         /// </summary>
         #region Math
 
@@ -439,6 +441,23 @@ namespace AvionicsSystems
         public double Abs(double value)
         {
             return Math.Abs(value);
+        }
+
+        /// <summary>
+        /// Returns 1 if `value` is at least equal to `lowerBound` and not greater
+        /// than `upperBound`.  Returns 0 otherwise.
+        /// 
+        /// In other words,
+        /// * If `value` &gt;= `lowerBound` and `value` &lt;= `upperBound`, return 1.
+        /// * Otherwise, reutrn 0.
+        /// </summary>
+        /// <param name="value">The value to test.</param>
+        /// <param name="lowerBound">The lower bound (inclusive) of the range to test.</param>
+        /// <param name="upperBound">The upper bound (inclusive) of the range to test.</param>
+        /// <returns>1 if `value` is between `lowerBound` and `upperBound`, 0 otherwise.</returns>
+        public double Between(double value, double lowerBound, double upperBound)
+        {
+            return (value >= lowerBound && value <= upperBound) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -614,13 +633,14 @@ namespace AvionicsSystems
         /// <summary>
         /// Cancel time warp.
         /// </summary>
+        /// <param name="instantCancel">If true, time warp is immediately set to x1.  If false, time warp counts downward like in normal gameplay.</param>
         /// <returns>1 if time warp was successfully adjusted, 0 if it could not be adjusted.</returns>
-        public double CancelTimeWarp()
+        public double CancelTimeWarp(bool instantCancel)
         {
             if (TimeWarp.fetch != null)
             {
                 TimeWarp.fetch.CancelAutoWarp();
-                TimeWarp.SetRate(0, false);
+                TimeWarp.SetRate(0, instantCancel);
 
                 return 1.0;
             }

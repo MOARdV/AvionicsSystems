@@ -2699,19 +2699,6 @@ namespace AvionicsSystems
         #region Unassigned Region
 
         /// <summary>
-        /// Returns 1 if `value` is at least equal to `lowerBound` and not greater
-        /// than `upperBound`.  Returns 0 otherwise.
-        /// </summary>
-        /// <param name="value">The value to test.</param>
-        /// <param name="lowerBound">The lower bound of the range to test.</param>
-        /// <param name="upperBound">The upper bound of the range to test.</param>
-        /// <returns>1 if `value` is between `lowerBound` and `upperBound`, 0 otherwise.</returns>
-        public double Between(double value, double lowerBound, double upperBound)
-        {
-            return (value >= lowerBound && value <= upperBound) ? 1.0 : 0.0;
-        }
-
-        /// <summary>
         /// Send a softkey event to the named monitor.  A softkey is a numeric integer code that
         /// may be interpreted by the active page on that monitor, or it may be forwarded to
         /// the components of that page (such as an `RPM_MODULE` node).
