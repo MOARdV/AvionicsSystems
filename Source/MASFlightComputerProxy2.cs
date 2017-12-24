@@ -631,6 +631,46 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Converts the supplied RGB value into a MAS text color tag
+        /// (eg, `fc.HexColor(255, 255, 0)` returns "[#ffff00]").
+        /// This value is slightly more efficient if you do not need to
+        /// change the alpha channel.
+        /// 
+        /// All values are clamped to the range 0 to 255.
+        /// </summary>
+        /// <param name="red">Red channel value, [0, 255]</param>
+        /// <param name="green">Green channel value, [0, 255]</param>
+        /// <param name="blue">Blue channel value, [0, 255]</param>
+        /// <returns></returns>
+        public string ColorTag(double red, double green, double blue)
+        {
+            int r = Mathf.Clamp((int)(red + 0.5), 0, 255);
+            int g = Mathf.Clamp((int)(green + 0.5), 0, 255);
+            int b = Mathf.Clamp((int)(blue + 0.5), 0, 255);
+            return string.Format("[#{0:X2}{1:X2}{2:X2}]", r, g, b);
+        }
+
+        /// <summary>
+        /// Converts the supplied RGBA value into a MAS text color tag
+        /// (eg, `fc.HexColor(255, 255, 0, 255)` returns "[#ffff00ff]").
+        /// 
+        /// All values are clamped to the range 0 to 255.
+        /// </summary>
+        /// <param name="red">Red channel value, [0, 255]</param>
+        /// <param name="green">Green channel value, [0, 255]</param>
+        /// <param name="blue">Blue channel value, [0, 255]</param>
+        /// <param name="alpha">Alpha channel value, [0, 255]</param>
+        /// <returns></returns>
+        public string ColorTag(double red, double green, double blue, double alpha)
+        {
+            int r = Mathf.Clamp((int)(red + 0.5), 0, 255);
+            int g = Mathf.Clamp((int)(green + 0.5), 0, 255);
+            int b = Mathf.Clamp((int)(blue + 0.5), 0, 255);
+            int a = Mathf.Clamp((int)(alpha + 0.5), 0, 255);
+            return string.Format("[#{0:X2}{1:X2}{2:X2}{3:X2}]", r, g, b, a);
+        }
+
+        /// <summary>
         /// Applies some "realism" conditions to the variable to cause it to
         /// return zero under two general conditions:
         /// 
