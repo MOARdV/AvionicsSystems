@@ -1347,6 +1347,36 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns a quality value for the CommNet signal.  The quality value correlates to
+        /// the "signal bars" display on the KSP UI.
+        /// 
+        /// * 0 - No signal
+        /// * 1 - Red
+        /// * 2 - Orange 
+        /// * 3 - Yellow
+        /// * 4 - Green
+        /// </summary>
+        /// <returns>A value from 0 to 4 as described in the summary.</returns>
+        public double CommNetSignalQuality()
+        {
+            switch (vessel.connection.Signal)
+            {
+                case CommNet.SignalStrength.None:
+                    return 0.0;
+                case CommNet.SignalStrength.Red:
+                    return 1.0;
+                case CommNet.SignalStrength.Orange:
+                    return 2.0;
+                case CommNet.SignalStrength.Yellow:
+                    return 3.0;
+                case CommNet.SignalStrength.Green:
+                    return 4.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the signal strength of the CommNet signal.
         /// </summary>
         /// <returns>A value between 0 (no signal) and 1 (maximum signal strength).</returns>
