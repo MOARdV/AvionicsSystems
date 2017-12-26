@@ -935,7 +935,7 @@ namespace AvionicsSystems
 
                 if (activeTarget is Vessel)
                 {
-                    targetType = TargetType.Vessel;
+                    targetType = ((activeTarget as Vessel).vesselType == VesselType.SpaceObject) ? TargetType.Asteroid : TargetType.Vessel;
                 }
                 else if (activeTarget is CelestialBody)
                 {

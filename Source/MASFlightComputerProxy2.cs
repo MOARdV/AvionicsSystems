@@ -407,8 +407,6 @@ namespace AvionicsSystems
         #region Mass
         /// <summary>
         /// Returns the mass of the vessel.
-        /// 
-        /// **NOT IMPLEMENTED**: Dry mass.
         /// </summary>
         /// <param name="wetMass">wet mass if true, dry mass otherwise</param>
         /// <returns>Vessel mass in kg.</returns>
@@ -420,7 +418,7 @@ namespace AvionicsSystems
             }
             else
             {
-                return 1.0;
+                return vessel.totalMass - vc.totalResourceMass;
             }
         }
         #endregion
@@ -2692,17 +2690,20 @@ namespace AvionicsSystems
         /// <summary>
         /// Enables any RCS ports that have been disabled.
         /// </summary>
-        public void EnableAllRCS()
+        /// <returns>1 if any disabled RCS ports were enabled, 0 if there were no disabled ports.</returns>
+        public double EnableAllRCS()
         {
+            double anyEnabled = 0.0;
             for (int i = vc.moduleRcs.Length - 1; i >= 0; --i)
             {
                 if (!vc.moduleRcs[i].rcsEnabled)
                 {
-                    // UNTESTED
                     vc.moduleRcs[i].rcsEnabled = true;
-                    //vc.moduleRcs[i].Enable();
+                    anyEnabled = 1.0;
                 }
             }
+
+            return anyEnabled;
         }
 
         /// <summary>

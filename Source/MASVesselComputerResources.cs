@@ -76,6 +76,11 @@ namespace AvionicsSystems
         /// </summary>
         private ResourceData dummyResource;
 
+        /// <summary>
+        /// Total mass of all current resources.
+        /// </summary>
+        internal float totalResourceMass;
+
         private ResourceNameComparer resourceNameComparer = new ResourceNameComparer();
 
         internal struct ResourceData
@@ -618,12 +623,16 @@ namespace AvionicsSystems
         /// </summary>
         private void PrepareResourceData()
         {
+            totalResourceMass = 0.0f;
+
             for (int i = resources.Length - 1; i >= 0; --i)
             {
                 vesselActiveResource[i] = int.MaxValue;
 
                 double amount, maxAmount;
                 vessel.GetConnectedResourceTotals(resources[i].id, out amount, out maxAmount);
+
+                totalResourceMass += (float)amount * resources[i].density;
 
                 resources[i].currentQuantity = (float)amount;
                 resources[i].maxQuantity = (float)maxAmount;

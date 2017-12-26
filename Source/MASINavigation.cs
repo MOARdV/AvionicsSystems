@@ -215,8 +215,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// **UNTESTED**
-        /// 
         /// Returns the cross-track distance, in meters, of the specified location relative to the path specified by
         /// `latitude1`, `longitude`, and `bearing1`.
         /// </summary>
@@ -239,8 +237,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// **UNTESTED**
-        /// 
         /// Returns the cross-track distance, in meters, of the specified location relative to the vessel's current heading.
         /// </summary>
         /// <param name="latitude">Latitude of the location of interest.</param>
