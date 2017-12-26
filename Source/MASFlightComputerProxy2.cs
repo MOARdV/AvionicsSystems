@@ -1078,12 +1078,79 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Attempt to set time warp rate to warpRate.  Because KSP has specific
+        /// supported rates, the rate selected may not match the rate
+        /// requested.  Warp rates are not changed when physics warp is enabled
+        /// (such as while flying in the atmosphere).
+        /// </summary>
+        /// <param name="warpRate">The desired warp rate, such as '50'.</param>
+        /// <param name="instantChange">Should the rate be changed instantly?</param>
+        /// <returns>The warp rate selected.  This may not be the exact value requested.</returns>
+        public double SetWarp(double warpRate, bool instantChange)
+        {
+            if (TimeWarp.fetch != null)
+            {
+                if (warpRate <= 1.0)
+                {
+                    TimeWarp.fetch.CancelAutoWarp();
+                    TimeWarp.SetRate(0, instantChange);
+
+                    return 1.0;
+                }
+                else if (warpRate != TimeWarp.CurrentRate && TimeWarp.WarpMode == TimeWarp.Modes.HIGH)
+                {
+                    int rateIndex;
+                    int maxRate = (vessel.situation == Vessel.Situations.LANDED || vessel.situation == Vessel.Situations.PRELAUNCH || vessel.situation == Vessel.Situations.SPLASHED) ? TimeWarp.fetch.warpRates.Length : TimeWarp.fetch.GetMaxRateForAltitude(vessel.altitude, vessel.mainBody);
+
+                    if (maxRate > 0)
+                    {
+
+                        for (rateIndex = 0; rateIndex <= maxRate; ++rateIndex)
+                        {
+                            if (TimeWarp.fetch.warpRates[rateIndex] > warpRate)
+                            {
+                                break;
+                            }
+                        }
+                        --rateIndex;
+                        TimeWarp.SetRate(rateIndex, instantChange);
+
+                        return TimeWarp.fetch.warpRates[rateIndex];
+                    }
+                }
+            }
+
+            return TimeWarp.CurrentRate;
+        }
+
+        /// <summary>
         /// Returns 1 if the vessel is recoverable, 0 otherwise.
         /// </summary>
         /// <returns>1 if the craft can be recovered, 0 otherwise.</returns>
         public double VesselRecoverable()
         {
             return (vessel.IsRecoverable) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Warp to the specified universal time.  If the time is in the past, or
+        /// the warp is otherwise not possible, nothing happens.
+        /// </summary>
+        /// <param name="UT"></param>
+        /// <returns>1 if the warp to time is successfully set, 0 if it was not.</returns>
+        public double WarpTo(double UT)
+        {
+            if (TimeWarp.fetch != null && UT > Planetarium.GetUniversalTime())
+            {
+                TimeWarp.fetch.CancelAutoWarp();
+                TimeWarp.fetch.WarpTo(UT);
+                
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
+            }
         }
         #endregion
 
