@@ -80,6 +80,15 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Aircraft Engines
+        private List<MASThrustReverser> thrustReverserList = new List<MASThrustReverser>(4);
+        internal MASThrustReverser[] moduleThrustReverser = new MASThrustReverser[0];
+        private void UpdateAircraftEngines()
+        {
+
+        }
+        #endregion
+
         #region Cameras
         private List<MASCamera> cameraList = new List<MASCamera>(4);
         internal MASCamera[] moduleCamera = new MASCamera[0];
@@ -1088,6 +1097,13 @@ namespace AvionicsSystems
                         {
                             proceduralFairingList.Add(module as ModuleProceduralFairing);
                         }
+                        else if (module is MASThrustReverser)
+                        {
+                            if (module.isEnabled)
+                            {
+                                thrustReverserList.Add(module as MASThrustReverser);
+                            }
+                        }
 
                         foreach (BaseAction ba in module.Actions)
                         {
@@ -1148,6 +1164,7 @@ namespace AvionicsSystems
             TransferModules<ModuleDeployableSolarPanel>(solarPanelList, ref moduleSolarPanel);
             TransferModules<MASCamera>(cameraList, ref moduleCamera);
             TransferModules<ModuleProceduralFairing>(proceduralFairingList, ref moduleProceduralFairing);
+            TransferModules<MASThrustReverser>(thrustReverserList, ref moduleThrustReverser);
         }
 
         /// <summary>
@@ -1175,6 +1192,7 @@ namespace AvionicsSystems
             }
 
             bool requestReset = false;
+            UpdateAircraftEngines();
             UpdateAntenna();
             UpdateCamera();
             UpdateDockingNodeState();

@@ -97,6 +97,11 @@ namespace AvionicsSystems
         private MASIChatterer chattererProxy;
 
         /// <summary>
+        /// Instance of the aircraft engines proxy class.
+        /// </summary>
+        private MASIEngine engineProxy;
+
+        /// <summary>
         /// Instance of the FAR proxy class.
         /// </summary>
         private MASIFAR farProxy;
@@ -625,6 +630,7 @@ namespace AvionicsSystems
             script = null;
             fcProxy = null;
             chattererProxy = null;
+            engineProxy = null;
             mjProxy = null;
             navProxy = null;
             farProxy = null;
@@ -696,6 +702,10 @@ namespace AvionicsSystems
                     UserData.RegisterType<MASIChatterer>();
                     script.Globals["chatterer"] = chattererProxy;
 
+                    engineProxy = new MASIEngine();
+                    UserData.RegisterType<MASIEngine>();
+                    script.Globals["engine"] = engineProxy;
+
                     farProxy = new MASIFAR(vessel);
                     UserData.RegisterType<MASIFAR>();
                     script.Globals["far"] = farProxy;
@@ -750,6 +760,8 @@ namespace AvionicsSystems
                 // TODO: Don't need to set vessel for all of these guys if I just now init'd them.
                 fcProxy.vc = vc;
                 fcProxy.vessel = vessel;
+                engineProxy.vc = vc;
+
                 //farProxy.vessel = vessel;
                 //kacProxy.vessel = vessel;
                 mjProxy.UpdateVessel(vessel, vc);
@@ -897,6 +909,7 @@ namespace AvionicsSystems
                 fcProxy.vc = vc;
                 fcProxy.vessel = vessel;
                 chattererProxy.UpdateVessel();
+                engineProxy.vc = vc;
                 farProxy.vessel = vessel;
                 kacProxy.vessel = vessel;
                 mjProxy.UpdateVessel(vessel, vc);
