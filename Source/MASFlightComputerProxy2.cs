@@ -67,6 +67,88 @@ namespace AvionicsSystems
     /// </mdDoc>
     internal partial class MASFlightComputerProxy
     {
+        private const string siPrefixes = " kMGTPEZY";
+
+        [MoonSharpHidden]
+        private string DoSIFormat(double value, int length, int minDecimal, string delimiter, bool forceSign, bool showPrefix)
+        {
+            //Utility.LogMessage(this, "DoSIFormat {0}, {1}, {2}, x, {3}, {4}", value, length, minDecimal, forceSign, showPrefix);
+            int leadingDigitExponent = (int)Math.Floor(Math.Log10(Math.Abs(value)));
+            if (value == 0.0 || leadingDigitExponent < 0)
+            {
+                // special case: can't take log(0).
+                leadingDigitExponent = 0;
+            }
+
+            // How many characters need to be set aside?
+            int reservedCharacters = (minDecimal > 0) ? (1 + minDecimal) : 0;
+            if (showPrefix)
+            {
+                ++reservedCharacters;
+            }
+            if (value < 0.0 || forceSign)
+            {
+                ++reservedCharacters;
+            }
+
+            // How much space is there to work with?
+            int freeCharacters = length - reservedCharacters;
+
+            // Nearest SI exponent to the value.
+            int siExponent = Math.Min((int)Math.Floor(leadingDigitExponent / 3.0), siPrefixes.Length - 1) * 3;
+
+            int digits = leadingDigitExponent - siExponent;
+            double scaledInputValue = Math.Round(value / Math.Pow(10.0, siExponent), minDecimal);
+            int scaledLength = (int)Math.Floor(Math.Log10(Math.Abs(scaledInputValue))) + 1;
+            int groupLen = (string.IsNullOrEmpty(delimiter)) ? 3 : 4;
+
+            int freeCh2 = freeCharacters - ((scaledLength == 4) ? groupLen + 1 : scaledLength);
+            //Utility.LogMessage(this, "freeCh2 => {0}, si = {1}", freeCh2, siExponent);
+            while (freeCh2 >= groupLen && siExponent >= 3)
+            {
+                freeCh2 -= groupLen;
+                siExponent -= 3;
+                //Utility.LogMessage(this, "freeCh2 => {0}, si = {1}", freeCh2, siExponent);
+            }
+            if (minDecimal == 0 && freeCh2 > 0)
+            {
+                // Reserve a space for the decimal
+                --freeCh2;
+            }
+            minDecimal += freeCh2;
+            scaledInputValue = Math.Round(value / Math.Pow(10.0, siExponent), minDecimal);
+            
+            // TODO: Make a cache of format strings based on length, minDecimal (as adjusted at this point), and showPrefix.
+
+            //Utility.LogMessage(this, "leadExp = {1}, siExp = {2}, reserve = {0}, freeCh = {3}, scaledIn = {6}, scaledLen = {7}, freeCh2 = {5}",
+            //    reservedCharacters,
+            //    leadingDigitExponent,
+            //    siExponent,
+            //    freeCharacters,
+            //    digits,
+            //    freeCh2,
+            //    scaledInputValue,
+            //    scaledLength);
+            var result = StringBuilderCache.Acquire();
+            result.AppendFormat("{{0,{0}:", length);
+            if (groupLen == 4)
+            {
+                result.Append("#,#");
+            }
+            result.Append("0");
+            if (minDecimal > 0)
+            {
+                result.Append('.').Append('0', minDecimal);
+            }
+            result.Append("}");
+            if (showPrefix)
+            {
+                result.Append("{1}");
+            }
+
+            //Utility.LogMessage(this, "\"{0}\" -> \"{1}\"", result.ToString(), string.Format(result.ToString(), scaledInputValue, 'Q'));
+            return string.Format(result.ToStringAndRelease(), scaledInputValue, siPrefixes[siExponent / 3]);
+        }
 
         /// <summary>
         /// Methods for querying and controlling maneuver nodes are in this category.
@@ -738,6 +820,23 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Provides a custom SI formatter with more control than the basic SIP format.
+        /// 
+        /// **NOT IMPLEMENTED:** Custom delimiter.
+        /// </summary>
+        /// <param name="value">The number to format.</param>
+        /// <param name="totalLength">The total length of the string.</param>
+        /// <param name="minDecimal">The minimum decimal precision of the string.</param>
+        /// <param name="delimiter">A custom delimiter, or an empty string "" to indicate no delimiter</param>
+        /// <param name="forceSign">Require a space for the sign, even if the value is positive</param>
+        /// <param name="showPrefix">Whether the SI prefix should be appended to the string.</param>
+        /// <returns>The formatted string.</returns>
+        public string SIFormatValue(double value, double totalLength, double minDecimal, string delimiter, bool forceSign, bool showPrefix)
+        {
+            return DoSIFormat(value, (int)totalLength, (int)minDecimal, delimiter, forceSign, showPrefix);
+        }
+
+        /// <summary>
         /// Returns the number of hours per day, depending on whether the game
         /// is configured for the Earth calendar or the Kerbin calendar.
         /// </summary>
@@ -1143,7 +1242,7 @@ namespace AvionicsSystems
             {
                 TimeWarp.fetch.CancelAutoWarp();
                 TimeWarp.fetch.WarpTo(UT);
-                
+
                 return 1.0;
             }
             else
