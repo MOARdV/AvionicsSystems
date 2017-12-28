@@ -970,15 +970,16 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Play the audio file specified in `sound`, at the volume specified in `volume`.
-        /// 
-        /// **NOT IMPLEMENTED YET.**
+        /// If `stopCurrent` is true, any current sound clip is canceled first.  If `stopCurrent`
+        /// is false, and an audio clip is currently playing, this call to PlayAudio does nothing.
         /// </summary>
-        /// <param name="sound">The name of the sound to play.</param>
-        /// <param name="volume">The volume to use for playback, with 1.0 equal to default volume.</param>
+        /// <param name="sound">The name (URI) of the sound to play.</param>
+        /// <param name="volume">The volume to use for playback, between 0 and 1 (inclusive).</param>
+        /// <param name="stopCurrent">If 'true', stops any current audio clip being played.</param>
         /// <returns>Returns 1 if the audio was played, 0 if it was not found or otherwise not played.</returns>
-        public double PlayAudio(string sound, double volume)
+        public double PlayAudio(string sound, double volume, bool stopCurrent)
         {
-            return 0.0;
+            return fc.PlayAudio(sound, Mathf.Clamp01((float)volume), stopCurrent) ? 1.0 : 0.0;
         }
 
         /// <summary>

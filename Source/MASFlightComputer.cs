@@ -465,7 +465,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         internal kerbalExpressionSystem GetLocalKES(int crewSeat)
         {
-            if (crewSeat >=0 && crewSeat < localCrew.Length && localCrew[crewSeat] != null)
+            if (crewSeat >= 0 && crewSeat < localCrew.Length && localCrew[crewSeat] != null)
             {
                 localCrew[crewSeat].KerbalRef.GetComponentCached<kerbalExpressionSystem>(ref localCrewMedical[crewSeat]);
 
@@ -830,6 +830,10 @@ namespace AvionicsSystems
 
                 }
 
+                audioObject.name = "MASFlightComputerAudio-" + flightComputerId;
+                audioSource = audioObject.AddComponent<AudioSource>();
+                audioSource.spatialBlend = 0.0f;
+
                 UpdateLocalCrew();
 
                 GameEvents.onVesselWasModified.Add(onVesselChanged);
@@ -874,6 +878,45 @@ namespace AvionicsSystems
                 localCrewMedical = new kerbalExpressionSystem[0];
             }
         }
+        #endregion
+
+        #region Audio Player
+        GameObject audioObject = new GameObject();
+        AudioSource audioSource;
+
+        /// <summary>
+        /// Select and play an audio clip.
+        /// 
+        /// If stopCurrent is true, any current audio is stopped, first.  If stopCurrent is
+        /// false and audio is playing, the new clip does not play.
+        /// </summary>
+        /// <param name="clipName">URI of the clip to load & play.</param>
+        /// <param name="volume">Volume (clamped to [0, 1]) for playback.</param>
+        /// <param name="stopCurrent">Whether current audio should be stopped.</param>
+        /// <returns>true if the clip was loaded and is playing, false if the clip was not played.</returns>
+        internal bool PlayAudio(string clipName, float volume, bool stopCurrent)
+        {
+            AudioClip clip = GameDatabase.Instance.GetAudioClip(clipName);
+            if (clip == null)
+            {
+                return false;
+            }
+
+            if (stopCurrent)
+            {
+                audioSource.Stop();
+            }
+            else if (audioSource.isPlaying)
+            {
+                return false;
+            }
+
+            audioSource.clip = clip;
+            audioSource.volume = GameSettings.SHIP_VOLUME * volume;
+            audioSource.Play();
+            return true;
+        }
+
         #endregion
 
         #region GameEvent Callbacks
