@@ -160,6 +160,21 @@ namespace AvionicsSystems
                 timeToImpact = 0.0;
             }
         }
+
+        private kerbalExpressionSystem[] crewExpression = new kerbalExpressionSystem[0];
+        [MoonSharpHidden]
+        private kerbalExpressionSystem GetVesselCrewExpression(int index)
+        {
+            if (crewExpression.Length != vessel.GetCrewCount())
+            {
+                crewExpression = new kerbalExpressionSystem[vessel.GetCrewCount()];
+            }
+
+            vessel.GetVesselCrew()[index].KerbalRef.GetComponentCached<kerbalExpressionSystem>(ref crewExpression[index]);
+
+            return crewExpression[index];
+        }
+
         /// <summary>
         /// Private method to map a string or number to a CelestialBody.
         /// </summary>
@@ -1525,11 +1540,14 @@ namespace AvionicsSystems
         /// 
         /// `seatNumber` is a 0-based index to select which seat is being queried.  This
         /// means that a 3-seat pod has valid seat numbers 0, 1, and 2.  A single-seat
-        /// pod as a valid seat number 0.
+        /// pod has a valid seat number 0.
         /// 
-        /// For IVA makers used to RasterPropMonitor, MAS does not support full-vessel crew reports.
-        /// Only current-pod crew info is reported due to the cost involved with tracking all crew
-        /// in a vessel.
+        /// One difference to be aware of between RPM and MAS: The full-vessel crew info
+        /// (those methods starting 'VesselCrew') provide info on crew members without
+        /// regards to seating arrangements.  For instance, if the command pod has 2 of 3
+        /// seats occupied, and a passenger pod as 1 of 4 seats occupied, VesselCrewCount
+        /// will return 3, and the crew info (eg, VesselCrewName) will provide values for
+        /// indices 0, 1, and 2.
         /// </summary>
         #region Crew
         /// <summary>
@@ -1543,7 +1561,7 @@ namespace AvionicsSystems
         {
             int seatIdx = (int)seatNumber;
 
-            return (seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null && fc.localCrew[seatIdx].isBadass) ? 1.0 : 0.0;
+            return (seatIdx >= 0 && seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null && fc.localCrew[seatIdx].isBadass) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -1554,9 +1572,25 @@ namespace AvionicsSystems
         public double CrewExperience(double seatNumber)
         {
             int seatIdx = (int)seatNumber;
-            if (seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null)
+            if (seatIdx >= 0 && seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null)
             {
                 return fc.localCrew[seatIdx].experience;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns a number representing the gender of the selected crew member.
+        /// </summary>
+        /// <param name="seatNumber">The index of the seat to check.  Indices start at 0.</param>
+        /// <returns>1 if the crew is male, 2 if the crew is female, 0 if the seat is empty.</returns>
+        public double CrewGender(double seatNumber)
+        {
+            int seatIdx = (int)seatNumber;
+            if (seatIdx >= 0 && seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null)
+            {
+                return (fc.localCrew[seatIdx].gender == ProtoCrewMember.Gender.Male) ? 1.0 : 2.0;
             }
 
             return 0.0;
@@ -1570,7 +1604,7 @@ namespace AvionicsSystems
         public double CrewLevel(double seatNumber)
         {
             int seatIdx = (int)seatNumber;
-            if (seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null)
+            if (seatIdx >= 0 && seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null)
             {
                 return fc.localCrew[seatIdx].experienceLevel;
             }
@@ -1589,7 +1623,7 @@ namespace AvionicsSystems
         public string CrewName(double seatNumber)
         {
             int seatIdx = (int)seatNumber;
-            if (seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null)
+            if (seatIdx >= 0 && seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null)
             {
                 return fc.localCrew[seatIdx].name;
             }
@@ -1605,9 +1639,10 @@ namespace AvionicsSystems
         public double CrewPanic(double seatNumber)
         {
             int seatIdx = (int)seatNumber;
-            if (seatIdx < fc.localCrewMedical.Length && fc.localCrewMedical[seatIdx] != null)
+            var expression = fc.GetLocalKES(seatIdx);
+            if (expression != null)
             {
-                return fc.localCrewMedical[seatIdx].panicLevel;
+                return expression.panicLevel;
             }
 
             return 0.0;
@@ -1621,7 +1656,7 @@ namespace AvionicsSystems
         public double CrewStupidity(double seatNumber)
         {
             int seatIdx = (int)seatNumber;
-            if (seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null)
+            if (seatIdx >= 0 && seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null)
             {
                 return fc.localCrew[seatIdx].stupidity;
             }
@@ -1638,7 +1673,7 @@ namespace AvionicsSystems
         public string CrewTitle(double seatNumber)
         {
             int seatIdx = (int)seatNumber;
-            if (seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null)
+            if (seatIdx >= 0 && seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null)
             {
                 return fc.localCrew[seatIdx].experienceTrait.Title;
             }
@@ -1654,32 +1689,22 @@ namespace AvionicsSystems
         public double CrewWhee(double seatNumber)
         {
             int seatIdx = (int)seatNumber;
-            if (seatIdx < fc.localCrewMedical.Length && fc.localCrewMedical[seatIdx] != null)
+            var expression = fc.GetLocalKES(seatIdx);
+            if (expression != null)
             {
-                return fc.localCrewMedical[seatIdx].wheeLevel;
+                return expression.wheeLevel;
             }
 
             return 0.0;
         }
 
         /// <summary>
-        /// Returns the number of seats in the current IVA pod or the overall
-        /// vessel, depending on whether `localSeat` is true or false.
+        /// Returns the number of seats in the current IVA pod.
         /// </summary>
         /// <returns>The selected number of seats (1 or more).</returns>
         public double NumberSeats()
         {
             return fc.localCrew.Length;
-        }
-
-        /// <summary>
-        /// Returns 1 if the `seatNumber` refers to a valid seat index.  0 otherwise.
-        /// </summary>
-        /// <param name="seatNumber">The index of the seat to check.  Indices start at 0.</param>
-        /// <returns>1 if `seatNumber` is a valid seat; 0 otherwise.</returns>
-        public double SeatExists(double seatNumber)
-        {
-            return ((int)seatNumber < fc.localCrew.Length) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -1691,7 +1716,183 @@ namespace AvionicsSystems
         public double SeatOccupied(double seatNumber)
         {
             int seatIdx = (int)seatNumber;
-            return (seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null) ? 1.0 : 0.0;
+            return (seatIdx >= 0 && seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the selected crew has the 'BadS' trait.  Returns 0 if
+        /// `crewIndex` is invalid or the crew does
+        /// not possess the 'BadS' trait.
+        /// </summary>
+        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0.</param>
+        /// <returns>1 or 0 (see summary)</returns>
+        public double VesselCrewBadS(double crewIndex)
+        {
+            int index = (int)crewIndex;
+
+            if (index >= 0 && index < vessel.GetCrewCount())
+            {
+                return (vessel.GetVesselCrew()[index].isBadass) ? 1.0 : 0.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Capacity of all crewed locations on the vessel.
+        /// </summary>
+        /// <returns>0 or higher.</returns>
+        public double VesselCrewCapacity()
+        {
+            return vessel.GetCrewCapacity();
+        }
+
+        /// <summary>
+        /// Total count of crew aboard the vessel.
+        /// </summary>
+        /// <returns>0 or higher.</returns>
+        public double VesselCrewCount()
+        {
+            return vessel.GetCrewCount();
+        }
+
+        /// <summary>
+        /// Returns the number of experience points for the selected crew member.
+        /// </summary>
+        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0.</param>
+        /// <returns>A number 0 or higher; 0 if the requested seat is invalid.</returns>
+        public double VesselCrewExperience(double crewIndex)
+        {
+            int index = (int)crewIndex;
+
+            if (index >= 0 && index < vessel.GetCrewCount())
+            {
+                return vessel.GetVesselCrew()[index].experience;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns a number representing the gender of the selected crew member.
+        /// </summary>
+        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0.</param>
+        /// <returns>1 if the crew is male, 2 if the crew is female, 0 if the index is invalid.</returns>
+        public double VesselCrewGender(double crewIndex)
+        {
+            int index = (int)crewIndex;
+
+            if (index >= 0 && index < vessel.GetCrewCount())
+            {
+                return (vessel.GetVesselCrew()[index].gender == ProtoCrewMember.Gender.Male) ? 1.0 : 2.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the experience level of the selected crew member.
+        /// </summary>
+        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0.</param>
+        /// <returns>A number 0-5; 0 if the requested index is invalid.</returns>
+        public double VesselCrewLevel(double crewIndex)
+        {
+            int index = (int)crewIndex;
+
+            if (index >= 0 && index < vessel.GetCrewCount())
+            {
+                return vessel.GetVesselCrew()[index].experienceLevel;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the name of the crew member seated in `seatNumber`.  If
+        /// the number is invalid, or no Kerbal is in the seat, returns an
+        /// empty string.
+        /// </summary>
+        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0.</param>
+        /// <returns>The crew name, or an empty string if index is invalid.</returns>
+        public string VesselCrewName(double crewIndex)
+        {
+            int index = (int)crewIndex;
+
+            if (index >= 0 && index < vessel.GetCrewCount())
+            {
+                return vessel.GetVesselCrew()[index].name;
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Returns the 'PANIC' level of the selected crew member.
+        /// </summary>
+        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0.</param>
+        /// <returns>A number between 0 and 1; 0 if the requested index is invalid.</returns>
+        public double VesselCrewPanic(double crewIndex)
+        {
+            int index = (int)crewIndex;
+
+            if (index >= 0 && index < vessel.GetCrewCount())
+            {
+                return GetVesselCrewExpression(index).panicLevel;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the stupidity rating of the selected crew member.
+        /// </summary>
+        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0.</param>
+        /// <returns>A number between 0 and 1; 0 if the requested index is invalid.</returns>
+        public double VesselCrewStupidity(double crewIndex)
+        {
+            int index = (int)crewIndex;
+
+            if (index >= 0 && index < vessel.GetCrewCount())
+            {
+                return vessel.GetVesselCrew()[index].stupidity;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the job title of the selected crew member.
+        /// </summary>
+        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0.</param>
+        /// <returns>The name of the job title, or an empty string if `crewIndex` is invalid.</returns>
+        public string VesselCrewTitle(double crewIndex)
+        {
+            int index = (int)crewIndex;
+
+            if (index >= 0 && index < vessel.GetCrewCount())
+            {
+                return vessel.GetVesselCrew()[index].experienceTrait.Title;
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Returns the 'WHEE' level of the selected crew member.
+        /// </summary>
+        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0.</param>
+        /// <returns>A number between 0 and 1; 0 if the requested index is invalid.</returns>
+        public double VesselCrewWhee(double crewIndex)
+        {
+            int index = (int)crewIndex;
+
+            if (index >= 0 && index < vessel.GetCrewCount())
+            {
+
+                return GetVesselCrewExpression(index).wheeLevel;
+            }
+
+            return 0.0;
         }
 
         #endregion

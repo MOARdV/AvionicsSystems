@@ -167,7 +167,7 @@ namespace AvionicsSystems
         internal static readonly string vesselIdLabel = "__vesselId";
 
         internal ProtoCrewMember[] localCrew = new ProtoCrewMember[0];
-        internal kerbalExpressionSystem[] localCrewMedical = new kerbalExpressionSystem[0];
+        private kerbalExpressionSystem[] localCrewMedical = new kerbalExpressionSystem[0];
 
 
         private Stopwatch nativeStopwatch = new Stopwatch();
@@ -457,6 +457,23 @@ namespace AvionicsSystems
                 }
             }
         }
+
+        /// <summary>
+        /// Fetch the kerbalExpressionSystem for a local crew seat.
+        /// </summary>
+        /// <param name="crewSeat"></param>
+        /// <returns></returns>
+        internal kerbalExpressionSystem GetLocalKES(int crewSeat)
+        {
+            if (crewSeat >=0 && crewSeat < localCrew.Length && localCrew[crewSeat] != null)
+            {
+                localCrew[crewSeat].KerbalRef.GetComponentCached<kerbalExpressionSystem>(ref localCrewMedical[crewSeat]);
+
+                return localCrewMedical[crewSeat];
+            }
+
+            return null;
+        }
         #endregion
 
         #region Monobehaviour
@@ -519,40 +536,11 @@ namespace AvionicsSystems
                         disruptionChance = 0.0f;
                     }
 
-                    try
-                    {
-                        // Crew medical seems to get nulled somewhere after the
-                        // crew callback, so it appears I need to repeatedly poll
-                        // it.
-                        int numSeats = localCrew.Length;
-                        if (numSeats > 0)
-                        {
-                            for (int i = 0; i < numSeats; i++)
-                            {
-                                if (localCrew[i] != null)
-                                {
-                                    kerbalExpressionSystem kES = localCrewMedical[i];
-                                    localCrew[i].KerbalRef.GetComponentCached<kerbalExpressionSystem>(ref kES);
-                                    localCrewMedical[i] = kES;
-                                }
-                                else
-                                {
-                                    localCrewMedical[i] = null;
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        Utility.LogInfo(this, "Exception trapped trying to update kerbal expressions - resetting kerbal data");
-                        UpdateLocalCrew();
-                    }
-
                     // TODO: Add a heuristic to adjust the loop so not all variables
                     // update every fixed update if the average update time is too high.
                     // Need to decide if it's going to be an absolute time (max # ms/update)
                     // or a relative time.
-                    // NOTE: 128 "variables" average about 1.7ms/update!  And there's
+                    // NOTE: 128 Lua "variables" average about 1.7ms/update!  And there's
                     // a LOT of garbage collection going on.
                     // 229 variables -> 2.6-2.7ms/update, so 70-80 variables per ms on
                     // a reasonable mid-upper range CPU (3.6GHz).
