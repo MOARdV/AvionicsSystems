@@ -121,6 +121,7 @@ namespace AvionicsSystems
         private bool richText;
         private bool invalidated;
         private bool colorInvalidated;
+        private bool dynamic;
         private InternalProp internalProp;
         private bool configured = false;
 
@@ -169,6 +170,7 @@ namespace AvionicsSystems
             this.font = font;
             this.fontSize = fontSize;
             this.characterScalar = characterScalar;
+            this.dynamic = font.dynamic;
             boundedText = false;
             meshRenderer.material.mainTexture = font.material.mainTexture;
             invalidated = true;
@@ -181,10 +183,24 @@ namespace AvionicsSystems
         /// <param name="fontDimensions"></param>
         public void SetFont(Font font, Vector2 fontDimensions)
         {
-            float characterScalar = fontDimensions.y / (float)font.lineHeight;
+            this.dynamic = font.dynamic;
+            float characterScalar;
+            if (this.dynamic)
+            {
+                characterScalar = fontDimensions.y / (float)font.lineHeight;
+                this.fontSize = font.fontSize;
+            }
+            else
+            {
+                // Unfortunately, there doesn't seem to be a way to set the font metrics when
+                // creating a bitmap font, so I have to play games here by fetching the values
+                // I stored in the character info.
+                CharacterInfo ci = font.characterInfo[0];
+                characterScalar = fontDimensions.y / (float)ci.glyphHeight;
+                this.fontSize = ci.glyphHeight;
+            }
 
             this.font = font;
-            this.fontSize = font.fontSize;
             this.fixedAdvance = (int)fontDimensions.x;
             this.fixedLineSpacing = (int)fontDimensions.y;
             this.characterScalar = characterScalar;
@@ -544,6 +560,8 @@ namespace AvionicsSystems
             // State tracking
             bool bold = false;
             bool italic = false;
+            // Picked an arbitrary value for non-dynamic ascent.
+            int ascent = (dynamic) ? font.ascent : (int)(0.8125f * fixedLineSpacing);
             //size = something.
 
             // Determine text length
@@ -656,13 +674,26 @@ namespace AvionicsSystems
 
                     if (charIndex < stringLength)
                     {
-                        FontStyle style = GetFontStyle(bold, italic);
-                        font.RequestCharactersInTexture(escapedBracket ? "[" : textRow[line].formattedData[charIndex].ToString(), fontSize, style);
-                        CharacterInfo charInfo;
-                        if (font.GetCharacterInfo(textRow[line].formattedData[charIndex], out charInfo, 0, style))
+                        if (dynamic)
                         {
-                            textRow[line].textLength += fixedAdvance;
-                            maxVerts += 4;
+                            FontStyle style = GetFontStyle(bold, italic);
+                            font.RequestCharactersInTexture(escapedBracket ? "[" : textRow[line].formattedData[charIndex].ToString(), fontSize, style);
+                            CharacterInfo charInfo;
+                            if (font.GetCharacterInfo(escapedBracket ? '[' : textRow[line].formattedData[charIndex], out charInfo, 0, style))
+                            {
+                                textRow[line].textLength += fixedAdvance;
+                                maxVerts += 4;
+                            }
+                        }
+                        else
+                        {
+                            font.RequestCharactersInTexture(escapedBracket ? "[" : textRow[line].formattedData[charIndex].ToString());
+                            CharacterInfo charInfo;
+                            if (font.GetCharacterInfo(escapedBracket ? '[' : textRow[line].formattedData[charIndex], out charInfo))
+                            {
+                                textRow[line].textLength += fixedAdvance;
+                                maxVerts += 4;
+                            }
                         }
                     }
                 }
@@ -689,11 +720,11 @@ namespace AvionicsSystems
 
             int charWritten = 0;
             int arrayIndex = 0;
-            int yPos = (int)(-font.ascent * characterScalar);
+            int yPos = (int)(-ascent * characterScalar);
             int xAnchor = 0;
 
             //Utility.LogMessage(this, "Font {0}: ascent = {1}, fontSize = {2}, lineHeight = {3}",
-            //    font.fontNames[0], font.ascent, font.fontSize, font.lineHeight);
+            //    font.fontNames[0], ascent, font.fontSize, font.lineHeight);
             for (int line = 0; line < numTextRows; ++line)
             {
                 bold = false;
@@ -820,7 +851,16 @@ namespace AvionicsSystems
                     {
                         FontStyle style = GetFontStyle(bold, italic);
                         CharacterInfo charInfo;
-                        if (font.GetCharacterInfo(escapedBracket ? '[' : textRow[line].formattedData[charIndex], out charInfo, 0, style))
+                        bool fetched;
+                        if (dynamic)
+                        {
+                            fetched = font.GetCharacterInfo(escapedBracket ? '[' : textRow[line].formattedData[charIndex], out charInfo, 0, style);
+                        }
+                        else
+                        {
+                            fetched = font.GetCharacterInfo(escapedBracket ? '[' : textRow[line].formattedData[charIndex], out charInfo);
+                        }
+                        if (fetched)
                         {
                             if (charInfo.minX != charInfo.maxX && charInfo.minY != charInfo.maxY)
                             {
@@ -875,13 +915,13 @@ namespace AvionicsSystems
                                 float minY;
                                 float maxY;
                                 // Excessively tall characters need tweaked to fit
-                                maxY = Math.Min(charInfo.maxY, font.ascent) * characterScalar;
+                                maxY = Math.Min(charInfo.maxY, ascent) * characterScalar;
 
-                                if ((font.ascent - charInfo.minY) * characterScalar > fixedLineSpacing)
+                                if ((ascent - charInfo.minY) * characterScalar > fixedLineSpacing)
                                 {
                                     // Push the bottom of the character upwards so it's not
                                     // hanging over the next line.
-                                    minY = font.ascent * characterScalar - fixedLineSpacing;
+                                    minY = ascent * characterScalar - fixedLineSpacing;
                                 }
                                 else
                                 {
@@ -960,6 +1000,8 @@ namespace AvionicsSystems
             // State tracking
             bool bold = false;
             bool italic = false;
+            // Picked an arbitrary value for non-dynamic ascent.
+            int ascent = (dynamic) ? font.ascent : (int)(0.8125f * fixedLineSpacing);
             //size = something.
 
             // Determine text length
@@ -1072,13 +1114,26 @@ namespace AvionicsSystems
 
                     if (charIndex < stringLength)
                     {
-                        FontStyle style = GetFontStyle(bold, italic);
-                        font.RequestCharactersInTexture(escapedBracket ? "[" : textRow[line].formattedData[charIndex].ToString(), fontSize, style);
-                        CharacterInfo charInfo;
-                        if (font.GetCharacterInfo(textRow[line].formattedData[charIndex], out charInfo, 0, style))
+                        if (dynamic)
                         {
-                            textRow[line].textLength += charInfo.advance;
-                            maxVerts += 4;
+                            FontStyle style = GetFontStyle(bold, italic);
+                            font.RequestCharactersInTexture(escapedBracket ? "[" : textRow[line].formattedData[charIndex].ToString(), fontSize, style);
+                            CharacterInfo charInfo;
+                            if (font.GetCharacterInfo(escapedBracket ? '[' : textRow[line].formattedData[charIndex], out charInfo, 0, style))
+                            {
+                                textRow[line].textLength += charInfo.advance;
+                                maxVerts += 4;
+                            }
+                        }
+                        else
+                        {
+                            font.RequestCharactersInTexture(escapedBracket ? "[" : textRow[line].formattedData[charIndex].ToString());
+                            CharacterInfo charInfo;
+                            if (font.GetCharacterInfo(escapedBracket ? '[' : textRow[line].formattedData[charIndex], out charInfo))
+                            {
+                                textRow[line].textLength += charInfo.advance;
+                                maxVerts += 4;
+                            }
                         }
                     }
                 }
@@ -1110,34 +1165,34 @@ namespace AvionicsSystems
             switch (anchor_)
             {
                 case TextAnchor.LowerCenter:
-                    yPos = (int)(lineSpacing * font.lineHeight * numTextRows) - font.ascent;
+                    yPos = (int)(lineSpacing * font.lineHeight * numTextRows) - ascent;
                     break;
                 case TextAnchor.LowerLeft:
                     //xAnchor = 0;
-                    yPos = (int)(lineSpacing * font.lineHeight * numTextRows) - font.ascent;
+                    yPos = (int)(lineSpacing * font.lineHeight * numTextRows) - ascent;
                     break;
                 case TextAnchor.LowerRight:
-                    yPos = (int)(lineSpacing * font.lineHeight * numTextRows) - font.ascent;
+                    yPos = (int)(lineSpacing * font.lineHeight * numTextRows) - ascent;
                     break;
                 case TextAnchor.MiddleCenter:
-                    yPos = (int)(lineSpacing * font.lineHeight * numTextRows) / 2 - font.ascent;
+                    yPos = (int)(lineSpacing * font.lineHeight * numTextRows) / 2 - ascent;
                     break;
                 case TextAnchor.MiddleLeft:
                     //xAnchor = 0;
-                    yPos = (int)(lineSpacing * font.lineHeight * numTextRows) / 2 - font.ascent;
+                    yPos = (int)(lineSpacing * font.lineHeight * numTextRows) / 2 - ascent;
                     break;
                 case TextAnchor.MiddleRight:
-                    yPos = (int)(lineSpacing * font.lineHeight * numTextRows) / 2 - font.ascent;
+                    yPos = (int)(lineSpacing * font.lineHeight * numTextRows) / 2 - ascent;
                     break;
                 case TextAnchor.UpperCenter:
-                    yPos = -font.ascent;
+                    yPos = -ascent;
                     break;
                 case TextAnchor.UpperLeft:
                     //xAnchor = 0;
-                    yPos = -font.ascent;
+                    yPos = -ascent;
                     break;
                 case TextAnchor.UpperRight:
-                    yPos = -font.ascent;
+                    yPos = -ascent;
                     break;
             }
 
@@ -1277,7 +1332,16 @@ namespace AvionicsSystems
                     {
                         FontStyle style = GetFontStyle(bold, italic);
                         CharacterInfo charInfo;
-                        if (font.GetCharacterInfo(escapedBracket ? '[' : textRow[line].formattedData[charIndex], out charInfo, 0, style))
+                        bool fetched;
+                        if (dynamic)
+                        {
+                            fetched = font.GetCharacterInfo(escapedBracket ? '[' : textRow[line].formattedData[charIndex], out charInfo, 0, style);
+                        }
+                        else
+                        {
+                            fetched = font.GetCharacterInfo(escapedBracket ? '[' : textRow[line].formattedData[charIndex], out charInfo);
+                        }
+                        if (fetched)
                         {
                             if (charInfo.minX != charInfo.maxX && charInfo.minY != charInfo.maxY)
                             {
