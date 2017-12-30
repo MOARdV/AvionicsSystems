@@ -2,7 +2,7 @@
 /*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016 - 2017 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -58,6 +58,7 @@ namespace AvionicsSystems
         private double transferPhaseAngle;
         private double timeUntilTransfer;
 
+        private double ejectionVelocity;
         private double currentEjectionAngle;
         private double transferEjectionAngle;
         private double timeUntilEjection;
@@ -196,7 +197,7 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// The Ejection Angle provides information on the ejection angle.  The
+        /// The Ejection Angle region provides information on the ejection angle.  The
         /// ejection angle is used on interplanetary transfers to determine when
         /// the vessel should start its burn to escape the world it currently orbits.
         /// 
@@ -231,11 +232,30 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// The ΔV required to reach the correct exit velocity for an interplanetary transfer.
+        /// </summary>
+        /// <returns>ΔV in m/s, or 0 if there is no exit velocity required.</returns>
+        public double EjectionVelocity()
+        {
+            if (vc.activeTarget != null)
+            {
+                if (invalid)
+                {
+                    UpdateTransferParameters();
+                }
+
+                return ejectionVelocity;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Reports the difference between the vessel's current ejection angle
         /// and the transfer ejection angle.  When this value is 0, it is time to
         /// start an interplanetary burn.
-        /// 
-        /// **NOT IMPLEMENTED**
         /// </summary>
         /// <returns>Relative ejection angle in degrees, or 0 if there is no ejection angle.</returns>
         public double RelativeEjectionAngle()
@@ -257,8 +277,6 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Provides the time until the vessel reaches the transfer ejection angle.
-        /// 
-        /// **NOT IMPLEMENTED**
         /// </summary>
         /// <returns>Time until the relative ejection angle is 0, in seconds, or 0 if there is no ejection angle.</returns>
         public double TimeUntilEjection()
@@ -283,22 +301,20 @@ namespace AvionicsSystems
         /// orbit should begin.  This is of use for transfers from one planet
         /// to another - once the transfer phase angle has been reached, the
         /// vessel should launch when the next transfer ejection angle is reached.
-        /// 
-        /// **NOT IMPLEMENTED**
         /// </summary>
         /// <returns>Transfer ejection angle in degrees, or 0 if there is no ejection angle.</returns>
         public double TransferEjectionAngle()
         {
-            //if (vc.activeTarget != null)
-            //{
-            //    if (invalid)
-            //    {
-            //        UpdateTransferParameters();
-            //    }
+            if (vc.activeTarget != null)
+            {
+                if (invalid)
+                {
+                    UpdateTransferParameters();
+                }
 
-            //    return transferEjectionAngle;
-            //}
-            //else
+                return transferEjectionAngle;
+            }
+            else
             {
                 return 0.0;
             }
@@ -564,6 +580,36 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Update ejection parameters
+        /// </summary>
+        /// <param name="o">Orbit we're generating parameters for</param>
+        private void UpdateEjectionParameters(Orbit o)
+        {
+            double r1 = o.semiMajorAxis;
+            double r2 = o.referenceBody.sphereOfInfluence;
+            double GM = o.referenceBody.gravParameter;
+            double v2 = Math.Abs(initialDeltaV);
+
+            // Absolute velocity required, not delta-V.
+            ejectionVelocity = Math.Sqrt((r1 * (r2 * v2 * v2 - 2.0 * GM) + 2.0 * r2 * GM) / (r1 * r2));
+
+            double eps = ejectionVelocity * ejectionVelocity * 0.5 - GM / r1;
+            double h = r1 * ejectionVelocity;
+            double e = Math.Sqrt(1.0 + 2.0 * eps * h * h / (GM * GM));
+            double theta = Math.Acos(1.0 / e) * Utility.Rad2Deg;
+            transferEjectionAngle = Utility.NormalizeAngle(180.0 - theta);
+
+            // Figure out how long until we cross that angle
+            double orbitFraction = Utility.NormalizeAngle(transferEjectionAngle - currentEjectionAngle) / 360.0;
+            timeUntilEjection = orbitFraction * o.period;
+
+            double oVel = o.getOrbitalSpeedAt(Planetarium.GetUniversalTime() + timeUntilEjection);
+
+            // Convert ejectionVelocity into ejection delta-V.
+            ejectionVelocity -= oVel;
+        }
+
+        /// <summary>
         /// Updater method - called at most once per FixedUpdate when the
         /// transfer parameters are being queried.
         /// </summary>
@@ -574,6 +620,7 @@ namespace AvionicsSystems
             transferPhaseAngle = 0.0;
             timeUntilTransfer = 0.0;
 
+            ejectionVelocity = 0.0;
             currentEjectionAngle = 0.0;
             transferEjectionAngle = 0.0;
             timeUntilEjection = 0.0;
@@ -592,6 +639,12 @@ namespace AvionicsSystems
                     return;
                 }
 
+                // Orbit steps counts how many levels of orbital parents we have to step across
+                // to find a common orbit with our target.
+                // 0 means both orbit the same body (simple Hohmann transfer case).
+                // 1 means the vessel orbits a planet, and it must transfer to another planet, 
+                //   OR a vessel orbits a moon, and it must transfer to another moon.
+                // 2 means the vessel orbits a moon, and it must transfer to another planet.
                 int vesselOrbitSteps;
                 GetCommonOrbits(ref vesselOrbit, ref destinationOrbit, out vesselOrbitSteps);
 
@@ -599,7 +652,7 @@ namespace AvionicsSystems
                 if (vesselOrbit.referenceBody != destinationOrbit.referenceBody)
                 {
                     // We can't find a common orbit?
-                    Utility.LogErrorMessage(this, "Bailing out computer transfer parameters: unable to reconcile orbits");
+                    Utility.LogErrorMessage(this, "Bailing out compute transfer parameters: unable to reconcile orbits");
                     return;
                 }
 
@@ -612,13 +665,9 @@ namespace AvionicsSystems
 
                 UpdateTransferDeltaV(vesselOrbit, destinationOrbit);
 
-                // Transfer phase angle: use the mean radii of the orbits.
-                double r1 = (vesselOrbit.PeR + vesselOrbit.ApR) * 0.5;
-                double r2 = (destinationOrbit.PeR + destinationOrbit.ApR) * 0.5;
-
                 // transfer phase angle from https://en.wikipedia.org/wiki/Hohmann_transfer_orbit
                 // This does not do anything special for Oberth effect transfers
-                transferPhaseAngle = 180.0 * (1.0 - 0.35355339 * Math.Pow(r1 / r2 + 1.0, 1.5));
+                transferPhaseAngle = 180.0 * (1.0 - 0.35355339 * Math.Pow(vesselOrbit.semiMajorAxis / destinationOrbit.semiMajorAxis + 1.0, 1.5));
 
 #if COMPARE_PHASE_ANGLE_PROTRACTOR
                 // current phase angle: the angle between the two positions as projected onto a 2D plane.
@@ -652,11 +701,9 @@ namespace AvionicsSystems
                 {
                     timeUntilTransfer = Utility.NormalizeAngle(transferPhaseAngle - currentPhaseAngle) / deltaRelativePhaseAngle;
                 }
-                // else can't compute it - the orbits have the exact same period.
+                // else can't compute it - the orbits have the exact same period.  Time already zero'd.
 
                 // Compute current ejection angle
-                //if (vesselOrbitSteps > 0)
-                {
 #if COMPARE_PHASE_ANGLE_PROTRACTOR
                     //--- PROTRACTOR
                     Vector3d vesselvec = vessel.orbit.getRelativePositionAtUT(Planetarium.GetUniversalTime());
@@ -674,31 +721,31 @@ namespace AvionicsSystems
                     }
                     //--- PROTRACTOR
 #endif
-                    Vector3d vesselPos = vessel.orbit.pos;
-                    vesselPos.Normalize();
-                    Vector3d bodyProgradeVec = vessel.mainBody.orbit.vel;
-                    bodyProgradeVec.Normalize();
-                    Vector3d bodyPosVec = vessel.mainBody.orbit.pos;
-                    currentEjectionAngle = Vector3d.Angle(vesselPos, bodyProgradeVec);
-                    if (Vector3d.Dot(vesselPos, bodyPosVec) > 0.0)
-                    {
-                        currentEjectionAngle = Utility.NormalizeAngle(360.0 - currentEjectionAngle);
-                    }
-#if COMPARE_PHASE_ANGLE_PROTRACTOR
-                    Utility.LogMessage(this, "Protractor ejection angle = {0,5:0.0} , computed = {1,5:0.0}", protractorEject, currentEjectionAngle);
-#endif
+                Vector3d vesselPos = vessel.orbit.pos;
+                vesselPos.Normalize();
+                Vector3d bodyProgradeVec = vessel.mainBody.orbit.vel;
+                bodyProgradeVec.Normalize();
+                Vector3d bodyPosVec = vessel.mainBody.orbit.pos;
+                currentEjectionAngle = Vector3d.Angle(vesselPos, bodyProgradeVec);
+                if (Vector3d.Dot(vesselPos, bodyPosVec) > 0.0)
+                {
+                    currentEjectionAngle = Utility.NormalizeAngle(360.0 - currentEjectionAngle);
                 }
+#if COMPARE_PHASE_ANGLE_PROTRACTOR
+                Utility.LogMessage(this, "Protractor ejection angle = {0,5:0.0} , computed = {1,5:0.0}", protractorEject, currentEjectionAngle);
+#endif
 
-                //if (vesselOrbitSteps == 1)
-                //{
-                //    // transferEjectionAngle = something
-                //    transferEjectionAngle = Utility.NormalizeAngle(CalcEjectionValues(vesselOrbit.referenceBody,) * Orbit.Rad2Deg);
-                //}
-                //else if(vesselOrbitSteps == 2)
-                //{
-                //    // Compute moon ejection angle to take advantage of the Oberth effect.
-                //    // transferEjectionAngle = something different than for vesselOrbitSteps = 1?
-                //}
+                if (vesselOrbitSteps == 1)
+                {
+                    UpdateEjectionParameters(vessel.orbit);
+                }
+                else if (vesselOrbitSteps == 2)
+                {
+                    // Compute ejection parameters based on the moon we are orbiting.
+                    UpdateEjectionParameters(vessel.orbit.referenceBody.orbit);
+
+                    // TODO: Compute moon ejection angle to take advantage of the Oberth effect.
+                }
             }
 
             invalid = false;
