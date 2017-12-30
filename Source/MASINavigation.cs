@@ -130,7 +130,11 @@ namespace AvionicsSystems
             double delLamba = lambda2 - lambda1;
 
             // δ12 = 2⋅asin( √(sin²(Δφ/2) + cos φ1 ⋅ cos φ2 ⋅ sin²(Δλ/2)) )	angular dist. p1–p2
-            double del12 = 2.0 * Math.Asin(Math.Sqrt(Math.Pow(Math.Sin(delPhi * 0.5), 2.0) + Math.Cos(lambda1) * Math.Cos(lambda2) * Math.Pow(Math.Sin(delLamba * 0.5), 2.0)));
+            double del12 = 2.0 * Math.Asin(Math.Sqrt(Math.Pow(Math.Sin(delPhi * 0.5), 2.0) + Math.Cos(phi1) * Math.Cos(phi2) * Math.Pow(Math.Sin(delLamba * 0.5), 2.0)));
+            if (del12 == 0.0)
+            {
+                return Vector2d.zero;
+            }
 
             // θa = acos( ( sin φ2 − sin φ1 ⋅ cos δ12 ) / ( sin δ12 ⋅ cos φ1 ) )
             double thetaA = Math.Acos((Math.Sin(phi2) - Math.Sin(phi1) * Math.Cos(del12)) / (Math.Sin(del12) * Math.Cos(phi1)));
@@ -160,14 +164,24 @@ namespace AvionicsSystems
             // α1 = θ13 − θ12
             double alpha1 = theta13 - theta12;
             // α2 = θ21 − θ23	angle p2–p1–p3
-            double alpha2 = theta21 - theta21;
+            double alpha2 = theta21 - theta23;
+            if (Math.Sin(alpha1) == 0.0 && Math.Sin(alpha2) == 0.0)
+            {
+                // colinear.
+                return new Vector2d(lat1, lon1);
+            }
+            if (Math.Sin(alpha1) * Math.Sin(alpha2) < 0.0)
+            {
+                // ambiguous
+                return Vector2d.zero;
+            }
             // α3 = acos( −cos α1 ⋅ cos α2 + sin α1 ⋅ sin α2 ⋅ cos δ12 )	angle p1–p2–p3
             double alpha3 = Math.Acos(-Math.Cos(alpha1) * Math.Cos(alpha2) + Math.Sin(alpha1) * Math.Sin(alpha2) * Math.Cos(del12));
             // δ13 = atan2( sin δ12 ⋅ sin α1 ⋅ sin α2 , cos α2 + cos α1 ⋅ cos α3 )	angular dist. p1–p3
             double del13 = Math.Atan2(Math.Sin(del12) * Math.Sin(alpha1) * Math.Sin(alpha2),
                 Math.Cos(alpha2) + Math.Cos(alpha1) * Math.Cos(alpha3));
             // φ3 = asin( sin φ1 ⋅ cos δ13 + cos φ1 ⋅ sin δ13 ⋅ cos θ13 )	p3 lat
-            double phi3 = Math.Asin(Math.Sin(phi1) * Math.Cos(del13) + Math.Cos(phi1) * Math.Sin(del13) * Math.Cos(del13));
+            double phi3 = Math.Asin(Math.Sin(phi1) * Math.Cos(del13) + Math.Cos(phi1) * Math.Sin(del13) * Math.Cos(theta13));
             // Δλ13 = atan2( sin θ13 ⋅ sin δ13 ⋅ cos φ1 , cos δ13 − sin φ1 ⋅ sin φ3 )	long p1–p3
             double delL13 = Math.Atan2(Math.Sin(theta13) * Math.Sin(del13) * Math.Cos(phi1), Math.Cos(del13) - Math.Sin(phi1) * Math.Sin(phi3));
             // λ3 = λ1 + Δλ13  
@@ -362,7 +376,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// **UNTESTED**
         /// Return the latitude where two great-circle paths intersect.
         /// </summary>
         /// <param name="latitude1">Latitude of the start of path 1.</param>
@@ -378,7 +391,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// **UNTESTED**
         /// Return the longitude where two great-circle paths intersect.
         /// </summary>
         /// <param name="latitude1">Latitude of the start of path 1.</param>
