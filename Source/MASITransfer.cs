@@ -432,13 +432,6 @@ namespace AvionicsSystems
         #endregion
 
 #if COMPARE_PHASE_ANGLE_PROTRACTOR
-        /// <summary>
-        /// Project vectors onto a plane, measure the angle
-        /// between them.
-        /// </summary>
-        /// <param name="a">First ray</param>
-        /// <param name="b">Second ray</param>
-        /// <returns>Angle between the two vectors in degrees [0, 360).</returns>
         private static double ProjectAngle2D(Vector3d a, Vector3d b)
         {
             Vector3d ray1 = Vector3d.Project(new Vector3d(a.x, 0.0, a.z), a);
@@ -463,13 +456,11 @@ namespace AvionicsSystems
         }
 #endif
 
-        /// <summary>
-        /// For a given orbit, find the orbit of the object that orbits the sun.
-        /// 
-        /// If the orbit provided orbits the sun, this orbit is returned.  If the
-        /// orbit is around a body that orbits the sun, the body's orbit is returned.
-        /// If the orbit is around a moon, return the orbit of the moon's parent.
-        /// </summary>
+        // For a given orbit, find the orbit of the object that orbits the sun.
+        // 
+        // If the orbit provided orbits the sun, this orbit is returned.  If the
+        // orbit is around a body that orbits the sun, the body's orbit is returned.
+        // If the orbit is around a moon, return the orbit of the moon's parent.
         static private Orbit GetSolarOrbit(Orbit orbit, out int numHops)
         {
             // Does this object orbit the sun?
@@ -497,13 +488,11 @@ namespace AvionicsSystems
             }
         }
 
-        /// <summary>
-        /// Find the orbits we can use to determine phase angle.  These orbits
-        /// need to share a common reference body.  We also report how many parent
-        /// bodies we had to look at to find the returned vesselOrbit, so we can
-        /// compute the correct ejection angle (either ejection angle, or moon ejection
-        /// angle for Oberth transfers).
-        /// </summary>
+        // Find the orbits we can use to determine phase angle.  These orbits
+        // need to share a common reference body.  We also report how many parent
+        // bodies we had to look at to find the returned vesselOrbit, so we can
+        // compute the correct ejection angle (either ejection angle, or moon ejection
+        // angle for Oberth transfers).
         static private void GetCommonOrbits(ref Orbit vesselOrbit, ref Orbit destinationOrbit, out int vesselOrbitSteps)
         {
             if (vesselOrbit.referenceBody == destinationOrbit.referenceBody)
@@ -554,14 +543,10 @@ namespace AvionicsSystems
             }
         }
 
-        /// <summary>
-        /// Compute the delta-V required for the injection and circularization burns for the
-        /// given orbits.
-        /// 
-        /// Equation from http://www.braeunig.us/space/
-        /// </summary>
-        /// <param name="startOrbit"></param>
-        /// <param name="destinationOrbit"></param>
+        // Compute the delta-V required for the injection and circularization burns for the
+        // given orbits.
+        // 
+        // Equation from http://www.braeunig.us/space/
         private void UpdateTransferDeltaV(Orbit startOrbit, Orbit destinationOrbit)
         {
             double GM = startOrbit.referenceBody.gravParameter;
@@ -579,10 +564,7 @@ namespace AvionicsSystems
             finalDeltaV = Vf - Vtxf;
         }
 
-        /// <summary>
-        /// Update ejection parameters
-        /// </summary>
-        /// <param name="o">Orbit we're generating parameters for</param>
+        // Update ejection parameters
         private void UpdateEjectionParameters(Orbit o)
         {
             double r1 = o.semiMajorAxis;
@@ -609,10 +591,8 @@ namespace AvionicsSystems
             ejectionVelocity -= oVel;
         }
 
-        /// <summary>
-        /// Updater method - called at most once per FixedUpdate when the
-        /// transfer parameters are being queried.
-        /// </summary>
+        // Updater method - called at most once per FixedUpdate when the
+        // transfer parameters are being queried.
         private void UpdateTransferParameters()
         {
             // Initialize values
