@@ -72,6 +72,10 @@ namespace AvionicsSystems
         private double initialDeltaV;
         private double finalDeltaV;
 
+        private Orbit oUpper = new Orbit();
+        private Orbit oLower = new Orbit();
+        private Orbit oMid = new Orbit();
+
         [MoonSharpHidden]
         public MASITransfer(Vessel vessel)
         {
@@ -314,6 +318,109 @@ namespace AvionicsSystems
             {
                 return 0.0;
             }
+        }
+
+        #endregion
+
+        /// <summary>
+        /// The Maneuver Planning region provides functions that can be used to generate
+        /// maneuver nodes to accomplish basic orbital tasks.  Note that this capability
+        /// does not include autopilot functionality - it is simply a set of helpers to create
+        /// maneuver nodes.
+        /// 
+        /// Note that the MAS Maneuver Planner is not as full-featured as MechJeb - it does not
+        /// work with parabolic / hyperbolic orbits, for instance.
+        /// </summary>
+        #region Maneuver Planning
+
+        /// <summary>
+        /// Raise or lower the altitude of the periapsis.  The maneuver node is placed at
+        /// apoapsis to minimize fuel requirements.  If an invalid periapsis is supplied
+        /// (either by being above the apoapsis, or lower than the center of the planet), this function does
+        /// nothing.
+        /// </summary>
+        /// <param name="newAltitude">The new altitude for the periapsis, in meters.</param>
+        /// <returns>1 if a valid maneuver node was created, 0 if it was not.</returns>
+        public double ChangePeriapsis(double newAltitude)
+        {
+            Orbit current = vessel.orbit;
+            double newPeR = newAltitude + current.referenceBody.Radius;
+            if (newAltitude >= 0.0 && newAltitude <= current.ApR && vessel.patchedConicSolver != null && current.eccentricity < 1.0)
+            {
+                CelestialBody referenceBody = current.referenceBody;
+                double ut = current.timeToAp + Planetarium.GetUniversalTime();
+                Vector3d posAtUt = current.getRelativePositionAtUT(ut);
+                Vector3d velAtUt = current.getOrbitalVelocityAtUT(ut);
+                Vector3d fwdAtUt = velAtUt.normalized;
+
+                double dVUpper;
+                double dVLower;
+
+                // TODO: I don't need to allocate these every time...
+                if (newPeR < current.PeR)
+                {
+                    // Our current Pe is higher than the target, so we treat it as the upper bound and half the
+                    // target Pe as the lower bound.
+                    dVUpper = DeltaVInitial(current.PeR, newPeR, referenceBody.gravParameter);
+                    dVLower = DeltaVInitial(newPeR * 0.5, newPeR, referenceBody.gravParameter);
+
+                    oUpper.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVUpper, referenceBody, ut);
+                    oLower.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVLower, referenceBody, ut);
+                }
+                else
+                {
+                    // Our current orbit brackets the desired altitude, so we'll initialize our search with them.
+                    dVUpper = DeltaVInitial(current.ApR, newPeR, referenceBody.gravParameter);
+                    dVLower = DeltaVInitial(current.PeR, newPeR, referenceBody.gravParameter);
+
+                    oUpper.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVUpper, referenceBody, ut);
+                    oLower.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVLower, referenceBody, ut);
+                }
+                double dVMid = (dVUpper + dVLower) * 0.5;
+                double peUpper = oUpper.PeR;
+                double peLower = oLower.PeR;
+
+                oMid.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVMid, referenceBody, ut);
+                double peMid = oMid.PeR;
+
+                //Utility.LogMessage(this, "Change Pe {0:0.000}:", newAltitude * 0.001);
+                while (Math.Abs(dVUpper - dVLower) > 0.015625)
+                {
+                    //Utility.LogMessage(this, " - Upper = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVUpper, oUpper.PeA * 0.001, oUpper.ApA * 0.001);
+                    //Utility.LogMessage(this, " - Lower = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVLower, oLower.PeA * 0.001, oLower.ApA * 0.001);
+                    //Utility.LogMessage(this, " - Mid   = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVMid, oMid.PeA * 0.001, oMid.ApA * 0.001);
+                    if (Math.Abs(peUpper - newPeR) < Math.Abs(peLower - newPeR))
+                    {
+                        peLower = peMid;
+                        dVLower = dVMid;
+
+                        Orbit tmp = oLower;
+                        oLower = oMid;
+                        oMid = tmp;
+                    }
+                    else
+                    {
+                        peUpper = peMid;
+                        dVUpper = dVMid;
+
+                        Orbit tmp = oUpper;
+                        oUpper = oMid;
+                        oMid = tmp;
+                    }
+                    dVMid = (dVUpper + dVLower) * 0.5;
+                    oMid.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVMid, referenceBody, ut);
+                    peMid = oMid.PeR;
+                }
+                //Utility.LogMessage(this, " - Final = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVMid, oMid.PeA * 0.001, oMid.ApA * 0.001);
+
+                Vector3d dV = new Vector3d(0.0, 0.0, dVMid);
+
+                vessel.patchedConicSolver.maneuverNodes.Clear();
+                ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(ut);
+                mn.OnGizmoUpdated(dV, ut);
+            }
+
+            return 0.0;
         }
 
         #endregion
