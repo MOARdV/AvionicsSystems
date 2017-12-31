@@ -175,7 +175,6 @@ namespace AvionicsSystems
                     return;
                 }
 
-                // Swizzle parameters and sign-shift normal.
                 Vector3d dV = new Vector3d(radialdV, normaldV, progradedV);
 
                 // No living in the past.
