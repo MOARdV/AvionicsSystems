@@ -334,6 +334,96 @@ namespace AvionicsSystems
         #region Maneuver Planning
 
         /// <summary>
+        /// Raise or lower the altitude of the apoapsis.  The maneuver node is placed at
+        /// periapsis to minimize fuel requirements.  If an invalid apoapsis is supplied
+        /// (either by being below the periapsis, or above the SoI of the planet), this function does
+        /// nothing.
+        /// </summary>
+        /// <param name="newAltitude">The new altitude for the apoapsis, in meters.</param>
+        /// <returns>1 if a valid maneuver node was created, 0 if it was not.</returns>
+        public double ChangeApoapsis(double newAltitude)
+        {
+            Orbit current = vessel.orbit;
+            double newApR = newAltitude + current.referenceBody.Radius;
+            if (newApR >= current.PeR && newApR <= current.referenceBody.sphereOfInfluence && vessel.patchedConicSolver != null && current.eccentricity < 1.0)
+            {
+                CelestialBody referenceBody = current.referenceBody;
+                double ut = current.timeToPe + Planetarium.GetUniversalTime();
+                Vector3d posAtUt = current.getRelativePositionAtUT(ut);
+                Vector3d velAtUt = current.getOrbitalVelocityAtUT(ut);
+                Vector3d fwdAtUt = velAtUt.normalized;
+
+                double dVUpper;
+                double dVLower;
+
+                if (newApR > current.ApR)
+                {
+                    // Our current Ap is higher than the target, so we treat the Ap as the lower bound
+                    // and the SoI as the upper bound.
+                    dVUpper = DeltaVInitial(current.referenceBody.sphereOfInfluence, newApR, referenceBody.gravParameter);
+                    dVLower = DeltaVInitial(current.ApR, newApR, referenceBody.gravParameter);
+
+                    oUpper.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVUpper, referenceBody, ut);
+                    oLower.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVLower, referenceBody, ut);
+                }
+                else
+                {
+                    // Our current orbit brackets the desired altitude, so we'll initialize our search with the
+                    // Ap and Pe.
+                    dVUpper = DeltaVInitial(current.ApR, newApR, referenceBody.gravParameter);
+                    dVLower = DeltaVInitial(current.PeR, newApR, referenceBody.gravParameter);
+
+                    oUpper.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVUpper, referenceBody, ut);
+                    oLower.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVLower, referenceBody, ut);
+                }
+                double dVMid = (dVUpper + dVLower) * 0.5;
+                double peUpper = oUpper.PeR;
+                double peLower = oLower.PeR;
+
+                oMid.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVMid, referenceBody, ut);
+                double peMid = oMid.PeR;
+
+                //Utility.LogMessage(this, "Change Pe {0:0.000}:", newAltitude * 0.001);
+                while (Math.Abs(dVUpper - dVLower) > 0.015625)
+                {
+                    //Utility.LogMessage(this, " - Upper = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVUpper, oUpper.PeA * 0.001, oUpper.ApA * 0.001);
+                    //Utility.LogMessage(this, " - Lower = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVLower, oLower.PeA * 0.001, oLower.ApA * 0.001);
+                    //Utility.LogMessage(this, " - Mid   = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVMid, oMid.PeA * 0.001, oMid.ApA * 0.001);
+                    if (Math.Abs(peUpper - newApR) < Math.Abs(peLower - newApR))
+                    {
+                        peLower = peMid;
+                        dVLower = dVMid;
+
+                        Orbit tmp = oLower;
+                        oLower = oMid;
+                        oMid = tmp;
+                    }
+                    else
+                    {
+                        peUpper = peMid;
+                        dVUpper = dVMid;
+
+                        Orbit tmp = oUpper;
+                        oUpper = oMid;
+                        oMid = tmp;
+                    }
+                    dVMid = (dVUpper + dVLower) * 0.5;
+                    oMid.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVMid, referenceBody, ut);
+                    peMid = oMid.PeR;
+                }
+                //Utility.LogMessage(this, " - Final = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVMid, oMid.PeA * 0.001, oMid.ApA * 0.001);
+
+                Vector3d dV = new Vector3d(0.0, 0.0, dVMid);
+
+                vessel.patchedConicSolver.maneuverNodes.Clear();
+                ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(ut);
+                mn.OnGizmoUpdated(dV, ut);
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Raise or lower the altitude of the periapsis.  The maneuver node is placed at
         /// apoapsis to minimize fuel requirements.  If an invalid periapsis is supplied
         /// (either by being above the apoapsis, or lower than the center of the planet), this function does
@@ -345,7 +435,7 @@ namespace AvionicsSystems
         {
             Orbit current = vessel.orbit;
             double newPeR = newAltitude + current.referenceBody.Radius;
-            if (newAltitude >= 0.0 && newAltitude <= current.ApR && vessel.patchedConicSolver != null && current.eccentricity < 1.0)
+            if (newPeR >= 0.0 && newPeR <= current.ApR && vessel.patchedConicSolver != null && current.eccentricity < 1.0)
             {
                 CelestialBody referenceBody = current.referenceBody;
                 double ut = current.timeToAp + Planetarium.GetUniversalTime();
@@ -356,7 +446,6 @@ namespace AvionicsSystems
                 double dVUpper;
                 double dVLower;
 
-                // TODO: I don't need to allocate these every time...
                 if (newPeR < current.PeR)
                 {
                     // Our current Pe is higher than the target, so we treat it as the upper bound and half the
@@ -369,7 +458,8 @@ namespace AvionicsSystems
                 }
                 else
                 {
-                    // Our current orbit brackets the desired altitude, so we'll initialize our search with them.
+                    // Our current orbit brackets the desired altitude, so we'll initialize our search with the
+                    // Ap and Pe.
                     dVUpper = DeltaVInitial(current.ApR, newPeR, referenceBody.gravParameter);
                     dVLower = DeltaVInitial(current.PeR, newPeR, referenceBody.gravParameter);
 
@@ -418,6 +508,8 @@ namespace AvionicsSystems
                 vessel.patchedConicSolver.maneuverNodes.Clear();
                 ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(ut);
                 mn.OnGizmoUpdated(dV, ut);
+
+                return 1.0;
             }
 
             return 0.0;
