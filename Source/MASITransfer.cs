@@ -58,10 +58,16 @@ namespace AvionicsSystems
         private double transferPhaseAngle;
         private double timeUntilTransfer;
 
-        private double ejectionVelocity;
+        private double ejectionDeltaV;
         private double currentEjectionAngle;
         private double transferEjectionAngle;
         private double timeUntilEjection;
+
+        private double oberthAltitude;
+        private double oberthEjectionVelocity;
+        private double oberthCurrentEjectionAngle;
+        private double oberthTransferEjectionAngle;
+        private double oberthTimeUntilEjection;
 
         private double initialDeltaV;
         private double finalDeltaV;
@@ -71,7 +77,6 @@ namespace AvionicsSystems
         {
             this.vessel = vessel;
         }
-
 
         /// <summary>
         /// The Delta-V section provides information on the amount of velocity
@@ -178,16 +183,7 @@ namespace AvionicsSystems
         {
             if (!vessel.Landed)
             {
-                double GM = vessel.mainBody.gravParameter;
-                double rA = vessel.orbit.semiMajorAxis;
-                double rB = destinationAltitude + vessel.mainBody.Radius;
-
-                double atx = 0.5 * (rA + rB);
-                double Vi = Math.Sqrt(GM / rA);
-
-                double Vtxi = Math.Sqrt(GM * (2.0 / rA - 1.0 / atx));
-
-                return Vtxi - Vi;
+                return DeltaVInitial(vessel.orbit.semiMajorAxis, destinationAltitude + vessel.mainBody.Radius, vessel.mainBody.gravParameter);
             }
             else
             {
@@ -244,7 +240,7 @@ namespace AvionicsSystems
                     UpdateTransferParameters();
                 }
 
-                return ejectionVelocity;
+                return ejectionDeltaV;
             }
             else
             {
@@ -320,6 +316,160 @@ namespace AvionicsSystems
             }
         }
 
+        #endregion
+
+        /// <summary>
+        /// The Oberth Effect region provides information specific to taking advantage
+        /// of the Oberth Effect when transferring from a moon to another planet.  These
+        /// fields assume the vessel will eject from the moon to the `OberthAltitude`
+        /// over the planet,
+        /// from which it will fire the interplanetary ejection burn.
+        /// 
+        /// If the vessel is not in a situtation where the Oberth Effect would be applicable,
+        /// these fields all return 0.
+        /// </summary>
+        #region Oberth Effect
+
+        /// <summary>
+        /// The current ejection angle for the moon in degrees.  When this value matches
+        /// `TransferOberthEjectionAngle()`, it is time to do the moon ejection burn.
+        /// </summary>
+        /// <returns>Current ejection angle over the moon in degrees, or 0.</returns>
+        public double CurrentOberthEjectionAngle()
+        {
+            if (vc.activeTarget != null)
+            {
+                if (invalid)
+                {
+                    UpdateTransferParameters();
+                }
+
+                return oberthCurrentEjectionAngle;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// The preferred altitude over the parent planet for the
+        /// interplanetary ejection burn, in meters.
+        /// If the vessel's target
+        /// is not another world, or the vessel does not currently orbit a moon, returns 0.
+        /// </summary>
+        /// <returns>Altitude in meters, or 0.</returns>
+        public double OberthAltitude()
+        {
+            if (vc.activeTarget != null)
+            {
+                if (invalid)
+                {
+                    UpdateTransferParameters();
+                }
+
+                return oberthAltitude;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the ΔV in m/s required for the Oberth effect transfer ejection burn.
+        /// The vessel's altitude orbiting the moon's parent should match `OberthAltitude()`
+        /// after this burn.
+        /// If the vessel's target
+        /// is not another world, or the vessel does not currently orbit a moon, returns 0.
+        /// </summary>
+        /// <returns>ΔV in m/s or 0.</returns>
+        public double OberthEjectionDeltaV()
+        {
+            if (vc.activeTarget != null)
+            {
+                if (invalid)
+                {
+                    UpdateTransferParameters();
+                }
+
+                return oberthEjectionVelocity;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the relative ejection angle for an Oberth effect tranfers.  When this
+        /// value reaches 0, it is time to burn.
+        /// If the vessel's target
+        /// is not another world, or the vessel does not currently orbit a moon, returns 0.
+        /// </summary>
+        /// <returns>Relative angle in degrees, or 0.</returns>
+        public double RelativeOberthEjectionAngle()
+        {
+            if (vc.activeTarget != null)
+            {
+                if (invalid)
+                {
+                    UpdateTransferParameters();
+                }
+
+                return Utility.NormalizeAngle(oberthCurrentEjectionAngle - oberthTransferEjectionAngle);
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the time until the ejection burn must begin for an Oberth effect tranfer, in seconds.
+        /// If the vessel's target
+        /// is not another world, or the vessel does not currently orbit a moon, returns 0.
+        /// </summary>
+        /// <returns>Time in seconds until the burn, or 0.</returns>
+        public double TimeUntilOberthEjectionAngle()
+        {
+            if (vc.activeTarget != null)
+            {
+                if (invalid)
+                {
+                    UpdateTransferParameters();
+                }
+
+                return oberthTimeUntilEjection;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the ejection angle required to initiate an ejection from the moon's orbit
+        /// to the moon's parent world for an interplanetary transfer.  If the vessel's target
+        /// is not another world, or the vessel does not currently orbit a moon, returns 0.
+        /// </summary>
+        /// <returns>Required ejection angle in degrees, or 0.</returns>
+        public double TransferOberthEjectionAngle()
+        {
+            if (vc.activeTarget != null)
+            {
+                if (invalid)
+                {
+                    UpdateTransferParameters();
+                }
+
+                return oberthTransferEjectionAngle;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
         #endregion
 
         /// <summary>
@@ -564,16 +714,43 @@ namespace AvionicsSystems
             finalDeltaV = Vf - Vtxf;
         }
 
+        // Computes the delta-V for the initial burn of a Hohmann transfer.
+        private static double DeltaVInitial(double startRadius, double endRadius, double GM)
+        {
+            double atx = 0.5 * (startRadius + endRadius);
+            double Vi = Math.Sqrt(GM / startRadius);
+
+            double Vtxi = Math.Sqrt(GM * (2.0 / startRadius - 1.0 / atx));
+
+            return Vtxi - Vi;
+        }
+
+        // Determine the current ejection angle (angle from parent body's prograde)
+        private static double ComputeEjectionAngle(Orbit o)
+        {
+            Vector3d vesselPos = o.pos;
+            vesselPos.Normalize();
+            Vector3d bodyProgradeVec = o.referenceBody.orbit.vel;
+            bodyProgradeVec.Normalize();
+            Vector3d bodyPosVec = o.referenceBody.orbit.pos;
+            double currentEjectionAngle = Vector3d.Angle(vesselPos, bodyProgradeVec);
+            if (Vector3d.Dot(vesselPos, bodyPosVec) > 0.0)
+            {
+                currentEjectionAngle = Utility.NormalizeAngle(360.0 - currentEjectionAngle);
+            }
+            return currentEjectionAngle;
+        }
+
         // Update ejection parameters
-        private void UpdateEjectionParameters(Orbit o)
+        private static void UpdateEjectionParameters(Orbit o, double departureDeltaV, double currentEjectionAngle, out double ejectionDeltaV, out double transferEjectionAngle, out double timeUntilEjection)
         {
             double r1 = o.semiMajorAxis;
             double r2 = o.referenceBody.sphereOfInfluence;
             double GM = o.referenceBody.gravParameter;
-            double v2 = Math.Abs(initialDeltaV);
+            double v2 = Math.Abs(departureDeltaV);
 
             // Absolute velocity required, not delta-V.
-            ejectionVelocity = Math.Sqrt((r1 * (r2 * v2 * v2 - 2.0 * GM) + 2.0 * r2 * GM) / (r1 * r2));
+            double ejectionVelocity = Math.Sqrt((r1 * (r2 * v2 * v2 - 2.0 * GM) + 2.0 * r2 * GM) / (r1 * r2));
 
             double eps = ejectionVelocity * ejectionVelocity * 0.5 - GM / r1;
             double h = r1 * ejectionVelocity;
@@ -588,7 +765,7 @@ namespace AvionicsSystems
             double oVel = o.getOrbitalSpeedAt(Planetarium.GetUniversalTime() + timeUntilEjection);
 
             // Convert ejectionVelocity into ejection delta-V.
-            ejectionVelocity -= oVel;
+            ejectionDeltaV = ejectionVelocity - oVel;
         }
 
         // Updater method - called at most once per FixedUpdate when the
@@ -600,10 +777,16 @@ namespace AvionicsSystems
             transferPhaseAngle = 0.0;
             timeUntilTransfer = 0.0;
 
-            ejectionVelocity = 0.0;
+            ejectionDeltaV = 0.0;
             currentEjectionAngle = 0.0;
             transferEjectionAngle = 0.0;
             timeUntilEjection = 0.0;
+
+            oberthAltitude = 0.0;
+            oberthEjectionVelocity = 0.0;
+            oberthCurrentEjectionAngle = 0.0;
+            oberthTransferEjectionAngle = 0.0;
+            oberthTimeUntilEjection = 0.0;
 
             initialDeltaV = 0.0;
             finalDeltaV = 0.0;
@@ -701,30 +884,48 @@ namespace AvionicsSystems
                     }
                     //--- PROTRACTOR
 #endif
-                Vector3d vesselPos = vessel.orbit.pos;
-                vesselPos.Normalize();
-                Vector3d bodyProgradeVec = vessel.mainBody.orbit.vel;
-                bodyProgradeVec.Normalize();
-                Vector3d bodyPosVec = vessel.mainBody.orbit.pos;
-                currentEjectionAngle = Vector3d.Angle(vesselPos, bodyProgradeVec);
-                if (Vector3d.Dot(vesselPos, bodyPosVec) > 0.0)
-                {
-                    currentEjectionAngle = Utility.NormalizeAngle(360.0 - currentEjectionAngle);
-                }
-#if COMPARE_PHASE_ANGLE_PROTRACTOR
-                Utility.LogMessage(this, "Protractor ejection angle = {0,5:0.0} , computed = {1,5:0.0}", protractorEject, currentEjectionAngle);
-#endif
 
                 if (vesselOrbitSteps == 1)
                 {
-                    UpdateEjectionParameters(vessel.orbit);
+                    //Vector3d vesselPos = vessel.orbit.pos;
+                    //vesselPos.Normalize();
+                    //Vector3d bodyProgradeVec = vessel.mainBody.orbit.vel;
+                    //bodyProgradeVec.Normalize();
+                    //Vector3d bodyPosVec = vessel.mainBody.orbit.pos;
+                    //currentEjectionAngle = Vector3d.Angle(vesselPos, bodyProgradeVec);
+                    //if (Vector3d.Dot(vesselPos, bodyPosVec) > 0.0)
+                    //{
+                    //    currentEjectionAngle = Utility.NormalizeAngle(360.0 - currentEjectionAngle);
+                    //}
+
+                    currentEjectionAngle = ComputeEjectionAngle(vessel.orbit);
+#if COMPARE_PHASE_ANGLE_PROTRACTOR
+                    Utility.LogMessage(this, "Protractor ejection angle = {0,5:0.0} , computed = {1,5:0.0}", protractorEject, currentEjectionAngle);
+#endif
+
+                    UpdateEjectionParameters(vessel.orbit, initialDeltaV, currentEjectionAngle, out ejectionDeltaV, out transferEjectionAngle, out timeUntilEjection);
                 }
                 else if (vesselOrbitSteps == 2)
                 {
-                    // Compute ejection parameters based on the moon we are orbiting.
-                    UpdateEjectionParameters(vessel.orbit.referenceBody.orbit);
+                    CelestialBody moon = vessel.orbit.referenceBody;
+                    CelestialBody planet = moon.referenceBody;
+
+                    currentEjectionAngle = ComputeEjectionAngle(moon.orbit);
+
+                    // Compute ejection parameters based on the orbital parameters of the moon we are orbiting.
+                    UpdateEjectionParameters(moon.orbit, initialDeltaV, currentEjectionAngle, out ejectionDeltaV, out transferEjectionAngle, out timeUntilEjection);
 
                     // TODO: Compute moon ejection angle to take advantage of the Oberth effect.
+                    oberthAltitude = 0.05 * (planet.Radius + planet.atmosphereDepth);
+
+                    double oberthAltitudeDeltaV = DeltaVInitial(moon.orbit.semiMajorAxis, oberthAltitude + planet.Radius, planet.gravParameter);
+
+                    // Compute the moon-specific parameters
+                    oberthCurrentEjectionAngle = ComputeEjectionAngle(vessel.orbit);
+                    UpdateEjectionParameters(vessel.orbit, oberthAltitudeDeltaV, oberthCurrentEjectionAngle, out oberthEjectionVelocity, out oberthTransferEjectionAngle, out oberthTimeUntilEjection);
+
+                    // Delta-V required to target the ejection altitude.
+                    //oberthEjectionVelocity = 0.0;
                 }
             }
 
