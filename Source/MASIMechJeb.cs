@@ -107,7 +107,7 @@ namespace AvionicsSystems
         private static readonly FieldInfo ReentryOutcome;
         private static readonly FieldInfo ReentryTime;
 
-        //--- Methods found in StageStags
+        //--- Methods found in StageStats
         private static readonly DynamicMethod<object, object, bool> RequestUpdate;
         private static readonly FieldInfo AtmoStats;
         private static readonly FieldInfo VacStats;
