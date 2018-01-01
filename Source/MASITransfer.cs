@@ -324,11 +324,11 @@ namespace AvionicsSystems
 
         /// <summary>
         /// The Maneuver Planning region provides functions that can be used to generate
-        /// maneuver nodes to accomplish basic orbital tasks.  Note that this capability
-        /// does not include autopilot functionality - it is simply a set of helpers to create
+        /// maneuver nodes to accomplish basic orbital tasks.  This capability
+        /// does not include autopilot functionality - it is simply a set of helper functions to create
         /// maneuver nodes.
         /// 
-        /// Note that the MAS Maneuver Planner is not as full-featured as MechJeb - it does not
+        /// The MAS Maneuver Planner is not as full-featured as MechJeb - it does not
         /// work with parabolic / hyperbolic orbits, for instance.
         /// </summary>
         #region Maneuver Planning
@@ -512,6 +512,55 @@ namespace AvionicsSystems
                 return 1.0;
             }
 
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Circularize the vessel's orbit at the specified altitude, in meters.  This new altitude
+        /// must be between the current periapsis and apoapsis, and the current orbit must not be hyperbolic.
+        /// </summary>
+        /// <param name="newAltitude">The altitude at which the orbit will be circularized, in meters.</param>
+        /// <returns>1 if a node was created, 0 otherwise.</returns>
+        public double CircularizeAltitude(double newAltitude)
+        {
+            Orbit current = vessel.orbit;
+            double newSMA = newAltitude + current.referenceBody.Radius;
+            if (newSMA >= current.PeR && newSMA <= current.ApR && vessel.patchedConicSolver != null && current.eccentricity < 1.0)
+            {
+                CelestialBody referenceBody = current.referenceBody;
+                double vNew = Math.Sqrt(referenceBody.gravParameter / newSMA);
+                double maneuverUt = Planetarium.GetUniversalTime() + Utility.NextTimeToRadius(current, newSMA);
+
+                Vector3d velAtUt = current.getOrbitalVelocityAtUT(maneuverUt).xzy;
+
+                Vector3d upAtUt = current.getRelativePositionAtUT(maneuverUt).xzy.normalized;
+                Vector3d prograde = velAtUt.normalized;
+                Vector3d normal = Vector3d.Cross(velAtUt, upAtUt).normalized;
+                Vector3d radial = Vector3d.Cross(normal, prograde);
+
+                Vector3d fwdAtUt = Vector3d.Cross(upAtUt, normal);
+                Vector3d maneuverVel = fwdAtUt * vNew;
+                
+                Vector3d deltaV = maneuverVel - velAtUt;
+                //Utility.LogMessage(this, "dV = {0} because {1} - {2}", deltaV, maneuverVel, velAtUt);
+                //Utility.LogMessage(this, "prograde (dot) fwd = {0:0.000}", Vector3d.Dot(prograde, fwdAtUt));
+
+                Vector3d maneuverdV = new Vector3d(Vector3d.Dot(deltaV, radial), Vector3d.Dot(deltaV, normal), Vector3d.Dot(deltaV, prograde));
+
+                vessel.patchedConicSolver.maneuverNodes.Clear();
+                ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(maneuverUt);
+                mn.OnGizmoUpdated(maneuverdV, maneuverUt);
+
+                //Vector3d posAtUt = current.getRelativePositionAtUT(maneuverUt);
+                //oUpper.UpdateFromStateVectors(posAtUt, maneuverVel.xzy, referenceBody, maneuverUt);
+                //Utility.LogMessage(this, "Circularize at {0:0.000}km: {1:0.000} x {2:0.000} @ {3:0.0}",
+                //    newAltitude * 0.001,
+                //    oUpper.ApA * 0.001, oUpper.PeA * 0.001,
+                //    oUpper.inclination);
+                
+                return 1.0;
+            }
+            
             return 0.0;
         }
 
@@ -903,8 +952,8 @@ namespace AvionicsSystems
             double rB = destinationOrbit.semiMajorAxis;
 
             double atx = 0.5 * (rA + rB);
-            double Vi = Math.Sqrt(GM / rA);
-            double Vf = Math.Sqrt(GM / rB);
+            double Vi = Math.Sqrt(GM / rA); // Velocity of a circular orbit at radius A
+            double Vf = Math.Sqrt(GM / rB); // Velocity of a circular orbit at radius B
 
             double Vtxi = Math.Sqrt(GM * (2.0 / rA - 1.0 / atx));
             double Vtxf = Math.Sqrt(GM * (2.0 / rB - 1.0 / atx));

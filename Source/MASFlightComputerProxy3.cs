@@ -2447,38 +2447,7 @@ namespace AvionicsSystems
         {
             if (vc.orbit.ApA >= altitude && vc.orbit.PeA <= altitude && vc.orbit.eccentricity < 1.0)
             {
-                // How do I do this?  Like so:
-                // TrueAnomalyAtRadius returns a TA between 0 and PI, representing
-                // when the orbit crosses that altitude while ascending from Pe (0) to Ap (PI).
-                double taAtAltitude = vc.orbit.TrueAnomalyAtRadius(altitude + vc.mainBody.Radius);
-                // GetUTForTrueAnomaly gives us a time for when that will occur.  I don't know
-                // what parameter 2 is really supposed to do (wrapAfterSeconds), because after
-                // subtracting vc.UT, I see values sometimes 2 orbits in the past.  Which is why
-                // we have to normalize it here to the next time we cross that TA.
-                double timeToTa1 = Utility.NormalizeOrbitTime(vc.orbit.GetUTforTrueAnomaly(taAtAltitude, vc.orbit.period) - vc.universalTime, vc.orbit);
-
-                // Now, what about the other time we cross that altitude (in the range of -PI to 0)?
-                // Easy.  The orbit is symmetrical around 0, so the other TA is -taAtAltitude.
-                // I *could* use TrueAnomalyAtRadius and normalize the result, but I don't know the
-                // complexity of that function, and there's an easy way to compute it: since
-                // the TA is symmetrical, the time from the Pe to TA1 is the same as the time
-                // from TA2 to Pe.
-
-                // First, find the time-to-Pe that occurs before the time to TA1:
-                double relevantPe = vc.orbit.timeToPe;
-                if (relevantPe > timeToTa1)
-                {
-                    // If we've passed the Pe, but we haven't reached TA1, we
-                    // need to find the previous Pe
-                    relevantPe -= vc.orbit.period;
-                }
-
-                // Then, we subtract the interval from TA1 to the Pe from the time
-                // until the Pe (that is, T(Pe) - (T(TA1) - T(Pe)), rearranging terms:
-                double timeToTa2 = Utility.NormalizeOrbitTime(2.0 * relevantPe - timeToTa1, vc.orbit);
-
-                // Whichever occurs first is the one we care about:
-                return Math.Min(timeToTa1, timeToTa2);
+                return Utility.NextTimeToRadius(vc.orbit, altitude + vc.orbit.referenceBody.Radius);
             }
             else
             {
