@@ -55,9 +55,9 @@ namespace AvionicsSystems
         };
 
         #region Message Logging
-        
+
         private static StringBuilder logSb = new StringBuilder();
-        
+
         /// <summary>
         /// Log a message.  Logged regardless of the MAS Settings debug flag.
         /// </summary>
@@ -320,6 +320,23 @@ namespace AvionicsSystems
         #endregion
 
         #region Orbital Utilities
+
+        /// <summary>
+        /// Returns the orbital basis vectors for an orbit at a given time.
+        /// </summary>
+        /// <param name="orbitalVelocity">The orbital velocity (Orbit.getOrbitalVelocityAtUT())</param>
+        /// <param name="relativePosition">The relative position (Orbit.getRelativePositionAtUT())</param>
+        /// <param name="prograde">The prograde vector for the orbit at time `ut`.</param>
+        /// <param name="radial">The radial vector for the orbit at time `ut`.</param>
+        /// <param name="normal">The normal vector for the orbit at time `ut`.</param>
+        internal static void GetOrbitalBasisVectors(Vector3d orbitalVelocity, Vector3d relativePosition, out Vector3d prograde, out Vector3d radial, out Vector3d normal)
+        {
+            prograde = orbitalVelocity.xzy.normalized;
+            Vector3d upAtUt = relativePosition.xzy.normalized;
+
+            normal = Vector3d.Cross(prograde, upAtUt);
+            radial = Vector3d.Cross(normal, prograde);
+        }
 
         /// <summary>
         /// Returns the time in seconds until we cross the given radius

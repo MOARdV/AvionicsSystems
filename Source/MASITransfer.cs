@@ -377,21 +377,21 @@ namespace AvionicsSystems
                     oLower.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVLower, referenceBody, ut);
                 }
                 double dVMid = (dVUpper + dVLower) * 0.5;
-                double peUpper = oUpper.PeR;
-                double peLower = oLower.PeR;
+                double apUpper = oUpper.ApR;
+                double apLower = oLower.ApR;
 
                 oMid.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVMid, referenceBody, ut);
-                double peMid = oMid.PeR;
+                double apMid = oMid.ApR;
 
-                //Utility.LogMessage(this, "Change Pe {0:0.000}:", newAltitude * 0.001);
+                //Utility.LogMessage(this, "Change Ap {0:0.000}:", newAltitude * 0.001);
                 while (Math.Abs(dVUpper - dVLower) > 0.015625)
                 {
                     //Utility.LogMessage(this, " - Upper = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVUpper, oUpper.PeA * 0.001, oUpper.ApA * 0.001);
                     //Utility.LogMessage(this, " - Lower = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVLower, oLower.PeA * 0.001, oLower.ApA * 0.001);
                     //Utility.LogMessage(this, " - Mid   = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVMid, oMid.PeA * 0.001, oMid.ApA * 0.001);
-                    if (Math.Abs(peUpper - newApR) < Math.Abs(peLower - newApR))
+                    if (Math.Abs(apUpper - newApR) < Math.Abs(apLower - newApR))
                     {
-                        peLower = peMid;
+                        apLower = apMid;
                         dVLower = dVMid;
 
                         Orbit tmp = oLower;
@@ -400,7 +400,7 @@ namespace AvionicsSystems
                     }
                     else
                     {
-                        peUpper = peMid;
+                        apUpper = apMid;
                         dVUpper = dVMid;
 
                         Orbit tmp = oUpper;
@@ -409,7 +409,7 @@ namespace AvionicsSystems
                     }
                     dVMid = (dVUpper + dVLower) * 0.5;
                     oMid.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVMid, referenceBody, ut);
-                    peMid = oMid.PeR;
+                    apMid = oMid.ApR;
                 }
                 //Utility.LogMessage(this, " - Final = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVMid, oMid.PeA * 0.001, oMid.ApA * 0.001);
 
@@ -531,17 +531,20 @@ namespace AvionicsSystems
                 double vNew = Math.Sqrt(referenceBody.gravParameter / newSMA);
                 double maneuverUt = Planetarium.GetUniversalTime() + Utility.NextTimeToRadius(current, newSMA);
 
-                Vector3d velAtUt = current.getOrbitalVelocityAtUT(maneuverUt).xzy;
+                Vector3d velAtUt = current.getOrbitalVelocityAtUT(maneuverUt);
 
-                Vector3d upAtUt = current.getRelativePositionAtUT(maneuverUt).xzy.normalized;
-                Vector3d prograde = velAtUt.normalized;
-                Vector3d normal = Vector3d.Cross(velAtUt, upAtUt).normalized;
-                Vector3d radial = Vector3d.Cross(normal, prograde);
+                Vector3d relativePosition = current.getRelativePositionAtUT(maneuverUt);
 
+                Vector3d prograde;
+                Vector3d normal;
+                Vector3d radial;
+                Utility.GetOrbitalBasisVectors(velAtUt, relativePosition, out prograde, out radial, out normal);
+
+                Vector3d upAtUt = relativePosition.xzy.normalized;
                 Vector3d fwdAtUt = Vector3d.Cross(upAtUt, normal);
                 Vector3d maneuverVel = fwdAtUt * vNew;
-                
-                Vector3d deltaV = maneuverVel - velAtUt;
+
+                Vector3d deltaV = maneuverVel - velAtUt.xzy;
                 //Utility.LogMessage(this, "dV = {0} because {1} - {2}", deltaV, maneuverVel, velAtUt);
                 //Utility.LogMessage(this, "prograde (dot) fwd = {0:0.000}", Vector3d.Dot(prograde, fwdAtUt));
 
@@ -557,10 +560,10 @@ namespace AvionicsSystems
                 //    newAltitude * 0.001,
                 //    oUpper.ApA * 0.001, oUpper.PeA * 0.001,
                 //    oUpper.inclination);
-                
+
                 return 1.0;
             }
-            
+
             return 0.0;
         }
 
