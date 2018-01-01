@@ -3,7 +3,7 @@
 The source code, shaders, and compiled binary (DLL) for Avionics Systems are covered by
 the MIT License:
 
-Copyright (c) 2016-2017 MOARdV
+Copyright (c) 2016 - 2018 MOARdV
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,7 @@ SOFTWARE.
 
 Documentation for MOARdV's Avionics Systems is
 
-Copyright (c) 2016-2017 MOARdV.  All Rights Reserved.
+Copyright (c) 2016 - 2018 MOARdV.  All Rights Reserved.
 
 You may distribute unaltered versions of the documentation, either with this
 plugin or separately, but please do not distrubute altered versions of this documentation.
@@ -132,7 +132,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ---
 
-[Digital-7](http://www.fontspace.com/style-7/digital-7) by Sizenko Alexander [Style-7](http://www.styleseven.com) is included per the terms described in 
+The [Digital-7](http://www.fontspace.com/style-7/digital-7) font by Sizenko Alexander [Style-7](http://www.styleseven.com) is included per the terms described in 
 GameData/MOARdV/AvionicsSystems/PluginData/digital-7-readme.txt
 
 ---
@@ -141,7 +141,7 @@ The [InconsolataGo](http://www.levien.com/type/myfonts/) font is included per th
 
 ---
 
-The [Liberation Sans](https://pagure.io/liberation-fonts) font is included per the terms of the [Open Font License]((https://opensource.org/licenses/OFL-1.1).
+The [Liberation Sans](https://pagure.io/liberation-fonts) font is included per the terms of the [Open Font License](https://opensource.org/licenses/OFL-1.1).
 
 
 ---
