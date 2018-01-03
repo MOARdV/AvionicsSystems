@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2017 MOARdV
+ * Copyright (c) 2017 - 2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -32,7 +32,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Defines the minimum and maximum field of view of the camera lens
         /// as measured across the vertical (Y) axis, in degrees.  Automatically
-        /// clamps values between 1 and 90.
+        /// clamps values between 1 and 179.
         /// </summary>
         [KSPField]
         public Vector2 fovRange = new Vector2(50.0f, 50.0f);
@@ -205,8 +205,8 @@ namespace AvionicsSystems
                 {
                     fovRange = new Vector2(fovRange.y, fovRange.x);
                 }
-                fovRange.x = Mathf.Clamp(fovRange.x, 1.0f, 90.0f);
-                fovRange.y = Mathf.Clamp(fovRange.y, 1.0f, 90.0f);
+                fovRange.x = Mathf.Clamp(fovRange.x, 1.0f, 179.0f);
+                fovRange.y = Mathf.Clamp(fovRange.y, 1.0f, 179.0f);
                 currentFov = Mathf.Clamp(currentFov, fovRange.x, fovRange.y);
 
                 if (panRange.y < panRange.x)
