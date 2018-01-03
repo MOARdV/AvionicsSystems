@@ -73,11 +73,15 @@ namespace AvionicsSystems
         private string DoSIFormat(double value, int length, int minDecimal, string delimiter, bool forceSign, bool showPrefix)
         {
             //Utility.LogMessage(this, "DoSIFormat {0}, {1}, {2}, x, {3}, {4}", value, length, minDecimal, forceSign, showPrefix);
-            int leadingDigitExponent = (int)Math.Floor(Math.Log10(Math.Abs(value)));
-            if (value == 0.0 || leadingDigitExponent < 0)
+            int leadingDigitExponent;
+            if (Math.Abs(value) < 1.0)
             {
                 // special case: can't take log(0).
                 leadingDigitExponent = 0;
+            }
+            else
+            {
+                leadingDigitExponent = (int)Math.Floor(Math.Log10(Math.Abs(value)));
             }
 
             // How many characters need to be set aside?
@@ -99,7 +103,7 @@ namespace AvionicsSystems
 
             int digits = leadingDigitExponent - siExponent;
             double scaledInputValue = Math.Round(value / Math.Pow(10.0, siExponent), minDecimal);
-            int scaledLength = (int)Math.Floor(Math.Log10(Math.Abs(scaledInputValue))) + 1;
+            int scaledLength = (Math.Abs(scaledInputValue) > 0.0) ? (int)Math.Floor(Math.Log10(Math.Abs(scaledInputValue))) + 1 : 1;
             int groupLen = (string.IsNullOrEmpty(delimiter)) ? 3 : 4;
 
             int freeCh2 = freeCharacters - ((scaledLength == 4) ? groupLen + 1 : scaledLength);
@@ -117,7 +121,7 @@ namespace AvionicsSystems
             }
             minDecimal += freeCh2;
             scaledInputValue = Math.Round(value / Math.Pow(10.0, siExponent), minDecimal);
-            
+
             // TODO: Make a cache of format strings based on length, minDecimal (as adjusted at this point), and showPrefix.
 
             //Utility.LogMessage(this, "leadExp = {1}, siExp = {2}, reserve = {0}, freeCh = {3}, scaledIn = {6}, scaledLen = {7}, freeCh2 = {5}",
