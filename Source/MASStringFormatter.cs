@@ -44,12 +44,6 @@ namespace AvionicsSystems
 
         private static object[] formatData = new object[8];
 
-        private static readonly int EarthHoursPerDay = 24;
-        private static readonly int KerbinHoursPerDay = 6;
-
-        private static readonly int EarthDaysPerYear = 365;
-        private static readonly int KerbinDaysPerYear = 426;
-
         /// <summary>
         /// Return a reference to ourselves if they're asking for a
         /// customer formatter.
@@ -217,18 +211,9 @@ namespace AvionicsSystems
         /// <returns></returns>
         private static string FormatMET(string formatSpecification, double value)
         {
-            double daysPerYear;
-            double hoursPerDay;
-            if (GameSettings.KERBIN_TIME)
-            {
-                daysPerYear = KerbinDaysPerYear;
-                hoursPerDay = KerbinHoursPerDay;
-            }
-            else
-            {
-                daysPerYear = EarthDaysPerYear;
-                hoursPerDay = EarthHoursPerDay;
-            }
+            double hoursPerDay = KSPUtil.dateTimeFormatter.Day / 3600.0;
+            double daysPerYear = KSPUtil.dateTimeFormatter.Year / KSPUtil.dateTimeFormatter.Day;
+
             // seconds...
             double timeBalance = (double.IsInfinity(value) || double.IsNaN(value)) ? 0.0 : Math.Abs(value);
             vals[0] = (int)(timeBalance % 60.0);

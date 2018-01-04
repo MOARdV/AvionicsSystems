@@ -840,17 +840,18 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the number of hours per day, depending on whether the game
-        /// is configured for the Earth calendar or the Kerbin calendar.
+        /// Returns the number of hours per day on Kerbin.  With a stock installation, this is 6 hours or
+        /// 24 hours, depending on whether the Kerbin calendar or Earth calendar is selected.  Mods
+        /// may change this to a different value.
         /// </summary>
-        /// <returns>6 for Kerbin time, 24 for Earth time</returns>
+        /// <returns>6 for Kerbin time, 24 for Earth time, or another value for modded installations.</returns>
         public double HoursPerDay()
         {
-            return (GameSettings.KERBIN_TIME) ? 6.0 : 24.0;
+            return KSPUtil.dateTimeFormatter.Day / 3600;
         }
 
         /// <summary>
-        /// Returns 1 if KSP is configured for the Kerbin calendar (6 hour days);
+        /// Returns 1 if the KSP UI is configured for the Kerbin calendar (6 hour days);
         /// returns 0 for Earth days (24 hour).
         /// </summary>
         /// <returns></returns>
@@ -1237,7 +1238,7 @@ namespace AvionicsSystems
         /// Warp to the specified universal time.  If the time is in the past, or
         /// the warp is otherwise not possible, nothing happens.
         /// </summary>
-        /// <param name="UT"></param>
+        /// <param name="UT">The Universal Time to warp to.  Must be in the future.</param>
         /// <returns>1 if the warp to time is successfully set, 0 if it was not.</returns>
         public double WarpTo(double UT)
         {

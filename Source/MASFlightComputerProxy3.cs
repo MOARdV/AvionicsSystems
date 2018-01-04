@@ -2387,7 +2387,7 @@ namespace AvionicsSystems
         /// <returns>The hour of the day, accounting for Kerbin time vs. Earth time.</returns>
         public double HourOfDay(double time)
         {
-            return (time / 3600.0) % ((GameSettings.KERBIN_TIME) ? 6.0 : 24.0);
+            return TimeOfDay(time) / 3600.0;
         }
 
         /// <summary>
@@ -2433,7 +2433,7 @@ namespace AvionicsSystems
         /// <returns>Number of seconds since the latest day began.</returns>
         public double TimeOfDay(double time)
         {
-            return 3600.0 * HourOfDay(time);
+            return time % ((double)KSPUtil.dateTimeFormatter.Day);
         }
 
         /// <summary>
