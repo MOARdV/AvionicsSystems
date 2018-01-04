@@ -230,7 +230,7 @@ namespace AvionicsSystems
                 hoursPerDay = EarthHoursPerDay;
             }
             // seconds...
-            double timeBalance = Math.Abs(value);
+            double timeBalance = (double.IsInfinity(value) || double.IsNaN(value)) ? 0.0 : Math.Abs(value);
             vals[0] = (int)(timeBalance % 60.0);
             // minutes...
             timeBalance /= 60.0;
@@ -425,7 +425,11 @@ namespace AvionicsSystems
         private static string FormatSI(string formatSpecification, double value)
         {
             int siChar = 0;
-            if (value >= 1000.0 || value <= -1000.0)
+            if (double.IsInfinity(value) || double.IsNaN(value))
+            {
+                value = 0.0;
+            }
+            else if (value >= 1000.0 || value <= -1000.0)
             {
                 siChar = (int)(Math.Log10(Math.Abs(value))) / 3;
                 siChar = Math.Min(siChar, 8);
