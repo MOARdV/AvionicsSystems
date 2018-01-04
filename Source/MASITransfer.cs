@@ -345,7 +345,7 @@ namespace AvionicsSystems
         {
             Orbit current = vessel.orbit;
             double newApR = newAltitude + current.referenceBody.Radius;
-            if (newApR >= current.PeR && newApR <= current.referenceBody.sphereOfInfluence && vessel.patchedConicSolver != null && current.eccentricity < 1.0)
+            if (newApR >= current.PeR && newApR <= current.referenceBody.sphereOfInfluence && vessel.patchedConicSolver != null)
             {
                 CelestialBody referenceBody = current.referenceBody;
                 double ut = current.timeToPe + Planetarium.GetUniversalTime();
@@ -356,7 +356,21 @@ namespace AvionicsSystems
                 double dVUpper;
                 double dVLower;
 
-                if (newApR > current.ApR)
+                // TODO: The velocity adjustment gets us really, really close.  Account for that to hit
+                // the answer faster.
+                if (current.eccentricity >= 1.0)
+                {
+                    // Hyperbolic orbit.  DeltaVInitial assumes a circular orbit at the given altitude, which will not be
+                    // the cause here.
+                    double velocityAdjustment = velAtUt.magnitude - Math.Sqrt(referenceBody.gravParameter / current.PeR);
+                    // Parabolic / hyperbolic orbit.  Search between Pe and SoI
+                    dVUpper = DeltaVInitial(current.referenceBody.sphereOfInfluence, newApR, referenceBody.gravParameter);
+                    dVLower = DeltaVInitial(current.PeR, newApR, referenceBody.gravParameter) - velocityAdjustment;
+
+                    oUpper.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVUpper, referenceBody, ut);
+                    oLower.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVLower, referenceBody, ut);
+                }
+                else if (newApR > current.ApR)
                 {
                     // Our current Ap is higher than the target, so we treat the Ap as the lower bound
                     // and the SoI as the upper bound.
@@ -377,11 +391,11 @@ namespace AvionicsSystems
                     oLower.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVLower, referenceBody, ut);
                 }
                 double dVMid = (dVUpper + dVLower) * 0.5;
-                double apUpper = oUpper.ApR;
-                double apLower = oLower.ApR;
+                double apUpper = (oUpper.ApR < 0.0) ? current.referenceBody.sphereOfInfluence : oUpper.ApR;
+                double apLower = (oLower.ApR < 0.0) ? current.referenceBody.sphereOfInfluence : oLower.ApR;
 
                 oMid.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVMid, referenceBody, ut);
-                double apMid = oMid.ApR;
+                double apMid = (oMid.ApR < 0.0) ? current.referenceBody.sphereOfInfluence : oMid.ApR;
 
                 //Utility.LogMessage(this, "Change Ap {0:0.000}:", newAltitude * 0.001);
                 while (Math.Abs(dVUpper - dVLower) > 0.015625)
