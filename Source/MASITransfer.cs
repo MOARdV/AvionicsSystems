@@ -1,4 +1,5 @@
 ﻿//#define COMPARE_PHASE_ANGLE_PROTRACTOR
+//#define DEBUG_CHANGE_ALTITUDE
 /*****************************************************************************
  * The MIT License (MIT)
  * 
@@ -356,77 +357,106 @@ namespace AvionicsSystems
                 double dVUpper;
                 double dVLower;
 
-                // TODO: The velocity adjustment gets us really, really close.  Account for that to hit
-                // the answer faster.
-                if (current.eccentricity >= 1.0)
+                dVLower = DeltaVInitial(current.PeR, newApR, referenceBody.gravParameter, velAtUt.magnitude);
+                if (current.eccentricity >= 1.0 || newApR > current.ApR)
                 {
-                    // Hyperbolic orbit.  DeltaVInitial assumes a circular orbit at the given altitude, which will not be
-                    // the cause here.
-                    double velocityAdjustment = velAtUt.magnitude - Math.Sqrt(referenceBody.gravParameter / current.PeR);
-                    // Parabolic / hyperbolic orbit.  Search between Pe and SoI
-                    dVUpper = DeltaVInitial(current.referenceBody.sphereOfInfluence, newApR, referenceBody.gravParameter);
-                    dVLower = DeltaVInitial(current.PeR, newApR, referenceBody.gravParameter) - velocityAdjustment;
-
-                    oUpper.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVUpper, referenceBody, ut);
-                    oLower.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVLower, referenceBody, ut);
-                }
-                else if (newApR > current.ApR)
-                {
-                    // Our current Ap is higher than the target, so we treat the Ap as the lower bound
-                    // and the SoI as the upper bound.
-                    dVUpper = DeltaVInitial(current.referenceBody.sphereOfInfluence, newApR, referenceBody.gravParameter);
-                    dVLower = DeltaVInitial(current.ApR, newApR, referenceBody.gravParameter);
-
-                    oUpper.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVUpper, referenceBody, ut);
-                    oLower.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVLower, referenceBody, ut);
+                    // Could possibly set dvUpper to 0?
+                    dVUpper = DeltaVInitial(Math.Min(2.0 * newApR, current.referenceBody.sphereOfInfluence), newApR, referenceBody.gravParameter);
                 }
                 else
                 {
                     // Our current orbit brackets the desired altitude, so we'll initialize our search with the
-                    // Ap and Pe.
+                    // Ap and Pe.  Since the maneuver starts at the Pe, we'll account for actual velocity with
+                    // our lower bound value, which should allow us to converge to the solution quicker (or immediately).
                     dVUpper = DeltaVInitial(current.ApR, newApR, referenceBody.gravParameter);
-                    dVLower = DeltaVInitial(current.PeR, newApR, referenceBody.gravParameter);
-
-                    oUpper.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVUpper, referenceBody, ut);
-                    oLower.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVLower, referenceBody, ut);
                 }
+                oUpper.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVUpper, referenceBody, ut);
+                oLower.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVLower, referenceBody, ut);
+
                 double dVMid = (dVUpper + dVLower) * 0.5;
                 double apUpper = (oUpper.ApR < 0.0) ? current.referenceBody.sphereOfInfluence : oUpper.ApR;
                 double apLower = (oLower.ApR < 0.0) ? current.referenceBody.sphereOfInfluence : oLower.ApR;
 
-                oMid.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVMid, referenceBody, ut);
-                double apMid = (oMid.ApR < 0.0) ? current.referenceBody.sphereOfInfluence : oMid.ApR;
-
-                //Utility.LogMessage(this, "Change Ap {0:0.000}:", newAltitude * 0.001);
-                while (Math.Abs(dVUpper - dVLower) > 0.015625)
+#if DEBUG_CHANGE_ALTITUDE
+                Utility.LogMessage(this, "Change Ap {0:0.000}:", newAltitude * 0.001);
+#endif
+                if (Math.Abs(apLower - newApR) < 1.0)
                 {
-                    //Utility.LogMessage(this, " - Upper = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVUpper, oUpper.PeA * 0.001, oUpper.ApA * 0.001);
-                    //Utility.LogMessage(this, " - Lower = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVLower, oLower.PeA * 0.001, oLower.ApA * 0.001);
-                    //Utility.LogMessage(this, " - Mid   = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVMid, oMid.PeA * 0.001, oMid.ApA * 0.001);
-                    if (Math.Abs(apUpper - newApR) < Math.Abs(apLower - newApR))
-                    {
-                        apLower = apMid;
-                        dVLower = dVMid;
-
-                        Orbit tmp = oLower;
-                        oLower = oMid;
-                        oMid = tmp;
-                    }
-                    else
-                    {
-                        apUpper = apMid;
-                        dVUpper = dVMid;
-
-                        Orbit tmp = oUpper;
-                        oUpper = oMid;
-                        oMid = tmp;
-                    }
-                    dVMid = (dVUpper + dVLower) * 0.5;
-                    oMid.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVMid, referenceBody, ut);
-                    apMid = oMid.ApR;
+#if DEBUG_CHANGE_ALTITUDE
+                    Utility.LogMessage(this, "Close enough - apLower");
+#endif
+                    // Within 1m of the desired altitude - good enough.
+                    // apLower is most likely to be right on, since we're using
+                    // the actual orbital velocity @ Pe to determine dV.
+                    dVMid = dVLower;
                 }
-                //Utility.LogMessage(this, " - Final = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVMid, oMid.PeA * 0.001, oMid.ApA * 0.001);
+                else if (Math.Abs(apUpper - newApR) < 1.0)
+                {
+#if DEBUG_CHANGE_ALTITUDE
+                    Utility.LogMessage(this, "Close enough - apUpper");
+#endif
+                    // Within 1m of the desired altitude - good enough.
+                    dVMid = dVUpper;
+                }
+                else
+                {
+                    oMid.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVMid, referenceBody, ut);
+                    double apMid = (oMid.ApR < 0.0) ? current.referenceBody.sphereOfInfluence : oMid.ApR;
 
+                    while (Math.Abs(dVUpper - dVLower) > 0.015625)
+                    {
+#if DEBUG_CHANGE_ALTITUDE
+                        Utility.LogMessage(this, " - Upper = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVUpper, oUpper.PeA * 0.001, oUpper.ApA * 0.001);
+                        Utility.LogMessage(this, " - Lower = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVLower, oLower.PeA * 0.001, oLower.ApA * 0.001);
+                        Utility.LogMessage(this, " - Mid   = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVMid, oMid.PeA * 0.001, oMid.ApA * 0.001);
+#endif
+                        if (Math.Abs(apLower - newApR) < 1.0)
+                        {
+                            // Within 1m of the desired altitude - good enough.
+                            dVMid = dVLower;
+                            // Only for debug printing:
+#if DEBUG_CHANGE_ALTITUDE
+                            oMid.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVMid, referenceBody, ut);
+#endif
+                            break;
+                        }
+                        else if (Math.Abs(apUpper - newApR) < 1.0)
+                        {
+                            // Within 1m of the desired altitude - good enough.
+                            dVMid = dVUpper;
+                            // Only for debug printing:
+#if DEBUG_CHANGE_ALTITUDE
+                            oMid.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVMid, referenceBody, ut);
+#endif
+                            break;
+                        }
+                        else if (Math.Abs(apUpper - newApR) < Math.Abs(apLower - newApR))
+                        {
+                            apLower = apMid;
+                            dVLower = dVMid;
+
+                            Orbit tmp = oLower;
+                            oLower = oMid;
+                            oMid = tmp;
+                        }
+                        else
+                        {
+                            apUpper = apMid;
+                            dVUpper = dVMid;
+
+                            Orbit tmp = oUpper;
+                            oUpper = oMid;
+                            oMid = tmp;
+                        }
+                        dVMid = (dVUpper + dVLower) * 0.5;
+                        oMid.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVMid, referenceBody, ut);
+                        apMid = (oMid.ApR < 0.0) ? current.referenceBody.sphereOfInfluence : oMid.ApR;
+                    }
+#if DEBUG_CHANGE_ALTITUDE
+                    Utility.LogMessage(this, " - Final = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVMid, oMid.PeA * 0.001, oMid.ApA * 0.001);
+#endif
+                }
+                
                 Vector3d dV = new Vector3d(0.0, 0.0, dVMid);
 
                 vessel.patchedConicSolver.maneuverNodes.Clear();
@@ -440,7 +470,8 @@ namespace AvionicsSystems
         /// <summary>
         /// Raise or lower the altitude of the periapsis.  The maneuver node is placed at
         /// apoapsis to minimize fuel requirements.  If an invalid periapsis is supplied
-        /// (either by being above the apoapsis, or lower than the center of the planet), this function does
+        /// (either by being above the apoapsis, or lower than the center of the planet, or
+        /// if the current orbit is hyperbolic), this function does
         /// nothing.
         /// </summary>
         /// <param name="newAltitude">The new altitude for the periapsis, in meters.</param>
@@ -460,62 +491,106 @@ namespace AvionicsSystems
                 double dVUpper;
                 double dVLower;
 
+                dVUpper = DeltaVInitial(current.ApR, newPeR, referenceBody.gravParameter, velAtUt.magnitude);
                 if (newPeR < current.PeR)
                 {
                     // Our current Pe is higher than the target, so we treat it as the upper bound and half the
                     // target Pe as the lower bound.
-                    dVUpper = DeltaVInitial(current.PeR, newPeR, referenceBody.gravParameter);
                     dVLower = DeltaVInitial(newPeR * 0.5, newPeR, referenceBody.gravParameter);
-
-                    oUpper.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVUpper, referenceBody, ut);
-                    oLower.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVLower, referenceBody, ut);
                 }
                 else
                 {
                     // Our current orbit brackets the desired altitude, so we'll initialize our search with the
                     // Ap and Pe.
-                    dVUpper = DeltaVInitial(current.ApR, newPeR, referenceBody.gravParameter);
                     dVLower = DeltaVInitial(current.PeR, newPeR, referenceBody.gravParameter);
-
-                    oUpper.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVUpper, referenceBody, ut);
-                    oLower.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVLower, referenceBody, ut);
                 }
+                oUpper.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVUpper, referenceBody, ut);
+                oLower.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVLower, referenceBody, ut);
+
                 double dVMid = (dVUpper + dVLower) * 0.5;
                 double peUpper = oUpper.PeR;
                 double peLower = oLower.PeR;
 
-                oMid.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVMid, referenceBody, ut);
-                double peMid = oMid.PeR;
+#if DEBUG_CHANGE_ALTITUDE
+                Utility.LogMessage(this, "Change Pe {0:0.000}:", newAltitude * 0.001);
+#endif
 
-                //Utility.LogMessage(this, "Change Pe {0:0.000}:", newAltitude * 0.001);
-                while (Math.Abs(dVUpper - dVLower) > 0.015625)
+                if (Math.Abs(peUpper - newPeR) < 1.0)
                 {
-                    //Utility.LogMessage(this, " - Upper = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVUpper, oUpper.PeA * 0.001, oUpper.ApA * 0.001);
-                    //Utility.LogMessage(this, " - Lower = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVLower, oLower.PeA * 0.001, oLower.ApA * 0.001);
-                    //Utility.LogMessage(this, " - Mid   = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVMid, oMid.PeA * 0.001, oMid.ApA * 0.001);
-                    if (Math.Abs(peUpper - newPeR) < Math.Abs(peLower - newPeR))
-                    {
-                        peLower = peMid;
-                        dVLower = dVMid;
-
-                        Orbit tmp = oLower;
-                        oLower = oMid;
-                        oMid = tmp;
-                    }
-                    else
-                    {
-                        peUpper = peMid;
-                        dVUpper = dVMid;
-
-                        Orbit tmp = oUpper;
-                        oUpper = oMid;
-                        oMid = tmp;
-                    }
-                    dVMid = (dVUpper + dVLower) * 0.5;
-                    oMid.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVMid, referenceBody, ut);
-                    peMid = oMid.PeR;
+#if DEBUG_CHANGE_ALTITUDE
+                    Utility.LogMessage(this, "Close enough - peUpper");
+#endif
+                    // Within 1m of the desired altitude - good enough.
+                    // peUpper is most likely to be right on, since we're using
+                    // the actual orbital velocity @ Ap to determine dV.
+                    dVMid = dVUpper;
                 }
-                //Utility.LogMessage(this, " - Final = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVMid, oMid.PeA * 0.001, oMid.ApA * 0.001);
+                else if (Math.Abs(peLower - newPeR) < 1.0)
+                {
+#if DEBUG_CHANGE_ALTITUDE
+                    Utility.LogMessage(this, "Close enough - peLower");
+#endif
+                    // Within 1m of the desired altitude - good enough.
+                    dVMid = dVLower;
+                }
+                else
+                {
+                    oMid.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVMid, referenceBody, ut);
+                    double peMid = oMid.PeR;
+
+                    while (Math.Abs(dVUpper - dVLower) > 0.015625)
+                    {
+#if DEBUG_CHANGE_ALTITUDE
+                        Utility.LogMessage(this, " - Upper = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVUpper, oUpper.PeA * 0.001, oUpper.ApA * 0.001);
+                        Utility.LogMessage(this, " - Lower = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVLower, oLower.PeA * 0.001, oLower.ApA * 0.001);
+                        Utility.LogMessage(this, " - Mid   = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVMid, oMid.PeA * 0.001, oMid.ApA * 0.001);
+#endif
+                        if (Math.Abs(peUpper - newPeR) < 1.0)
+                        {
+                            // Within 1m of the desired altitude - good enough.
+                            dVMid = dVLower;
+                            // Only for debug printing:
+#if DEBUG_CHANGE_ALTITUDE
+                            oMid.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVMid, referenceBody, ut);
+#endif
+                            break;
+                        }
+                        else if (Math.Abs(peLower - newPeR) < 1.0)
+                        {
+                            // Within 1m of the desired altitude - good enough.
+                            dVMid = dVUpper;
+                            // Only for debug printing:
+#if DEBUG_CHANGE_ALTITUDE
+                            oMid.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVMid, referenceBody, ut);
+#endif
+                            break;
+                        }
+                        else if (Math.Abs(peUpper - newPeR) < Math.Abs(peLower - newPeR))
+                        {
+                            peLower = peMid;
+                            dVLower = dVMid;
+
+                            Orbit tmp = oLower;
+                            oLower = oMid;
+                            oMid = tmp;
+                        }
+                        else
+                        {
+                            peUpper = peMid;
+                            dVUpper = dVMid;
+
+                            Orbit tmp = oUpper;
+                            oUpper = oMid;
+                            oMid = tmp;
+                        }
+                        dVMid = (dVUpper + dVLower) * 0.5;
+                        oMid.UpdateFromStateVectors(posAtUt, velAtUt + fwdAtUt * dVMid, referenceBody, ut);
+                        peMid = oMid.PeR;
+                    }
+#if DEBUG_CHANGE_ALTITUDE
+                    Utility.LogMessage(this, " - Final = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVMid, oMid.PeA * 0.001, oMid.ApA * 0.001);
+#endif
+                }
 
                 Vector3d dV = new Vector3d(0.0, 0.0, dVMid);
 
@@ -979,7 +1054,8 @@ namespace AvionicsSystems
             finalDeltaV = Vf - Vtxf;
         }
 
-        // Computes the delta-V for the initial burn of a Hohmann transfer.
+        // Computes the delta-V for the initial burn of a Hohmann transfer. Assumes circular
+        // initial orbit.
         private static double DeltaVInitial(double startRadius, double endRadius, double GM)
         {
             double atx = 0.5 * (startRadius + endRadius);
@@ -988,6 +1064,18 @@ namespace AvionicsSystems
             double Vtxi = Math.Sqrt(GM * (2.0 / startRadius - 1.0 / atx));
 
             return Vtxi - Vi;
+        }
+
+        // Allows actual velocity at startRadius to be applied, which may lead to quicker convergence
+        // on the desired dV.
+        private static double DeltaVInitial(double startRadius, double endRadius, double GM, double velocityAtStartRadius)
+        {
+            double atx = 0.5 * (startRadius + endRadius);
+            //double Vi = Math.Sqrt(GM / startRadius);
+
+            double Vtxi = Math.Sqrt(GM * (2.0 / startRadius - 1.0 / atx));
+
+            return Vtxi - velocityAtStartRadius;
         }
 
         // Determine the current ejection angle (angle from parent body's prograde)
