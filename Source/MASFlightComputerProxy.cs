@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2017 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -115,14 +115,14 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Helper function to convert a vessel situation into
+        /// Helper function to convert a vessel situation into a number.
         /// </summary>
         /// <param name="vesselSituation"></param>
         /// <returns></returns>
         [MoonSharpHidden]
-        internal int ConvertVesselSituation(Vessel.Situations vesselSituation)
+        static internal int ConvertVesselSituation(Vessel.Situations vesselSituation)
         {
-            int situation = (int)vessel.situation;
+            int situation = (int)vesselSituation;
             for (int i = 0; i < 0x10; ++i)
             {
                 if ((situation & (1 << i)) != 0)
@@ -2327,7 +2327,7 @@ namespace AvionicsSystems
         {
             if (vessel.Landed != (vesselSituationConverted <= 2))
             {
-                Utility.LogMessage(this, "vessel.Landed and vesselSituationConverted disagree!");
+                Utility.LogMessage(this, "vessel.Landed {0} and vesselSituationConverted {1} disagree! - vessel.situation is {2}", vessel.Landed, vesselSituationConverted, vessel.situation);
             }
             return (vesselSituationConverted > 2) ? 1.0 : 0.0;
         }
