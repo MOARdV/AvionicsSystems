@@ -1,11 +1,11 @@
-{0,8:0.0} $&$ fc.Altitude() * 0.001
-{0,8:0.0}   {1:METddd/hh:mm:ss} $&$ fc.Apoapsis() * 0.001; fc.TimeToAp()
-{0,8:0.0}   {1:METddd/hh:mm:ss} $&$ fc.Periapsis() * 0.001; fc.TimeToPe()
+{0,8:#,#0.0} $&$ fc.Altitude() * 0.001
+{0,8:#,#0.0}   {1:METddd/hh:mm:ss} $&$ fc.Apoapsis() * 0.001; fc.TimeToAp()
+{0,8:#,#0.0}   {1:METddd/hh:mm:ss} $&$ fc.Periapsis() * 0.001; fc.TimeToPe()
 {0,8:0.0} $&$ fc.Inclination()
 
 
 {0,10:0.000} $&$fc.StaticPressureKPa()
 {0,10:0.000} $&$fc.DynamicPressure()
-{0,8:0.0} $&$fc.VerticalSpeed()
-{0,8:0.0} $&$ fc.SurfaceSpeed()
-{0,8:0.0} $&$ fc.OrbitSpeed()
+{0,8:#,#0.0} $&$ fc.VerticalSpeed()
+{0,8:#,#0.0} $&$ fc.SurfaceSpeed()
+{0,8:#,#0.0} $&$ fc.OrbitSpeed()

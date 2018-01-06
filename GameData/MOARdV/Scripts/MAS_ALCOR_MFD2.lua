@@ -85,7 +85,6 @@ end
 -- called.
 
 local timeMode = 0
---local periodCounter = 0
 
 local modeCaptions =
 {
@@ -156,6 +155,7 @@ local planCaptions =
 	"Change Apoapsis to...",
 	"Circularize at...",
 	"Change Periapsis to...",
+	"Return from moon to...",
 	"Hohmann Transfer to...",
 	"Match Velocity with..."
 }
@@ -164,8 +164,8 @@ function MAS_Mfd2_Plan_Init(propId)
 	fc.SetPersistent(propId .. "-PlanCaption", planCaptions[1 + fc.GetPersistentAsNumber(propId .. "-PlanFunction")])
 end
 
-function MAS_Mfd2_Plan_Mode(modeId, captionId)
-	local newMode = fc.AddPersistentWrapped(modeId, 1, 0, 5)
+function MAS_Mfd2_Plan_Mode(modeId, captionId, direction)
+	local newMode = fc.AddPersistentWrapped(modeId, direction, 0, 6)
 
 	fc.SetPersistent(captionId, planCaptions[1 + newMode])
 end
@@ -174,27 +174,19 @@ function MAS_Mfd2_Plan_Create(functionId, altitudeId)
 	local fn = fc.GetPersistentAsNumber(functionId)
 
 	if fn == 0 then
-		mechjeb.ChangeApoapsis(1000 * fc.GetPersistentAsNumber(altitudeId))
+		transfer.ChangeApoapsis(1000 * fc.GetPersistentAsNumber(altitudeId))
 	elseif fn == 1 then
-		mechjeb.CircularizeAt(1000 * fc.GetPersistentAsNumber(altitudeId))
+		transfer.CircularizeAltitude(1000 * fc.GetPersistentAsNumber(altitudeId))
 	elseif fn == 2 then
-		mechjeb.ChangePeriapsis(1000 * fc.GetPersistentAsNumber(altitudeId))
+		transfer.ChangePeriapsis(1000 * fc.GetPersistentAsNumber(altitudeId))
 	elseif fn == 3 then
-		mechjeb.PlotTransfer()
+		transfer.ReturnFromMoon(1000 * fc.GetPersistentAsNumber(altitudeId))
 	elseif fn == 4 then
-		mechjeb.MatchVelocities()
+		transfer.HohmannTransfer()
+	elseif fn == 5 then
+		transfer.MatchVelocities()
 	end
 
-end
-
-function MAS_Mfd2_Plan_SetMode(propId, modeId, mode)
-	if mode < 1 then
-		fc.SetPersistent(modeId, "MAS_MFD2_Plan")
-		fc.SetPersistent(propId, "MAS_MFD2_Plan")
-	else
-		fc.SetPersistent(modeId, "MAS_MFD2_ManualPlan")
-		fc.SetPersistent(propId, "MAS_MFD2_ManualPlan")
-	end
 end
 
 ------------------------------------------------------------------------------
