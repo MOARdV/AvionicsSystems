@@ -32,6 +32,8 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
+    // ΔV - put this somewhere where I can find it easily to copy/paste
+
     /// <summary>
     /// The MASITransfer class contains functionality equivalent to the KSP
     /// mod Protractor.  However, the code here was written from scratch, since
@@ -47,6 +49,10 @@ namespace AvionicsSystems
     /// Note that MASITransfer assumes the target has a small relative inclination.
     /// It will generate erroneous results for high inclination and retrograde relative
     /// orbits.
+    /// 
+    /// In addition to providing orbital transfer information, the MASITransfer module
+    /// can create maneuver nodes for basic orbital operations (changing Ap or Pe,
+    /// circularizing at a specific altitude, plotting Hohmann transfers, etc).
     /// </mdDoc>
     internal class MASITransfer
     {
@@ -55,6 +61,7 @@ namespace AvionicsSystems
         internal Vessel vessel;
         internal MASVesselComputer vc;
 
+        private bool hohmannTransfer;
         private double currentPhaseAngle;
         private double transferPhaseAngle;
         private double timeUntilTransfer;
@@ -456,12 +463,81 @@ namespace AvionicsSystems
                     Utility.LogMessage(this, " - Final = {0,6:0.0}m/s -> Pe {1,9:0.000}, Ap {2,9:0.000}", dVMid, oMid.PeA * 0.001, oMid.ApA * 0.001);
 #endif
                 }
-                
-                Vector3d dV = new Vector3d(0.0, 0.0, dVMid);
+
+                Vector3d dV = Utility.ManeuverNode(dVMid, 0.0, 0.0);
 
                 vessel.patchedConicSolver.maneuverNodes.Clear();
                 ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(ut);
                 mn.OnGizmoUpdated(dV, ut);
+
+                return 1.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Change the inclination of the orbit.  The change will be scheduled at either the AN or DN
+        /// of the orbit, whichever results in a less expensive maneuver.
+        /// </summary>
+        /// <param name="newInclination">The new inclination, in degrees.</param>
+        /// <returns>1 if the maneuver was scheduled, 0 if it could not be scheduled.</returns>
+        public double ChangeInclination(double newInclination)
+        {
+            Orbit current = vessel.orbit;
+
+            if (MASFlightComputerProxy.ConvertVesselSituation(vessel.situation) > 2 && vessel.patchedConicSolver != null && current.eccentricity < 1.0)
+            {
+                double deltaI = newInclination - current.inclination;
+                double deltaI2 = Utility.NormalizeLongitude(deltaI);
+
+                if (Math.Abs(deltaI2) > 0.0)
+                {
+                    Vector3d ANVector = current.GetANVector();
+                    ANVector.Normalize();
+
+                    double taAN = current.GetTrueAnomalyOfZupVector(ANVector);
+                    double timeAN = Utility.NormalizeOrbitTime(current.GetUTforTrueAnomaly(taAN, current.period) - vc.universalTime, current) + vc.universalTime;
+                    Vector3d vAN = current.getOrbitalVelocityAtUT(timeAN);
+
+                    double taDN = taAN + Math.PI;
+                    double timeDN = Utility.NormalizeOrbitTime(current.GetUTforTrueAnomaly(taDN, current.period) - vc.universalTime, current) + vc.universalTime;
+                    Vector3d vDN = current.getOrbitalVelocityAtUT(timeDN);
+
+                    double deltaVScale = Math.Sin(0.5 * Utility.Deg2Rad * deltaI2);
+
+                    // Pick the slower of the two nodes
+                    double mTime;
+                    double speedAtUt;
+                    if (vAN.sqrMagnitude < vDN.sqrMagnitude)
+                    {
+                        mTime = timeAN;
+                        speedAtUt = vAN.magnitude;
+                    }
+                    else
+                    {
+                        mTime = timeDN;
+                        speedAtUt = vDN.magnitude;
+                    }
+
+                    double planeChangedV = 2.0 * speedAtUt * deltaVScale;
+
+                    // This is interesting ... Eq. 4.73 at http://www.braeunig.us/space/ describes the ΔV
+                    // needed to change inclination.  However, if I apply that strictly as a ΔV on the
+                    // normal, the resulting orbit is not correct.  Looking at the results MechJeb generates,
+                    // I notice that there's a retrograde ΔV equal to sin(Θ/2) (which MJ doesn't directly compute -
+                    // it's an artifact of its technique).  So, first I determine the prograde component of
+                    // the maneuver, and then I apply the balance of the ΔV to the normal.
+                    double progradedV = -Math.Abs(deltaVScale * planeChangedV);
+                    double normaldV = Math.Sqrt(planeChangedV * planeChangedV - progradedV * progradedV) * Math.Sign(deltaVScale);
+                    Vector3d maneuver = Utility.ManeuverNode(progradedV, normaldV, 0.0);
+
+                    vessel.patchedConicSolver.maneuverNodes.Clear();
+                    ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(mTime);
+                    mn.OnGizmoUpdated(maneuver, mTime);
+
+                    return 1.0;
+                }
             }
 
             return 0.0;
@@ -592,7 +668,7 @@ namespace AvionicsSystems
 #endif
                 }
 
-                Vector3d dV = new Vector3d(0.0, 0.0, dVMid);
+                Vector3d dV = Utility.ManeuverNode(dVMid, 0.0, 0.0);
 
                 vessel.patchedConicSolver.maneuverNodes.Clear();
                 ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(ut);
@@ -637,7 +713,7 @@ namespace AvionicsSystems
                 //Utility.LogMessage(this, "dV = {0} because {1} - {2}", deltaV, maneuverVel, velAtUt);
                 //Utility.LogMessage(this, "prograde (dot) fwd = {0:0.000}", Vector3d.Dot(prograde, fwdAtUt));
 
-                Vector3d maneuverdV = new Vector3d(Vector3d.Dot(deltaV, radial), Vector3d.Dot(deltaV, normal), Vector3d.Dot(deltaV, prograde));
+                Vector3d maneuverdV = Utility.ManeuverNode(Vector3d.Dot(deltaV, prograde), Vector3d.Dot(deltaV, normal), Vector3d.Dot(deltaV, radial));
 
                 vessel.patchedConicSolver.maneuverNodes.Clear();
                 ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(maneuverUt);
@@ -653,6 +729,121 @@ namespace AvionicsSystems
                 return 1.0;
             }
 
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Generate a maneuver to conduct a Hohmann transfer to the current target.  If there is no
+        /// target, or the transfer is not a simple transfer to a nearly co-planar target, nothing happens.
+        /// 
+        /// Results are best when both the vessel and the target are in low-eccentricity orbits.
+        /// </summary>
+        /// <returns>Returns 1 if a transfer was successfully plotted, 0 otherwise.</returns>
+        public double HohmannTransfer()
+        {
+            if (hohmannTransfer)
+            {
+                Orbit current = vessel.orbit;
+                CelestialBody referenceBody = current.referenceBody;
+                double maneuverUt = Planetarium.GetUniversalTime() + timeUntilTransfer;
+
+                Vector3d velAtUt = current.getOrbitalVelocityAtUT(maneuverUt);
+
+                Vector3d relativePosition = current.getRelativePositionAtUT(maneuverUt);
+
+                Vector3d prograde;
+                Vector3d normal;
+                Vector3d radial;
+                Utility.GetOrbitalBasisVectors(velAtUt, relativePosition, out prograde, out radial, out normal);
+
+                Vector3d upAtUt = relativePosition.xzy.normalized;
+                Vector3d fwdAtUt = Vector3d.Cross(upAtUt, normal);
+                Vector3d maneuverVel = fwdAtUt * (initialDeltaV + Math.Sqrt(referenceBody.gravParameter / relativePosition.magnitude));
+                //Utility.LogMessage(this, "insertion v = {0:0.0}, v @ insertion = {1:0.0}", initialDeltaV, velAtUt.magnitude);
+
+                Vector3d deltaV = maneuverVel - velAtUt.xzy;
+#if DEBUG_CHANGE_ALTITUDE
+                Utility.LogMessage(this, "deltaV = {0} because {1} - {2}", deltaV, maneuverVel, velAtUt.xzy);
+#endif
+                //Utility.LogMessage(this, "prograde (dot) fwd = {0:0.000}", Vector3d.Dot(prograde, fwdAtUt));
+
+                Vector3d maneuverdV = Utility.ManeuverNode(Vector3d.Dot(deltaV, prograde), Vector3d.Dot(deltaV, normal), Vector3d.Dot(deltaV, radial));
+#if DEBUG_CHANGE_ALTITUDE
+                Utility.LogMessage(this, "maneuverdV = {0}", maneuverdV);
+#endif
+
+                vessel.patchedConicSolver.maneuverNodes.Clear();
+                ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(maneuverUt);
+                mn.OnGizmoUpdated(maneuverdV, maneuverUt);
+
+                return 1.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// ** NOT IMPLEMENTED **
+        /// 
+        /// Match the plane of the target's orbit.  If there is no target, or the target is in a different sphere
+        /// of influence, this operation has no effect.
+        /// </summary>
+        /// <returns>1 if a maneuver was plotted, 0 otherwise.</returns>
+        public double MatchPlane()
+        {
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Match velocities with the target at the moment of closest approach.  If there is no target,
+        /// or the target is in a different sphere of influence, the operation has no effect.
+        /// </summary>
+        /// <returns>1 if a maneuver was plotted, 0 otherwise.</returns>
+        public double MatchVelocities()
+        {
+            if (vc.activeTarget != null && vc.targetOrbit.referenceBody == vessel.mainBody && vc.targetClosestUT > Planetarium.GetUniversalTime())
+            {
+                double maneuverUt = vc.targetClosestUT;
+                Orbit current = vessel.orbit;
+                Vector3d velAtUt = current.getOrbitalVelocityAtUT(maneuverUt);
+                Vector3d tgtAtUt = vc.targetOrbit.getOrbitalVelocityAtUT(maneuverUt);
+
+                Vector3d relativePosition = current.getRelativePositionAtUT(maneuverUt);
+
+                Vector3d prograde;
+                Vector3d normal;
+                Vector3d radial;
+                Utility.GetOrbitalBasisVectors(velAtUt, relativePosition, out prograde, out radial, out normal);
+
+                Vector3d deltaV = tgtAtUt - velAtUt;
+
+                Vector3d maneuverdV = Utility.ManeuverNode(Vector3d.Dot(deltaV, prograde), Vector3d.Dot(deltaV, normal), Vector3d.Dot(deltaV, radial));
+#if DEBUG_CHANGE_ALTITUDE
+                Utility.LogMessage(this, "maneuverdV = {0}", maneuverdV);
+#endif
+
+                vessel.patchedConicSolver.maneuverNodes.Clear();
+                ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(maneuverUt);
+                mn.OnGizmoUpdated(maneuverdV, maneuverUt);
+
+                return 1.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// **NOT IMPLEMENTED**
+        /// 
+        /// Return from a moon, with a goal post-maneuver altitude of 'newAltitude', in meters.
+        /// If the world the vessel is orbiting is the Sun, this command has no effect.
+        /// 
+        /// Yes, this maneuver may be used to eject from Kerbin to a solar orbit.
+        /// </summary>
+        /// <param name="newAltitude">Altitude of the resulting orbit around the parent world, in meters.</param>
+        /// <returns>1 if the maneuver was plotted, 0 otherwise.</returns>
+        public double ReturnFromMoon(double newAltitude)
+        {
             return 0.0;
         }
 
@@ -1126,6 +1317,7 @@ namespace AvionicsSystems
         private void UpdateTransferParameters()
         {
             // Initialize values
+            hohmannTransfer = false;
             currentPhaseAngle = 0.0;
             transferPhaseAngle = 0.0;
             timeUntilTransfer = 0.0;
@@ -1179,6 +1371,7 @@ namespace AvionicsSystems
                     return;
                 }
 
+                hohmannTransfer = (vesselOrbitSteps == 0);
                 UpdateTransferDeltaV(vesselOrbit, destinationOrbit);
 
                 // transfer phase angle from https://en.wikipedia.org/wiki/Hohmann_transfer_orbit
