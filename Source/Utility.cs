@@ -339,6 +339,18 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Convenience function to properly order the components for a maneuver node.
+        /// </summary>
+        /// <param name="progradedV"></param>
+        /// <param name="radialdV"></param>
+        /// <param name="normaldV"></param>
+        /// <returns></returns>
+        internal static Vector3d ManeuverNode(double progradedV, double normaldV, double radialdV)
+        {
+            return new Vector3d(radialdV, normaldV, progradedV);
+        }
+
+        /// <summary>
         /// Returns the time in seconds until we cross the given radius
         /// </summary>
         /// <param name="orbit"></param>
@@ -379,6 +391,18 @@ namespace AvionicsSystems
             // Whichever occurs first is the one we care about:
             return Math.Min(timeToTa1, timeToTa2);
         }
+
+        /// <summary>
+        /// Returns the velocity required for a circular orbit at a given radius (*not* altitude).
+        /// </summary>
+        /// <param name="GM">CelestialBody.gravParameter</param>
+        /// <param name="radius">radius in meters</param>
+        /// <returns>Required velocity in m/s.</returns>
+        internal static double OrbitalVelocity(double GM, double radius)
+        {
+            return Math.Sqrt(GM / radius);
+        }
+
         #endregion
 
         /// <summary>
