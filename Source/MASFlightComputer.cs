@@ -713,6 +713,7 @@ namespace AvionicsSystems
                     realChuteProxy = new MASIRealChute(vessel);
                     UserData.RegisterType<MASIRealChute>();
                     script.Globals["realchute"] = realChuteProxy;
+                    script.Globals["parachute"] = realChuteProxy;
 
                     transferProxy = new MASITransfer(vessel);
                     UserData.RegisterType<MASITransfer>();

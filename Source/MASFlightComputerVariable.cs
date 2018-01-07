@@ -79,6 +79,7 @@ namespace AvionicsSystems
             {"mechjeb", typeof(MASIMechJeb)},
             {"nav", typeof(MASINavigation)},
             {"realchute", typeof(MASIRealChute)},
+            {"parachute", typeof(MASIRealChute)},
         };
 
         /// <summary>
@@ -140,6 +141,7 @@ namespace AvionicsSystems
                                 tableRef = navProxy;
                                 break;
                             case "realchute":
+                            case "parachute":
                                 tableRef = realChuteProxy;
                                 break;
                         }
