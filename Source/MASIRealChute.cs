@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2017 MOARdV
+ * Copyright (c) 2016 - 2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -39,6 +39,8 @@ namespace AvionicsSystems
     /// The MASIRealChute component allows Avionics Systems to interact with the
     /// RealChute mod.  In addition, it allows some control with the stock
     /// parachute systems regardless of whether RealChute is installed.
+    /// 
+    /// **ATTENTION:** `realchute` will be renamed `parachute` in MAS v0.13.0.
     /// </mdDoc>
     internal class MASIRealChute
     {
@@ -216,6 +218,13 @@ namespace AvionicsSystems
                 {
                     disarmParachute[i]();
                 }
+                for (int i = vc.moduleParachute.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleParachute[i].deploymentState == ModuleParachute.deploymentStates.ACTIVE)
+                    {
+                        vc.moduleParachute[i].Disarm();
+                    }
+                }
             }
             else
             {
@@ -223,6 +232,18 @@ namespace AvionicsSystems
                 for (int i = armParachute.Length - 1; i >= 0; --i)
                 {
                     armParachute[i]();
+                }
+                for (int i = vc.moduleParachute.Length - 1; i >= 0; --i)
+                {
+                    // If the stock 'chute is stowed, and it is configured as
+                    // automateSafeDeploy == 0 (deploy when safe), tell it to deploy.
+                    // It won't deploy until it's safe, so it's similar to RealChute's
+                    // armed state.
+                    if (vc.moduleParachute[i].deploymentState == ModuleParachute.deploymentStates.STOWED && vc.moduleParachute[i].automateSafeDeploy == 0)
+                    {
+                        vc.moduleParachute[i].Deploy();
+                        armed = true;
+                    }
                 }
             }
 
@@ -288,13 +309,19 @@ namespace AvionicsSystems
             {
                 for (int i = vc.moduleParachute.Length - 1; i >= 0; --i)
                 {
+                    //automateSafeDeploy = 0: Deploy when safe; 1: Deploy when risky; 2: Deploy immediate
+                    //Utility.LogMessage(this, "chute {0}: {1} / {2} / {3}", i, vc.moduleParachute[i].deploymentState, vc.moduleParachute[i].deploymentSafeState, vc.moduleParachute[i].automateSafeDeploy);
                     if (vc.moduleParachute[i].deploymentState == ModuleParachute.deploymentStates.DEPLOYED ||
                         vc.moduleParachute[i].deploymentState == ModuleParachute.deploymentStates.SEMIDEPLOYED)
                     {
                         anyDeployed = true;
                     }
+                    else if (vc.moduleParachute[i].deploymentState == ModuleParachute.deploymentStates.ACTIVE)
+                    {
+                        anyArmed = true;
+                    }
 
-                    if (vc.moduleParachute[i].deploymentSafeState != ModuleParachute.deploymentSafeStates.SAFE)
+                    if ((vc.moduleParachute[i].deploymentSafeState == ModuleParachute.deploymentSafeStates.RISKY) || (vc.moduleParachute[i].deploymentSafeState == ModuleParachute.deploymentSafeStates.UNSAFE))
                     {
                         allSafe = false;
                     }
