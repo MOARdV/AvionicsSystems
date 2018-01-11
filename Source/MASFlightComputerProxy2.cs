@@ -2534,6 +2534,18 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the net efficiency of solar panels.  This value can
+        /// provide some information about blocked solar panels, or non-rotating solar panels that
+        /// are not optimally positioned.  Because the amount of energy delivered depends on the
+        /// distance from the star, maximum efficiency can be larger than 1 (or less than 1).
+        /// </summary>
+        /// <returns>The efficiency value, 0 or larger.</returns>
+        public double SolarPanelEfficiency()
+        {
+            return vc.solarPanelsEfficiency;
+        }
+
+        /// <summary>
         /// Returns 1 if at least one solar panel is moving.
         /// </summary>
         /// <returns>1 if any solar panels are moving (deploying or retracting).</returns>

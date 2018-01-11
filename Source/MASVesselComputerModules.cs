@@ -564,6 +564,7 @@ namespace AvionicsSystems
         internal bool fuelCellActive;
         internal bool generatorActive;
         internal bool solarPanelsDeployable;
+        internal float solarPanelsEfficiency;
         internal bool solarPanelsRetractable;
         internal bool solarPanelsMoving;
         internal int solarPanelPosition;
@@ -578,6 +579,7 @@ namespace AvionicsSystems
             netFuelCellOutput = 0.0f;
             netGeneratorOutput = 0.0f;
             netSolarOutput = 0.0f;
+            solarPanelsEfficiency = 0.0f;
 
             fuelCellActive = false;
             generatorActive = false;
@@ -621,6 +623,7 @@ namespace AvionicsSystems
             for (int i = moduleSolarPanel.Length - 1; i >= 0; --i)
             {
                 netSolarOutput += moduleSolarPanel[i].flowRate;
+                solarPanelsEfficiency += moduleSolarPanel[i].flowRate / moduleSolarPanel[i].chargeRate;
                 solarPanelsRetractable |= (moduleSolarPanel[i].useAnimation && moduleSolarPanel[i].retractable && moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.EXTENDED);
                 solarPanelsDeployable |= (moduleSolarPanel[i].useAnimation && moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.RETRACTED);
                 solarPanelsMoving |= (moduleSolarPanel[i].useAnimation && (moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.RETRACTING || moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.EXTENDING));
@@ -661,6 +664,10 @@ namespace AvionicsSystems
                         }
                     }
                 }
+            }
+            if (solarPanelsEfficiency > 0.0f)
+            {
+                solarPanelsEfficiency /= (float)moduleSolarPanel.Length;
             }
             // If there are no panels, or no deployable panels, set it to RETRACTED
             if (solarPanelPosition < 0)
