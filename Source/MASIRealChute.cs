@@ -34,13 +34,14 @@ namespace AvionicsSystems
     /// MASIRealChute is the interface with the RealChute mod.  It also can
     /// interact with stock parachutes.
     /// </summary>
-    /// <LuaName>realchute</LuaName>
+    /// <LuaName>parachute</LuaName>
     /// <mdDoc>
     /// The MASIRealChute component allows Avionics Systems to interact with the
     /// RealChute mod.  In addition, it allows some control with the stock
     /// parachute systems regardless of whether RealChute is installed.
     /// 
     /// **ATTENTION:** `realchute` will be renamed `parachute` in MAS v0.13.0.
+    /// For v0.12.0, both names will work equally.
     /// </mdDoc>
     internal class MASIRealChute
     {
