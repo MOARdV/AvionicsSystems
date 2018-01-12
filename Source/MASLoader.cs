@@ -49,6 +49,11 @@ namespace AvionicsSystems
         static public string masVersion;
 
         /// <summary>
+        /// Deep Space Network positions on Kerbin.  Vector2d is (lat, lon).
+        /// </summary>
+        static public Dictionary<string, Vector2d> deepSpaceNetwork = new Dictionary<string, Vector2d>();
+
+        /// <summary>
         /// Fonts that have been loaded (AssetBundle fonts, user bitmap fonts,
         /// or system fonts).
         /// </summary>
@@ -57,7 +62,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Morse code audio clips.
         /// </summary>
-        static public Dictionary<char, AudioClip> morseCode = new Dictionary<char,AudioClip>(26);
+        static public Dictionary<char, AudioClip> morseCode = new Dictionary<char, AudioClip>(26);
 
         /// <summary>
         /// List of all radio navigation beacons found in the installation.
@@ -213,8 +218,8 @@ namespace AvionicsSystems
                         for (int scriptIdx = 0; scriptIdx < scripts.Length; ++scriptIdx)
                         {
                             userScripts.Add(string.Join(Environment.NewLine, File.ReadAllLines(KSPUtil.ApplicationRootPath + "GameData/" + scripts[scriptIdx], Encoding.UTF8)));
-                            yield return new WaitForEndOfFrame();
                         }
+                        yield return new WaitForEndOfFrame();
                     }
                 }
             }
@@ -280,6 +285,31 @@ namespace AvionicsSystems
                     }
                 }
                 catch { }
+            }
+            yield return new WaitForEndOfFrame();
+
+            deepSpaceNetwork.Clear();
+            var dsn = UnityEngine.Object.FindObjectsOfType<CommNet.CommNetHome>();
+            if (dsn != null)
+            {
+                CelestialBody kerbin = Planetarium.fetch.Home;
+
+                for (int i = 0; i < dsn.Length; ++i)
+                {
+                    // Unfortunately, the lat/lon/alt/body fields are all protected, so I have
+                    // to do this, instead:
+                    Vector3d position = dsn[i].nodeTransform.position;
+                    Vector2d ll = kerbin.GetLatitudeAndLongitude(position);
+
+                    if (deepSpaceNetwork.ContainsKey(dsn[i].nodeName))
+                    {
+                        deepSpaceNetwork[dsn[i].nodeName] = ll;
+                    }
+                    else
+                    {
+                        deepSpaceNetwork.Add(dsn[i].nodeName, ll);
+                    }
+                }
             }
         }
 

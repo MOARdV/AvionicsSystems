@@ -84,6 +84,8 @@ namespace AvionicsSystems
 
         private double timeToImpact;
 
+        private CommNet.CommLink lastLink;
+
         [MoonSharpHidden]
         public MASFlightComputerProxy(MASFlightComputer fc, MASIFAR farProxy, MASIMechJeb mjProxy)
         {
@@ -158,6 +160,15 @@ namespace AvionicsSystems
             else
             {
                 timeToImpact = 0.0;
+            }
+
+            try
+            {
+                lastLink = vessel.connection.ControlPath.Last;
+            }
+            catch
+            {
+                lastLink = null;
             }
         }
 
@@ -667,7 +678,7 @@ namespace AvionicsSystems
         /// (no such body exists), returns -1.  May also use the index, which is useful
         /// for -1 and -2.
         /// </summary>
-        /// <param name="bodyName">The name of the body, eg. `"Kerbin"` or one of the indices (including -1 and -2).</param>
+        /// <param name="id">The name of the body, eg. `"Kerbin"` or one of the indices (including -1 and -2).</param>
         /// <returns>An index from 0 to (number of Celestial Bodies - 1), or -1 if the named body was not found.</returns>
         public double BodyIndex(object id)
         {
@@ -686,6 +697,24 @@ namespace AvionicsSystems
             }
 
             return (double)FlightGlobals.Bodies.FindIndex(x => x.bodyName == bodyName);
+        }
+
+        /// <summary>
+        /// Returns 1 if the selected body is "Home" (Kerbin in un-modded KSP).
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>1 if the body is home, 0 otherwise.</returns>
+        public double BodyIsHome(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+            if (cb != null && cb.GetName() == Planetarium.fetch.Home.GetName())
+            {
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
@@ -1344,12 +1373,50 @@ namespace AvionicsSystems
         /// <returns>The name of the endpoint.</returns>
         public string CommNetEndpoint()
         {
-            try
+            if (lastLink != null)
             {
-                return vessel.connection.ControlPath.Last.b.name;
+                return lastLink.b.name;
             }
-            catch { }
+
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Returns the latitude on Kerbin of the current CommNet deep space relay.
+        /// If there is no link home, returns 0.
+        /// </summary>
+        /// <returns>Latitude of the DSN relay, or 0.</returns>
+        public double CommNetLatitude()
+        {
+            if (lastLink != null && lastLink.hopType == CommNet.HopType.Home)
+            {
+                Vector2d ll;
+                if (MASLoader.deepSpaceNetwork.TryGetValue(lastLink.b.name, out ll))
+                {
+                    return ll.x;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the longitude on Kerbin of the current CommNet deep space relay.
+        /// If there is no link home, returns 0.
+        /// </summary>
+        /// <returns>Longitude of the DSN relay, or 0.</returns>
+        public double CommNetLongitude()
+        {
+            if (lastLink != null && lastLink.hopType == CommNet.HopType.Home)
+            {
+                Vector2d ll;
+                if (MASLoader.deepSpaceNetwork.TryGetValue(lastLink.b.name, out ll))
+                {
+                    return ll.y;
+                }
+            }
+
+            return 0.0;
         }
 
         /// <summary>
