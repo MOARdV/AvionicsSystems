@@ -2,7 +2,7 @@
 /*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2017 MOARdV
+ * Copyright (c) 2016 - 2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -130,6 +130,21 @@ namespace AvionicsSystems
         internal double targetClosestDistance { get; private set; }
         internal double targetClosestUT { get; private set; }
 
+        internal void SolveApproach(Orbit vesselOrbit, CelestialBody targetBody, double now)
+        {
+            Orbit startOrbit = SelectClosestOrbit(vesselOrbit, targetBody);
+            if (startOrbit.referenceBody == targetBody)
+            {
+                targetClosestDistance = startOrbit.PeR;
+                targetClosestUT = startOrbit.timeToPe + startOrbit.StartUT;
+                this.resultsReady = true;
+            }
+            else
+            {
+                SolveApproach(vesselOrbit, targetBody.orbit, now);
+            }
+        }
+
         internal void SolveApproach(Orbit vesselOrbit, Orbit targetOrbit, double now)
         {
 #if SHORTCIRCUIT_SOLVER
@@ -137,7 +152,7 @@ namespace AvionicsSystems
             this.targetClosestUT = 1.0;
             this.resultsReady = true;
 #else
-            // This seems to be horribly broken - like, hanging the game broken.
+
             try
             {
                 Orbit startOrbit = SelectClosestOrbit(vesselOrbit, targetOrbit.referenceBody);
@@ -191,7 +206,7 @@ namespace AvionicsSystems
                         startTime += startOrbit.period;
                         endTime += startOrbit.period;
 
-                        if(closestDistance < this.targetClosestDistance)
+                        if (closestDistance < this.targetClosestDistance)
                         {
                             this.targetClosestDistance = closestDistance;
                             this.targetClosestUT = closestTime;
@@ -203,7 +218,7 @@ namespace AvionicsSystems
                 }
                 this.resultsReady = true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Utility.LogInfo("ApproachSolver threw {0}", e);
             }

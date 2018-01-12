@@ -870,7 +870,14 @@ namespace AvionicsSystems
             {
                 if (activeTarget != null && !approachSolverBW.resultsReady)
                 {
-                    approachSolverBW.SolveApproach(orbit, targetOrbit, universalTime);
+                    if (targetType == MASVesselComputer.TargetType.CelestialBody)
+                    {
+                        approachSolverBW.SolveApproach(orbit, activeTarget as CelestialBody, Planetarium.GetUniversalTime());
+                    }
+                    else
+                    {
+                        approachSolverBW.SolveApproach(orbit, targetOrbit, universalTime);
+                    }
                 }
                 return approachSolverBW.resultsReady ? approachSolverBW.targetClosestUT : 0.0;
             }
@@ -881,7 +888,14 @@ namespace AvionicsSystems
             {
                 if (activeTarget != null && !approachSolverBW.resultsReady)
                 {
-                    approachSolverBW.SolveApproach(orbit, targetOrbit, universalTime);
+                    if (targetType == MASVesselComputer.TargetType.CelestialBody)
+                    {
+                        approachSolverBW.SolveApproach(orbit, activeTarget as CelestialBody, Planetarium.GetUniversalTime());
+                    }
+                    else
+                    {
+                        approachSolverBW.SolveApproach(orbit, targetOrbit, universalTime);
+                    }
                 }
                 if (approachSolverBW.resultsReady)
                 {

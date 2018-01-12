@@ -424,7 +424,14 @@ namespace AvionicsSystems
         {
             if (vc.maneuverNodeValid && vc.targetType > 0 && vc.targetOrbit.referenceBody == vc.nodeOrbit.referenceBody)
             {
-                solver.SolveApproach(vc.nodeOrbit, vc.targetOrbit, Planetarium.GetUniversalTime());
+                if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
+                {
+                    solver.SolveApproach(vc.nodeOrbit, vc.activeTarget as CelestialBody, Planetarium.GetUniversalTime());
+                }
+                else
+                {
+                    solver.SolveApproach(vc.nodeOrbit, vc.targetOrbit, Planetarium.GetUniversalTime());
+                }
 
                 if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
                 {
@@ -450,7 +457,14 @@ namespace AvionicsSystems
         {
             if (vc.maneuverNodeValid && vc.targetType > 0 && vc.targetOrbit.referenceBody == vc.nodeOrbit.referenceBody)
             {
-                solver.SolveApproach(vc.nodeOrbit, vc.targetOrbit, Planetarium.GetUniversalTime());
+                if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
+                {
+                    solver.SolveApproach(vc.nodeOrbit, vc.activeTarget as CelestialBody, Planetarium.GetUniversalTime());
+                }
+                else
+                {
+                    solver.SolveApproach(vc.nodeOrbit, vc.targetOrbit, Planetarium.GetUniversalTime());
+                }
                 return Math.Max(solver.targetClosestUT - Planetarium.GetUniversalTime(), 0.0);
             }
             else
