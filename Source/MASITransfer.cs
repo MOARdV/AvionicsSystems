@@ -801,7 +801,7 @@ namespace AvionicsSystems
         /// <returns>1 if a maneuver was plotted, 0 otherwise.</returns>
         public double MatchVelocities()
         {
-            if (vc.activeTarget != null && vc.targetOrbit.referenceBody == vessel.mainBody && vc.targetClosestUT > Planetarium.GetUniversalTime())
+            if (vc.activeTarget != null && vc.targetOrbit.referenceBody == vessel.mainBody && vessel.patchedConicSolver != null && vc.targetClosestUT > Planetarium.GetUniversalTime())
             {
                 double maneuverUt = vc.targetClosestUT;
                 Orbit current = vessel.orbit;
@@ -833,17 +833,39 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// **NOT IMPLEMENTED**
+        /// Return from a moon with a resulting altitude over the planet of 'newAltitude', in meters.
+        /// If the vessel is orbiting the Sun, this command has no effect.
         /// 
-        /// Return from a moon, with a goal post-maneuver altitude of 'newAltitude', in meters.
-        /// If the world the vessel is orbiting is the Sun, this command has no effect.
-        /// 
-        /// Yes, this maneuver may be used to eject from Kerbin to a solar orbit.
+        /// This maneuver may be used to eject from Kerbin (or any other planet) to a solar orbit with
+        /// a specified altitude over the sun.
         /// </summary>
-        /// <param name="newAltitude">Altitude of the resulting orbit around the parent world, in meters.</param>
+        /// <param name="newAltitude">Altitude of the desired orbit around the parent world, in meters.</param>
         /// <returns>1 if the maneuver was plotted, 0 otherwise.</returns>
         public double ReturnFromMoon(double newAltitude)
         {
+            // The last condition listed here is because the sun's referenceBody is
+            // itself.
+            if (vessel.mainBody.referenceBody != null && vessel.patchedConicSolver != null && vessel.mainBody.referenceBody != vessel.mainBody)
+            {
+                CelestialBody moon = vessel.mainBody;
+                CelestialBody planet = moon.referenceBody;
+
+                double newRadius = newAltitude + planet.Radius;
+                double returnDeltaV = DeltaVInitial(moon.orbit.semiMajorAxis, newRadius, planet.gravParameter);
+                double currentEjectionAngle = ComputeEjectionAngle(vessel.orbit);
+
+                double ejectiondV, returnEjectionAngle, timeUntilReturn;
+                UpdateEjectionParameters(vessel.orbit, returnDeltaV, currentEjectionAngle, out ejectiondV, out returnEjectionAngle, out timeUntilReturn);
+                
+                double maneuverUt = timeUntilReturn + Planetarium.GetUniversalTime();
+
+                Vector3d maneuverdV = Utility.ManeuverNode(ejectiondV, 0.0, 0.0);
+
+                vessel.patchedConicSolver.maneuverNodes.Clear();
+                ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(maneuverUt);
+                mn.OnGizmoUpdated(maneuverdV, maneuverUt);
+            }
+
             return 0.0;
         }
 
@@ -1272,9 +1294,9 @@ namespace AvionicsSystems
         // Determine the current ejection angle (angle from parent body's prograde)
         private static double ComputeEjectionAngle(Orbit o)
         {
-            Vector3d vesselPos = o.pos;
+            Vector3d vesselPos = o.pos.xzy;
             vesselPos.Normalize();
-            Vector3d bodyProgradeVec = o.referenceBody.orbit.vel;
+            Vector3d bodyProgradeVec = o.referenceBody.orbit.vel.xzy;
             bodyProgradeVec.Normalize();
             Vector3d bodyPosVec = o.referenceBody.orbit.pos;
             double currentEjectionAngle = Vector3d.Angle(vesselPos, bodyProgradeVec);
@@ -1291,7 +1313,9 @@ namespace AvionicsSystems
             double r1 = o.semiMajorAxis;
             double r2 = o.referenceBody.sphereOfInfluence;
             double GM = o.referenceBody.gravParameter;
-            double v2 = Math.Abs(departureDeltaV);
+            double v2 = departureDeltaV;
+
+            bool raiseAltitude = (departureDeltaV > 0.0);
 
             // Absolute velocity required, not delta-V.
             double ejectionVelocity = Math.Sqrt((r1 * (r2 * v2 * v2 - 2.0 * GM) + 2.0 * r2 * GM) / (r1 * r2));
@@ -1300,10 +1324,10 @@ namespace AvionicsSystems
             double h = r1 * ejectionVelocity;
             double e = Math.Sqrt(1.0 + 2.0 * eps * h * h / (GM * GM));
             double theta = Math.Acos(1.0 / e) * Utility.Rad2Deg;
-            transferEjectionAngle = Utility.NormalizeAngle(180.0 - theta);
+            transferEjectionAngle = Utility.NormalizeAngle(((raiseAltitude) ? 180.0 : 360.0) - theta);
 
             // Figure out how long until we cross that angle
-            double orbitFraction = Utility.NormalizeAngle(transferEjectionAngle - currentEjectionAngle) / 360.0;
+            double orbitFraction = Utility.NormalizeAngle(currentEjectionAngle - transferEjectionAngle) / 360.0;
             timeUntilEjection = orbitFraction * o.period;
 
             double oVel = o.getOrbitalSpeedAt(Planetarium.GetUniversalTime() + timeUntilEjection);
