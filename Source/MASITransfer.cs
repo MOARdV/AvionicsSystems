@@ -783,14 +783,73 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// ** NOT IMPLEMENTED **
-        /// 
         /// Match the plane of the target's orbit.  If there is no target, or the target is in a different sphere
         /// of influence, this operation has no effect.
         /// </summary>
         /// <returns>1 if a maneuver was plotted, 0 otherwise.</returns>
         public double MatchPlane()
         {
+            Orbit current = vessel.orbit;
+            Orbit target = vc.targetOrbit;
+
+            if (MASFlightComputerProxy.ConvertVesselSituation(vessel.situation) > 2 && vessel.patchedConicSolver != null && current.eccentricity < 1.0 && target.referenceBody == current.referenceBody)
+            {
+                // In the test case I ran, this seemed to be the opposite of the ChangeInclination call.
+                // I may need to tweak the sign of deltaI2 based on whether we're changing inclination
+                // at the AN or DN.
+                double deltaI = current.inclination - target.inclination;
+                double deltaI2 = Utility.NormalizeLongitude(deltaI);
+
+                if (Math.Abs(deltaI2) > 0.0)
+                {
+                    Vector3d vesselNormal = vc.orbit.GetOrbitNormal();
+                    Vector3d targetNormal = vc.activeTarget.GetOrbit().GetOrbitNormal();
+                    Vector3d cross = Vector3d.Cross(vesselNormal, targetNormal);
+                    double taAN = vc.orbit.GetTrueAnomalyOfZupVector(-cross);
+                    double timeAN =  Utility.NormalizeOrbitTime(vc.orbit.GetUTforTrueAnomaly(taAN, vc.orbit.period) - vc.universalTime, current) + vc.universalTime;
+                    double taDN = vc.orbit.GetTrueAnomalyOfZupVector(cross);
+                    double timeDN = Utility.NormalizeOrbitTime(vc.orbit.GetUTforTrueAnomaly(taDN, vc.orbit.period) - vc.universalTime, current) + vc.universalTime;
+
+                    Vector3d vAN = current.getOrbitalVelocityAtUT(timeAN);
+
+                    Vector3d vDN = current.getOrbitalVelocityAtUT(timeDN);
+
+                    double deltaVScale = Math.Sin(0.5 * Utility.Deg2Rad * deltaI2);
+
+                    // Pick the slower of the two nodes
+                    double mTime;
+                    double speedAtUt;
+                    if (vAN.sqrMagnitude < vDN.sqrMagnitude)
+                    {
+                        mTime = timeAN;
+                        speedAtUt = vAN.magnitude;
+                    }
+                    else
+                    {
+                        mTime = timeDN;
+                        speedAtUt = vDN.magnitude;
+                    }
+
+                    double planeChangedV = 2.0 * speedAtUt * deltaVScale;
+
+                    // This is interesting ... Eq. 4.73 at http://www.braeunig.us/space/ describes the ΔV
+                    // needed to change inclination.  However, if I apply that strictly as a ΔV on the
+                    // normal, the resulting orbit is not correct.  Looking at the results MechJeb generates,
+                    // I notice that there's a retrograde ΔV equal to sin(Θ/2) (which MJ doesn't directly compute -
+                    // it's an artifact of its technique).  So, first I determine the prograde component of
+                    // the maneuver, and then I apply the balance of the ΔV to the normal.
+                    double progradedV = -Math.Abs(deltaVScale * planeChangedV);
+                    double normaldV = Math.Sqrt(planeChangedV * planeChangedV - progradedV * progradedV) * Math.Sign(deltaVScale);
+                    Vector3d maneuver = Utility.ManeuverNode(progradedV, normaldV, 0.0);
+
+                    vessel.patchedConicSolver.maneuverNodes.Clear();
+                    ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(mTime);
+                    mn.OnGizmoUpdated(maneuver, mTime);
+
+                    return 1.0;
+                }
+            }
+
             return 0.0;
         }
 
