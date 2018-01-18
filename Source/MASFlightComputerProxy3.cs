@@ -1325,6 +1325,108 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Removes the specified vesselType from the target tracking filter.  vesselType
+        /// must be one of:
+        /// 
+        /// * 1 - Ship
+        /// * 2 - Plane
+        /// * 3 - Probe
+        /// * 4 - Lander
+        /// * 5 - Station
+        /// * 6 - Relay
+        /// * 7 - Rover
+        /// * 8 - Base
+        /// * 9 - EVA
+        /// * 10 - Flag
+        /// * 11 - Debris
+        /// * 12 - Space Object
+        /// * 13 - Unknown
+        /// 
+        /// Returns 1 if the provided vesselType was previously set, or 0 if it was not set
+        /// or an invalid vesselType was supplied.
+        /// </summary>
+        /// <param name="vesselType">An integer value between 1 and 13, inclusive.</param>
+        /// <returns>1 if the vesselType was cleared, 0 if it was not.</returns>
+        public double ClearTargetFilter(double vesselType)
+        {
+            int vBitIndex = (int)(vesselType);
+            if (vBitIndex >0 && vBitIndex <= 13)
+            {
+                return (fc.ClearTargetFilter(vBitIndex)) ? 1.0 : 0.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Indicates whether the specified vesselType is set in the target selection filter.  vesselType
+        /// must be one of:
+        /// 
+        /// * 1 - Ship
+        /// * 2 - Plane
+        /// * 3 - Probe
+        /// * 4 - Lander
+        /// * 5 - Station
+        /// * 6 - Relay
+        /// * 7 - Rover
+        /// * 8 - Base
+        /// * 9 - EVA
+        /// * 10 - Flag
+        /// * 11 - Debris
+        /// * 12 - Space Object
+        /// * 13 - Unknown
+        /// 
+        /// Returns 1 if the provided vesselType is a target that will be selected, or 0 if it will not be selected
+        /// or an invalid vesselType was supplied.
+        /// </summary>
+        /// <param name="vesselType">An integer value between 1 and 13, inclusive.</param>
+        /// <returns>1 if the vesselType was cleared, 0 if it was not.</returns>
+        public double GetTargetFilter(double vesselType)
+        {
+            int vBitIndex = (int)(vesselType);
+            if (vBitIndex > 0 && vBitIndex <= 13)
+            {
+                return (fc.GetTargetFilter(vBitIndex)) ? 1.0 : 0.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Adds the specified vesselType to the target tracking filter.  vesselType
+        /// must be one of:
+        /// 
+        /// * 1 - Ship
+        /// * 2 - Plane
+        /// * 3 - Probe
+        /// * 4 - Lander
+        /// * 5 - Station
+        /// * 6 - Relay
+        /// * 7 - Rover
+        /// * 8 - Base
+        /// * 9 - EVA
+        /// * 10 - Flag
+        /// * 11 - Debris
+        /// * 12 - Space Object
+        /// * 13 - Unknown
+        /// 
+        /// Returns 1 if the provided vesselType was not previously set, or 0 if it was already set
+        /// or an invalid vesselType was supplied.
+        /// </summary>
+        /// <param name="vesselType">An integer value between 1 and 13, inclusive.</param>
+        /// <returns>1 if the vesselType was set, 0 if it was not.</returns>
+        public double SetTargetFilter(double vesselType)
+        {
+            int vBitIndex = (int)(vesselType);
+            if (vBitIndex > 0 && vBitIndex <= 13)
+            {
+                return (fc.SetTargetFilter(vBitIndex)) ? 1.0 : 0.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Set the active target to the vessel selected by id.  If the id
         /// is invalid, the current target is cleared.  The id parameter
         /// must be greater than or equal to 0, and less than fc.TargetVesselCount()
@@ -1970,7 +2072,7 @@ namespace AvionicsSystems
         /// * 2: Target is a Docking Port
         /// * 3: Target is a Celestial Body
         /// * 4: Target is a Waypoint
-        /// * 5: Target is an asteroid *(not yet implemented)*
+        /// * 5: Target is an asteroid
         /// </summary>
         /// <returns>A number between 0 and 5 (inclusive)</returns>
         public double TargetType()
@@ -2161,6 +2263,41 @@ namespace AvionicsSystems
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Toggles the specified vesselType in the target tracking filter.  vesselType
+        /// must be one of:
+        /// 
+        /// * 1 - Ship
+        /// * 2 - Plane
+        /// * 3 - Probe
+        /// * 4 - Lander
+        /// * 5 - Station
+        /// * 6 - Relay
+        /// * 7 - Rover
+        /// * 8 - Base
+        /// * 9 - EVA
+        /// * 10 - Flag
+        /// * 11 - Debris
+        /// * 12 - Space Object
+        /// * 13 - Unknown
+        /// 
+        /// Returns 1 if the provided vesselType was previously set, or 0 if it was not set
+        /// or an invalid vesselType was supplied.
+        /// </summary>
+        /// <param name="vesselType">An integer value between 1 and 13, inclusive.</param>
+        /// <returns>1 if the vesselType was cleared, 0 if it was not.</returns>
+        public double ToggleTargetFilter(double vesselType)
+        {
+            int vBitIndex = (int)(vesselType);
+            if (vBitIndex > 0 && vBitIndex <= 13)
+            {
+                fc.ToggleTargetFilter(vBitIndex);
+                return 1.0;
+            }
+
+            return 0.0;
         }
         #endregion
 

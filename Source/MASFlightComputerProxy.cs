@@ -93,17 +93,6 @@ namespace AvionicsSystems
             this.farProxy = farProxy;
             this.mjProxy = mjProxy;
             this.solver = new ApproachSolverBW();
-
-            enabledVesselTypes |= (1 << (int)global::VesselType.Probe);
-            enabledVesselTypes |= (1 << (int)global::VesselType.Relay);
-            enabledVesselTypes |= (1 << (int)global::VesselType.Rover);
-            enabledVesselTypes |= (1 << (int)global::VesselType.Lander);
-            enabledVesselTypes |= (1 << (int)global::VesselType.Ship);
-            enabledVesselTypes |= (1 << (int)global::VesselType.Plane);
-            enabledVesselTypes |= (1 << (int)global::VesselType.Station);
-            enabledVesselTypes |= (1 << (int)global::VesselType.Base);
-            enabledVesselTypes |= (1 << (int)global::VesselType.EVA);
-            enabledVesselTypes |= (1 << (int)global::VesselType.Flag);
         }
 
         ~MASFlightComputerProxy()
@@ -231,12 +220,11 @@ namespace AvionicsSystems
         private VesselDistanceComparer distanceComparer = new VesselDistanceComparer();
         private List<Vessel> localVessels = new List<Vessel>();
         private bool neighboringVesselsCurrent = false;
-        private int enabledVesselTypes = 0;
 
         [MoonSharpHidden]
         private bool EnabledType(global::VesselType type)
         {
-            return (enabledVesselTypes & (1 << (int)type)) != 0;
+            return fc.activeVesselFilter.FindIndex(x => x==type) != -1;
         }
 
         [MoonSharpHidden]

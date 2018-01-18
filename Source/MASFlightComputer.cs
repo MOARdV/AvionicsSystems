@@ -165,6 +165,42 @@ namespace AvionicsSystems
         internal MASClimateControl cc = null;
 
         internal static readonly string vesselIdLabel = "__vesselId";
+        internal static readonly string vesselFilterLabel = "__vesselFilter";
+
+        internal int vesselFilterValue = 0;
+        internal List<VesselType> activeVesselFilter = new List<VesselType>();
+        private readonly Dictionary<int, VesselType> vesselBitRemap = new Dictionary<int, VesselType>
+        {
+            { 1, VesselType.Ship},
+            { 2, VesselType.Plane},
+            { 3, VesselType.Probe},
+            { 4, VesselType.Lander},
+            { 5, VesselType.Station},
+            { 6, VesselType.Relay},
+            { 7, VesselType.Rover},
+            { 8, VesselType.Base},
+            { 9, VesselType.EVA},
+            { 10, VesselType.Flag},
+            { 11, VesselType.Debris},
+            { 12, VesselType.SpaceObject},
+            { 13, VesselType.Unknown}
+        };
+        private readonly Dictionary<VesselType, int> bitVesselRemap = new Dictionary<VesselType, int>
+        {
+            { VesselType.Ship, 1},
+            { VesselType.Plane, 2},
+            { VesselType.Probe, 3},
+            { VesselType.Lander, 4},
+            { VesselType.Station, 5},
+            { VesselType.Relay, 6},
+            { VesselType.Rover, 7},
+            { VesselType.Base, 8},
+            { VesselType.EVA, 9},
+            { VesselType.Flag, 10},
+            { VesselType.Debris, 11},
+            { VesselType.SpaceObject, 12},
+            { VesselType.Unknown, 13}
+        };
 
         internal ProtoCrewMember[] localCrew = new ProtoCrewMember[0];
         private kerbalExpressionSystem[] localCrewMedical = new kerbalExpressionSystem[0];
@@ -476,6 +512,67 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Target Tracking
+        internal bool ClearTargetFilter(int bitIndex)
+        {
+            int bit = 1 << bitIndex;
+            int oldValue = vesselFilterValue;
+            vesselFilterValue &= ~bit;
+
+            if (oldValue != vesselFilterValue)
+            {
+                activeVesselFilter.Remove(vesselBitRemap[bitIndex]);
+                SetPersistent(vesselFilterLabel, vesselFilterValue.ToString("X"));
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        internal bool GetTargetFilter(int bitIndex)
+        {
+            int bit = 1 << bitIndex;
+            int andResult = bit & vesselFilterValue;
+            
+            return (andResult != 0);
+        }
+
+        internal bool SetTargetFilter(int bitIndex)
+        {
+            int bit = 1 << bitIndex;
+            int oldValue = vesselFilterValue;
+            vesselFilterValue |= bit;
+
+            if (oldValue != vesselFilterValue)
+            {
+                activeVesselFilter.Add(vesselBitRemap[bitIndex]);
+                SetPersistent(vesselFilterLabel, vesselFilterValue.ToString("X"));
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        internal void ToggleTargetFilter(int bitIndex)
+        {
+            int bit = 1 << bitIndex;
+            if ((vesselFilterValue & bit) != 0)
+            {
+                activeVesselFilter.Remove(vesselBitRemap[bitIndex]);
+            }
+            else
+            {
+                activeVesselFilter.Add(vesselBitRemap[bitIndex]);
+            }
+            vesselFilterValue ^= bit;
+            SetPersistent(vesselFilterLabel, vesselFilterValue.ToString("X"));
+        }
+        #endregion
+
         #region Monobehaviour
         /// <summary>
         /// Process updates to tracked variables.
@@ -745,6 +842,38 @@ namespace AvionicsSystems
                 // Always make sure we set the vessel ID in the persistent table
                 // based on what it currently is.
                 SetPersistent(vesselIdLabel, parentVesselId.ToString());
+
+                object activeFilters;
+                if (persistentVars.TryGetValue(vesselFilterLabel, out activeFilters) && (activeFilters is string))
+                {
+                    vesselFilterValue = int.Parse((activeFilters as string), System.Globalization.NumberStyles.HexNumber);
+                }
+                else
+                {
+                    // Initial values
+                    vesselFilterValue = 0;
+                    vesselFilterValue |= 1 << bitVesselRemap[VesselType.Probe];
+                    vesselFilterValue |= 1 << bitVesselRemap[VesselType.Relay];
+                    vesselFilterValue |= 1 << bitVesselRemap[VesselType.Rover];
+                    vesselFilterValue |= 1 << bitVesselRemap[VesselType.Lander];
+                    vesselFilterValue |= 1 << bitVesselRemap[VesselType.Ship];
+                    vesselFilterValue |= 1 << bitVesselRemap[VesselType.Plane];
+                    vesselFilterValue |= 1 << bitVesselRemap[VesselType.Station];
+                    vesselFilterValue |= 1 << bitVesselRemap[VesselType.Base];
+                    vesselFilterValue |= 1 << bitVesselRemap[VesselType.EVA];
+                    vesselFilterValue |= 1 << bitVesselRemap[VesselType.Flag];
+
+                    SetPersistent(vesselFilterLabel, vesselFilterValue.ToString("X"));
+                }
+                
+                activeVesselFilter.Clear();
+                for (int i = 1; i < 14; ++i )
+                {
+                    if ((vesselFilterValue & (1<<i)) != 0)
+                    {
+                        activeVesselFilter.Add(vesselBitRemap[i]);
+                    }
+                }
 
                 // TODO: Don't need to set vessel for all of these guys if I just now init'd them.
                 fcProxy.vc = vc;
