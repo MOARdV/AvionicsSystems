@@ -1110,6 +1110,56 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the id number of the currently-active mode on the MASCamera selected by `index`.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <returns>The number of the modes (between 0 and fc.GetCameraModeCount(index)-1), or 0 if an invalid camera was selected.</returns>
+        public double GetCameraMode(double index)
+        {
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                return vc.moduleCamera[i].GetMode();
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the number of modes available to the MASCamera selected by `index`.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <returns>The number of modes (1 or higher), or 0 if an invalid camera was selected.</returns>
+        public double GetCameraModeCount(double index)
+        {
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                return vc.moduleCamera[i].GetModeCount();
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the id number of the currently-active mode on the MASCamera selected by `index`.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <param name="mode">A number between 0 and `fc.GetCameraModeCount(index)` - 1.</param>
+        /// <returns>The name of the selected mode, or an empty string if an invalid camera or mode was selected.</returns>
+        public string GetCameraModeName(double index, double mode)
+        {
+            int i = (int)index;
+            int whichMode = (int)mode;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                return vc.moduleCamera[i].GetModeName(whichMode);
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Returns the name of the camera selected by `index`, or an empty string
         /// if the index is invalid.
         /// </summary>
@@ -1174,6 +1224,24 @@ namespace AvionicsSystems
             }
 
             return tilt;
+        }
+
+        /// <summary>
+        /// Returns the id number of the currently-active mode on the MASCamera selected by `index`.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <param name="mode">A number between 0 and `fc.GetCameraModeCount(index)` - 1.</param>
+        /// <returns>The mode that was selected, or 0 if an invalid camera was selected.</returns>
+        public double SetCameraMode(double index, double mode)
+        {
+            int i = (int)index;
+            int newMode = (int)mode;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                return vc.moduleCamera[i].SetMode(newMode);
+            }
+
+            return 0.0;
         }
 
         /// <summary>

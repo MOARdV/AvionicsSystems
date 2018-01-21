@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2017 MOARdV
+ * Copyright (c) 2017-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -36,14 +36,11 @@ namespace AvionicsSystems
         private string name = "anonymous";
         private GameObject imageObject;
         private Material imageMaterial;
-        private Material postProcShader = null;
         private MeshRenderer meshRenderer;
         private RenderTexture cameraTexture;
         private Texture missingCameraTexture;
         private string variableName;
         private MASFlightComputer.Variable range1, range2;
-        string[] propertyValue = new string[0];
-        Action<double>[] propertyCallback = new Action<double>[0];
         private readonly bool rangeMode;
         private MASFlightComputer.Variable cameraSelector;
         private MASCamera activeCamera = null;
@@ -116,70 +113,6 @@ namespace AvionicsSystems
                 rangeMode = false;
             }
 
-            string shaderName = string.Empty;
-            string[] propertyName = new string[0];
-            if (config.TryGetValue("shader", ref shaderName))
-            {
-                shaderName = shaderName.Trim();
-                if (!MASLoader.shaders.ContainsKey(shaderName))
-                {
-                    throw new ArgumentException("Unknown 'shader' in CAMERA " + name);
-                }
-
-                postProcShader = new Material(MASLoader.shaders[shaderName]);
-                if (postProcShader == null)
-                {
-                    throw new ArgumentException("Failed to load 'shader' in CAMERA " + name);
-                }
-
-                string concatProperties = string.Empty;
-                if (config.TryGetValue("properties", ref concatProperties))
-                {
-                    string[] propertiesList = concatProperties.Split(';');
-                    int listLength = propertiesList.Length;
-                    if (listLength > 0)
-                    {
-                        propertyName = new string[listLength];
-                        propertyValue = new string[listLength];
-                        propertyCallback = new Action<double>[listLength];
-
-                        for (int i = 0; i < listLength; ++i)
-                        {
-                            string[] pair = propertiesList[i].Split(':');
-                            if (pair.Length != 2)
-                            {
-                                throw new ArgumentOutOfRangeException("Incorrect number of parameters for property: requires 2, found " + pair.Length + " in property " + propertiesList[i] + " for CAMERA " + name);
-                            }
-                            propertyName[i] = pair[0].Trim();
-                            propertyValue[i] = pair[1].Trim();
-                        }
-                    }
-                }
-
-                string textureName = string.Empty;
-                if (!config.TryGetValue("texture", ref textureName))
-                {
-                    throw new ArgumentException("Unable to find 'texture' in CAMERA " + name);
-                }
-                else
-                {
-                    Texture auxTexture = GameDatabase.Instance.GetTexture(textureName, false);
-                    if (auxTexture == null)
-                    {
-                        throw new ArgumentException("Unable to find 'texture' " + textureName + " for CAMERA " + name);
-                    }
-                    postProcShader.SetTexture("_AuxTex", auxTexture);
-                }
-            }
-
-            // If I simply blit the output of the camera, I have black sections in the image.  I suspect
-            // they're regions where alpha = 0.  So, if the prop config doesn't select a shader, I use a
-            // simple pass-through shader that drives alpha to 1.
-            if (postProcShader == null)
-            {
-                postProcShader = new Material(MASLoader.shaders["MOARdV/PassThrough"]);
-            }
-
             imageObject = new GameObject();
             imageObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
             imageObject.layer = pageRoot.gameObject.layer;
@@ -241,13 +174,6 @@ namespace AvionicsSystems
 
             cameraSelector = comp.RegisterOnVariableChange(cameraName, prop, CameraSelectCallback);
             CameraSelectCallback();
-
-            for (int i = 0; i < propertyValue.Length; ++i)
-            {
-                int propertyId = Shader.PropertyToID(propertyName[i]);
-                propertyCallback[i] = delegate(double a) { PropertyCallback(propertyId, a); };
-                comp.RegisterNumericVariable(propertyValue[i], prop, propertyCallback[i]);
-            }
         }
 
         /// <summary>
@@ -266,16 +192,6 @@ namespace AvionicsSystems
                 GL.Clear(true, true, new Color(0.016f, 0.016f, 0.031f));
                 RenderTexture.active = backup;
             }
-        }
-
-        /// <summary>
-        /// Callback to update the shader's properties.
-        /// </summary>
-        /// <param name="propertyId">The property ID to update.</param>
-        /// <param name="newValue">The new value for that property.</param>
-        private void PropertyCallback(int propertyId, double newValue)
-        {
-            postProcShader.SetFloat(propertyId, (float)newValue);
         }
 
         /// <summary>
@@ -344,6 +260,7 @@ namespace AvionicsSystems
                 {
                     if (pageEnabled)
                     {
+                        activeCamera.UpdateFlightComputer(comp);
                         activeCamera.renderCallback += ReadCamera;
                     }
                 }
@@ -372,7 +289,7 @@ namespace AvionicsSystems
         /// Callback to process the rentex sent by the camera.
         /// </summary>
         /// <param name="rentex"></param>
-        private void ReadCamera(RenderTexture rentex)
+        private void ReadCamera(RenderTexture rentex, Material postProcShader)
         {
             if (rentex == null)
             {
@@ -414,6 +331,7 @@ namespace AvionicsSystems
             {
                 if (enable)
                 {
+                    activeCamera.UpdateFlightComputer(comp);
                     activeCamera.renderCallback += ReadCamera;
                 }
                 else
@@ -462,11 +380,6 @@ namespace AvionicsSystems
             UnityEngine.GameObject.Destroy(cameraTexture);
             cameraTexture = null;
 
-            if (postProcShader != null)
-            {
-                UnityEngine.GameObject.Destroy(postProcShader);
-                postProcShader = null;
-            }
             UnityEngine.GameObject.Destroy(imageObject);
             imageObject = null;
             UnityEngine.GameObject.Destroy(imageMaterial);
@@ -475,11 +388,6 @@ namespace AvionicsSystems
             if (!string.IsNullOrEmpty(variableName))
             {
                 comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
-            }
-
-            for (int i = 0; i < propertyValue.Length; ++i)
-            {
-                comp.UnregisterNumericVariable(propertyValue[i], internalProp, propertyCallback[i]);
             }
 
             if (!string.IsNullOrEmpty(cameraSelector.name))

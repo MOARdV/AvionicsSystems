@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2017 - 2018 MOARdV
+ * Copyright (c) 2017-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -27,6 +27,167 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
+    /// <summary>
+    /// The MASCameraMode represents the 
+    /// </summary>
+    internal class MASCameraMode
+    {
+        public readonly string name;
+
+        /// <summary>
+        /// Post-processing shader to apply.
+        /// </summary>
+        public Material postProcShader;
+
+        /// <summary>
+        /// The resolution of the camera mode in pixels.  Cameras render a square
+        /// image.  Valid values are 64 to 2048.  Values outside that range are
+        /// clamped.  The value will be adjusted
+        /// to a power-of-2 if needed.  Note that large values may cause
+        /// problems with lower-end machines.  Defaults to 256.
+        /// </summary>
+        public readonly int cameraResolution;
+
+        /// <summary>
+        /// Names of the shader properties.
+        /// </summary>
+        public string[] propertyName = new string[0];
+
+        /// <summary>
+        /// MAS variables that update shader properties.
+        /// </summary>
+        public string[] propertyValue = new string[0];
+
+        /// <summary>
+        /// Callbacks for updating properties.
+        /// </summary>
+        public Action<double>[] propertyCallback = new Action<double>[0];
+
+        /// <summary>
+        /// The flight computer we registered with.
+        /// </summary>
+        private MASFlightComputer comp;
+
+        public MASCameraMode(ConfigNode node, string partName)
+        {
+            if (!node.TryGetValue("name", ref name))
+            {
+                //Utility.LogErrorMessage(this, "No 'name' defined for MASCamera MODE in {0}", partName);
+                name = "(anonymous)";
+            }
+
+            string shader = string.Empty;
+            if (!node.TryGetValue("shader", ref shader))
+            {
+                // If I simply blit the output of the camera, I have black sections in the image.  I suspect
+                // they're regions where alpha = 0.  So, if the prop config doesn't select a shader, I use a
+                // simple pass-through shader that drives alpha to 1.
+                shader = "MOARdV/PassThrough";
+            }
+            else
+            {
+                string concatProperties = string.Empty;
+                if (node.TryGetValue("properties", ref concatProperties))
+                {
+                    string[] propertiesList = concatProperties.Split(';');
+                    int listLength = propertiesList.Length;
+                    if (listLength > 0)
+                    {
+                        propertyName = new string[listLength];
+                        propertyValue = new string[listLength];
+                        propertyCallback = new Action<double>[listLength];
+
+                        for (int i = 0; i < listLength; ++i)
+                        {
+                            string[] pair = propertiesList[i].Split(':');
+                            if (pair.Length != 2)
+                            {
+                                throw new ArgumentOutOfRangeException("Incorrect number of parameters for property: requires 2, found " + pair.Length + " in property " + propertiesList[i] + " for camera MODE " + name);
+                            }
+                            propertyName[i] = pair[0].Trim();
+                            propertyValue[i] = pair[1].Trim();
+                        }
+                    }
+                }
+
+            }
+
+            if (!MASLoader.shaders.ContainsKey(shader))
+            {
+                Utility.LogErrorMessage(this, "Invalid shader \"{0}\" in MASCamera MODE {1} in {2}.", shader, name, partName);
+                throw new ArgumentException("MASCameraNode: Invalid post-processing shader name.");
+            }
+
+            postProcShader = new Material(MASLoader.shaders[shader]);
+
+            string textureName = string.Empty;
+            if (node.TryGetValue("texture", ref textureName))
+            {
+                Texture auxTexture = GameDatabase.Instance.GetTexture(textureName, false);
+                if (auxTexture == null)
+                {
+                    throw new ArgumentException("Unable to find 'texture' " + textureName + " for CAMERA " + name);
+                }
+                postProcShader.SetTexture("_AuxTex", auxTexture);
+            }
+
+            if (!node.TryGetValue("cameraResolution", ref cameraResolution))
+            {
+                cameraResolution = 256;
+            }
+        }
+
+        public void UnregisterShaderProperties()
+        {
+            if (comp != null)
+            {
+                for (int i = 0; i < propertyValue.Length; ++i)
+                {
+                    comp.UnregisterNumericVariable(propertyValue[i], null, propertyCallback[i]);
+                }
+                comp = null;
+            }
+        }
+
+        /// <summary>
+        /// Callback to update the shader's properties.
+        /// </summary>
+        /// <param name="propertyId">The property ID to update.</param>
+        /// <param name="newValue">The new value for that property.</param>
+        private void PropertyCallback(int propertyId, double newValue)
+        {
+            postProcShader.SetFloat(propertyId, (float)newValue);
+        }
+
+        /// <summary>
+        /// Callback used to tell the mode to refresh its shader properties.
+        /// </summary>
+        /// <param name="comp"></param>
+        public void UpdateShaderProperties(MASFlightComputer comp)
+        {
+            if (this.comp == comp)
+            {
+                return;
+            }
+
+            UnregisterShaderProperties();
+
+            this.comp = comp;
+
+            for (int i = 0; i < propertyValue.Length; ++i)
+            {
+                int propertyId = Shader.PropertyToID(propertyName[i]);
+                propertyCallback[i] = delegate(double a) { PropertyCallback(propertyId, a); };
+                comp.RegisterNumericVariable(propertyValue[i], null, propertyCallback[i]);
+            }
+        }
+    }
+
+    /// <summary>
+    /// The MASCamera represents a physical camera model, and it encapsulates the data specific
+    /// to that model (field of view, pan/tilt movement limits, post-processing shaders that
+    /// represent physical camera behavior).
+    /// </summary>
     class MASCamera : PartModule
     {
         /// <summary>
@@ -99,16 +260,6 @@ namespace AvionicsSystems
         public Vector3 rotation = Vector3.zero;
 
         /// <summary>
-        /// The resolution of the camera in pixels.  Cameras render a square
-        /// image.  Valid values are 64 to 2048.  Values outside that range are
-        /// clamped.  The value will be adjusted
-        /// to a power-of-2 if needed.  Note that large values may cause
-        /// problems with lower-end machines.
-        /// </summary>
-        [KSPField]
-        public int cameraResolution = 256;
-
-        /// <summary>
         /// Allows a camera to refresh less often than every Update().  Values
         /// larger than 1 indicate an update of every Nth Update() (for instance,
         /// 2 means "Render every other frame").
@@ -131,6 +282,13 @@ namespace AvionicsSystems
         public bool showFov = false;
         const float rayLength = 10.0f;
 
+        /// <summary>
+        /// Used internally to keep track of which camera is active.
+        /// </summary>
+        [KSPField(isPersistant = true)]
+        public int activeMode = 0;
+        private MASCameraMode[] mode = new MASCameraMode[0];
+
         private static readonly string[] knownCameraNames = 
         {
             "GalaxyCamera",
@@ -142,7 +300,7 @@ namespace AvionicsSystems
         private readonly Camera[] cameras = { null, null, null, null, null };
         private readonly GameObject[] cameraBody = { null, null, null, null, null };
         internal RenderTexture cameraRentex;
-        internal event Action<RenderTexture> renderCallback;
+        internal event Action<RenderTexture, Material> renderCallback;
 
         /// <summary>
         /// Is this object ready to use?
@@ -265,29 +423,73 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Helper method to adjust a resolution to an acceptable power-of-2.
+        /// </summary>
+        /// <param name="resolution">[inout] Resolution to adjust.</param>
+        static internal void AdjustResolution(ref int resolution)
+        {
+            if (resolution > 2048)
+            {
+                resolution = 2048;
+            }
+            else if (resolution < 64)
+            {
+                resolution = 64;
+            }
+            resolution &= 0x00000fc0;
+            for (int i = 0x800; i != 0; i >>= 1)
+            {
+                if ((resolution & i) != 0)
+                {
+                    resolution = resolution & i;
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Update parameters affected by a mode change.
+        /// </summary>
+        private void ApplyMode()
+        {
+            if (cameraRentex.width != mode[activeMode].cameraResolution)
+            {
+                cameraRentex.Release();
+                cameraRentex = new RenderTexture(mode[activeMode].cameraResolution, mode[activeMode].cameraResolution, 24);
+            }
+        }
+
+        /// <summary>
         /// Create the cameras used during flight.
         /// </summary>
         private void CreateFlightCameras(float aspectRatio)
         {
-            // Force cameraResolution to a legal value.
-            if (cameraResolution > 2048)
+            cameraRentex = new RenderTexture(256, 256, 24);
+            ConfigNode partConfigNode = Utility.GetPartModuleConfigNode(part, "MASCamera");
+            if (partConfigNode == null)
             {
-                cameraResolution = 2048;
+                Utility.LogErrorMessage(this, "Unable to load part config node for MASCamera {0}.", part.partName);
+                throw new NotImplementedException("MASCamera: Unable to load part config node for MASCamera.");
             }
-            else if (cameraResolution < 64)
+
+            ConfigNode[] modeNodes = partConfigNode.GetNodes("MODE");
+            if (modeNodes == null || modeNodes.Length == 0)
             {
-                cameraResolution = 64;
+                modeNodes = new ConfigNode[1];
+                modeNodes[0] = new ConfigNode();
+                modeNodes[0].AddValue("name", "Default");
             }
-            cameraResolution &= 0x00000fc0;
-            for (int i = 0x800; i != 0; i >>= 1)
+
+            mode = new MASCameraMode[modeNodes.Length];
+            for (int i = 0; i < modeNodes.Length; ++i)
             {
-                if ((cameraResolution & i) != 0)
-                {
-                    cameraResolution = cameraResolution & i;
-                    break;
-                }
+                mode[i] = new MASCameraMode(modeNodes[i], part.partName);
             }
-            cameraRentex = new RenderTexture(cameraResolution, cameraResolution, 24);
+
+            activeMode = Mathf.Clamp(activeMode, 0, mode.Length - 1);
+            ApplyMode();
+
+            //cameraRentex = new RenderTexture(cameraResolution, cameraResolution, 24);
             for (int i = 0; i < cameras.Length; ++i)
             {
                 Camera sourceCamera = GetCameraByName(knownCameraNames[i]);
@@ -370,6 +572,13 @@ namespace AvionicsSystems
                 maxFovPosition = null;
             }
 
+            for (int i = 0; i < mode.Length; ++i)
+            {
+                mode[i].UnregisterShaderProperties();
+                Destroy(mode[i].postProcShader);
+                mode[i].postProcShader = null;
+            }
+
             if (nameMenu != null)
             {
                 InputLockManager.RemoveControlLock("MASCamera-UI");
@@ -379,7 +588,7 @@ namespace AvionicsSystems
 
             if (renderCallback != null)
             {
-                renderCallback.Invoke(null);
+                renderCallback.Invoke(null, null);
             }
 
             if (cameraRentex != null)
@@ -429,6 +638,56 @@ namespace AvionicsSystems
             currentTilt = Mathf.Clamp(currentTilt + deltaTilt, tiltRange.x, tiltRange.y);
 
             return currentTilt;
+        }
+
+        /// <summary>
+        /// Returns the index of the currently-active camera mode.
+        /// </summary>
+        /// <returns></returns>
+        public int GetMode()
+        {
+            return activeMode;
+        }
+
+        /// <summary>
+        /// Return the total count of the camera modes.
+        /// </summary>
+        /// <returns></returns>
+        public int GetModeCount()
+        {
+            return mode.Length;
+        }
+
+        /// <summary>
+        /// Return the name of the selected camera mode
+        /// </summary>
+        /// <returns></returns>
+        public string GetModeName(int selectedMode)
+        {
+            if (selectedMode >= 0 || selectedMode < mode.Length)
+            {
+                return mode[selectedMode].name;
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Select the camera mode.
+        /// </summary>
+        /// <param name="newMode"></param>
+        /// <returns></returns>
+        public int SetMode(int newMode)
+        {
+            if (newMode >= 0 || newMode < mode.Length)
+            {
+                activeMode = newMode;
+                ApplyMode();
+            }
+
+            return activeMode;
         }
 
         /// <summary>
@@ -522,10 +781,23 @@ namespace AvionicsSystems
                         cameras[i].Render();
                     }
 
-                    renderCallback.Invoke(cameraRentex);
+                    renderCallback.Invoke(cameraRentex, mode[activeMode].postProcShader);
                 }
 
                 ++frameCount;
+            }
+        }
+
+        /// <summary>
+        /// Make sure the shaders have access to a flight computer, so they can update
+        /// variables.
+        /// </summary>
+        /// <param name="comp"></param>
+        public void UpdateFlightComputer(MASFlightComputer comp)
+        {
+            for (int i = 0; i < mode.Length; ++i)
+            {
+                mode[i].UpdateShaderProperties(comp);
             }
         }
 
