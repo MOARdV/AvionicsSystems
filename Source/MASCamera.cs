@@ -241,11 +241,27 @@ namespace AvionicsSystems
         public float currentTilt = 0.0f;
 
         /// <summary>
-        /// Name of the transform that the camera is attached to.
+        /// Name of the transform that the camera lens is attached to.
         /// </summary>
         [KSPField]
         public string cameraTransformName = string.Empty;
-        internal Transform cameraTransform = null;
+        private Transform cameraTransform = null;
+
+        /// <summary>
+        /// Name of an optional transform to physically pan the model.
+        /// </summary>
+        [KSPField]
+        public string panTransformName = string.Empty;
+        private Transform panTransform = null;
+        private Quaternion panRotation = Quaternion.identity;
+
+        /// <summary>
+        /// Name of an optional transform to physically tilt the model.
+        /// </summary>
+        [KSPField]
+        public string tiltTransformName = string.Empty;
+        private Transform tiltTransform = null;
+        private Quaternion tiltRotation = Quaternion.identity;
 
         /// <summary>
         /// Offset of the camera lens from its transform's position.
@@ -397,8 +413,37 @@ namespace AvionicsSystems
             {
                 Utility.LogErrorMessage(this, "Unable to find transform \"{0}\" in part", cameraTransformName);
             }
+
             if (HighLogic.LoadedScene == GameScenes.FLIGHT)
             {
+                if (!string.IsNullOrEmpty(panTransformName))
+                {
+                    panTransform = part.FindModelTransform(panTransformName);
+                    if (panTransform == null)
+                    {
+                        Utility.LogErrorMessage(this, "Unable to find a pan transform named \"{0}\"", panTransformName);
+                    }
+                    else
+                    {
+                        panRotation = panTransform.rotation;
+                        panTransform.rotation = panRotation * Quaternion.Euler(0.0f, currentPan, 0.0f);
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(tiltTransformName))
+                {
+                    tiltTransform = part.FindModelTransform(tiltTransformName);
+                    if (tiltTransform == null)
+                    {
+                        Utility.LogErrorMessage(this, "Unable to find a tilt transform named \"{0}\"", tiltTransformName);
+                    }
+                    else
+                    {
+                        tiltRotation = tiltTransform.rotation;
+                        tiltTransform.rotation = tiltRotation * Quaternion.Euler(-currentTilt, 0.0f, 0.0f);
+                    }
+                }
+
                 CreateFlightCameras(1.0f);
             }
 
@@ -624,6 +669,11 @@ namespace AvionicsSystems
         {
             currentPan = Mathf.Clamp(currentPan + deltaPan, panRange.x, panRange.y);
 
+            if (panTransform != null)
+            {
+                panTransform.rotation = panRotation * Quaternion.Euler(0.0f, currentPan, 0.0f);
+            }
+
             return currentPan;
         }
 
@@ -636,6 +686,11 @@ namespace AvionicsSystems
         public float AddTilt(float deltaTilt)
         {
             currentTilt = Mathf.Clamp(currentTilt + deltaTilt, tiltRange.x, tiltRange.y);
+
+            if (tiltTransform != null)
+            {
+                tiltTransform.rotation = tiltRotation * Quaternion.Euler(-currentTilt, 0.0f, 0.0f);
+            }
 
             return currentTilt;
         }
@@ -711,6 +766,11 @@ namespace AvionicsSystems
         {
             currentPan = Mathf.Clamp(pan, panRange.x, panRange.y);
 
+            if (panTransform != null)
+            {
+                panTransform.rotation = panRotation * Quaternion.Euler(0.0f, currentPan, 0.0f);
+            }
+
             return currentPan;
         }
 
@@ -722,6 +782,11 @@ namespace AvionicsSystems
         public float SetTilt(float tilt)
         {
             currentTilt = Mathf.Clamp(tilt, tiltRange.x, tiltRange.y);
+
+            if (tiltTransform != null)
+            {
+                tiltTransform.rotation = tiltRotation * Quaternion.Euler(-currentTilt, 0.0f, 0.0f);
+            }
 
             return currentTilt;
         }
@@ -769,7 +834,7 @@ namespace AvionicsSystems
 
                 if (refreshRate == 1 || (frameCount % refreshRate) == 0)
                 {
-                    Quaternion cameraRotation = cameraTransform.rotation * Quaternion.Euler(currentTilt, currentPan, 0.0f);
+                    Quaternion cameraRotation = cameraTransform.rotation * UpdateRotation();
                     Vector3 cameraPosition = cameraTransform.position;
 
                     cameraRentex.DiscardContents();
@@ -785,6 +850,33 @@ namespace AvionicsSystems
                 }
 
                 ++frameCount;
+            }
+        }
+
+        /// <summary>
+        /// Update the quaternion describing the camera pan/tilt at the lens.
+        /// </summary>
+        /// <returns></returns>
+        private Quaternion UpdateRotation()
+        {
+            if (panTransform == null)
+            {
+                if (tiltTransform == null)
+                {
+                    return Quaternion.Euler(-currentTilt, currentPan, 0.0f);
+                }
+                else
+                {
+                    return Quaternion.Euler(0.0f, currentPan, 0.0f);
+                }
+            }
+            else if (tiltTransform == null)
+            {
+                return Quaternion.Euler(-currentTilt, 0.0f, 0.0f);
+            }
+            else
+            {
+                return Quaternion.identity;
             }
         }
 
