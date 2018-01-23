@@ -356,6 +356,8 @@ namespace AvionicsSystems
         internal RenderTexture cameraRentex;
         internal event Action<RenderTexture, Material> renderCallback;
 
+        private MASDeployableCamera deploymentController;
+
         /// <summary>
         /// Is this object ready to use?
         /// </summary>
@@ -487,6 +489,8 @@ namespace AvionicsSystems
                         tiltTransform.localRotation = tiltRotation * Quaternion.Euler(-currentTilt, 0.0f, 0.0f);
                     }
                 }
+
+                deploymentController = part.FindModuleImplementing<MASDeployableCamera>();
 
                 CreateFlightCameras(1.0f);
             }
@@ -727,6 +731,45 @@ namespace AvionicsSystems
             goalTilt = Mathf.Clamp(goalTilt + deltaTilt, tiltRange.x, tiltRange.y);
 
             return goalTilt;
+        }
+
+        public bool GetDeployable()
+        {
+            return (deploymentController != null) ? (deploymentController.deployState != ModuleDeployablePart.DeployState.BROKEN) : false;
+        }
+
+        public bool IsDamaged()
+        {
+            return (deploymentController != null) ? (deploymentController.deployState == ModuleDeployablePart.DeployState.BROKEN) : false;
+        }
+
+        public bool IsDeployed()
+        {
+            return (deploymentController != null) ? (deploymentController.deployState == ModuleDeployablePart.DeployState.EXTENDED) : true;
+        }
+
+        public bool IsMoving()
+        {
+            return (deploymentController != null) ? (deploymentController.deployState == ModuleDeployablePart.DeployState.EXTENDING || deploymentController.deployState == ModuleDeployablePart.DeployState.RETRACTING) : false;
+        }
+
+        public bool ToggleDeployment()
+        {
+            if (deploymentController != null)
+            {
+                if (deploymentController.deployState == ModuleDeployablePart.DeployState.EXTENDED)
+                {
+                    deploymentController.Retract();
+                    return true;
+                }
+                else if (deploymentController.deployState == ModuleDeployablePart.DeployState.RETRACTED)
+                {
+                    deploymentController.Extend();
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -1116,7 +1159,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public override string GetInfo()
         {
-            return "Cameras rule!";
+            return "This part is equipped with a camera suitable for display on an MFD.";
         }
         #endregion
 
@@ -1131,6 +1174,28 @@ namespace AvionicsSystems
             {
                 newCameraName = cameraName;
             }
+        }
+    }
+
+    /// <summary>
+    /// A minimal module that allows a MASCamera to be designated as a deployable camera, taking advantage
+    /// of the stock mechanism for deployable parts that can be broken by the wind.
+    /// </summary>
+    public class MASDeployableCamera : ModuleDeployablePart
+    {
+        public MASDeployableCamera()
+        {
+            isTracking = false;
+
+            // Fields that might be of interest:
+            //partType = "Camera";
+            //subPartName = "Camera body";
+            //subPartMass = Mathf.Min(0.001f, part.mass * 0.5f);
+        }
+
+        public override string GetModuleDisplayName()
+        {
+            return "Deployable Camera";
         }
     }
 }

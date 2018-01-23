@@ -1110,6 +1110,54 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns 1 if the selected camera is damaged, 0 otherwise.  Deployable cameras may be damaged.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <returns></returns>
+        public double GetCameraDamaged(double index)
+        {
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                return vc.moduleCamera[i].IsDamaged() ? 1.0 : 0.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the selected camera is deployable, 0 otherwise.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <returns></returns>
+        public double GetCameraDeployable(double index)
+        {
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                return vc.moduleCamera[i].GetDeployable() ? 1.0 : 0.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the selected camera is deployed, 0 otherwise.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <returns></returns>
+        public double GetCameraDeployed(double index)
+        {
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                return vc.moduleCamera[i].IsDeployed() ? 1.0 : 0.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the id number of the currently-active mode on the MASCamera selected by `index`.
         /// </summary>
         /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
@@ -1157,6 +1205,22 @@ namespace AvionicsSystems
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Returns 1 if the selected camera is moving, 0 otherwise.  Only deployable cameras move.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <returns></returns>
+        public double GetCameraMoving(double index)
+        {
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                return vc.moduleCamera[i].IsMoving() ? 1.0 : 0.0;
+            }
+
+            return 0.0;
         }
 
         /// <summary>
@@ -1293,6 +1357,23 @@ namespace AvionicsSystems
             }
 
             return tilt;
+        }
+
+        /// <summary>
+        /// Toggles a deployable camera (retracts it if extended, extends it if retracted).  Has
+        /// no effect on non-deployable cameras.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <returns></returns>
+        public double ToggleCameraDeployment(double index)
+        {
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                return vc.moduleCamera[i].ToggleDeployment() ? 1.0 : 0.0;
+            }
+
+            return 0.0;
         }
         #endregion
 
