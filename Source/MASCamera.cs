@@ -199,12 +199,24 @@ namespace AvionicsSystems
         public Vector2 fovRange = new Vector2(50.0f, 50.0f);
 
         /// <summary>
-        /// Used internally to allow current FoV to persist.  Should only
+        /// Used internally to allow desired FoV to persist.  Should only
         /// be changed programmatically through AddFoV() and SetFoV() to
         /// manage the FoV limits.
         /// </summary>
         [KSPField(isPersistant = true)]
+        public float goalFov = 50.0f;
+
+        /// <summary>
+        /// Current FoV.
+        /// </summary>
+        [KSPField(isPersistant = true)]
         public float currentFov = 50.0f;
+
+        /// <summary>
+        /// Max FoV rate of change in degrees/sec.  0 indicates instant.
+        /// </summary>
+        [KSPField]
+        public float fovRate = 0.0f;
 
         /// <summary>
         /// Defines the minimum and maximum pan angle (left-right camera rotation)
@@ -216,12 +228,24 @@ namespace AvionicsSystems
         public Vector2 panRange = new Vector2(0.0f, 0.0f);
 
         /// <summary>
-        /// Used internally to allow current pan angle to persist.  Should only
+        /// Used internally to allow desired pan angle to persist.  Should only
         /// be changed programmatically through AddPan() and SetPan() to
         /// manage the pan limits.
         /// </summary>
         [KSPField(isPersistant = true)]
+        public float goalPan = 0.0f;
+
+        /// <summary>
+        /// Current pan position.  May differ from goalPan if panRate != 0
+        /// </summary>
+        [KSPField(isPersistant = true)]
         public float currentPan = 0.0f;
+
+        /// <summary>
+        /// Maximum rate (degrees/sec) for pan.  0 indicates instant.
+        /// </summary>
+        [KSPField]
+        public float panRate = 0.0f;
 
         /// <summary>
         /// Defines the minimum and maximum tilt angle (up-down camera rotation)
@@ -233,12 +257,24 @@ namespace AvionicsSystems
         public Vector2 tiltRange = new Vector2(0.0f, 0.0f);
 
         /// <summary>
-        /// Used internally to allow current tilt angle to persist.  Should only
+        /// Used internally to allow desired tilt angle to persist.  Should only
         /// be changed programmatically through AddTilt() and SetTilt() to
         /// manage the tilt limits.
         /// </summary>
         [KSPField(isPersistant = true)]
+        public float goalTilt = 0.0f;
+
+        /// <summary>
+        /// Current tilt position.  May differ from goalTilt if tiltRate != 0
+        /// </summary>
+        [KSPField(isPersistant = true)]
         public float currentTilt = 0.0f;
+
+        /// <summary>
+        /// Maximum rate (degrees/sec) for tilt.  0 indicates instant.
+        /// </summary>
+        [KSPField]
+        public float tiltRate = 0.0f;
 
         /// <summary>
         /// Name of the transform that the camera lens is attached to.
@@ -254,6 +290,7 @@ namespace AvionicsSystems
         public string panTransformName = string.Empty;
         private Transform panTransform = null;
         private Quaternion panRotation = Quaternion.identity;
+        private bool updatePan = false;
 
         /// <summary>
         /// Name of an optional transform to physically tilt the model.
@@ -262,6 +299,7 @@ namespace AvionicsSystems
         public string tiltTransformName = string.Empty;
         private Transform tiltTransform = null;
         private Quaternion tiltRotation = Quaternion.identity;
+        private bool updateTilt = false;
 
         /// <summary>
         /// Offset of the camera lens from its transform's position.
@@ -382,6 +420,8 @@ namespace AvionicsSystems
                 fovRange.x = Mathf.Clamp(fovRange.x, 1.0f, 179.0f);
                 fovRange.y = Mathf.Clamp(fovRange.y, 1.0f, 179.0f);
                 currentFov = Mathf.Clamp(currentFov, fovRange.x, fovRange.y);
+                goalFov = Mathf.Clamp(goalFov, fovRange.x, fovRange.y);
+                fovRate = Mathf.Abs(fovRate);
 
                 if (panRange.y < panRange.x)
                 {
@@ -390,6 +430,8 @@ namespace AvionicsSystems
                 panRange.x = Mathf.Clamp(panRange.x, -180.0f, 180.0f);
                 panRange.y = Mathf.Clamp(panRange.y, -180.0f, 180.0f);
                 currentPan = Mathf.Clamp(currentPan, panRange.x, panRange.y);
+                goalPan = Mathf.Clamp(goalPan, panRange.x, panRange.y);
+                panRate = Mathf.Abs(panRate);
 
                 if (tiltRange.y < tiltRange.x)
                 {
@@ -398,6 +440,8 @@ namespace AvionicsSystems
                 tiltRange.x = Mathf.Clamp(tiltRange.x, -180.0f, 180.0f);
                 tiltRange.y = Mathf.Clamp(tiltRange.y, -180.0f, 180.0f);
                 currentTilt = Mathf.Clamp(currentTilt, tiltRange.x, tiltRange.y);
+                goalTilt = Mathf.Clamp(goalTilt, tiltRange.x, tiltRange.y);
+                tiltRate = Mathf.Abs(tiltRate);
 
                 if (HighLogic.LoadedSceneIsEditor)
                 {
@@ -425,8 +469,8 @@ namespace AvionicsSystems
                     }
                     else
                     {
-                        panRotation = panTransform.rotation;
-                        panTransform.rotation = panRotation * Quaternion.Euler(0.0f, currentPan, 0.0f);
+                        panRotation = panTransform.localRotation;
+                        panTransform.localRotation = panRotation * Quaternion.Euler(0.0f, currentPan, 0.0f);
                     }
                 }
 
@@ -439,8 +483,8 @@ namespace AvionicsSystems
                     }
                     else
                     {
-                        tiltRotation = tiltTransform.rotation;
-                        tiltTransform.rotation = tiltRotation * Quaternion.Euler(-currentTilt, 0.0f, 0.0f);
+                        tiltRotation = tiltTransform.localRotation;
+                        tiltTransform.localRotation = tiltRotation * Quaternion.Euler(-currentTilt, 0.0f, 0.0f);
                     }
                 }
 
@@ -654,9 +698,9 @@ namespace AvionicsSystems
         /// <returns>The adjusted field of view.</returns>
         public float AddFoV(float deltaFoV)
         {
-            currentFov = Mathf.Clamp(currentFov + deltaFoV, fovRange.x, fovRange.y);
+            goalFov = Mathf.Clamp(goalFov + deltaFoV, fovRange.x, fovRange.y);
 
-            return currentFov;
+            return goalFov;
         }
 
         /// <summary>
@@ -667,14 +711,9 @@ namespace AvionicsSystems
         /// <returns>The adjusted pan.</returns>
         public float AddPan(float deltaPan)
         {
-            currentPan = Mathf.Clamp(currentPan + deltaPan, panRange.x, panRange.y);
+            goalPan = Mathf.Clamp(goalPan + deltaPan, panRange.x, panRange.y);
 
-            if (panTransform != null)
-            {
-                panTransform.rotation = panRotation * Quaternion.Euler(0.0f, currentPan, 0.0f);
-            }
-
-            return currentPan;
+            return goalPan;
         }
 
         /// <summary>
@@ -685,14 +724,9 @@ namespace AvionicsSystems
         /// <returns>The adjusted tilt.</returns>
         public float AddTilt(float deltaTilt)
         {
-            currentTilt = Mathf.Clamp(currentTilt + deltaTilt, tiltRange.x, tiltRange.y);
+            goalTilt = Mathf.Clamp(goalTilt + deltaTilt, tiltRange.x, tiltRange.y);
 
-            if (tiltTransform != null)
-            {
-                tiltTransform.rotation = tiltRotation * Quaternion.Euler(-currentTilt, 0.0f, 0.0f);
-            }
-
-            return currentTilt;
+            return goalTilt;
         }
 
         /// <summary>
@@ -752,9 +786,9 @@ namespace AvionicsSystems
         /// <returns>The adjusted field of view.</returns>
         public float SetFoV(float fieldOfView)
         {
-            currentFov = Mathf.Clamp(fieldOfView, fovRange.x, fovRange.y);
+            goalFov = Mathf.Clamp(fieldOfView, fovRange.x, fovRange.y);
 
-            return currentFov;
+            return goalFov;
         }
 
         /// <summary>
@@ -764,14 +798,9 @@ namespace AvionicsSystems
         /// <returns>The adjusted pan setting.</returns>
         public float SetPan(float pan)
         {
-            currentPan = Mathf.Clamp(pan, panRange.x, panRange.y);
+            goalPan = Mathf.Clamp(pan, panRange.x, panRange.y);
 
-            if (panTransform != null)
-            {
-                panTransform.rotation = panRotation * Quaternion.Euler(0.0f, currentPan, 0.0f);
-            }
-
-            return currentPan;
+            return goalPan;
         }
 
         /// <summary>
@@ -781,14 +810,9 @@ namespace AvionicsSystems
         /// <returns>The current tilt position</returns>
         public float SetTilt(float tilt)
         {
-            currentTilt = Mathf.Clamp(tilt, tiltRange.x, tiltRange.y);
+            goalTilt = Mathf.Clamp(tilt, tiltRange.x, tiltRange.y);
 
-            if (tiltTransform != null)
-            {
-                tiltTransform.rotation = tiltRotation * Quaternion.Euler(-currentTilt, 0.0f, 0.0f);
-            }
-
-            return currentTilt;
+            return goalTilt;
         }
 
         /// <summary>
@@ -825,31 +849,118 @@ namespace AvionicsSystems
                 nameMenu = null;
             }
 
-            if (HighLogic.LoadedSceneIsFlight && renderCallback != null)
+            if (HighLogic.LoadedSceneIsFlight)
             {
-                if (!cameraRentex.IsCreated())
+                if (goalFov != currentFov)
                 {
-                    cameraRentex.Create();
+                    if (fovRate > 0.0f)
+                    {
+                        float fovDelta = Mathf.Min(Mathf.Abs(goalFov - currentFov), panRate * TimeWarp.deltaTime);
+                        if (goalFov > currentFov)
+                        {
+                            currentFov += fovDelta;
+                        }
+                        else
+                        {
+                            currentFov -= fovDelta;
+                        }
+                    }
+                    else
+                    {
+                        currentFov = goalFov;
+                    }
                 }
 
-                if (refreshRate == 1 || (frameCount % refreshRate) == 0)
+                if (goalPan != currentPan)
                 {
-                    Quaternion cameraRotation = cameraTransform.rotation * UpdateRotation();
-                    Vector3 cameraPosition = cameraTransform.position;
-
-                    cameraRentex.DiscardContents();
-                    for (int i = 0; i < cameraBody.Length; ++i)
+                    if (panRate > 0.0f)
                     {
-                        cameraBody[i].transform.rotation = cameraRotation;
-                        cameraBody[i].transform.position = cameraPosition;
-                        cameras[i].fieldOfView = currentFov;
-                        cameras[i].Render();
+                        float panDelta = Mathf.Min(Mathf.Abs(goalPan - currentPan), panRate * TimeWarp.deltaTime);
+                        if (goalPan > currentPan)
+                        {
+                            currentPan += panDelta;
+                        }
+                        else
+                        {
+                            currentPan -= panDelta;
+                        }
+                    }
+                    else
+                    {
+                        currentPan = goalPan;
                     }
 
-                    renderCallback.Invoke(cameraRentex, mode[activeMode].postProcShader);
+                    if (panTransform != null)
+                    {
+                        updatePan = true;
+                    }
                 }
 
-                ++frameCount;
+                if (goalTilt != currentTilt)
+                {
+                    if (tiltRate > 0.0f)
+                    {
+                        float tiltDelta = Mathf.Min(Mathf.Abs(goalTilt - currentTilt), tiltRate * TimeWarp.deltaTime);
+                        if (goalTilt > currentTilt)
+                        {
+                            currentTilt += tiltDelta;
+                        }
+                        else
+                        {
+                            currentTilt -= tiltDelta;
+                        }
+                    }
+                    else
+                    {
+                        currentTilt = goalTilt;
+                    }
+
+                    if (tiltTransform != null)
+                    {
+                        updateTilt = true;
+                    }
+                }
+
+                if (updatePan)
+                {
+                    // Update the physical model.
+                    panTransform.localRotation = panRotation * Quaternion.Euler(0.0f, currentPan, 0.0f);
+                    updatePan = false;
+                }
+
+                if (updateTilt)
+                {
+                    // Update the physical model.
+                    tiltTransform.localRotation = tiltRotation * Quaternion.Euler(-currentTilt, 0.0f, 0.0f);
+                    updateTilt = false;
+                }
+
+                if (renderCallback != null)
+                {
+                    if (!cameraRentex.IsCreated())
+                    {
+                        cameraRentex.Create();
+                    }
+
+                    if (refreshRate == 1 || (frameCount % refreshRate) == 0)
+                    {
+                        Quaternion cameraRotation = cameraTransform.rotation * UpdateRotation();
+                        Vector3 cameraPosition = cameraTransform.position;
+
+                        cameraRentex.DiscardContents();
+                        for (int i = 0; i < cameraBody.Length; ++i)
+                        {
+                            cameraBody[i].transform.rotation = cameraRotation;
+                            cameraBody[i].transform.position = cameraPosition;
+                            cameras[i].fieldOfView = currentFov;
+                            cameras[i].Render();
+                        }
+
+                        renderCallback.Invoke(cameraRentex, mode[activeMode].postProcShader);
+                    }
+
+                    ++frameCount;
+                }
             }
         }
 
