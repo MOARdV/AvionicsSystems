@@ -331,8 +331,8 @@ namespace AvionicsSystems
         public string cameraName = string.Empty;
         private string newCameraName = string.Empty;
 
-        [UI_Toggle(disabledText = "Off", enabledText = "On")]
-        [KSPField(guiActiveEditor = true, guiName = "FOV marker")]
+        [UI_Toggle(disabledText = "#autoLOC_900890", enabledText = "#autoLOC_900889")]
+        [KSPField(guiActiveEditor = true, guiName = "#MAS_Camera_FoV_Marker_Label")]
         public bool showFov = false;
         const float rayLength = 10.0f;
 
@@ -1122,8 +1122,8 @@ namespace AvionicsSystems
                    new Vector2(0.5f, 0.5f),
                    new MultiOptionDialog(
                        "MASCamera-Name",
-                       "Name this camera:",
-                       "MASCamera Name",
+                       KSP.Localization.Localizer.GetStringByTag("#MAS_Camera_Name_Prompt"),
+                       KSP.Localization.Localizer.GetStringByTag("#MAS_Camera_Name_Label"),
                        HighLogic.UISkin,
                        new Rect(0.5f, 0.5f, 150.0f, 60.0f),
                        new DialogGUIFlexibleSpace(),
@@ -1159,14 +1159,14 @@ namespace AvionicsSystems
         /// <returns></returns>
         public override string GetInfo()
         {
-            return "This part is equipped with a camera suitable for display on an MFD.";
+            return "#MAS_Camera_GetInfo";
         }
         #endregion
 
         /// <summary>
         /// Open the 'MASCamera Name' GUI to allow changing camera name.
         /// </summary>
-        [KSPEvent(guiActive = true, guiActiveEditor = true, guiName = "Set Camera Name")]
+        [KSPEvent(guiActive = true, guiActiveEditor = true, guiName = "#MAS_Camera_Set_Name")]
         public void SetCameraName()
         {
             showGui = !showGui;
@@ -1186,16 +1186,22 @@ namespace AvionicsSystems
         public MASDeployableCamera()
         {
             isTracking = false;
-
-            // Fields that might be of interest:
-            //partType = "Camera";
-            //subPartName = "Camera body";
-            //subPartMass = Mathf.Min(0.001f, part.mass * 0.5f);
         }
 
+        public override void OnLoad(ConfigNode node)
+        {
+            // Unclear why this needs to be done here, but partType won't be correct without it.
+            base.OnLoad(node);
+
+            this.subPartName = "#MAS_DeployableCamera_SubPart";
+            this.subPartMass = Mathf.Min(0.001f, this.part.mass * 0.5f);
+
+            this.partType = "#MAS_DeployableCamera_Part";
+        }
+        
         public override string GetModuleDisplayName()
         {
-            return "Deployable Camera";
+            return "#MAS_DeployableCamera_ModuleName";
         }
     }
 }
