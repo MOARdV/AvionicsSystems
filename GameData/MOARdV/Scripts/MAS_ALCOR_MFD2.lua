@@ -146,10 +146,8 @@ function MAS_Mfd2_Time()
 end
 
 ------------------------------------------------------------------------------
--- MechJeb autopilot conntrol.  Shows an onEnter page method, and updating a
--- numeric persistent and a string persistent concurrently, along with an
--- action that branches to select funciton based on the numeric function
--- value.
+-- MAS Maneuver planning.  Shows an action that branches to select function
+-- based on the numeric function value.
 local planCaptions =
 {
 	"Change Apoapsis to...",
@@ -157,7 +155,8 @@ local planCaptions =
 	"Change Periapsis to...",
 	"Return from moon to...",
 	"Hohmann Transfer to...",
-	"Match Velocity with..."
+	"Match Velocity with...",
+	"Match Inclination  ..."
 }
 
 function MAS_Mfd2_Plan_Init(propId)
@@ -165,7 +164,7 @@ function MAS_Mfd2_Plan_Init(propId)
 end
 
 function MAS_Mfd2_Plan_Mode(modeId, captionId, direction)
-	local newMode = fc.AddPersistentWrapped(modeId, direction, 0, 6)
+	local newMode = fc.AddPersistentWrapped(modeId, direction, 0, 7)
 
 	fc.SetPersistent(captionId, planCaptions[1 + newMode])
 end
@@ -185,6 +184,8 @@ function MAS_Mfd2_Plan_Create(functionId, altitudeId)
 		transfer.HohmannTransfer()
 	elseif fn == 5 then
 		transfer.MatchVelocities()
+	elseif fn == 6 then
+		transfer.MatchPlane()
 	end
 
 end
