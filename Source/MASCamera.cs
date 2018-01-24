@@ -1154,6 +1154,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Return the radar module's name for the Editor.
+        /// </summary>
+        /// <returns></returns>
+        public override string GetModuleDisplayName()
+        {
+            return "#MAS_Camera_Module_DisplayName";
+        }
+
+        /// <summary>
         /// TODO: Meaningful string.
         /// </summary>
         /// <returns></returns>

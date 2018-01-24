@@ -413,7 +413,7 @@ namespace AvionicsSystems
         {
             string formattedMessage = String.Format("[AvionicsSystems] INITIALIZATION ERROR: {0}", message);
             UnityEngine.Debug.LogError(formattedMessage);
-            ScreenMessages.PostScreenMessage("[AvionicsSystems]: INITIALIZATION ERROR, CHECK MESSAGE LOG.", 120, ScreenMessageStyle.UPPER_CENTER);
+            ScreenMessages.PostScreenMessage("#MAS_Initialization_Error", 120, ScreenMessageStyle.UPPER_CENTER);
         }
 
         private static StringBuilder strb = new StringBuilder();

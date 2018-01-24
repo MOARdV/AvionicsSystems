@@ -55,7 +55,6 @@ namespace AvionicsSystems
         [KSPField]
         public string resourceName = "ElectricCharge";
         private int resourceId;
-        //internal bool hasPower = true;
 
         /// <summary>
         /// How many units/second of the resource do we use?
@@ -86,12 +85,11 @@ namespace AvionicsSystems
         /// </summary>
         [KSPField]
         public int DeployFxModules = -1;
-        //private bool radarDeployed = true;
         private ModuleAnimateGeneric deployAnimator = null;
         private ModuleDeployablePart deployPart = null;
 
-        [KSPField(guiActive = true, guiName = "Radar Status: ")]
-        public string statusString = "Standby";
+        [KSPField(guiActive = true, guiName = "#MAS_Radar_Status")]
+        public string statusString;
         public enum RadarStatus
         {
             STANDBY,
@@ -103,12 +101,12 @@ namespace AvionicsSystems
         };
         private RadarStatus status = RadarStatus.STANDBY;
 
-        [UI_Toggle(disabledText = "Standby", enabledText = "Active")]
-        [KSPField(guiActive = true, guiActiveEditor = true, guiName = "Radar: ", isPersistant = true)]
+        [KSPField(guiActive = true, guiActiveEditor = true, guiName = "#MAS_Radar", isPersistant = true)]
+        [UI_Toggle(disabledText = "#autoLOC_6001073", enabledText = "#autoLOC_6001074")]
         public bool radarEnabled = false;
 
-        [UI_Toggle(disabledText = "Ignore", enabledText = "Target")]
-        [KSPField(guiActive = true, guiActiveEditor = true, guiName = "Debris: ", isPersistant = true)]
+        [UI_Toggle(disabledText = "#MAS_Radar_Debris_Ignore", enabledText = "#MAS_Radar_Debris_Target")]
+        [KSPField(guiActive = true, guiActiveEditor = true, guiName = "#MAS_Radar_Debris", isPersistant = true)]
         public bool targetDebris = false;
 
         private Transform scanTransform;
@@ -123,7 +121,7 @@ namespace AvionicsSystems
         /// </summary>
         public void Start()
         {
-            if (!string.IsNullOrEmpty(resourceName))
+            if (resourceAmount > 0.0f && !string.IsNullOrEmpty(resourceName))
             {
                 try
                 {
@@ -199,17 +197,11 @@ namespace AvionicsSystems
                         if (pm is ModuleDeployablePart)
                         {
                             deployPart = pm as ModuleDeployablePart;
-                            //radarDeployed = deployPart.useAnimation && deployPart.deployState == ModuleDeployablePart.DeployState.EXTENDED;
                         }
                         else if (pm is ModuleAnimateGeneric)
                         {
                             deployAnimator = pm as ModuleAnimateGeneric;
-                            //radarDeployed = deployAnimator.IsMoving() == false && deployAnimator.animTime == 1.0f;
                         }
-                        //else
-                        //{
-                        //    radarDeployed = false;
-                        //}
                     }
                 }
                 catch (Exception e)
@@ -219,6 +211,8 @@ namespace AvionicsSystems
                 }
             }
             targetDockingPorts = targetDockingPorts && scanTransformIsDockingNode;
+
+            UpdateRadarStatus();
         }
 
         /// <summary>
@@ -254,7 +248,6 @@ namespace AvionicsSystems
                 }
                 status = RadarStatus.SCANNING;
 
-                //hasPower = true;
                 // Resources check
                 if (resourceAmount > 0.0f)
                 {
@@ -262,7 +255,6 @@ namespace AvionicsSystems
                     float supplied = part.RequestResource(resourceId, requested);
                     if (supplied < requested * 0.5f)
                     {
-                        //hasPower = false;
                         status = RadarStatus.NO_POWER;
                         UpdateRadarStatus();
                         return;
@@ -379,22 +371,52 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Return the radar module's name for the Editor.
+        /// </summary>
+        /// <returns></returns>
+        public override string GetModuleDisplayName()
+        {
+            return "#MAS_Radar_Module_DisplayName";
+        }
+
+        /// <summary>
         /// Return the info string viewable in the Editor.
         /// </summary>
         /// <returns></returns>
         public override string GetInfo()
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(string.Format("Max Range: {0:0.0}km\nUp to {1:0.0}° off-axis", maxRange, scanAngle));
+            // This string is constructed before Start() is called, so we need to pre-process some data here.
+            string resourceUiName = string.Empty;
+            if (resourceAmount > 0.0f && !string.IsNullOrEmpty(resourceName))
+            {
+                try
+                {
+                    PartResourceDefinition def = PartResourceLibrary.Instance.resourceDefinitions[resourceName];
+                    resourceId = def.id;
+                    resourceUiName = def.displayName;
+                }
+                catch (Exception)
+                {
+                    Utility.LogErrorMessage(this, "Unable to find a resource ID for \"{0}\".  Disabling resource consumption.", resourceName);
+                    resourceAmount = 0.0f;
+                }
+            }
+            else
+            {
+                resourceAmount = 0.0f;
+            }
+
+            StringBuilder sb = StringBuilderCache.Acquire();
+            sb.Append(KSP.Localization.Localizer.Format("#MAS_Radar_Info_1", string.Format("{0:0.0}", maxRange), string.Format("{0:0.0}", scanAngle)));
             if (resourceAmount > 0.0f)
             {
-                sb.Append(string.Format("\nConsumes {0:0.000} {1}/sec", resourceAmount, resourceName));
+                sb.Append(KSP.Localization.Localizer.Format("#MAS_Radar_Info_2", string.Format("{0:0.000}", resourceAmount), resourceUiName));
             }
             if (targetDockingPorts)
             {
-                sb.Append("\nMay select nearest docking port on target vessel.");
+                sb.Append(KSP.Localization.Localizer.GetStringByTag("#MAS_Radar_Info_3"));
             }
-            return sb.ToString();
+            return sb.ToStringAndRelease();
         }
 
         /// <summary>
@@ -402,42 +424,42 @@ namespace AvionicsSystems
         /// </summary>
         private void UpdateRadarStatus()
         {
-            switch(status)
+            switch (status)
             {
                 case RadarStatus.STANDBY:
-                    statusString = "Standby";
+                    statusString = KSP.Localization.Localizer.GetStringByTag("#MAS_Radar_Status_Standby");
                     break;
                 case RadarStatus.SCANNING:
-                    statusString = "Scanning";
+                    statusString = KSP.Localization.Localizer.GetStringByTag("#MAS_Radar_Status_Scanning");
                     break;
                 case RadarStatus.TRACKING:
-                    statusString = "Tracking";
+                    statusString = KSP.Localization.Localizer.GetStringByTag("#MAS_Radar_Status_Tracking");
                     break;
                 case RadarStatus.NOT_DEPLOYED:
-                    statusString = "Not Deployed";
+                    statusString = KSP.Localization.Localizer.GetStringByTag("#MAS_Radar_Status_Not_Deployed");
                     break;
                 case RadarStatus.BROKEN:
-                    statusString = "Broken";
+                    statusString = KSP.Localization.Localizer.GetStringByTag("#MAS_Radar_Status_Broken");
                     break;
                 case RadarStatus.NO_POWER:
-                    statusString = "No Power";
+                    statusString = KSP.Localization.Localizer.GetStringByTag("#MAS_Radar_Status_No_Power");
                     break;
             }
         }
 
-        [KSPAction("Turn Radar Off")]
+        [KSPAction("#MAS_Radar_Switch_Off")]
         public void RadarOffAction(KSPActionParam param)
         {
             radarEnabled = false;
         }
 
-        [KSPAction("Turn Radar On")]
+        [KSPAction("#MAS_Radar_Switch_On")]
         public void RadarOnAction(KSPActionParam param)
         {
             radarEnabled = true;
         }
 
-        [KSPAction("Toggle Radar")]
+        [KSPAction("#MAS_Radar_Toggle")]
         public void ToggleRadarAction(KSPActionParam param)
         {
             radarEnabled = !radarEnabled;
