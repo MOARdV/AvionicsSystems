@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2017 MOARdV
+ * Copyright (c) 2017-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -22,6 +22,7 @@
  * DEALINGS IN THE SOFTWARE.
  * 
  ****************************************************************************/
+using KSP.Localization;
 using KSP.UI.Screens;
 using System;
 using System.Collections.Generic;
@@ -109,8 +110,8 @@ namespace AvionicsSystems
                    new Vector2(0.5f, 0.5f),
                    new MultiOptionDialog(
                        "MASSettings-Config",
-                       "",
-                       "MAS Settings",
+                       Localizer.GetStringByTag("#MAS_Settings_Caption"),
+                       Localizer.GetStringByTag("#MAS_Settings_Title"),
                        HighLogic.UISkin,
                        new Rect(0.5f, 0.5f, 300.0f, 60.0f),
                        new DialogGUIFlexibleSpace(),
@@ -118,46 +119,48 @@ namespace AvionicsSystems
                            new DialogGUIHorizontalLayout(
                                new DialogGUIVerticalLayout(
                                    //new DialogGUIFlexibleSpace(),
-                                   new DialogGUIToggle(verboseLogging, "Verbose Logging", ToggleLogging),
+                                   new DialogGUILabel(Localizer.GetStringByTag("#MAS_Settings_General_Section"), true),
+                                   new DialogGUISpace(10.0f),
+                                   new DialogGUIToggle(verboseLogging, Localizer.GetStringByTag("#MAS_Settings_Verbose_Logging"), (bool newValue) => { verboseLogging = newValue; }),
                                    new DialogGUISpace(5.0f),
-                                   new DialogGUILabel(delegate { return string.Format("Lua Update Priority: {0}", luaUpdatePriority); }, true),
-                                   new DialogGUISlider(delegate { return (float)luaUpdatePriority; }, 1.0f, 4.0f, true, 140.0f, 30.0f, UpdatePriority),
+                                   new DialogGUILabel(delegate { return Localizer.Format("#MAS_Settings_Lua_Update_Priority", luaUpdatePriority.ToString()); }, true),
+                                   new DialogGUISlider(delegate { return (float)luaUpdatePriority; }, 1.0f, 4.0f, true, 140.0f, 30.0f, (float newValue) => { luaUpdatePriority = (int)newValue; }),
                                    new DialogGUISpace(5.0f),
-                                   new DialogGUILabel(delegate { return string.Format("Camera Texture Size: 1/{0}", 1 << cameraTextureScale); }, true),
-                                   new DialogGUISlider(delegate { return (float)cameraTextureScale; }, 0.0f, 2.0f, true, 140.0f, 30.0f, UpdateCamera),
+                                   new DialogGUILabel(delegate { return string.Format("#MAS_Settings_Camera_Texture_Size", (1 << cameraTextureScale).ToString()); }, true),
+                                   new DialogGUISlider(delegate { return (float)cameraTextureScale; }, 0.0f, 2.0f, true, 140.0f, 30.0f, (float newValue) => { cameraTextureScale = (int)newValue; }),
                                    new DialogGUISpace(5.0f),
                                    new DialogGUIFlexibleSpace()
                                    ),
                                 new DialogGUIVerticalLayout(
                                    //new DialogGUIFlexibleSpace(),
-                                   new DialogGUILabel("<b>Radio Navigation</b>", true),
+                                   new DialogGUILabel(Localizer.GetStringByTag("#MAS_Settings_RadioNav_Section"), true),
                                    new DialogGUISpace(10.0f),
-                                   new DialogGUILabel(delegate { return string.Format("Radio Propagation: {0:##0}%", generalPropagation * 100.0f); }, true),
-                                   new DialogGUISlider(delegate { return generalPropagation; }, 1.0f, 3.0f, false, 140.0f, 30.0f, UpdateGeneralPropagation),
+                                   new DialogGUILabel(delegate { return Localizer.Format("#MAS_Settings_Radio_Propagation", generalPropagation.ToString("P0")); }, true),
+                                   new DialogGUISlider(delegate { return generalPropagation; }, 1.0f, 3.0f, false, 140.0f, 30.0f, (float newValue) => { generalPropagation = newValue; }),
                                    new DialogGUISpace(5.0f),
-                                   new DialogGUILabel(delegate { return string.Format("NDB Propagation: {0:##0}%", NDBPropagation * 100.0f); }, true),
-                                   new DialogGUISlider(delegate { return NDBPropagation; }, 1.0f, 2.0f, false, 140.0f, 30.0f, UpdateNDBPropagation),
+                                   new DialogGUILabel(delegate { return Localizer.Format("#MAS_Settings_NDB_Propagation", NDBPropagation.ToString("P0")); }, true),
+                                   new DialogGUISlider(delegate { return NDBPropagation; }, 1.0f, 2.0f, false, 140.0f, 30.0f, (float newValue) => { NDBPropagation = newValue; }),
                                    new DialogGUISpace(5.0f),
-                                   new DialogGUILabel(delegate { return string.Format("VOR Propagation: {0:##0}%", VORPropagation * 100.0f); }, true),
-                                   new DialogGUISlider(delegate { return VORPropagation; }, 1.0f, 2.0f, false, 140.0f, 30.0f, UpdateVORPropagation),
+                                   new DialogGUILabel(delegate { return Localizer.Format("#MAS_Settings_VOR_Propagation", VORPropagation.ToString("P0")); }, true),
+                                   new DialogGUISlider(delegate { return VORPropagation; }, 1.0f, 2.0f, false, 140.0f, 30.0f, (float newValue) => { VORPropagation = newValue; }),
                                    new DialogGUISpace(5.0f),
-                                   new DialogGUILabel(delegate { return string.Format("DME Propagation: {0:##0}%", DMEPropagation * 100.0f); }, true),
-                                   new DialogGUISlider(delegate { return DMEPropagation; }, 1.0f, 2.0f, false, 140.0f, 30.0f, UpdateDMEPropagation),
+                                   new DialogGUILabel(delegate { return Localizer.Format("#MAS_Settings_DME_Propagation", DMEPropagation.ToString("P0")); }, true),
+                                   new DialogGUISlider(delegate { return DMEPropagation; }, 1.0f, 2.0f, false, 140.0f, 30.0f, (float newValue) => { DMEPropagation = newValue; }),
                                    new DialogGUISpace(5.0f),
-                                   new DialogGUIToggle(resetWaypoints, "Reset Waypoints", (bool selected) => { resetWaypoints = selected; }, 140.0f, 30.0f),
+                                   new DialogGUIToggle(resetWaypoints, Localizer.GetStringByTag("#MAS_Settings_Reset_Waypoints"), (bool selected) => { resetWaypoints = selected; }, 140.0f, 30.0f),
                                    //new DialogGUILabel(delegate { return "CAUTION!  Reset Waypoints";}, false, true),
                                    new DialogGUIFlexibleSpace()
                                     )
                                ),
                            new DialogGUIHorizontalLayout(
                                new DialogGUIFlexibleSpace(),
-                               new DialogGUIButton(KSP.Localization.Localizer.GetStringByTag("#autoLOC_174783"), // Cancel
+                               new DialogGUIButton(Localizer.GetStringByTag("#autoLOC_174783"), // Cancel
                                    delegate
                                    {
                                        onAppLauncherHide();
                                        appLauncherButton.SetFalse(false);
                                    }, 140.0f, 30.0f, false),
-                               new DialogGUIButton(KSP.Localization.Localizer.GetStringByTag("#autoLOC_174814"), // OK
+                               new DialogGUIButton(Localizer.GetStringByTag("#autoLOC_174814"), // OK
                                    delegate
                                    {
                                        onAppLauncherHide();
@@ -192,41 +195,6 @@ namespace AvionicsSystems
             resetWaypoints = MASConfig.ResetWaypoints;
         }
 
-        private void ToggleLogging(bool newValue)
-        {
-            verboseLogging = newValue;
-        }
-
-        private void UpdateGeneralPropagation(float newValue)
-        {
-            generalPropagation = newValue;
-        }
-
-        private void UpdateNDBPropagation(float newValue)
-        {
-            generalPropagation = newValue;
-        }
-
-        private void UpdateVORPropagation(float newValue)
-        {
-            generalPropagation = newValue;
-        }
-
-        private void UpdateDMEPropagation(float newValue)
-        {
-            generalPropagation = newValue;
-        }
-
-        private void UpdatePriority(float newValue)
-        {
-            luaUpdatePriority = (int)newValue;
-        }
-
-        private void UpdateCamera(float newValue)
-        {
-            cameraTextureScale = (int)newValue;
-        }
-
         private void ApplyChanges()
         {
             MASConfig.VerboseLogging = verboseLogging;
@@ -237,7 +205,6 @@ namespace AvionicsSystems
             MASConfig.navigation.VORPropagation = VORPropagation;
             MASConfig.navigation.DMEPropagation = DMEPropagation;
             MASConfig.ResetWaypoints = resetWaypoints;
-            Utility.LogMessage(this, "ResetWaypoints -> {0}", resetWaypoints);
 
             int numNavAids = MASLoader.navaids.Count;
             for (int i = 0; i < numNavAids; ++i)

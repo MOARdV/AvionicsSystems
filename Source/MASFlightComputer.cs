@@ -973,6 +973,25 @@ namespace AvionicsSystems
                 initialized = true;
             }
         }
+
+        /// <summary>
+        /// Display name to show in the VAB when part description is expanded.
+        /// </summary>
+        /// <returns></returns>
+        public override string GetModuleDisplayName()
+        {
+            return "#MAS_FlightComputer_Module_DisplayName";
+        }
+
+        /// <summary>
+        /// Text to show in the VAB when part description is expanded.
+        /// </summary>
+        /// <returns></returns>
+        public override string GetInfo()
+        {
+            return "#MAS_FlightComputer_GetInfo";
+        }
+
         #endregion
 
         #region Private Methods
