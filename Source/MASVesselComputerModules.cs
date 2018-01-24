@@ -1098,7 +1098,11 @@ namespace AvionicsSystems
                         }
                         else if (module is MASCamera)
                         {
-                            cameraList.Add(module as MASCamera);
+                            // Do not add broken cameras to the control list.
+                            if ((module as MASCamera).IsDamaged() == false)
+                            {
+                                cameraList.Add(module as MASCamera);
+                            }
                         }
                         else if (module is ModuleProceduralFairing)
                         {
