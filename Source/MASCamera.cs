@@ -68,6 +68,31 @@ namespace AvionicsSystems
         /// </summary>
         private MASFlightComputer comp;
 
+        /// <summary>
+        /// Helper method to adjust a resolution to an acceptable power-of-2.
+        /// </summary>
+        /// <param name="resolution">[inout] Resolution to adjust.</param>
+        static internal void AdjustResolution(ref int resolution)
+        {
+            if (resolution > 2048)
+            {
+                resolution = 2048;
+            }
+            else if (resolution < 64)
+            {
+                resolution = 64;
+            }
+            resolution &= 0x00000fc0;
+            for (int i = 0x800; i != 0; i >>= 1)
+            {
+                if ((resolution & i) != 0)
+                {
+                    resolution = resolution & i;
+                    break;
+                }
+            }
+        }
+
         public MASCameraMode(ConfigNode node, string partName)
         {
             if (!node.TryGetValue("name", ref name))
@@ -135,6 +160,9 @@ namespace AvionicsSystems
             {
                 cameraResolution = 256;
             }
+            cameraResolution >>= MASConfig.CameraTextureScale;
+
+            AdjustResolution(ref cameraResolution);
         }
 
         public void UnregisterShaderProperties()
@@ -516,31 +544,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Helper method to adjust a resolution to an acceptable power-of-2.
-        /// </summary>
-        /// <param name="resolution">[inout] Resolution to adjust.</param>
-        static internal void AdjustResolution(ref int resolution)
-        {
-            if (resolution > 2048)
-            {
-                resolution = 2048;
-            }
-            else if (resolution < 64)
-            {
-                resolution = 64;
-            }
-            resolution &= 0x00000fc0;
-            for (int i = 0x800; i != 0; i >>= 1)
-            {
-                if ((resolution & i) != 0)
-                {
-                    resolution = resolution & i;
-                    break;
-                }
-            }
-        }
-
-        /// <summary>
         /// Update parameters affected by a mode change.
         /// </summary>
         private void ApplyMode()
@@ -582,7 +585,6 @@ namespace AvionicsSystems
             activeMode = Mathf.Clamp(activeMode, 0, mode.Length - 1);
             ApplyMode();
 
-            //cameraRentex = new RenderTexture(cameraResolution, cameraResolution, 24);
             for (int i = 0; i < cameras.Length; ++i)
             {
                 Camera sourceCamera = GetCameraByName(knownCameraNames[i]);
