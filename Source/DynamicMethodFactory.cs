@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -54,9 +54,49 @@ namespace AvionicsSystems
     /// The code is based on source found at
     /// http://www.codeproject.com/Articles/10951/Fast-late-bound-invocation-through-DynamicMethod-d
     /// which is covered by The Code Project Open License http://www.codeproject.com/info/cpol10.aspx
+    /// 
+    /// CreateGetField and CreateSetField based on code found here:
+    /// https://stackoverflow.com/questions/16073091/is-there-a-way-to-create-a-delegate-to-get-and-set-values-for-a-fieldinfo
     /// </summary>
     static internal class DynamicMethodFactory
     {
+        static internal Func<S, T> CreateGetField<S, T>(FieldInfo field)
+        {
+            string methodName = field.ReflectedType.FullName + ".get_" + field.Name;
+            DynamicMethod setterMethod = new DynamicMethod(methodName, typeof(T), new Type[1] { typeof(S) }, true);
+            ILGenerator gen = setterMethod.GetILGenerator();
+            if (field.IsStatic)
+            {
+                gen.Emit(OpCodes.Ldsfld, field);
+            }
+            else
+            {
+                gen.Emit(OpCodes.Ldarg_0);
+                gen.Emit(OpCodes.Ldfld, field);
+            }
+            gen.Emit(OpCodes.Ret);
+            return (Func<S, T>)setterMethod.CreateDelegate(typeof(Func<S, T>));
+        }
+
+        static internal Action<S, T> CreateSetField<S, T>(FieldInfo field)
+        {
+            string methodName = field.ReflectedType.FullName + ".set_" + field.Name;
+            DynamicMethod setterMethod = new DynamicMethod(methodName, null, new Type[2] { typeof(S), typeof(T) }, true);
+            ILGenerator gen = setterMethod.GetILGenerator();
+            if (field.IsStatic)
+            {
+                gen.Emit(OpCodes.Ldarg_1);
+                gen.Emit(OpCodes.Stsfld, field);
+            }
+            else
+            {
+                gen.Emit(OpCodes.Ldarg_0);
+                gen.Emit(OpCodes.Ldarg_1);
+                gen.Emit(OpCodes.Stfld, field);
+            }
+            gen.Emit(OpCodes.Ret);
+            return (Action<S, T>)setterMethod.CreateDelegate(typeof(Action<S, T>));
+        }
         /// <summary>
         /// Create a delegate who takes a single typed parameter and returns an
         /// object (which may be null if the method returns void).
