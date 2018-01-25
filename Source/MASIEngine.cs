@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2017 MOARdV
+ * Copyright (c) 2017-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -42,7 +42,82 @@ namespace AvionicsSystems
     internal class MASIEngine
     {
         internal MASVesselComputer vc;
-        
+
+        /// <summary>
+        /// The AJE Propellers section provides an interface with engines using
+        /// ModuleEnginesAJEPropeller from the Advanced Jet Engines mod.
+        /// 
+        /// In order to control the engines, those engines must have a properly-configured
+        /// MASIdEngine module installed.  In particular, each engine must have a MAS Part ID
+        /// other than zero, and each engine must have a unique MAS Part ID.
+        /// </summary>
+        #region AJE Propellers
+
+        /// <summary>
+        /// Returns the number of correctly configured AJE propeller engines.
+        /// </summary>
+        /// <returns>The number of configured AJE Propeller engines.</returns>
+        public double GetPropellerCount()
+        {
+            return vc.moduleIdEngines.Length;
+        }
+
+        /// <summary>
+        /// Returns the current RPM of the selected engine.  If an invalid engineId is
+        /// provided, or the selected engine is not an AJE propeller engine, returns 0.
+        /// </summary>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <returns>Current propeller speed in RPM, or 0.</returns>
+        public double GetPropellerRPM(double engineId)
+        {
+            int index = (int)(engineId) - 1;
+            if (index >= 0 && index < vc.moduleIdEngines.Length)
+            {
+                return vc.moduleIdEngines[index].GetPropellerRPM();
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the current RPM lever position for the selected engine.  The lever
+        /// position ranges between 0 and 1.  Returns 0 for invalid engineIDs or engines
+        /// that are not AJE propeller engines.
+        /// </summary>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <returns></returns>
+        public double GetPropellerRPMLever(double engineId)
+        {
+            int index = (int)(engineId) - 1;
+            if (index >= 0 && index < vc.moduleIdEngines.Length)
+            {
+                return vc.moduleIdEngines[index].GetPropellerRPMLever();
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Sets the RPM lever position for the selected engine to the value in `newPosition`.
+        /// Returns 1 if the position was updated, 0 otherwise.
+        /// </summary>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <param name="newPosition">The new lever position, between 0 and 1 (inclusive).</param>
+        /// <returns></returns>
+        public double SetPropellerRPMLever(double engineId, double newPosition)
+        {
+            int index = (int)(engineId) - 1;
+            if (index >= 0 && index < vc.moduleIdEngines.Length)
+            {
+                return (vc.moduleIdEngines[index].SetPropellerRPMLever((float)newPosition)) ? 1.0 : 0.0;
+            }
+            return 0.0;
+        }
+        #endregion
+
+        /// <summary>
+        /// The Thrust Reverser section controls thrust reversers attached to engines.
+        /// </summary>
+        #region Thrust Reverser
+
         /// <summary>
         /// The number of thrust reverser modules found on the vessel.
         /// </summary>
@@ -68,7 +143,7 @@ namespace AvionicsSystems
             {
                 position /= (float)(numReverserers);
             }
-                
+
             return position;
         }
 
@@ -87,5 +162,6 @@ namespace AvionicsSystems
 
             return (numReverserers > 0) ? 1.0 : 0.0;
         }
+        #endregion
     }
 }

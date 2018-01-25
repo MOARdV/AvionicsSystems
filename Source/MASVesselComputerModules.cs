@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2017 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -289,6 +289,8 @@ namespace AvionicsSystems
 
         #region Engines
         //---Engines
+        private List<MASIdEngine> idEnginesList = new List<MASIdEngine>();
+        internal MASIdEngine[] moduleIdEngines = new MASIdEngine[0];
         private List<ModuleEngines> enginesList = new List<ModuleEngines>(8);
         internal ModuleEngines[] moduleEngines = new ModuleEngines[0];
         private float[] invMaxISP = new float[0];
@@ -1115,6 +1117,14 @@ namespace AvionicsSystems
                                 thrustReverserList.Add(module as MASThrustReverser);
                             }
                         }
+                        else if (module is MASIdEngine)
+                        {
+                            MASIdEngine idE = module as MASIdEngine;
+                            if (idE.partId > 0 && idEnginesList.FindIndex(x => x.partId == idE.partId) == -1)
+                            {
+                                idEnginesList.Add(idE);
+                            }
+                        }
 
                         foreach (BaseAction ba in module.Actions)
                         {
@@ -1143,6 +1153,8 @@ namespace AvionicsSystems
                 partSet.RebuildParts(activeResources);
             }
 
+            idEnginesList.Sort((a, b) => { return a.partId - b.partId; });
+
             // Transfer the modules to an array, since the array is cheaper to
             // iterate over, and we're going to be iterating over it a lot.
             TransferModules<ModuleEngines>(enginesList, ref moduleEngines);
@@ -1161,6 +1173,7 @@ namespace AvionicsSystems
             TransferModules<ModuleAlternator>(alternatorList, ref moduleAlternator);
             TransferModules<ModuleDeployableAntenna>(antennaList, ref moduleAntenna);
             TransferModules<ModuleDeployableRadiator>(deployableRadiatorList, ref moduleDeployableRadiator);
+            TransferModules<MASIdEngine>(idEnginesList, ref moduleIdEngines);
             TransferModules<ModuleResourceConverter>(fuelCellList, ref moduleFuelCell);
             TransferModules<float>(fuelCellOutputList, ref fuelCellOutput);
             TransferModules<ModuleGenerator>(generatorList, ref moduleGenerator);

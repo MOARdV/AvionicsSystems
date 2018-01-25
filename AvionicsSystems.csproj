@@ -87,6 +87,8 @@
     <Compile Include="Source\MASFlightComputerProxy3.cs" />
     <Compile Include="Source\MASFlightComputerVariable.cs" />
     <Compile Include="Source\MASIChatterer.cs" />
+    <Compile Include="Source\MASIdEngine.cs" />
+    <Compile Include="Source\MASIdGeneric.cs" />
     <Compile Include="Source\MASIEngine.cs" />
     <Compile Include="Source\MASIFAR.cs" />
     <Compile Include="Source\MASIKAC.cs" />
