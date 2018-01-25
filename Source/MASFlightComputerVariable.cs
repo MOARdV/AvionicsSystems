@@ -5,7 +5,7 @@
 /*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 - 2017 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -74,6 +74,7 @@ namespace AvionicsSystems
         {
             {"fc", typeof(MASFlightComputerProxy)},
             {"chatterer", typeof(MASIChatterer)},
+            {"engine", typeof(MASIEngine)},
             {"far", typeof(MASIFAR)},
             {"kac", typeof(MASIKAC)},
             {"mechjeb", typeof(MASIMechJeb)},
@@ -127,6 +128,9 @@ namespace AvionicsSystems
                                 break;
                             case "chatterer":
                                 tableRef = chattererProxy;
+                                break;
+                            case "engine":
+                                tableRef = engineProxy;
                                 break;
                             case "far":
                                 tableRef = farProxy;
