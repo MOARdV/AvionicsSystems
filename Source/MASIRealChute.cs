@@ -48,7 +48,7 @@ namespace AvionicsSystems
         internal static bool realChuteFound;
         internal static readonly Type rcAPI_t;
 
-        private static readonly FieldInfo armed_t;
+        private static readonly Func<object, bool> getArmed;
         private static readonly FieldInfo safeState_t;
 
         private static readonly MethodInfo armChute_t;
@@ -284,10 +284,9 @@ namespace AvionicsSystems
             allDangerous = true;
             for (int i = 0; i < newLength; ++i)
             {
-                if ((bool)armed_t.GetValue(vc.moduleRealChute[i]))
+                if (getArmed(vc.moduleRealChute[i]))
                 {
                     anyArmed = true;
-                    //break;
                 }
                 if (getAnyDeployed[i]())
                 {
@@ -382,12 +381,13 @@ namespace AvionicsSystems
                     return;
                 }
 
-                armed_t = rcAPI_t.GetField("armed", BindingFlags.Instance | BindingFlags.Public);
+                FieldInfo armed_t = rcAPI_t.GetField("armed", BindingFlags.Instance | BindingFlags.Public);
                 if (armed_t == null)
                 {
                     Utility.LogErrorMessage("armed_t is null");
                     return;
                 }
+                getArmed = DynamicMethodFactory.CreateGetField<object, bool>(armed_t);
 
                 safeState_t = rcAPI_t.GetField("safeState", BindingFlags.Instance | BindingFlags.Public);
                 if (safeState_t == null)
