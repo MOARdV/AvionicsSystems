@@ -60,10 +60,10 @@ namespace AvionicsSystems
     /// </summary>
     static internal class DynamicMethodFactory
     {
-        static internal Func<S, T> CreateGetField<S, T>(FieldInfo field)
+        static internal Func<Param, Return> CreateGetField<Param, Return>(FieldInfo field)
         {
             string methodName = field.ReflectedType.FullName + ".get_" + field.Name;
-            DynamicMethod setterMethod = new DynamicMethod(methodName, typeof(T), new Type[1] { typeof(S) }, true);
+            DynamicMethod setterMethod = new DynamicMethod(methodName, typeof(Return), new Type[1] { typeof(Param) }, true);
             ILGenerator gen = setterMethod.GetILGenerator();
             if (field.IsStatic)
             {
@@ -75,7 +75,7 @@ namespace AvionicsSystems
                 gen.Emit(OpCodes.Ldfld, field);
             }
             gen.Emit(OpCodes.Ret);
-            return (Func<S, T>)setterMethod.CreateDelegate(typeof(Func<S, T>));
+            return (Func<Param, Return>)setterMethod.CreateDelegate(typeof(Func<Param, Return>));
         }
 
         static internal Action<S, T> CreateSetField<S, T>(FieldInfo field)
