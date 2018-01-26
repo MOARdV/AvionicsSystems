@@ -31,6 +31,9 @@ namespace AvionicsSystems
     /// <summary>
     /// MASIdEngine is used to identify unique engine parts, allowing for
     /// fine-tuned control of the vessel.
+    /// 
+    /// It also encompasses the reflection that allows MAS to talk to the
+    /// Advanced Jet Engine mode (AJE).
     /// </summary>
     class MASIdEngine : MASIdGeneric
     {
@@ -38,20 +41,24 @@ namespace AvionicsSystems
         private static readonly bool ajeInstalled = false;
         internal static readonly Type ajePropellerAPI_t;
         // All fields are floats
+
+        // Read-only fields:
         private static readonly Func<object, float> getPropRPM;
-        private static readonly FieldInfo propPitch_t;
-        private static readonly FieldInfo propThrust_t;
-        private static readonly FieldInfo manifoldPressure_t;
-        private static readonly FieldInfo chargeAirTemp_t;
-        private static readonly FieldInfo netExhaustThrust_t;
-        private static readonly FieldInfo netMeredithEffect_t;
-        private static readonly FieldInfo brakeShaftPower_t;
-        // read-write fields:
-        private static readonly FieldInfo boost_t;
+        private static readonly Func<object, float> getPropPitch;
+        private static readonly Func<object, float> getPropThrust;
+        private static readonly Func<object, float> getManifoldPressure;
+        private static readonly Func<object, float> getChargeAirTemp;
+        private static readonly Func<object, float> getNetExhaustThrust;
+        private static readonly Func<object, float> getNetMeredithEffect;
+        private static readonly Func<object, float> getBrakeShaftPower;
+
+        // Read-write fields:
+        private static readonly Func<object, float> getBoost;
+        private static readonly Action<object, float> setBoost;
         private static readonly Func<object, float> getRpmLever;
         private static readonly Action<object, float> setRpmLever;
-        //private static readonly FieldInfo rpmLever_t;
-        private static readonly FieldInfo mixture_t;
+        private static readonly Func<object, float> getMixture;
+        private static readonly Action<object, float> setMixture;
 
         //--- Tracked fields
         private PartModule ajeModule;
@@ -94,6 +101,90 @@ namespace AvionicsSystems
         }
 
         #region AJE Propellers
+        internal float GetPropellerBoost()
+        {
+            if (ajeModule != null)
+            {
+                return getBoost(ajeModule);
+            }
+
+            return 0.0f;
+        }
+
+        internal float GetPropellerBrakeShaftPower()
+        {
+            if (ajeModule != null)
+            {
+                // TODO: BHP units need to be queried - ajeModule.useHP determines if this
+                // field is in horsepower or SI units (PS).
+                return getBrakeShaftPower(ajeModule);
+            }
+
+            return 0.0f;
+        }
+
+        internal float GetPropellerChargeAirTemp()
+        {
+            if (ajeModule != null)
+            {
+                return getChargeAirTemp(ajeModule);
+            }
+
+            return 0.0f;
+        }
+
+        internal float GetPropellerManifoldPressure()
+        {
+            if (ajeModule != null)
+            {
+                // TODO: Manifold Press units to be queried - ajeModule.useInHg determines
+                // if this field is in inches Hg or SI units (ata)
+                return getManifoldPressure(ajeModule);
+            }
+
+            return 0.0f;
+        }
+
+        internal float GetPropellerMixture()
+        {
+            if (ajeModule != null)
+            {
+                return getMixture(ajeModule);
+            }
+
+            return 0.0f;
+        }
+
+        internal float GetPropellerNetExhaustThrust()
+        {
+            if (ajeModule != null)
+            {
+                return getNetExhaustThrust(ajeModule);
+            }
+
+            return 0.0f;
+        }
+
+        internal float GetPropellerNetMeredithEffect()
+        {
+            if (ajeModule != null)
+            {
+                return getNetMeredithEffect(ajeModule);
+            }
+
+            return 0.0f;
+        }
+
+        internal float GetPropellerPitch()
+        {
+            if (ajeModule != null)
+            {
+                return getPropPitch(ajeModule);
+            }
+
+            return 0.0f;
+        }
+
         internal float GetPropellerRPM()
         {
             if (ajeModule != null)
@@ -114,7 +205,39 @@ namespace AvionicsSystems
             return 0.0f;
         }
 
-        internal bool SetPropellerRPMLever(float newRpm)
+        internal float GetPropellerThrust()
+        {
+            if (ajeModule != null)
+            {
+                return getPropThrust(ajeModule);
+            }
+
+            return 0.0f;
+        }
+
+        internal bool SetPropellerBoost(float newBoost)
+        {
+            if (ajeModule != null)
+            {
+                setBoost(ajeModule, Mathf.Clamp01(newBoost));
+                return true;
+            }
+
+            return false;
+        }
+
+        internal bool SetPropellerMixture(float newMixture)
+        {
+            if (ajeModule != null)
+            {
+                setMixture(ajeModule, Mathf.Clamp01(newMixture));
+                return true;
+            }
+
+            return false;
+        }
+
+        internal bool SetPropellerRPM(float newRpm)
         {
             if (ajeModule != null)
             {
@@ -135,8 +258,6 @@ namespace AvionicsSystems
 
             if (ajePropellerAPI_t != null)
             {
-                Utility.LogMessage(ajePropellerAPI_t, "MASIdEngine found AJE");
-
                 FieldInfo propRPM_t = ajePropellerAPI_t.GetField("propRPM", BindingFlags.Instance | BindingFlags.Public);
                 if (propRPM_t == null)
                 {
@@ -145,61 +266,71 @@ namespace AvionicsSystems
                 }
                 getPropRPM = DynamicMethodFactory.CreateGetField<object, float>(propRPM_t);
 
-                propPitch_t = ajePropellerAPI_t.GetField("propPitch", BindingFlags.Instance | BindingFlags.Public);
+                FieldInfo propPitch_t = ajePropellerAPI_t.GetField("propPitch", BindingFlags.Instance | BindingFlags.Public);
                 if (propPitch_t == null)
                 {
                     Utility.LogErrorMessage("propPitch_t is null");
                     return;
                 }
+                getPropPitch = DynamicMethodFactory.CreateGetField<object, float>(propPitch_t);
 
-                propThrust_t = ajePropellerAPI_t.GetField("propThrust", BindingFlags.Instance | BindingFlags.Public);
+                FieldInfo propThrust_t = ajePropellerAPI_t.GetField("propThrust", BindingFlags.Instance | BindingFlags.Public);
                 if (propThrust_t == null)
                 {
                     Utility.LogErrorMessage("propThrust_t is null");
                     return;
                 }
+                getPropThrust = DynamicMethodFactory.CreateGetField<object, float>(propThrust_t);
 
-                manifoldPressure_t = ajePropellerAPI_t.GetField("manifoldPressure", BindingFlags.Instance | BindingFlags.Public);
+                FieldInfo manifoldPressure_t = ajePropellerAPI_t.GetField("manifoldPressure", BindingFlags.Instance | BindingFlags.Public);
                 if (manifoldPressure_t == null)
                 {
                     Utility.LogErrorMessage("manifoldPressure_t is null");
                     return;
                 }
+                getManifoldPressure = DynamicMethodFactory.CreateGetField<object, float>(manifoldPressure_t);
 
-                chargeAirTemp_t = ajePropellerAPI_t.GetField("chargeAirTemp", BindingFlags.Instance | BindingFlags.Public);
+                FieldInfo chargeAirTemp_t = ajePropellerAPI_t.GetField("chargeAirTemp", BindingFlags.Instance | BindingFlags.Public);
                 if (chargeAirTemp_t == null)
                 {
                     Utility.LogErrorMessage("chargeAirTemp_t is null");
                     return;
                 }
+                getChargeAirTemp = DynamicMethodFactory.CreateGetField<object, float>(chargeAirTemp_t);
 
-                netExhaustThrust_t = ajePropellerAPI_t.GetField("netExhaustThrust", BindingFlags.Instance | BindingFlags.Public);
+                FieldInfo netExhaustThrust_t = ajePropellerAPI_t.GetField("netExhaustThrust", BindingFlags.Instance | BindingFlags.Public);
                 if (netExhaustThrust_t == null)
                 {
                     Utility.LogErrorMessage("netExhaustThrust_t is null");
                     return;
                 }
+                getNetExhaustThrust = DynamicMethodFactory.CreateGetField<object, float>(netExhaustThrust_t);
 
-                netMeredithEffect_t = ajePropellerAPI_t.GetField("netMeredithEffect", BindingFlags.Instance | BindingFlags.Public);
+                FieldInfo netMeredithEffect_t = ajePropellerAPI_t.GetField("netMeredithEffect", BindingFlags.Instance | BindingFlags.Public);
                 if (netMeredithEffect_t == null)
                 {
                     Utility.LogErrorMessage("netMeredithEffect_t is null");
                     return;
                 }
+                getNetMeredithEffect = DynamicMethodFactory.CreateGetField<object, float>(netMeredithEffect_t);
 
-                brakeShaftPower_t = ajePropellerAPI_t.GetField("brakeShaftPower", BindingFlags.Instance | BindingFlags.Public);
+                FieldInfo brakeShaftPower_t = ajePropellerAPI_t.GetField("brakeShaftPower", BindingFlags.Instance | BindingFlags.Public);
                 if (brakeShaftPower_t == null)
                 {
                     Utility.LogErrorMessage("brakeShaftPower_t is null");
                     return;
                 }
+                getBrakeShaftPower = DynamicMethodFactory.CreateGetField<object, float>(brakeShaftPower_t);
 
-                boost_t = ajePropellerAPI_t.GetField("boost", BindingFlags.Instance | BindingFlags.Public);
+
+                FieldInfo boost_t = ajePropellerAPI_t.GetField("boost", BindingFlags.Instance | BindingFlags.Public);
                 if (boost_t == null)
                 {
                     Utility.LogErrorMessage("boost_t is null");
                     return;
                 }
+                getBoost = DynamicMethodFactory.CreateGetField<object, float>(boost_t);
+                setBoost = DynamicMethodFactory.CreateSetField<object, float>(boost_t);
 
                 FieldInfo rpmLever_t = ajePropellerAPI_t.GetField("rpmLever", BindingFlags.Instance | BindingFlags.Public);
                 if (rpmLever_t == null)
@@ -210,12 +341,14 @@ namespace AvionicsSystems
                 getRpmLever = DynamicMethodFactory.CreateGetField<object, float>(rpmLever_t);
                 setRpmLever = DynamicMethodFactory.CreateSetField<object, float>(rpmLever_t);
 
-                mixture_t = ajePropellerAPI_t.GetField("mixture", BindingFlags.Instance | BindingFlags.Public);
+                FieldInfo mixture_t = ajePropellerAPI_t.GetField("mixture", BindingFlags.Instance | BindingFlags.Public);
                 if (mixture_t == null)
                 {
                     Utility.LogErrorMessage("mixture_t is null");
                     return;
                 }
+                getMixture = DynamicMethodFactory.CreateGetField<object, float>(mixture_t);
+                setMixture = DynamicMethodFactory.CreateSetField<object, float>(mixture_t);
 
                 ajeInstalled = true;
             }
