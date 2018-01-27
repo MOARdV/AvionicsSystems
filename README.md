@@ -4,8 +4,7 @@ MOARdV's Avionics Systems for Kerbal Space Program - a new generation of IVA enh
 ## Short Intro
 
 MOARdV's Avionics Systems (MAS) is a project to rebuild RasterPropMonitor
-from the ground up using the design techniques I retrofitted to RPM during the first half
-of 2016.  The goal is to provide a leaner, more performant design without sacrificing
+from the ground up.  The goal is to provide a leaner, more performant design without sacrificing
 features that are available in RPM.  A longer-winded explanation is available in the
 wiki's [Introduction](https://github.com/MOARdV/AvionicsSystems/wiki/Introduction).
 
@@ -22,9 +21,9 @@ components and their licenses.
 
 ## Where are the IVAs?
 
-MAS is intended to be a toolkit for developing IVAs.  I do not intend to include a wide range of example
+MAS is intended to be a toolkit for developing IVAs.  I do not intend to include a multiple example
 IVAs like RPM had - good IVAs take a lot of time to create, and there will not be stock-derived sample
-props with this mod, so any IVAs will require external mods.  My expectation is that
+props with this mod, so any IVAs included with MAS will have other dependencies.  My expectation is that
 IVAs using MAS will include at least one of alexustas's props packs - [ASET Props Pack](http://forum.kerbalspaceprogram.com/index.php?/topic/116430-aset-props-pack-v14-for-the-modders-who-create-iva/) and/or
 [ASET Avionics Pack](http://forum.kerbalspaceprogram.com/index.php?/topic/116479-aset-avionics-pack-v-20-for-the-modders-who-create-iva/) adapted to MAS.
 
@@ -49,8 +48,8 @@ ASET Props Pack v1.5 (or later) in order to fly either IVA.
 
 ## What about RPM?
 
-RasterPropMonitor is in maintenance mode.  I will keep RPM compiling, and I will try to fix any
-egregious bugs, but I do not plan to continue developing features for the mod.  It is far too
+RasterPropMonitor is in maintenance mode.  I will update RPM so that it is compatible with future KSP releases,
+but I do not plan to continue developing features for the mod.  It is far too
 complex for me to test it adequately by myself in a reasonable time while working on another,
 substantially similar mod.  As long as RPM is still
 in wide use, I will strive to keep it working, but I can not guarantee much beyond that.
