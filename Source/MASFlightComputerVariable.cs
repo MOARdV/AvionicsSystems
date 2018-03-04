@@ -79,8 +79,7 @@ namespace AvionicsSystems
             {"kac", typeof(MASIKAC)},
             {"mechjeb", typeof(MASIMechJeb)},
             {"nav", typeof(MASINavigation)},
-            {"realchute", typeof(MASIRealChute)},
-            {"parachute", typeof(MASIRealChute)},
+            {"parachute", typeof(MASIParachute)},
         };
 
         /// <summary>
@@ -144,9 +143,8 @@ namespace AvionicsSystems
                             case "nav":
                                 tableRef = navProxy;
                                 break;
-                            case "realchute":
                             case "parachute":
-                                tableRef = realChuteProxy;
+                                tableRef = parachuteProxy;
                                 break;
                         }
 

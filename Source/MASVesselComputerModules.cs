@@ -1094,7 +1094,7 @@ namespace AvionicsSystems
                         {
                             reactionWheelList.Add(module as ModuleReactionWheel);
                         }
-                        else if (MASIRealChute.realChuteFound && module.GetType() == MASIRealChute.rcAPI_t)
+                        else if (MASIParachute.realChuteFound && module.GetType() == MASIParachute.rcAPI_t)
                         {
                             realchuteList.Add(module);
                         }

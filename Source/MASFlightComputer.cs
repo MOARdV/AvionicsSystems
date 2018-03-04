@@ -122,9 +122,9 @@ namespace AvionicsSystems
         private MASINavigation navProxy;
 
         /// <summary>
-        /// Instance of the RealChute proxy class.
+        /// Instance of the parachute proxy class.
         /// </summary>
-        private MASIRealChute realChuteProxy;
+        private MASIParachute parachuteProxy;
 
         /// <summary>
         /// Instance of the Transfer proxy class.
@@ -616,7 +616,7 @@ namespace AvionicsSystems
                     kacProxy.Update();
                     mjProxy.Update();
                     navProxy.Update();
-                    realChuteProxy.Update();
+                    parachuteProxy.Update();
                     transferProxy.Update();
                     UpdateRadios();
 
@@ -720,7 +720,7 @@ namespace AvionicsSystems
             navProxy = null;
             farProxy = null;
             kacProxy = null;
-            realChuteProxy = null;
+            parachuteProxy = null;
             transferProxy = null;
             cc = null;
             if (initialized)
@@ -807,10 +807,9 @@ namespace AvionicsSystems
                     UserData.RegisterType<MASINavigation>();
                     script.Globals["nav"] = navProxy;
 
-                    realChuteProxy = new MASIRealChute(vessel);
-                    UserData.RegisterType<MASIRealChute>();
-                    script.Globals["realchute"] = realChuteProxy;
-                    script.Globals["parachute"] = realChuteProxy;
+                    parachuteProxy = new MASIParachute(vessel);
+                    UserData.RegisterType<MASIParachute>();
+                    script.Globals["parachute"] = parachuteProxy;
 
                     transferProxy = new MASITransfer(vessel);
                     UserData.RegisterType<MASITransfer>();
@@ -883,7 +882,7 @@ namespace AvionicsSystems
                 //farProxy.vessel = vessel;
                 //kacProxy.vessel = vessel;
                 mjProxy.UpdateVessel(vessel, vc);
-                realChuteProxy.vc = vc;
+                parachuteProxy.vc = vc;
                 transferProxy.vc = vc;
                 //realChuteProxy.vessel = vessel;
 
@@ -1094,8 +1093,8 @@ namespace AvionicsSystems
                 kacProxy.vessel = vessel;
                 mjProxy.UpdateVessel(vessel, vc);
                 navProxy.UpdateVessel(vessel);
-                realChuteProxy.vc = vc;
-                realChuteProxy.vessel = vessel;
+                parachuteProxy.vc = vc;
+                parachuteProxy.vessel = vessel;
                 transferProxy.vc = vc;
                 transferProxy.vessel = vessel;
             }

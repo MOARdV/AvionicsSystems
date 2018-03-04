@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 - 2018 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -31,19 +31,16 @@ using System.Text;
 namespace AvionicsSystems
 {
     /// <summary>
-    /// MASIRealChute is the interface with the RealChute mod.  It also can
-    /// interact with stock parachutes.
+    /// MASIParachute is the interface with the RealChute mod and
+    /// stock parachutes.
     /// </summary>
     /// <LuaName>parachute</LuaName>
     /// <mdDoc>
-    /// The MASIRealChute component allows Avionics Systems to interact with the
+    /// The MASIParachute component allows Avionics Systems to interact with the
     /// RealChute mod.  In addition, it allows some control with the stock
     /// parachute systems regardless of whether RealChute is installed.
-    /// 
-    /// **ATTENTION:** `realchute` will be renamed `parachute` in MAS v0.13.0.
-    /// For v0.12.0, both names will work equally.
     /// </mdDoc>
-    internal class MASIRealChute
+    internal class MASIParachute
     {
         internal static bool realChuteFound;
         internal static readonly Type rcAPI_t;
@@ -80,13 +77,13 @@ namespace AvionicsSystems
         private bool anyDeployed;
 
         [MoonSharpHidden]
-        public MASIRealChute(Vessel vessel)
+        public MASIParachute(Vessel vessel)
         {
             this.vessel = vessel;
             anyArmed = false;
         }
 
-        ~MASIRealChute()
+        ~MASIParachute()
         {
             vessel = null;
             vc = null;
@@ -334,7 +331,7 @@ namespace AvionicsSystems
         }
 
         #region Reflection Configuration
-        static MASIRealChute()
+        static MASIParachute()
         {
             realChuteFound = false;
             rcAPI_t = Utility.GetExportedType("RealChute", "RealChute.RealChuteModule");
