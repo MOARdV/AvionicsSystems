@@ -1073,8 +1073,9 @@ namespace AvionicsSystems
             minFovRenderer = minFovPosition.AddComponent<LineRenderer>();
             minFovRenderer.useWorldSpace = true;
             minFovRenderer.material = fovRendererMaterial;
-            minFovRenderer.SetWidth(0.054f, minSpan);
-            minFovRenderer.SetVertexCount(2);
+            minFovRenderer.startWidth = 0.054f;
+            minFovRenderer.endWidth = minSpan;
+            minFovRenderer.positionCount = 2;
             minFovRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             minFovRenderer.receiveShadows = false;
             Vector3 origin = cameraTransform.TransformPoint(Vector3.zero);
@@ -1084,7 +1085,8 @@ namespace AvionicsSystems
             Color startColor = (fovRange.y > fovRange.x) ? new Color(0.0f, 1.0f, 0.0f, 0.75f) : new Color(0.0f, 1.0f, 1.0f, 0.75f);
             Color endColor = startColor;
             endColor.a = 0.0f;
-            minFovRenderer.SetColors(startColor, endColor);
+            minFovRenderer.startColor = startColor;
+            minFovRenderer.endColor = endColor;
             minFovRenderer.enabled = showFov;
 
             if (fovRange.y > fovRange.x)
@@ -1095,8 +1097,9 @@ namespace AvionicsSystems
                 maxFovRenderer = maxFovPosition.AddComponent<LineRenderer>();
                 maxFovRenderer.useWorldSpace = true;
                 maxFovRenderer.material = fovRendererMaterial;
-                maxFovRenderer.SetWidth(0.054f, maxSpan);
-                maxFovRenderer.SetVertexCount(2);
+                maxFovRenderer.startWidth = 0.054f;
+                maxFovRenderer.endWidth = maxSpan;
+                maxFovRenderer.positionCount = 2;
                 maxFovRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
                 maxFovRenderer.receiveShadows = false;
                 maxFovRenderer.SetPosition(0, origin);
@@ -1104,7 +1107,8 @@ namespace AvionicsSystems
                 startColor = new Color(0.0f, 0.0f, 1.0f, 0.65f);
                 endColor = startColor;
                 endColor.a = 0.0f;
-                maxFovRenderer.SetColors(startColor, endColor);
+                maxFovRenderer.startColor = startColor;
+                maxFovRenderer.endColor = endColor;
                 maxFovRenderer.enabled = showFov;
             }
         }
@@ -1209,7 +1213,7 @@ namespace AvionicsSystems
 
             this.partType = "#MAS_DeployableCamera_Part";
         }
-        
+
         public override string GetModuleDisplayName()
         {
             return "#MAS_DeployableCamera_ModuleName";

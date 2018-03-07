@@ -143,8 +143,10 @@ namespace AvionicsSystems
             lineRenderer = lineOrigin.AddComponent<LineRenderer>();
             lineRenderer.useWorldSpace = false;
             lineRenderer.material = lineMaterial;
-            lineRenderer.SetColors(startColor, endColor);
-            lineRenderer.SetWidth(startWidth, endWidth);
+            lineRenderer.startColor = startColor;
+            lineRenderer.endColor = endColor;
+            lineRenderer.startWidth = startWidth;
+            lineRenderer.endWidth = endWidth;
 
             ++numVertices;
             lineRenderer.SetVertexCount(numVertices);
@@ -257,7 +259,8 @@ namespace AvionicsSystems
                 if (comp.TryGetNamedColor(startColorString, out namedColor))
                 {
                     startColor = namedColor;
-                    lineRenderer.SetColors(startColor, startColor);
+                    lineRenderer.startColor = startColor;
+                    lineRenderer.endColor = startColor;
                 }
                 else
                 {
@@ -270,21 +273,24 @@ namespace AvionicsSystems
                     Action<double> startColorR = (double newValue) =>
                     {
                         startColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                        lineRenderer.SetColors(startColor, startColor);
+                        lineRenderer.startColor = startColor;
+                        lineRenderer.endColor = startColor;
                     };
                     registeredVariables.RegisterNumericVariable(startColors[0], startColorR);
 
                     Action<double> startColorG = (double newValue) =>
                     {
                         startColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                        lineRenderer.SetColors(startColor, startColor);
+                        lineRenderer.startColor = startColor;
+                        lineRenderer.endColor = startColor;
                     };
                     registeredVariables.RegisterNumericVariable(startColors[1], startColorG);
 
                     Action<double> startColorB = (double newValue) =>
                     {
                         startColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                        lineRenderer.SetColors(startColor, startColor);
+                        lineRenderer.startColor = startColor;
+                        lineRenderer.endColor = startColor;
                     };
                     registeredVariables.RegisterNumericVariable(startColors[2], startColorB);
 
@@ -293,7 +299,8 @@ namespace AvionicsSystems
                         Action<double> startColorA = (double newValue) =>
                         {
                             startColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                            lineRenderer.SetColors(startColor, startColor);
+                            lineRenderer.startColor = startColor;
+                            lineRenderer.endColor = startColor;
                         };
                         registeredVariables.RegisterNumericVariable(startColors[3], startColorA);
                     }
@@ -305,7 +312,8 @@ namespace AvionicsSystems
                 if (comp.TryGetNamedColor(startColorString, out namedColor))
                 {
                     startColor = namedColor;
-                    lineRenderer.SetColors(startColor, endColor);
+                    lineRenderer.startColor = startColor;
+                    lineRenderer.endColor = endColor;
                 }
                 else
                 {
@@ -318,21 +326,24 @@ namespace AvionicsSystems
                     Action<double> startColorR = (double newValue) =>
                     {
                         startColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                        lineRenderer.SetColors(startColor, endColor);
+                        lineRenderer.startColor = startColor;
+                        lineRenderer.endColor = endColor;
                     };
                     registeredVariables.RegisterNumericVariable(startColors[0], startColorR);
 
                     Action<double> startColorG = (double newValue) =>
                     {
                         startColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                        lineRenderer.SetColors(startColor, endColor);
+                        lineRenderer.startColor = startColor;
+                        lineRenderer.endColor = endColor;
                     };
                     registeredVariables.RegisterNumericVariable(startColors[1], startColorG);
 
                     Action<double> startColorB = (double newValue) =>
                     {
                         startColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                        lineRenderer.SetColors(startColor, endColor);
+                        lineRenderer.startColor = startColor;
+                        lineRenderer.endColor = endColor;
                     };
                     registeredVariables.RegisterNumericVariable(startColors[2], startColorB);
 
@@ -341,7 +352,8 @@ namespace AvionicsSystems
                         Action<double> startColorA = (double newValue) =>
                         {
                             startColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                            lineRenderer.SetColors(startColor, endColor);
+                            lineRenderer.startColor = startColor;
+                            lineRenderer.endColor = endColor;
                         };
                         registeredVariables.RegisterNumericVariable(startColors[3], startColorA);
                     }
@@ -350,7 +362,8 @@ namespace AvionicsSystems
                 if (comp.TryGetNamedColor(endColorString, out namedColor))
                 {
                     endColor = namedColor;
-                    lineRenderer.SetColors(startColor, endColor);
+                    lineRenderer.startColor = startColor;
+                    lineRenderer.endColor = endColor;
                 }
                 else
                 {

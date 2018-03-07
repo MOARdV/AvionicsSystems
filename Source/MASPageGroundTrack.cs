@@ -127,8 +127,9 @@ namespace AvionicsSystems
                 lineRenderer[i] = lineOrigin[i].AddComponent<LineRenderer>();
                 lineRenderer[i].useWorldSpace = false;
                 lineRenderer[i].material = lineMaterial[i];
-                lineRenderer[i].SetWidth(lineWidth, lineWidth);
-                lineRenderer[i].SetVertexCount(vertexCount);
+                lineRenderer[i].startWidth = lineWidth;
+                lineRenderer[i].endWidth = lineWidth;
+                lineRenderer[i].positionCount = vertexCount;
                 lineRenderer[i].enabled = false;
             }
             lineRenderer[0].SetPositions(vesselVertex1);
@@ -145,8 +146,10 @@ namespace AvionicsSystems
                 if (comp.TryGetNamedColor(vesselColorString, out color))
                 {
                     vesselColor = color;
-                    lineRenderer[0].SetColors(vesselColor, vesselColor);
-                    lineRenderer[1].SetColors(vesselColor, vesselColor);
+                    lineRenderer[0].startColor = vesselColor;
+                    lineRenderer[0].endColor = vesselColor;
+                    lineRenderer[1].startColor = vesselColor;
+                    lineRenderer[1].endColor = vesselColor;
                 }
                 else
                 {
@@ -159,20 +162,26 @@ namespace AvionicsSystems
                     variableRegistrar.RegisterNumericVariable(vesselColors[0], (double newValue) =>
                     {
                         vesselColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                        lineRenderer[0].SetColors(vesselColor, vesselColor);
-                        lineRenderer[1].SetColors(vesselColor, vesselColor);
+                        lineRenderer[0].startColor = vesselColor;
+                        lineRenderer[0].endColor = vesselColor;
+                        lineRenderer[1].startColor = vesselColor;
+                        lineRenderer[1].endColor = vesselColor;
                     });
                     variableRegistrar.RegisterNumericVariable(vesselColors[1], (double newValue) =>
                     {
                         vesselColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                        lineRenderer[0].SetColors(vesselColor, vesselColor);
-                        lineRenderer[1].SetColors(vesselColor, vesselColor);
+                        lineRenderer[0].startColor = vesselColor;
+                        lineRenderer[0].endColor = vesselColor;
+                        lineRenderer[1].startColor = vesselColor;
+                        lineRenderer[1].endColor = vesselColor;
                     });
                     variableRegistrar.RegisterNumericVariable(vesselColors[2], (double newValue) =>
                     {
                         vesselColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                        lineRenderer[0].SetColors(vesselColor, vesselColor);
-                        lineRenderer[1].SetColors(vesselColor, vesselColor);
+                        lineRenderer[0].startColor = vesselColor;
+                        lineRenderer[0].endColor = vesselColor;
+                        lineRenderer[1].startColor = vesselColor;
+                        lineRenderer[1].endColor = vesselColor;
                     });
 
                     if (vesselColors.Length == 4)
@@ -180,8 +189,10 @@ namespace AvionicsSystems
                         variableRegistrar.RegisterNumericVariable(vesselColors[3], (double newValue) =>
                         {
                             vesselColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                            lineRenderer[0].SetColors(vesselColor, vesselColor);
-                            lineRenderer[1].SetColors(vesselColor, vesselColor);
+                            lineRenderer[0].startColor = vesselColor;
+                            lineRenderer[0].endColor = vesselColor;
+                            lineRenderer[1].startColor = vesselColor;
+                            lineRenderer[1].endColor = vesselColor;
                         });
                     }
                 }
@@ -202,8 +213,10 @@ namespace AvionicsSystems
                 if (comp.TryGetNamedColor(maneuverColorString, out color))
                 {
                     maneuverColor = color;
-                    lineRenderer[4].SetColors(maneuverColor, maneuverColor);
-                    lineRenderer[5].SetColors(maneuverColor, maneuverColor);
+                    lineRenderer[4].startColor = maneuverColor;
+                    lineRenderer[4].endColor = maneuverColor;
+                    lineRenderer[5].startColor = maneuverColor;
+                    lineRenderer[5].endColor = maneuverColor;
                 }
                 else
                 {
@@ -216,20 +229,26 @@ namespace AvionicsSystems
                     variableRegistrar.RegisterNumericVariable(maneuverColors[0], (double newValue) =>
                     {
                         maneuverColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                        lineRenderer[4].SetColors(maneuverColor, maneuverColor);
-                        lineRenderer[5].SetColors(maneuverColor, maneuverColor);
+                        lineRenderer[4].startColor = maneuverColor;
+                        lineRenderer[4].endColor = maneuverColor;
+                        lineRenderer[5].startColor = maneuverColor;
+                        lineRenderer[5].endColor = maneuverColor;
                     });
                     variableRegistrar.RegisterNumericVariable(maneuverColors[1], (double newValue) =>
                     {
                         maneuverColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                        lineRenderer[4].SetColors(maneuverColor, maneuverColor);
-                        lineRenderer[5].SetColors(maneuverColor, maneuverColor);
+                        lineRenderer[4].startColor = maneuverColor;
+                        lineRenderer[4].endColor = maneuverColor;
+                        lineRenderer[5].startColor = maneuverColor;
+                        lineRenderer[5].endColor = maneuverColor;
                     });
                     variableRegistrar.RegisterNumericVariable(maneuverColors[2], (double newValue) =>
                     {
                         maneuverColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                        lineRenderer[4].SetColors(maneuverColor, maneuverColor);
-                        lineRenderer[5].SetColors(maneuverColor, maneuverColor);
+                        lineRenderer[4].startColor = maneuverColor;
+                        lineRenderer[4].endColor = maneuverColor;
+                        lineRenderer[5].startColor = maneuverColor;
+                        lineRenderer[5].endColor = maneuverColor;
                     });
 
                     if (maneuverColors.Length == 4)
@@ -237,8 +256,10 @@ namespace AvionicsSystems
                         variableRegistrar.RegisterNumericVariable(maneuverColors[3], (double newValue) =>
                         {
                             maneuverColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                            lineRenderer[4].SetColors(maneuverColor, maneuverColor);
-                            lineRenderer[5].SetColors(maneuverColor, maneuverColor);
+                            lineRenderer[4].startColor = maneuverColor;
+                            lineRenderer[4].endColor = maneuverColor;
+                            lineRenderer[5].startColor = maneuverColor;
+                            lineRenderer[5].endColor = maneuverColor;
                         });
                     }
                 }
@@ -259,8 +280,10 @@ namespace AvionicsSystems
                 if (comp.TryGetNamedColor(targetColorString, out color))
                 {
                     targetColor = color;
-                    lineRenderer[2].SetColors(targetColor, targetColor);
-                    lineRenderer[3].SetColors(targetColor, targetColor);
+                    lineRenderer[2].startColor = targetColor;
+                    lineRenderer[2].endColor = targetColor;
+                    lineRenderer[3].startColor = targetColor;
+                    lineRenderer[3].endColor = targetColor;
                 }
                 else
                 {
@@ -273,20 +296,26 @@ namespace AvionicsSystems
                     variableRegistrar.RegisterNumericVariable(targetColors[0], (double newValue) =>
                     {
                         targetColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                        lineRenderer[2].SetColors(targetColor, targetColor);
-                        lineRenderer[3].SetColors(targetColor, targetColor);
+                        lineRenderer[2].startColor = targetColor;
+                        lineRenderer[2].endColor = targetColor;
+                        lineRenderer[3].startColor = targetColor;
+                        lineRenderer[3].endColor = targetColor;
                     });
                     variableRegistrar.RegisterNumericVariable(targetColors[1], (double newValue) =>
                     {
                         targetColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                        lineRenderer[2].SetColors(targetColor, targetColor);
-                        lineRenderer[3].SetColors(targetColor, targetColor);
+                        lineRenderer[2].startColor = targetColor;
+                        lineRenderer[2].endColor = targetColor;
+                        lineRenderer[3].startColor = targetColor;
+                        lineRenderer[3].endColor = targetColor;
                     });
                     variableRegistrar.RegisterNumericVariable(targetColors[2], (double newValue) =>
                     {
                         targetColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                        lineRenderer[2].SetColors(targetColor, targetColor);
-                        lineRenderer[3].SetColors(targetColor, targetColor);
+                        lineRenderer[2].startColor = targetColor;
+                        lineRenderer[2].endColor = targetColor;
+                        lineRenderer[3].startColor = targetColor;
+                        lineRenderer[3].endColor = targetColor;
                     });
 
                     if (targetColors.Length == 4)

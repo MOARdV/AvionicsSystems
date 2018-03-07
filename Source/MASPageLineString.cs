@@ -137,11 +137,13 @@ namespace AvionicsSystems
             lineRenderer = lineOrigin.AddComponent<LineRenderer>();
             lineRenderer.useWorldSpace = false;
             lineRenderer.material = lineMaterial;
-            lineRenderer.SetColors(startColor, endColor);
-            lineRenderer.SetWidth(startWidth, endWidth);
+            lineRenderer.startColor = startColor;
+            lineRenderer.endColor = endColor;
+            lineRenderer.startWidth = startWidth;
+            lineRenderer.endWidth = endWidth;
 
             int numVertices = vertexStrings.Length;
-            lineRenderer.SetVertexCount(numVertices);
+            lineRenderer.positionCount = numVertices;
             vertices = new Vector3[numVertices];
 
             string textureName = string.Empty;

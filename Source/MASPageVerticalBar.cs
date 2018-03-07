@@ -202,8 +202,10 @@ namespace AvionicsSystems
                 lineRenderer = borderObject.AddComponent<LineRenderer>();
                 lineRenderer.useWorldSpace = false;
                 lineRenderer.material = borderMaterial;
-                lineRenderer.SetColors(borderColor, borderColor);
-                lineRenderer.SetWidth(borderWidth, borderWidth);
+                lineRenderer.startColor = borderColor;
+                lineRenderer.endColor = borderColor;
+                lineRenderer.startWidth = borderWidth;
+                lineRenderer.endWidth = borderWidth;
 
                 float halfWidth = borderWidth * 0.5f - 0.5f;
                 Vector3[] borderPoints = new Vector3[]
@@ -243,7 +245,6 @@ namespace AvionicsSystems
                     1, 3, 2
                 };
             mesh.RecalculateBounds();
-            mesh.Optimize();
             mesh.UploadMeshData(false);
             meshFilter.mesh = mesh;
             imageMaterial = new Material(Shader.Find("KSP/Alpha/Unlit Transparent"));

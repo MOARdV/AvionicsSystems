@@ -158,7 +158,6 @@ namespace AvionicsSystems
                    13,15,14
                 };
             mesh.RecalculateBounds();
-            mesh.Optimize();
             mesh.UploadMeshData(false);
             meshFilter.mesh = mesh;
 

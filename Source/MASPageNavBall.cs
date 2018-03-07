@@ -200,7 +200,6 @@ namespace AvionicsSystems
                     1, 3, 2
                 };
             mesh.RecalculateBounds();
-            mesh.Optimize();
             mesh.UploadMeshData(true);
             meshFilter.mesh = mesh;
             imageMaterial = new Material(displayShader);
@@ -526,7 +525,6 @@ namespace AvionicsSystems
                     0, 1, 3
                 };
             mesh.RecalculateBounds();
-            mesh.Optimize();
             mesh.UploadMeshData(true);
             meshFilter.mesh = mesh;
 

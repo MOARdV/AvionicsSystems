@@ -166,8 +166,10 @@ namespace AvionicsSystems
                 borderRenderer = borderObject.AddComponent<LineRenderer>();
                 borderRenderer.useWorldSpace = false;
                 borderRenderer.material = borderMaterial;
-                borderRenderer.SetColors(borderColor, borderColor);
-                borderRenderer.SetWidth(borderWidth, borderWidth);
+                borderRenderer.startColor = borderColor;
+                borderRenderer.endColor = borderColor;
+                borderRenderer.startWidth = borderWidth;
+                borderRenderer.endWidth = borderWidth;
 
                 float halfWidth = borderWidth * 0.5f;
                 Vector3[] borderPoints = new Vector3[]
@@ -192,8 +194,10 @@ namespace AvionicsSystems
             lineRenderer = graphObject.AddComponent<LineRenderer>();
             lineRenderer.useWorldSpace = false;
             lineRenderer.material = graphMaterial;
-            lineRenderer.SetColors(sourceColor, sourceColor);
-            lineRenderer.SetWidth(2.5f, 2.5f);
+            lineRenderer.startColor = sourceColor;
+            lineRenderer.endColor = sourceColor;
+            lineRenderer.startWidth = 2.5f;
+            lineRenderer.endWidth = 2.5f;
             EnableRender(false);
 
             for (int i = 0; i < maxSamples; ++i)

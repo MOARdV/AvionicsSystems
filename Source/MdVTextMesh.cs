@@ -987,7 +987,6 @@ namespace AvionicsSystems
             meshFilter.mesh.uv = uv;
             meshFilter.mesh.triangles = triangles;
             meshFilter.mesh.RecalculateNormals();
-            meshFilter.mesh.Optimize();
             // Can't hide mesh with (true), or we can't edit colors later.
             meshFilter.mesh.UploadMeshData(false);
         }
@@ -1401,7 +1400,6 @@ namespace AvionicsSystems
             meshFilter.mesh.uv = uv;
             meshFilter.mesh.triangles = triangles;
             meshFilter.mesh.RecalculateNormals();
-            meshFilter.mesh.Optimize();
             // Can't hide mesh with (true), or we can't edit colors later.
             meshFilter.mesh.UploadMeshData(false);
         }
@@ -1564,7 +1562,6 @@ namespace AvionicsSystems
             meshFilter.mesh.uv = uv;
             meshFilter.mesh.triangles = triangles;
             meshFilter.mesh.RecalculateNormals();
-            meshFilter.mesh.Optimize();
             // Can't hide mesh with (true), or we can't edit colors later.
             meshFilter.mesh.UploadMeshData(false);
         }

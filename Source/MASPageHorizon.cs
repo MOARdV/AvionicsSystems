@@ -219,7 +219,6 @@ namespace AvionicsSystems
                     1, 3, 2
                 };
             mesh.RecalculateBounds();
-            mesh.Optimize();
             mesh.UploadMeshData(true);
             meshFilter.mesh = mesh;
             Shader imageShader = MASLoader.shaders["MOARdV/Monitor"];
