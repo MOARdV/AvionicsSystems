@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 - 2017 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -216,7 +216,7 @@ namespace AvionicsSystems
                     new Vector3(-halfWidth, size.y + halfWidth, 0.0f),
                     new Vector3(-halfWidth, -halfWidth, 0.0f)
                 };
-                lineRenderer.SetVertexCount(5);
+                lineRenderer.positionCount = 5;
                 lineRenderer.SetPositions(borderPoints);
             }
             imageObject = new GameObject();

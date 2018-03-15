@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2017 MOARdV
+ * Copyright (c) 2017-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -323,8 +323,10 @@ namespace AvionicsSystems
                         variableRegistrar.RegisterNumericVariable(targetColors[3], (double newValue) =>
                         {
                             targetColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
-                            lineRenderer[2].SetColors(targetColor, targetColor);
-                            lineRenderer[3].SetColors(targetColor, targetColor);
+                            lineRenderer[2].startColor = targetColor;
+                            lineRenderer[2].endColor = targetColor;
+                            lineRenderer[3].startColor = targetColor;
+                            lineRenderer[3].endColor = targetColor;
                         });
                     }
                 }
