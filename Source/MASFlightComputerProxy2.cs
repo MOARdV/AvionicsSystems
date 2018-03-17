@@ -150,6 +150,13 @@ namespace AvionicsSystems
                 result.Append("{1}");
             }
 
+            if (siExponent < 0 || siExponent >= siPrefixes.Length)
+            {
+                Utility.LogWarning(this, "Formatting the value {0}, got an exponent of {1} (out of bounds).  Jamming the value to 0 to avoid an exception.",
+                    value, siExponent);
+                scaledInputValue = 0.0;
+                siExponent = 0;
+            }
             //Utility.LogMessage(this, "\"{0}\" -> \"{1}\"", result.ToString(), string.Format(result.ToString(), scaledInputValue, 'Q'));
             return string.Format(result.ToStringAndRelease(), scaledInputValue, siPrefixes[siExponent / 3]);
         }
