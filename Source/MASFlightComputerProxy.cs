@@ -706,6 +706,25 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns 0 if the selected body orbits the star; returns 1 if the
+        /// body is a moon of another body.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>1 if the body is a moon, 0 if it is a planet.</returns>
+        public double BodyIsMoon(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+            if (cb != null && cb.referenceBody!=null && cb.referenceBody.GetName() != Planetarium.fetch.Sun.GetName())
+            {
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Returns the mass of the requested body.
         /// </summary>
         /// <param name="id">The name or index of the body of interest.</param>
@@ -769,6 +788,28 @@ namespace AvionicsSystems
             CelestialBody cb = SelectBody(id);
 
             return (cb != null) ? cb.Radius : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the index of the parent of the selected body.  Returns 0 (the Sun)
+        /// on an invalid id.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>Returns the index of the body that the current body orbits.</returns>
+        public double BodyParent(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+
+            if (cb != null && cb.referenceBody != null)
+            {
+                string bodyName = cb.referenceBody.bodyName;
+
+                return (double)FlightGlobals.Bodies.FindIndex(x => x.bodyName == bodyName);
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
