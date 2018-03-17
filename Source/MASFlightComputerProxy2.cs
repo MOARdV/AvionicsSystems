@@ -72,6 +72,12 @@ namespace AvionicsSystems
         [MoonSharpHidden]
         private string DoSIFormat(double value, int length, int minDecimal, string delimiter, bool forceSign, bool showPrefix)
         {
+            if (double.IsInfinity(value) || double.IsNaN(value))
+            {
+                // Force illegal values to 0.
+                value = 0.0;
+            }
+
             //Utility.LogMessage(this, "DoSIFormat {0}, {1}, {2}, x, {3}, {4}", value, length, minDecimal, forceSign, showPrefix);
             int leadingDigitExponent;
             if (Math.Abs(value) < 1.0)
