@@ -39,7 +39,7 @@ reuse them, I'd appreciate acknowledgment.
 
 ---
 
-Prop configs included in MAS are CC-BY-SA by MOARdV.
+Prop configs included in MAS are licensed under the Creative Commons Attribution-Share Alike 4.0 International license ([CC BY-SA](https://creativecommons.org/licenses/by-sa/4.0/)) by MOARdV.
 
 ---
 
