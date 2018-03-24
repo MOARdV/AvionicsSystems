@@ -287,11 +287,12 @@ namespace AvionicsSystems
             float iLerp = 1.0f - Mathf.InverseLerp((float)sourceRange1.SafeValue(), (float)sourceRange2.SafeValue(), (float)newValue);
             if (!Mathf.Approximately(lastValue, iLerp))
             {
+                float posLerp = 1.0f - iLerp;
                 // Recompute y positions and uvs
                 if (anchor == VBarAnchor.Top)
                 {
-                    vertices[2].y = -iLerp * barHeight;
-                    vertices[3].y = -iLerp * barHeight;
+                    vertices[2].y = -posLerp * barHeight;
+                    vertices[3].y = -posLerp * barHeight;
                     uv[2].y = iLerp;
                     uv[3].y = iLerp;
                 }
@@ -299,18 +300,18 @@ namespace AvionicsSystems
                 {
                     vertices[0].y = Math.Min(0.5f, iLerp) * -barHeight;
                     vertices[1].y = Math.Min(0.5f, iLerp) * -barHeight;
-                    uv[0].y = Math.Min(0.5f, iLerp);
-                    uv[1].y = Math.Min(0.5f, iLerp);
+                    uv[0].y = Math.Max(0.5f, posLerp);
+                    uv[1].y = Math.Max(0.5f, posLerp);
 
                     vertices[2].y = Math.Max(0.5f, iLerp) * -barHeight;
                     vertices[3].y = Math.Max(0.5f, iLerp) * -barHeight;
-                    uv[2].y = Math.Max(0.5f, iLerp);
-                    uv[3].y = Math.Max(0.5f, iLerp);
+                    uv[2].y = Math.Min(0.5f, posLerp);
+                    uv[3].y = Math.Min(0.5f, posLerp);
                 }
                 else // VBarAnchor.Bottom
                 {
-                    vertices[0].y = -iLerp * barHeight;
-                    vertices[1].y = -iLerp * barHeight;
+                    vertices[0].y = -posLerp * barHeight;
+                    vertices[1].y = -posLerp * barHeight;
                     uv[0].y = iLerp;
                     uv[1].y = iLerp;
                 }
