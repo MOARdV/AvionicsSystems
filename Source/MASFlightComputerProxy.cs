@@ -470,6 +470,50 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the drag force on the vessel.  If FAR is installed, this variable uses
+        /// FAR's computation for drag.
+        /// </summary>
+        /// <returns>Drag in kN.</returns>
+        public double Drag()
+        {
+            if (vc.mainBody.atmosphere == false || vc.altitudeASL > vc.mainBody.atmosphereDepth)
+            {
+                return 0.0;
+            }
+
+            if (MASIFAR.farFound)
+            {
+                return farProxy.DragForce();
+            }
+            else
+            {
+                return vc.DragForce();
+            }
+        }
+
+        /// <summary>
+        /// Returns the drag effect on the vessel as acceleration.  If FAR is installed, this variable uses
+        /// FAR's computation for drag.
+        /// </summary>
+        /// <returns>Drag acceleration in m/s^2.</returns>
+        public double DragAccel()
+        {
+            if (vc.mainBody.atmosphere == false || vc.altitudeASL > vc.mainBody.atmosphereDepth)
+            {
+                return 0.0;
+            }
+
+            if (MASIFAR.farFound)
+            {
+                return farProxy.DragForce() / vessel.totalMass;
+            }
+            else
+            {
+                return vc.DragForce() / vessel.totalMass;
+            }
+        }
+
+        /// <summary>
         /// Returns the current dynamic pressure on the vessel in kPa.  If FAR
         /// is installed, this variable uses FAR's computation instead.
         /// </summary>
@@ -496,6 +540,28 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the lift force on the vessel.  If FAR is installed, this variable uses
+        /// FAR's computation for lift.
+        /// </summary>
+        /// <returns>Lift in kN.</returns>
+        public double Lift()
+        {
+            if (vc.mainBody.atmosphere == false || vc.altitudeASL > vc.mainBody.atmosphereDepth)
+            {
+                return 0.0;
+            }
+
+            if (MASIFAR.farFound)
+            {
+                return farProxy.LiftForce();
+            }
+            else
+            {
+                return vc.LiftForce();
+            }
+        }
+
+        /// <summary>
         /// Returns the static atmospheric pressure in standard atmospheres.
         /// </summary>
         /// <returns></returns>
@@ -512,6 +578,30 @@ namespace AvionicsSystems
         {
             return vessel.staticPressurekPa;
         }
+
+        /// <summary>
+        /// Returns the current terminal velocity of the vessel.  If the vessel is not in
+        /// an atmosphere, returns 0.  If FAR is installed, returns FAR's terminal velocity
+        /// result.
+        /// </summary>
+        /// <returns>Terminal velocity in m/s.</returns>
+        public double TerminalVelocity()
+        {
+            if (vc.mainBody.atmosphere == false || vc.altitudeASL > vc.mainBody.atmosphereDepth)
+            {
+                return 0.0;
+            }
+
+            if (MASIFAR.farFound)
+            {
+                return farProxy.TerminalVelocity();
+            }
+            else
+            {
+                return vc.TerminalVelocity();
+            }
+        }
+
         #endregion
 
         /// <summary>

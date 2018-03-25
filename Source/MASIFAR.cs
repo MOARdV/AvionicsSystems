@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -51,6 +51,7 @@ namespace AvionicsSystems
         private static readonly Func<Vessel, double> VesselDynPress;
         private static readonly Func<Vessel, int> VesselFlapSetting;
         private static readonly Action<Vessel> VesselIncreaseFlapDeflection;
+        private static readonly Func<Vessel, object> VesselFlightInfo;
         private static readonly Func<Vessel, double> VesselRefArea;
         private static readonly Action<Vessel, bool> VesselSetSpoilers;
         private static readonly Func<Vessel, double> VesselSideSlip;
@@ -58,6 +59,10 @@ namespace AvionicsSystems
         private static readonly Func<Vessel, bool> VesselSpoilerSetting;
         private static readonly Func<Vessel, double> VesselStallFrac;
         private static readonly Func<Vessel, double> VesselTerminalVelocity;
+        
+        private static readonly Func<object, object> GetInfoParameters;
+        private static readonly FieldInfo DragForceField;
+        private static readonly FieldInfo LiftForceField;
 
         internal Vessel vessel;
 
@@ -73,6 +78,20 @@ namespace AvionicsSystems
         ~MASIFAR()
         {
             vessel = null;
+        }
+
+        private static object GetVesselFlightInfo(Vessel v)
+        {
+            if (farFound)
+            {
+                object flightGUI = VesselFlightInfo(v);
+                if (flightGUI != null)
+                {
+                    return GetInfoParameters(flightGUI);
+                }
+            }
+
+            return null;
         }
 
         [MoonSharpHidden]
@@ -175,6 +194,21 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Return the total force applied to the vessel due to drag.
+        /// </summary>
+        /// <returns>Drag force in kN.</returns>
+        public double DragForce()
+        {
+            object flightInfo = GetVesselFlightInfo(vessel);
+            if (flightInfo != null)
+            {
+                return (double)DragForceField.GetValue(flightInfo);
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the current dynamic pressure in kPa.
         /// </summary>
         /// <returns></returns>
@@ -233,6 +267,21 @@ namespace AvionicsSystems
                 VesselIncreaseFlapDeflection(vessel);
                 return 1.0;
             }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Return the total force applied to the vessel due to lift.
+        /// </summary>
+        /// <returns>Lift force in kN.</returns>
+        public double LiftForce()
+        {
+            object flightInfo = GetVesselFlightInfo(vessel);
+            if (flightInfo != null)
+            {
+                return (double)LiftForceField.GetValue(flightInfo);
+            }
+
             return 0.0;
         }
 
@@ -457,6 +506,53 @@ namespace AvionicsSystems
                     return;
                 }
                 VesselSpecFuelConsumption = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), specFuelConsumption_t);
+
+                MethodInfo flightInfo_t = farAPI_t.GetMethod("VesselFlightInfo", BindingFlags.Static | BindingFlags.Public);
+                if (flightInfo_t == null)
+                {
+                    Utility.LogErrorMessage("Failed to find 'VesselFlightInfo' in FAR");
+                    return;
+                }
+                VesselFlightInfo = (Func<Vessel, object>)Delegate.CreateDelegate(typeof(Func<Vessel, object>), flightInfo_t);
+
+                Type flightGUI_t = Utility.GetExportedType("FerramAerospaceResearch", "FerramAerospaceResearch.FARGUI.FARFlightGUI.FlightGUI");
+                if (flightGUI_t == null)
+                {
+                    Utility.LogErrorMessage("Failed to find 'FlightGUI' in FAR");
+                    return;
+                }
+                PropertyInfo infoParam_t = flightGUI_t.GetProperty("InfoParameters", BindingFlags.Instance | BindingFlags.Public);
+                if (infoParam_t == null)
+                {
+                    Utility.LogErrorMessage("Failed to find 'InfoParameters' in FAR");
+                    return;
+                }
+                MethodInfo getInfo_t = infoParam_t.GetGetMethod();
+                if (getInfo_t == null)
+                {
+                    Utility.LogErrorMessage("Failed to find 'InfoParameters' get method in FAR");
+                    return;
+                }
+                GetInfoParameters = (Func<object, object>)Delegate.CreateDelegate(typeof(Func<object, object>), getInfo_t);
+
+                Type FlightInfo_t = Utility.GetExportedType("FerramAerospaceResearch", "FerramAerospaceResearch.FARGUI.FARFlightGUI.VesselFlightInfo");
+                if (FlightInfo_t == null)
+                {
+                    Utility.LogErrorMessage("Failed to find 'VesselFlightInfo' in FAR");
+                    return;
+                }
+                DragForceField = FlightInfo_t.GetField("dragForce");
+                if (DragForceField == null)
+                {
+                    Utility.LogErrorMessage("Failed to find 'dragForce' field in FAR");
+                    return;
+                }
+                LiftForceField = FlightInfo_t.GetField("liftForce");
+                if (LiftForceField == null)
+                {
+                    Utility.LogErrorMessage("Failed to find 'liftForce' field in FAR");
+                    return;
+                }
 
                 farFound = true;
             }

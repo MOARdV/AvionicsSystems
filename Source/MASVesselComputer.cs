@@ -989,11 +989,103 @@ namespace AvionicsSystems
         }
         #endregion
 
+        private bool aeroDataValid = false;
+        private double dragForce;
+        private double liftForce;
+        private double terminalVelocity;
+
+        private void UpdateAeroForces()
+        {
+            if (aeroDataValid)
+            {
+                return;
+            }
+
+            dragForce = 0.0;
+            liftForce = 0.0;
+            terminalVelocity = 0.0;
+
+            // Code substantially from NathanKell's AeroGUI mod,
+            // https://github.com/NathanKell/AeroGUI/blob/ccfd5e2e40fdf13e6ce66517ceb1db418689a5f0/AeroGUI/AeroGUI.cs#L301
+
+            Vector3d vLift = Vector3d.zero; // the sum of lift from all parts
+            Vector3d vDrag = Vector3d.zero; // the sum of drag from all parts
+
+            for (int i = vessel.Parts.Count - 1; i >= 0; --i)
+            {
+                Part p = vessel.Parts[i];
+
+                // get part drag (but not wing/surface drag)
+                vDrag += -p.dragVectorDir * p.dragScalar;
+                if (!p.hasLiftModule)
+                {
+                    Vector3 bodyLift = p.transform.rotation * (p.bodyLiftScalar * p.DragCubes.LiftForce);
+                    bodyLift = Vector3.ProjectOnPlane(bodyLift, -p.dragVectorDir);
+                    vLift += bodyLift;
+                }
+
+                ModuleLiftingSurface wing = p.FindModuleImplementing<ModuleLiftingSurface>();
+                if (wing != null)
+                {
+                    vLift += wing.liftForce;
+                    vDrag += wing.dragForce;
+                }
+            }
+
+            Vector3d force = vLift + vDrag; // sum of all forces on the craft
+            Vector3d nVel = vessel.srf_velocity.normalized;
+            Vector3d liftDir = -Vector3d.Cross(vessel.transform.right, nVel); // we need the "lift" direction, which
+            // is "up" from our current velocity vector and roll angle.
+
+            // Now we can compute the dots.
+            liftForce = Vector3d.Dot(force, liftDir); // just the force in the 'lift' direction
+
+            dragForce = Vector3d.Dot(force, -nVel); // drag force, = pDrag + lift-induced drag
+
+            double grav = vessel.GetTotalMass() * FlightGlobals.getGeeForceAtPosition(vessel.CoM).magnitude; // force of gravity
+            terminalVelocity = Math.Sqrt(grav / dragForce) * vessel.speed;
+            if (double.IsNaN(terminalVelocity))
+            { 
+                terminalVelocity = 0d; 
+            }
+
+            aeroDataValid = true;
+        }
+
+        internal double DragForce()
+        {
+            if (!aeroDataValid)
+            {
+                UpdateAeroForces();
+            }
+
+            return dragForce;
+        }
+        internal double LiftForce()
+        {
+            if (!aeroDataValid)
+            {
+                UpdateAeroForces();
+            }
+
+            return liftForce;
+        }
+        internal double TerminalVelocity()
+        {
+            if (!aeroDataValid)
+            {
+                UpdateAeroForces();
+            }
+
+            return terminalVelocity;
+        }
+
         internal double surfaceAccelerationFromGravity;
         private void UpdateMisc()
         {
             // Convert to m/2^s
             surfaceAccelerationFromGravity = orbit.referenceBody.GeeASL * 9.81;
+            aeroDataValid = false;
         }
 
         private void UpdateReferenceTransform(Transform newRefXform)
