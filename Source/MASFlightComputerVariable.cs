@@ -645,7 +645,7 @@ namespace AvionicsSystems
 #if EXCESSIVE_LOGGING
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
-                            DynamicMethod<object, double> dm = DynamicMethodFactory.CreateFunc<object, double>(method);
+                            DynamicMethod<object, double> dm = DynamicMethodFactory.CreateDynFunc<object, double>(method);
                             return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue()), cacheable, mutable);
                         }
                         else if (methodParams[0].ParameterType == typeof(string))
@@ -653,7 +653,7 @@ namespace AvionicsSystems
 #if EXCESSIVE_LOGGING
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
-                            DynamicMethod<object, string> dm = DynamicMethodFactory.CreateFunc<object, string>(method);
+                            DynamicMethod<object, string> dm = DynamicMethodFactory.CreateDynFunc<object, string>(method);
                             //if (!parms[0].mutable && pushable)
                             //{
                             //    Utility.LogMessage(this, "--- GenerateCallVariable(): Found a candidate for pushable variable: {0} using {1}",
@@ -666,7 +666,7 @@ namespace AvionicsSystems
 #if EXCESSIVE_LOGGING
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
-                            DynamicMethod<object, bool> dm = DynamicMethodFactory.CreateFunc<object, bool>(method);
+                            DynamicMethod<object, bool> dm = DynamicMethodFactory.CreateDynFunc<object, bool>(method);
                             return new Variable(canonical, () => dm(tableInstance, parms[0].BoolValue()), cacheable, mutable);
                         }
                         else if (methodParams[0].ParameterType == typeof(object))
@@ -674,7 +674,7 @@ namespace AvionicsSystems
 #if EXCESSIVE_LOGGING
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
-                            DynamicMethod<object, object> dm = DynamicMethodFactory.CreateFunc<object, object>(method);
+                            DynamicMethod<object, object> dm = DynamicMethodFactory.CreateDynFunc<object, object>(method);
                             return new Variable(canonical, () => dm(tableInstance, parms[0].RawValue()), cacheable, mutable);
                         }
                         else

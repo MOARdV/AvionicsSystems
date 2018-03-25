@@ -179,7 +179,7 @@ namespace AvionicsSystems
                     MethodInfo method = moduleType.GetMethod(buttonClickMethodName);
                     if (method != null && method.GetParameters().Length == 1 && method.GetParameters()[0].ParameterType == typeof(int))
                     {
-                        buttonClickMethod = DynamicMethodFactory.CreateFunc<object, int>(method);
+                        buttonClickMethod = DynamicMethodFactory.CreateDynFunc<object, int>(method);
                     }
                 }
             }

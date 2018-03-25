@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2017 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -48,13 +48,13 @@ namespace AvionicsSystems
         private static readonly FieldInfo AbsoluteVectorLon;
 
         //--- Methods found in ComputerModule
-        private static readonly DynamicMethodBool<object> ModuleEnabled;
+        private static readonly Func<object, bool> ModuleEnabled;
         private static readonly FieldInfo ModuleUsers;
         private static readonly FieldInfo Target;
 
         //--- Methods found in EditableDoubleMult
         private static readonly DynamicMethod<object, double> setEditableDoubleMult;
-        private static readonly DynamicMethodDouble<object> getEditableDoubleMult;
+        private static readonly Func<object, double> getEditableDoubleMult;
 
         //--- Methods found in OrbitalManeuverCalculator
         // Actually, this requires 5 parameters, with the 5 an 'out' parameter.
@@ -97,7 +97,7 @@ namespace AvionicsSystems
         internal static readonly string[] modeNames;
 
         //--- Methods found in ModuleTargetController
-        private static readonly DynamicMethodBool<object> PositionTargetExists;
+        private static readonly Func<object, bool> PositionTargetExists;
         private static readonly FieldInfo TargetLatitude;
         private static readonly FieldInfo TargetLongitude;
         private static readonly DynamicMethod<object> TargetOrbit;
@@ -111,7 +111,7 @@ namespace AvionicsSystems
         private static readonly DynamicMethod<object, object, bool> RequestUpdate;
         private static readonly FieldInfo AtmoStats;
         private static readonly FieldInfo VacStats;
-        private static readonly DynamicMethodInt<object> GetStatsLength;
+        private static readonly Func<object, int> GetStatsLength;
         private static readonly DynamicMethod<object, int> GetStatsIndex;
 
         //--- Field in FuelFlowSimulation.Stats
@@ -1264,7 +1264,7 @@ namespace AvionicsSystems
                 {
                     return;
                 }
-                GetComputerModule = DynamicMethodFactory.CreateFunc<object, string>(GetComputerModule_t);
+                GetComputerModule = DynamicMethodFactory.CreateDynFunc<object, string>(GetComputerModule_t);
                 if (GetComputerModule == null)
                 {
                     return;
@@ -1286,7 +1286,7 @@ namespace AvionicsSystems
                 {
                     return;
                 }
-                ModuleEnabled = DynamicMethodFactory.CreateFuncBool<object>(mjModuleEnabled);
+                ModuleEnabled = DynamicMethodFactory.CreateFunc<object, bool>(mjModuleEnabled);
                 ModuleUsers = mjComputerModule_t.GetField("users", BindingFlags.Instance | BindingFlags.Public);
                 if (ModuleUsers == null)
                 {
@@ -1303,13 +1303,13 @@ namespace AvionicsSystems
                 MethodInfo mjGetEDM = edmVal.GetGetMethod();
                 if (mjGetEDM != null)
                 {
-                    getEditableDoubleMult = DynamicMethodFactory.CreateFuncDouble<object>(mjGetEDM);
+                    getEditableDoubleMult = DynamicMethodFactory.CreateFunc<object, double>(mjGetEDM);
                 }
                 // setEditableDoubleMult
                 MethodInfo mjSetEDM = edmVal.GetSetMethod();
                 if (mjSetEDM != null)
                 {
-                    setEditableDoubleMult = DynamicMethodFactory.CreateFunc<object, double>(mjSetEDM);
+                    setEditableDoubleMult = DynamicMethodFactory.CreateDynFunc<object, double>(mjSetEDM);
                 }
 
                 //--- ModuleAscentAutoPilot
@@ -1337,13 +1337,13 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("mjLandAtPositionTarget");
                 }
-                LandAtPositionTarget = DynamicMethodFactory.CreateFunc<object, object>(mjLandAtPositionTarget);
+                LandAtPositionTarget = DynamicMethodFactory.CreateDynFunc<object, object>(mjLandAtPositionTarget);
                 MethodInfo mjLandUntargeted = mjLandingAutopilot_t.GetMethod("LandUntargeted", BindingFlags.Instance | BindingFlags.Public);
                 if (mjLandUntargeted == null)
                 {
                     throw new NotImplementedException("mjLandUntargeted");
                 }
-                LandUntargeted = DynamicMethodFactory.CreateFunc<object, object>(mjLandUntargeted);
+                LandUntargeted = DynamicMethodFactory.CreateDynFunc<object, object>(mjLandUntargeted);
                 MethodInfo mjStopLanding = mjLandingAutopilot_t.GetMethod("StopLanding", BindingFlags.Instance | BindingFlags.Public);
                 if (mjStopLanding == null)
                 {
@@ -1370,7 +1370,7 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("mjExecuteOneNode");
                 }
-                ExecuteOneNode = DynamicMethodFactory.CreateFunc<object, object>(mjExecuteOneNode);
+                ExecuteOneNode = DynamicMethodFactory.CreateDynFunc<object, object>(mjExecuteOneNode);
                 MethodInfo mjAbortNode = mjNodeExecutor_t.GetMethod("Abort", BindingFlags.Instance | BindingFlags.Public);
                 if (mjAbortNode == null)
                 {
@@ -1391,7 +1391,7 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("mjSmartassEngage");
                 }
-                Engage = DynamicMethodFactory.CreateFunc<object, bool>(mjSmartassEngage);
+                Engage = DynamicMethodFactory.CreateDynFunc<object, bool>(mjSmartassEngage);
 
                 //--- ModuleTargetController
                 TargetLongitude = mjModuleTargetController_t.GetField("targetLongitude", BindingFlags.Instance | BindingFlags.Public);
@@ -1414,7 +1414,7 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("mjGetPositionTargetExists");
                 }
-                PositionTargetExists = DynamicMethodFactory.CreateFuncBool<object>(mjGetPositionTargetExists);
+                PositionTargetExists = DynamicMethodFactory.CreateFunc<object, bool>(mjGetPositionTargetExists);
 
                 PropertyInfo mjTargetOrbit = mjModuleTargetController_t.GetProperty("TargetOrbit", BindingFlags.Instance | BindingFlags.Public); ;
                 MethodInfo mjGetTargetOrbit = null;
@@ -1538,13 +1538,13 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("mjStageStatsGetLength");
                 }
-                GetStatsLength = DynamicMethodFactory.CreateFuncInt<object>(mjStageStatsGetLength);
+                GetStatsLength = DynamicMethodFactory.CreateFunc<object, int>(mjStageStatsGetLength);
                 MethodInfo mjStageStatsGetIndex = VacStats.FieldType.GetMethod("Get");
                 if (mjStageStatsGetIndex == null)
                 {
                     throw new NotImplementedException("mjStageStatsGetIndex");
                 }
-                GetStatsIndex = DynamicMethodFactory.CreateFunc<object, int>(mjStageStatsGetIndex);
+                GetStatsIndex = DynamicMethodFactory.CreateDynFunc<object, int>(mjStageStatsGetIndex);
 
                 //--- UserPool
                 MethodInfo mjAddUser = mjUserPool_t.GetMethod("Add", BindingFlags.Instance | BindingFlags.Public);
@@ -1552,13 +1552,13 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("mjAddUser");
                 }
-                AddUser = DynamicMethodFactory.CreateFunc<object, object>(mjAddUser);
+                AddUser = DynamicMethodFactory.CreateDynFunc<object, object>(mjAddUser);
                 MethodInfo mjRemoveUser = mjUserPool_t.GetMethod("Remove", BindingFlags.Instance | BindingFlags.Public);
                 if (mjRemoveUser == null)
                 {
                     throw new NotImplementedException("mjRemoveUser");
                 }
-                RemoveUser = DynamicMethodFactory.CreateFunc<object, object>(mjRemoveUser);
+                RemoveUser = DynamicMethodFactory.CreateDynFunc<object, object>(mjRemoveUser);
 
                 //--- VesselExtensions
                 MethodInfo GetMasterMechJeb_t = mjVesselExtensions_t.GetMethod("GetMasterMechJeb", BindingFlags.Static | BindingFlags.Public);
