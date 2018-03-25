@@ -310,10 +310,11 @@ namespace AvionicsSystems
                 }
                 else // HBarAnchor.Right
                 {
-                    vertices[0].x = iLerp * barWidth;
-                    vertices[2].x = iLerp * barWidth;
-                    uv[0].x = iLerp;
-                    uv[2].x = iLerp;
+                    float posLerp = 1.0f - iLerp;
+                    vertices[0].x = posLerp * barWidth;
+                    vertices[2].x = posLerp * barWidth;
+                    uv[0].x = posLerp;
+                    uv[2].x = posLerp;
                 }
 
                 mesh.vertices = vertices;

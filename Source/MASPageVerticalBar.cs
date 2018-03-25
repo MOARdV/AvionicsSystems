@@ -310,10 +310,10 @@ namespace AvionicsSystems
                 }
                 else // VBarAnchor.Bottom
                 {
-                    vertices[0].y = -posLerp * barHeight;
-                    vertices[1].y = -posLerp * barHeight;
-                    uv[0].y = iLerp;
-                    uv[1].y = iLerp;
+                    vertices[0].y = -iLerp * barHeight;
+                    vertices[1].y = -iLerp * barHeight;
+                    uv[0].y = posLerp;
+                    uv[1].y = posLerp;
                 }
 
                 mesh.vertices = vertices;
