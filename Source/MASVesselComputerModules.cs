@@ -482,6 +482,7 @@ namespace AvionicsSystems
         internal ModuleGimbal[] moduleGimbals = new ModuleGimbal[0];
         internal bool anyGimbalsLocked = false;
         internal bool anyGimbalsActive = false;
+        internal bool activeEnginesGimbal = false;
         internal float gimbalDeflection = 0.0f;
         internal float gimbalLimit = 0.0f;
         void UpdateGimbals()
@@ -1006,6 +1007,8 @@ namespace AvionicsSystems
                 hasActionGroup[agIndex] = false;
             }
 
+            activeEnginesGimbal = false;
+
             // Update the lists of modules
             for (int partIdx = vessel.parts.Count - 1; partIdx >= 0; --partIdx)
             {
@@ -1017,7 +1020,17 @@ namespace AvionicsSystems
                     {
                         if (module is ModuleEngines)
                         {
-                            enginesList.Add(module as ModuleEngines);
+                            ModuleEngines engine = module as ModuleEngines;
+                            enginesList.Add(engine);
+
+                            // This is something we only need to worry about when rebulding the list.
+                            if (engine.EngineIgnited && engine.isEnabled && engine.isOperational)
+                            {
+                                if (vessel.parts[partIdx].FindModuleImplementing<ModuleGimbal>() != null)
+                                {
+                                    activeEnginesGimbal = true;
+                                }
+                            }
                         }
                         else if (module is ModuleGimbal)
                         {

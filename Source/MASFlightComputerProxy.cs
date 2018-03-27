@@ -2470,6 +2470,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns 1 if any currently-active engines have gimbals.  Returns 0 if no active engine has a gimbal.
+        /// </summary>
+        /// <returns></returns>
+        public double GetActiveEnginesGimbal()
+        {
+            return (vc.activeEnginesGimbal) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Returns the currently-configured limit of active gimbals, as set in the right-click part menus.
         /// This value ranges between 0 (no gimbal) and 1 (100% gimbal).
         /// </summary>
