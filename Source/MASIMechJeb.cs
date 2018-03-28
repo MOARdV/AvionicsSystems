@@ -53,7 +53,7 @@ namespace AvionicsSystems
         private static readonly FieldInfo Target;
 
         //--- Methods found in EditableDoubleMult
-        private static readonly DynamicMethod<object, double> setEditableDoubleMult;
+        private static readonly Func<object, double, object> setEditableDoubleMult;
         private static readonly Func<object, double> getEditableDoubleMult;
 
         //--- Methods found in OrbitalManeuverCalculator
@@ -61,46 +61,44 @@ namespace AvionicsSystems
         private static readonly DynamicMethodDelegate DeltaVAndTimeForInterplanetaryTransferEjection;
         // The 4th parameter is an 'out' parameter.
         private static readonly DynamicMethodDelegate DeltaVAndTimeForHohmannTransfer;
-        private static readonly DynamicMethodVec3d<Orbit, double, double> DeltaVToChangeApoapsis;
-        private static readonly DynamicMethodVec3d<Orbit, double, double> DeltaVToChangePeriapsis;
-        private static readonly DynamicMethodVec3d<Orbit, double> DeltaVToCircularize;
-        private static readonly DynamicMethodVec3d<Orbit, double, Orbit> DeltaVToMatchVelocities;
+        private static readonly Func<Orbit, double, double, Vector3d> DeltaVToChangeApoapsis;
+        private static readonly Func<Orbit, double, double, Vector3d> DeltaVToChangePeriapsis;
+        private static readonly Func<Orbit, double, Vector3d> DeltaVToCircularize;
+        private static readonly Func<Orbit, double, Orbit, Vector3d> DeltaVToMatchVelocities;
 
         //--- Methods found in VesselExtensions
         private static readonly Type mjVesselExtensions_t;
-        private static readonly DynamicMethod<Vessel> GetMasterMechJeb;
-        private static readonly DynamicMethod<object, string> GetComputerModule;
-        private static readonly DynamicMethod<Vessel, Orbit, Vector3d, double> PlaceManeuverNode;
+        private static readonly Func<Vessel, object> GetMasterMechJeb;
+        private static readonly Func<object, string, object> GetComputerModule;
+        private static readonly Func<Vessel, Orbit, Vector3d, double, object> PlaceManeuverNode;
 
         //--- Methods found in MechJebModuleAscentAutopilot
-        private static readonly FieldInfo desiredOrbitAltitude_t;
-        private static readonly FieldInfo desiredOrbitInclination_t;
+        private static readonly Func<object, object> GetLaunchAltitude;
+        private static readonly Func<object, double> GetLaunchInclination;
+        private static readonly Action<object, double> SetLaunchInclination;
 
         //--- Methods found in ModuleAscentGuidance
-        private static readonly FieldInfo desiredOrbitInclinationAG_t;
+        private static readonly Func<object, object> GetInclinationAG;
 
         //--- Methods found in ModuleLandingAutopilot
-        private static readonly DynamicMethod<object, object> LandAtPositionTarget;
-        private static readonly DynamicMethod<object, object> LandUntargeted;
-        private static readonly DynamicMethod<object> StopLanding;
+        private static readonly Func<object, object, object> LandAtPositionTarget;
+        private static readonly Func<object, object, object> LandUntargeted;
+        private static readonly Func<object, object> StopLanding;
 
         //--- Methods found in ModuleLandingPredictions
-        private static readonly DynamicMethod<object> GetPredictionsResult;
+        private static readonly Func<object, object> GetPredictionsResult;
 
         //--- Methods found in ModuleNodeExecutor
-        private static readonly DynamicMethod<object> AbortNode;
-        private static readonly DynamicMethod<object, object> ExecuteOneNode;
+        private static readonly Func<object, object> AbortNode;
+        private static readonly Func<object, object, object> ExecuteOneNode;
 
         //--- Methods found in ModuleSmartASS
         private static readonly FieldInfo saTarget_t;
-        private static readonly DynamicMethod<object, bool> Engage;
+        private static readonly Func<object, bool, object> Engage;
         internal static readonly string[] modeNames;
 
         //--- Methods found in ModuleTargetController
         private static readonly Func<object, bool> PositionTargetExists;
-        private static readonly FieldInfo TargetLatitude;
-        private static readonly FieldInfo TargetLongitude;
-        private static readonly DynamicMethod<object> TargetOrbit;
 
         //--- Methods found in ReentrySimulation.Result
         private static readonly FieldInfo ReentryEndPosition;
@@ -108,18 +106,19 @@ namespace AvionicsSystems
         private static readonly FieldInfo ReentryTime;
 
         //--- Methods found in StageStats
-        private static readonly DynamicMethod<object, object, bool> RequestUpdate;
+        private static readonly Func<object, object, bool, object> RequestUpdate;
         private static readonly FieldInfo AtmoStats;
         private static readonly FieldInfo VacStats;
         private static readonly Func<object, int> GetStatsLength;
-        private static readonly DynamicMethod<object, int> GetStatsIndex;
+        private static readonly Func<object, int, object> GetStatsIndex;
 
         //--- Field in FuelFlowSimulation.Stats
         private static readonly FieldInfo StatsStageDv;
+        private static readonly Func<object, object> GetStageDv;
 
         //--- Methods found in UserPool
-        private static readonly DynamicMethod<object, object> AddUser;
-        private static readonly DynamicMethod<object, object> RemoveUser;
+        private static readonly Func<object, object, object> AddUser;
+        private static readonly Func<object, object, object> RemoveUser;
 
         //--- Instance variables
         internal bool mjAvailable;
@@ -334,7 +333,7 @@ namespace AvionicsSystems
             double desiredAltitude = 0.0;
             if (mjAvailable)
             {
-                object desiredAlt = desiredOrbitAltitude_t.GetValue(ascentAutopilot);
+                object desiredAlt = GetLaunchAltitude(ascentAutopilot);
                 if (desiredAlt != null)
                 {
                     desiredAltitude = getEditableDoubleMult(desiredAlt);
@@ -353,8 +352,9 @@ namespace AvionicsSystems
             double desiredInclination = 0.0;
             if (mjAvailable)
             {
-                object desiredInc = desiredOrbitInclination_t.GetValue(ascentAutopilot);
-                desiredInclination = (double)desiredInc;
+                return GetLaunchInclination(ascentAutopilot);
+                //object desiredInc = desiredOrbitInclination_t.GetValue(ascentAutopilot);
+                //desiredInclination = (double)desiredInc;
             }
 
             return desiredInclination;
@@ -368,7 +368,7 @@ namespace AvionicsSystems
         {
             if (mjAvailable)
             {
-                object desiredAlt = desiredOrbitAltitude_t.GetValue(ascentAutopilot);
+                object desiredAlt = GetLaunchAltitude(ascentAutopilot);
                 if (desiredAlt != null)
                 {
                     setEditableDoubleMult(desiredAlt, altitude);
@@ -384,9 +384,9 @@ namespace AvionicsSystems
         {
             if (mjAvailable)
             {
-                desiredOrbitInclination_t.SetValue(ascentAutopilot, inclination);
+                SetLaunchInclination(ascentAutopilot, inclination);
                 // Just writing it to the autopilot doesn't update the ascent guidance gui...
-                object desiredInc = desiredOrbitInclinationAG_t.GetValue(ascentGuidance);
+                object desiredInc = GetInclinationAG(ascentGuidance);
                 if (desiredInc != null)
                 {
                     setEditableDoubleMult(desiredInc, inclination);
@@ -1060,10 +1060,15 @@ namespace AvionicsSystems
                             return;
                         }
 
+                        //object a = GetStageDv(atmStat);
+                        //Utility.LogMessage(this, "GetStageDv returns {0}", a.GetType().Name); // <- returns Stats, not double?
+                        //double atm1 = (double)GetStageDv(atmStat); // These values are wrong
+                        //double vac1 = (double)GetStageDv(vacStat);
                         double atm = (double)StatsStageDv.GetValue(atmStat);
                         double vac = (double)StatsStageDv.GetValue(vacStat);
                         double stagedV = UtilMath.LerpUnclamped(vac, atm, atmospheresLocal);
-
+                        //Utility.LogMessage(this, "{0,2}: A = {1:0.0} - V = {2:0.0}, getter says A = {3:0.0} - V = {4:0.0}", i, atm, vac, atm1, vac1);
+                        
                         deltaV += stagedV;
 
                         if (i == (atmStatsLength - 1))
@@ -1264,7 +1269,7 @@ namespace AvionicsSystems
                 {
                     return;
                 }
-                GetComputerModule = DynamicMethodFactory.CreateDynFunc<object, string>(GetComputerModule_t);
+                GetComputerModule = DynamicMethodFactory.CreateDynFunc<object, string, object>(GetComputerModule_t);
                 if (GetComputerModule == null)
                 {
                     return;
@@ -1309,27 +1314,31 @@ namespace AvionicsSystems
                 MethodInfo mjSetEDM = edmVal.GetSetMethod();
                 if (mjSetEDM != null)
                 {
-                    setEditableDoubleMult = DynamicMethodFactory.CreateDynFunc<object, double>(mjSetEDM);
+                    setEditableDoubleMult = DynamicMethodFactory.CreateDynFunc<object, double, object>(mjSetEDM);
                 }
 
                 //--- ModuleAscentAutoPilot
-                desiredOrbitAltitude_t = mjModuleAscentAP_t.GetField("desiredOrbitAltitude");
+                FieldInfo desiredOrbitAltitude_t = mjModuleAscentAP_t.GetField("desiredOrbitAltitude");
                 if (desiredOrbitAltitude_t == null)
                 {
                     return;
                 }
-                desiredOrbitInclination_t = mjModuleAscentAP_t.GetField("desiredInclination");
+                GetLaunchAltitude = DynamicMethodFactory.CreateGetField<object, object>(desiredOrbitAltitude_t);
+                FieldInfo desiredOrbitInclination_t = mjModuleAscentAP_t.GetField("desiredInclination");
                 if (desiredOrbitInclination_t == null)
                 {
                     return;
                 }
+                GetLaunchInclination = DynamicMethodFactory.CreateGetField<object, double>(desiredOrbitInclination_t);
+                SetLaunchInclination = DynamicMethodFactory.CreateSetField<object, double>(desiredOrbitInclination_t);
 
                 //--- ModuleAscentGuidance
-                desiredOrbitInclinationAG_t = mjModuleAscentGuid_t.GetField("desiredInclination");
+                FieldInfo desiredOrbitInclinationAG_t = mjModuleAscentGuid_t.GetField("desiredInclination");
                 if (desiredOrbitInclinationAG_t == null)
                 {
                     return;
                 }
+                GetInclinationAG = DynamicMethodFactory.CreateGetField<object, object>(desiredOrbitInclinationAG_t);
 
                 //--- ModuleLandingAutopilot
                 MethodInfo mjLandAtPositionTarget = mjLandingAutopilot_t.GetMethod("LandAtPositionTarget", BindingFlags.Instance | BindingFlags.Public);
@@ -1337,19 +1346,19 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("mjLandAtPositionTarget");
                 }
-                LandAtPositionTarget = DynamicMethodFactory.CreateDynFunc<object, object>(mjLandAtPositionTarget);
+                LandAtPositionTarget = DynamicMethodFactory.CreateDynFunc<object, object, object>(mjLandAtPositionTarget);
                 MethodInfo mjLandUntargeted = mjLandingAutopilot_t.GetMethod("LandUntargeted", BindingFlags.Instance | BindingFlags.Public);
                 if (mjLandUntargeted == null)
                 {
                     throw new NotImplementedException("mjLandUntargeted");
                 }
-                LandUntargeted = DynamicMethodFactory.CreateDynFunc<object, object>(mjLandUntargeted);
+                LandUntargeted = DynamicMethodFactory.CreateDynFunc<object, object, object>(mjLandUntargeted);
                 MethodInfo mjStopLanding = mjLandingAutopilot_t.GetMethod("StopLanding", BindingFlags.Instance | BindingFlags.Public);
                 if (mjStopLanding == null)
                 {
                     throw new NotImplementedException("mjStopLanding");
                 }
-                StopLanding = DynamicMethodFactory.CreateFunc<object>(mjStopLanding);
+                StopLanding = DynamicMethodFactory.CreateFunc<object, object>(mjStopLanding);
 
                 //--- ModuleLandingPredictions
                 Type mjModuleLandingPredictions_t = Utility.GetExportedType("MechJeb2", "MuMech.MechJebModuleLandingPredictions");
@@ -1362,7 +1371,7 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("mjPredictionsGetResult");
                 }
-                GetPredictionsResult = DynamicMethodFactory.CreateFunc<object>(mjPredictionsGetResult);
+                GetPredictionsResult = DynamicMethodFactory.CreateFunc<object, object>(mjPredictionsGetResult);
 
                 //--- ModuleNodeExecutor
                 MethodInfo mjExecuteOneNode = mjNodeExecutor_t.GetMethod("ExecuteOneNode", BindingFlags.Instance | BindingFlags.Public);
@@ -1370,13 +1379,13 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("mjExecuteOneNode");
                 }
-                ExecuteOneNode = DynamicMethodFactory.CreateDynFunc<object, object>(mjExecuteOneNode);
+                ExecuteOneNode = DynamicMethodFactory.CreateDynFunc<object, object, object>(mjExecuteOneNode);
                 MethodInfo mjAbortNode = mjNodeExecutor_t.GetMethod("Abort", BindingFlags.Instance | BindingFlags.Public);
                 if (mjAbortNode == null)
                 {
                     throw new NotImplementedException("mjAbortNode");
                 }
-                AbortNode = DynamicMethodFactory.CreateFunc<object>(mjAbortNode);
+                AbortNode = DynamicMethodFactory.CreateFunc<object, object>(mjAbortNode);
 
                 //--- ModuleSmartASS
                 saTarget_t = mjModuleSmartass_t.GetField("target", BindingFlags.Instance | BindingFlags.Public);
@@ -1391,19 +1400,9 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("mjSmartassEngage");
                 }
-                Engage = DynamicMethodFactory.CreateDynFunc<object, bool>(mjSmartassEngage);
+                Engage = DynamicMethodFactory.CreateDynFunc<object, bool, object>(mjSmartassEngage);
 
                 //--- ModuleTargetController
-                TargetLongitude = mjModuleTargetController_t.GetField("targetLongitude", BindingFlags.Instance | BindingFlags.Public);
-                if (TargetLongitude == null)
-                {
-                    throw new NotImplementedException("TargetLongitude");
-                }
-                TargetLatitude = mjModuleTargetController_t.GetField("targetLatitude", BindingFlags.Instance | BindingFlags.Public);
-                if (TargetLatitude == null)
-                {
-                    throw new NotImplementedException("TargetLatitude");
-                }
                 PropertyInfo mjPositionTargetExists = mjModuleTargetController_t.GetProperty("PositionTargetExists", BindingFlags.Instance | BindingFlags.Public);
                 MethodInfo mjGetPositionTargetExists = null;
                 if (mjPositionTargetExists != null)
@@ -1416,39 +1415,27 @@ namespace AvionicsSystems
                 }
                 PositionTargetExists = DynamicMethodFactory.CreateFunc<object, bool>(mjGetPositionTargetExists);
 
-                PropertyInfo mjTargetOrbit = mjModuleTargetController_t.GetProperty("TargetOrbit", BindingFlags.Instance | BindingFlags.Public); ;
-                MethodInfo mjGetTargetOrbit = null;
-                if (mjTargetOrbit != null)
-                {
-                    mjGetTargetOrbit = mjTargetOrbit.GetGetMethod();
-                }
-                if (mjGetTargetOrbit == null)
-                {
-                    throw new NotImplementedException("mjGetTargetOrbit");
-                }
-                TargetOrbit = DynamicMethodFactory.CreateFunc<object>(mjGetTargetOrbit);
-
                 //--- OrbitalManeuverCalculator
                 MethodInfo deltaVToChangePeriapsis = mjOrbitalManeuverCalculator_t.GetMethod("DeltaVToChangePeriapsis", BindingFlags.Static | BindingFlags.Public);
                 if (deltaVToChangePeriapsis == null)
                 {
                     throw new ArgumentNullException("deltaVToChangePeriapsis");
                 }
-                DeltaVToChangePeriapsis = DynamicMethodFactory.CreateFuncVec3d<Orbit, double, double>(deltaVToChangePeriapsis);
+                DeltaVToChangePeriapsis = DynamicMethodFactory.CreateFunc<Orbit, double, double, Vector3d>(deltaVToChangePeriapsis);
 
                 MethodInfo deltaVToChangeApoapsis = mjOrbitalManeuverCalculator_t.GetMethod("DeltaVToChangeApoapsis", BindingFlags.Static | BindingFlags.Public);
                 if (deltaVToChangeApoapsis == null)
                 {
                     throw new ArgumentNullException("deltaVToChangeApoapsis");
                 }
-                DeltaVToChangeApoapsis = DynamicMethodFactory.CreateFuncVec3d<Orbit, double, double>(deltaVToChangeApoapsis);
+                DeltaVToChangeApoapsis = DynamicMethodFactory.CreateFunc<Orbit, double, double, Vector3d>(deltaVToChangeApoapsis);
 
                 MethodInfo deltaVToChangeCircularize = mjOrbitalManeuverCalculator_t.GetMethod("DeltaVToCircularize", BindingFlags.Static | BindingFlags.Public);
                 if (deltaVToChangeCircularize == null)
                 {
                     throw new ArgumentNullException("deltaVToChangeCircularize");
                 }
-                DeltaVToCircularize = DynamicMethodFactory.CreateFuncVec3d<Orbit, double>(deltaVToChangeCircularize);
+                DeltaVToCircularize = DynamicMethodFactory.CreateDynFunc<Orbit, double, Vector3d>(deltaVToChangeCircularize);
 
                 MethodInfo deltaVAndTimeForHohmannTransfer = mjOrbitalManeuverCalculator_t.GetMethod("DeltaVAndTimeForHohmannTransfer", BindingFlags.Static | BindingFlags.Public);
                 if (deltaVAndTimeForHohmannTransfer == null)
@@ -1462,7 +1449,7 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("deltaVToMatchVelocities");
                 }
-                DeltaVToMatchVelocities = DynamicMethodFactory.CreateFuncVec3d<Orbit, double, Orbit>(deltaVToMatchVelocities);
+                DeltaVToMatchVelocities = DynamicMethodFactory.CreateFunc<Orbit, double, Orbit, Vector3d>(deltaVToMatchVelocities);
 
                 MethodInfo deltaVAndTimeForInterplanetaryTransferEjection = mjOrbitalManeuverCalculator_t.GetMethod("DeltaVAndTimeForInterplanetaryTransferEjection", BindingFlags.Static | BindingFlags.Public);
                 if (deltaVAndTimeForInterplanetaryTransferEjection == null)
@@ -1504,7 +1491,7 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("mjRequestUpdate");
                 }
-                RequestUpdate = DynamicMethodFactory.CreateFunc<object, object, bool>(mjRequestUpdate);
+                RequestUpdate = DynamicMethodFactory.CreateFunc<object, object, bool, object>(mjRequestUpdate);
                 VacStats = mjModuleStageStats_t.GetField("vacStats", BindingFlags.Instance | BindingFlags.Public);
                 if (VacStats == null)
                 {
@@ -1517,6 +1504,8 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("mjStageDv");
                 }
+                //Utility.LogMessage(StatsStageDv, "mjStageDv type is {0}", StatsStageDv.FieldType.Name);
+                GetStageDv = DynamicMethodFactory.CreateGetField<object, object>(StatsStageDv);
 
                 // Updated MechJeb (post 2.5.1) switched from using KER back to
                 // its internal FuelFlowSimulation.  This sim uses an array of
@@ -1544,7 +1533,7 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("mjStageStatsGetIndex");
                 }
-                GetStatsIndex = DynamicMethodFactory.CreateDynFunc<object, int>(mjStageStatsGetIndex);
+                GetStatsIndex = DynamicMethodFactory.CreateDynFunc<object, int, object>(mjStageStatsGetIndex);
 
                 //--- UserPool
                 MethodInfo mjAddUser = mjUserPool_t.GetMethod("Add", BindingFlags.Instance | BindingFlags.Public);
@@ -1552,13 +1541,13 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("mjAddUser");
                 }
-                AddUser = DynamicMethodFactory.CreateDynFunc<object, object>(mjAddUser);
+                AddUser = DynamicMethodFactory.CreateDynFunc<object, object, object>(mjAddUser);
                 MethodInfo mjRemoveUser = mjUserPool_t.GetMethod("Remove", BindingFlags.Instance | BindingFlags.Public);
                 if (mjRemoveUser == null)
                 {
                     throw new NotImplementedException("mjRemoveUser");
                 }
-                RemoveUser = DynamicMethodFactory.CreateDynFunc<object, object>(mjRemoveUser);
+                RemoveUser = DynamicMethodFactory.CreateDynFunc<object, object, object>(mjRemoveUser);
 
                 //--- VesselExtensions
                 MethodInfo GetMasterMechJeb_t = mjVesselExtensions_t.GetMethod("GetMasterMechJeb", BindingFlags.Static | BindingFlags.Public);
@@ -1566,7 +1555,7 @@ namespace AvionicsSystems
                 {
                     return;
                 }
-                GetMasterMechJeb = DynamicMethodFactory.CreateFunc<Vessel>(GetMasterMechJeb_t);
+                GetMasterMechJeb = DynamicMethodFactory.CreateFunc<Vessel, object>(GetMasterMechJeb_t);
                 if (GetMasterMechJeb == null)
                 {
                     return;
@@ -1576,7 +1565,7 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("mjPlaceManeuverNode");
                 }
-                PlaceManeuverNode = DynamicMethodFactory.CreateFunc<Vessel, Orbit, Vector3d, double>(mjPlaceManeuverNode);
+                PlaceManeuverNode = DynamicMethodFactory.CreateFunc<Vessel, Orbit, Vector3d, double, object>(mjPlaceManeuverNode);
 
                 //--- AbsoluteVector
                 Type mjAbsoluteVector_t = Utility.GetExportedType("MechJeb2", "MuMech.AbsoluteVector");

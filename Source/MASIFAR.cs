@@ -61,8 +61,8 @@ namespace AvionicsSystems
         private static readonly Func<Vessel, double> VesselTerminalVelocity;
         
         private static readonly Func<object, object> GetInfoParameters;
-        private static readonly FieldInfo DragForceField;
-        private static readonly FieldInfo LiftForceField;
+        private static readonly Func<object, double> GetDragForce;
+        private static readonly Func<object, double> GetLiftForce;
 
         internal Vessel vessel;
 
@@ -202,7 +202,7 @@ namespace AvionicsSystems
             object flightInfo = GetVesselFlightInfo(vessel);
             if (flightInfo != null)
             {
-                return (double)DragForceField.GetValue(flightInfo);
+                return GetDragForce(flightInfo);
             }
 
             return 0.0;
@@ -279,7 +279,7 @@ namespace AvionicsSystems
             object flightInfo = GetVesselFlightInfo(vessel);
             if (flightInfo != null)
             {
-                return (double)LiftForceField.GetValue(flightInfo);
+                return GetLiftForce(flightInfo);
             }
 
             return 0.0;
@@ -541,18 +541,20 @@ namespace AvionicsSystems
                     Utility.LogErrorMessage("Failed to find 'VesselFlightInfo' in FAR");
                     return;
                 }
-                DragForceField = FlightInfo_t.GetField("dragForce");
-                if (DragForceField == null)
+                FieldInfo DragForceFieldInfo = FlightInfo_t.GetField("dragForce");
+                if (DragForceFieldInfo == null)
                 {
                     Utility.LogErrorMessage("Failed to find 'dragForce' field in FAR");
                     return;
                 }
-                LiftForceField = FlightInfo_t.GetField("liftForce");
-                if (LiftForceField == null)
+                GetDragForce = DynamicMethodFactory.CreateGetField<object, double>(DragForceFieldInfo);
+                FieldInfo LiftForceFieldInfo = FlightInfo_t.GetField("liftForce");
+                if (LiftForceFieldInfo == null)
                 {
                     Utility.LogErrorMessage("Failed to find 'liftForce' field in FAR");
                     return;
                 }
+                GetLiftForce = DynamicMethodFactory.CreateGetField<object, double>(LiftForceFieldInfo);
 
                 farFound = true;
             }

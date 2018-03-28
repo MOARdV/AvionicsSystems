@@ -632,7 +632,7 @@ namespace AvionicsSystems
                     ParameterInfo[] methodParams = method.GetParameters();
                     if (numArgs == 0)
                     {
-                        DynamicMethod<object> dm = DynamicMethodFactory.CreateFunc<object>(method);
+                        Func<object, object> dm = DynamicMethodFactory.CreateFunc<object, object>(method);
 #if EXCESSIVE_LOGGING
                         Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, {1} parameters", canonical, numArgs);
 #endif
@@ -645,7 +645,7 @@ namespace AvionicsSystems
 #if EXCESSIVE_LOGGING
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
-                            DynamicMethod<object, double> dm = DynamicMethodFactory.CreateDynFunc<object, double>(method);
+                            Func<object, double, object> dm = DynamicMethodFactory.CreateDynFunc<object, double, object>(method);
                             return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue()), cacheable, mutable);
                         }
                         else if (methodParams[0].ParameterType == typeof(string))
@@ -653,7 +653,7 @@ namespace AvionicsSystems
 #if EXCESSIVE_LOGGING
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
-                            DynamicMethod<object, string> dm = DynamicMethodFactory.CreateDynFunc<object, string>(method);
+                            Func<object, string, object> dm = DynamicMethodFactory.CreateDynFunc<object, string, object>(method);
                             //if (!parms[0].mutable && pushable)
                             //{
                             //    Utility.LogMessage(this, "--- GenerateCallVariable(): Found a candidate for pushable variable: {0} using {1}",
@@ -666,7 +666,7 @@ namespace AvionicsSystems
 #if EXCESSIVE_LOGGING
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
-                            DynamicMethod<object, bool> dm = DynamicMethodFactory.CreateDynFunc<object, bool>(method);
+                            Func<object, bool, object> dm = DynamicMethodFactory.CreateDynFunc<object, bool, object>(method);
                             return new Variable(canonical, () => dm(tableInstance, parms[0].BoolValue()), cacheable, mutable);
                         }
                         else if (methodParams[0].ParameterType == typeof(object))
@@ -674,7 +674,7 @@ namespace AvionicsSystems
 #if EXCESSIVE_LOGGING
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
-                            DynamicMethod<object, object> dm = DynamicMethodFactory.CreateDynFunc<object, object>(method);
+                            Func<object, object, object> dm = DynamicMethodFactory.CreateDynFunc<object, object, object>(method);
                             return new Variable(canonical, () => dm(tableInstance, parms[0].RawValue()), cacheable, mutable);
                         }
                         else
@@ -686,17 +686,17 @@ namespace AvionicsSystems
                     {
                         if (methodParams[0].ParameterType == typeof(double) && methodParams[1].ParameterType == typeof(double))
                         {
-                            DynamicMethod<object, double, double> dm = DynamicMethodFactory.CreateFunc<object, double, double>(method);
+                            Func<object, double, double, object> dm = DynamicMethodFactory.CreateFunc<object, double, double, object>(method);
                             return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].SafeValue()), cacheable, mutable);
                         }
                         else if (methodParams[0].ParameterType == typeof(bool) && methodParams[1].ParameterType == typeof(double))
                         {
-                            DynamicMethod<object, bool, double> dm = DynamicMethodFactory.CreateFunc<object, bool, double>(method);
+                            Func<object, bool, double, object> dm = DynamicMethodFactory.CreateFunc<object, bool, double, object>(method);
                             return new Variable(canonical, () => dm(tableInstance, parms[0].BoolValue(), parms[1].SafeValue()), cacheable, mutable);
                         }
                         else if (methodParams[0].ParameterType == typeof(double) && methodParams[1].ParameterType == typeof(bool))
                         {
-                            DynamicMethod<object, double, bool> dm = DynamicMethodFactory.CreateFunc<object, double, bool>(method);
+                            Func<object, double, bool, object> dm = DynamicMethodFactory.CreateFunc<object, double, bool, object>(method);
                             return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].BoolValue()), cacheable, mutable);
                         }
                         else
@@ -708,17 +708,17 @@ namespace AvionicsSystems
                     {
                         if (methodParams[0].ParameterType == typeof(double) && methodParams[1].ParameterType == typeof(double) && methodParams[2].ParameterType == typeof(double))
                         {
-                            DynamicMethod<object, double, double, double> dm = DynamicMethodFactory.CreateFunc<object, double, double, double>(method);
+                            Func<object, double, double, double, object> dm = DynamicMethodFactory.CreateFunc<object, double, double, double, object>(method);
                             return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].SafeValue(), parms[2].SafeValue()), cacheable, mutable);
                         }
                         else if (methodParams[0].ParameterType == typeof(string) && methodParams[1].ParameterType == typeof(double) && methodParams[2].ParameterType == typeof(double))
                         {
-                            DynamicMethod<object, string, double, double> dm = DynamicMethodFactory.CreateFunc<object, string, double, double>(method);
+                            Func<object, string, double, double, object> dm = DynamicMethodFactory.CreateFunc<object, string, double, double, object>(method);
                             return new Variable(canonical, () => dm(tableInstance, parms[0].String(), parms[1].SafeValue(), parms[2].SafeValue()), cacheable, mutable);
                         }
                         else if (methodParams[0].ParameterType == typeof(object) && methodParams[1].ParameterType == typeof(double) && methodParams[2].ParameterType == typeof(double))
                         {
-                            DynamicMethod<object, object, double, double> dm = DynamicMethodFactory.CreateFunc<object, object, double, double>(method);
+                            Func<object, object, double, double, object> dm = DynamicMethodFactory.CreateFunc<object, object, double, double, object>(method);
                             return new Variable(canonical, () => dm(tableInstance, parms[0].RawValue(), parms[1].SafeValue(), parms[2].SafeValue()), cacheable, mutable);
                         }
                         else

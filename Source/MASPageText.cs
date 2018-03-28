@@ -45,7 +45,8 @@ namespace AvionicsSystems
         private bool currentState;
 
         private object rpmModule;
-        private DynamicMethod<object, int, int> rpmModuleTextMethod;
+        private Func<object, int, int, string> rpmModuleTextMethod;
+        //private DynamicMethod<object, int, int> rpmModuleTextMethod;
         private MASFlightComputer comp;
         private InternalProp prop;
 
@@ -92,7 +93,7 @@ namespace AvionicsSystems
                         MethodInfo method = moduleType.GetMethod(rpmMod[1]);
                         if (method != null && method.GetParameters().Length == 2 && method.GetParameters()[0].ParameterType == typeof(int) && method.GetParameters()[1].ParameterType == typeof(int))
                         {
-                            rpmModuleTextMethod = DynamicMethodFactory.CreateFunc<object, int, int>(method);
+                            rpmModuleTextMethod = DynamicMethodFactory.CreateFunc<object, int, int, string>(method);
                         }
                     }
 
@@ -241,12 +242,18 @@ namespace AvionicsSystems
                 // TODO: real values.
                 if (currentState)
                 {
-                    object rv = rpmModuleTextMethod(rpmModule, 40, 32);
-                    if (rv != null && (rv is string) && (rv as string) != oldText)
+                    string rv = rpmModuleTextMethod(rpmModule, 40, 32);
+                    if (rv != oldText)
                     {
-                        oldText = rv as string;
+                        oldText = rv;
                         textObj.SetText(oldText, true, true, comp, prop);
                     }
+                    //object rv = rpmModuleTextMethod(rpmModule, 40, 32);
+                    //if (rv != null && (rv is string) && (rv as string) != oldText)
+                    //{
+                    //    oldText = rv as string;
+                    //    textObj.SetText(oldText, true, true, comp, prop);
+                    //}
                 }
                 yield return MASConfig.waitForFixedUpdate;
             }

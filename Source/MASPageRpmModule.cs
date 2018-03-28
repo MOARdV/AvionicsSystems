@@ -46,9 +46,9 @@ namespace AvionicsSystems
         private RenderTexture renderTexture;
 
         private object rpmModule;
-        private DynamicMethod<object, RenderTexture, float> renderMethod;
-        private DynamicMethod<object, bool, int> pageActiveMethod;
-        private DynamicMethod<object, int> buttonClickMethod;
+        private Func<object, RenderTexture, float, object> renderMethod;
+        private Func<object, bool, int, object> pageActiveMethod;
+        private Func<object, int, object> buttonClickMethod;
 
         private MASFlightComputer.Variable range1, range2;
         private readonly bool rangeMode;
@@ -136,7 +136,7 @@ namespace AvionicsSystems
                     MethodInfo method = moduleType.GetMethod(renderMethodName);
                     if (method != null && method.GetParameters().Length == 2 && method.GetParameters()[0].ParameterType == typeof(RenderTexture) && method.GetParameters()[1].ParameterType == typeof(float))
                     {
-                        renderMethod = DynamicMethodFactory.CreateFunc<object, RenderTexture, float>(method);
+                        renderMethod = DynamicMethodFactory.CreateFunc<object, RenderTexture, float, object>(method);
                     }
 
                     if (renderMethod != null)
@@ -165,7 +165,7 @@ namespace AvionicsSystems
                     MethodInfo method = moduleType.GetMethod(pageActiveMethodName);
                     if (method != null && method.GetParameters().Length == 2 && method.GetParameters()[0].ParameterType == typeof(bool) && method.GetParameters()[1].ParameterType == typeof(int))
                     {
-                        pageActiveMethod = DynamicMethodFactory.CreateFunc<object, bool, int>(method);
+                        pageActiveMethod = DynamicMethodFactory.CreateFunc<object, bool, int, object>(method);
                     }
                     else
                     {
@@ -179,7 +179,7 @@ namespace AvionicsSystems
                     MethodInfo method = moduleType.GetMethod(buttonClickMethodName);
                     if (method != null && method.GetParameters().Length == 1 && method.GetParameters()[0].ParameterType == typeof(int))
                     {
-                        buttonClickMethod = DynamicMethodFactory.CreateDynFunc<object, int>(method);
+                        buttonClickMethod = DynamicMethodFactory.CreateDynFunc<object, int, object>(method);
                     }
                 }
             }
