@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -39,19 +39,24 @@ namespace AvionicsSystems
 
         private GameObject meshObject;
         private MdVTextMesh textObj;
-        private string variableName;
         private MASFlightComputer.Variable range1, range2;
         private readonly bool rangeMode;
         private bool currentState;
 
+        private VariableRegistrar registeredVariables;
+        private Vector3 imageOrigin = Vector3.zero;
+        private Vector2 position = Vector2.zero;
+        private Vector2 fontScale;
+
         private object rpmModule;
         private Func<object, int, int, string> rpmModuleTextMethod;
-        //private DynamicMethod<object, int, int> rpmModuleTextMethod;
         private MASFlightComputer comp;
         private InternalProp prop;
 
         internal MASPageText(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
+            registeredVariables = new VariableRegistrar(comp, prop);
+
             if (!config.TryGetValue("name", ref name))
             {
                 name = "anonymous";
@@ -145,19 +150,12 @@ namespace AvionicsSystems
                 textColor = Utility.ParseColor32(textColorStr, comp);
             }
 
-            Vector2 position = Vector2.zero;
-            if (!config.TryGetValue("position", ref position))
-            {
-                position = Vector2.zero;
-            }
-            else
-            {
-                // Position is based on default font size
-                position = Vector2.Scale(position, monitor.fontSize);
-                // Position is based on local font size.
-                //position = Vector2.Scale(position, fontSize);
-            }
+            // Position is based on default font size
+            fontScale = monitor.fontSize;
+            // Position is based on local font size.
+            //fontScale = fontSize;
 
+            string variableName = string.Empty;
             if (config.TryGetValue("variable", ref variableName))
             {
                 variableName = variableName.Trim();
@@ -182,12 +180,35 @@ namespace AvionicsSystems
             }
 
             // Set up our text.
+            imageOrigin = pageRoot.position + new Vector3(monitor.screenSize.x * -0.5f, monitor.screenSize.y * 0.5f, depth);
+
             meshObject = new GameObject();
             meshObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
             meshObject.layer = pageRoot.gameObject.layer;
             meshObject.transform.parent = pageRoot;
-            meshObject.transform.position = pageRoot.position;
-            meshObject.transform.Translate(monitor.screenSize.x * -0.5f + position.x, monitor.screenSize.y * 0.5f - position.y, depth);
+            meshObject.transform.position = imageOrigin;
+
+            string positionString = string.Empty;
+            if (config.TryGetValue("position", ref positionString))
+            {
+                string[] positions = Utility.SplitVariableList(positionString);
+                if (positions.Length != 2)
+                {
+                    throw new ArgumentException("position does not contain 2 values in TEXT " + name);
+                }
+
+                registeredVariables.RegisterNumericVariable(positions[0], (double newValue) =>
+                {
+                    position.x = (float)newValue * fontScale.x;
+                    meshObject.transform.position = imageOrigin + new Vector3(position.x, -position.y, 0.0f);
+                });
+
+                registeredVariables.RegisterNumericVariable(positions[1], (double newValue) =>
+                {
+                    position.y = (float)newValue * fontScale.y;
+                    meshObject.transform.position = imageOrigin + new Vector3(position.x, -position.y, 0.0f);
+                });
+            }
 
             textObj = meshObject.gameObject.AddComponent<MdVTextMesh>();
 
@@ -216,7 +237,7 @@ namespace AvionicsSystems
             {
                 // Disable the mesh if we're in variable mode
                 meshObject.SetActive(false);
-                comp.RegisterNumericVariable(variableName, prop, VariableCallback);
+                registeredVariables.RegisterNumericVariable(variableName, VariableCallback);
             }
             else
             {
@@ -327,10 +348,8 @@ namespace AvionicsSystems
 
             UnityEngine.GameObject.Destroy(meshObject);
             meshObject = null;
-            if (!string.IsNullOrEmpty(variableName))
-            {
-                comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
-            }
+
+            registeredVariables.ReleaseResources(comp, internalProp);
         }
     }
 }
