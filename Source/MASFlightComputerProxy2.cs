@@ -2878,6 +2878,16 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns 1 if any RCS thrusters are configured to allow rotation,
+        /// 0 otherwise.
+        /// </summary>
+        /// <returns></returns>
+        public double GetRCSRotate()
+        {
+            return (vc.anyRcsRotate) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Returns the thrust-weighted average of the RCS thrust limit for
         /// all enabled RCS thrusters.
         /// </summary>
@@ -2885,6 +2895,16 @@ namespace AvionicsSystems
         public double GetRCSThrustLimit()
         {
             return vc.rcsWeightedThrustLimit;
+        }
+
+        /// <summary>
+        /// Returns 1 if any RCS thrusters are configured to allow translation,
+        /// 0 otherwise.
+        /// </summary>
+        /// <returns></returns>
+        public double GetRCSTranslate()
+        {
+            return (vc.anyRcsTranslate) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -2906,6 +2926,39 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Enable or disable RCS rotation control.
+        /// </summary>
+        /// <param name="active">Whether RCS should be used for rotation.</param>
+        /// <returns>The number of RCS modules updated (0 if none, more than 0 if any RCS are installed).</returns>
+        public double SetRCSRotate(bool active)
+        {
+            for (int i = vc.moduleRcs.Length - 1; i >= 0; --i)
+            {
+                vc.moduleRcs[i].enableRoll = active;
+                vc.moduleRcs[i].enableYaw = active;
+                vc.moduleRcs[i].enablePitch = active;
+            }
+
+            return vc.moduleRcs.Length;
+        }
+
+        /// <summary>
+        /// Enable or disable RCS translation control.
+        /// </summary>
+        /// <param name="active">Whether RCS should be used for translation.</param>
+        /// <returns>The number of RCS modules updated (0 if none, more than 0 if any RCS are installed).</returns>
+        public double SetRCSTranslate(bool active)
+        {
+            for (int i = vc.moduleRcs.Length - 1; i >= 0; --i)
+            {
+                vc.moduleRcs[i].enableX = active;
+                vc.moduleRcs[i].enableY = active;
+                vc.moduleRcs[i].enableZ = active;
+            }
+
+            return vc.moduleRcs.Length;
+        }
+        /// <summary>
         /// Set the maximum thrust limit of the RCS thrusters.
         /// </summary>
         /// <param name="limit">A value between 0 (no thrust) and 1 (full thrust).</param>
@@ -2925,6 +2978,62 @@ namespace AvionicsSystems
         public void ToggleRCS()
         {
             vessel.ActionGroups.ToggleGroup(KSPActionGroup.RCS);
+        }
+
+        /// <summary>
+        /// Toggle RCS rotation control.
+        /// </summary>
+        /// <returns>1 if rotation is now on, 0 otherwise.</returns>
+        public double ToggleRCSRotate()
+        {
+            if (vc.anyRcsRotate)
+            {
+                for (int i = vc.moduleRcs.Length - 1; i >= 0; --i)
+                {
+                    vc.moduleRcs[i].enableRoll = false;
+                    vc.moduleRcs[i].enableYaw = false;
+                    vc.moduleRcs[i].enablePitch = false;
+                }
+                return 0.0;
+            }
+            else
+            {
+                for (int i = vc.moduleRcs.Length - 1; i >= 0; --i)
+                {
+                    vc.moduleRcs[i].enableRoll = true;
+                    vc.moduleRcs[i].enableYaw = true;
+                    vc.moduleRcs[i].enablePitch = true;
+                }
+                return 1.0;
+            }
+        }
+
+        /// <summary>
+        /// Toggle RCS translation control.
+        /// </summary>
+        /// <returns>1 if translation is now on, 0 otherwise.</returns>
+        public double ToggleRCSTranslate()
+        {
+            if (vc.anyRcsTranslate)
+            {
+                for (int i = vc.moduleRcs.Length - 1; i >= 0; --i)
+                {
+                    vc.moduleRcs[i].enableX = false;
+                    vc.moduleRcs[i].enableY = false;
+                    vc.moduleRcs[i].enableZ = false;
+                }
+                return 0.0;
+            }
+            else
+            {
+                for (int i = vc.moduleRcs.Length - 1; i >= 0; --i)
+                {
+                    vc.moduleRcs[i].enableX = true;
+                    vc.moduleRcs[i].enableY = true;
+                    vc.moduleRcs[i].enableZ = true;
+                }
+                return 1.0;
+            }
         }
         #endregion RCS
 
