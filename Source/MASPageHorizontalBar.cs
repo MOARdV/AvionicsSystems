@@ -35,11 +35,11 @@ namespace AvionicsSystems
         private GameObject imageObject;
         private GameObject borderObject;
         private Material imageMaterial;
+        private Color borderColor = Color.white;
+        private Color sourceColor = Color.white;
         private Material borderMaterial;
         private LineRenderer lineRenderer;
         private MeshRenderer meshRenderer;
-        private readonly string variableName;
-        private readonly string sourceName;
         private MASFlightComputer.Variable range1, range2;
         private readonly MASFlightComputer.Variable sourceRange1, sourceRange2;
         private readonly bool rangeMode;
@@ -50,6 +50,9 @@ namespace AvionicsSystems
         private Vector2[] uv = new Vector2[4];
         private Mesh mesh;
         private HBarAnchor anchor;
+        private readonly int colorField = Shader.PropertyToID("_Color");
+
+        private VariableRegistrar registeredVariables;
 
         enum HBarAnchor
         {
@@ -60,6 +63,8 @@ namespace AvionicsSystems
 
         internal MASPageHorizontalBar(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
+            registeredVariables = new VariableRegistrar(comp, prop);
+
             if (!config.TryGetValue("name", ref name))
             {
                 name = "anonymous";
@@ -94,6 +99,7 @@ namespace AvionicsSystems
             }
             barWidth = size.x;
 
+            string sourceName = string.Empty;
             if (!config.TryGetValue("source", ref sourceName))
             {
                 throw new ArgumentException("Unable to find 'input' in HORIZONTAL_BAR " + name);
@@ -111,13 +117,6 @@ namespace AvionicsSystems
             }
             sourceRange1 = comp.GetVariable(ranges[0], prop);
             sourceRange2 = comp.GetVariable(ranges[1], prop);
-
-            Color sourceColor = XKCDColors.White;
-            string sourceColorName = string.Empty;
-            if (config.TryGetValue("sourceColor", ref sourceColorName))
-            {
-                sourceColor = Utility.ParseColor32(sourceColorName, comp);
-            }
 
             string anchorName = string.Empty;
             if (config.TryGetValue("anchor", ref anchorName))
@@ -164,6 +163,7 @@ namespace AvionicsSystems
                 throw new ArgumentException("Only one of 'borderColor' and 'borderWidth' are defined in HORIZONTAL_BAR " + name);
             }
 
+            string variableName = string.Empty;
             if (config.TryGetValue("variable", ref variableName))
             {
                 variableName = variableName.Trim();
@@ -197,7 +197,6 @@ namespace AvionicsSystems
                 borderObject.transform.position = pageRoot.position;
                 borderObject.transform.Translate(monitor.screenSize.x * -0.5f + position.x, monitor.screenSize.y * 0.5f - position.y - size.y, depth);
 
-                Color borderColor = Utility.ParseColor32(borderColorName, comp);
                 borderMaterial = new Material(MASLoader.shaders["MOARdV/Monitor"]);
                 lineRenderer = borderObject.AddComponent<LineRenderer>();
                 lineRenderer.useWorldSpace = false;
@@ -206,6 +205,53 @@ namespace AvionicsSystems
                 lineRenderer.endColor = borderColor;
                 lineRenderer.startWidth = borderWidth;
                 lineRenderer.endWidth = borderWidth;
+
+                Color32 namedColor;
+                if (comp.TryGetNamedColor(borderColorName, out namedColor))
+                {
+                    borderColor = namedColor;
+                    lineRenderer.startColor = borderColor;
+                    lineRenderer.endColor = borderColor;
+                }
+                else
+                {
+                    string[] startColors = Utility.SplitVariableList(borderColorName);
+                    if (startColors.Length < 3 || startColors.Length > 4)
+                    {
+                        throw new ArgumentException("borderColor does not contain 3 or 4 values in HORIZONTAL_BAR " + name);
+                    }
+
+                    registeredVariables.RegisterNumericVariable(startColors[0], (double newValue) =>
+                    {
+                        borderColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer.startColor = borderColor;
+                        lineRenderer.endColor = borderColor;
+                    });
+
+                    registeredVariables.RegisterNumericVariable(startColors[1], (double newValue) =>
+                    {
+                        borderColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer.startColor = borderColor;
+                        lineRenderer.endColor = borderColor;
+                    });
+
+                    registeredVariables.RegisterNumericVariable(startColors[2], (double newValue) =>
+                    {
+                        borderColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer.startColor = borderColor;
+                        lineRenderer.endColor = borderColor;
+                    });
+
+                    if (startColors.Length == 4)
+                    {
+                        registeredVariables.RegisterNumericVariable(startColors[3], (double newValue) =>
+                        {
+                            borderColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            lineRenderer.startColor = borderColor;
+                            lineRenderer.endColor = borderColor;
+                        });
+                    }
+                }
 
                 float halfWidth = borderWidth * 0.5f - 0.5f;
                 Vector3[] borderPoints = new Vector3[]
@@ -252,12 +298,57 @@ namespace AvionicsSystems
             {
                 imageMaterial.mainTexture = mainTexture;
             }
-            imageMaterial.SetColor("_Color", sourceColor);
-            //imageMaterial.mainTextureScale = new Vector2(textureSpan, 1.0f);
+            imageMaterial.SetColor(colorField, sourceColor);
             meshRenderer.material = imageMaterial;
             EnableRender(false);
 
-            comp.RegisterNumericVariable(sourceName, prop, SourceCallback);
+            string sourceColorName = string.Empty;
+            if (config.TryGetValue("sourceColor", ref sourceColorName))
+            {
+                Color32 namedColor;
+                if (comp.TryGetNamedColor(sourceColorName, out namedColor))
+                {
+                    sourceColor = namedColor;
+                    imageMaterial.SetColor(colorField, sourceColor);
+                }
+                else
+                {
+                    string[] startColors = Utility.SplitVariableList(sourceColorName);
+                    if (startColors.Length < 3 || startColors.Length > 4)
+                    {
+                        throw new ArgumentException("sourceColor does not contain 3 or 4 values in VERTICAL_BAR " + name);
+                    }
+
+                    registeredVariables.RegisterNumericVariable(startColors[0], (double newValue) =>
+                    {
+                        sourceColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        imageMaterial.SetColor(colorField, sourceColor);
+                    });
+
+                    registeredVariables.RegisterNumericVariable(startColors[1], (double newValue) =>
+                    {
+                        sourceColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        imageMaterial.SetColor(colorField, sourceColor);
+                    });
+
+                    registeredVariables.RegisterNumericVariable(startColors[2], (double newValue) =>
+                    {
+                        sourceColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        imageMaterial.SetColor(colorField, sourceColor);
+                    });
+
+                    if (startColors.Length == 4)
+                    {
+                        registeredVariables.RegisterNumericVariable(startColors[3], (double newValue) =>
+                        {
+                            sourceColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            imageMaterial.SetColor(colorField, sourceColor);
+                        });
+                    }
+                }
+            }
+
+            registeredVariables.RegisterNumericVariable(sourceName, SourceCallback);
             if (!string.IsNullOrEmpty(variableName))
             {
                 // Disable the mesh if we're in variable mode
@@ -266,7 +357,7 @@ namespace AvionicsSystems
                     borderObject.SetActive(false);
                 }
                 imageObject.SetActive(false);
-                comp.RegisterNumericVariable(variableName, prop, VariableCallback);
+                registeredVariables.RegisterNumericVariable(variableName, VariableCallback);
             }
             else
             {
@@ -403,11 +494,7 @@ namespace AvionicsSystems
             UnityEngine.Object.Destroy(borderObject);
             borderObject = null;
 
-            comp.UnregisterNumericVariable(sourceName, internalProp, SourceCallback);
-            if (!string.IsNullOrEmpty(variableName))
-            {
-                comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
-            }
+            registeredVariables.ReleaseResources(comp, internalProp);
         }
     }
 }
