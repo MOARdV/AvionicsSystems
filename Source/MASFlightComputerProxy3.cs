@@ -999,10 +999,73 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the current acceleration of the vessel from engines, in m/s^2.
         /// </summary>
-        /// <returns>Acceleration in m/s^2.</returns>
-        public double Acceleration()
+        /// <returns>Engine acceleration in m/s^2.</returns>
+        public double AccelEngines()
         {
             return vc.currentThrust / vessel.totalMass;
+        }
+
+        /// <summary>
+        /// Returns the net acceleration on the vessel from all forces in m/s^2.
+        /// </summary>
+        /// <returns>Net acceleration in m/s^2.</returns>
+        public double Acceleration()
+        {
+            return vessel.acceleration.magnitude;
+        }
+
+        /// <summary>
+        /// Returns the forward (towards the vessel nose) component of the net
+        /// acceleration on the vessel in m/s^2.  Negative values represent a
+        /// rearward acceleration.
+        /// </summary>
+        /// <returns>Forward acceleration in m/s^2.</returns>
+        public double AccelForward()
+        {
+            return Vector3d.Dot(vessel.acceleration, vc.forward);
+        }
+
+        /// <summary>
+        /// Returns the surface-relative horizontal component of the net
+        /// acceleration on the vessel in m/s^2.
+        /// </summary>
+        /// <returns>Horizontal acceleration in m/s^2.</returns>
+        public double AccelHorizontal()
+        {
+            return Vector3d.Exclude(vc.up, vessel.acceleration).magnitude;
+        }
+
+        /// <summary>
+        /// Returns the rightward component of the net
+        /// acceleration on the vessel in m/s^2.  Negative values represent a
+        /// leftward acceleration.
+        /// </summary>
+        /// <returns>Right acceleration in m/s^2.</returns>
+        public double AccelRight()
+        {
+            return Vector3d.Dot(vessel.acceleration, vc.right);
+        }
+
+        /// <summary>
+        /// Returns the top (towards the 'top' of an aircraft, or the typical 'up' direction of kerbals in pods) component of the net
+        /// acceleration on the vessel in m/s^2.  Negative values represent a
+        /// vessel-downward acceleration.
+        /// </summary>
+        /// <returns>Top acceleration in m/s^2.</returns>
+        public double AccelTop()
+        {
+            return Vector3d.Dot(vessel.acceleration, vc.top);
+        }
+
+        /// <summary>
+        /// Returns the surface-relative up component of the net
+        /// acceleration on the vessel in m/s^2.  Negative values represent
+        /// acceleration towards the surface.
+        /// </summary>
+        /// <returns>Top acceleration in m/s^2.</returns>
+        public double AccelUp()
+        {
+            return Vector3d.Dot(vessel.acceleration, vc.up);
         }
 
         /// <summary>

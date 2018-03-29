@@ -3,22 +3,16 @@ most of the variables in RasterPropMonitor, along with the MAS equivalent.  I'm 
 as a master list of how much work I still need to do, although it doubles as a handy
 translation guide for anyone else who needs it.
 
-Incomplete variables (to-do list): 67 variables
-"ACCELFORWARD":
+Incomplete variables (to-do list): 59 variables
 "ACCELNORMAL":
 "ACCELPROGRADE":
 "ACCELRADIAL":
-"ACCELRIGHT":
 "ACCELSURFPROGRADE":
-"ACCELTOP":
 "AGMEMO":
 "BESTSPEEDATIMPACT":
 "BIOMEID":
 "BIOMENAME":
 "CURRENTINTAKEAIRFLOW":
-"DRAG":
-"DRAGACCEL":
-"EFFECTIVEACCEL":
 "EFFECTIVERAWTHROTTLE":
 "EFFECTIVETHROTTLE":
 "ENCOUNTERBODY":
@@ -32,8 +26,6 @@ Incomplete variables (to-do list): 67 variables
 "HOVERPOINT":
 "HOVERPOINTEXISTS":
 "LATERALBRAKEDISTANCE":
-"LIFT":
-"LIFTACCEL":
 "MASSPROPELLANT":
 "MASSPROPELLANTSTAGE":
 "MASSRESOURCES":
@@ -75,14 +67,14 @@ Incomplete variables (to-do list): 67 variables
 
 List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 
-"ACCEL": fc.Acceleration()
-"ACCELFORWARD":
+"ACCEL": fc.AccelEngines()
+"ACCELFORWARD": fc.AccelForward()
 "ACCELNORMAL":
 "ACCELPROGRADE":
 "ACCELRADIAL":
-"ACCELRIGHT":
+"ACCELRIGHT": fc.AccelRight()
 "ACCELSURFPROGRADE":
-"ACCELTOP":
+"ACCELTOP": fc.AccelTop()
 "ACTIVEENGINECOUNT": fc.EngineCount()
 "AGMEMO":
 "AGSTATE": fc.GetActionGroup(groupID)
@@ -111,12 +103,12 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "DISTTOATMOSPHERETOP": fc.AtmosphereTop() - fc.Altitude()
 "DOCKINGANGLEALARM": -replaced with Lua scripting-
 "DOCKINGSPEEDALARM": -replaced with Lua scripting-
-"DRAG":
-"DRAGACCEL":
+"DRAG": fc.Drag()
+"DRAGACCEL": fc.DragAccel()
 "DYNAMICPRESSURE": fc.DynamicPressure()
 "EASPEED": fc.EquivalentAirspeed()
 "ECCENTRICITY": fc.Eccentricity()
-"EFFECTIVEACCEL":
+"EFFECTIVEACCEL": fc.Acceleration()
 "EFFECTIVERAWTHROTTLE":
 "EFFECTIVETHROTTLE":
 "ELECOUTPUTALTERNATOR": fc.AlternatorOutput()
@@ -164,8 +156,8 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "LATERALBRAKEDISTANCE":
 "LATITUDE": fc.Latitude()
 "LATITUDETGT": fc.TargetLatitude()
-"LIFT":
-"LIFTACCEL":
+"LIFT": fc.Lift()
+"LIFTACCEL": -no replacement-
 "LIGHTS": fc.GetLights()
 "LONGITUDE": fc.Longitude()
 "LONGITUDETGT": fc.TargetLongitude()
