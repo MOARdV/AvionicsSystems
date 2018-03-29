@@ -49,6 +49,8 @@ namespace AvionicsSystems
         private Vector3[] vertices = new Vector3[4];
         private Vector2[] uv = new Vector2[4];
         private Mesh mesh;
+        private Vector2 position = Vector2.zero;
+        private Vector3 imageOrigin = Vector3.zero;
         private VBarAnchor anchor;
         private readonly int colorField = Shader.PropertyToID("_Color");
 
@@ -84,12 +86,6 @@ namespace AvionicsSystems
                     throw new ArgumentException("Unable to find 'texture' " + textureName + " for VERTICAL_BAR " + name);
                 }
                 mainTexture.wrapMode = TextureWrapMode.Clamp;
-            }
-
-            Vector2 position = Vector2.zero;
-            if (!config.TryGetValue("position", ref position))
-            {
-                throw new ArgumentException("Unable to find 'position' in VERTICAL_BAR " + name);
             }
 
             Vector2 size = Vector2.zero;
@@ -188,14 +184,14 @@ namespace AvionicsSystems
             }
 
             // Set up our display surface.
+            imageOrigin = pageRoot.position + new Vector3(monitor.screenSize.x * -0.5f, monitor.screenSize.y * 0.5f, depth);
             if (borderWidth > 0.0f)
             {
                 borderObject = new GameObject();
                 borderObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name + "-border", (int)(-depth / MASMonitor.depthDelta));
                 borderObject.layer = pageRoot.gameObject.layer;
                 borderObject.transform.parent = pageRoot;
-                borderObject.transform.position = pageRoot.position;
-                borderObject.transform.Translate(monitor.screenSize.x * -0.5f + position.x, monitor.screenSize.y * 0.5f - position.y - size.y, depth);
+                borderObject.transform.position = imageOrigin + new Vector3(position.x, -(position.y + size.y), 0.0f);
 
                 borderMaterial = new Material(MASLoader.shaders["MOARdV/Monitor"]);
                 lineRenderer = borderObject.AddComponent<LineRenderer>();
@@ -269,8 +265,53 @@ namespace AvionicsSystems
             imageObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
             imageObject.layer = pageRoot.gameObject.layer;
             imageObject.transform.parent = pageRoot;
-            imageObject.transform.position = pageRoot.position;
-            imageObject.transform.Translate(monitor.screenSize.x * -0.5f + position.x, monitor.screenSize.y * 0.5f - position.y, depth);
+            imageObject.transform.position = imageOrigin + new Vector3(position.x, -position.y, 0.0f);
+            
+            string positionString = string.Empty;
+            if (!config.TryGetValue("position", ref positionString))
+            {
+                throw new ArgumentException("Unable to find 'position' in VERTICAL_BAR " + name);
+            }
+            else
+            {
+                string[] pos = Utility.SplitVariableList(positionString);
+                if (pos.Length != 2)
+                {
+                    throw new ArgumentException("Invalid number of values for 'position' in VERTICAL_BAR " + name);
+                }
+
+                if (borderWidth > 0.0f)
+                {
+                    registeredVariables.RegisterNumericVariable(pos[0], (double newValue) =>
+                    {
+                        position.x = (float)newValue;
+                        borderObject.transform.position = imageOrigin + new Vector3(position.x, -(position.y + size.y), 0.0f);
+                        imageObject.transform.position = imageOrigin + new Vector3(position.x, -position.y, 0.0f);
+                    });
+
+                    registeredVariables.RegisterNumericVariable(pos[1], (double newValue) =>
+                    {
+                        position.y = (float)newValue;
+                        borderObject.transform.position = imageOrigin + new Vector3(position.x, -(position.y + size.y), 0.0f);
+                        imageObject.transform.position = imageOrigin + new Vector3(position.x, -position.y, 0.0f);
+                    });
+                }
+                else
+                {
+                    registeredVariables.RegisterNumericVariable(pos[0], (double newValue) =>
+                    {
+                        position.x = (float)newValue;
+                        imageObject.transform.position = imageOrigin + new Vector3(position.x, -position.y, 0.0f);
+                    });
+
+                    registeredVariables.RegisterNumericVariable(pos[1], (double newValue) =>
+                    {
+                        position.y = (float)newValue;
+                        imageObject.transform.position = imageOrigin + new Vector3(position.x, -position.y, 0.0f);
+                    });
+                }
+            }
+
             // add renderer stuff
             MeshFilter meshFilter = imageObject.AddComponent<MeshFilter>();
             meshRenderer = imageObject.AddComponent<MeshRenderer>();
