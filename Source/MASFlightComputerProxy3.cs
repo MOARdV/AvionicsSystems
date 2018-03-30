@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 - 2018 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -1413,7 +1413,7 @@ namespace AvionicsSystems
         public double ClearTargetFilter(double vesselType)
         {
             int vBitIndex = (int)(vesselType);
-            if (vBitIndex >0 && vBitIndex <= 13)
+            if (vBitIndex > 0 && vBitIndex <= 13)
             {
                 return (fc.ClearTargetFilter(vBitIndex)) ? 1.0 : 0.0;
             }
@@ -2370,27 +2370,13 @@ namespace AvionicsSystems
         #region Thermal
 
         /// <summary>
-        /// Returns the current atmosphere / ambient temperature outside the
-        /// craft.
+        /// Returns the current atmosphere / ambient temperature outside the craft.
         /// </summary>
         /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
         /// <returns>Ambient temperature in Kelvin or Celsius.</returns>
         public double AmbientTemperature(bool useKelvin)
         {
             return vessel.atmosphericTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
-        }
-
-        /// <summary>
-        /// Returns the temperature of the current IVA's cabin atmosphere, if the
-        /// pod has the appropriate PartModule (MASClimateControl).  Otherwise,
-        /// the part's internal temperature is provided.
-        /// </summary>
-        /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
-        /// <returns>Cabin temperature in Kelvin or Celsius.</returns>
-        public double CabinTemperature(bool useKelvin)
-        {
-            return ((fc.cc == null) ? fc.part.temperature : fc.cc.cabinTemperature)
-                + ((useKelvin) ? 0.0 : KelvinToCelsius);
         }
 
         /// <summary>
@@ -2401,6 +2387,15 @@ namespace AvionicsSystems
         public double ExternalTemperature(bool useKelvin)
         {
             return vessel.externalTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+        }
+
+        /// <summary>
+        /// Returns the direction of temperature change of the hottest engine.
+        /// </summary>
+        /// <returns>-1 if the temperature is cooling, +1 if it is increasing, +0 if it is stable or no heat shields are installed.</returns>
+        public double HottestEngineTemperatureSign()
+        {
+            return vc.hottestEngineSign;
         }
 
         /// <summary>
@@ -2420,21 +2415,96 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
         /// <returns>Current temperature of the hottest engine in Kelvin or Celsius.</returns>
-        public double HottestEngineTemperatureMax(bool useKelvin)
+        public double HottestEngineMaxTemperature(bool useKelvin)
         {
             return vc.hottestEngineMaxTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
         }
 
         /// <summary>
-        /// Returns the interior temperature of the current IVA pod.  This is the part's interior
-        /// temperature.  For cabin temperature (with the appropriate mods), use
-        /// `fc.CabinTemperature()`.
+        /// Returns the maximum temperature of the hottest heat shield.
+        /// </summary>
+        /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
+        /// <returns>Heat shield maximum temperature in Kelvin or Celsius, or 0 if no heatshields are installed.</returns>
+        public double HeatShieldMaxTemperature(bool useKelvin)
+        {
+            return vc.hottestAblatorMax + ((useKelvin) ? 0.0 : KelvinToCelsius);
+        }
+
+        /// <summary>
+        /// Returns the current temperature of the hottest heat shield.
+        /// </summary>
+        /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
+        /// <returns>Heat shield temperature in Kelvin or Celsius, or 0 if no heatshields are installed.</returns>
+        public double HeatShieldTemperature(bool useKelvin)
+        {
+            return vc.hottestAblator + ((useKelvin) ? 0.0 : KelvinToCelsius);
+        }
+
+        /// <summary>
+        /// Returns the direction of temperature change of the hottest heat shield.
+        /// </summary>
+        /// <returns>-1 if the temperature is cooling, +1 if it is increasing, +0 if it is stable or no heat shields are installed.</returns>
+        public double HeatShieldTemperatureSign()
+        {
+            return vc.hottestAblatorSign;
+        }
+
+        /// <summary>
+        /// Returns the maximum interior temperature of the current IVA pod.
+        /// </summary>
+        /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
+        /// <returns>Maximum temperature of the interior of the current IVA pod in Kelvin or Celsius.</returns>
+        public double InternalMaxTemperature(bool useKelvin)
+        {
+            return fc.part.maxTemp + ((useKelvin) ? 0.0 : KelvinToCelsius);
+        }
+
+        /// <summary>
+        /// Returns the interior temperature of the current IVA pod.
         /// </summary>
         /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
         /// <returns>Current temperature of the interior of the current IVA pod in Kelvin or Celsius.</returns>
         public double InternalTemperature(bool useKelvin)
         {
             return fc.part.temperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+        }
+
+        /// <summary>
+        /// Returns the direction of the temperature change in the pod interior.
+        /// </summary>
+        /// <returns>-1 if the temperature is cooling, +1 if it is increasing, +0 if it is stable.</returns>
+        public double InternalTemperatureSign()
+        {
+            return Math.Sign(fc.part.thermalInternalFlux);
+        }
+
+        /// <summary>
+        /// Returns the maximum skin temperature of the current IVA pod.
+        /// </summary>
+        /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
+        /// <returns>Maximum temperature of the skin of the current IVA pod in Kelvin or Celsius.</returns>
+        public double PodMaxTemperature(bool useKelvin)
+        {
+            return fc.part.skinMaxTemp + ((useKelvin) ? 0.0 : KelvinToCelsius);
+        }
+
+        /// <summary>
+        /// Returns the skin temperature of the current IVA pod.
+        /// </summary>
+        /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
+        /// <returns>Current temperature of the skin of the current IVA pod in Kelvin or Celsius.</returns>
+        public double PodTemperature(bool useKelvin)
+        {
+            return fc.part.skinTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+        }
+
+        /// <summary>
+        /// Returns the direction of the temperature change on the pod skin.
+        /// </summary>
+        /// <returns>-1 if the temperature is cooling, +1 if it is increasing, +0 if it is stable.</returns>
+        public double PodTemperatureSign()
+        {
+            return Math.Sign(fc.part.thermalSkinFlux);
         }
 
         /// <summary>

@@ -2737,53 +2737,6 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// The Life Support region provides specialized functionality for interfacing with
-        /// the MASClimateControl cabin temperature system.
-        /// </summary>
-        #region Life Support
-
-        /// <summary>
-        /// When the MASClimateControl module is installed, returns the current load on
-        /// the heating / cooling system as a percentage (from 0 to 1).  If the module is
-        /// off, or it is not installed, this method returns 0.
-        /// </summary>
-        /// <returns>A value between 0 and 1.</returns>
-        public double ClimateControlLoad()
-        {
-            if (fc.cc != null && fc.cc.enableHeater && fc.cc.podHeaterOutput > 0.0f)
-            {
-                return fc.cc.podHeaterDraw / fc.cc.podHeaterOutput;
-            }
-            else
-            {
-                return 0.0;
-            }
-        }
-
-        /// <summary>
-        /// Returns 1 if the MASClimateControl module is installed in this pod, and it
-        /// is enabled.  Returns 0 otherwise.
-        /// </summary>
-        /// <returns>1 if MASClimateControl is installed and active, 0 otherwise.</returns>
-        public double GetClimateControl()
-        {
-            return (fc.cc != null && fc.cc.enableHeater) ? 1.0 : 0.0;
-        }
-
-        /// <summary>
-        /// Toggle the MASClimateControl module on or off.
-        /// </summary>
-        public void ToggleClimateControl()
-        {
-            if (fc.cc != null)
-            {
-                fc.cc.enableHeater = !fc.cc.enableHeater;
-            }
-        }
-
-        #endregion
-
-        /// <summary>
         /// The Lights action group can be controlled and queried through this category.
         /// </summary>
         #region Lights

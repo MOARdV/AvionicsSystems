@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 - 2017 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -161,8 +161,6 @@ namespace AvionicsSystems
         /// Reference to the current vessel computer.
         /// </summary>
         internal MASVesselComputer vc;
-
-        internal MASClimateControl cc = null;
 
         internal static readonly string vesselIdLabel = "__vesselId";
         internal static readonly string vesselFilterLabel = "__vesselFilter";
@@ -722,7 +720,6 @@ namespace AvionicsSystems
             kacProxy = null;
             parachuteProxy = null;
             transferProxy = null;
-            cc = null;
             if (initialized)
             {
                 Utility.LogMessage(this, "OnDestroy for {0}", flightComputerId);
@@ -753,8 +750,6 @@ namespace AvionicsSystems
             if (HighLogic.LoadedSceneIsFlight)
             {
                 Vessel vessel = this.vessel;
-
-                cc = part.FindModuleImplementing<MASClimateControl>();
 
                 if (string.IsNullOrEmpty(flightComputerId))
                 {

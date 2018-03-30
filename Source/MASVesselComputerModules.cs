@@ -304,6 +304,7 @@ namespace AvionicsSystems
         internal float maxIsp;
         internal float hottestEngineTemperature;
         internal float hottestEngineMaxTemperature;
+        internal float hottestEngineSign;
         internal int currentEngineCount;
         internal int activeEngineCount;
         internal float throttleLimit;
@@ -316,8 +317,8 @@ namespace AvionicsSystems
             this.maxRatedThrust = 0.0f;
             currentLimitedMaxThrust = 0.0f;
             currentMaxThrust = 0.0f;
-            hottestEngineTemperature = 0.0f;
             hottestEngineMaxTemperature = 0.0f;
+            hottestEngineSign = 0.0f;
             maxEngineFuelFlow = 0.0f;
             currentEngineFuelFlow = 0.0f;
             throttleLimit = 0.0f;
@@ -327,6 +328,7 @@ namespace AvionicsSystems
             activeEngineCount = 0;
 
             float hottestEngine = float.MaxValue;
+            float currentHottestEngine = 0.0f;
             float maxIspContribution = 0.0f;
             float averageIspContribution = 0.0f;
 
@@ -393,17 +395,20 @@ namespace AvionicsSystems
 
                 if (thatPart.skinMaxTemp - thatPart.skinTemperature < hottestEngine)
                 {
-                    hottestEngineTemperature = (float)thatPart.skinTemperature;
+                    currentHottestEngine = (float)thatPart.skinTemperature;
                     hottestEngineMaxTemperature = (float)thatPart.skinMaxTemp;
-                    hottestEngine = hottestEngineMaxTemperature - hottestEngineTemperature;
+                    hottestEngine = hottestEngineMaxTemperature - currentHottestEngine;
                 }
                 if (thatPart.maxTemp - thatPart.temperature < hottestEngine)
                 {
-                    hottestEngineTemperature = (float)thatPart.temperature;
+                    currentHottestEngine = (float)thatPart.temperature;
                     hottestEngineMaxTemperature = (float)thatPart.maxTemp;
-                    hottestEngine = hottestEngineMaxTemperature - hottestEngineTemperature;
+                    hottestEngine = hottestEngineMaxTemperature - currentHottestEngine;
                 }
             }
+
+            hottestEngineSign = Mathf.Sign(currentHottestEngine - hottestEngineTemperature);
+            hottestEngineTemperature = currentHottestEngine;
 
             if (throttleCount > 0.0f)
             {
@@ -883,6 +888,8 @@ namespace AvionicsSystems
         #region Thermal Management
         private List<ModuleActiveRadiator> radiatorList = new List<ModuleActiveRadiator>();
         internal ModuleActiveRadiator[] moduleRadiator = new ModuleActiveRadiator[0];
+        private List<ModuleAblator> ablatorList = new List<ModuleAblator>();
+        internal ModuleAblator[] moduleAblator = new ModuleAblator[0];
         private List<ModuleDeployableRadiator> deployableRadiatorList = new List<ModuleDeployableRadiator>();
         internal ModuleDeployableRadiator[] moduleDeployableRadiator = new ModuleDeployableRadiator[0];
         internal double currentEnergyTransfer;
@@ -893,6 +900,9 @@ namespace AvionicsSystems
         internal bool radiatorRetractable;
         internal bool radiatorMoving;
         internal int radiatorPosition;
+        internal float hottestAblator;
+        internal float hottestAblatorMax;
+        internal float hottestAblatorSign = 0.0f;
         private void UpdateRadiators()
         {
             radiatorActive = false;
@@ -903,6 +913,42 @@ namespace AvionicsSystems
             radiatorPosition = -1;
             maxEnergyTransfer = 0.0;
             currentEnergyTransfer = 0.0;
+
+            if (moduleAblator.Length == 0)
+            {
+                hottestAblator = 0.0f;
+                hottestAblatorMax = 0.0f;
+                hottestAblatorSign = 0.0f;
+            }
+            else
+            {
+                float currentHottestAblatorDiff = float.MaxValue;
+                float currentMaxAblator = 0.0f;
+                float currentAblator = 0.0f;
+                for (int i = moduleAblator.Length - 1; i >= 0; --i)
+                {
+                    Part ablatorPart = moduleAblator[i].part;
+                    if((ablatorPart.skinMaxTemp - ablatorPart.skinTemperature) < currentHottestAblatorDiff)
+                    {
+                        currentHottestAblatorDiff = (float)(ablatorPart.skinMaxTemp - ablatorPart.skinTemperature);
+                        currentMaxAblator = (float)ablatorPart.skinMaxTemp;
+                        currentAblator = (float)ablatorPart.skinTemperature;
+                    }
+                }
+
+                if (currentHottestAblatorDiff < float.MaxValue)
+                {
+                    hottestAblatorSign = Math.Sign(currentAblator - hottestAblator);
+                    hottestAblator = currentAblator;
+                    hottestAblatorMax = currentMaxAblator;
+                }
+                else
+                {
+                    hottestAblator = 0.0f;
+                    hottestAblatorMax = 0.0f;
+                    hottestAblatorSign = 0.0f;
+                }
+            }
 
             string tempString;
             for (int i = moduleRadiator.Length - 1; i >= 0; --i)
@@ -1043,6 +1089,10 @@ namespace AvionicsSystems
                                     activeEnginesGimbal = true;
                                 }
                             }
+                        }
+                        else if (module is ModuleAblator)
+                        {
+                            ablatorList.Add(module as ModuleAblator);
                         }
                         else if (module is ModuleGimbal)
                         {
@@ -1196,6 +1246,7 @@ namespace AvionicsSystems
             }
 
             TransferModules<ModuleAlternator>(alternatorList, ref moduleAlternator);
+            TransferModules<ModuleAblator>(ablatorList, ref moduleAblator);
             TransferModules<ModuleDeployableAntenna>(antennaList, ref moduleAntenna);
             TransferModules<ModuleDeployableRadiator>(deployableRadiatorList, ref moduleDeployableRadiator);
             TransferModules<MASIdEngine>(idEnginesList, ref moduleIdEngines);
