@@ -3,11 +3,7 @@ most of the variables in RasterPropMonitor, along with the MAS equivalent.  I'm 
 as a master list of how much work I still need to do, although it doubles as a handy
 translation guide for anyone else who needs it.
 
-Incomplete variables (to-do list): 59 variables
-"ACCELNORMAL":
-"ACCELPROGRADE":
-"ACCELRADIAL":
-"ACCELSURFPROGRADE":
+Incomplete variables (to-do list): 43 variables
 "AGMEMO":
 "BESTSPEEDATIMPACT":
 "BIOMEID":
@@ -15,14 +11,10 @@ Incomplete variables (to-do list): 59 variables
 "CURRENTINTAKEAIRFLOW":
 "EFFECTIVERAWTHROTTLE":
 "EFFECTIVETHROTTLE":
-"ENCOUNTERBODY":
 "FUNDS":
-"HEATSHIELDTEMPERATURE":
-"HEATSHIELDTEMPERATUREKELVIN":
 "HOTTESTPARTMAXTEMP":
 "HOTTESTPARTNAME":
 "HOTTESTPARTTEMP":
-"HOTTESTPARTTEMPRATIO":
 "HOVERPOINT":
 "HOVERPOINTEXISTS":
 "LATERALBRAKEDISTANCE":
@@ -32,12 +24,6 @@ Incomplete variables (to-do list): 59 variables
 "MAXACCEL":
 "PERIODRANDOM":
 "PLUGIN":
-"PODMAXSKINTEMPERATURE":
-"PODMAXSKINTEMPERATUREKELVIN":
-"PODMAXTEMPERATURE":
-"PODMAXTEMPERATUREKELVIN":
-"PODSKINTEMPERATURE":
-"PODSKINTEMPERATUREKELVIN":
 "PREDICTEDLANDINGERROR":
 "REPUTATION":
 "SCIENCECOUNT":
@@ -52,7 +38,6 @@ Incomplete variables (to-do list): 59 variables
 "TARGETLASTOBSERVEDTIMEUT":
 "TARGETLAUNCHTIMESECS":
 "TARGETORBITALVEL":
-"TARGETORBITBODY":
 "TARGETORBPERIODSECS":
 "TARGETPLANELAUNCHTIMESECS":
 "TARGETSEMIMAJORAXIS":
@@ -60,7 +45,6 @@ Incomplete variables (to-do list): 59 variables
 "TARGETSIGNALSTRENGTHCAPTION":
 "TARGETSITUATION":
 "TARGETSIZECLASS":
-"TERMINALVELOCITY":
 "TERRAINDELTA":
 "TIMETOIMPACTSECS":
 
@@ -69,11 +53,11 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 
 "ACCEL": fc.AccelEngines()
 "ACCELFORWARD": fc.AccelForward()
-"ACCELNORMAL":
-"ACCELPROGRADE":
-"ACCELRADIAL":
+"ACCELNORMAL": -no replacement-
+"ACCELPROGRADE": -no replacement-
+"ACCELRADIAL": -no replacement-
 "ACCELRIGHT": fc.AccelRight()
-"ACCELSURFPROGRADE":
+"ACCELSURFPROGRADE": -no replacement-
 "ACCELTOP": fc.AccelTop()
 "ACTIVEENGINECOUNT": fc.EngineCount()
 "AGMEMO":
@@ -115,7 +99,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "ELECOUTPUTFUELCELL": fc.FuelCellOutput()
 "ELECOUTPUTGENERATOR": fc.GeneratorOutput()
 "ELECOUTPUTSOLAR": fc.SolarPanelOutput()
-"ENCOUNTERBODY":
+"ENCOUNTERBODY": fc.NextBodyName()
 "ENCOUNTEREXISTS": fc.NextSoI()
 "ENCOUNTERTIME": fc.TimeToSoI()
 "ENGINECOUNT": fc.EngineCountTotal()
@@ -130,9 +114,9 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "GFORCE": fc.GForce()
 "GROUNDPROXIMITYALARM": -replaced with Lua scripting-
 "HEADING": fc.Heading()
-"HEATSHIELDTEMPERATURE":
+"HEATSHIELDTEMPERATURE": fc.HeatShieldTemperature(false)
 "HEATSHIELDTEMPERATUREFLUX": -no replacement-
-"HEATSHIELDTEMPERATUREKELVIN":
+"HEATSHIELDTEMPERATUREKELVIN": fc.HeatShieldTemperature(true)
 "HORZVELOCITY": fc.HorizontalSpeed()
 "HORZVELOCITYFORWARD": fc.SurfaceForwardSpeed()
 "HORZVELOCITYRIGHT": fc.SurfaceLateralSpeed()
@@ -142,7 +126,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "HOTTESTPARTMAXTEMP":
 "HOTTESTPARTNAME":
 "HOTTESTPARTTEMP":
-"HOTTESTPARTTEMPRATIO":
+"HOTTESTPARTTEMPRATIO": -no replacement-
 "HOVERPOINT":
 "HOVERPOINTEXISTS":
 "IASPEED": fc.IndicatedAirspeed()
@@ -231,13 +215,13 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "PITCHTARGETRELMINUS": fc.PitchTargetPrograde()
 "PITCHTARGETRELPLUS": fc.PitchTargetRetrograde()
 "PLUGIN":
-"PODMAXSKINTEMPERATURE":
-"PODMAXSKINTEMPERATUREKELVIN":
-"PODMAXTEMPERATURE":
-"PODMAXTEMPERATUREKELVIN":
+"PODMAXSKINTEMPERATURE": fc.PodMaxTemperature(false)
+"PODMAXSKINTEMPERATUREKELVIN": fc.PodMaxTemperature(true)
+"PODMAXTEMPERATURE": fc.InternalMaxTemperature(false)
+"PODMAXTEMPERATUREKELVIN": fc.InternalMaxTemperature(true)
 "PODNETFLUX": -no replacement-
-"PODSKINTEMPERATURE":
-"PODSKINTEMPERATUREKELVIN":
+"PODSKINTEMPERATURE": fc.PodTemperature(false)
+"PODSKINTEMPERATUREKELVIN": fc.PodTemperature(true)
 "PODTEMPERATURE": fc.InternalTemperature(false)
 "PODTEMPERATUREALARM": -no replacement-
 "PODTEMPERATUREKELVIN": fc.InternalTemperature(true)
@@ -348,7 +332,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "TARGETLONGITUDE": fc.TargetLongitude()
 "TARGETNAME": fc.TargetName()
 "TARGETORBITALVEL":
-"TARGETORBITBODY":
+"TARGETORBITBODY": fc.TargetBodyName()
 "TARGETORBPERIODSECS":
 "TARGETPERIAPSIS": fc.TargetPeriapsis()
 "TARGETPLANELAUNCHTIMESECS":
@@ -361,7 +345,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "TARGETTIMETOAPSECS": fc.TargetTimeToAp()
 "TARGETTIMETOPESECS": fc.TargetTimeToPe()
 "TARGETTYPE": fc.TargetType(), although TargetType returns a number, not a string
-"TERMINALVELOCITY":
+"TERMINALVELOCITY": fc.TerminalVelocity()
 "TERRAINDELTA":
 "TERRAINHEIGHT": fc.TerrainHeight()
 "TERRAINHEIGHTLOG10": fc.PseudoLog10(fc.TerrainHeight())
