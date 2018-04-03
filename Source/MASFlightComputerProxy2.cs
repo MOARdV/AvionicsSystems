@@ -70,6 +70,38 @@ namespace AvionicsSystems
         private const string siPrefixes = " kMGTPEZY";
 
         [MoonSharpHidden]
+        private string DoSIFormatLessThan1(double value, int length, int minDecimal, string delimiter, bool forceSign, bool showPrefix)
+        {
+            // '#.'
+            int nonDecimalChars = 2;
+            // Sign
+            if (forceSign || value < 0.0)
+            {
+                ++nonDecimalChars;
+            }
+            // add the blank prefix char
+            if (showPrefix)
+            {
+                ++nonDecimalChars;
+                --length;
+            }
+
+            var result = StringBuilderCache.Acquire();
+            result.AppendFormat("{{0,{0}:0", length);
+            int netDecimal = Math.Max(minDecimal, length - nonDecimalChars);
+            if (netDecimal > 0)
+            {
+                result.Append('.').Append('0', netDecimal);
+            }
+            result.Append("}");
+            if (showPrefix)
+            {
+                result.Append(" ");
+            }
+            return string.Format(result.ToStringAndRelease(), value);
+        }
+
+        [MoonSharpHidden]
         private string DoSIFormat(double value, int length, int minDecimal, string delimiter, bool forceSign, bool showPrefix)
         {
             if (double.IsInfinity(value) || double.IsNaN(value))
@@ -79,16 +111,13 @@ namespace AvionicsSystems
             }
 
             //Utility.LogMessage(this, "DoSIFormat {0}, {1}, {2}, x, {3}, {4}", value, length, minDecimal, forceSign, showPrefix);
-            int leadingDigitExponent;
             if (Math.Abs(value) < 1.0)
             {
-                // special case: can't take log(0).
-                leadingDigitExponent = 0;
+                // special case: abs(value) < 1
+                return DoSIFormatLessThan1(value, length, minDecimal, delimiter, forceSign, showPrefix);
             }
-            else
-            {
-                leadingDigitExponent = (int)Math.Floor(Math.Log10(Math.Abs(value)));
-            }
+            int leadingDigitExponent;
+            leadingDigitExponent = (int)Math.Floor(Math.Log10(Math.Abs(value)));
 
             // How many characters need to be set aside?
             int reservedCharacters = (minDecimal > 0) ? (1 + minDecimal) : 0;
