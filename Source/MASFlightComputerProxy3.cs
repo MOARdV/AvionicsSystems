@@ -440,95 +440,48 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the current amount of the Nth resource from a name-sorted
-        /// list of resources.
+        /// Returns the current amount of the selected resource.
         /// </summary>
-        /// <param name="resourceId"></param>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
         /// <returns></returns>
-        public double ResourceCurrent(double resourceId)
+        public double ResourceCurrent(object resourceId)
         {
-            return vc.ResourceCurrent((int)resourceId);
+            return vc.ResourceCurrent(resourceId);
         }
 
         /// <summary>
-        /// Return the current amount of the named resource, or zero if the
-        /// resource does not exist.
-        /// </summary>
-        /// <param name="resourceName"></param>
-        /// <returns></returns>
-        public double ResourceCurrent(string resourceName)
-        {
-            return vc.ResourceCurrent(resourceName);
-        }
-
-        /// <summary>
-        /// Returns the instantaneous change-per-second of the Nth resource,
-        /// or zero if the Nth resource is invalid.
+        /// Returns the instantaneous change-per-second of the selected resource,
+        /// or zero if the resource is invalid.
         /// 
         /// A positive number means the resource is being consumed (burning fuel,
         /// for instance).
         /// </summary>
-        /// <param name="resourceId"></param>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
         /// <returns></returns>
-        public double ResourceDelta(double resourceId)
+        public double ResourceDelta(object resourceId)
         {
-            return vc.ResourceDelta((int)resourceId);
+            return vc.ResourceDelta(resourceId);
         }
 
         /// <summary>
-        /// Returns the instantaneous change-per-second of the resource, or
-        /// zero if the resource wasn't found.
-        /// 
-        /// A positive number means the resource is being consumed (burning fuel,
-        /// for instance).
+        /// Returns the density of the selected resource, or zero if it is invalid.
         /// </summary>
-        /// <param name="resourceName"></param>
-        /// <returns></returns>
-        public double ResourceDelta(string resourceName)
-        {
-            return vc.ResourceDelta(resourceName);
-        }
-
-        /// <summary>
-        /// Returns the density of the Nth resource, or zero if it is invalid.
-        /// </summary>
-        /// <param name="resourceId"></param>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
         /// <returns>Density in kg / unit</returns>
-        public double ResourceDensity(double resourceId)
+        public double ResourceDensity(object resourceId)
         {
-            return vc.ResourceDensity((int)resourceId) * 1000.0;
-        }
-
-        /// <summary>
-        /// Returns the density of the named resource, or zero if it wasn't found.
-        /// </summary>
-        /// <param name="resourceName"></param>
-        /// <returns>Density in kg / unit</returns>
-        public double ResourceDensity(string resourceName)
-        {
-            return vc.ResourceDensity(resourceName) * 1000.0;
+            return vc.ResourceDensity(resourceId) * 1000.0;
         }
 
         /// <summary>
         /// Returns 1 if resourceId is valid (there is a resource with that
-        /// index on the craft).
+        /// id on the craft).
         /// </summary>
-        /// <param name="resourceId"></param>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
         /// <returns></returns>
-        public double ResourceExists(double resourceId)
+        public double ResourceExists(object resourceId)
         {
-            return vc.ResourceExists((int)resourceId);
-        }
-
-        /// <summary>
-        /// Returns 1 if the named resource is valid (the vessel has storage for
-        /// that resource).
-        /// </summary>
-        /// <param name="resourceName"></param>
-        /// <returns></returns>
-        public double ResourceExists(string resourceName)
-        {
-            return vc.ResourceExists(resourceName);
+            return vc.ResourceExists(resourceId);
         }
 
         /// <summary>
@@ -542,170 +495,88 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the current mass of the Nth resource in kg.
+        /// Returns the current mass of the selected resource in kg.
         /// </summary>
-        /// <param name="resourceId"></param>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
         /// <returns></returns>
-        public double ResourceMass(double resourceId)
+        public double ResourceMass(object resourceId)
         {
-            return vc.ResourceMass((int)resourceId) * 1000.0;
+            return vc.ResourceMass(resourceId) * 1000.0;
         }
 
         /// <summary>
-        /// Returns the mass of the current resource supply
-        /// in kg.
+        /// Returns the maximum mass of the selected resource.
         /// </summary>
-        /// <param name="resourceName"></param>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
         /// <returns></returns>
-        public double ResourceMass(string resourceName)
+        public double ResourceMassMax(object resourceId)
         {
-            return vc.ResourceMass(resourceName) * 1000.0;
+            return vc.ResourceMassMax(resourceId);
         }
 
         /// <summary>
-        /// Returns the maximum mass of the Nth resource.
+        /// Returns the maximum quantity of the selected resource.
         /// </summary>
-        /// <param name="resourceId"></param>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
         /// <returns></returns>
-        public double ResourceMassMax(double resourceId)
+        public double ResourceMax(object resourceId)
         {
-            return vc.ResourceMassMax((int)resourceId);
+            return vc.ResourceMax(resourceId);
         }
 
         /// <summary>
-        /// Returns the maximum mass of the resource in (units).
-        /// </summary>
-        /// <param name="resourceName"></param>
-        /// <returns></returns>
-        public double ResourceMassMax(string resourceName)
-        {
-            return vc.ResourceMassMax(resourceName);
-        }
-
-        /// <summary>
-        /// Returns the maximum quantity of the Nth resource.
-        /// </summary>
-        /// <param name="resourceId"></param>
-        /// <returns></returns>
-        public double ResourceMax(double resourceId)
-        {
-            return vc.ResourceMax((int)resourceId);
-        }
-
-        /// <summary>
-        /// Return the maximum capacity of the resource, or zero if the resource
-        /// doesn't exist.
-        /// </summary>
-        /// <param name="resourceName"></param>
-        /// <returns></returns>
-        public double ResourceMax(string resourceName)
-        {
-            return vc.ResourceMax(resourceName);
-        }
-
-        /// <summary>
-        /// Returns the name of the Nth resource, or an empty string if it doesn't
+        /// Returns the name of the selected resource, or an empty string if it doesn't
         /// exist.
         /// </summary>
-        /// <param name="resourceId"></param>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
         /// <returns></returns>
-        public string ResourceName(double resourceId)
+        public string ResourceName(object resourceId)
         {
-            return vc.ResourceName((int)resourceId);
+            return vc.ResourceName(resourceId);
         }
 
         /// <summary>
-        /// Returns the amount of the Nth resource remaining as a percentage in
+        /// Returns the amount of the selected resource remaining as a percentage in
         /// the range [0, 1].
         /// </summary>
-        /// <param name="resourceId"></param>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
         /// <returns></returns>
-        public double ResourcePercent(double resourceId)
+        public double ResourcePercent(object resourceId)
         {
-            return vc.ResourcePercent((int)resourceId);
+            return vc.ResourcePercent(resourceId);
         }
 
         /// <summary>
-        /// Returns the amount of the resource remaining as a percentage in the
-        /// range [0, 1].
+        /// Returns the current amount of the selected resource in the current stage.
         /// </summary>
-        /// <param name="resourceName"></param>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
         /// <returns></returns>
-        public double ResourcePercent(string resourceName)
+        public double ResourceStageCurrent(object resourceId)
         {
-            return vc.ResourcePercent(resourceName);
+            return vc.ResourceCurrent(resourceId);
         }
 
         /// <summary>
-        /// Returns the current amount of the Nth resource in the current stage.
+        /// Returns the max amount of the selected resource in the current stage.
         /// </summary>
-        /// <param name="resourceId"></param>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
         /// <returns></returns>
-        public double ResourceStageCurrent(double resourceId)
+        public double ResourceStageMax(object resourceId)
         {
-            return vc.ResourceCurrent((int)resourceId);
+            return vc.ResourceStageMax(resourceId);
         }
 
         /// <summary>
-        /// Returns the amount of the resource remaining in the current stage.
+        /// Returns the max amount of the selected resource in the current stage.
         /// </summary>
-        /// <param name="resourceName"></param>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
         /// <returns></returns>
-        public double ResourceStageCurrent(string resourceName)
+        public double ResourceStagePercent(object resourceId)
         {
-            return vc.ResourceStageCurrent(resourceName);
-        }
-
-        /// <summary>
-        /// Returns the max amount of the Nth resource in the current stage.
-        /// </summary>
-        /// <param name="resourceId"></param>
-        /// <returns></returns>
-        public double ResourceStageMax(double resourceId)
-        {
-            return vc.ResourceStageMax((int)resourceId);
-        }
-
-        /// <summary>
-        /// Returns the maximum amount of the resource in the current stage.
-        /// </summary>
-        /// <param name="resourceName"></param>
-        /// <returns></returns>
-        public double ResourceStageMax(string resourceName)
-        {
-            return vc.ResourceStageMax(resourceName);
-        }
-
-        /// <summary>
-        /// Returns the max amount of the Nth resource in the current stage.
-        /// </summary>
-        /// <param name="resourceId"></param>
-        /// <returns></returns>
-        public double ResourceStagePercent(double resourceId)
-        {
-            int id = (int)resourceId;
-            double stageMax = vc.ResourceStageMax(id);
+            double stageMax = vc.ResourceStageMax(resourceId);
             if (stageMax > 0.0)
             {
-                return vc.ResourceStageCurrent(id) / stageMax;
-            }
-            else
-            {
-                return 0.0;
-            }
-        }
-
-        /// <summary>
-        /// Returns the maximum amount of the resource in the current stage.
-        /// </summary>
-        /// <param name="resourceName"></param>
-        /// <returns></returns>
-        public double ResourceStagePercent(string resourceName)
-        {
-            double stageMax = vc.ResourceStageMax(resourceName);
-            if (stageMax > 0.0)
-            {
-                return vc.ResourceStageCurrent(resourceName) / stageMax;
+                return vc.ResourceStageCurrent(resourceId) / stageMax;
             }
             else
             {
@@ -720,17 +591,18 @@ namespace AvionicsSystems
         /// If there is no such resource on the current stage, returns 0.  Doing so makes this
         /// function useful for alerts, for example.
         /// </summary>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
         /// <param name="firstBound">The first boundary percentage, between 0 and 1.</param>
         /// <param name="secondBound">The second boundary percentage, between 0 and 1.</param>
         /// <returns>1 if current stage resource percentage is between the listed bounds.</returns>
-        public double ResourceStageThreshold(string resourceName, double firstBound, double secondBound)
+        public double ResourceStageThreshold(object resourceId, double firstBound, double secondBound)
         {
-            double stageMax = vc.ResourceStageMax(resourceName);
+            double stageMax = vc.ResourceStageMax(resourceId);
             if (stageMax > 0.0f)
             {
                 double min = Math.Min(firstBound, secondBound);
                 double max = Math.Max(firstBound, secondBound);
-                double percent = vc.ResourceStageCurrent(resourceName) / stageMax;
+                double percent = vc.ResourceStageCurrent(resourceId) / stageMax;
 
                 if (percent >= min && percent <= max)
                 {
@@ -748,17 +620,18 @@ namespace AvionicsSystems
         /// If there is no resource capacity onboard, returns 0.  Doing so makes this
         /// function useful for alerts, for example.
         /// </summary>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
         /// <param name="firstBound">The first boundary percentage, between 0 and 1.</param>
         /// <param name="secondBound">The second boundary percentage, between 0 and 1.</param>
         /// <returns>1 if the resource percentage is between the listed bounds.</returns>
-        public double ResourceThreshold(string resourceName, double firstBound, double secondBound)
+        public double ResourceThreshold(object resourceId, double firstBound, double secondBound)
         {
-            double vesselMax = vc.ResourceMax(resourceName);
+            double vesselMax = vc.ResourceMax(resourceId);
             if (vesselMax > 0.0f)
             {
                 double min = Math.Min(firstBound, secondBound);
                 double max = Math.Max(firstBound, secondBound);
-                double percent = vc.ResourcePercent(resourceName);
+                double percent = vc.ResourcePercent(resourceId);
 
                 if (percent >= min && percent <= max)
                 {

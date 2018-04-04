@@ -114,10 +114,10 @@ namespace AvionicsSystems
                 dummyResource.name = resourceId as string;
                 index = Array.BinarySearch<ResourceData>(resources, dummyResource, resourceNameComparer);
             }
-            else if(resourceId is double)
+            else if (resourceId is double)
             {
                 index = (int)(double)(resourceId);
-                if (vesselActiveResource[index] < int.MaxValue)
+                if (index > -1 && index < vesselActiveResource.Length && vesselActiveResource[index] < int.MaxValue)
                 {
                     index = vesselActiveResource[index];
                 }
@@ -156,7 +156,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         internal double PropellantResourceId(int index)
         {
-            if (index >=0 && index < enginePropellantIds.Count)
+            if (index >= 0 && index < enginePropellantIds.Count)
             {
                 int resourceIndex = Array.FindIndex(resources, x => x.id == enginePropellantIds[index]);
                 if (resourceIndex >= 0)
@@ -174,7 +174,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         internal string PropellantStageName(int index)
         {
-            if (index >=0 && index < enginePropellantIds.Count)
+            if (index >= 0 && index < enginePropellantIds.Count)
             {
                 try
                 {
@@ -206,34 +206,14 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the current value of the nth resource found on the vessel,
-        /// where the Nth resource is selected from the alphabetized list of
-        /// resources.
-        /// </summary>
-        /// <param name="resourceId"></param>
-        /// <returns></returns>
-        internal double ResourceCurrent(int resourceId)
-        {
-            if (resourceId >= 0 && resourceId < resources.Length)
-            {
-                if (vesselActiveResource[resourceId] < int.MaxValue)
-                {
-                    return resources[vesselActiveResource[resourceId]].currentQuantity;
-                }
-            }
-
-            return 0.0;
-        }
-
-        /// <summary>
         /// Return the current amount of the named resource, or zero if the
         /// resource does not exist.
         /// </summary>
-        /// <param name="resourceName"></param>
+        /// <param name="resourceId"></param>
         /// <returns></returns>
-        internal double ResourceCurrent(string resourceName)
+        internal double ResourceCurrent(object resourceId)
         {
-            int index = GetResourceIndex(resourceName);
+            int index = GetResourceIndex(resourceId);
             if (index >= 0 && index < resources.Length)
             {
                 return resources[index].currentQuantity;
@@ -245,33 +225,14 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the instantaneous change-per-second of the Nth resource, or
-        /// zero if the index was invalid.
-        /// </summary>
-        /// <param name="resourceName"></param>
-        /// <returns></returns>
-        internal double ResourceDelta(int resourceId)
-        {
-            if (resourceId >= 0 && resourceId < resources.Length)
-            {
-                if (vesselActiveResource[resourceId] < int.MaxValue)
-                {
-                    return resources[vesselActiveResource[resourceId]].deltaPerSecond;
-                }
-            }
-
-            return 0.0;
-        }
-
-        /// <summary>
         /// Returns the instantaneous change-per-second of the resource, or
         /// zero if the resource wasn't found.
         /// </summary>
-        /// <param name="resourceName"></param>
+        /// <param name="resourceId"></param>
         /// <returns></returns>
-        internal double ResourceDelta(string resourceName)
+        internal double ResourceDelta(object resourceId)
         {
-            int index = GetResourceIndex(resourceName);
+            int index = GetResourceIndex(resourceId);
             if (index >= 0 && index < resources.Length)
             {
                 return resources[index].deltaPerSecond;
@@ -283,31 +244,13 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the density of the Nth resource, or zero if the index was invalid.
+        /// Returns the density of the named resource, or zero if it wasn't found.
         /// </summary>
         /// <param name="resourceId"></param>
         /// <returns></returns>
-        internal double ResourceDensity(int resourceId)
+        internal double ResourceDensity(object resourceId)
         {
-            if (resourceId >= 0 && resourceId < resources.Length)
-            {
-                if (vesselActiveResource[resourceId] < int.MaxValue)
-                {
-                    return resources[vesselActiveResource[resourceId]].density;
-                }
-            }
-
-            return 0.0;
-        }
-
-        /// <summary>
-        /// Returns the density of the named resource, or zero if it wasn't found.
-        /// </summary>
-        /// <param name="resourceName"></param>
-        /// <returns></returns>
-        internal double ResourceDensity(string resourceName)
-        {
-            int index = GetResourceIndex(resourceName);
+            int index = GetResourceIndex(resourceId);
             if (index >= 0 && index < resources.Length)
             {
                 return resources[index].density;
@@ -319,32 +262,14 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if the resource id refers to a valid resource on the current
-        /// vessel, 0 otherwise.
+        /// Returns 1 if the named resource is found on this vessel, 0 otherwise.
         /// </summary>
         /// <param name="resourceId"></param>
         /// <returns></returns>
-        internal double ResourceExists(int resourceId)
+        internal double ResourceExists(object resourceId)
         {
-            if (resourceId >= 0 && resourceId < resources.Length && vesselActiveResource[resourceId] < int.MaxValue)
-            {
-                return 1.0;
-            }
-            else
-            {
-                return 0.0;
-            }
-        }
-
-        /// <summary>
-        /// Returns 1 if the named resource is found on this vessel, 0 otherwise.
-        /// </summary>
-        /// <param name="resourceName"></param>
-        /// <returns></returns>
-        internal double ResourceExists(string resourceName)
-        {
-            int index = GetResourceIndex(resourceName);
-            if (index >= 0)
+            int index = GetResourceIndex(resourceId);
+            if (index >= 0 && index < resources.Length)
             {
                 int resourceIndex = Array.BinarySearch<int>(vesselActiveResource, index);
                 if (resourceIndex >= 0)
@@ -374,33 +299,14 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the mass of the Nth resource
+        /// Returns the mass of the current resource supply
         /// in (units).
         /// </summary>
         /// <param name="resourceId"></param>
         /// <returns></returns>
-        internal double ResourceMass(int resourceId)
+        internal double ResourceMass(object resourceId)
         {
-            if (resourceId >= 0 && resourceId < resources.Length)
-            {
-                if (vesselActiveResource[resourceId] < int.MaxValue)
-                {
-                    return resources[vesselActiveResource[resourceId]].currentQuantity * resources[vesselActiveResource[resourceId]].density;
-                }
-            }
-
-            return 0.0;
-        }
-
-        /// <summary>
-        /// Returns the mass of the current resource supply
-        /// in (units).
-        /// </summary>
-        /// <param name="resourceName"></param>
-        /// <returns></returns>
-        internal double ResourceMass(string resourceName)
-        {
-            int index = GetResourceIndex(resourceName);
+            int index = GetResourceIndex(resourceId);
             if (index >= 0 && index < resources.Length)
             {
                 return resources[index].currentQuantity * resources[index].density;
@@ -412,31 +318,13 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the maximum mass of the Nth resource in (units).
+        /// Returns the maximum mass of the resource in (units).
         /// </summary>
         /// <param name="resourceId"></param>
         /// <returns></returns>
-        internal double ResourceMassMax(int resourceId)
+        internal double ResourceMassMax(object resourceId)
         {
-            if (resourceId >= 0 && resourceId < resources.Length)
-            {
-                if (vesselActiveResource[resourceId] < int.MaxValue)
-                {
-                    return resources[vesselActiveResource[resourceId]].maxQuantity * resources[vesselActiveResource[resourceId]].density;
-                }
-            }
-
-            return 0.0;
-        }
-
-        /// <summary>
-        /// Returns the maximum mass of the resource in (units).
-        /// </summary>
-        /// <param name="resourceName"></param>
-        /// <returns></returns>
-        internal double ResourceMassMax(string resourceName)
-        {
-            int index = GetResourceIndex(resourceName);
+            int index = GetResourceIndex(resourceId);
             if (index >= 0 && index < resources.Length)
             {
                 return resources[index].maxQuantity * resources[index].density;
@@ -448,33 +336,14 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Return the maximum capacity of the Nth resource, or zero if the resource
+        /// Return the maximum capacity of the resource, or zero if the resource
         /// doesn't exist.
         /// </summary>
         /// <param name="resourceId"></param>
         /// <returns></returns>
-        internal double ResourceMax(int resourceId)
+        internal double ResourceMax(object resourceId)
         {
-            if (resourceId >= 0 && resourceId < resources.Length)
-            {
-                if (vesselActiveResource[resourceId] < int.MaxValue)
-                {
-                    return resources[vesselActiveResource[resourceId]].maxQuantity;
-                }
-            }
-
-            return 0.0;
-        }
-
-        /// <summary>
-        /// Return the maximum capacity of the resource, or zero if the resource
-        /// doesn't exist.
-        /// </summary>
-        /// <param name="resourceName"></param>
-        /// <returns></returns>
-        internal double ResourceMax(string resourceName)
-        {
-            int index = GetResourceIndex(resourceName);
+            int index = GetResourceIndex(resourceId);
             if (index >= 0 && index < resources.Length)
             {
                 return resources[index].maxQuantity;
@@ -491,48 +360,26 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="resourceId"></param>
         /// <returns></returns>
-        internal string ResourceName(int resourceId)
+        internal string ResourceName(object resourceId)
         {
-            if (resourceId >= 0 && resourceId < resources.Length)
+            int index = GetResourceIndex(resourceId);
+            if (index >= 0 && index < resources.Length)
             {
-                if (vesselActiveResource[resourceId] < int.MaxValue)
-                {
-                    return resources[vesselActiveResource[resourceId]].name;
-                }
+                return resources[index].name;
             }
 
             return string.Empty;
         }
 
         /// <summary>
-        /// Returns the amount of the Nth resource remaining as a percentage in the
+        /// Returns the amount of the resource remaining as a percentage in the
         /// range [0, 1].
         /// </summary>
         /// <param name="resourceId"></param>
         /// <returns></returns>
-        internal double ResourcePercent(int resourceId)
+        internal double ResourcePercent(object resourceId)
         {
-            if (resourceId >= 0 && resourceId < resources.Length)
-            {
-                int index = vesselActiveResource[resourceId];
-                if (index < int.MaxValue)
-                {
-                    return (resources[index].maxQuantity > 0.0) ? resources[index].currentQuantity / resources[index].maxQuantity : 0.0;
-                }
-            }
-
-            return 0.0;
-        }
-
-        /// <summary>
-        /// Returns the amount of the resource remaining as a percentage in the
-        /// range [0, 1].
-        /// </summary>
-        /// <param name="resourceName"></param>
-        /// <returns></returns>
-        internal double ResourcePercent(string resourceName)
-        {
-            int index = GetResourceIndex(resourceName);
+            int index = GetResourceIndex(resourceId);
             if (index >= 0 && index < resources.Length)
             {
                 return (resources[index].maxQuantity > 0.0) ? resources[index].currentQuantity / resources[index].maxQuantity : 0.0;
@@ -544,31 +391,13 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the amount of the Nth resource remaining in the current stage.
+        /// Returns the amount of the resource remaining in the current stage.
         /// </summary>
         /// <param name="resourceId"></param>
         /// <returns></returns>
-        internal double ResourceStageCurrent(int resourceId)
+        internal double ResourceStageCurrent(object resourceId)
         {
-            if (resourceId >= 0 && resourceId < resources.Length)
-            {
-                if (vesselActiveResource[resourceId] < int.MaxValue)
-                {
-                    return resources[vesselActiveResource[resourceId]].currentStage;
-                }
-            }
-
-            return 0.0;
-        }
-
-        /// <summary>
-        /// Returns the amount of the resource remaining in the current stage.
-        /// </summary>
-        /// <param name="resourceName"></param>
-        /// <returns></returns>
-        internal double ResourceStageCurrent(string resourceName)
-        {
-            int index = GetResourceIndex(resourceName);
+            int index = GetResourceIndex(resourceId);
             if (index >= 0 && index < resources.Length)
             {
                 return resources[index].currentStage;
@@ -580,31 +409,13 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the maximum amount of the Nth resource in the current stage.
+        /// Returns the maximum amount of the resource in the current stage.
         /// </summary>
         /// <param name="resourceId"></param>
         /// <returns></returns>
-        internal double ResourceStageMax(int resourceId)
+        internal double ResourceStageMax(object resourceId)
         {
-            if (resourceId >= 0 && resourceId < resources.Length)
-            {
-                if (vesselActiveResource[resourceId] < int.MaxValue)
-                {
-                    return resources[vesselActiveResource[resourceId]].maxStage;
-                }
-            }
-
-            return 0.0;
-        }
-
-        /// <summary>
-        /// Returns the maximum amount of the resource in the current stage.
-        /// </summary>
-        /// <param name="resourceName"></param>
-        /// <returns></returns>
-        internal double ResourceStageMax(string resourceName)
-        {
-            int index = GetResourceIndex(resourceName);
+            int index = GetResourceIndex(resourceId);
             if (index >= 0 && index < resources.Length)
             {
                 return resources[index].maxStage;
