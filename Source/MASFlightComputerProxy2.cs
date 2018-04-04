@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2017 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -3088,6 +3088,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the current reaction wheel authority as a percentage of maximum.
+        /// </summary>
+        /// <returns>Reaction wheel authority in the range of [0, 1].</returns>
+        public double GetReactionWheelAuthority()
+        {
+            return vc.reactionWheelAuthority;
+        }
+
+        /// <summary>
         /// Returns 1 if at least one reaction wheel is damaged.  Returns 0 otherwise.
         /// </summary>
         /// <returns></returns>
@@ -3136,6 +3145,22 @@ namespace AvionicsSystems
         public double ReactionWheelYaw()
         {
             return vc.reactionWheelYaw;
+        }
+
+        /// <summary>
+        /// Update all active reaction wheels' authority.
+        /// </summary>
+        /// <param name="authority">The new authority percentage, between 0 and 1.  Value is clamped if it is outside that range.</param>
+        /// <returns>The new reaction wheel authority, or 0 if no wheels are available.</returns>
+        public double SetReactionWheelAuthority(double authority)
+        {
+            float newAuthority = Mathf.Clamp01((float)authority);
+            for (int i = vc.moduleReactionWheel.Length - 1; i >= 0; --i)
+            {
+                vc.moduleReactionWheel[i].authorityLimiter = newAuthority * 100.0f;
+            }
+
+            return (vc.moduleReactionWheel.Length > 0) ? newAuthority : 0.0;
         }
 
         /// <summary>

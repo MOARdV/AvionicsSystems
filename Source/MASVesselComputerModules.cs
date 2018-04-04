@@ -797,6 +797,7 @@ namespace AvionicsSystems
         internal float reactionWheelPitch = 0.0f;
         internal float reactionWheelRoll = 0.0f;
         internal float reactionWheelYaw = 0.0f;
+        internal float reactionWheelAuthority = 0.0f;
         internal bool reactionWheelActive = false;
         internal bool reactionWheelDamaged = false;
         private void UpdateReactionWheels()
@@ -809,6 +810,7 @@ namespace AvionicsSystems
             reactionWheelPitch = 0.0f;
             reactionWheelRoll = 0.0f;
             reactionWheelYaw = 0.0f;
+            reactionWheelAuthority = 0.0f;
             reactionWheelActive = false;
             reactionWheelDamaged = false;
 
@@ -821,6 +823,8 @@ namespace AvionicsSystems
             {
                 if (moduleReactionWheel[i].wheelState == ModuleReactionWheel.WheelState.Active)
                 {
+                    reactionWheelAuthority += moduleReactionWheel[i].authorityLimiter;
+
                     if (moduleReactionWheel[i].inputVector.sqrMagnitude > 0.0f)
                     {
                         float partMaxTorque = 0.0f;
@@ -864,6 +868,11 @@ namespace AvionicsSystems
                 {
                     reactionWheelDamaged = true;
                 }
+            }
+
+            if (reactionWheelAuthority > 0.0f)
+            {
+                reactionWheelAuthority = reactionWheelAuthority / (100.0f * moduleReactionWheel.Length);
             }
 
             if (activeWheels > 1.0f)
