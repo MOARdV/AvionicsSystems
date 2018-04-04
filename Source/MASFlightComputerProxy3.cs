@@ -1026,16 +1026,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the surface-relative horizontal component of the net
-        /// acceleration on the vessel in m/s^2.
-        /// </summary>
-        /// <returns>Horizontal acceleration in m/s^2.</returns>
-        public double AccelHorizontal()
-        {
-            return Vector3d.Exclude(vc.up, vessel.acceleration).magnitude;
-        }
-
-        /// <summary>
         /// Returns the rightward component of the net
         /// acceleration on the vessel in m/s^2.  Negative values represent a
         /// leftward acceleration.
@@ -1044,6 +1034,36 @@ namespace AvionicsSystems
         public double AccelRight()
         {
             return Vector3d.Dot(vessel.acceleration, vc.right);
+        }
+
+        /// <summary>
+        /// Returns the surface forward-relative component of the net
+        /// acceleration on the vessel in m/s^2.
+        /// </summary>
+        /// <returns>Surface forward acceleration in m/s^2.</returns>
+        public double AccelSurfaceForward()
+        {
+            return Vector3d.Dot(vessel.acceleration, vc.surfaceForward);
+        }
+
+        /// <summary>
+        /// Returns the surface prograde-relative component of the net
+        /// acceleration on the vessel in m/s^2.
+        /// </summary>
+        /// <returns>Surface prograde acceleration in m/s^2.</returns>
+        public double AccelSurfacePrograde()
+        {
+            return Vector3d.Dot(vessel.acceleration, vc.surfacePrograde);
+        }
+
+        /// <summary>
+        /// Returns the surface right-relative component of the net
+        /// acceleration on the vessel in m/s^2.
+        /// </summary>
+        /// <returns>Surface right acceleration in m/s^2.</returns>
+        public double AccelSurfaceRight()
+        {
+            return Vector3d.Dot(vessel.acceleration, vc.surfaceRight);
         }
 
         /// <summary>
