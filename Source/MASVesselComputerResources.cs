@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2017 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -48,7 +48,7 @@ namespace AvionicsSystems
         /// <summary>
         /// A listing of which resource IDs have been flagged as active propellants.
         /// </summary>
-        private HashSet<int> enginePropellantIds = new HashSet<int>();
+        private List<int> enginePropellantIds = new List<int>();
 
         /// <summary>
         /// Structure to track active RCS use.  Stores in units of kg, not KSP units.
@@ -102,16 +102,89 @@ namespace AvionicsSystems
 
         #region Resource Data Query
         /// <summary>
-        /// Helper function: Find which resource has this name.
+        /// Helper function: Find which resource this id selects.
         /// </summary>
-        /// <param name="resourceName">Internal name of the resource (eg, "ElectricCharge")</param>
+        /// <param name="resourceId">Either the internal name of the resource (eg, "ElectricCharge") or a number corresponding to the active resources array.</param>
         /// <returns>Index, or a negative number if not found</returns>
-        private int GetResourceIndex(string resourceName)
+        private int GetResourceIndex(object resourceId)
         {
-            // TODO: Cache the last queried index and skip the bsearch if the
-            // dummyResource.name == resourceName?
-            dummyResource.name = resourceName;
-            return Array.BinarySearch<ResourceData>(resources, dummyResource, resourceNameComparer);
+            int index = -1;
+            if (resourceId is string)
+            {
+                dummyResource.name = resourceId as string;
+                index = Array.BinarySearch<ResourceData>(resources, dummyResource, resourceNameComparer);
+            }
+            else if(resourceId is double)
+            {
+                index = (int)(double)(resourceId);
+                if (vesselActiveResource[index] < int.MaxValue)
+                {
+                    index = vesselActiveResource[index];
+                }
+                else
+                {
+                    index = -1;
+                }
+            }
+
+            return index;
+        }
+
+        /// <summary>
+        /// Find the ResourceData structure that corresponds to the given resource ID.
+        /// </summary>
+        /// <param name="rsrcId"></param>
+        /// <returns></returns>
+        private ResourceData GetResourceData(int rsrcId)
+        {
+            return Array.Find(resources, x => x.id == rsrcId);
+        }
+
+        /// <summary>
+        /// Returns the number of resources flagged as current propellants
+        /// </summary>
+        /// <returns></returns>
+        internal double PropellantStageCount()
+        {
+            return enginePropellantIds.Count;
+        }
+
+        /// <summary>
+        /// Maps the engine propellant index to the vessel index.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        internal double PropellantResourceId(int index)
+        {
+            if (index >=0 && index < enginePropellantIds.Count)
+            {
+                int resourceIndex = Array.FindIndex(resources, x => x.id == enginePropellantIds[index]);
+                if (resourceIndex >= 0)
+                {
+                    return Array.FindIndex(vesselActiveResource, x => x == resourceIndex);
+                }
+            }
+            return -1.0;
+        }
+
+        /// <summary>
+        /// Returns the indexed propellant name or an empty string.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        internal string PropellantStageName(int index)
+        {
+            if (index >=0 && index < enginePropellantIds.Count)
+            {
+                try
+                {
+                    ResourceData rd = GetResourceData(enginePropellantIds[index]);
+                    return rd.name;
+                }
+                catch { }
+            }
+
+            return string.Empty;
         }
 
         /// <summary>
@@ -281,6 +354,23 @@ namespace AvionicsSystems
             }
 
             return 0.0;
+        }
+
+        /// <summary>
+        /// Returns whether the identified resource is a propellant or not.
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        internal bool ResourceIsPropellant(object resourceId)
+        {
+            int index = GetResourceIndex(resourceId);
+
+            if (index >= 0 && index < resources.Length)
+            {
+                return (enginePropellantIds.FindIndex(x => x == resources[index].id) >= 0);
+            }
+
+            return false;
         }
 
         /// <summary>

@@ -201,6 +201,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Reports the number of propellants currently in use.
+        /// </summary>
+        /// <returns></returns>
+        public double PropellantStageCount()
+        {
+            return vc.PropellantStageCount();
+        }
+
+        /// <summary>
         /// Reports the current amount of propellant available, in kg, to active engines on the current stage.
         /// </summary>
         /// <returns>The current mass of propellant accessible by the current stage, in kg.</returns>
@@ -220,12 +229,34 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the name of the active propellant indexed by `index`.  This call is equivalent
+        /// to `fc.ResourceName(fc.PropellantStageResourceId(index))`.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.PropellantStageCount()` - 1, inclusive.</param>
+        /// <returns>The name of the propellant, or an empty string for invalid indices.</returns>
+        public string PropellantStageName(double index)
+        {
+            return vc.PropellantStageName((int)index);
+        }
+
+        /// <summary>
         /// Reports the percentage of propellant remaining on the current stage for the active engines.
         /// </summary>
         /// <returns>The percentage of maximum stage propellant capacity that contains propellant, between 0 and 1.</returns>
         public double PropellantStagePercent()
         {
             return (vc.enginePropellant.maxStage > 0.0f) ? (vc.enginePropellant.currentStage / vc.enginePropellant.maxStage) : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the resourceId of the active propellant indexed by `index`.  This value can be used
+        /// in the various Resource methods in this category.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.PropellantStageCount()` - 1, inclusive.</param>
+        /// <returns>The resourceId of the propellant, or -1 for invalid indices.</returns>
+        public double PropellantStageResourceId(double index)
+        {
+            return vc.PropellantResourceId((int)index);
         }
 
         /// <summary>
@@ -498,6 +529,16 @@ namespace AvionicsSystems
         public double ResourceExists(string resourceName)
         {
             return vc.ResourceExists(resourceName);
+        }
+
+        /// <summary>
+        /// Returns 1 if the identified resource is currently marked as a propellant.
+        /// </summary>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
+        /// <returns>1 if the resource is currently a propellant, 0 otherwise.</returns>
+        public double ResourceIsPropellant(object resourceId)
+        {
+            return (vc.ResourceIsPropellant(resourceId)) ? 1.0 : 0.0;
         }
 
         /// <summary>
