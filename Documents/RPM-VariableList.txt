@@ -57,7 +57,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "ACCELPROGRADE": -no replacement-
 "ACCELRADIAL": -no replacement-
 "ACCELRIGHT": fc.AccelRight()
-"ACCELSURFPROGRADE": -no replacement-
+"ACCELSURFPROGRADE": fc.AccelSurfacePrograde()
 "ACCELTOP": fc.AccelTop()
 "ACTIVEENGINECOUNT": fc.EngineCount()
 "AGMEMO":
