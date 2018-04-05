@@ -1032,6 +1032,15 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Wheels
+        private List<ModuleWheels.ModuleWheelDamage> wheelDamageList = new List<ModuleWheels.ModuleWheelDamage>();
+        internal ModuleWheels.ModuleWheelDamage[] moduleWheelDamage = new ModuleWheels.ModuleWheelDamage[0];
+        private List<ModuleWheels.ModuleWheelDeployment> wheelDeploymentList = new List<ModuleWheels.ModuleWheelDeployment>();
+        internal ModuleWheels.ModuleWheelDeployment[] moduleWheelDeployment = new ModuleWheels.ModuleWheelDeployment[0];
+        private List<ModuleWheelBase> wheelBaseList = new List<ModuleWheelBase>();
+        internal ModuleWheelBase[] moduleWheelBase = new ModuleWheelBase[0];
+        #endregion
+
         #region Modules Management
         /// <summary>
         /// Mark modules as potentially invalid to force reiterating over the
@@ -1209,6 +1218,18 @@ namespace AvionicsSystems
                                 idEnginesList.Add(idE);
                             }
                         }
+                        else if (module is ModuleWheelBase)
+                        {
+                            wheelBaseList.Add(module as ModuleWheelBase);
+                        }
+                        else if (module is ModuleWheels.ModuleWheelDamage)
+                        {
+                            wheelDamageList.Add(module as ModuleWheels.ModuleWheelDamage);
+                        }
+                        else if (module is ModuleWheels.ModuleWheelDeployment)
+                        {
+                            wheelDeploymentList.Add(module as ModuleWheels.ModuleWheelDeployment);
+                        }
 
                         foreach (BaseAction ba in module.Actions)
                         {
@@ -1274,6 +1295,9 @@ namespace AvionicsSystems
             TransferModules<MASCamera>(cameraList, ref moduleCamera);
             TransferModules<ModuleProceduralFairing>(proceduralFairingList, ref moduleProceduralFairing);
             TransferModules<MASThrustReverser>(thrustReverserList, ref moduleThrustReverser);
+            TransferModules<ModuleWheels.ModuleWheelDamage>(wheelDamageList, ref moduleWheelDamage);
+            TransferModules<ModuleWheels.ModuleWheelDeployment>(wheelDeploymentList, ref moduleWheelDeployment);
+            TransferModules<ModuleWheelBase>(wheelBaseList, ref moduleWheelBase);
         }
 
         /// <summary>

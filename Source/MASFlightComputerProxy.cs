@@ -224,7 +224,7 @@ namespace AvionicsSystems
         [MoonSharpHidden]
         private bool EnabledType(global::VesselType type)
         {
-            return fc.activeVesselFilter.FindIndex(x => x==type) != -1;
+            return fc.activeVesselFilter.FindIndex(x => x == type) != -1;
         }
 
         [MoonSharpHidden]
@@ -804,7 +804,7 @@ namespace AvionicsSystems
         public double BodyIsMoon(object id)
         {
             CelestialBody cb = SelectBody(id);
-            if (cb != null && cb.referenceBody!=null && cb.referenceBody.GetName() != Planetarium.fetch.Sun.GetName())
+            if (cb != null && cb.referenceBody != null && cb.referenceBody.GetName() != Planetarium.fetch.Sun.GetName())
             {
                 return 1.0;
             }
@@ -1285,6 +1285,96 @@ namespace AvionicsSystems
                 return vc.moduleCamera[i].IsDeployed() ? 1.0 : 0.0;
             }
 
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the maximum field of view supported by the selected camera.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <returns>The maximum field of view in degrees, or 0 for an invalid camera index.</returns>
+        public double GetCameraMaxFoV(double index)
+        {
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                return vc.moduleCamera[i].fovRange.y;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the maximum pan angle supported by the selected camera.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <returns>The maximum pan in degrees, or 0 for an invalid camera index.</returns>
+        public double GetCameraMaxPan(double index)
+        {
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                return vc.moduleCamera[i].panRange.y;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the maximum tilt angle supported by the selected camera.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <returns>The maximum tilt in degrees, or 0 for an invalid camera index.</returns>
+        public double GetCameraMaxTilt(double index)
+        {
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                return vc.moduleCamera[i].tiltRange.y;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the minimum field of view supported by the selected camera.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <returns>The minimum field of view in degrees, or 0 for an invalid camera index.</returns>
+        public double GetCameraMinFoV(double index)
+        {
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                return vc.moduleCamera[i].fovRange.x;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the minimum pan angle supported by the selected camera.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <returns>The minimum pan in degrees, or 0 for an invalid camera index.</returns>
+        public double GetCameraMinPan(double index)
+        {
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                return vc.moduleCamera[i].panRange.x;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the minimum tilt angle supported by the selected camera.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <returns>The minimum tilt in degrees, or 0 for an invalid camera index.</returns>
+        public double GetCameraMinTilt(double index)
+        {
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                return vc.moduleCamera[i].tiltRange.x;
+            }
             return 0.0;
         }
 
@@ -2669,7 +2759,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double VesselFlying()
         {
-            if (vessel.Landed != (vesselSituationConverted <= 2))
+            if ((vessel.Landed || vessel.Splashed) != (vesselSituationConverted <= 2))
             {
                 Utility.LogMessage(this, "vessel.Landed {0} and vesselSituationConverted {1} disagree! - vessel.situation is {2}", vessel.Landed, vesselSituationConverted, vessel.situation);
             }
@@ -2697,9 +2787,42 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Variables and control methods for the Gear action group are in this
-        /// category.
+        /// category.  In addition, status and information methods for deployable
+        /// landing gear and wheels are in this category.  For simplicity, landing gear
+        /// and wheels may be simply called "landing gear" in the descriptions.
         /// </summary>
         #region Gear
+
+        /// <summary>
+        /// Returns the number of landing gear or wheels that are broken.  Returns 0 if none are, or if there
+        /// are no gear.
+        /// </summary>
+        /// <returns>The number of landing gear that are broken.</returns>
+        public double GearBrokenCount()
+        {
+            int brokenCount = 0;
+
+            for (int i = vc.moduleWheelDamage.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleWheelDamage[i].isDamaged)
+                {
+                    return ++brokenCount;
+                }
+            }
+
+            return (double)brokenCount;
+        }
+
+        /// <summary>
+        /// Returns the number of wheels / landing gear installed on the craft.  This counts all
+        /// landing gear and wheels, including those that do not deploy.
+        /// </summary>
+        /// <returns>Number of gear, or 0.</returns>
+        public double GearCount()
+        {
+            return vc.moduleWheelBase.Length;
+        }
+
         /// <summary>
         /// Returns 1 if there are actions assigned to the landing gear AG.
         /// </summary>
@@ -2707,8 +2830,95 @@ namespace AvionicsSystems
         public double GearHasActions()
         {
             return (vc.GroupHasActions(KSPActionGroup.Gear)) ? 1.0 : 0.0;
-
         }
+
+        /// <summary>
+        /// Returns 1 if any deployable landing gear or wheels are moving; otherwise
+        /// returns 0.
+        /// </summary>
+        /// <returns>1 if any landing gear are moving, 0 otherwise.</returns>
+        public double GearMoving()
+        {
+            for (int i = vc.moduleWheelDeployment.Length - 1; i >= 0; --i)
+            {
+                if (!(Mathf.Approximately(vc.moduleWheelDeployment[i].position, vc.moduleWheelDeployment[i].retractedPosition) ||
+                    Mathf.Approximately(vc.moduleWheelDeployment[i].position, vc.moduleWheelDeployment[i].deployedPosition)))
+                {
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns a number representing the position of deployable landing gear or wheels, as follows:
+        /// 
+        /// * 0 - No deployable gear.
+        /// * 1 - Gear retracted.
+        /// * 2 - Gear moving (retracting or extending).
+        /// * 3 - Gear extended.
+        /// 
+        /// Note that due to limitations in the wheel deployment module, determining which direction gear
+        /// are moving is difficult.
+        /// </summary>
+        /// <returns>An integer between 0 and 3 as described in the summary.</returns>
+        public double GearPosition()
+        {
+            bool anyRetracted = false;
+            bool anyExtended = false;
+            bool anyMoving = false;
+            for (int i = vc.moduleWheelDeployment.Length - 1; i >= 0; --i)
+            {
+                if (Mathf.Approximately(vc.moduleWheelDeployment[i].position, vc.moduleWheelDeployment[i].retractedPosition))
+                {
+                    anyRetracted = true;
+                }
+                else if (Mathf.Approximately(vc.moduleWheelDeployment[i].position, vc.moduleWheelDeployment[i].deployedPosition))
+                {
+                    anyExtended = true;
+                }
+                else
+                {
+                    anyMoving = true;
+                }
+            }
+
+            if (anyMoving)
+            {
+                return 2.0;
+            }
+            if (anyExtended)
+            {
+                return 3.0;
+            }
+            if (anyRetracted)
+            {
+                return 1.0;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the highest stress percentage of any non-broken landing gear in the
+        /// range [0, 1].
+        /// </summary>
+        /// <returns>Highest stress percentage, or 0 if no gear/wheels.</returns>
+        public double GearStress()
+        {
+            float maxStress = 0.0f;
+            for (int i = vc.moduleWheelDamage.Length - 1; i >= 0; --i)
+            {
+                if (!vc.moduleWheelDamage[i].isDamaged)
+                {
+                    maxStress = Mathf.Max(maxStress, vc.moduleWheelDamage[i].stressPercent);
+                }
+            }
+
+            // stressPercent is a [0, 100] - convert it here for consistency
+            return maxStress * 0.01f;
+        }
+
         /// <summary>
         /// Returns 1 if the landing gear action group is active.
         /// </summary>
@@ -2722,17 +2932,21 @@ namespace AvionicsSystems
         /// Set the landing gear action group to the specified state.
         /// </summary>
         /// <param name="active"></param>
-        public void SetGear(bool active)
+        /// <returns>1 if active is true, 0 otherwise.</returns>
+        public double SetGear(bool active)
         {
             vessel.ActionGroups.SetGroup(KSPActionGroup.Gear, active);
+            return (active) ? 1.0 : 0.0;
         }
 
         /// <summary>
         /// Toggle the landing gear action group
         /// </summary>
-        public void ToggleGear()
+        /// <returns>1 if the gear action group is active, 0 if not.</returns>
+        public double ToggleGear()
         {
             vessel.ActionGroups.ToggleGroup(KSPActionGroup.Gear);
+            return (vessel.ActionGroups[KSPActionGroup.Gear]) ? 1.0 : 0.0;
         }
         #endregion
 
