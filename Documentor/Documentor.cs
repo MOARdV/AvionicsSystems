@@ -95,8 +95,8 @@ namespace Documentor
                 });
 
                 StringBuilder indexContents = new StringBuilder();
-                indexContents.AppendLine("The following is an index to all functions available in MOARdV's Avionics Systems, sorted by function name.  Partially summaries are included, along with a link to the full documentation.").AppendLine();
-                indexContents.AppendFormat("**Master Index**, {0} functions:", index.Count).AppendLine().AppendLine();
+                indexContents.AppendLine("The following is an index to all functions available in MOARdV's Avionics Systems, sorted by function name.  Partial summaries are included, along with a link to the full documentation.").AppendLine();
+                indexContents.AppendFormat("**Master Function Index**, {0} functions:", index.Count).AppendLine().AppendLine();
 
                 foreach (var i in index)
                 {
