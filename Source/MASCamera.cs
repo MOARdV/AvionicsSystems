@@ -653,8 +653,6 @@ namespace AvionicsSystems
             {
                 Destroy(minFovRenderer);
                 minFovRenderer = null;
-                Destroy(minFovPosition);
-                minFovPosition = null;
                 part.OnEditorAttach -= AttachPart;
                 part.OnEditorDetach -= DetachPart;
                 part.OnEditorDestroy -= DetachPart;
@@ -867,6 +865,9 @@ namespace AvionicsSystems
         {
             if (HighLogic.LoadedSceneIsEditor)
             {
+                Vector3 origin = cameraTransform.TransformPoint(Vector3.zero);
+                Vector3 direction = cameraTransform.forward;
+
                 // TODO: Renderers don't show up if the part is added.
                 // only when a craft is loaded with camera attached.
                 // RPM used callbacks for onattach / ondetach - maybe
@@ -874,10 +875,16 @@ namespace AvionicsSystems
                 if (minFovRenderer != null)
                 {
                     minFovRenderer.enabled = showFov;
+
+                    minFovRenderer.SetPosition(0, origin);
+                    minFovRenderer.SetPosition(1, origin + direction * rayLength);
                 }
                 if (maxFovRenderer != null)
                 {
                     maxFovRenderer.enabled = showFov;
+
+                    maxFovRenderer.SetPosition(0, origin);
+                    maxFovRenderer.SetPosition(1, origin + direction * rayLength);
                 }
             }
             if (showGui)
@@ -1053,7 +1060,6 @@ namespace AvionicsSystems
 
         #region Editor
         private static readonly Material fovRendererMaterial = new Material(Shader.Find("Particles/Additive"));
-        private GameObject minFovPosition;
         private LineRenderer minFovRenderer;
         private GameObject maxFovPosition;
         private LineRenderer maxFovRenderer;
@@ -1069,9 +1075,7 @@ namespace AvionicsSystems
             part.OnEditorDetach += DetachPart;
             part.OnEditorDestroy += DetachPart;
 
-            minFovPosition = new GameObject();
-            minFovRenderer = minFovPosition.AddComponent<LineRenderer>();
-            minFovRenderer.useWorldSpace = true;
+            minFovRenderer = cameraTransform.gameObject.AddComponent<LineRenderer>();
             minFovRenderer.material = fovRendererMaterial;
             minFovRenderer.startWidth = 0.054f;
             minFovRenderer.endWidth = minSpan;
@@ -1094,8 +1098,10 @@ namespace AvionicsSystems
                 float maxSpan = rayLength * 2.0f * (float)Math.Tan(Mathf.Deg2Rad * fovRange.y * 0.5f);
 
                 maxFovPosition = new GameObject();
+                maxFovPosition.name = cameraTransform.gameObject.name + "-MaxFoV";
+                maxFovPosition.transform.parent = cameraTransform;
+                maxFovPosition.transform.position = cameraTransform.position;
                 maxFovRenderer = maxFovPosition.AddComponent<LineRenderer>();
-                maxFovRenderer.useWorldSpace = true;
                 maxFovRenderer.material = fovRendererMaterial;
                 maxFovRenderer.startWidth = 0.054f;
                 maxFovRenderer.endWidth = maxSpan;
