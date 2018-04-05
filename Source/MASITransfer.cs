@@ -138,7 +138,7 @@ namespace AvionicsSystems
         /// <returns>ΔV in m/s to circularize at the requested altitude, or 0 if the vessel is not in flight.</returns>
         public double DeltaVFinal(double destinationAltitude)
         {
-            if (!vessel.Landed)
+            if (!(vessel.Landed || vessel.Splashed))
             {
                 double GM = vessel.mainBody.gravParameter;
                 double rA = vessel.orbit.semiMajorAxis;
@@ -193,7 +193,7 @@ namespace AvionicsSystems
         /// <returns>ΔV in m/s to reach the requested altitude, or 0 if the vessel is not in flight.</returns>
         public double DeltaVInitial(double destinationAltitude)
         {
-            if (!vessel.Landed)
+            if (!(vessel.Landed || vessel.Splashed))
             {
                 return DeltaVInitial(vessel.orbit.semiMajorAxis, destinationAltitude + vessel.mainBody.Radius, vessel.mainBody.gravParameter);
             }
