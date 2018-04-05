@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -57,16 +57,23 @@ namespace Documentor
 
         internal class IndexToken
         {
+            internal enum IndexType
+            {
+                INDEX_FUNCTION,
+                INDEX_REGION
+            };
             internal string rawName;
             internal string sourceFile;
             internal string summary;
             internal StringBuilder decoratedName;
+            internal IndexType indexType;
         };
 
         static bool anyWritten = false;
 
         static List<DocumentToken> tokens = new List<DocumentToken>();
         static List<IndexToken> index = new List<IndexToken>();
+        static List<IndexToken> region = new List<IndexToken>();
 
         static void Main(string[] args)
         {
@@ -96,6 +103,7 @@ namespace Documentor
 
                 StringBuilder indexContents = new StringBuilder();
                 indexContents.AppendLine("The following is an index to all functions available in MOARdV's Avionics Systems, sorted by function name.  Partial summaries are included, along with a link to the full documentation.").AppendLine();
+                indexContents.AppendLine("The list of all categories is found [here](https://github.com/MOARdV/AvionicsSystems/wiki/Index-of-Functions#categories).").AppendLine();
                 indexContents.AppendFormat("**Master Function Index**, {0} functions:", index.Count).AppendLine().AppendLine();
 
                 foreach (var i in index)
@@ -106,6 +114,23 @@ namespace Documentor
                     i.decoratedName.Replace(' ', '-').Replace('(', '.').Replace(')', '.').Replace(',', '.');
 
                     string[] linkName = i.decoratedName.ToString().Split('.');
+                    string link = string.Join("", linkName);
+                    link = link.ToLower();
+
+                    indexContents.AppendLine(string.Format("* **{0}:** `{1}` {4} ([see](https://github.com/MOARdV/AvionicsSystems/wiki/{2}#{3}))", i.rawName, decoratedName, b[0], link, i.summary));
+                }
+
+                indexContents.AppendLine().AppendLine("***").AppendLine().AppendLine("### Categories");
+                indexContents.AppendFormat("**Master Category Index**, {0} categories:", region.Count).AppendLine().AppendLine();
+                foreach (var i in region)
+                {
+                    string[] b = i.sourceFile.Split('.');
+
+                    string decoratedName = i.decoratedName.ToString();
+                    string rawName = i.rawName;
+                    rawName = rawName.Replace(' ', '-').Replace('(', '.').Replace(')', '.').Replace(',', '.');
+
+                    string[] linkName = rawName.Split('.');
                     string link = string.Join("", linkName);
                     link = link.ToLower();
 
@@ -285,7 +310,14 @@ namespace Documentor
                         if (indexEntry != null)
                         {
                             indexEntry.sourceFile = sourceFileName;
-                            index.Add(indexEntry);
+                            if (indexEntry.indexType == IndexToken.IndexType.INDEX_FUNCTION)
+                            {
+                                index.Add(indexEntry);
+                            }
+                            else if (indexEntry.indexType == IndexToken.IndexType.INDEX_REGION)
+                            {
+                                region.Add(indexEntry);
+                            }
                         }
                         //System.Console.WriteLine(child.Name);
                     }
@@ -334,6 +366,7 @@ namespace Documentor
             if (methodName != null)
             {
                 indexEntry = new IndexToken();
+                indexEntry.indexType = IndexToken.IndexType.INDEX_FUNCTION;
                 indexEntry.decoratedName = new StringBuilder();
 
                 docString.Append("### ");
@@ -408,15 +441,33 @@ namespace Documentor
             XmlElement regionName = child["region"];
             if (regionName != null)
             {
+                indexEntry = new IndexToken();
+                indexEntry.indexType = IndexToken.IndexType.INDEX_REGION;
+                indexEntry.decoratedName = new StringBuilder();
+
                 docString.AppendLine("***");
                 docString.Append("## ");
                 docString.Append(regionName.InnerText);
+
+                indexEntry.rawName = regionName.InnerText;
+                if (!string.IsNullOrEmpty(luaNamespace))
+                {
+                    indexEntry.decoratedName.Append(luaNamespace);
+                }
+
                 docString.AppendLine(" Category");
                 docString.AppendLine();
                 XmlElement summary = child["summary"];
                 if (summary != null && regionName != null)
                 {
                     string innerText = summary.InnerText.Replace("&lt;", "<").Replace("&gt;", ">");
+                    indexEntry.summary = innerText;
+                    indexEntry.summary = indexEntry.summary.Replace(Environment.NewLine, " ").Replace("`", " ").Trim(' ');
+                    if (indexEntry.summary.Length > 64)
+                    {
+                        indexEntry.summary = indexEntry.summary.Substring(0, 64);
+                        indexEntry.summary += "...";
+                    }
                     docString.AppendLine(innerText);
                     docString.AppendLine();
                 }
