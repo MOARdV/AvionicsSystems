@@ -98,7 +98,7 @@ namespace AvionicsSystems
             string range = string.Empty;
             if (config.TryGetValue("range", ref range))
             {
-                string[] ranges = range.Split(',');
+                string[] ranges = Utility.SplitVariableList(range);
                 if (ranges.Length != 2)
                 {
                     throw new ArgumentException("Incorrect number of values in 'range' in CAMERA " + name);

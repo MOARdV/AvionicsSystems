@@ -106,7 +106,7 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Unable to find 'sourceRange' in VERTICAL_BAR " + name);
             }
-            string[] ranges = sourceRange.Split(',');
+            string[] ranges = Utility.SplitVariableList(sourceRange);
             if (ranges.Length != 2)
             {
                 throw new ArgumentException("Incorrect number of values in 'sourceRange' in VERTICAL_BAR " + name);
@@ -168,7 +168,7 @@ namespace AvionicsSystems
             string range = string.Empty;
             if (config.TryGetValue("range", ref range))
             {
-                ranges = range.Split(',');
+                ranges = Utility.SplitVariableList(range);
                 if (ranges.Length != 2)
                 {
                     throw new ArgumentException("Incorrect number of values in 'range' in VERTICAL_BAR " + name);

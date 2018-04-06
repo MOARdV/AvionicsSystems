@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -76,7 +76,7 @@ namespace AvionicsSystems
 
             if (!string.IsNullOrEmpty(range))
             {
-                string[] ranges = range.Split(',');
+                string[] ranges = Utility.SplitVariableList(range);
                 if (ranges.Length != 2)
                 {
                     throw new ArgumentException("Incorrect number of values in 'range' in MASNavBall " + name);

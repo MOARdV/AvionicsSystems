@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 - 2017 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -91,7 +91,7 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Unable to find 'pitchRange' in HORIZON " + name);
             }
-            string[] ranges = pitchRange.Split(',');
+            string[] ranges = Utility.SplitVariableList(pitchRange);
             if (ranges.Length != 2)
             {
                 throw new ArgumentException("Incorrect number of values in 'pitchRange' in HORIZON " + name);
@@ -103,7 +103,7 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Unable to find 'displayPitchRange' in HORIZON " + name);
             }
-            ranges = displayPitchRange.Split(',');
+            ranges = Utility.SplitVariableList(displayPitchRange);
             if (ranges.Length != 2)
             {
                 throw new ArgumentException("Incorrect number of values in 'displayPitchRange' in HORIZON " + name);
@@ -121,7 +121,7 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Unable to find 'rollRange' in HORIZON " + name);
             }
-            ranges = rollRange.Split(',');
+            ranges = Utility.SplitVariableList(rollRange);
             if (ranges.Length != 2)
             {
                 throw new ArgumentException("Incorrect number of values in 'rollRange' in HORIZON " + name);
@@ -133,7 +133,7 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Unable to find 'displayRollRange' in HORIZON " + name);
             }
-            ranges = displayRollRange.Split(',');
+            ranges = Utility.SplitVariableList(displayRollRange);
             if (ranges.Length != 2)
             {
                 throw new ArgumentException("Incorrect number of values in 'displayRollRange' in HORIZON " + name);
@@ -160,7 +160,7 @@ namespace AvionicsSystems
             string range = string.Empty;
             if (config.TryGetValue("range", ref range))
             {
-                ranges = range.Split(',');
+                ranges = Utility.SplitVariableList(range);
                 if (ranges.Length != 2)
                 {
                     throw new ArgumentException("Incorrect number of values in 'range' in HORIZON " + name);

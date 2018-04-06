@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -94,7 +94,7 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Unable to find 'sourceRange' in LINE_GRAPH " + name);
             }
-            string[] ranges = sourceRange.Split(',');
+            string[] ranges = Utility.SplitVariableList(sourceRange);
             if (ranges.Length != 2)
             {
                 throw new ArgumentException("Incorrect number of values in 'sourceRange' in LINE_GRAPH " + name);
@@ -136,7 +136,7 @@ namespace AvionicsSystems
             string range = string.Empty;
             if (config.TryGetValue("range", ref range))
             {
-                ranges = range.Split(',');
+                ranges = Utility.SplitVariableList(range);
                 if (ranges.Length != 2)
                 {
                     throw new ArgumentException("Incorrect number of values in 'range' in LINE_GRAPH " + name);

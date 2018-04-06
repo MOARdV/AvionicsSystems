@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -91,7 +91,7 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Unable to find 'inputRange' in VERTICAL_STRIP " + name);
             }
-            string[] ranges = inputRange.Split(',');
+            string[] ranges = Utility.SplitVariableList(inputRange);
             if (ranges.Length != 2)
             {
                 throw new ArgumentException("Incorrect number of values in 'inputRange' in VERTICAL_STRIP " + name);
@@ -104,7 +104,7 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Unable to find 'displayRange' in VERTICAL_STRIP " + name);
             }
-            ranges = displayRange.Split(',');
+            ranges = Utility.SplitVariableList(displayRange);
             if (ranges.Length != 2)
             {
                 throw new ArgumentException("Incorrect number of values in 'displayRange' in VERTICAL_STRIP " + name);
@@ -129,7 +129,7 @@ namespace AvionicsSystems
             string range = string.Empty;
             if (config.TryGetValue("range", ref range))
             {
-                ranges = range.Split(',');
+                ranges = Utility.SplitVariableList(range);
                 if (ranges.Length != 2)
                 {
                     throw new ArgumentException("Incorrect number of values in 'range' in VERTICAL_STRIP " + name);
