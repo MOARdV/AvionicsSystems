@@ -357,7 +357,7 @@ namespace AvionicsSystems
                     string[] startColors = Utility.SplitVariableList(sourceColorName);
                     if (startColors.Length < 3 || startColors.Length > 4)
                     {
-                        throw new ArgumentException("sourceColor does not contain 3 or 4 values in VERTICAL_BAR " + name);
+                        throw new ArgumentException("sourceColor does not contain 3 or 4 values in HORIZONTAL_BAR " + name);
                     }
 
                     registeredVariables.RegisterNumericVariable(startColors[0], (double newValue) =>
