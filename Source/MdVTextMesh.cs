@@ -636,6 +636,10 @@ namespace AvionicsSystems
                             italic = false;
                             charIndex += nextBracket + 1;
                         }
+                        else if (tagText[0] == 'n')
+                        {
+                            charIndex += nextBracket + 1;
+                        }
                         else if (tagText == "hw")
                         {
                             widthScaling = 0.5f;
@@ -739,6 +743,7 @@ namespace AvionicsSystems
                 int stringLength = textRow[line].formattedData.Length;
                 for (int charIndex = 0; charIndex < stringLength; charIndex++)
                 {
+                    bool lastWasNewline = false;
                     bool escapedBracket = false;
                     // We will continue parsing bracket pairs until we're out of bracket pairs,
                     // since all of them -- except the escaped bracket tag --
@@ -809,6 +814,24 @@ namespace AvionicsSystems
                         else if (tagText == "/i")
                         {
                             italic = false;
+                            charIndex += nextBracket + 1;
+                        }
+                        else if (tagText[0] == 'n')
+                        {
+                            if (!lastWasNewline)
+                            {
+                                xPos -= fixedAdvance;
+                            }
+                            float newlineAdvance = 1.0f;
+                            if (tagText.Length > 1)
+                            {
+                                if (!float.TryParse(tagText.Substring(1), out newlineAdvance))
+                                {
+                                    newlineAdvance = 1.0f;
+                                }
+                            }
+                            yPos -= (int)(fixedLineSpacing * newlineAdvance);
+                            lastWasNewline = true;
                             charIndex += nextBracket + 1;
                         }
                         else if (tagText == "hw")
