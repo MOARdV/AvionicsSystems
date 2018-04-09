@@ -42,11 +42,13 @@ namespace AvionicsSystems
         private Material borderMaterial;
         private LineRenderer lineRenderer;
         private LineRenderer borderRenderer;
+        private Color borderColor = Color.white;
+        private Color sourceColor = Color.white;
         private readonly float verticalSpan;
         private readonly float sampleRate;
+        private VariableRegistrar registeredVariables;
         private readonly MASFlightComputer.Variable sourceValue;
         private readonly MASFlightComputer.Variable sourceRange1, sourceRange2;
-        private readonly string variableName;
         private MASFlightComputer.Variable range1, range2;
         private readonly bool rangeMode;
         private bool currentState;
@@ -57,6 +59,8 @@ namespace AvionicsSystems
 
         internal MASPageLineGraph(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
+            registeredVariables = new VariableRegistrar(comp, prop);
+
             if (!config.TryGetValue("name", ref name))
             {
                 name = "anonymous";
@@ -102,13 +106,6 @@ namespace AvionicsSystems
             sourceRange1 = comp.GetVariable(ranges[0], prop);
             sourceRange2 = comp.GetVariable(ranges[1], prop);
 
-            string sourceColorString = string.Empty;
-            if (!config.TryGetValue("sourceColor", ref sourceColorString))
-            {
-                throw new ArgumentException("Unable to find 'sourceColor' in LINE_GRAPH " + name);
-            }
-            Color sourceColor = Utility.ParseColor32(sourceColorString, comp);
-
             float borderWidth = 0.0f;
             if (!config.TryGetValue("borderWidth", ref borderWidth))
             {
@@ -128,6 +125,7 @@ namespace AvionicsSystems
                 throw new ArgumentException("Only one of 'borderColor' and 'borderWidth' are defined in LINE_GRAPH " + name);
             }
 
+            string variableName = string.Empty;
             if (config.TryGetValue("variable", ref variableName))
             {
                 variableName = variableName.Trim();
@@ -155,13 +153,12 @@ namespace AvionicsSystems
             if (borderWidth > 0.0f)
             {
                 borderObject = new GameObject();
-                borderObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name+"-border", (int)(-depth / MASMonitor.depthDelta));
+                borderObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name + "-border", (int)(-depth / MASMonitor.depthDelta));
                 borderObject.layer = pageRoot.gameObject.layer;
                 borderObject.transform.parent = pageRoot;
                 borderObject.transform.position = pageRoot.position;
                 borderObject.transform.Translate(monitor.screenSize.x * -0.5f + position.x, monitor.screenSize.y * 0.5f - position.y - size.y, depth);
 
-                Color borderColor = Utility.ParseColor32(borderColorName, comp);
                 borderMaterial = new Material(MASLoader.shaders["MOARdV/Monitor"]);
                 borderRenderer = borderObject.AddComponent<LineRenderer>();
                 borderRenderer.useWorldSpace = false;
@@ -170,6 +167,53 @@ namespace AvionicsSystems
                 borderRenderer.endColor = borderColor;
                 borderRenderer.startWidth = borderWidth;
                 borderRenderer.endWidth = borderWidth;
+
+                Color32 namedColor;
+                if (comp.TryGetNamedColor(borderColorName, out namedColor))
+                {
+                    borderColor = namedColor;
+                    lineRenderer.startColor = borderColor;
+                    lineRenderer.endColor = borderColor;
+                }
+                else
+                {
+                    string[] startColors = Utility.SplitVariableList(borderColorName);
+                    if (startColors.Length < 3 || startColors.Length > 4)
+                    {
+                        throw new ArgumentException("borderColor does not contain 3 or 4 values in LINE_GRAPH " + name);
+                    }
+
+                    registeredVariables.RegisterNumericVariable(startColors[0], (double newValue) =>
+                    {
+                        borderColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        borderRenderer.startColor = borderColor;
+                        borderRenderer.endColor = borderColor;
+                    });
+
+                    registeredVariables.RegisterNumericVariable(startColors[1], (double newValue) =>
+                    {
+                        borderColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        borderRenderer.startColor = borderColor;
+                        borderRenderer.endColor = borderColor;
+                    });
+
+                    registeredVariables.RegisterNumericVariable(startColors[2], (double newValue) =>
+                    {
+                        borderColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        borderRenderer.startColor = borderColor;
+                        borderRenderer.endColor = borderColor;
+                    });
+
+                    if (startColors.Length == 4)
+                    {
+                        registeredVariables.RegisterNumericVariable(startColors[3], (double newValue) =>
+                        {
+                            borderColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            borderRenderer.startColor = borderColor;
+                            borderRenderer.endColor = borderColor;
+                        });
+                    }
+                }
 
                 float halfWidth = borderWidth * 0.5f;
                 Vector3[] borderPoints = new Vector3[]
@@ -205,6 +249,57 @@ namespace AvionicsSystems
                 graphPoints[i] = Vector3.zero;
             }
 
+            string sourceColorName = string.Empty;
+            if (config.TryGetValue("sourceColor", ref sourceColorName))
+            {
+                Color32 namedColor;
+                if (comp.TryGetNamedColor(sourceColorName, out namedColor))
+                {
+                    sourceColor = namedColor;
+                    lineRenderer.startColor = sourceColor;
+                    lineRenderer.endColor = sourceColor;
+                }
+                else
+                {
+                    string[] startColors = Utility.SplitVariableList(sourceColorName);
+                    if (startColors.Length < 3 || startColors.Length > 4)
+                    {
+                        throw new ArgumentException("sourceColor does not contain 3 or 4 values in LINE_GRAPH " + name);
+                    }
+
+                    registeredVariables.RegisterNumericVariable(startColors[0], (double newValue) =>
+                    {
+                        sourceColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer.startColor = sourceColor;
+                        lineRenderer.endColor = sourceColor;
+                    });
+
+                    registeredVariables.RegisterNumericVariable(startColors[1], (double newValue) =>
+                    {
+                        sourceColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer.startColor = sourceColor;
+                        lineRenderer.endColor = sourceColor;
+                    });
+
+                    registeredVariables.RegisterNumericVariable(startColors[2], (double newValue) =>
+                    {
+                        sourceColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        lineRenderer.startColor = sourceColor;
+                        lineRenderer.endColor = sourceColor;
+                    });
+
+                    if (startColors.Length == 4)
+                    {
+                        registeredVariables.RegisterNumericVariable(startColors[3], (double newValue) =>
+                        {
+                            sourceColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            lineRenderer.startColor = sourceColor;
+                            lineRenderer.endColor = sourceColor;
+                        });
+                    }
+                }
+            }
+
             currentSample = 0;
 
             comp.StartCoroutine(SampleData());
@@ -213,7 +308,7 @@ namespace AvionicsSystems
             {
                 // Disable the mesh if we're in variable mode
                 graphObject.SetActive(false);
-                comp.RegisterNumericVariable(variableName, prop, VariableCallback);
+                registeredVariables.RegisterNumericVariable(variableName, VariableCallback);
             }
             else
             {
@@ -327,10 +422,7 @@ namespace AvionicsSystems
             UnityEngine.Object.Destroy(borderObject);
             borderObject = null;
 
-            if (!string.IsNullOrEmpty(variableName))
-            {
-                comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
-            }
+            registeredVariables.ReleaseResources(comp, internalProp);
         }
     }
 }
