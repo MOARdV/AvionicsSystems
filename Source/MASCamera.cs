@@ -23,6 +23,7 @@
  * 
  ****************************************************************************/
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace AvionicsSystems
@@ -371,6 +372,8 @@ namespace AvionicsSystems
         public int activeMode = 0;
         private MASCameraMode[] mode = new MASCameraMode[0];
 
+        internal bool isDockingPortCamera = false;
+
         private static readonly string[] knownCameraNames = 
         {
             "GalaxyCamera",
@@ -490,6 +493,16 @@ namespace AvionicsSystems
 
             if (HighLogic.LoadedScene == GameScenes.FLIGHT)
             {
+                // Is this camera a docking port camera?
+                if (part.FindModuleImplementing<ModuleDockingNode>() != null)
+                {
+                    isDockingPortCamera = true;
+                }
+                else
+                {
+                    isDockingPortCamera = false;
+                }
+
                 if (!string.IsNullOrEmpty(panTransformName))
                 {
                     panTransform = part.FindModelTransform(panTransformName);
@@ -561,7 +574,11 @@ namespace AvionicsSystems
         private void CreateFlightCameras(float aspectRatio)
         {
             cameraRentex = new RenderTexture(256, 256, 24);
-            ConfigNode partConfigNode = Utility.GetPartModuleConfigNode(part, "MASCamera");
+
+            List<MASCamera> cameraModules = part.FindModulesImplementing<MASCamera>();
+            int index = cameraModules.IndexOf(this);
+            
+            ConfigNode partConfigNode = Utility.GetPartModuleConfigNode(part, "MASCamera", index);
             if (partConfigNode == null)
             {
                 Utility.LogErrorMessage(this, "Unable to load part config node for MASCamera {0}.", part.partName);

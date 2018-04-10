@@ -912,7 +912,7 @@ namespace AvionicsSystems
                 // Also restore named color per-part overrides
                 try
                 {
-                    ConfigNode myNode = Utility.GetPartModuleConfigNode(part, typeof(MASFlightComputer).Name);
+                    ConfigNode myNode = Utility.GetPartModuleConfigNode(part, typeof(MASFlightComputer).Name, 0);
                     ConfigNode persistentSeed = myNode.GetNode("PERSISTENT_VARIABLES");
                     if (persistentSeed != null)
                     {

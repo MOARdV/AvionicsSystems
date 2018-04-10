@@ -559,15 +559,21 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="part">The part to search</param>
         /// <param name="moduleName">Name of the module</param>
+        /// <param name="index">The index of the part module (0 for the first one, etc)</param>
         /// <returns></returns>
-        internal static ConfigNode GetPartModuleConfigNode(Part part, string moduleName)
+        internal static ConfigNode GetPartModuleConfigNode(Part part, string moduleName, int index)
         {
             ConfigNode[] moduleConfigs = part.partInfo.partConfig.GetNodes("MODULE");
+            int numSeen = 0;
             for (int i = 0; i < moduleConfigs.Length; ++i)
             {
                 if (moduleConfigs[i].GetValue("name") == moduleName)
                 {
-                    return moduleConfigs[i];
+                    if (numSeen == index)
+                    {
+                        return moduleConfigs[i];
+                    }
+                    ++numSeen;
                 }
             }
 
