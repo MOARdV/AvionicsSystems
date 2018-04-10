@@ -92,9 +92,31 @@ namespace AvionicsSystems
         #region Cameras
         private List<MASCamera> cameraList = new List<MASCamera>(4);
         internal MASCamera[] moduleCamera = new MASCamera[0];
+        private int dockCamCount = 0;
+        private int camCount = 0;
+        private bool camerasReset = false;
         private void UpdateCamera()
         {
-
+            if (camerasReset)
+            {
+                camerasReset = false;
+                for (int i = moduleCamera.Length - 1; i >= 0; --i)
+                {
+                    if (string.IsNullOrEmpty(moduleCamera[i].cameraName))
+                    {
+                        if (moduleCamera[i].isDockingPortCamera)
+                        {
+                            ++dockCamCount;
+                            moduleCamera[i].cameraName = string.Format("Dock {0}", dockCamCount);
+                        }
+                        else
+                        {
+                            ++camCount;
+                            moduleCamera[i].cameraName = string.Format("Camera {0}", camCount);
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -937,7 +959,7 @@ namespace AvionicsSystems
                 for (int i = moduleAblator.Length - 1; i >= 0; --i)
                 {
                     Part ablatorPart = moduleAblator[i].part;
-                    if((ablatorPart.skinMaxTemp - ablatorPart.skinTemperature) < currentHottestAblatorDiff)
+                    if ((ablatorPart.skinMaxTemp - ablatorPart.skinTemperature) < currentHottestAblatorDiff)
                     {
                         currentHottestAblatorDiff = (float)(ablatorPart.skinMaxTemp - ablatorPart.skinTemperature);
                         currentMaxAblator = (float)ablatorPart.skinMaxTemp;
@@ -1049,6 +1071,7 @@ namespace AvionicsSystems
         private void InvalidateModules()
         {
             modulesInvalidated = true;
+            camerasReset = true;
         }
 
         /// <summary>
