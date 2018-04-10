@@ -94,7 +94,7 @@ namespace AvionicsSystems
         internal MASCamera[] moduleCamera = new MASCamera[0];
         private int dockCamCount = 0;
         private int camCount = 0;
-        private bool camerasReset = false;
+        private bool camerasReset = true;
         private void UpdateCamera()
         {
             if (camerasReset)
@@ -113,6 +113,18 @@ namespace AvionicsSystems
                         {
                             ++camCount;
                             moduleCamera[i].cameraName = string.Format("Camera {0}", camCount);
+                        }
+                    }
+                    else
+                    {
+                        MASCamera[] dupeNames = Array.FindAll(moduleCamera, x => x.cameraName == moduleCamera[i].cameraName);
+
+                        if (dupeNames.Length > 1)
+                        {
+                            for (int dupeIndex = 0; dupeIndex < dupeNames.Length; ++dupeIndex)
+                            {
+                                dupeNames[dupeIndex].cameraName = string.Format("{0} {1}", dupeNames[dupeIndex].cameraName, dupeIndex + 1);
+                            }
                         }
                     }
                 }
