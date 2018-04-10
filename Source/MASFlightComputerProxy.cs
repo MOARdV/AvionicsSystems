@@ -1181,6 +1181,26 @@ namespace AvionicsSystems
         #region Cameras
 
         /// <summary>
+        /// Returns the name of the camera (if any) attached to the current reference docking port.
+        /// If the reference transform is not a docking port, or there is no camera on the reference
+        /// docking port, an empty string is returned.
+        /// </summary>
+        /// <returns>The name of the MASCamera on the reference docking port, or an empty string.</returns>
+        public string ActiveDockingPortCamera()
+        {
+            if (vc.dockingNode != null && vc.dockingNode.part == vessel.GetReferenceTransformPart())
+            {
+                MASCamera cam = vc.dockingNode.part.FindModuleImplementing<MASCamera>();
+                if(cam != null)
+                {
+                    return cam.cameraName;
+                }
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Adjusts the field of view setting on the selected camera.
         /// </summary>
         /// <returns>The new field of view setting, or 0 if an invalid index was supplied.</returns>
