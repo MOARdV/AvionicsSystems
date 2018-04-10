@@ -33,10 +33,9 @@ namespace AvionicsSystems
     class MASActionTextLabel : IMASSubComponent
     {
         private string name = "anonymous";
-        private string variableName = string.Empty;
         private MASFlightComputer.Variable range1, range2;
-        private Color32 passiveColor = XKCDColors.White;
-        private Color32 activeColor = XKCDColors.White;
+        private Color passiveColor = XKCDColors.White;
+        private Color activeColor = XKCDColors.White;
         private readonly bool blend;
         private readonly bool rangeMode;
         private bool currentState = false;
@@ -48,6 +47,7 @@ namespace AvionicsSystems
         private MASFlightComputer comp;
         private EmissiveMode emissiveMode = EmissiveMode.always;
         private readonly int emissiveFactorIndex = Shader.PropertyToID("_EmissiveFactor");
+        private VariableRegistrar registeredVariables;
         enum EmissiveMode
         {
             always,
@@ -59,6 +59,8 @@ namespace AvionicsSystems
 
         internal MASActionTextLabel(ConfigNode config, InternalProp prop, MASFlightComputer comp)
         {
+            registeredVariables = new VariableRegistrar(comp, prop);
+
             if (!config.TryGetValue("name", ref name))
             {
                 name = "anonymous";
@@ -69,14 +71,6 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Missing 'transform' in TEXT_LABEL " + name);
             }
-
-            string passiveColorStr = string.Empty;
-            if (!config.TryGetValue("passiveColor", ref passiveColorStr))
-            {
-                throw new ArgumentException("Invalid or missing 'passiveColor' in TEXT_LABEL " + name);
-            }
-
-            passiveColor = Utility.ParseColor32(passiveColorStr, comp);
 
             string fontName = string.Empty;
             if (!config.TryGetValue("font", ref fontName))
@@ -136,13 +130,157 @@ namespace AvionicsSystems
             textObj.SetLineSpacing(lineSpacing);
             textObj.fontStyle = style;
 
+            string passiveColorStr = string.Empty;
+            if (!config.TryGetValue("passiveColor", ref passiveColorStr))
+            {
+                throw new ArgumentException("Invalid or missing 'passiveColor' in TEXT_LABEL " + name);
+            }
+            else
+            {
+                Color32 namedColor;
+                if (comp.TryGetNamedColor(passiveColorStr, out namedColor))
+                {
+                    passiveColor = namedColor;
+                }
+                else
+                {
+                    string[] startColors = Utility.SplitVariableList(passiveColorStr);
+                    if (startColors.Length < 3 || startColors.Length > 4)
+                    {
+                        throw new ArgumentException("passiveColor does not contain 3 or 4 values in TEXT_LABEL " + name);
+                    }
+
+                    registeredVariables.RegisterNumericVariable(startColors[0], (double newValue) =>
+                    {
+                        passiveColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        if (blend)
+                        {
+                            UpdateBlendColor();
+                        }
+                        else
+                        {
+                            UpdateBooleanColor();
+                        }
+                    });
+
+                    registeredVariables.RegisterNumericVariable(startColors[1], (double newValue) =>
+                    {
+                        passiveColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        if (blend)
+                        {
+                            UpdateBlendColor();
+                        }
+                        else
+                        {
+                            UpdateBooleanColor();
+                        }
+                    });
+
+                    registeredVariables.RegisterNumericVariable(startColors[2], (double newValue) =>
+                    {
+                        passiveColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        if (blend)
+                        {
+                            UpdateBlendColor();
+                        }
+                        else
+                        {
+                            UpdateBooleanColor();
+                        }
+                    });
+
+                    if (startColors.Length == 4)
+                    {
+                        registeredVariables.RegisterNumericVariable(startColors[3], (double newValue) =>
+                        {
+                            passiveColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            if (blend)
+                            {
+                                UpdateBlendColor();
+                            }
+                            else
+                            {
+                                UpdateBooleanColor();
+                            }
+                        });
+                    }
+                }
+            }
             // Final validations
             bool usesMulticolor = false;
             string activeColorStr = string.Empty;
             if (config.TryGetValue("activeColor", ref activeColorStr))
             {
                 usesMulticolor = true;
-                activeColor = Utility.ParseColor32(activeColorStr, comp);
+
+                Color32 namedColor;
+                if (comp.TryGetNamedColor(activeColorStr, out namedColor))
+                {
+                    activeColor = namedColor;
+                }
+                else
+                {
+                    string[] startColors = Utility.SplitVariableList(activeColorStr);
+                    if (startColors.Length < 3 || startColors.Length > 4)
+                    {
+                        throw new ArgumentException("activeColor does not contain 3 or 4 values in TEXT_LABEL " + name);
+                    }
+
+                    registeredVariables.RegisterNumericVariable(startColors[0], (double newValue) =>
+                    {
+                        activeColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        if (blend)
+                        {
+                            UpdateBlendColor();
+                        }
+                        else
+                        {
+                            UpdateBooleanColor();
+                        }
+                    });
+
+                    registeredVariables.RegisterNumericVariable(startColors[1], (double newValue) =>
+                    {
+                        activeColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        if (blend)
+                        {
+                            UpdateBlendColor();
+                        }
+                        else
+                        {
+                            UpdateBooleanColor();
+                        }
+                    });
+
+                    registeredVariables.RegisterNumericVariable(startColors[2], (double newValue) =>
+                    {
+                        activeColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        if (blend)
+                        {
+                            UpdateBlendColor();
+                        }
+                        else
+                        {
+                            UpdateBooleanColor();
+                        }
+                    });
+
+                    if (startColors.Length == 4)
+                    {
+                        registeredVariables.RegisterNumericVariable(startColors[3], (double newValue) =>
+                        {
+                            activeColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            if (blend)
+                            {
+                                UpdateBlendColor();
+                            }
+                            else
+                            {
+                                UpdateBooleanColor();
+                            }
+                        });
+                    }
+                }
             }
 
             string anchor = string.Empty;
@@ -260,6 +398,7 @@ namespace AvionicsSystems
                 emissiveMode = EmissiveMode.always;
             }
 
+            string variableName = string.Empty;
             if (!config.TryGetValue("variable", ref variableName) || string.IsNullOrEmpty(variableName))
             {
                 if (usesMulticolor)
@@ -332,8 +471,36 @@ namespace AvionicsSystems
 
             if (!string.IsNullOrEmpty(variableName))
             {
-                comp.RegisterNumericVariable(variableName, prop, VariableCallback);
+                registeredVariables.RegisterNumericVariable(variableName, VariableCallback);
             }
+        }
+
+        /// <summary>
+        /// Update a blended color.
+        /// </summary>
+        private void UpdateBlendColor()
+        {
+            Color32 newColor = Color32.Lerp(passiveColor, activeColor, currentBlend);
+            textObj.SetColor(newColor);
+
+            textObj.material.SetFloat(emissiveFactorIndex, currentBlend);
+        }
+
+        /// <summary>
+        /// Update a boolean-mode color.
+        /// </summary>
+        private void UpdateBooleanColor()
+        {
+            if (currentState && flashOn)
+            {
+                textObj.SetColor(activeColor);
+            }
+            else
+            {
+                textObj.SetColor(passiveColor);
+            }
+
+            UpdateShader();
         }
 
         /// <summary>
@@ -350,10 +517,7 @@ namespace AvionicsSystems
                 {
                     currentBlend = newBlend;
 
-                    Color32 newColor = Color32.Lerp(passiveColor, activeColor, currentBlend);
-                    textObj.SetColor(newColor);
-
-                    textObj.material.SetFloat(emissiveFactorIndex, currentBlend);
+                    UpdateBlendColor();
                 }
             }
             else
@@ -369,16 +533,7 @@ namespace AvionicsSystems
                 {
                     currentState = newState;
 
-                    if (currentState && flashOn)
-                    {
-                        textObj.SetColor(activeColor);
-                    }
-                    else
-                    {
-                        textObj.SetColor(passiveColor);
-                    }
-
-                    UpdateShader();
+                    UpdateBooleanColor();
                 }
             }
         }
@@ -441,14 +596,8 @@ namespace AvionicsSystems
         /// </summary>
         public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
-            if (!string.IsNullOrEmpty(variableName))
-            {
-                comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
-                if (flashRate > 0.0f)
-                {
-                    comp.UnregisterFlashCallback(flashRate, FlashToggle);
-                }
-            }
+            registeredVariables.ReleaseResources(comp, internalProp);
+
             this.comp = null;
         }
     }
