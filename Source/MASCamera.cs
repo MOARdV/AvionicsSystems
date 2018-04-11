@@ -311,6 +311,7 @@ namespace AvionicsSystems
         [KSPField]
         public string cameraTransformName = string.Empty;
         private Transform cameraTransform = null;
+        private Quaternion cameraRotation = Quaternion.identity;
 
         /// <summary>
         /// Offset of the camera lens from its transform's position.
@@ -368,6 +369,7 @@ namespace AvionicsSystems
         private readonly GameObject[] cameraBody = { null, null, null, null, null };
         internal RenderTexture cameraRentex;
         internal event Action<RenderTexture, Material> renderCallback;
+        private bool cameraLive;
 
         private MASDeployableCamera deploymentController;
 
@@ -467,15 +469,18 @@ namespace AvionicsSystems
                 {
                     CreateFovRenderer();
                 }
+                cameraRotation = cameraTransform.rotation;
             }
             else if (string.IsNullOrEmpty(cameraTransformName))
             {
                 Utility.LogErrorMessage(this, "No 'cameraTransformName' provided in part.");
+                Utility.ComplainLoudly("Missing 'cameraTransformName' in MASCamera");
                 throw new NotImplementedException("MASCamera: Missing 'cameraTransformName' in module config node.");
             }
             else
             {
                 Utility.LogErrorMessage(this, "Unable to find transform \"{0}\" in part", cameraTransformName);
+                Utility.ComplainLoudly("Unable to find camera transform in MASCamera part");
             }
 
             if (HighLogic.LoadedScene == GameScenes.FLIGHT)
@@ -498,6 +503,8 @@ namespace AvionicsSystems
                 deploymentController = part.FindModuleImplementing<MASDeployableCamera>();
 
                 CreateFlightCameras(1.0f);
+
+                Camera.onPreCull += CameraPrerender;
             }
 
             refreshRate = Math.Max(refreshRate, 1);
@@ -537,6 +544,8 @@ namespace AvionicsSystems
         /// </summary>
         private void CreateFlightCameras(float aspectRatio)
         {
+            cameraLive = true;
+
             cameraRentex = new RenderTexture(256, 256, 24);
 
             List<MASCamera> cameraModules = part.FindModulesImplementing<MASCamera>();
@@ -579,7 +588,7 @@ namespace AvionicsSystems
                     cameras[i].cullingMask &= ~(1 << 16 | 1 << 20);
 
                     cameras[i].CopyFrom(sourceCamera);
-                    cameras[i].enabled = false;
+                    cameras[i].enabled = true;
                     cameras[i].aspect = aspectRatio;
 
                     // These get stomped on at render time:
@@ -630,6 +639,11 @@ namespace AvionicsSystems
         /// </summary>
         public void OnDestroy()
         {
+            if (HighLogic.LoadedSceneIsFlight)
+            {
+                Camera.onPreCull -= CameraPrerender;
+            }
+
             if (minFovRenderer != null)
             {
                 Destroy(minFovRenderer);
@@ -1004,32 +1018,42 @@ namespace AvionicsSystems
                     }
                 }
 
-                if (renderCallback != null)
+                if (cameraLive != (renderCallback != null))
+                {
+                    cameraLive = (renderCallback != null);
+                    for (int i = cameraBody.Length-1; i >=0; --i)
+                    {
+                        cameras[i].enabled = cameraLive;
+                    }
+                }
+
+                if (cameraLive)
                 {
                     if (!cameraRentex.IsCreated())
                     {
                         cameraRentex.Create();
                     }
 
+                    cameraRotation = cameraTransform.rotation * Quaternion.Euler(-currentTilt, currentPan, 0.0f);
+
                     if (refreshRate == 1 || (frameCount % refreshRate) == 0)
                     {
-                        Quaternion cameraRotation = cameraTransform.rotation * Quaternion.Euler(-currentTilt, currentPan, 0.0f);
-                        Vector3 cameraPosition = cameraTransform.position;
-
-                        cameraRentex.DiscardContents();
-                        for (int i = 0; i < cameraBody.Length; ++i)
-                        {
-                            cameraBody[i].transform.rotation = cameraRotation;
-                            cameraBody[i].transform.position = cameraPosition;
-                            cameras[i].fieldOfView = currentFov;
-                            cameras[i].Render();
-                        }
-
                         renderCallback.Invoke(cameraRentex, mode[activeMode].postProcShader);
+                        cameraRentex.DiscardContents();
                     }
 
                     ++frameCount;
                 }
+            }
+        }
+
+        private void CameraPrerender(Camera whichCamera)
+        {
+            if (Array.Exists(cameras, x => x == whichCamera))
+            {
+                whichCamera.gameObject.transform.rotation = cameraRotation;
+                whichCamera.gameObject.transform.position = cameraTransform.position;
+                whichCamera.fieldOfView = currentFov;
             }
         }
 
