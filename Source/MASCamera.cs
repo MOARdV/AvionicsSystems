@@ -313,24 +313,6 @@ namespace AvionicsSystems
         private Transform cameraTransform = null;
 
         /// <summary>
-        /// Name of an optional transform to physically pan the model.
-        /// </summary>
-        [KSPField]
-        public string panTransformName = string.Empty;
-        private Transform panTransform = null;
-        private Quaternion panRotation = Quaternion.identity;
-        private bool updatePan = false;
-
-        /// <summary>
-        /// Name of an optional transform to physically tilt the model.
-        /// </summary>
-        [KSPField]
-        public string tiltTransformName = string.Empty;
-        private Transform tiltTransform = null;
-        private Quaternion tiltRotation = Quaternion.identity;
-        private bool updateTilt = false;
-
-        /// <summary>
         /// Offset of the camera lens from its transform's position.
         /// </summary>
         [KSPField]
@@ -388,6 +370,11 @@ namespace AvionicsSystems
         internal event Action<RenderTexture, Material> renderCallback;
 
         private MASDeployableCamera deploymentController;
+
+        /// <summary>
+        /// The camera mount we're attached to.
+        /// </summary>
+        private MASCameraMount mount;
 
         /// <summary>
         /// Is this object ready to use?
@@ -503,32 +490,9 @@ namespace AvionicsSystems
                     isDockingPortCamera = false;
                 }
 
-                if (!string.IsNullOrEmpty(panTransformName))
+                if (panRange == Vector2.zero && tiltRange == Vector2.zero)
                 {
-                    panTransform = part.FindModelTransform(panTransformName);
-                    if (panTransform == null)
-                    {
-                        Utility.LogErrorMessage(this, "Unable to find a pan transform named \"{0}\"", panTransformName);
-                    }
-                    else
-                    {
-                        panRotation = panTransform.localRotation;
-                        panTransform.localRotation = panRotation * Quaternion.Euler(0.0f, currentPan, 0.0f);
-                    }
-                }
-
-                if (!string.IsNullOrEmpty(tiltTransformName))
-                {
-                    tiltTransform = part.FindModelTransform(tiltTransformName);
-                    if (tiltTransform == null)
-                    {
-                        Utility.LogErrorMessage(this, "Unable to find a tilt transform named \"{0}\"", tiltTransformName);
-                    }
-                    else
-                    {
-                        tiltRotation = tiltTransform.localRotation;
-                        tiltTransform.localRotation = tiltRotation * Quaternion.Euler(-currentTilt, 0.0f, 0.0f);
-                    }
+                    mount = part.FindModuleImplementing<MASCameraMount>();
                 }
 
                 deploymentController = part.FindModuleImplementing<MASDeployableCamera>();
@@ -732,9 +696,16 @@ namespace AvionicsSystems
         /// <returns>The adjusted pan.</returns>
         public float AddPan(float deltaPan)
         {
-            goalPan = Mathf.Clamp(goalPan + deltaPan, panRange.x, panRange.y);
+            if (mount)
+            {
+                return mount.AddPan(deltaPan);
+            }
+            else
+            {
+                goalPan = Mathf.Clamp(goalPan + deltaPan, panRange.x, panRange.y);
 
-            return goalPan;
+                return goalPan;
+            }
         }
 
         /// <summary>
@@ -745,9 +716,16 @@ namespace AvionicsSystems
         /// <returns>The adjusted tilt.</returns>
         public float AddTilt(float deltaTilt)
         {
-            goalTilt = Mathf.Clamp(goalTilt + deltaTilt, tiltRange.x, tiltRange.y);
+            if (mount)
+            {
+                return mount.AddTilt(deltaTilt);
+            }
+            else
+            {
+                goalTilt = Mathf.Clamp(goalTilt + deltaTilt, tiltRange.x, tiltRange.y);
 
-            return goalTilt;
+                return goalTilt;
+            }
         }
 
         public bool GetDeployable()
@@ -824,6 +802,38 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Return the pan range for the camera, or the camera's mount, as applicable.
+        /// </summary>
+        /// <returns></returns>
+        public Vector2 GetPanRange()
+        {
+            if (mount)
+            {
+                return mount.panRange;
+            }
+            else
+            {
+                return panRange;
+            }
+        }
+
+        /// <summary>
+        /// Return the tilt range for the camera, or the camera's mount, as applicable.
+        /// </summary>
+        /// <returns></returns>
+        public Vector2 GetTiltRange()
+        {
+            if (mount)
+            {
+                return mount.tiltRange;
+            }
+            else
+            {
+                return tiltRange;
+            }
+        }
+
+        /// <summary>
         /// Select the camera mode.
         /// </summary>
         /// <param name="newMode"></param>
@@ -858,9 +868,16 @@ namespace AvionicsSystems
         /// <returns>The adjusted pan setting.</returns>
         public float SetPan(float pan)
         {
-            goalPan = Mathf.Clamp(pan, panRange.x, panRange.y);
+            if (mount)
+            {
+                return mount.SetPan(pan);
+            }
+            else
+            {
+                goalPan = Mathf.Clamp(pan, panRange.x, panRange.y);
 
-            return goalPan;
+                return goalPan;
+            }
         }
 
         /// <summary>
@@ -870,13 +887,20 @@ namespace AvionicsSystems
         /// <returns>The current tilt position</returns>
         public float SetTilt(float tilt)
         {
-            goalTilt = Mathf.Clamp(tilt, tiltRange.x, tiltRange.y);
+            if (mount)
+            {
+                return mount.SetTilt(tilt);
+            }
+            else
+            {
+                goalTilt = Mathf.Clamp(tilt, tiltRange.x, tiltRange.y);
 
-            return goalTilt;
+                return goalTilt;
+            }
         }
 
         /// <summary>
-        /// Enable / disable the FOV cones.  Valid only in the editor.
+        /// Update FOV cones in the Editor, update pan/tilt in flight.
         /// </summary>
         public void Update()
         {
@@ -958,11 +982,6 @@ namespace AvionicsSystems
                     {
                         currentPan = goalPan;
                     }
-
-                    if (panTransform != null)
-                    {
-                        updatePan = true;
-                    }
                 }
 
                 if (goalTilt != currentTilt)
@@ -983,25 +1002,6 @@ namespace AvionicsSystems
                     {
                         currentTilt = goalTilt;
                     }
-
-                    if (tiltTransform != null)
-                    {
-                        updateTilt = true;
-                    }
-                }
-
-                if (updatePan)
-                {
-                    // Update the physical model.
-                    panTransform.localRotation = panRotation * Quaternion.Euler(0.0f, currentPan, 0.0f);
-                    updatePan = false;
-                }
-
-                if (updateTilt)
-                {
-                    // Update the physical model.
-                    tiltTransform.localRotation = tiltRotation * Quaternion.Euler(-currentTilt, 0.0f, 0.0f);
-                    updateTilt = false;
                 }
 
                 if (renderCallback != null)
@@ -1013,7 +1013,7 @@ namespace AvionicsSystems
 
                     if (refreshRate == 1 || (frameCount % refreshRate) == 0)
                     {
-                        Quaternion cameraRotation = cameraTransform.rotation * UpdateRotation();
+                        Quaternion cameraRotation = cameraTransform.rotation * Quaternion.Euler(-currentTilt, currentPan, 0.0f);
                         Vector3 cameraPosition = cameraTransform.position;
 
                         cameraRentex.DiscardContents();
@@ -1030,33 +1030,6 @@ namespace AvionicsSystems
 
                     ++frameCount;
                 }
-            }
-        }
-
-        /// <summary>
-        /// Update the quaternion describing the camera pan/tilt at the lens.
-        /// </summary>
-        /// <returns></returns>
-        private Quaternion UpdateRotation()
-        {
-            if (panTransform == null)
-            {
-                if (tiltTransform == null)
-                {
-                    return Quaternion.Euler(-currentTilt, currentPan, 0.0f);
-                }
-                else
-                {
-                    return Quaternion.Euler(0.0f, currentPan, 0.0f);
-                }
-            }
-            else if (tiltTransform == null)
-            {
-                return Quaternion.Euler(-currentTilt, 0.0f, 0.0f);
-            }
-            else
-            {
-                return Quaternion.identity;
             }
         }
 
@@ -1178,7 +1151,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         private string SetTextCallback(string newString)
         {
-            newCameraName = newString;
+            newCameraName = newString.Trim();
             return newString;
         }
 

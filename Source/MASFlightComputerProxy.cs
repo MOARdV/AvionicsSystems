@@ -1333,7 +1333,7 @@ namespace AvionicsSystems
             int i = (int)index;
             if (i >= 0 && i < vc.moduleCamera.Length)
             {
-                return vc.moduleCamera[i].panRange.y;
+                return vc.moduleCamera[i].GetPanRange().y;
             }
             return 0.0;
         }
@@ -1348,7 +1348,7 @@ namespace AvionicsSystems
             int i = (int)index;
             if (i >= 0 && i < vc.moduleCamera.Length)
             {
-                return vc.moduleCamera[i].tiltRange.y;
+                return vc.moduleCamera[i].GetTiltRange().y;
             }
             return 0.0;
         }
@@ -1378,7 +1378,7 @@ namespace AvionicsSystems
             int i = (int)index;
             if (i >= 0 && i < vc.moduleCamera.Length)
             {
-                return vc.moduleCamera[i].panRange.x;
+                return vc.moduleCamera[i].GetPanRange().x;
             }
             return 0.0;
         }
@@ -1393,7 +1393,7 @@ namespace AvionicsSystems
             int i = (int)index;
             if (i >= 0 && i < vc.moduleCamera.Length)
             {
-                return vc.moduleCamera[i].tiltRange.x;
+                return vc.moduleCamera[i].GetTiltRange().x;
             }
             return 0.0;
         }
