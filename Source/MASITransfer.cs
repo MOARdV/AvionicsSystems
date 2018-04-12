@@ -3,7 +3,7 @@
 /*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 - 2018 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -845,6 +845,17 @@ namespace AvionicsSystems
                     vessel.patchedConicSolver.maneuverNodes.Clear();
                     ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(mTime);
                     mn.OnGizmoUpdated(maneuver, mTime);
+
+                    // TODO: When I'm more awake, I should do this analytically by deciding whether the change
+                    // in inclination is normal or anti-normal at the time of the maneuver.
+                    Vector3d newVesselNormal = vessel.patchedConicSolver.maneuverNodes[0].nextPatch.GetOrbitNormal();
+                    if (Vector3.Angle(newVesselNormal, targetNormal) > Mathf.Abs((float)deltaI))
+                    {
+                        maneuver.y = -maneuver.y;
+                        vessel.patchedConicSolver.maneuverNodes.Clear();
+                        mn = vessel.patchedConicSolver.AddManeuverNode(mTime);
+                        mn.OnGizmoUpdated(maneuver, mTime);
+                    }
 
                     return 1.0;
                 }
