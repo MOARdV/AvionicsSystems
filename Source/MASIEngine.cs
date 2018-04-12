@@ -69,6 +69,50 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the current temperature of the selected jet.  If the selected engine is
+        /// not a jet, returns 0.
+        /// </summary>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <param name="useKelvin">If true, returns units are in Kelvin.  If false, units are in Celsius.</param>
+        /// <returns>Current temperature in Kelvin or Celsius, or 0.</returns>
+        public double GetCurrentJetTemperature(double engineId, bool useKelvin)
+        {
+            int index = (int)(engineId) - 1;
+            if (index >= 0 && index < vc.moduleIdEngines.Length)
+            {
+                double temperature = vc.moduleIdEngines[index].GetCurrentJetTemperature();
+                if (!useKelvin && temperature > 0.0)
+                {
+                    temperature += MASFlightComputerProxy.KelvinToCelsius;
+                }
+                return temperature;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the maximum temperature of the selected jet.  If the selected engine is
+        /// not a jet, returns 0.
+        /// </summary>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <param name="useKelvin">If true, returns units are in Kelvin.  If false, units are in Celsius.</param>
+        /// <returns>Maximum temperature in Kelvin or Celsius, or 0.</returns>
+        public double GetMaxJetTemperature(double engineId, bool useKelvin)
+        {
+            int index = (int)(engineId) - 1;
+            if (index >= 0 && index < vc.moduleIdEngines.Length)
+            {
+                double temperature = vc.moduleIdEngines[index].GetMaximumJetTemperature();
+                if (!useKelvin && temperature > 0.0)
+                {
+                    temperature += MASFlightComputerProxy.KelvinToCelsius;
+                }
+                return temperature;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the core (non-afterburning) throttle position for the selected jet engine.
         /// </summary>
         /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>

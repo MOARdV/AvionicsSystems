@@ -55,6 +55,10 @@ namespace AvionicsSystems
 
         private static readonly Func<object, float> getCoreThrottle;
         private static readonly Func<object, float> getAfterburnerThrottle;
+        // maxEngineTemp
+        private static readonly Func<object, double> getMaxJetTemp;
+        // engineTempString: {0}K / {1}K, where {0} is current, {1} is max
+        private static readonly Func<object, string> getCurrentJetTemp;
 
         // Read-write fields:
         private static readonly Func<object, float> getBoost;
@@ -121,6 +125,40 @@ namespace AvionicsSystems
             }
 
             return 0.0f;
+        }
+
+        internal double GetCurrentJetTemperature()
+        {
+            // returns K
+            if (ajeJetModule != null)
+            {
+                // This is something of a hack - the numeric value is not exposed,
+                // so I have to parse it out of a string.  If the string's format
+                // changes, this will break.
+                string currentString = getCurrentJetTemp(ajeJetModule);
+                string[] token = currentString.Split('K');
+                if(token.Length > 0)
+                {
+                    double temperature;
+                    if (double.TryParse(token[0], out temperature))
+                    {
+                        return temperature;
+                    }
+                }
+            }
+
+            return 0.0;
+        }
+
+        internal double GetMaximumJetTemperature()
+        {
+            // returns K
+            if (ajeJetModule != null)
+            {
+                return getMaxJetTemp(ajeJetModule);
+            }
+
+            return 0.0;
         }
         #endregion
 
@@ -390,6 +428,22 @@ namespace AvionicsSystems
                     return;
                 }
                 getAfterburnerThrottle = DynamicMethodFactory.CreateGetField<object, float>(afterburnerThrottle_t);
+
+                FieldInfo maxEngineTemp_t = ajeJetAPI_t.GetField("maxEngineTemp", BindingFlags.Instance | BindingFlags.Public);
+                if (maxEngineTemp_t == null)
+                {
+                    Utility.LogErrorMessage("maxEngineTemp_t is null");
+                    return;
+                }
+                getMaxJetTemp = DynamicMethodFactory.CreateGetField<object, double>(maxEngineTemp_t);
+
+                FieldInfo currentEngineTemp_t = ajeJetAPI_t.GetField("engineTempString", BindingFlags.Instance | BindingFlags.Public);
+                if (currentEngineTemp_t == null)
+                {
+                    Utility.LogErrorMessage("currentEngineTemp_t is null");
+                    return;
+                }
+                getCurrentJetTemp = DynamicMethodFactory.CreateGetField<object, string>(currentEngineTemp_t);
 
                 ajeInstalled = true;
             }
