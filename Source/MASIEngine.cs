@@ -41,6 +41,9 @@ namespace AvionicsSystems
     {
         internal MASVesselComputer vc;
 
+        #region AJE Jet
+        #endregion
+
         /// <summary>
         /// The AJE Propellers category provides an interface with engines using
         /// ModuleEnginesAJEPropeller from the Advanced Jet Engines mod.

@@ -61,7 +61,7 @@ namespace AvionicsSystems
         private static readonly Action<object, float> setMixture;
 
         //--- Tracked fields
-        private PartModule ajeModule;
+        private PartModule ajePropellerModule;
         //private ModuleEngines engineModule;
 
         /// <summary>
@@ -75,8 +75,8 @@ namespace AvionicsSystems
                 if (ajeInstalled)
                 {
 
-                    ajeModule = part.Modules["ModuleEnginesAJEPropeller"];
-                    if (ajeModule == null)
+                    ajePropellerModule = part.Modules["ModuleEnginesAJEPropeller"];
+                    if (ajePropellerModule == null)
                     {
                         Utility.LogErrorMessage(this, "Didn't find any AJE engine");
                     }
@@ -88,7 +88,7 @@ namespace AvionicsSystems
 
                 // If no tracked modules are installed, we don't want this part to register
                 // with the vessel computer.
-                if (ajeModule == null)
+                if (ajePropellerModule == null)
                 {
                     partId = 0;
                 }
@@ -103,9 +103,9 @@ namespace AvionicsSystems
         #region AJE Propellers
         internal float GetPropellerBoost()
         {
-            if (ajeModule != null)
+            if (ajePropellerModule != null)
             {
-                return getBoost(ajeModule);
+                return getBoost(ajePropellerModule);
             }
 
             return 0.0f;
@@ -113,11 +113,11 @@ namespace AvionicsSystems
 
         internal float GetPropellerBrakeShaftPower()
         {
-            if (ajeModule != null)
+            if (ajePropellerModule != null)
             {
                 // TODO: BHP units need to be queried - ajeModule.useHP determines if this
                 // field is in horsepower or SI units (PS).
-                return getBrakeShaftPower(ajeModule);
+                return getBrakeShaftPower(ajePropellerModule);
             }
 
             return 0.0f;
@@ -125,9 +125,9 @@ namespace AvionicsSystems
 
         internal float GetPropellerChargeAirTemp()
         {
-            if (ajeModule != null)
+            if (ajePropellerModule != null)
             {
-                return getChargeAirTemp(ajeModule);
+                return getChargeAirTemp(ajePropellerModule);
             }
 
             return 0.0f;
@@ -135,11 +135,11 @@ namespace AvionicsSystems
 
         internal float GetPropellerManifoldPressure()
         {
-            if (ajeModule != null)
+            if (ajePropellerModule != null)
             {
                 // TODO: Manifold Press units to be queried - ajeModule.useInHg determines
                 // if this field is in inches Hg or SI units (ata)
-                return getManifoldPressure(ajeModule);
+                return getManifoldPressure(ajePropellerModule);
             }
 
             return 0.0f;
@@ -147,9 +147,9 @@ namespace AvionicsSystems
 
         internal float GetPropellerMixture()
         {
-            if (ajeModule != null)
+            if (ajePropellerModule != null)
             {
-                return getMixture(ajeModule);
+                return getMixture(ajePropellerModule);
             }
 
             return 0.0f;
@@ -157,9 +157,9 @@ namespace AvionicsSystems
 
         internal float GetPropellerNetExhaustThrust()
         {
-            if (ajeModule != null)
+            if (ajePropellerModule != null)
             {
-                return getNetExhaustThrust(ajeModule);
+                return getNetExhaustThrust(ajePropellerModule);
             }
 
             return 0.0f;
@@ -167,9 +167,9 @@ namespace AvionicsSystems
 
         internal float GetPropellerNetMeredithEffect()
         {
-            if (ajeModule != null)
+            if (ajePropellerModule != null)
             {
-                return getNetMeredithEffect(ajeModule);
+                return getNetMeredithEffect(ajePropellerModule);
             }
 
             return 0.0f;
@@ -177,9 +177,9 @@ namespace AvionicsSystems
 
         internal float GetPropellerPitch()
         {
-            if (ajeModule != null)
+            if (ajePropellerModule != null)
             {
-                return getPropPitch(ajeModule);
+                return getPropPitch(ajePropellerModule);
             }
 
             return 0.0f;
@@ -187,9 +187,9 @@ namespace AvionicsSystems
 
         internal float GetPropellerRPM()
         {
-            if (ajeModule != null)
+            if (ajePropellerModule != null)
             {
-                return getPropRPM(ajeModule);
+                return getPropRPM(ajePropellerModule);
             }
 
             return 0.0f;
@@ -197,9 +197,9 @@ namespace AvionicsSystems
 
         internal float GetPropellerRPMLever()
         {
-            if (ajeModule != null)
+            if (ajePropellerModule != null)
             {
-                return getRpmLever(ajeModule);
+                return getRpmLever(ajePropellerModule);
             }
 
             return 0.0f;
@@ -207,9 +207,9 @@ namespace AvionicsSystems
 
         internal float GetPropellerThrust()
         {
-            if (ajeModule != null)
+            if (ajePropellerModule != null)
             {
-                return getPropThrust(ajeModule);
+                return getPropThrust(ajePropellerModule);
             }
 
             return 0.0f;
@@ -217,9 +217,9 @@ namespace AvionicsSystems
 
         internal bool SetPropellerBoost(float newBoost)
         {
-            if (ajeModule != null)
+            if (ajePropellerModule != null)
             {
-                setBoost(ajeModule, Mathf.Clamp01(newBoost));
+                setBoost(ajePropellerModule, Mathf.Clamp01(newBoost));
                 return true;
             }
 
@@ -228,9 +228,9 @@ namespace AvionicsSystems
 
         internal bool SetPropellerMixture(float newMixture)
         {
-            if (ajeModule != null)
+            if (ajePropellerModule != null)
             {
-                setMixture(ajeModule, Mathf.Clamp01(newMixture));
+                setMixture(ajePropellerModule, Mathf.Clamp01(newMixture));
                 return true;
             }
 
@@ -239,9 +239,9 @@ namespace AvionicsSystems
 
         internal bool SetPropellerRPM(float newRpm)
         {
-            if (ajeModule != null)
+            if (ajePropellerModule != null)
             {
-                setRpmLever(ajeModule, Mathf.Clamp01(newRpm));
+                setRpmLever(ajePropellerModule, Mathf.Clamp01(newRpm));
                 return true;
             }
 
