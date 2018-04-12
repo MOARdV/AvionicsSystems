@@ -40,6 +40,7 @@ namespace AvionicsSystems
         //--- Reflection info for Advanced Jet Engine
         private static readonly bool ajeInstalled = false;
         internal static readonly Type ajePropellerAPI_t;
+        internal static readonly Type ajeJetAPI_t;
         // All fields are floats
 
         // Read-only fields:
@@ -52,6 +53,9 @@ namespace AvionicsSystems
         private static readonly Func<object, float> getNetMeredithEffect;
         private static readonly Func<object, float> getBrakeShaftPower;
 
+        private static readonly Func<object, float> getCoreThrottle;
+        private static readonly Func<object, float> getAfterburnerThrottle;
+
         // Read-write fields:
         private static readonly Func<object, float> getBoost;
         private static readonly Action<object, float> setBoost;
@@ -62,6 +66,7 @@ namespace AvionicsSystems
 
         //--- Tracked fields
         private PartModule ajePropellerModule;
+        private PartModule ajeJetModule;
         //private ModuleEngines engineModule;
 
         /// <summary>
@@ -76,19 +81,16 @@ namespace AvionicsSystems
                 {
 
                     ajePropellerModule = part.Modules["ModuleEnginesAJEPropeller"];
-                    if (ajePropellerModule == null)
+                    ajeJetModule = part.Modules["ModuleEnginesAJEJet"];
+                    if (ajePropellerModule == null && ajeJetModule == null)
                     {
-                        Utility.LogErrorMessage(this, "Didn't find any AJE engine");
-                    }
-                    else
-                    {
-                        Utility.LogMessage(this, "Found ModuleEnginesAJEPropeller");
+                        Utility.LogErrorMessage(this, "Didn't find any supported AJE engine");
                     }
                 }
 
                 // If no tracked modules are installed, we don't want this part to register
                 // with the vessel computer.
-                if (ajePropellerModule == null)
+                if (ajePropellerModule == null && ajeJetModule == null)
                 {
                     partId = 0;
                 }
@@ -99,6 +101,28 @@ namespace AvionicsSystems
                 //}
             }
         }
+
+        #region AJE Jet
+        internal float GetAfterburnerThrottle()
+        {
+            if (ajeJetModule != null)
+            {
+                return getAfterburnerThrottle(ajeJetModule) * 0.01f;
+            }
+
+            return 0.0f;
+        }
+
+        internal float GetCoreThrottle()
+        {
+            if (ajeJetModule != null)
+            {
+                return getCoreThrottle(ajeJetModule) * 0.01f;
+            }
+
+            return 0.0f;
+        }
+        #endregion
 
         #region AJE Propellers
         internal float GetPropellerBoost()
@@ -255,8 +279,9 @@ namespace AvionicsSystems
         static MASIdEngine()
         {
             ajePropellerAPI_t = Utility.GetExportedType("AJE", "AJE.ModuleEnginesAJEPropeller");
+            ajeJetAPI_t = Utility.GetExportedType("AJE", "AJE.ModuleEnginesAJEJet");
 
-            if (ajePropellerAPI_t != null)
+            if (ajePropellerAPI_t != null && ajeJetAPI_t != null)
             {
                 FieldInfo propRPM_t = ajePropellerAPI_t.GetField("propRPM", BindingFlags.Instance | BindingFlags.Public);
                 if (propRPM_t == null)
@@ -349,6 +374,22 @@ namespace AvionicsSystems
                 }
                 getMixture = DynamicMethodFactory.CreateGetField<object, float>(mixture_t);
                 setMixture = DynamicMethodFactory.CreateSetField<object, float>(mixture_t);
+
+                FieldInfo coreThrottle_t = ajeJetAPI_t.GetField("actualCoreThrottle", BindingFlags.Instance | BindingFlags.Public);
+                if (coreThrottle_t == null)
+                {
+                    Utility.LogErrorMessage("coreThrottle_t is null");
+                    return;
+                }
+                getCoreThrottle = DynamicMethodFactory.CreateGetField<object, float>(coreThrottle_t);
+
+                FieldInfo afterburnerThrottle_t = ajeJetAPI_t.GetField("actualABThrottle", BindingFlags.Instance | BindingFlags.Public);
+                if (afterburnerThrottle_t == null)
+                {
+                    Utility.LogErrorMessage("afterburnerThrottle_t is null");
+                    return;
+                }
+                getAfterburnerThrottle = DynamicMethodFactory.CreateGetField<object, float>(afterburnerThrottle_t);
 
                 ajeInstalled = true;
             }

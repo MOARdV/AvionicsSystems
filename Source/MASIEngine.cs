@@ -34,14 +34,54 @@ namespace AvionicsSystems
     /// The MASIEngine class provides an interface between Avionics Systems
     /// and aircraft engine related features.
     /// 
-    /// Interaction with Advanced Jet Engine propeller engines is done through this
+    /// Interaction with Advanced Jet Engine jet and propeller engines is done through this
     /// modules.
     /// </mdDoc>
     internal class MASIEngine
     {
         internal MASVesselComputer vc;
 
+        /// <summary>
+        /// The AJE Jet category provides an interface to engines using ModuleEnginesAJEJet from the
+        /// Advanced Jet Engines mod.
+        /// 
+        /// In order to control the engines, those engines must have a properly-configured
+        /// MASIdEngine module installed.  In particular, each engine must have a MAS Part ID
+        /// other than zero, and each engine must have a unique MAS Part ID.
+        /// 
+        /// **Note:** There is a limited amount of information that the AJE mod exposes for jets in an accessible
+        /// manner.
+        /// </summary>
         #region AJE Jet
+        /// <summary>
+        /// Returns the afterburner throttle position for the selected jet engine.
+        /// </summary>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <returns>Afterburner throttle, between 0 and 1; if the selected engine is invalid, not a jet, or does not have an afterburner, returns 0.</returns>
+        public double GetAfterburnerThrottle(double engineId)
+        {
+            int index = (int)(engineId) - 1;
+            if (index >= 0 && index < vc.moduleIdEngines.Length)
+            {
+                return vc.moduleIdEngines[index].GetAfterburnerThrottle();
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the core (non-afterburning) throttle position for the selected jet engine.
+        /// </summary>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <returns>Core throttle, between 0 and 1; if the selected engine is invalid or not a jet, returns 0.</returns>
+        public double GetCoreThrottle(double engineId)
+        {
+            int index = (int)(engineId) - 1;
+            if (index >= 0 && index < vc.moduleIdEngines.Length)
+            {
+                return vc.moduleIdEngines[index].GetCoreThrottle();
+            }
+            return 0.0;
+        }
         #endregion
 
         /// <summary>
@@ -72,6 +112,15 @@ namespace AvionicsSystems
         #region AJE Propellers
 
         /// <summary>
+        /// Returns the number of correctly configured AJE engines (both jet and propeller).
+        /// </summary>
+        /// <returns>The number of configured AJE engines.</returns>
+        public double GetEngineCount()
+        {
+            return vc.moduleIdEngines.Length;
+        }
+
+        /// <summary>
         /// Get the current supercharger/turbocharger boost setting.
         /// </summary>
         /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
@@ -91,7 +140,7 @@ namespace AvionicsSystems
         /// depending on the engine's "useHP" field (which defaults to true).
         /// </summary>
         /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
-        /// <returns>Brake shaft power, between 0 and 1, or 0 for an invalid engineId.</returns>
+        /// <returns>Brake shaft power or 0 for an invalid engineId.</returns>
         internal double GetPropellerBrakeShaftPower(double engineId)
         {
             int index = (int)(engineId) - 1;
@@ -121,15 +170,6 @@ namespace AvionicsSystems
                 return temperature;
             }
             return 0.0;
-        }
-
-        /// <summary>
-        /// Returns the number of correctly configured AJE propeller engines.
-        /// </summary>
-        /// <returns>The number of configured AJE Propeller engines.</returns>
-        public double GetPropellerCount()
-        {
-            return vc.moduleIdEngines.Length;
         }
 
         /// <summary>
