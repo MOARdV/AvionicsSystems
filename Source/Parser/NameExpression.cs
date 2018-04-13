@@ -1,9 +1,32 @@
-﻿// MOARdV Comment:
-// Code substantially adopted from java code at https://github.com/munificent/bantam
-
+﻿/*****************************************************************************
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016-2018 MOARdV
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ * 
+ ****************************************************************************/
 using System;
 using System.Collections.Generic;
 using System.Text;
+
+// Code substantially adopted from java code at https://github.com/munificent/bantam
 /*
  Bantam uses the MIT License:
 
@@ -45,9 +68,9 @@ namespace AvionicsSystems.CodeGen
         {
             mName = name;
 
-            StringBuilder sb = Utility.GetStringBuilder();
+            StringBuilder sb = StringBuilderCache.Acquire();
             print(sb);
-            canonicalName = sb.ToString();
+            canonicalName = sb.ToStringAndRelease();
         }
 
         public string CanonicalName() { return canonicalName; }
@@ -77,9 +100,9 @@ namespace AvionicsSystems.CodeGen
         {
             mName = name.Substring(1, name.Length-2);
 
-            StringBuilder sb = Utility.GetStringBuilder();
+            StringBuilder sb = StringBuilderCache.Acquire();
             print(sb);
-            canonicalName = sb.ToString();
+            canonicalName = sb.ToStringAndRelease();
         }
 
         public string CanonicalName() { return canonicalName; }

@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -137,11 +137,11 @@ namespace AvionicsSystems
 
             int fillLength = (int)Math.Floor((double)numChars * value + 0.5);
 
-            StringBuilder sb = Utility.GetStringBuilder();
+            StringBuilder sb = StringBuilderCache.Acquire();
             sb.Append(s[1][0], fillLength);
             sb.Append(s[1][1], numChars - fillLength);
 
-            return sb.ToString();
+            return sb.ToStringAndRelease();
         }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace AvionicsSystems
                 formatData[i] = null;
             }
 
-            StringBuilder sb = Utility.GetStringBuilder();
+            StringBuilder sb = StringBuilderCache.Acquire();
             for (int i = 3; i < numChars && parameterCount < parameterLimit; ++i)
             {
                 didSomething = false;
@@ -394,7 +394,7 @@ namespace AvionicsSystems
                 ++parameterCount;
             }
 
-            string result = string.Format(sb.ToString(), formatData);
+            string result = string.Format(sb.ToStringAndRelease(), formatData);
 
             return result;
         }
@@ -422,13 +422,13 @@ namespace AvionicsSystems
                 value /= Math.Pow(10.0, (siChar * 3));
             }
 
-            StringBuilder sb = Utility.GetStringBuilder();
+            StringBuilder sb = StringBuilderCache.Acquire();
             sb.Append("{0:");
             sb.Append(formatSpecification.Substring(3));
             sb.Append('}');
             sb.Append(siPrefixes[siChar]);
 
-            return string.Format(sb.ToString(), value);
+            return string.Format(sb.ToStringAndRelease(), value);
         }
 
         /// <summary>

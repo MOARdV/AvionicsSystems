@@ -437,18 +437,6 @@ namespace AvionicsSystems
             ScreenMessages.PostScreenMessage("#MAS_Initialization_Error", 120, ScreenMessageStyle.UPPER_CENTER);
         }
 
-        private static StringBuilder strb = new StringBuilder();
-        /// <summary>
-        /// Instead of everyone instantiating one of these, just keep it
-        /// available here for temporary use.
-        /// </summary>
-        /// <returns>Global string builder, cleared and ready for use.</returns>
-        internal static StringBuilder GetStringBuilder()
-        {
-            strb.Remove(0, strb.Length);
-            return strb;
-        }
-
         /// <summary>
         /// Helper method to construct a name for a game object.
         /// </summary>
@@ -484,6 +472,8 @@ namespace AvionicsSystems
 
         private static void DumpConfigNode(ConfigNode node, int depth)
         {
+            StringBuilder strb = StringBuilderCache.Acquire();
+
             strb.Remove(0, strb.Length);
             if (depth > 0)
             {
@@ -496,7 +486,7 @@ namespace AvionicsSystems
             {
                 strb.Append(" - has no data");
             }
-            LogMessage(strb.ToString());
+            LogMessage(strb.ToStringAndRelease());
             if (!node.HasData)
             {
                 return;
@@ -505,17 +495,17 @@ namespace AvionicsSystems
             var vals = node.values;
             if (vals.Count == 0)
             {
-                strb.Remove(0, strb.Length);
+                strb = StringBuilderCache.Acquire();
                 if (depth > 0)
                 {
                     strb.Append(' ', depth);
                 }
                 strb.Append("- No values");
-                LogMessage(strb.ToString());
+                LogMessage(strb.ToStringAndRelease());
             }
             for (int i = 0; i < vals.Count; ++i)
             {
-                strb.Remove(0, strb.Length);
+                strb = StringBuilderCache.Acquire();
                 if (depth > 0)
                 {
                     strb.Append(' ', depth);
@@ -525,19 +515,19 @@ namespace AvionicsSystems
                 strb.Append(vals[i].name);
                 strb.Append(" = ");
                 strb.Append(vals[i].value);
-                LogMessage(strb.ToString());
+                LogMessage(strb.ToStringAndRelease());
             }
 
             var nodes = node.nodes;
             if (nodes.Count == 0)
             {
-                strb.Remove(0, strb.Length);
+                strb = StringBuilderCache.Acquire();
                 if (depth > 0)
                 {
                     strb.Append(' ', depth);
                 }
                 strb.Append("- No child ConfigNode");
-                LogMessage(strb.ToString());
+                LogMessage(strb.ToStringAndRelease());
             }
             for (int i = 0; i < nodes.Count; ++i)
             {
@@ -694,11 +684,11 @@ namespace AvionicsSystems
             // Instead of having to create a specialized parser to handle an arbitrary
             // comma-delimited string, we wrap the provided list in parenthesis to convince
             // the parser that it's a multi-parameter function.
-            StringBuilder sb = Utility.GetStringBuilder();
+            StringBuilder sb = StringBuilderCache.Acquire();
             sb.Append("fn(");
             sb.Append(variableListString);
             sb.Append(")");
-            CodeGen.Parser.CompilerResult result = CodeGen.Parser.TryParse(sb.ToString());
+            CodeGen.Parser.CompilerResult result = CodeGen.Parser.TryParse(sb.ToStringAndRelease());
             if (result.type == CodeGen.Parser.ResultType.EXPRESSION_TREE)
             {
                 CodeGen.CallExpression callExpression = result.expressionTree as CodeGen.CallExpression;

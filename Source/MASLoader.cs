@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2017 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -445,13 +445,13 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Load out assets through the asset bundle system.
+        /// Load our assets through the asset bundle system.
         /// </summary>
         private void LoadAssets()
         {
-            StringBuilder sb = Utility.GetStringBuilder();
+            StringBuilder sb = StringBuilderCache.Acquire();
             sb.Append("file://").Append(KSPUtil.ApplicationRootPath).Append("GameData/MOARdV/AvionicsSystems/mas-{0}.assetbundle");
-            string assetFormat = sb.ToString();
+            string assetFormat = sb.ToStringAndRelease();
 
             string platform = string.Empty;
             switch (Application.platform)

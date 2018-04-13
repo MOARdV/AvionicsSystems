@@ -1227,10 +1227,10 @@ namespace AvionicsSystems
                 {
                     int tail = maxCh - strlen + start - 1;
 
-                    StringBuilder sb = Utility.GetStringBuilder();
+                    StringBuilder sb = StringBuilderCache.Acquire();
                     sb.Append(inputString.Substring(start)).Append(' ').Append(inputString.Substring(0, tail));
 
-                    return sb.ToString();
+                    return sb.ToStringAndRelease();
                 }
             }
         }

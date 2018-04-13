@@ -796,8 +796,8 @@ namespace AvionicsSystems
             tableInstance = null;
             method = null;
 
-            StringBuilder sb = Utility.GetStringBuilder();
-            dotOperatorExpression.print(sb);
+            //StringBuilder sb = StringBuilderCache.Acquire();
+            //dotOperatorExpression.print(sb);
 
             CodeGen.NameExpression tableName = dotOperatorExpression.TableName() as CodeGen.NameExpression;
             CodeGen.NameExpression methodName = dotOperatorExpression.MethodName() as CodeGen.NameExpression;
