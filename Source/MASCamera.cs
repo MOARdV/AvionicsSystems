@@ -29,7 +29,8 @@ using UnityEngine;
 namespace AvionicsSystems
 {
     /// <summary>
-    /// The MASCameraMode represents the 
+    /// The MASCameraMode represents the modes (resolution, post-processing shader) applied to
+    /// a given camera.
     /// </summary>
     internal class MASCameraMode
     {
@@ -68,31 +69,6 @@ namespace AvionicsSystems
         /// The flight computer we registered with.
         /// </summary>
         private MASFlightComputer comp;
-
-        /// <summary>
-        /// Helper method to adjust a resolution to an acceptable power-of-2.
-        /// </summary>
-        /// <param name="resolution">[inout] Resolution to adjust.</param>
-        static internal void AdjustResolution(ref int resolution)
-        {
-            if (resolution > 2048)
-            {
-                resolution = 2048;
-            }
-            else if (resolution < 64)
-            {
-                resolution = 64;
-            }
-            resolution &= 0x00000fc0;
-            for (int i = 0x800; i != 0; i >>= 1)
-            {
-                if ((resolution & i) != 0)
-                {
-                    resolution = resolution & i;
-                    break;
-                }
-            }
-        }
 
         public MASCameraMode(ConfigNode node, string partName)
         {
@@ -163,7 +139,7 @@ namespace AvionicsSystems
             }
             cameraResolution >>= MASConfig.CameraTextureScale;
 
-            AdjustResolution(ref cameraResolution);
+            Utility.LastPowerOf2(ref cameraResolution, 64, 2048);
         }
 
         public void UnregisterShaderProperties()
@@ -371,6 +347,17 @@ namespace AvionicsSystems
         internal event Action<RenderTexture, Material> renderCallback;
         private bool cameraLive;
 
+        /*
+         * Camera notes:
+         * 
+         * Culling masks:
+         * GalaxyCamera = 4'0000 -> SkySphere
+         * Camera ScaledSpace = 600 -> TransparentFX | Ignore Raycast
+         * Camera 01 = 8A'8013 -> Default | TransparentFX | Water | Local Scenery | Editor_UI | Disconnected Parts | ScaledSpaceSun
+         * Camera 02 = 8A'8013 -> Default | TransparentFX | Water | Local Scenery | Editor_UI | Disconnected Parts | ScaledSpaceSun
+         * FXCamera = 2'0001 -> Default | Editor_UI
+         */
+
         private MASDeployableCamera deploymentController;
 
         /// <summary>
@@ -550,7 +537,7 @@ namespace AvionicsSystems
 
             List<MASCamera> cameraModules = part.FindModulesImplementing<MASCamera>();
             int index = cameraModules.IndexOf(this);
-            
+
             ConfigNode partConfigNode = Utility.GetPartModuleConfigNode(part, "MASCamera", index);
             if (partConfigNode == null)
             {
@@ -575,6 +562,7 @@ namespace AvionicsSystems
             activeMode = Mathf.Clamp(activeMode, 0, mode.Length - 1);
             ApplyMode();
 
+            //var afg = UnityEngine.Object.FindObjectOfType<AtmosphereFromGround>();
             for (int i = 0; i < cameras.Length; ++i)
             {
                 Camera sourceCamera = GetCameraByName(knownCameraNames[i]);
@@ -584,17 +572,14 @@ namespace AvionicsSystems
                     cameraBody[i].name = "MASCamera-" + i + "-" + cameraBody[i].GetInstanceID();
                     cameras[i] = cameraBody[i].AddComponent<Camera>();
 
-                    // Just in case to support JSITransparentPod.
-                    cameras[i].cullingMask &= ~(1 << 16 | 1 << 20);
-
                     cameras[i].CopyFrom(sourceCamera);
                     cameras[i].enabled = true;
                     cameras[i].aspect = aspectRatio;
+                    cameras[i].targetTexture = cameraRentex;
 
                     // These get stomped on at render time:
                     cameras[i].fieldOfView = currentFov;
                     cameras[i].transform.rotation = Quaternion.identity;
-                    cameras[i].targetTexture = cameraRentex;
 
                     // Minor hack to bring the near clip plane for the "up close"
                     // cameras drastically closer to where the cameras notionally
@@ -1021,7 +1006,7 @@ namespace AvionicsSystems
                 if (cameraLive != (renderCallback != null))
                 {
                     cameraLive = (renderCallback != null);
-                    for (int i = cameraBody.Length-1; i >=0; --i)
+                    for (int i = cameraBody.Length - 1; i >= 0; --i)
                     {
                         cameras[i].enabled = cameraLive;
                     }

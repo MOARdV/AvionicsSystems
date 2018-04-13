@@ -210,6 +210,27 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Adjust a value to the highest power of 2 that does not exceed `value`.
+        /// Clamps to the range `minVal` and `maxVal`.
+        /// </summary>
+        /// <param name="value">The value to adjust.</param>
+        /// <param name="minVal">The minimum value, assumed to be a power of 2.</param>
+        /// <param name="maxVal">The maximum value, assumed to be a power of 2.</param>
+        /// <returns>`value` adjusted per the criteria.</returns>
+        internal static void LastPowerOf2(ref int value, int minVal, int maxVal)
+        {
+            value = Mathf.Clamp(value, minVal, maxVal);
+            for (int i = maxVal; i != minVal; i >>= 1)
+            {
+                if ((value & i) != 0)
+                {
+                    value = value & i;
+                    return;
+                }
+            }
+        }
+
+        /// <summary>
         /// Constrain an angle to the range [0, 360).
         /// </summary>
         /// <param name="angle">An input angle in degrees</param>
