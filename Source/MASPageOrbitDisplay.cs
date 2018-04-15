@@ -52,10 +52,32 @@ namespace AvionicsSystems
         private Color vesselStartColor = XKCDColors.White;
         private Color vesselEndColor = XKCDColors.White;
 
+        private Vector3[] bodyVertices;
+        private GameObject bodyOrigin;
+        private LineRenderer bodyRenderer;
+        private Color bodyColor = XKCDColors.White;
+        private bool useBodyColor = false;
+        private CelestialBody lastBody = null;
+
+        private Vector3[] atmoVertices;
+        private GameObject atmoOrigin;
+        private LineRenderer atmoRenderer;
+        private Color atmoColor = XKCDColors.White;
+        private bool useAtmoColor = false;
+
         internal static readonly float maxDepth = 1.0f - depthDelta;
         internal static readonly float minDepth = 0.5f;
         internal static readonly float depthDelta = 1.0f / 256.0f;
 
+        /// <summary>
+        /// Initialize everything
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="prop"></param>
+        /// <param name="comp"></param>
+        /// <param name="monitor"></param>
+        /// <param name="pageRoot"></param>
+        /// <param name="depth"></param>
         internal MASPageOrbitDisplay(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
             variableRegistrar = new VariableRegistrar(comp, prop);
@@ -87,6 +109,11 @@ namespace AvionicsSystems
             {
                 orbitWidth = 1.0f;
             }
+            float bodyWidth = 1.0f;
+            if (!config.TryGetValue("bodyWidth", ref bodyWidth))
+            {
+                bodyWidth = 1.0f;
+            }
 
             if (!config.TryGetValue("vertexCount", ref vertexCount))
             {
@@ -97,10 +124,10 @@ namespace AvionicsSystems
                 throw new ArgumentException("'vertexCount' needs to be at least 3 in ORBIT_DISPLAY " + name);
             }
             vesselVertices = new Vector3[vertexCount];
+            bodyVertices = new Vector3[vertexCount];
+            atmoVertices = new Vector3[vertexCount];
 
             // Set up our display surface.
-            Shader displayShader = Shader.Find("KSP/Alpha/Unlit Transparent");
-
             int renTexX = (int)size.x;
             Utility.LastPowerOf2(ref renTexX, 64, 1024);
             int renTexY = (int)size.y;
@@ -113,6 +140,7 @@ namespace AvionicsSystems
             displayRenTex.Create();
             displayRenTex.DiscardContents();
 
+            // MASMonitor display object
             imageObject = new GameObject();
             imageObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
             imageObject.layer = pageRoot.gameObject.layer;
@@ -145,13 +173,13 @@ namespace AvionicsSystems
             mesh.RecalculateBounds();
             mesh.UploadMeshData(true);
             meshFilter.mesh = mesh;
-            imageMaterial = new Material(displayShader);
+            imageMaterial = new Material(Shader.Find("KSP/Alpha/Unlit Transparent"));
             imageMaterial.mainTexture = displayRenTex;
             rentexRenderer.material = imageMaterial;
 
-            //cameraObject
+            // cameraObject
             cameraObject = new GameObject();
-            cameraObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name + "-Camera", (int)(-depth / MASMonitor.depthDelta));
+            cameraObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
             cameraObject.layer = pageRoot.gameObject.layer;
             cameraObject.transform.parent = pageRoot;
             cameraObject.transform.position = pageRoot.position;
@@ -174,37 +202,79 @@ namespace AvionicsSystems
 
             // lineRenderers
             float lineDepth = 1.0f;
+            Shader lineShader = MASLoader.shaders["MOARdV/Monitor"];
 
             // vessel orbit
             vesselOrigin = new GameObject();
-            vesselOrigin.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-lineDepth / MASMonitor.depthDelta));
+            vesselOrigin.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name + "vessel", (int)(-lineDepth / MASMonitor.depthDelta));
             vesselOrigin.layer = orbitLayer;// pageRoot.gameObject.layer;
             vesselOrigin.transform.parent = cameraObject.transform;
             vesselOrigin.transform.position = cameraObject.transform.position;
             vesselOrigin.transform.Translate(0.0f, 0.0f, lineDepth);
-            //vesselOrigin.transform.Translate(monitor.screenSize.x * -0.5f + position.x, monitor.screenSize.y * 0.5f - position.y, depth);
-            // add renderer stuff
-            //lineMaterial = new Material(MASLoader.shaders["MOARdV/Monitor"]);
+
             vesselRenderer = vesselOrigin.AddComponent<LineRenderer>();
             vesselRenderer.useWorldSpace = false;
-            vesselRenderer.material = new Material(MASLoader.shaders["MOARdV/Monitor"]);
+            vesselRenderer.material = new Material(lineShader);
             vesselRenderer.startColor = vesselStartColor;
             vesselRenderer.endColor = vesselEndColor;
-            vesselRenderer.startWidth = 4.0f;
-            vesselRenderer.endWidth = 4.0f;
+            vesselRenderer.startWidth = orbitWidth;
+            vesselRenderer.endWidth = orbitWidth;
             vesselRenderer.positionCount = vertexCount;
             vesselRenderer.loop = true;
             lineDepth -= 0.0625f;
 
+            // vessel.mainBody
+            bodyOrigin = new GameObject();
+            bodyOrigin.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name + "body", (int)(-lineDepth / MASMonitor.depthDelta));
+            bodyOrigin.layer = orbitLayer;
+            bodyOrigin.transform.parent = cameraObject.transform;
+            bodyOrigin.transform.position = cameraObject.transform.position;
+            bodyOrigin.transform.Translate(0.0f, 0.0f, lineDepth);
+
+            bodyRenderer = bodyOrigin.AddComponent<LineRenderer>();
+            bodyRenderer.useWorldSpace = false;
+            bodyRenderer.material = new Material(lineShader);
+            bodyRenderer.startColor = bodyColor;
+            bodyRenderer.endColor = bodyColor;
+            bodyRenderer.startWidth = bodyWidth;
+            bodyRenderer.endWidth = bodyWidth;
+            bodyRenderer.positionCount = vertexCount;
+            bodyRenderer.loop = true;
+            lineDepth -= 0.0625f;
+
+            // vessel.mainBody atmosphere
+            atmoOrigin = new GameObject();
+            atmoOrigin.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name + "atmo", (int)(-lineDepth / MASMonitor.depthDelta));
+            atmoOrigin.layer = orbitLayer;
+            atmoOrigin.transform.parent = cameraObject.transform;
+            atmoOrigin.transform.position = cameraObject.transform.position;
+            atmoOrigin.transform.Translate(0.0f, 0.0f, lineDepth);
+
+            atmoRenderer = atmoOrigin.AddComponent<LineRenderer>();
+            atmoRenderer.useWorldSpace = false;
+            atmoRenderer.material = new Material(lineShader);
+            atmoRenderer.startColor = atmoColor;
+            atmoRenderer.endColor = atmoColor;
+            atmoRenderer.startWidth = bodyWidth;
+            atmoRenderer.endWidth = bodyWidth;
+            atmoRenderer.positionCount = vertexCount;
+            atmoRenderer.loop = true;
+            lineDepth -= 0.0625f;
+
             // Load the colors.
             InitVesselColor(comp, config);
+            InitBodyColor(comp, config);
+            InitAtmoColor(comp, config);
 
             Camera.onPreCull += CameraPrerender;
             Camera.onPostRender += CameraPostrender;
-
-            //UpdateVertices();
         }
 
+        /// <summary>
+        /// Process `vesselStartColor` and `vesselEndColor` as applicable.
+        /// </summary>
+        /// <param name="comp">Flight computer to use.</param>
+        /// <param name="config">Config node.</param>
         private void InitVesselColor(MASFlightComputer comp, ConfigNode config)
         {
             string vesselStartColorString = string.Empty;
@@ -342,12 +412,138 @@ namespace AvionicsSystems
                     }
                 }
             }
-            else if(!string.IsNullOrEmpty(vesselEndColorString))
+            else if (!string.IsNullOrEmpty(vesselEndColorString))
             {
                 throw new ArgumentException("vesselEndColor found, but no vesselStartColor in ORBIT_DISPLAY " + name);
             }
         }
 
+        /// <summary>
+        /// Process optional `bodyColor`.
+        /// </summary>
+        /// <param name="comp">Flight computer to use.</param>
+        /// <param name="config">Config node.</param>
+        private void InitBodyColor(MASFlightComputer comp, ConfigNode config)
+        {
+            string bodyColorString = string.Empty;
+
+            if (config.TryGetValue("bodyColor", ref bodyColorString))
+            {
+                Color32 color;
+                if (comp.TryGetNamedColor(bodyColorString, out color))
+                {
+                    bodyColor = color;
+                    bodyRenderer.startColor = bodyColor;
+                    bodyRenderer.endColor = bodyColor;
+                }
+                else
+                {
+                    string[] bodyColors = Utility.SplitVariableList(bodyColorString);
+                    if (bodyColors.Length < 3 || bodyColors.Length > 4)
+                    {
+                        throw new ArgumentException("bodyColor does not contain 3 or 4 values in ORBIT_DISPLAY " + name);
+                    }
+
+                    variableRegistrar.RegisterNumericVariable(bodyColors[0], (double newValue) =>
+                    {
+                        bodyColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        bodyRenderer.startColor = bodyColor;
+                        bodyRenderer.endColor = bodyColor;
+                    });
+                    variableRegistrar.RegisterNumericVariable(bodyColors[1], (double newValue) =>
+                    {
+                        bodyColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        bodyRenderer.startColor = bodyColor;
+                        bodyRenderer.endColor = bodyColor;
+                    });
+                    variableRegistrar.RegisterNumericVariable(bodyColors[2], (double newValue) =>
+                    {
+                        bodyColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        bodyRenderer.startColor = bodyColor;
+                        bodyRenderer.endColor = bodyColor;
+                    });
+
+                    if (bodyColors.Length == 4)
+                    {
+                        variableRegistrar.RegisterNumericVariable(bodyColors[3], (double newValue) =>
+                        {
+                            bodyColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            bodyRenderer.startColor = bodyColor;
+                            bodyRenderer.endColor = bodyColor;
+                        });
+                    }
+                }
+                useBodyColor = true;
+            }
+        }
+
+        /// <summary>
+        /// Process optional `atmoColor`.
+        /// </summary>
+        /// <param name="comp">Flight computer to use.</param>
+        /// <param name="config">Config node.</param>
+        private void InitAtmoColor(MASFlightComputer comp, ConfigNode config)
+        {
+            string atmoColorString = string.Empty;
+
+            if (config.TryGetValue("atmoColor", ref atmoColorString))
+            {
+                Color32 color;
+                if (comp.TryGetNamedColor(atmoColorString, out color))
+                {
+                    atmoColor = color;
+                    atmoRenderer.startColor = atmoColor;
+                    atmoRenderer.endColor = atmoColor;
+                }
+                else
+                {
+                    string[] atmoColors = Utility.SplitVariableList(atmoColorString);
+                    if (atmoColors.Length < 3 || atmoColors.Length > 4)
+                    {
+                        throw new ArgumentException("atmoColor  does not contain 3 or 4 values in ORBIT_DISPLAY " + name);
+                    }
+
+                    variableRegistrar.RegisterNumericVariable(atmoColors[0], (double newValue) =>
+                    {
+                        atmoColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        atmoRenderer.startColor = atmoColor;
+                        atmoRenderer.endColor = atmoColor;
+                    });
+                    variableRegistrar.RegisterNumericVariable(atmoColors[1], (double newValue) =>
+                    {
+                        atmoColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        atmoRenderer.startColor = atmoColor;
+                        atmoRenderer.endColor = atmoColor;
+                    });
+                    variableRegistrar.RegisterNumericVariable(atmoColors[2], (double newValue) =>
+                    {
+                        atmoColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        atmoRenderer.startColor = atmoColor;
+                        atmoRenderer.endColor = atmoColor;
+                    });
+
+                    if (atmoColors.Length == 4)
+                    {
+                        variableRegistrar.RegisterNumericVariable(atmoColors[3], (double newValue) =>
+                        {
+                            atmoColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            atmoRenderer.startColor = atmoColor;
+                            atmoRenderer.endColor = atmoColor;
+                        });
+                    }
+                }
+                useAtmoColor = true;
+            }
+        }
+
+        /// <summary>
+        /// Generate all or part of an ellipse.
+        /// </summary>
+        /// <param name="verts">The array of vertices to update.</param>
+        /// <param name="radiusX">X radius in pixels.</param>
+        /// <param name="radiusY">Y radius in pixels.</param>
+        /// <param name="startTheta">Starting angle of the ellipse.</param>
+        /// <param name="endTheta">Ending angle of the ellipse.</param>
         private void GenerateEllipse(ref Vector3[] verts, float radiusX, float radiusY, float startTheta, float endTheta)
         {
             float theta = 0.0f;
@@ -364,6 +560,14 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Evaluate whether the Keplerian orbital elements in our local cache are close enough
+        /// to the latest parameters in the associated Orbit.  If not, update cached values and
+        /// signal that vertices need re-evaluated.
+        /// </summary>
+        /// <param name="lastValue">Last cached value, updated by this method as needed.</param>
+        /// <param name="orbit">Reference orbit.</param>
+        /// <returns>true if the values are close enough to matching, false if they differ significantly.</returns>
         private bool OrbitsMatch(ref KeplerianElements lastValue, Orbit orbit)
         {
             bool match = true;
@@ -376,6 +580,7 @@ namespace AvionicsSystems
             {
                 match = false;
                 lastValue.semiMajorAxis = orbit.semiMajorAxis;
+                lastValue.semiMinorAxis = orbit.semiMinorAxis;
             }
             if (Math.Abs(lastValue.inclination - orbit.inclination) > 1.0) // degrees
             {
@@ -392,12 +597,11 @@ namespace AvionicsSystems
                 match = false;
                 lastValue.argumentOfPeriapsis = orbit.argumentOfPeriapsis;
             }
-            if (Math.Abs(lastValue.trueAnomaly - orbit.trueAnomaly) > (Math.PI / 128.0)) // units of radians
+            if (Math.Abs(lastValue.trueAnomaly - orbit.trueAnomaly) > (Math.PI / 256.0)) // units of radians
             {
                 match = false;
                 lastValue.trueAnomaly = orbit.trueAnomaly;
             }
-            lastValue.semiMinorAxis = orbit.semiMinorAxis;
 
             return match;
         }
@@ -406,7 +610,7 @@ namespace AvionicsSystems
         /// Compute the scaling factor that will fit the desired orbits onto the screen.
         /// </summary>
         /// <returns></returns>
-        private double ComputeScaling()
+        private double ComputeScaling(double focusOffset)
         {
             double xLimit = size.x / 1.01;
             double yLimit = size.y / 1.01;
@@ -416,10 +620,53 @@ namespace AvionicsSystems
                 return 0.0;
             }
 
-            double metersToPixels = xLimit / vesselOrbit.semiMajorAxis;
-            metersToPixels = Math.Min(metersToPixels, yLimit / vesselOrbit.semiMinorAxis);
+            // Being computed: The scalar that fits the orbits we're tracking onto the screen.
+            double metersToPixels = 0.0;
+            // Fit the vessel's orbit
+            if (vesselOrbit.eccentricity < 1.0)
+            {
+                // Elliptical orbit
+                metersToPixels = xLimit / vesselOrbit.semiMajorAxis;
+                metersToPixels = Math.Min(metersToPixels, yLimit / vesselOrbit.semiMinorAxis);
+            }
+            else
+            {
+                // Hyperbolic orbit - TODO
+            }
+
+            // Fit the body we're orbiting, accounting for its offset due to being at a focus of the ellipse
+            if (lastBody.atmosphere)
+            {
+                metersToPixels = Math.Min(metersToPixels, yLimit / (lastBody.Radius + lastBody.atmosphereDepth));
+                metersToPixels = Math.Min(metersToPixels, xLimit / (lastBody.Radius + lastBody.atmosphereDepth + focusOffset));
+            }
+            else
+            {
+                metersToPixels = Math.Min(metersToPixels, yLimit / lastBody.Radius);
+                metersToPixels = Math.Min(metersToPixels, xLimit / (lastBody.Radius + focusOffset));
+            }
 
             return metersToPixels;
+        }
+
+        /// <summary>
+        /// Adjust RGB channels so one of them is 1.0.  Adjust alpha to 1.0.  Used because
+        /// the OrbitDriver colors are fairly dim and have an alpha of about 0.5.
+        /// </summary>
+        /// <param name="colorIn"></param>
+        /// <returns></returns>
+        private Color GainColor(Color colorIn)
+        {
+            float gain = Mathf.Max(colorIn.r, colorIn.g);
+            gain = Mathf.Max(gain, colorIn.b);
+            gain = 1.0f / gain;
+
+            colorIn.r *= gain;
+            colorIn.g *= gain;
+            colorIn.b *= gain;
+            colorIn.a = 1.0f;
+
+            return colorIn;
         }
 
         /// <summary>
@@ -429,6 +676,36 @@ namespace AvionicsSystems
         {
             bool invalidateVertices = false;
 
+            if (lastBody != comp.vc.mainBody)
+            {
+                invalidateVertices = true; 
+                lastBody = comp.vc.mainBody;
+
+                if (!useBodyColor)
+                {
+                    OrbitRendererData ord;
+                    if (PSystemManager.OrbitRendererDataCache.TryGetValue(lastBody, out ord))
+                    {
+                        bodyColor = GainColor(ord.orbitColor);
+                    }
+                    else
+                    {
+                        bodyColor = XKCDColors.White;
+                    }
+                }
+                if (!useAtmoColor)
+                {
+                    if (lastBody.atmosphere)
+                    {
+                        atmoColor = GainColor(lastBody.atmosphericAmbientColor);
+                    }
+                }
+                bodyRenderer.startColor = bodyColor;
+                bodyRenderer.endColor = bodyColor;
+                atmoRenderer.startColor = atmoColor;
+                atmoRenderer.endColor = atmoColor;
+            }
+
             // Check components for required updates
             if (!OrbitsMatch(ref vesselOrbit, comp.vessel.GetOrbit()))
             {
@@ -437,15 +714,28 @@ namespace AvionicsSystems
 
             if (invalidateVertices)
             {
-                double metersToPixels = ComputeScaling();
+                double focusOffset;
+                // Distance from the center of the vessel orbit to the focus
+                if (vesselOrbit.eccentricity < 1.0f)
+                {
+                    focusOffset = Math.Sqrt(vesselOrbit.semiMajorAxis * vesselOrbit.semiMajorAxis - vesselOrbit.semiMinorAxis * vesselOrbit.semiMinorAxis);
+                }
+                else
+                {
+                    focusOffset = Math.Sqrt(vesselOrbit.semiMajorAxis * vesselOrbit.semiMajorAxis + vesselOrbit.semiMinorAxis * vesselOrbit.semiMinorAxis);
+                }
+
+                double metersToPixels = ComputeScaling(focusOffset);
+                float radiusX;
+                float radiusY;
 
                 // TODO: Hyperbolic orbits.
                 // TODO: Orbits with a start and/or end time.
                 if (vesselOrbit.eccentricity < 1.0f)
                 {
                     //  if (no start time && no end time)
-                    float radiusX = (float)(vesselOrbit.semiMajorAxis * metersToPixels);
-                    float radiusY = (float)(vesselOrbit.semiMinorAxis * metersToPixels);
+                    radiusX = (float)(vesselOrbit.semiMajorAxis * metersToPixels);
+                    radiusY = (float)(vesselOrbit.semiMinorAxis * metersToPixels);
 
                     // True Anomaly of 0 is where the vessel crosses the periapsis.  Since we're putting the
                     // periapsis on the left, but we're leaving the winding of the ellipse computation alone,
@@ -457,8 +747,27 @@ namespace AvionicsSystems
                     //  }
                 }
                 // else generate hyperbolic section
-
                 vesselRenderer.SetPositions(vesselVertices);
+
+                // Body
+                radiusX = (float)(lastBody.Radius * metersToPixels);
+
+                GenerateEllipse(ref bodyVertices, radiusX, radiusX, 0.0f, 2.0f * Mathf.PI);
+                bodyRenderer.SetPositions(bodyVertices);
+                Vector3 pos = bodyOrigin.transform.position;
+                pos.x = -(float)(focusOffset * metersToPixels);
+                bodyOrigin.transform.position = pos;
+
+                if (lastBody.atmosphere)
+                {
+                    radiusX = (float)((lastBody.Radius + lastBody.atmosphereDepth) * metersToPixels);
+
+                    GenerateEllipse(ref atmoVertices, radiusX, radiusX, 0.0f, 2.0f * Mathf.PI);
+                    atmoRenderer.SetPositions(atmoVertices);
+                    pos = atmoOrigin.transform.position;
+                    pos.x = -(float)(focusOffset * metersToPixels);
+                    atmoOrigin.transform.position = pos;
+                }
             }
         }
 
@@ -475,6 +784,12 @@ namespace AvionicsSystems
 
                 rentexRenderer.enabled = true;
                 vesselRenderer.enabled = true;
+                bodyRenderer.enabled = true;
+                if (lastBody.atmosphere)
+                {
+                    atmoRenderer.enabled = true;
+                }
+
                 if (!displayRenTex.IsCreated())
                 {
                     displayRenTex.Create();
@@ -495,6 +810,8 @@ namespace AvionicsSystems
             {
                 rentexRenderer.enabled = false;
                 vesselRenderer.enabled = false;
+                bodyRenderer.enabled = false;
+                atmoRenderer.enabled = false;
             }
         }
 
@@ -505,7 +822,6 @@ namespace AvionicsSystems
         public void EnableRender(bool enable)
         {
             rentexRenderer.enabled = enable;
-            vesselRenderer.enabled = enable;
         }
 
         /// <summary>
