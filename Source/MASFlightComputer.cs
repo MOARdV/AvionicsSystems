@@ -691,6 +691,7 @@ namespace AvionicsSystems
                         catch (Exception e)
                         {
                             Utility.LogErrorMessage(this, "FixedUpdate exception on variable {0}", luaVariables[i].name);
+                            luaStopwatch.Stop();
                             throw e;
                         }
                     }
