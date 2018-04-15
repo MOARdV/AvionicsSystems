@@ -133,10 +133,13 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Enable / disable the page from rendering.
+        /// Enable / disable the page from rendering.  Called with `true` when
+        /// the page is selected, called with `false` when the page is no longer
+        /// selected.
         /// </summary>
-        /// <param name="enable"></param>
-        internal void EnablePage(bool enable)
+        /// <param name="enable">true when the page becomes the active page on the monitor,
+        /// false when it is no longer the active page.</param>
+        internal void SetPageActive(bool enable)
         {
             if (enabled != enable)
             {
@@ -160,20 +163,25 @@ namespace AvionicsSystems
             int numComponents = component.Count;
             for (int i = 0; i < numComponents; ++i)
             {
-                component[i].EnablePage(enable);
+                component[i].SetPageActive(enable);
             }
         }
 
         /// <summary>
-        /// Enable / disable component renderers (without disabling the game objects).
+        /// Indicate the page is ready to render (that is, the monitor's camera
+        /// is preparing to capture the scene), or that the page has finished
+        /// rendering.
         /// </summary>
-        /// <param name="enable"></param>
-        internal void EnableRender(bool enable)
+        /// <param name="enable">true indicates the camera is ready to render, so
+        /// displayable objects need to be prepared and values updated.  false indicates
+        /// that the camera has finished rendering, so objects should be switched
+        /// back off.</param>
+        internal void RenderPage(bool enable)
         {
             int numComponents = component.Count;
             for (int i = 0; i < numComponents; ++i)
             {
-                component[i].EnableRender(enable);
+                component[i].RenderPage(enable);
             }
         }
 

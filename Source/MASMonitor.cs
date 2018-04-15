@@ -91,7 +91,7 @@ namespace AvionicsSystems
         {
             if (cam.Equals(screenCamera))
             {
-                currentPage.EnableRender(true);
+                currentPage.RenderPage(true);
             }
         }
 
@@ -106,7 +106,7 @@ namespace AvionicsSystems
         {
             if (cam.Equals(screenCamera))
             {
-                currentPage.EnableRender(false);
+                currentPage.RenderPage(false);
             }
         }
 
@@ -245,7 +245,7 @@ namespace AvionicsSystems
                             currentPage = newPage;
                         }
 
-                        newPage.EnablePage(false);
+                        newPage.SetPageActive(false);
 
                         page.Add(pages[i], newPage);
                         //Utility.LogMessage(this, "Page = {0}", pages[i]);
@@ -262,7 +262,7 @@ namespace AvionicsSystems
                         }
                         comp.RegisterMonitor(monitorID, internalProp, this);
                     }
-                    currentPage.EnablePage(true);
+                    currentPage.SetPageActive(true);
                     initialized = true;
                     Utility.LogMessage(this, "Configuration complete in prop #{0} ({1}) with {2} pages", internalProp.propID, internalProp.propName, numPages);
                 }
@@ -391,9 +391,9 @@ namespace AvionicsSystems
             {
                 MASPage newPage = page[pageSelector.String()];
 
-                currentPage.EnablePage(false);
+                currentPage.SetPageActive(false);
                 currentPage = newPage;
-                currentPage.EnablePage(true);
+                currentPage.SetPageActive(true);
             }
             catch
             {

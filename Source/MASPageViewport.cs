@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2017 MOARdV
+ * Copyright (c) 2017-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -164,7 +164,7 @@ namespace AvionicsSystems
             imageMaterial = new Material(Shader.Find("KSP/Alpha/Unlit Transparent"));
             imageMaterial.color = materialColor;
             meshRenderer.material = imageMaterial;
-            EnableRender(false);
+            RenderPage(false);
 
             string upperLeftCornerName = string.Empty;
             if (!config.TryGetValue("upperLeftCorner", ref upperLeftCornerName))
@@ -328,19 +328,23 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Enable / disable renderer components without disabling game objects.
+        /// Called with `true` prior to the page rendering.  Called with
+        /// `false` after the page completes rendering.
         /// </summary>
-        /// <param name="enable"></param>
-        public void EnableRender(bool enable)
+        /// <param name="enable">true indicates that the page is about to
+        /// be rendered.  false indicates that the page has completed rendering.</param>
+        public void RenderPage(bool enable)
         {
             meshRenderer.enabled = enable;
         }
 
         /// <summary>
-        /// Enables / disables overall page rendering.
+        /// Called with `true` when the page is active on the monitor, called with
+        /// `false` when the page is no longer active.
         /// </summary>
-        /// <param name="enable"></param>
-        public void EnablePage(bool enable)
+        /// <param name="enable">true when the page is actively displayed, false when the page
+        /// is no longer displayed.</param>
+        public void SetPageActive(bool enable)
         {
 
         }

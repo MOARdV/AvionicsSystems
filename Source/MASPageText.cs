@@ -231,7 +231,7 @@ namespace AvionicsSystems
 
             // text, immutable, preserveWhitespace, comp, prop
             textObj.SetText(text, false, true, comp, prop);
-            EnableRender(false);
+            RenderPage(false);
 
             if (!string.IsNullOrEmpty(variableName))
             {
@@ -301,19 +301,23 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Enable / disable renderer components without disabling game objects.
+        /// Called with `true` prior to the page rendering.  Called with
+        /// `false` after the page completes rendering.
         /// </summary>
-        /// <param name="enable"></param>
-        public void EnableRender(bool enable)
+        /// <param name="enable">true indicates that the page is about to
+        /// be rendered.  false indicates that the page has completed rendering.</param>
+        public void RenderPage(bool enable)
         {
             textObj.SetRenderEnabled(enable);
         }
 
         /// <summary>
-        /// Enables / disables overall page rendering.
+        /// Called with `true` when the page is active on the monitor, called with
+        /// `false` when the page is no longer active.
         /// </summary>
-        /// <param name="enable"></param>
-        public void EnablePage(bool enable)
+        /// <param name="enable">true when the page is actively displayed, false when the page
+        /// is no longer displayed.</param>
+        public void SetPageActive(bool enable)
         {
 
         }

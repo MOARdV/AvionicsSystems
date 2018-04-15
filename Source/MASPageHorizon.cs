@@ -227,7 +227,7 @@ namespace AvionicsSystems
             imageMaterial.mainTextureScale = textureScale;
             meshRenderer.material = imageMaterial;
             imageMaterial.SetVector("_ClipCoords", clipCoords);
-            EnableRender(false);
+            RenderPage(false);
 
             comp.RegisterNumericVariable(pitchName, prop, PitchCallback);
             comp.RegisterNumericVariable(rollName, prop, RollCallback);
@@ -297,19 +297,23 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Enable / disable renderer components without disabling game objects.
+        /// Called with `true` prior to the page rendering.  Called with
+        /// `false` after the page completes rendering.
         /// </summary>
-        /// <param name="enable"></param>
-        public void EnableRender(bool enable)
+        /// <param name="enable">true indicates that the page is about to
+        /// be rendered.  false indicates that the page has completed rendering.</param>
+        public void RenderPage(bool enable)
         {
             meshRenderer.enabled = enable;
         }
 
         /// <summary>
-        /// Enables / disables overall page rendering.
+        /// Called with `true` when the page is active on the monitor, called with
+        /// `false` when the page is no longer active.
         /// </summary>
-        /// <param name="enable"></param>
-        public void EnablePage(bool enable)
+        /// <param name="enable">true when the page is actively displayed, false when the page
+        /// is no longer displayed.</param>
+        public void SetPageActive(bool enable)
         {
 
         }
