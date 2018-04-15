@@ -101,6 +101,7 @@
     <Compile Include="Source\MASPageEllipse.cs" />
     <Compile Include="Source\MASPageGroundTrack.cs" />
     <Compile Include="Source\MASPageLineString.cs" />
+    <Compile Include="Source\MASPageOrbitDisplay.cs" />
     <Compile Include="Source\MASPageViewport.cs" />
     <Compile Include="Source\MASPersistent.cs" />
     <Compile Include="Source\MASRadar.cs" />
