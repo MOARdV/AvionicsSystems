@@ -95,7 +95,7 @@ namespace AvionicsSystems
         /// is not available.
         /// </summary>
         /// <returns></returns>
-        public double Available()
+        public double RealChuteAvailable()
         {
             return (realChuteFound) ? 1.0 : 0.0;
         }
