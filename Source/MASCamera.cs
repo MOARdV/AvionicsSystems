@@ -800,6 +800,18 @@ namespace AvionicsSystems
             }
         }
 
+        public double GetPan()
+        {
+            if (mount)
+            {
+                return mount.currentPan;
+            }
+            else
+            {
+                return currentPan;
+            }
+        }
+
         /// <summary>
         /// Return the pan range for the camera, or the camera's mount, as applicable.
         /// </summary>
@@ -813,6 +825,18 @@ namespace AvionicsSystems
             else
             {
                 return panRange;
+            }
+        }
+
+        public double GetTilt()
+        {
+            if (mount)
+            {
+                return mount.currentTilt;
+            }
+            else
+            {
+                return currentTilt;
             }
         }
 

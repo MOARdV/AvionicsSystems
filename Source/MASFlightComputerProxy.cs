@@ -1508,7 +1508,7 @@ namespace AvionicsSystems
             int i = (int)index;
             if (i >= 0 && i < vc.moduleCamera.Length)
             {
-                pan = vc.moduleCamera[i].currentPan;
+                pan = vc.moduleCamera[i].GetPan();
             }
 
             return pan;
@@ -1525,7 +1525,7 @@ namespace AvionicsSystems
             int i = (int)index;
             if (i >= 0 && i < vc.moduleCamera.Length)
             {
-                tilt = vc.moduleCamera[i].currentTilt;
+                tilt = vc.moduleCamera[i].GetTilt();
             }
 
             return tilt;
