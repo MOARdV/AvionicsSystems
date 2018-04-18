@@ -504,14 +504,7 @@ namespace AvionicsSystems
         /// <returns>The named camera, or null if it was not found.</returns>
         private static Camera GetCameraByName(string cameraName)
         {
-            for (int i = 0; i < Camera.allCamerasCount; ++i)
-            {
-                if (Camera.allCameras[i].name == cameraName)
-                {
-                    return Camera.allCameras[i];
-                }
-            }
-            return null;
+            return Array.Find(Camera.allCameras, x => x.name == cameraName);
         }
 
         /// <summary>
@@ -523,6 +516,10 @@ namespace AvionicsSystems
             {
                 cameraRentex.Release();
                 cameraRentex = new RenderTexture(mode[activeMode].cameraResolution, mode[activeMode].cameraResolution, 24);
+                for (int i = 0; i < cameras.Length; ++i)
+                {
+                    cameras[i].targetTexture = cameraRentex;
+                }
             }
         }
 
@@ -559,9 +556,6 @@ namespace AvionicsSystems
                 mode[i] = new MASCameraMode(modeNodes[i], part.partName);
             }
 
-            activeMode = Mathf.Clamp(activeMode, 0, mode.Length - 1);
-            ApplyMode();
-
             //var afg = UnityEngine.Object.FindObjectOfType<AtmosphereFromGround>();
             for (int i = 0; i < cameras.Length; ++i)
             {
@@ -593,6 +587,10 @@ namespace AvionicsSystems
                     }
                 }
             }
+
+            // Need to init cameras before applying mode.
+            activeMode = Mathf.Clamp(activeMode, 0, mode.Length - 1);
+            ApplyMode();
         }
 
         /// <summary>
