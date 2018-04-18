@@ -43,6 +43,13 @@ namespace AvionicsSystems
         private Vector2 size;
         private VariableRegistrar variableRegistrar;
         private MASFlightComputer comp;
+        
+        /// <summary>
+        /// This angle provides the reference direction to the vessel's argument of periapsis.
+        /// We need this to make sure other orbits are correctly rotated to the same frame
+        /// of reference as the vessel's orbit.
+        /// </summary>
+        private double normalizingAngle;
 
         private readonly int vertexCount;
         private Vector3[] vesselVertices;
@@ -51,6 +58,14 @@ namespace AvionicsSystems
         private KeplerianElements vesselOrbit = new KeplerianElements();
         private Color vesselStartColor = XKCDColors.White;
         private Color vesselEndColor = XKCDColors.White;
+
+        private Vector3[] targetVertices;
+        private GameObject targetOrigin;
+        private LineRenderer targetRenderer;
+        private KeplerianElements targetOrbit = new KeplerianElements();
+        private Color targetStartColor = XKCDColors.White;
+        private Color targetEndColor = XKCDColors.White;
+        private bool targetValid;
 
         private Vector3[] bodyVertices;
         private GameObject bodyOrigin;
@@ -124,6 +139,7 @@ namespace AvionicsSystems
                 throw new ArgumentException("'vertexCount' needs to be at least 3 in ORBIT_DISPLAY " + name);
             }
             vesselVertices = new Vector3[vertexCount];
+            targetVertices = new Vector3[vertexCount];
             bodyVertices = new Vector3[vertexCount];
             atmoVertices = new Vector3[vertexCount];
 
@@ -223,6 +239,25 @@ namespace AvionicsSystems
             vesselRenderer.loop = true;
             lineDepth -= 0.0625f;
 
+            // target
+            targetOrigin = new GameObject();
+            targetOrigin.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name + "target", (int)(-lineDepth / MASMonitor.depthDelta));
+            targetOrigin.layer = orbitLayer;// pageRoot.gameObject.layer;
+            targetOrigin.transform.parent = cameraObject.transform;
+            targetOrigin.transform.position = cameraObject.transform.position;
+            targetOrigin.transform.Translate(0.0f, 0.0f, lineDepth);
+
+            targetRenderer = targetOrigin.AddComponent<LineRenderer>();
+            targetRenderer.useWorldSpace = false;
+            targetRenderer.material = new Material(lineShader);
+            targetRenderer.startColor = targetStartColor;
+            targetRenderer.endColor = targetEndColor;
+            targetRenderer.startWidth = orbitWidth;
+            targetRenderer.endWidth = orbitWidth;
+            targetRenderer.positionCount = vertexCount;
+            targetRenderer.loop = true;
+            lineDepth -= 0.0625f;
+
             // vessel.mainBody
             bodyOrigin = new GameObject();
             bodyOrigin.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name + "body", (int)(-lineDepth / MASMonitor.depthDelta));
@@ -263,6 +298,7 @@ namespace AvionicsSystems
 
             // Load the colors.
             InitVesselColor(comp, config);
+            InitTargetColor(config);
             InitBodyColor(comp, config);
             InitAtmoColor(comp, config);
 
@@ -415,6 +451,153 @@ namespace AvionicsSystems
             else if (!string.IsNullOrEmpty(vesselEndColorString))
             {
                 throw new ArgumentException("vesselEndColor found, but no vesselStartColor in ORBIT_DISPLAY " + name);
+            }
+        }
+
+        /// <summary>
+        /// Process `targetStartColor` and `targetEndColor` as applicable.
+        /// </summary>
+        /// <param name="config">Config node.</param>
+        private void InitTargetColor(ConfigNode config)
+        {
+            string targetStartColorString = string.Empty;
+            string targetEndColorString = string.Empty;
+            config.TryGetValue("targetEndColor", ref targetEndColorString);
+
+            if (config.TryGetValue("targetStartColor", ref targetStartColorString))
+            {
+                if (string.IsNullOrEmpty(targetEndColorString))
+                {
+                    Color32 color;
+                    if (comp.TryGetNamedColor(targetStartColorString, out color))
+                    {
+                        targetStartColor = color;
+                        targetRenderer.startColor = targetStartColor;
+                        targetRenderer.endColor = targetStartColor;
+                    }
+                    else
+                    {
+                        string[] targetColors = Utility.SplitVariableList(targetStartColorString);
+                        if (targetColors.Length < 3 || targetColors.Length > 4)
+                        {
+                            throw new ArgumentException("targetStartColor does not contain 3 or 4 values in ORBIT_DISPLAY " + name);
+                        }
+
+                        variableRegistrar.RegisterNumericVariable(targetColors[0], (double newValue) =>
+                        {
+                            targetStartColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            targetRenderer.startColor = targetStartColor;
+                            targetRenderer.endColor = targetStartColor;
+                        });
+                        variableRegistrar.RegisterNumericVariable(targetColors[1], (double newValue) =>
+                        {
+                            targetStartColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            targetRenderer.startColor = targetStartColor;
+                            targetRenderer.endColor = targetStartColor;
+                        });
+                        variableRegistrar.RegisterNumericVariable(targetColors[2], (double newValue) =>
+                        {
+                            targetStartColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            targetRenderer.startColor = targetStartColor;
+                            targetRenderer.endColor = targetStartColor;
+                        });
+
+                        if (targetColors.Length == 4)
+                        {
+                            variableRegistrar.RegisterNumericVariable(targetColors[3], (double newValue) =>
+                            {
+                                targetStartColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                                targetRenderer.startColor = targetStartColor;
+                                targetRenderer.endColor = targetStartColor;
+                            });
+                        }
+                    }
+                }
+                else
+                {
+                    Color32 color;
+                    if (comp.TryGetNamedColor(targetStartColorString, out color))
+                    {
+                        targetStartColor = color;
+                        targetRenderer.startColor = targetStartColor;
+                    }
+                    else
+                    {
+                        string[] targetColors = Utility.SplitVariableList(targetStartColorString);
+                        if (targetColors.Length < 3 || targetColors.Length > 4)
+                        {
+                            throw new ArgumentException("targetStartColor does not contain 3 or 4 values in ORBIT_DISPLAY " + name);
+                        }
+
+                        variableRegistrar.RegisterNumericVariable(targetColors[0], (double newValue) =>
+                        {
+                            targetStartColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            targetRenderer.startColor = targetStartColor;
+                        });
+                        variableRegistrar.RegisterNumericVariable(targetColors[1], (double newValue) =>
+                        {
+                            targetStartColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            targetRenderer.startColor = targetStartColor;
+                        });
+                        variableRegistrar.RegisterNumericVariable(targetColors[2], (double newValue) =>
+                        {
+                            targetStartColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            targetRenderer.startColor = targetStartColor;
+                        });
+
+                        if (targetColors.Length == 4)
+                        {
+                            variableRegistrar.RegisterNumericVariable(targetColors[3], (double newValue) =>
+                            {
+                                targetStartColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                                targetRenderer.startColor = targetStartColor;
+                            });
+                        }
+                    }
+
+                    if (comp.TryGetNamedColor(targetEndColorString, out color))
+                    {
+                        targetEndColor = color;
+                        targetRenderer.endColor = targetEndColor;
+                    }
+                    else
+                    {
+                        string[] vesselColors = Utility.SplitVariableList(targetEndColorString);
+                        if (vesselColors.Length < 3 || vesselColors.Length > 4)
+                        {
+                            throw new ArgumentException("targetEndColor does not contain 3 or 4 values in ORBIT_DISPLAY " + name);
+                        }
+
+                        variableRegistrar.RegisterNumericVariable(vesselColors[0], (double newValue) =>
+                        {
+                            targetEndColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            targetRenderer.endColor = targetEndColor;
+                        });
+                        variableRegistrar.RegisterNumericVariable(vesselColors[1], (double newValue) =>
+                        {
+                            targetEndColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            targetRenderer.endColor = targetEndColor;
+                        });
+                        variableRegistrar.RegisterNumericVariable(vesselColors[2], (double newValue) =>
+                        {
+                            targetEndColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            targetRenderer.endColor = targetEndColor;
+                        });
+
+                        if (vesselColors.Length == 4)
+                        {
+                            variableRegistrar.RegisterNumericVariable(vesselColors[3], (double newValue) =>
+                            {
+                                targetEndColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                                targetRenderer.endColor = targetEndColor;
+                            });
+                        }
+                    }
+                }
+            }
+            else if (!string.IsNullOrEmpty(targetEndColorString))
+            {
+                throw new ArgumentException("targetEndColor found, but no targetStartColor in ORBIT_DISPLAY " + name);
             }
         }
 
@@ -634,6 +817,22 @@ namespace AvionicsSystems
                 // Hyperbolic orbit - TODO
             }
 
+            if (targetValid)
+            {
+                // !!! Need to transform the orbit according to the difference in the
+                // argument of periapsis!  Bounds check against all four sides.
+                if (targetOrbit.eccentricity < 1.0)
+                {
+                    // Elliptical orbit
+                    metersToPixels = xLimit / targetOrbit.semiMajorAxis;
+                    metersToPixels = Math.Min(metersToPixels, yLimit / targetOrbit.semiMinorAxis);
+                }
+                else
+                {
+                    // Hyperbolic orbit - TODO
+                }
+            }
+
             // Fit the body we're orbiting, accounting for its offset due to being at a focus of the ellipse
             if (lastBody.atmosphere)
             {
@@ -676,6 +875,7 @@ namespace AvionicsSystems
         {
             bool invalidateVertices = false;
 
+            // Do this step first to make sure lastBody is current
             if (lastBody != comp.vc.mainBody)
             {
                 invalidateVertices = true; 
@@ -710,6 +910,32 @@ namespace AvionicsSystems
             if (!OrbitsMatch(ref vesselOrbit, comp.vessel.GetOrbit()))
             {
                 invalidateVertices = true;
+                normalizingAngle = Utility.NormalizeAngle(vesselOrbit.LAN + vesselOrbit.argumentOfPeriapsis);
+            }
+
+            // Only show targets that orbit the same body.
+            if (comp.vc.targetType != MASVesselComputer.TargetType.None && comp.vc.targetOrbit.referenceBody == lastBody)
+            {
+                if (!targetValid)
+                {
+                    // Target valid - recalculate render scaling.
+                    invalidateVertices = true;
+                }
+
+                targetValid = true;
+                if (!OrbitsMatch(ref targetOrbit, comp.vc.targetOrbit))
+                {
+                    invalidateVertices = true;
+                }
+            }
+            else
+            {
+                if (targetValid)
+                {
+                    // Target no longer valid - recalculate render scaling.
+                    invalidateVertices = true;
+                }
+                targetValid = false;
             }
 
             if (invalidateVertices)
@@ -728,6 +954,9 @@ namespace AvionicsSystems
                 double metersToPixels = ComputeScaling(focusOffset);
                 float radiusX;
                 float radiusY;
+                Vector3 pos;
+                // Distance from the center of the window to the focus of the orbital ellipse.
+                float focusDisplacement = -(float)(focusOffset * metersToPixels);
 
                 // TODO: Hyperbolic orbits.
                 // TODO: Orbits with a start and/or end time.
@@ -749,13 +978,59 @@ namespace AvionicsSystems
                 // else generate hyperbolic section
                 vesselRenderer.SetPositions(vesselVertices);
 
+                if (targetValid)
+                {
+                    // TODO: Hyperbolic orbits.
+                    // TODO: Orbits with a start and/or end time.
+                    if (targetOrbit.eccentricity < 1.0f)
+                    {
+                        //  if (no start time && no end time)
+                        radiusX = (float)(targetOrbit.semiMajorAxis * metersToPixels);
+                        // TODO: scale radiusY by cos(relativeInclination)
+                        radiusY = (float)(targetOrbit.semiMinorAxis * metersToPixels);
+
+                        // True Anomaly of 0 is where the vessel crosses the periapsis.  Since we're putting the
+                        // periapsis on the left, but we're leaving the winding of the ellipse computation alone,
+                        // we subtract pi from the TA.
+                        GenerateEllipse(ref targetVertices, radiusX, radiusY, (float)targetOrbit.trueAnomaly - Mathf.PI, (float)targetOrbit.trueAnomaly + Mathf.PI);
+                        //  {
+                        //  else generate limited ellipse
+                        //  {
+                        //  }
+                    }
+                    // else generate hyperbolic section
+                    targetRenderer.SetPositions(targetVertices);
+                    pos = targetOrigin.transform.position;
+                    float relativeArgPe = (float)(targetOrbit.LAN + targetOrbit.argumentOfPeriapsis - normalizingAngle);
+                    // focusDisplacement is the displacement from the center of the scene to the center of the
+                    // body.  I need to then displace from there to the center of the target's ellipse, which entails
+                    // accounting for relativeArgPe.
+                    //double selfFocusOffset;
+                    //// Distance from the center of the vessel orbit to the focus
+                    //if (vesselOrbit.eccentricity < 1.0f)
+                    //{
+                    //    selfFocusOffset = Math.Sqrt(targetOrbit.semiMajorAxis * targetOrbit.semiMajorAxis - targetOrbit.semiMinorAxis * targetOrbit.semiMinorAxis);
+                    //}
+                    //else
+                    //{
+                    //    selfFocusOffset = Math.Sqrt(targetOrbit.semiMajorAxis * targetOrbit.semiMajorAxis + targetOrbit.semiMinorAxis * targetOrbit.semiMinorAxis);
+                    //}
+                    //float selfDisplacement = -(float)(selfFocusOffset * metersToPixels);
+                    // But that's not going to be right.  I need to find the center of this ellipse relative to
+                    // the center of the vessel's ellipse.
+                    pos.x = focusDisplacement;
+                    //pos.x = selfDisplacement - focusDisplacement;
+                    targetOrigin.transform.position = pos;
+                    targetOrigin.transform.rotation = Quaternion.Euler(0.0f, 0.0f, relativeArgPe);
+                }
+
                 // Body
                 radiusX = (float)(lastBody.Radius * metersToPixels);
 
                 GenerateEllipse(ref bodyVertices, radiusX, radiusX, 0.0f, 2.0f * Mathf.PI);
                 bodyRenderer.SetPositions(bodyVertices);
-                Vector3 pos = bodyOrigin.transform.position;
-                pos.x = -(float)(focusOffset * metersToPixels);
+                pos = bodyOrigin.transform.position;
+                pos.x = focusDisplacement;
                 bodyOrigin.transform.position = pos;
 
                 if (lastBody.atmosphere)
@@ -765,7 +1040,7 @@ namespace AvionicsSystems
                     GenerateEllipse(ref atmoVertices, radiusX, radiusX, 0.0f, 2.0f * Mathf.PI);
                     atmoRenderer.SetPositions(atmoVertices);
                     pos = atmoOrigin.transform.position;
-                    pos.x = -(float)(focusOffset * metersToPixels);
+                    pos.x = focusDisplacement;
                     atmoOrigin.transform.position = pos;
                 }
             }
@@ -784,6 +1059,10 @@ namespace AvionicsSystems
 
                 rentexRenderer.enabled = true;
                 vesselRenderer.enabled = true;
+                if (targetValid)
+                {
+                    targetRenderer.enabled = true;
+                }
                 bodyRenderer.enabled = true;
                 if (lastBody.atmosphere)
                 {
@@ -810,6 +1089,7 @@ namespace AvionicsSystems
             {
                 rentexRenderer.enabled = false;
                 vesselRenderer.enabled = false;
+                targetRenderer.enabled = false;
                 bodyRenderer.enabled = false;
                 atmoRenderer.enabled = false;
             }
