@@ -56,7 +56,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the afterburner throttle position for the selected jet engine.
         /// </summary>
-        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetEngineCount()</param>
         /// <returns>Afterburner throttle, between 0 and 1; if the selected engine is invalid, not a jet, or does not have an afterburner, returns 0.</returns>
         public double GetAfterburnerThrottle(double engineId)
         {
@@ -72,7 +72,7 @@ namespace AvionicsSystems
         /// Returns the current temperature of the selected jet.  If the selected engine is
         /// not a jet, returns 0.
         /// </summary>
-        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetEngineCount()</param>
         /// <param name="useKelvin">If true, returns units are in Kelvin.  If false, units are in Celsius.</param>
         /// <returns>Current temperature in Kelvin or Celsius, or 0.</returns>
         public double GetCurrentJetTemperature(double engineId, bool useKelvin)
@@ -94,7 +94,7 @@ namespace AvionicsSystems
         /// Returns the maximum temperature of the selected jet.  If the selected engine is
         /// not a jet, returns 0.
         /// </summary>
-        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetEngineCount()</param>
         /// <param name="useKelvin">If true, returns units are in Kelvin.  If false, units are in Celsius.</param>
         /// <returns>Maximum temperature in Kelvin or Celsius, or 0.</returns>
         public double GetMaxJetTemperature(double engineId, bool useKelvin)
@@ -115,7 +115,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the core (non-afterburning) throttle position for the selected jet engine.
         /// </summary>
-        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetEngineCount()</param>
         /// <returns>Core throttle, between 0 and 1; if the selected engine is invalid or not a jet, returns 0.</returns>
         public double GetCoreThrottle(double engineId)
         {
@@ -167,7 +167,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Get the current supercharger/turbocharger boost setting.
         /// </summary>
-        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetEngineCount()</param>
         /// <returns>Engine boost, between 0 and 1, or 0 for an invalid engineId.</returns>
         internal double GetPropellerBoost(double engineId)
         {
@@ -183,7 +183,7 @@ namespace AvionicsSystems
         /// Get the current brake shaft power.  **NOTE:** units may be in HP or PS,
         /// depending on the engine's "useHP" field (which defaults to true).
         /// </summary>
-        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetEngineCount()</param>
         /// <returns>Brake shaft power or 0 for an invalid engineId.</returns>
         internal double GetPropellerBrakeShaftPower(double engineId)
         {
@@ -198,7 +198,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Get the charge air temperature.
         /// </summary>
-        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetEngineCount()</param>
         /// <param name="useKelvin">If true, returns units are in Kelvin.  If false, units are in Celsius.</param>
         /// <returns>Charge air temperature, or 0 for an invalid engineId.</returns>
         internal double GetPropellerChargeAirTemp(double engineId, bool useKelvin)
@@ -220,7 +220,7 @@ namespace AvionicsSystems
         /// Get the current manifold pressure.  **NOTE:** units may be in InHg or ata,
         /// depending on the engine's "useInHg" field (which defaults to true).
         /// </summary>
-        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetEngineCount()</param>
         /// <returns>Manifold pressure, or 0 for an invalid engineId.</returns>
         internal double GetPropellerManifoldPressure(double engineId)
         {
@@ -235,7 +235,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Get the current mixture setting for the engine, between 0 (full lean) and 1 (full rich)
         /// </summary>
-        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetEngineCount()</param>
         /// <returns>Mixture, between 0 and 1, or 0 for an invalid engineId.</returns>
         internal double GetPropellerMixture(double engineId)
         {
@@ -250,7 +250,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Get the net exhaust thrust of the engine, in kN.
         /// </summary>
-        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetEngineCount()</param>
         /// <returns>Exhaust thrust in kN, or 0 for an invalid engineId.</returns>
         internal double GetPropellerNetExhaustThrust(double engineId)
         {
@@ -265,7 +265,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Get the net Meredith effect of the engine in kN.
         /// </summary>
-        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetEngineCount()</param>
         /// <returns>Net Meredith effect, or 0 for an invalid engineId.</returns>
         internal double GetPropellerNetMeredithEffect(double engineId)
         {
@@ -280,7 +280,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Get the current pitch of the propeller in degrees.
         /// </summary>
-        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetEngineCount()</param>
         /// <returns>Pitch in degrees, or 0 for an invalid engineId.</returns>
         internal double GetPropellerPitch(double engineId)
         {
@@ -296,7 +296,7 @@ namespace AvionicsSystems
         /// Returns the current RPM of the selected engine.  If an invalid engineId is
         /// provided, or the selected engine is not an AJE propeller engine, returns 0.
         /// </summary>
-        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetEngineCount()</param>
         /// <returns>Current propeller speed in RPM, or 0.</returns>
         public double GetPropellerRPM(double engineId)
         {
@@ -313,7 +313,7 @@ namespace AvionicsSystems
         /// position ranges between 0 and 1.  Returns 0 for invalid engineIDs or engines
         /// that are not AJE propeller engines.
         /// </summary>
-        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetEngineCount()</param>
         /// <returns></returns>
         public double GetPropellerRPMLever(double engineId)
         {
@@ -328,7 +328,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Get the thrust of the engine, in kN.
         /// </summary>
-        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount()</param>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetEngineCount()</param>
         /// <returns>Engine thrust in kN, or 0 for an invalid engineId.</returns>
         internal double GetPropellerThrust(double engineId)
         {
@@ -344,10 +344,10 @@ namespace AvionicsSystems
         /// Sets the turbo/super charger boost for the selected engine to the value in `newBoost`.
         /// Returns 1 if the position was updated, 0 otherwise.
         /// 
-        /// To set engines individually, set `engineId` to any number between 1 and engine.GetPropellerCount() (inclusive).
+        /// To set engines individually, set `engineId` to any number between 1 and engine.GetEngineCount() (inclusive).
         /// To set all engines at once, set engineId to 0.
         /// </summary>
-        /// <param name="engineId">The id of the engine to change, between 1 and engine.GetPropellerCount(), or 0 to set all engines at the same time.</param>
+        /// <param name="engineId">The id of the engine to change, between 1 and engine.GetEngineCount(), or 0 to set all engines at the same time.</param>
         /// <param name="newBoost">The new boost setting , between 0 and 1 (inclusive).</param>
         /// <returns>1 if the setting was changed, 0 otherwise.</returns>
         public double SetPropellerBoost(double engineId, double newBoost)
@@ -377,10 +377,10 @@ namespace AvionicsSystems
         /// Sets the engine mixture for the selected engine to the value in `newMixture`.
         /// Returns 1 if the position was updated, 0 otherwise.
         /// 
-        /// To set engines individually, set `engineId` to any number between 1 and engine.GetPropellerCount() (inclusive).
+        /// To set engines individually, set `engineId` to any number between 1 and engine.GetEngineCount() (inclusive).
         /// To set all engines at once, set engineId to 0.
         /// </summary>
-        /// <param name="engineId">The id of the engine to change, between 1 and engine.GetPropellerCount(), or 0 to set all engines at the same time.</param>
+        /// <param name="engineId">The id of the engine to change, between 1 and engine.GetEngineCount(), or 0 to set all engines at the same time.</param>
         /// <param name="newMixture">The new mixture setting, between 0 (full lean) and 1 (full rich).</param>
         /// <returns>1 if the setting was changed, 0 otherwise.</returns>
         public double SetPropellerMixture(double engineId, double newMixture)
@@ -410,10 +410,10 @@ namespace AvionicsSystems
         /// Sets the RPM lever position for the selected engine to the value in `newPosition`.
         /// Returns 1 if the position was updated, 0 otherwise.
         /// 
-        /// To set engines individually, set `engineId` to any number between 1 and engine.GetPropellerCount() (inclusive).
+        /// To set engines individually, set `engineId` to any number between 1 and engine.GetEngineCount() (inclusive).
         /// To set all engines at once, set engineId to 0.
         /// </summary>
-        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetPropellerCount(), or 0 to set all engines at the same time.</param>
+        /// <param name="engineId">The id of the engine to check, between 1 and engine.GetEngineCount(), or 0 to set all engines at the same time.</param>
         /// <param name="newPosition">The new lever position, between 0 and 1 (inclusive).</param>
         /// <returns>1 if the setting was changed, 0 otherwise.</returns>
         public double SetPropellerRPM(double engineId, double newPosition)
