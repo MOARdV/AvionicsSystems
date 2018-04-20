@@ -10,6 +10,14 @@
 local IMP_mode = 0
 local IMP_active = true
 
+function IMP_Init()
+	local mode = fc.GetPersistentAsNumber("MAS_IMP_Mode_Select")
+	
+	if mode < 1 or mode > 3 then
+		fc.SetPersistent("MAS_IMP_Mode_Select", 1)
+	end
+end
+
 -- Return the latitude for the given mode
 function IMP_Latitude()
 	if IMP_active == true then
