@@ -181,7 +181,7 @@ namespace Documentor
             // Read the file.
             string[] lines = File.ReadAllLines(sourceFile, Encoding.UTF8);
 
-            string xmlStr = sourceFile.Substring(0, tail) + ".xml";
+            //string xmlStr = sourceFile.Substring(0, tail) + ".xml";
 
             bool inComments = false;
             DocumentToken docToken = null;
