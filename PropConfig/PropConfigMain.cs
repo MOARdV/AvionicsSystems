@@ -398,7 +398,7 @@ namespace PropConfig
                 {
                     if (!string.IsNullOrEmpty(node.comment))
                     {
-                        prop.AppendFormat("\t// {0}", node.comment).AppendLine();
+                        prop.AppendFormat("\t\t// {0}", node.comment).AppendLine();
                     }
                     prop.AppendFormat("\t\t{0}", node.name).AppendLine().AppendLine("\t\t{");
 
