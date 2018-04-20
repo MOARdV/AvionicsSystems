@@ -46,6 +46,11 @@ I never play career mode.  Feedback on whether they're reasonable would be appre
 You will need to download and install [Module Manager](https://forum.kerbalspaceprogram.com/index.php?/topic/50533-130-module-manager-281-june-29th-2017-with-n-cats-physics/), the Yarbrough08 command pod, and
 ASET Props Pack v1.5 (or later) in order to fly either IVA.
 
+## Where are the Props?
+
+Converting props to MAS is an easy but repetitive task.  To help out with it, I've created the [Prop Config](https://github.com/MOARdV/AvionicsSystems/wiki/Prop-Config)
+tool to automate a good deal of the process.  The Prop Config tool is released separately from the main MAS distribution.
+
 ## What about RPM?
 
 RasterPropMonitor is in maintenance mode.  I will update RPM so that it is compatible with future KSP releases,
