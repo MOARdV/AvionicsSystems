@@ -1,4 +1,56 @@
 <PropConfig>
+	<!-- ASET signal lamps -->
+	<SignalLamp folder="ASET_SignalLamp">
+		<style name="Signal Lamp">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/ASET_SignalLamp/ASET_SignalLamp</model>
+			</MODEL>
+			<MODEL_SCALE id="0">
+				<name>Lamp Off</name>
+				<transform>LampOFFObj</transform>
+				<startScale>0, 0, 0</startScale>
+				<endScale>-1, -1, -1</endScale>
+				<variable>fc.Conditioned(1)</variable>
+			</MODEL_SCALE>
+			<MODEL_SCALE id="1">
+				<name>Lamp On</name>
+				<transform>LampObj</transform>
+				<startScale>-1,-1,-1</startScale>
+				<endScale>0, 0, 0</endScale>
+				<variable>fc.Conditioned(1)</variable>
+			</MODEL_SCALE>
+			<COLOR_SHIFT>
+				<name>Lamp Color</name>
+				<transform>LampObj</transform>
+				<passiveColor>COLOR_MOARdV_IndicatorLampOff</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_SignalLamp_ARRT_Error</name>
+			<style>Signal Lamp</style>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+				<variable>ARRT_Error()</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_SignalLamp_IMP_Error</name>
+			<style>Signal Lamp</style>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+				<variable>IMP_Error()</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_SignalLamp_Xpointer_Error</name>
+			<style>Signal Lamp</style>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+				<variable>XPtr_Error()</variable>
+			</COLOR_SHIFT>
+		</prop>
+	</SignalLamp>
 	<!-- Toggle switches (many, many styles) -->
 	<ToggleSwitch folder="Switch_Toggle_Modular">
 		<!-- Toggle switch with illuminated cap used to power panel subsystems -->
