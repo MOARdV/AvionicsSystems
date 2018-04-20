@@ -222,7 +222,7 @@ namespace PropConfig
                 if (child is XmlElement)
                 {
                     XmlElement elem = child as XmlElement;
-                    if (elem.Name != "name" && elem.Name != "style")
+                    if (elem.Name != "name" && elem.Name != "style" && elem.Name != "startupScript")
                     {
                         ConfigNode node = new ConfigNode();
 
@@ -358,9 +358,10 @@ namespace PropConfig
         /// </summary>
         /// <param name="propName"></param>
         /// <param name="selectedStyle"></param>
+        /// <param name="startupScript"></param>
         /// <param name="elem"></param>
         /// <param name="writeDirectory"></param>
-        static void GenerateProp(string propName, Style selectedStyle, XmlElement elem, string writeDirectory)
+        static void GenerateProp(string propName, Style selectedStyle, string startupScript, XmlElement elem, string writeDirectory)
         {
             string fileName = writeDirectory + propName.Replace('.', '_') + ".cfg";
 
@@ -393,6 +394,10 @@ namespace PropConfig
 
                 // Write the MASComponent
                 prop.AppendLine("\tMODULE").AppendLine("\t{").AppendLine("\t\tname = MASComponent").AppendLine();
+                if (!string.IsNullOrEmpty(startupScript))
+                {
+                    prop.AppendFormat("\t\tstartupScript = {0}", startupScript).AppendLine().AppendLine();
+                }
 
                 foreach (var node in finalConfig.node)
                 {
@@ -498,7 +503,14 @@ namespace PropConfig
 
                             if (selectedStyle != null)
                             {
-                                GenerateProp(propName, selectedStyle, elem, writeDirectory);
+                                XmlElement startupElem = elem["startupScript"];
+                                string startupScript = string.Empty;
+                                if (startupElem != null)
+                                {
+                                    startupScript = startupElem.InnerText;
+                                }
+
+                                GenerateProp(propName, selectedStyle, startupScript, elem, writeDirectory);
                             }
                         }
                     }
