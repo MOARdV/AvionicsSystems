@@ -1,0 +1,88 @@
+<PropConfig>
+	<ToggleSwitch folder="Switch_Toggle_Modular">
+		<style name="MOARdV Power Switch">
+			<MODEL id="0">
+				<comment>Base</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglBase</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<comment>Basic toggle</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglLever_Type_5</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+				<texture>Tggl_Cap_Diffuse,ASET/ASET_Props/Control/Switch_Toggle_Modular/models/Tggl_Cap_White</texture>
+			</MODEL>
+			<MODEL id="2">
+				<comment>Square glow border</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglBase_Bcklt_12</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="3">
+				<comment>Simple Collider</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglCollider_SNGL</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Collider</name>
+				<collider>SwitchCollider</collider>
+				<sound>ASET/ASET_Props/Sounds/RPB01</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<name>Lever Movement</name>
+				<transform>SwitchGrp</transform>
+				<startRotation>33,0,0</startRotation>
+				<endRotation>-33,0,0</endRotation>
+				<range>0, 1</range>
+				<blend>true</blend>
+				<cycleRate>1</cycleRate>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<name>Top Label</name>
+				<transform>TextTopObj</transform>
+				<fontSize>6.1</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.026,-0.015</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>ON</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>Border</name>
+				<transform>GlowBorder, switchCapObj</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_toggle_IMP_Power</name>
+			<style>MOARdV Power Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("MAS_IMP_Mode", fc.TogglePersistent("MAS_IMP_On") * fc.GetPersistentAsNumber("MAS_IMP_Mode_Select"))</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_IMP_On")</variable>
+			</ROTATION>
+ 		</prop>
+		<prop>
+			<name>MAS.toggle_ARRT_Power</name>
+			<style>MOARdV Power Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>ARRT_TogglePower()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_ARRT_On")</variable>
+			</ROTATION>
+		</prop>
+	</ToggleSwitch>
+</PropConfig>
