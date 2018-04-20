@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -35,8 +35,11 @@ namespace AvionicsSystems
     /// some actions are considered one-shot, meaning they are triggered at
     /// Start() and the node isn't referenced again.
     /// </summary>
-    internal class MASComponent : InternalModule
+    public class MASComponent : InternalModule
     {
+        [KSPField]
+        public string startupScript;
+
         private List<IMASSubComponent> actions = new List<IMASSubComponent>();
 
         /// <summary>
@@ -116,6 +119,13 @@ namespace AvionicsSystems
                     }
                 }
 
+                // If an initialization script was supplied, call it.
+                if (!string.IsNullOrEmpty(startupScript))
+                {
+                    Action startup = comp.GetAction(startupScript, internalProp);
+                    startup();
+                }
+
                 Utility.LogMessage(this, "Configuration complete in prop #{0} ({1}): {2} nodes created", internalProp.propID, internalProp.propName, nodeCount);
             }
             catch (Exception e)
@@ -142,6 +152,25 @@ namespace AvionicsSystems
                 }
             }
             catch { }
+        }
+
+        /// <summary>
+        /// Call the startupScript, if it exists.
+        /// </summary>
+        /// <param name="comp">The MASFlightComputer for this prop.</param>
+        /// <returns>true if a script exists, false otherwise.</returns>
+        internal bool RunStartupScript(MASFlightComputer comp)
+        {
+            if (!string.IsNullOrEmpty(startupScript))
+            {
+                Action startup = comp.GetAction(startupScript, internalProp);
+                startup();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

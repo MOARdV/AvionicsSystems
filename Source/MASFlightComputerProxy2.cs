@@ -1160,7 +1160,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Run the `startupScript` on every monitor in the pod that has a defined `startupScript`.
+        /// Run the `startupScript` on every monitor and prop in the pod that has a defined `startupScript`.
         /// </summary>
         /// <returns>The number of scripts executed.</returns>
         public double RunMonitorStartupScript()
@@ -1177,6 +1177,13 @@ namespace AvionicsSystems
                     if (modules[moduleIndex] is MASMonitor)
                     {
                         if ((modules[moduleIndex] as MASMonitor).RunStartupScript(fc))
+                        {
+                            scriptCount += 1.0;
+                        }
+                    }
+                    else if(modules[moduleIndex] is MASComponent)
+                    {
+                        if ((modules[moduleIndex] as MASComponent).RunStartupScript(fc))
                         {
                             scriptCount += 1.0;
                         }
