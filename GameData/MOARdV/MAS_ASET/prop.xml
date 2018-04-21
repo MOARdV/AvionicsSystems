@@ -137,6 +137,140 @@
 			</TEXT_LABEL>
 		</prop>
 	</DigitalIndicator>
+	<!-- Small plates used for labeling groups of controls -->
+	<SmallPlate folder="SmallLabelPlate">
+		<style name="Small Plate">
+			<MODEL>
+				<model>ASET/ASET_Props/Misc/SmallLabelPlate/SmallLabelPlate</model>
+			</MODEL>
+			<TEXT_LABEL>
+				<name>Name Plate</name>
+				<transform>TextObj</transform>
+				<fontSize>6.1</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<transformOffset>0.048,-0.006</transformOffset>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<emissive>active</emissive>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>Plate Diffuse</name>
+				<transform>SmallLablePlate</transform>
+				<passiveColor>COLOR_ASET_PLATEBKG_DIFFUSE_PASSIVECOLOR</passiveColor>
+				<colorName>_Color</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Plate Emissive</name>
+				<transform>SmallLablePlate</transform>
+				<passiveColor>COLOR_ASET_PLATEBKG_EMISSIVE_PASSIVECOLOR</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_SmallPlate_ActionGroup</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>ACTION GROUP</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_ARRT</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>ARRT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Clock</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>CLOCK</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_CommNet</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>COMM NET</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Docking</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>DOCKING</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_IMP</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>IMP / Глобус</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Lights</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>LIGHTS</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_MechJeb</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>MECHJEB</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Parachute</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>PARACHUTE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Period</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>ORB. PERIOD</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Power</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>POWER</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Radiator</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>RADIATOR</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_RCS</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>RCS</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_SAS</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>SAS / ATT CTRL</text>
+			</TEXT_LABEL>
+		</prop>
+	</SmallPlate>
 	<!-- Toggle switches (many, many styles) -->
 	<ToggleSwitch folder="Switch_Toggle_Modular">
 		<!-- Toggle switch with illuminated cap used to power panel subsystems -->
