@@ -1,4 +1,15 @@
 <PropConfig>
+	<!-- 
+	This file is a prop configuration template for the Prop Config utility
+	described on the MAS wiki at https://github.com/MOARdV/AvionicsSystems/wiki/Prop-Config
+	
+	The tool and this XML file are used to quickly generate multiple props
+	without the tedious effort of copying config files and making small edits
+	while hoping you didn't overlook something.
+	
+	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
+	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
+	-->
 	<!-- ASET signal lamps -->
 	<SignalLamp folder="ASET_SignalLamp">
 		<style name="Signal Lamp">
@@ -51,6 +62,81 @@
 			</COLOR_SHIFT>
 		</prop>
 	</SignalLamp>
+	<!-- ASET Digital Indicator -->
+	<DigitalIndicator folder="DigitalIndicator">
+		<!-- Emulate a digital clock with 7 segment LED / LCD -->
+		<style name="LED Clock">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/DigitalIndicator/DigitalIndicator</model>
+			</MODEL>
+			<ANIMATION_PLAYER>
+				<name>Power Off animation</name>
+				<animation>DigitalIndicatorPowerOffAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+				<variable>1 - fc.Conditioned(fc.GetPersistentAsNumber("MAS_Clock_On"))</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<name>Ghost Value</name>
+				<transform>DigitIndicatorNameObj</transform>
+				<transformOffset>0.080,-0.002</transformOffset>
+				<fontSize>15</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>always</emissive>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_GHOSTCOLOR</passiveColor>
+				<text>888[@x8]88[@x16]88</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Value</name>
+				<transform>DigitIndicatorNameObj</transform>
+				<transformOffset>0.080,-0.002</transformOffset>
+				<fontSize>15</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>always</emissive>
+				<activeColor>COLOR_ASET_NUMINPUT_DISPLAY_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_GHOSTCOLOR</passiveColor>
+			</TEXT_LABEL>
+		</style>
+		<prop>
+			<name>MAS_DigitalIndicator_Clock_Apsis</name>
+			<style>LED Clock</style>
+			<TEXT_LABEL id="1">
+				<variable>fc.OrbitPeriod() > 0</variable>
+				<text>{0:METHHH[@x8]mm[@x16]ss} $#$ MAS_Clock_Apsis()</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_Clock_OrbitPeriod</name>
+			<style>LED Clock</style>
+			<TEXT_LABEL id="1">
+				<variable>fc.OrbitPeriod() > 0</variable>
+				<text>{0:METHHH[@x8]mm[@x16]ss} $#$ fc.OrbitPeriod()</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_Clock_Stopwatch</name>
+			<style>LED Clock</style>
+			<TEXT_LABEL id="1">
+				<variable>MAS_Clock_Stopwatch() > 0</variable>
+				<text>{0:METHHH[@x8]mm[@x16]ss} $#$ MAS_Clock_Stopwatch()</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_Clock_Time</name>
+			<style>LED Clock</style>
+			<TEXT_LABEL id="1">
+				<variable>MAS_Clock_Time() > 0</variable>
+				<text>{0:METHHH[@x8]mm[@x16]ss} $#$ MAS_Clock_Time()</text>
+			</TEXT_LABEL>
+		</prop>
+	</DigitalIndicator>
 	<!-- Toggle switches (many, many styles) -->
 	<ToggleSwitch folder="Switch_Toggle_Modular">
 		<!-- Toggle switch with illuminated cap used to power panel subsystems -->
