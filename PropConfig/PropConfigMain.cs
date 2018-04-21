@@ -118,6 +118,24 @@ namespace PropConfig
         }
 
         /// <summary>
+        /// Prop Config allows normal C# formatting strings, eg {0}.  However,
+        /// those are illegal as text in a KSP ConfigNode field, since those
+        /// strings are apparently fed to a function that reads them as formatting
+        /// strings within KSP.  The RPM and MAS convention is to use '<=' and '=>'
+        /// instead of '{' and '}', but '<' and '>' are not legal in an XML text
+        /// node.  Which means using the cumbersome '&lt;=' and '=&gt;' tokens.
+        /// 
+        /// Instead, Prop Config will accept '{' and '}' and string-substitute the
+        /// ConfigNode-safe versions.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        static string ScrubBrackets(string source)
+        {
+            return source.Replace("{", "<=").Replace("}", "=>");
+        }
+
+        /// <summary>
         /// Process a single ConfigNode element.
         /// </summary>
         /// <param name="nodeElement"></param>
@@ -156,7 +174,7 @@ namespace PropConfig
                     }
                     else
                     {
-                        node.fields.Add(new Tuple<string, string>(elem.Name, elem.InnerText));
+                        node.fields.Add(new Tuple<string, string>(elem.Name, ScrubBrackets(elem.InnerText)));
                     }
                 }
             }
