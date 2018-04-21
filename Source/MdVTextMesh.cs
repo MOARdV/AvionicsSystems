@@ -137,7 +137,7 @@ namespace AvionicsSystems
         // We use only one tangent value ever.
         private readonly Vector4 tangent = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
 
-        private static readonly string[] VariableListSeparator = { "$&$" };
+        private static readonly string[] VariableListSeparator = { "$&$", "$#$" };
         //private static readonly string[] MangledLineSeparator = { "$$$" };
         private static readonly string[] LineSeparator = { Environment.NewLine };
 
@@ -248,26 +248,10 @@ namespace AvionicsSystems
 
                 // If the text was initialized with immutable = true, then it
                 // was configured as a one-shot text that should not be updated.
-                // If there are no '$&$' tokens, then the text has no variables,
+                // If there are no '$&$' or '$#$' tokens, then the text has no variables,
                 // and it doesn't change.
-                if (immutable || !text.Contains(VariableListSeparator[0]))
+                if (immutable || !(text.Contains(VariableListSeparator[0]) || text.Contains(VariableListSeparator[1])))
                 {
-                    // This is a one-shot text.  We will evaluate it here once
-                    //if (text.Contains(VariableListSeparator[0]))
-                    //{
-                    //    text = EvaluateImmutableVariables(text, comp);
-                    //}
-
-                    // Remove any variable evaluators
-                    //string[] staticText = text.Split(VariableListSeparator, StringSplitOptions.RemoveEmptyEntries);
-                    //if (staticText.Length == 0)
-                    //{
-                    //    // Something went wrong.
-                    //    Utility.LogErrorMessage(this, "Splitting static text - got no variables");
-                    //    meshRenderer.gameObject.SetActive(false);
-                    //    return;
-                    //}
-
                     string[] textRows = text.Split(LineSeparator, StringSplitOptions.None);
                     textRow = new TextRow[textRows.Length];
 
@@ -275,7 +259,7 @@ namespace AvionicsSystems
                     {
                         TextRow tr = new TextRow();
 
-                        if (textRows[i].Contains(VariableListSeparator[0]))
+                        if (textRows[i].Contains(VariableListSeparator[0]) || textRows[i].Contains(VariableListSeparator[1]))
                         {
                             tr.formatString = tr.formattedData = EvaluateImmutableVariables(textRows[i], comp, internalProp);
                         }
