@@ -137,6 +137,235 @@
 			</TEXT_LABEL>
 		</prop>
 	</DigitalIndicator>
+	<!-- Contemporary highly-configurable push buttons -->
+	<PushButton folder="Push_Button_Modular">
+		<style name="Undecorated Black Full Cap">
+			<!--
+			Full black cap, collider, no borders or captions.  Defaults to a green "ON" caption
+			for the lower half of the switch.
+			Example: Action Group switches
+			-->
+			<MODEL id="0">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap</model>
+				<texture>pb_Full_Cap_Black,ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap_Black</texture>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Collider</model>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<name>Collider</name>
+				<collider>pb_Collider</collider>
+				<sound>ASET/ASET_Props/Sounds/pb_Push02</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<name>Button press animation</name>
+				<animation>pb_PushAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<name>Upper Caption</name>
+				<transform>Legend_Upper</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Lower Caption</name>
+				<transform>Legend_Lower</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>● ON ●</text>
+			</TEXT_LABEL>
+		</style>
+		<prop>
+			<name>MAS_pb_AG0</name>
+			<style>Undecorated Black Full Cap</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(0)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(0)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(0) * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<text>AG0</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(0) * fc.ActionGroupHasActions(0))</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_AG1</name>
+			<style>Undecorated Black Full Cap</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(1)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(1)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(1) * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<text>AG1</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(1) * fc.ActionGroupHasActions(1))</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_AG2</name>
+			<style>Undecorated Black Full Cap</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(2)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(2)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(2) * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<text>AG2</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(2) * fc.ActionGroupHasActions(2))</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_AG3</name>
+			<style>Undecorated Black Full Cap</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(3)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(3)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(3) * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<text>AG3</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(3) * fc.ActionGroupHasActions(3))</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_AG4</name>
+			<style>Undecorated Black Full Cap</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(4)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(4)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(4) * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<text>AG4</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(4) * fc.ActionGroupHasActions(4))</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_AG5</name>
+			<style>Undecorated Black Full Cap</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(5)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(5)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(5) * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<text>AG5</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(5) * fc.ActionGroupHasActions(5))</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_AG6</name>
+			<style>Undecorated Black Full Cap</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(6)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(6)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(6) * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<text>AG6</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(6) * fc.ActionGroupHasActions(6))</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_AG7</name>
+			<style>Undecorated Black Full Cap</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(7)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(7)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(7) * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<text>AG7</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(7) * fc.ActionGroupHasActions(7))</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_AG8</name>
+			<style>Undecorated Black Full Cap</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(8)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(8)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(8) * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<text>AG8</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(8) * fc.ActionGroupHasActions(8))</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_AG9</name>
+			<style>Undecorated Black Full Cap</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(9)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(9)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(9) * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<text>AG9</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(9) * fc.ActionGroupHasActions(9))</variable>
+			</TEXT_LABEL>
+		</prop>
+	</PushButton>
 	<!-- Retro (Apollo-ish) warning indicators -->
 	<RetroWarningLight folder="RetroWarningLight">
 		<style name="Retro Warning Light">
