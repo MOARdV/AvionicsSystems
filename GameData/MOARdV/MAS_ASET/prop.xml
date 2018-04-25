@@ -10,6 +10,422 @@
 	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
 	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
 	-->
+
+	<!--
+	Flight director / attitude indicator.  Included here
+	because MAS can support an arbitrary number of them, provided you create the
+	supporting controls (power switch, rate and scale controls, GMCP).
+	-->
+	<fdai folder="FDAI">
+		<style name="FDAI">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/FDAI/ASET_FDAI</model>
+			</MODEL>
+			<ROTATION id="0">
+				<comment>RATE ARROWS --------------------</comment>
+				<name>Roll Rate Arrow rotation</name>
+				<transform>RollRateArrowLoc</transform>
+				<variable>0</variable>
+				<startRotation>0, -9.2, 0</startRotation>
+				<endRotation>0, 9.2, 0</endRotation>
+				<range>-10.0, 10.0</range>
+				<blend>true</blend>
+				<speed>2.0</speed>
+			</ROTATION>
+			<ROTATION id="1">
+				<name>Pitch Rate Arrow rotation</name>
+				<transform>PitchlRateArrowLoc</transform>
+				<variable>0</variable>
+				<startRotation>0, -9.2, 0</startRotation>
+				<endRotation>0, 9.2, 0</endRotation>
+				<range>-10.0, 10.0</range>
+				<blend>true</blend>
+				<speed>2.0</speed>
+			</ROTATION>
+			<ROTATION id="2">
+				<name>Yaw Rate Arrow rotation</name>
+				<transform>YawRateArrowLoc</transform>
+				<variable>0</variable>
+				<startRotation>0, -9.2, 0</startRotation>
+				<endRotation>0, 9.2, 0</endRotation>
+				<range>-10.0, 10.0</range>
+				<blend>true</blend>
+				<speed>2.0</speed>
+			</ROTATION>
+			<ROTATION id="3">
+				<comment>ROLL CHEVRON -------------------</comment>
+				<name>Roll Marker rotation</name>
+				<transform>RollMarkerLoc</transform>
+				<variable>0</variable>
+				<startRotation>0, 0, 180</startRotation>
+				<endRotation>0, 0, -180</endRotation>
+				<range>-180, 180</range>
+				<blend>true</blend>
+				<speed>1.0</speed>
+				<longPath>true</longPath>
+				<modulo>360</modulo>
+			</ROTATION>
+			<TRANSLATION id="0">
+				<comment>ERROR NEEDLES ---------------------------------</comment>
+				<name>Pitch Error Needle translation</name>
+				<transform>PitchErrorNeedleObj</transform>
+				<startTranslation>0, -0.0159, 0</startTranslation>
+				<endTranslation>0, 0.0159, 0</endTranslation>
+				<variable>0</variable>
+				<range>12, -12</range>
+				<blend>true</blend>
+				<speed>1.0</speed>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<name>Yaw Error Needle translation</name>
+				<transform>YawErrorNeedleObj</transform>
+				<startTranslation>0, -0.0159, 0</startTranslation>
+				<endTranslation>0, 0.0159, 0</endTranslation>
+				<variable>0</variable>
+				<range>-12, 12</range>
+				<blend>true</blend>
+				<speed>1.0</speed>
+			</TRANSLATION>
+			<TRANSLATION id="2">
+				<name>Roll Error Needle translation</name>
+				<transform>RollErrorNeedleObj</transform>
+				<startTranslation>0, -0.0159, 0</startTranslation>
+				<endTranslation>0, 0.0159, 0</endTranslation>
+				<variable>0</variable>
+				<range>-12, 12</range>
+				<blend>true</blend>
+				<speed>1.0</speed>
+			</TRANSLATION>
+			<ANIMATION_PLAYER id="0">
+				<comment>FLAGS ----------------------------------------------</comment>
+				<name>Error Flag anim</name>
+				<animation>ErrorFlagAnim</animation>
+				<speed>2.0</speed>
+			</ANIMATION_PLAYER>
+			<ANIMATION_PLAYER id="1">
+				<name>Off Flag anim</name>
+				<animation>OFFflagAnim</animation>
+				<speed>2.0</speed>
+			</ANIMATION_PLAYER>
+			<ANIMATION_PLAYER id="2">
+				<name>DP Align Flag anim</name>
+				<animation>PortFlagAnim</animation>
+				<speed>2.0</speed>
+			</ANIMATION_PLAYER>
+			<COLOR_SHIFT id="0">
+				<name>Gauge scale-color backlight</name>
+				<comment>FDAI backlight --------------------------------</comment>
+				<transform>FDAI_NavSphere, RateScaleObj</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_NASAGAUGESCALE_ACTIVECOLOR</activeColor>
+				<variable>0</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Gauge hand-color backlight</name>
+				<transform>ErrorScaleObj, RollScaleRingObj, RollMarkerObj, CrossObj, VehicleMarker, ERROR_FlagObj, PORT_FlagObj</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_NASAGAUGEHAND_ACTIVECOLOR</activeColor>
+				<variable>0</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<name>Error needle backlight</name>
+				<transform>RollErrorNeedleObj, PitchErrorNeedleObj, YawErrorNeedleObj</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>230,230,230,255</activeColor>
+				<variable>0</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
+			<TEXT_LABEL>
+				<name>Device ID Label</name>
+				<transform>panelNumberObj</transform>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.003, -0.006</transformOffset>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<fontSize>4</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<emissive>never</emissive>
+				<passiveColor>8, 8, 8, 255</passiveColor>
+			</TEXT_LABEL>
+			<MODULE>
+				<name>MASNavBall</name>
+				<navBallName>NavSphereRotGO</navBallName>
+				<range>-0.5, 0.5</range>
+				<maxAngleChange>180</maxAngleChange>
+			</MODULE>
+		</style>
+		<prop>
+			<name>MAS_ASET_FDAI-01</name>
+			<style>FDAI</style>
+			<startupScript>fdaiInitialize(1)</startupScript>
+			<ROTATION id="0">
+				<variable>fc.Conditioned(fc.RollRate() * (fc.GetPersistentAsNumber("MAS_FDAI1_RateScalar") * fc.GetPersistentAsNumber("MAS_FDAI1_Power")))</variable>
+			</ROTATION>
+			<ROTATION id="1">
+				<variable>fc.Conditioned(fc.PitchRate() * (fc.GetPersistentAsNumber("MAS_FDAI1_RateScalar") * fc.GetPersistentAsNumber("MAS_FDAI1_Power")))</variable>
+			</ROTATION>
+			<ROTATION id="2">
+				<variable>fc.Conditioned(fc.YawRate() * (fc.GetPersistentAsNumber("MAS_FDAI1_RateScalar") * fc.GetPersistentAsNumber("MAS_FDAI1_Power")))</variable>
+			</ROTATION>
+			<ROTATION id="3">
+				<variable>fc.Conditioned(fc.Roll() * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
+			</ROTATION>
+			<TRANSLATION id="0">
+				<variable>fc.Conditioned(fdaiPitchError(1) * (fc.GetPersistentAsNumber("MAS_FDAI1_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI1_Power")))</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.Conditioned(fdaiYawError(1) * (fc.GetPersistentAsNumber("MAS_FDAI1_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI1_Power")))</variable>
+			</TRANSLATION>
+			<TRANSLATION id="2">
+				<variable>fc.Conditioned(fdaiRollError(1) * (fc.GetPersistentAsNumber("MAS_FDAI1_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI1_Power")))</variable>
+			</TRANSLATION>
+			<ANIMATION_PLAYER id="0">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_ErrorFlag") * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
+			</ANIMATION_PLAYER>
+			<ANIMATION_PLAYER id="1">
+				<variable>fdaiOffFlag(1)</variable>
+			</ANIMATION_PLAYER>
+			<ANIMATION_PLAYER id="2">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_PortFlag") * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
+			</ANIMATION_PLAYER>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_Power") * fc.GetPersistentAsNumber("Backlight"))</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_Power") * fc.GetPersistentAsNumber("Backlight"))</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_Power") * fc.GetPersistentAsNumber("Backlight"))</variable>
+			</COLOR_SHIFT>
+			<TEXT_LABEL>
+				<text>1</text>
+			</TEXT_LABEL>
+			<MODULE>
+				<variable>fdaiOffFlag(1)</variable>
+			</MODULE>
+		</prop>
+		<prop>
+			<name>MAS_ASET_FDAI-02</name>
+			<style>FDAI</style>
+			<startupScript>fdaiInitialize(2)</startupScript>
+			<ROTATION id="0">
+				<variable>fc.Conditioned(fc.RollRate() * (fc.GetPersistentAsNumber("MAS_FDAI2_RateScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")))</variable>
+			</ROTATION>
+			<ROTATION id="1">
+				<variable>fc.Conditioned(fc.PitchRate() * (fc.GetPersistentAsNumber("MAS_FDAI2_RateScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")))</variable>
+			</ROTATION>
+			<ROTATION id="2">
+				<variable>fc.Conditioned(fc.YawRate() * (fc.GetPersistentAsNumber("MAS_FDAI2_RateScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")))</variable>
+			</ROTATION>
+			<ROTATION id="3">
+				<variable>fc.Conditioned(fc.Roll() * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
+			</ROTATION>
+			<TRANSLATION id="0">
+				<variable>fc.Conditioned(fdaiPitchError(2) * (fc.GetPersistentAsNumber("MAS_FDAI2_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")))</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.Conditioned(fdaiYawError(2) * (fc.GetPersistentAsNumber("MAS_FDAI2_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")))</variable>
+			</TRANSLATION>
+			<TRANSLATION id="2">
+				<variable>fc.Conditioned(fdaiRollError(2) * (fc.GetPersistentAsNumber("MAS_FDAI2_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")))</variable>
+			</TRANSLATION>
+			<ANIMATION_PLAYER id="0">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_ErrorFlag") * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
+			</ANIMATION_PLAYER>
+			<ANIMATION_PLAYER id="1">
+				<variable>fdaiOffFlag(2)</variable>
+			</ANIMATION_PLAYER>
+			<ANIMATION_PLAYER id="2">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_PortFlag") * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
+			</ANIMATION_PLAYER>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_Power") * fc.GetPersistentAsNumber("Backlight"))</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_Power") * fc.GetPersistentAsNumber("Backlight"))</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_Power") * fc.GetPersistentAsNumber("Backlight"))</variable>
+			</COLOR_SHIFT>
+			<TEXT_LABEL>
+				<text>2</text>
+			</TEXT_LABEL>
+			<MODULE>
+				<variable>fdaiOffFlag(2)</variable>
+			</MODULE>
+		</prop>
+	</fdai>
+	<!--
+	Flight director / attitude indicator mechanical control panel.  Included here
+	because MAS can support an arbitrary number of them, provided you create the
+	supporting controls (power switch, rate and scale controls).
+	-->
+	<fdaiGMCP folder="FDAI">
+		<style name="GMCP">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/FDAI_GMCP/FDAI_GMCP</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>SelectorColliderPlus Action</name>
+				<comment>Selector Dial action</comment>
+				<collider>SelectorColliderPlus</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<name>SelectorColliderMinus Action</name>
+				<collider>SelectorColliderMinus</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="2">
+				<name>Direction Switch Action</name>
+				<comment>Direction switcher</comment>
+				<collider>DirectionSwitchColider</collider>
+				<sound>ASET/ASET_Props/Sounds/tumbleClick01</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="0">
+				<name>Direction Switch Animation</name>
+				<animation>FDAIGMCPDirSwAnim</animation>
+			</ANIMATION_PLAYER>
+			<COLLIDER_EVENT id="3">
+				<name>Sync SAS Switch Action</name>
+				<comment>Sync SAS switcher</comment>
+				<collider>SyncSwitchColider</collider>
+				<sound>ASET/ASET_Props/Sounds/tumbleClick01</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="1">
+				<name>Sync SAS Switch Animation</name>
+				<animation>FDAIGMCPSyncSwAnim</animation>
+			</ANIMATION_PLAYER>
+			<ANIMATION id="0">
+				<name>Error Warning anim</name>
+				<comment>ERROR warning animation</comment>
+				<animation>FDAIGMCPErrorWarnAnim</animation>
+				<range>0, 1</range>
+			</ANIMATION>
+			<ANIMATION id="1">
+				<name>Sync anim</name>
+				<comment>SYNC animation</comment>
+				<animation>FDAIGMCPSyncWarnAnim</animation>
+				<range>0, 1</range>
+			</ANIMATION>
+			<ANIMATION id="2">
+				<name>Selector Switch anim</name>
+				<comment>Selector animation</comment>
+				<animation>FDAIGMCPSelectorAnim</animation>
+				<range>1, 7</range>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<name>Name-color backlight</name>
+				<comment>backlight</comment>
+				<transform>SignsObj, SyncWarningPlate, ErrorWarningPlate</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Mark-color backlight</name>
+				<transform>SelectorPointerObj, DirectionSwitcherTumblerMark, SyncSwitcherTumblerMark</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_MARK_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
+			<TEXT_LABEL>
+				<name>Device ID Label</name>
+				<transform>panelNumberObj</transform>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.0013, -0.0035</transformOffset>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<fontSize>2.5</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<emissive>never</emissive>
+				<passiveColor>8, 8, 8, 255</passiveColor>
+			</TEXT_LABEL>
+		</style>
+		<prop>
+			<name>MAS_ASET_FDAIGMCP-01</name>
+			<style>GMCP</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fdaiNextMode(1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fdaiPrevMode(1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="2">
+				<onClick>fdaiTogglePositive(1)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="0">
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_Positive")</variable>
+			</ANIMATION_PLAYER>
+			<COLLIDER_EVENT id="3">
+				<onClick>fdaiToggleSyncSAS(1)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="1">
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_SyncSAS")</variable>
+			</ANIMATION_PLAYER>
+			<ANIMATION id="0">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_ErrorFlag") * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
+			</ANIMATION>
+			<ANIMATION id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_SyncSAS") * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
+			</ANIMATION>
+			<ANIMATION id="2">
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_Mode")</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>1</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_ASET_FDAIGMCP-02</name>
+			<style>GMCP</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fdaiNextMode(2)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fdaiPrevMode(2)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="2">
+				<onClick>fdaiTogglePositive(2)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="0">
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI2_Positive")</variable>
+			</ANIMATION_PLAYER>
+			<COLLIDER_EVENT id="3">
+				<onClick>fdaiToggleSyncSAS(2)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="1">
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI2_SyncSAS")</variable>
+			</ANIMATION_PLAYER>
+			<ANIMATION id="0">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_ErrorFlag") * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
+			</ANIMATION>
+			<ANIMATION id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_SyncSAS") * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
+			</ANIMATION>
+			<ANIMATION id="2">
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI2_Mode")</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>2</text>
+			</TEXT_LABEL>
+		</prop>
+	</fdaiGMCP>
 	<!-- ASET signal lamps -->
 	<SignalLamp folder="ASET_SignalLamp">
 		<style name="Signal Lamp">
@@ -1202,6 +1618,246 @@
 				<variable>fc.Conditioned(chatterer.Transmitting())</variable>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_pb_FDAI1_ErrorScale</name>
+			<style>Two Mode Bordered Captioned Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", fdaiNextErrorWrapped(1))</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>ERROR$$$SCALE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetPersistentAsNumber("MAS_FDAI1_Error") == 0)) * (fc.GetPersistentAsNumber("MAS_FDAI1_Power") * fc.GetPersistentAsNumber("Backlight")))</variable>
+				<text>x 1</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_FDAI1_Error") == 0) * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetPersistentAsNumber("MAS_FDAI1_Error") == 2)) * (fc.GetPersistentAsNumber("MAS_FDAI1_Power") * fc.GetPersistentAsNumber("Backlight")))</variable>
+				<text>x 1/12</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_FDAI1_Error") == 2) * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="5">
+				<name>Center Legend</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetPersistentAsNumber("MAS_FDAI1_Error") == 1)) * (fc.GetPersistentAsNumber("MAS_FDAI1_Power") * fc.GetPersistentAsNumber("Backlight")))</variable>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+				<text>x 1/6</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="6">
+				<name>Center Legend Bullets</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_FDAI1_Error") == 1) * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>●           ●</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_FDAI2_ErrorScale</name>
+			<style>Two Mode Bordered Captioned Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", fdaiNextErrorWrapped(2))</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>ERROR$$$SCALE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetPersistentAsNumber("MAS_FDAI2_Error") == 0)) * (fc.GetPersistentAsNumber("MAS_FDAI2_Power") * fc.GetPersistentAsNumber("Backlight")))</variable>
+				<text>x 1</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_FDAI2_Error") == 0) * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetPersistentAsNumber("MAS_FDAI2_Error") == 2)) * (fc.GetPersistentAsNumber("MAS_FDAI2_Power") * fc.GetPersistentAsNumber("Backlight")))</variable>
+				<text>x 1/12</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_FDAI2_Error") == 2) * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="5">
+				<name>Center Legend</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetPersistentAsNumber("MAS_FDAI2_Error") == 1)) * (fc.GetPersistentAsNumber("MAS_FDAI2_Power") * fc.GetPersistentAsNumber("Backlight")))</variable>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+				<text>x 1/6</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="6">
+				<name>Center Legend Bullets</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_FDAI2_Error") == 1) * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>●           ●</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_FDAI1_RateScale</name>
+			<style>Two Mode Bordered Captioned Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", fdaiNextRateWrapped(1))</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>ERROR$$$SCALE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetPersistentAsNumber("MAS_FDAI1_Rate") == 0)) * (fc.GetPersistentAsNumber("MAS_FDAI1_Power") * fc.GetPersistentAsNumber("Backlight")))</variable>
+				<text>x 1</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_FDAI1_Rate") == 0) * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetPersistentAsNumber("MAS_FDAI1_Rate") == 2)) * (fc.GetPersistentAsNumber("MAS_FDAI1_Power") * fc.GetPersistentAsNumber("Backlight")))</variable>
+				<text>x 1/12</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_FDAI1_Rate") == 2) * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="5">
+				<name>Center Legend</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetPersistentAsNumber("MAS_FDAI1_Rate") == 1)) * (fc.GetPersistentAsNumber("MAS_FDAI1_Power") * fc.GetPersistentAsNumber("Backlight")))</variable>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+				<text>x 1/6</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="6">
+				<name>Center Legend Bullets</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_FDAI1_Rate") == 1) * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>●           ●</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_FDAI2_RateScale</name>
+			<style>Two Mode Bordered Captioned Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", fdaiNextRateWrapped(2))</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>ERROR$$$SCALE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetPersistentAsNumber("MAS_FDAI2_Rate") == 0)) * (fc.GetPersistentAsNumber("MAS_FDAI2_Power") * fc.GetPersistentAsNumber("Backlight")))</variable>
+				<text>x 1</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_FDAI2_Rate") == 0) * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetPersistentAsNumber("MAS_FDAI2_Rate") == 2)) * (fc.GetPersistentAsNumber("MAS_FDAI2_Power") * fc.GetPersistentAsNumber("Backlight")))</variable>
+				<text>x 1/12</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_FDAI2_Rate") == 2) * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="5">
+				<name>Center Legend</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetPersistentAsNumber("MAS_FDAI2_Rate") == 1)) * (fc.GetPersistentAsNumber("MAS_FDAI2_Power") * fc.GetPersistentAsNumber("Backlight")))</variable>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+				<text>x 1/6</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="6">
+				<name>Center Legend Bullets</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_FDAI2_Rate") == 1) * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>●           ●</text>
+			</TEXT_LABEL>
+		</prop>
 		<style name="One Status Bordered Lamp">
 			<!--
 			Full Cap / Backlight 2
@@ -1820,7 +2476,7 @@
 			<name>MAS.toggle_FDAI1_Power-T5M-B13-S</name>
 			<style>Panel Power Switch</style>
 			<COLLIDER_EVENT>
-				<onClick>FDAI1_TogglePower()</onClick>
+				<onClick>fdaiTogglePower(1)</onClick>
 			</COLLIDER_EVENT>
 			<ROTATION>
 				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_Power")</variable>
@@ -1830,7 +2486,7 @@
 			<name>MAS.toggle_FDAI2_Power</name>
 			<style>Panel Power Switch</style>
 			<COLLIDER_EVENT>
-				<onClick>FDAI2_TogglePower()</onClick>
+				<onClick>fdaiTogglePower(2)</onClick>
 			</COLLIDER_EVENT>
 			<ROTATION>
 				<variable>fc.GetPersistentAsNumber("MAS_FDAI2_Power")</variable>
@@ -1955,7 +2611,7 @@
 			<name>MAS_toggle_FDAI1_Power_T2_G2_B2_S</name>
 			<style>Type 2 Anim Switch</style>
 			<COLLIDER_EVENT>
-				<onClick>FDAI1_TogglePower()</onClick>
+				<onClick>fdaiTogglePower(1)</onClick>
 			</COLLIDER_EVENT>
 			<TEXT_LABEL>
 				<text>FDAI</text>
