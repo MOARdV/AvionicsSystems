@@ -76,9 +76,22 @@ namespace PropConfig
         /// </summary>
         internal class Style
         {
+            /// <summary>
+            /// Name of this style / prop
+            /// </summary>
             public string name;
+            /// <summary>
+            /// List of MODEL nodes
+            /// </summary>
             public List<ConfigNode> model = new List<ConfigNode>();
+            /// <summary>
+            /// List of MASComponent nodes
+            /// </summary>
             public List<ConfigNode> node = new List<ConfigNode>();
+            /// <summary>
+            /// List of other MODULE nodes.
+            /// </summary>
+            public List<ConfigNode> module = new List<ConfigNode>();
         };
 
         /// <summary>
@@ -208,6 +221,17 @@ namespace PropConfig
                             duplicate = true;
                         }
                     }
+                    else if(node.name.StartsWith("MODULE"))
+                    {
+                        if (style.module.FindIndex(x => x.name == node.name && x.id == node.id) < 0)
+                        {
+                            style.module.Add(node);
+                        }
+                        else
+                        {
+                            duplicate = true;
+                        }
+                    }
                     else
                     {
                         if (style.node.FindIndex(x => x.name == node.name && x.id == node.id) < 0)
@@ -246,6 +270,7 @@ namespace PropConfig
 
                         ProcessNode(elem, node);
 
+                        bool duplicate = false;
                         if (node.name == "MODEL")
                         {
                             if (prop.model.FindIndex(x => x.name == node.name && x.id == node.id) < 0)
@@ -254,8 +279,18 @@ namespace PropConfig
                             }
                             else
                             {
-                                Console.WriteLine("Duplicate <{0}> ids found in prop {1} (id {2} is repeated)",
-                                    node.name, prop.name, node.id);
+                                duplicate = true;
+                            }
+                        }
+                        else if (node.name.StartsWith("MODULE"))
+                        {
+                            if (prop.module.FindIndex(x => x.name == node.name && x.id == node.id) < 0)
+                            {
+                                prop.module.Add(node);
+                            }
+                            else
+                            {
+                                duplicate = true;
                             }
                         }
                         else
@@ -266,9 +301,13 @@ namespace PropConfig
                             }
                             else
                             {
-                                Console.WriteLine("Duplicate <{0}> ids found in prop {1} (id {2} is repeated)",
-                                    node.name, prop.name, node.id);
+                                duplicate = true;
                             }
+                        }
+                        if (duplicate)
+                        {
+                            Console.WriteLine("Duplicate <{0}> ids found in prop {1} (id {2} is repeated)",
+                                node.name, prop.name, node.id);
                         }
                     }
                 }
@@ -368,6 +407,26 @@ namespace PropConfig
                 }
             }
 
+            foreach (ConfigNode module in style.module)
+            {
+                ConfigNode replacement = prop.module.Find(x => x.name == module.name && x.id == module.id);
+                if (replacement != null)
+                {
+                    finalConfig.module.Add(MergeNodes(module, replacement));
+                }
+                else
+                {
+                    finalConfig.module.Add(module);
+                }
+            }
+            foreach (ConfigNode module in prop.module)
+            {
+                if (finalConfig.module.FindIndex(x => x.name == module.name && x.id == module.id) < 0)
+                {
+                    finalConfig.module.Add(module);
+                }
+            }
+
             return finalConfig;
         }
 
@@ -432,8 +491,24 @@ namespace PropConfig
 
                     prop.AppendLine("\t\t}").AppendLine();
                 }
+                prop.AppendLine("\t}");
 
-                prop.AppendLine("\t}").AppendLine("}");
+                // Write any optional modules
+                foreach(var module in finalConfig.module)
+                {
+                    prop.AppendLine();
+                    if (!string.IsNullOrEmpty(module.comment))
+                    {
+                        prop.AppendFormat("\t// {0}", module.comment).AppendLine();
+                    }
+                    prop.AppendLine("\tMODULE").AppendLine("\t{");
+                    foreach (var field in module.fields)
+                    {
+                        prop.AppendFormat("\t\t{0} = {1}", field.Item1, field.Item2).AppendLine();
+                    }
+                    prop.AppendLine("\t}");
+                }
+                prop.AppendLine("}");
 
                 Directory.CreateDirectory(writeDirectory);
                 File.WriteAllText(fileName, prop.ToString(), Encoding.UTF8);
