@@ -13,548 +13,6 @@
 	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
 	-->
 
-	<!--
-	Flight director / attitude indicator.  Included here
-	because MAS can support an arbitrary number of them, provided you create the
-	supporting controls (power switch, rate and scale controls, GMCP).
-	-->
-	<fdai folder="FDAI">
-		<style name="FDAI">
-			<MODEL>
-				<model>ASET/ASET_Props/Instruments/FDAI/ASET_FDAI</model>
-			</MODEL>
-			<ROTATION id="0">
-				<comment>RATE ARROWS --------------------</comment>
-				<name>Roll Rate Arrow rotation</name>
-				<transform>RollRateArrowLoc</transform>
-				<variable>0</variable>
-				<startRotation>0, -9.2, 0</startRotation>
-				<endRotation>0, 9.2, 0</endRotation>
-				<range>-10.0, 10.0</range>
-				<blend>true</blend>
-				<speed>2.0</speed>
-			</ROTATION>
-			<ROTATION id="1">
-				<name>Pitch Rate Arrow rotation</name>
-				<transform>PitchlRateArrowLoc</transform>
-				<variable>0</variable>
-				<startRotation>0, -9.2, 0</startRotation>
-				<endRotation>0, 9.2, 0</endRotation>
-				<range>-10.0, 10.0</range>
-				<blend>true</blend>
-				<speed>2.0</speed>
-			</ROTATION>
-			<ROTATION id="2">
-				<name>Yaw Rate Arrow rotation</name>
-				<transform>YawRateArrowLoc</transform>
-				<variable>0</variable>
-				<startRotation>0, -9.2, 0</startRotation>
-				<endRotation>0, 9.2, 0</endRotation>
-				<range>-10.0, 10.0</range>
-				<blend>true</blend>
-				<speed>2.0</speed>
-			</ROTATION>
-			<ROTATION id="3">
-				<comment>ROLL CHEVRON -------------------</comment>
-				<name>Roll Marker rotation</name>
-				<transform>RollMarkerLoc</transform>
-				<variable>0</variable>
-				<startRotation>0, 0, 180</startRotation>
-				<endRotation>0, 0, -180</endRotation>
-				<range>-180, 180</range>
-				<blend>true</blend>
-				<speed>1.0</speed>
-				<longPath>true</longPath>
-				<modulo>360</modulo>
-			</ROTATION>
-			<TRANSLATION id="0">
-				<comment>ERROR NEEDLES ---------------------------------</comment>
-				<name>Pitch Error Needle translation</name>
-				<transform>PitchErrorNeedleObj</transform>
-				<startTranslation>0, -0.0159, 0</startTranslation>
-				<endTranslation>0, 0.0159, 0</endTranslation>
-				<variable>0</variable>
-				<range>12, -12</range>
-				<blend>true</blend>
-				<speed>1.0</speed>
-			</TRANSLATION>
-			<TRANSLATION id="1">
-				<name>Yaw Error Needle translation</name>
-				<transform>YawErrorNeedleObj</transform>
-				<startTranslation>0, -0.0159, 0</startTranslation>
-				<endTranslation>0, 0.0159, 0</endTranslation>
-				<variable>0</variable>
-				<range>-12, 12</range>
-				<blend>true</blend>
-				<speed>1.0</speed>
-			</TRANSLATION>
-			<TRANSLATION id="2">
-				<name>Roll Error Needle translation</name>
-				<transform>RollErrorNeedleObj</transform>
-				<startTranslation>0, -0.0159, 0</startTranslation>
-				<endTranslation>0, 0.0159, 0</endTranslation>
-				<variable>0</variable>
-				<range>-12, 12</range>
-				<blend>true</blend>
-				<speed>1.0</speed>
-			</TRANSLATION>
-			<ANIMATION_PLAYER id="0">
-				<comment>FLAGS ----------------------------------------------</comment>
-				<name>Error Flag anim</name>
-				<animation>ErrorFlagAnim</animation>
-				<speed>2.0</speed>
-			</ANIMATION_PLAYER>
-			<ANIMATION_PLAYER id="1">
-				<name>Off Flag anim</name>
-				<animation>OFFflagAnim</animation>
-				<speed>2.0</speed>
-			</ANIMATION_PLAYER>
-			<ANIMATION_PLAYER id="2">
-				<name>DP Align Flag anim</name>
-				<animation>PortFlagAnim</animation>
-				<speed>2.0</speed>
-			</ANIMATION_PLAYER>
-			<COLOR_SHIFT id="0">
-				<name>Gauge scale-color backlight</name>
-				<comment>FDAI backlight --------------------------------</comment>
-				<transform>FDAI_NavSphere, RateScaleObj</transform>
-				<passiveColor>0,0,0,255</passiveColor>
-				<activeColor>COLOR_ASET_NASAGAUGESCALE_ACTIVECOLOR</activeColor>
-				<variable>0</variable>
-				<blend>true</blend>
-				<range>0, 1</range>
-			</COLOR_SHIFT>
-			<COLOR_SHIFT id="1">
-				<name>Gauge hand-color backlight</name>
-				<transform>ErrorScaleObj, RollScaleRingObj, RollMarkerObj, CrossObj, VehicleMarker, ERROR_FlagObj, PORT_FlagObj</transform>
-				<passiveColor>0,0,0,255</passiveColor>
-				<activeColor>COLOR_ASET_NASAGAUGEHAND_ACTIVECOLOR</activeColor>
-				<variable>0</variable>
-				<blend>true</blend>
-				<range>0, 1</range>
-			</COLOR_SHIFT>
-			<COLOR_SHIFT id="2">
-				<name>Error needle backlight</name>
-				<transform>RollErrorNeedleObj, PitchErrorNeedleObj, YawErrorNeedleObj</transform>
-				<passiveColor>0,0,0,255</passiveColor>
-				<activeColor>230,230,230,255</activeColor>
-				<variable>0</variable>
-				<blend>true</blend>
-				<range>0, 1</range>
-			</COLOR_SHIFT>
-			<TEXT_LABEL>
-				<name>Device ID Label</name>
-				<transform>panelNumberObj</transform>
-				<alignment>Center</alignment>
-				<anchor>LowerCenter</anchor>
-				<transformOffset>0.003, -0.006</transformOffset>
-				<font>Liberation Sans</font>
-				<style>Bold</style>
-				<fontSize>4</fontSize>
-				<lineSpacing>0.9</lineSpacing>
-				<emissive>never</emissive>
-				<passiveColor>8, 8, 8, 255</passiveColor>
-			</TEXT_LABEL>
-			<MODULE>
-				<name>MASNavBall</name>
-				<navBallName>NavSphereRotGO</navBallName>
-				<range>-0.5, 0.5</range>
-				<maxAngleChange>180</maxAngleChange>
-			</MODULE>
-		</style>
-		<prop>
-			<name>MAS_ASET_FDAI-01</name>
-			<style>FDAI</style>
-			<startupScript>fdaiInitialize(1)</startupScript>
-			<ROTATION id="0">
-				<variable>fc.Conditioned(fc.RollRate() * (fc.GetPersistentAsNumber("MAS_FDAI1_RateScalar") * fc.GetPersistentAsNumber("MAS_FDAI1_Power")))</variable>
-			</ROTATION>
-			<ROTATION id="1">
-				<variable>fc.Conditioned(fc.PitchRate() * (fc.GetPersistentAsNumber("MAS_FDAI1_RateScalar") * fc.GetPersistentAsNumber("MAS_FDAI1_Power")))</variable>
-			</ROTATION>
-			<ROTATION id="2">
-				<variable>fc.Conditioned(fc.YawRate() * (fc.GetPersistentAsNumber("MAS_FDAI1_RateScalar") * fc.GetPersistentAsNumber("MAS_FDAI1_Power")))</variable>
-			</ROTATION>
-			<ROTATION id="3">
-				<variable>fc.Conditioned(fc.Roll() * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
-			</ROTATION>
-			<TRANSLATION id="0">
-				<variable>fc.Conditioned(fdaiPitchError(1) * (fc.GetPersistentAsNumber("MAS_FDAI1_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI1_Power")))</variable>
-			</TRANSLATION>
-			<TRANSLATION id="1">
-				<variable>fc.Conditioned(fdaiYawError(1) * (fc.GetPersistentAsNumber("MAS_FDAI1_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI1_Power")))</variable>
-			</TRANSLATION>
-			<TRANSLATION id="2">
-				<variable>fc.Conditioned(fdaiRollError(1) * (fc.GetPersistentAsNumber("MAS_FDAI1_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI1_Power")))</variable>
-			</TRANSLATION>
-			<ANIMATION_PLAYER id="0">
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_ErrorFlag") * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
-			</ANIMATION_PLAYER>
-			<ANIMATION_PLAYER id="1">
-				<variable>fdaiOffFlag(1)</variable>
-			</ANIMATION_PLAYER>
-			<ANIMATION_PLAYER id="2">
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_PortFlag") * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
-			</ANIMATION_PLAYER>
-			<COLOR_SHIFT id="0">
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_Power") * fc.GetPersistentAsNumber("Backlight"))</variable>
-			</COLOR_SHIFT>
-			<COLOR_SHIFT id="1">
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_Power") * fc.GetPersistentAsNumber("Backlight"))</variable>
-			</COLOR_SHIFT>
-			<COLOR_SHIFT id="2">
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_Power") * fc.GetPersistentAsNumber("Backlight"))</variable>
-			</COLOR_SHIFT>
-			<TEXT_LABEL>
-				<text>1</text>
-			</TEXT_LABEL>
-			<MODULE>
-				<variable>fdaiOffFlag(1)</variable>
-			</MODULE>
-		</prop>
-		<prop>
-			<name>MAS_ASET_FDAI-02</name>
-			<style>FDAI</style>
-			<startupScript>fdaiInitialize(2)</startupScript>
-			<ROTATION id="0">
-				<variable>fc.Conditioned(fc.RollRate() * (fc.GetPersistentAsNumber("MAS_FDAI2_RateScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")))</variable>
-			</ROTATION>
-			<ROTATION id="1">
-				<variable>fc.Conditioned(fc.PitchRate() * (fc.GetPersistentAsNumber("MAS_FDAI2_RateScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")))</variable>
-			</ROTATION>
-			<ROTATION id="2">
-				<variable>fc.Conditioned(fc.YawRate() * (fc.GetPersistentAsNumber("MAS_FDAI2_RateScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")))</variable>
-			</ROTATION>
-			<ROTATION id="3">
-				<variable>fc.Conditioned(fc.Roll() * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
-			</ROTATION>
-			<TRANSLATION id="0">
-				<variable>fc.Conditioned(fdaiPitchError(2) * (fc.GetPersistentAsNumber("MAS_FDAI2_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")))</variable>
-			</TRANSLATION>
-			<TRANSLATION id="1">
-				<variable>fc.Conditioned(fdaiYawError(2) * (fc.GetPersistentAsNumber("MAS_FDAI2_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")))</variable>
-			</TRANSLATION>
-			<TRANSLATION id="2">
-				<variable>fc.Conditioned(fdaiRollError(2) * (fc.GetPersistentAsNumber("MAS_FDAI2_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")))</variable>
-			</TRANSLATION>
-			<ANIMATION_PLAYER id="0">
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_ErrorFlag") * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
-			</ANIMATION_PLAYER>
-			<ANIMATION_PLAYER id="1">
-				<variable>fdaiOffFlag(2)</variable>
-			</ANIMATION_PLAYER>
-			<ANIMATION_PLAYER id="2">
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_PortFlag") * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
-			</ANIMATION_PLAYER>
-			<COLOR_SHIFT id="0">
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_Power") * fc.GetPersistentAsNumber("Backlight"))</variable>
-			</COLOR_SHIFT>
-			<COLOR_SHIFT id="1">
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_Power") * fc.GetPersistentAsNumber("Backlight"))</variable>
-			</COLOR_SHIFT>
-			<COLOR_SHIFT id="2">
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_Power") * fc.GetPersistentAsNumber("Backlight"))</variable>
-			</COLOR_SHIFT>
-			<TEXT_LABEL>
-				<text>2</text>
-			</TEXT_LABEL>
-			<MODULE>
-				<variable>fdaiOffFlag(2)</variable>
-			</MODULE>
-		</prop>
-	</fdai>
-	<!--
-	Flight director / attitude indicator mechanical control panel.  Included here
-	because MAS can support an arbitrary number of them, provided you create the
-	supporting controls (power switch, rate and scale controls).
-	-->
-	<fdaiGMCP folder="FDAI">
-		<style name="GMCP">
-			<MODEL>
-				<model>ASET/ASET_Props/Instruments/FDAI_GMCP/FDAI_GMCP</model>
-			</MODEL>
-			<COLLIDER_EVENT id="0">
-				<name>SelectorColliderPlus Action</name>
-				<comment>Selector Dial action</comment>
-				<collider>SelectorColliderPlus</collider>
-				<sound>ASET/ASET_Props/Sounds/click-027</sound>
-				<volume>1</volume>
-			</COLLIDER_EVENT>
-			<COLLIDER_EVENT id="1">
-				<name>SelectorColliderMinus Action</name>
-				<collider>SelectorColliderMinus</collider>
-				<sound>ASET/ASET_Props/Sounds/click-027</sound>
-				<volume>1</volume>
-			</COLLIDER_EVENT>
-			<COLLIDER_EVENT id="2">
-				<name>Direction Switch Action</name>
-				<comment>Direction switcher</comment>
-				<collider>DirectionSwitchColider</collider>
-				<sound>ASET/ASET_Props/Sounds/tumbleClick01</sound>
-				<volume>1</volume>
-			</COLLIDER_EVENT>
-			<ANIMATION_PLAYER id="0">
-				<name>Direction Switch Animation</name>
-				<animation>FDAIGMCPDirSwAnim</animation>
-			</ANIMATION_PLAYER>
-			<COLLIDER_EVENT id="3">
-				<name>Sync SAS Switch Action</name>
-				<comment>Sync SAS switcher</comment>
-				<collider>SyncSwitchColider</collider>
-				<sound>ASET/ASET_Props/Sounds/tumbleClick01</sound>
-				<volume>1</volume>
-			</COLLIDER_EVENT>
-			<ANIMATION_PLAYER id="1">
-				<name>Sync SAS Switch Animation</name>
-				<animation>FDAIGMCPSyncSwAnim</animation>
-			</ANIMATION_PLAYER>
-			<ANIMATION id="0">
-				<name>Error Warning anim</name>
-				<comment>ERROR warning animation</comment>
-				<animation>FDAIGMCPErrorWarnAnim</animation>
-				<range>0, 1</range>
-			</ANIMATION>
-			<ANIMATION id="1">
-				<name>Sync anim</name>
-				<comment>SYNC animation</comment>
-				<animation>FDAIGMCPSyncWarnAnim</animation>
-				<range>0, 1</range>
-			</ANIMATION>
-			<ANIMATION id="2">
-				<name>Selector Switch anim</name>
-				<comment>Selector animation</comment>
-				<animation>FDAIGMCPSelectorAnim</animation>
-				<range>1, 7</range>
-			</ANIMATION>
-			<COLOR_SHIFT id="0">
-				<name>Name-color backlight</name>
-				<comment>backlight</comment>
-				<transform>SignsObj, SyncWarningPlate, ErrorWarningPlate</transform>
-				<passiveColor>0,0,0,255</passiveColor>
-				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
-				<blend>true</blend>
-				<range>0, 1</range>
-			</COLOR_SHIFT>
-			<COLOR_SHIFT id="1">
-				<name>Mark-color backlight</name>
-				<transform>SelectorPointerObj, DirectionSwitcherTumblerMark, SyncSwitcherTumblerMark</transform>
-				<passiveColor>0,0,0,255</passiveColor>
-				<activeColor>COLOR_ASET_SWITCHER_MARK_POSITIVECOLOR</activeColor>
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
-				<blend>true</blend>
-				<range>0, 1</range>
-			</COLOR_SHIFT>
-			<TEXT_LABEL>
-				<name>Device ID Label</name>
-				<transform>panelNumberObj</transform>
-				<alignment>Center</alignment>
-				<anchor>LowerCenter</anchor>
-				<transformOffset>0.0013, -0.0035</transformOffset>
-				<font>Liberation Sans</font>
-				<style>Bold</style>
-				<fontSize>2.5</fontSize>
-				<lineSpacing>0.9</lineSpacing>
-				<emissive>never</emissive>
-				<passiveColor>8, 8, 8, 255</passiveColor>
-			</TEXT_LABEL>
-		</style>
-		<prop>
-			<name>MAS_ASET_FDAIGMCP-01</name>
-			<style>GMCP</style>
-			<COLLIDER_EVENT id="0">
-				<onClick>fdaiNextMode(1)</onClick>
-			</COLLIDER_EVENT>
-			<COLLIDER_EVENT id="1">
-				<onClick>fdaiPrevMode(1)</onClick>
-			</COLLIDER_EVENT>
-			<COLLIDER_EVENT id="2">
-				<onClick>fdaiTogglePositive(1)</onClick>
-			</COLLIDER_EVENT>
-			<ANIMATION_PLAYER id="0">
-				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_Positive")</variable>
-			</ANIMATION_PLAYER>
-			<COLLIDER_EVENT id="3">
-				<onClick>fdaiToggleSyncSAS(1)</onClick>
-			</COLLIDER_EVENT>
-			<ANIMATION_PLAYER id="1">
-				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_SyncSAS")</variable>
-			</ANIMATION_PLAYER>
-			<ANIMATION id="0">
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_ErrorFlag") * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
-			</ANIMATION>
-			<ANIMATION id="1">
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_SyncSAS") * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
-			</ANIMATION>
-			<ANIMATION id="2">
-				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_Mode")</variable>
-			</ANIMATION>
-			<TEXT_LABEL>
-				<text>1</text>
-			</TEXT_LABEL>
-		</prop>
-		<prop>
-			<name>MAS_ASET_FDAIGMCP-02</name>
-			<style>GMCP</style>
-			<COLLIDER_EVENT id="0">
-				<onClick>fdaiNextMode(2)</onClick>
-			</COLLIDER_EVENT>
-			<COLLIDER_EVENT id="1">
-				<onClick>fdaiPrevMode(2)</onClick>
-			</COLLIDER_EVENT>
-			<COLLIDER_EVENT id="2">
-				<onClick>fdaiTogglePositive(2)</onClick>
-			</COLLIDER_EVENT>
-			<ANIMATION_PLAYER id="0">
-				<variable>fc.GetPersistentAsNumber("MAS_FDAI2_Positive")</variable>
-			</ANIMATION_PLAYER>
-			<COLLIDER_EVENT id="3">
-				<onClick>fdaiToggleSyncSAS(2)</onClick>
-			</COLLIDER_EVENT>
-			<ANIMATION_PLAYER id="1">
-				<variable>fc.GetPersistentAsNumber("MAS_FDAI2_SyncSAS")</variable>
-			</ANIMATION_PLAYER>
-			<ANIMATION id="0">
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_ErrorFlag") * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
-			</ANIMATION>
-			<ANIMATION id="1">
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_SyncSAS") * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
-			</ANIMATION>
-			<ANIMATION id="2">
-				<variable>fc.GetPersistentAsNumber("MAS_FDAI2_Mode")</variable>
-			</ANIMATION>
-			<TEXT_LABEL>
-				<text>2</text>
-			</TEXT_LABEL>
-		</prop>
-	</fdaiGMCP>
-	<!-- ASET signal lamps -->
-	<SignalLamp folder="ASET_SignalLamp">
-		<style name="Signal Lamp">
-			<MODEL>
-				<model>ASET/ASET_Props/Instruments/ASET_SignalLamp/ASET_SignalLamp</model>
-			</MODEL>
-			<MODEL_SCALE id="0">
-				<name>Lamp Off</name>
-				<transform>LampOFFObj</transform>
-				<startScale>0, 0, 0</startScale>
-				<endScale>-1, -1, -1</endScale>
-				<variable>fc.Conditioned(1)</variable>
-			</MODEL_SCALE>
-			<MODEL_SCALE id="1">
-				<name>Lamp On</name>
-				<transform>LampObj</transform>
-				<startScale>-1,-1,-1</startScale>
-				<endScale>0, 0, 0</endScale>
-				<variable>fc.Conditioned(1)</variable>
-			</MODEL_SCALE>
-			<COLOR_SHIFT>
-				<name>Lamp Color</name>
-				<transform>LampObj</transform>
-				<passiveColor>COLOR_MOARdV_IndicatorLampOff</passiveColor>
-				<colorName>_EmissiveColor</colorName>
-			</COLOR_SHIFT>
-		</style>
-		<prop>
-			<name>MAS_SignalLamp_ARRT_Error</name>
-			<style>Signal Lamp</style>
-			<COLOR_SHIFT>
-				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
-				<variable>ARRT_Error()</variable>
-			</COLOR_SHIFT>
-		</prop>
-		<prop>
-			<name>MAS_SignalLamp_IMP_Error</name>
-			<style>Signal Lamp</style>
-			<COLOR_SHIFT>
-				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
-				<variable>IMP_Error()</variable>
-			</COLOR_SHIFT>
-		</prop>
-		<prop>
-			<name>MAS_SignalLamp_Xpointer_Error</name>
-			<style>Signal Lamp</style>
-			<COLOR_SHIFT>
-				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
-				<variable>XPtr_Error()</variable>
-			</COLOR_SHIFT>
-		</prop>
-	</SignalLamp>
-	<!-- ASET Digital Indicator -->
-	<DigitalIndicator folder="DigitalIndicator">
-		<!-- Emulate a digital clock with 7 segment LED / LCD -->
-		<style name="LED Clock">
-			<MODEL>
-				<model>ASET/ASET_Props/Instruments/DigitalIndicator/DigitalIndicator</model>
-			</MODEL>
-			<ANIMATION_PLAYER>
-				<name>Power Off animation</name>
-				<animation>DigitalIndicatorPowerOffAnim</animation>
-				<animationSpeed>1.0</animationSpeed>
-				<variable>1 - fc.Conditioned(fc.GetPersistentAsNumber("MAS_Clock_On"))</variable>
-			</ANIMATION_PLAYER>
-			<TEXT_LABEL id="0">
-				<name>Ghost Value</name>
-				<transform>DigitIndicatorNameObj</transform>
-				<transformOffset>0.080,-0.002</transformOffset>
-				<fontSize>15</fontSize>
-				<lineSpacing>0.9</lineSpacing>
-				<font>Digital-7 Mono</font>
-				<style>Italic</style>
-				<alignment>Right</alignment>
-				<anchor>UpperRight</anchor>
-				<emissive>always</emissive>
-				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_GHOSTCOLOR</passiveColor>
-				<text>888[@x8]88[@x16]88</text>
-			</TEXT_LABEL>
-			<TEXT_LABEL id="1">
-				<name>Value</name>
-				<transform>DigitIndicatorNameObj</transform>
-				<transformOffset>0.080,-0.002</transformOffset>
-				<fontSize>15</fontSize>
-				<lineSpacing>0.9</lineSpacing>
-				<font>Digital-7 Mono</font>
-				<style>Italic</style>
-				<alignment>Right</alignment>
-				<anchor>UpperRight</anchor>
-				<emissive>always</emissive>
-				<activeColor>COLOR_ASET_NUMINPUT_DISPLAY_POSITIVECOLOR</activeColor>
-				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_GHOSTCOLOR</passiveColor>
-			</TEXT_LABEL>
-		</style>
-		<prop>
-			<name>MAS_DigitalIndicator_Clock_Apsis</name>
-			<style>LED Clock</style>
-			<TEXT_LABEL id="1">
-				<variable>fc.OrbitPeriod() > 0</variable>
-				<text>{0:METHHH[@x8]mm[@x16]ss} $#$ MAS_Clock_Apsis()</text>
-			</TEXT_LABEL>
-		</prop>
-		<prop>
-			<name>MAS_DigitalIndicator_Clock_OrbitPeriod</name>
-			<style>LED Clock</style>
-			<TEXT_LABEL id="1">
-				<variable>fc.OrbitPeriod() > 0</variable>
-				<text>{0:METHHH[@x8]mm[@x16]ss} $#$ fc.OrbitPeriod()</text>
-			</TEXT_LABEL>
-		</prop>
-		<prop>
-			<name>MAS_DigitalIndicator_Clock_Stopwatch</name>
-			<style>LED Clock</style>
-			<TEXT_LABEL id="1">
-				<variable>MAS_Clock_Stopwatch() > 0</variable>
-				<text>{0:METHHH[@x8]mm[@x16]ss} $#$ MAS_Clock_Stopwatch()</text>
-			</TEXT_LABEL>
-		</prop>
-		<prop>
-			<name>MAS_DigitalIndicator_Clock_Time</name>
-			<style>LED Clock</style>
-			<TEXT_LABEL id="1">
-				<variable>MAS_Clock_Time() > 0</variable>
-				<text>{0:METHHH[@x8]mm[@x16]ss} $#$ MAS_Clock_Time()</text>
-			</TEXT_LABEL>
-		</prop>
-	</DigitalIndicator>
 	<!-- 
 	Contemporary highly-configurable push buttons 
 	
@@ -597,6 +55,21 @@
 	Split Detail Status Lamp:
 	- No border / no collider / horizontal split cap
 	Top legend green, bottom legend green and blended brightness.
+	
+	MechJeb Program Button:
+	- Backlight 5 (3/4 border + caption) / Collider
+	Top legend white text.  Middle legend / bullets red (error).  Bottom legend / bullets green (OK).
+	Used for the control panel MechJeb programming.
+
+	MechJeb Sequence Button:
+	- Backlight 5 (3/4 border + caption) / Collider
+	Top legend white text.  Bottom legend / bullets green (OK).
+	Used for the control panel MechJeb sequence (autopilot) switches.
+
+	MechJeb Keypad Button:
+	- No border / No Caption / Collider
+	Center large legend white text.
+	Used for the control panel MechJeb keypad buttons.
 	-->
 	<PushButton folder="Push_Button_Modular">
 		<style name="Undecorated Black Full Cap">
@@ -2518,7 +1991,1181 @@
 				<text>PILOT</text>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_On</name>
+			<style>Split Detail Status Lamp</style>
+			<MODEL id="1">
+				<comment>Square glow border type 2</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Bcklt_2</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * (mechjeb.Available() > 0))</variable>
+				<text>READY</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * (mechjeb.Available() &lt; 1))</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+				<text>FAULT</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Border</name>
+				<transform>GlowBorder</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
+		</prop>
+
+		<style name="MechJeb Program Button">
+			<!--
+			Full Cap / Backlight 5 / Collider
+			-->
+			<MODEL id="0">
+				<comment>Black full cap</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap</model>
+				<texture>pb_Full_Cap_Black,ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap_Black</texture>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<comment>Glow Border Type 5 - 3/4 wrap around, text on top</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Bcklt_5</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="2">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Collider</model>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<name>Collider</name>
+				<collider>pb_Collider</collider>
+				<onClick>0</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+				<sound>ASET/ASET_Props/Sounds/pb_Push02</sound>
+				<volume>1</volume>
+				<variable>fc.GetPersistentAsNumber("MAS_MJComp_On")</variable>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<name>Button press animation</name>
+				<animation>pb_PushAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<name>Caption</name>
+				<transform>PanelTextTop_bklt</transform>
+				<fontSize>5.8</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Upper Legend</name>
+				<transform>Legend_Upper</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+				<text>EXEC</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>Center Legend</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("%AUTOID%") == 1)</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>ERR</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<name>Center Legend Bullets</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("%AUTOID%") == 1)</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>●           ●</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<name>Lower Legend</name>
+				<transform>Legend_Lower</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("%AUTOID%") == 2)</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>OK</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="5">
+				<name>Lower Legend Bullets</name>
+				<transform>Legend_Lower</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("%AUTOID%") == 2)</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>●           ●</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Border</name>
+				<transform>GlowBorder</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_pb_MJ_AP_ChangeAlt</name>
+			<style>MechJeb Program Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", 1 + mechjeb.CircularizeAt(fc.GetPersistentAsNumber("MAS_MJComp_Buffer") * 1000))</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>SET$$$ALT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJ_AP_ChangeAp</name>
+			<style>MechJeb Program Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", 1 + mechjeb.ChangeApoapsis(fc.GetPersistentAsNumber("MAS_MJComp_Buffer") * 1000))</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>SET$$$AP</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJ_AP_ChangePe</name>
+			<style>MechJeb Program Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", 1 + mechjeb.ChangePeriapsis(fc.GetPersistentAsNumber("MAS_MJComp_Buffer") * 1000))</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>SET$$$PE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJ_AP_MatchVel</name>
+			<style>MechJeb Program Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", 1 + mechjeb.MatchVelocities())</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>MATCH$$$VEL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJ_AP_PlotXfer</name>
+			<style>MechJeb Program Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", 1 + mechjeb.PlotTransfer())</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>PLOT$$$XFR</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_Enter</name>
+			<style>MechJeb Program Button</style>
+			<MODEL id="1" delete="true"/>
+			<TEXT_LABEL id="0" delete="true"/>
+			<COLOR_SHIFT id="0" delete="true"/>
+			<COLLIDER_EVENT>
+				<onClick>MAS_MJComp_Enter()</onClick>
+				<onRelease>fc.SetPersistent("MAS_MJComp_Exec", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("MAS_MJComp_Exec")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_Exec") * (fc.GetPersistentAsNumber("MAS_MJComp_Status") == 2))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_Exec") * (fc.GetPersistentAsNumber("MAS_MJComp_Status") == 2))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_Exec") * (fc.GetPersistentAsNumber("MAS_MJComp_Status") == 1))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="5">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_Exec") * (fc.GetPersistentAsNumber("MAS_MJComp_Status") == 1))</variable>
+			</TEXT_LABEL>
+		</prop>
+
+		<style name="MechJeb Sequence Button">
+			<!--
+			Full Cap / Backlight 5 / Collider
+			-->
+			<MODEL id="0">
+				<comment>Black full cap</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap</model>
+				<texture>pb_Full_Cap_Black,ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap_Black</texture>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<comment>Glow Border Type 5 - 3/4 wrap around, text on top</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Bcklt_5</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="2">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Collider</model>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<name>Collider</name>
+				<collider>pb_Collider</collider>
+				<onClick>0</onClick>
+				<sound>ASET/ASET_Props/Sounds/pb_Push02</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<name>Button press animation</name>
+				<animation>pb_PushAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<name>Caption</name>
+				<transform>PanelTextTop_bklt</transform>
+				<fontSize>5.8</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Upper Legend</name>
+				<transform>Legend_Upper</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+				<text>ENGAGE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>Lower Legend</name>
+				<transform>Legend_Lower</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>0</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<name>Lower Legend Bullets</name>
+				<transform>Legend_Lower</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>0</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>●           ●</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Border</name>
+				<transform>GlowBorder</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_pb_MJ_SeqAscent</name>
+			<style>MechJeb Sequence Button</style>
+			<COLLIDER_EVENT>
+				<onClick>mechjeb.ToggleAscentAutopilot()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>mechjeb.AscentAutopilotActive()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>ASCENT$$$SEQ</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(mechjeb.AscentAutopilotActive())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(mechjeb.AscentAutopilotActive())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJ_SeqLanding</name>
+			<style>MechJeb Sequence Button</style>
+			<COLLIDER_EVENT>
+				<onClick>mechjeb.ToggleLandingAutopilot()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>mechjeb.LandingAutopilotActive()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>LANDING$$$SEQ</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(mechjeb.LandingAutopilotActive())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(mechjeb.LandingAutopilotActive())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJ_SeqLandingComp</name>
+			<style>MechJeb Sequence Button</style>
+			<COLLIDER_EVENT>
+				<onClick>mechjeb.ToggleLandingComputer()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>mechjeb.LandingComputerActive()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>LANDING$$$COMP</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(mechjeb.LandingComputerActive())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(mechjeb.LandingComputerActive())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJ_SeqManeuver</name>
+			<style>MechJeb Sequence Button</style>
+			<COLLIDER_EVENT>
+				<onClick>mechjeb.ToggleManeuverNodeExecutor()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>mechjeb.ManeuverNodeExecutorActive()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>MNVR$$$SEQ</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(mechjeb.ManeuverNodeExecutorActive())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(mechjeb.ManeuverNodeExecutorActive())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJ_SeqRendezvous</name>
+			<style>MechJeb Sequence Button</style>
+			<COLLIDER_EVENT>
+				<onClick>mechjeb.ToggleRendezvousAutopilot()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>mechjeb.RendezvousAutopilotActive()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>RNDZ$$$SEQ</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(mechjeb.RendezvousAutopilotActive())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(mechjeb.RendezvousAutopilotActive())</variable>
+			</TEXT_LABEL>
+		</prop>
+
+		<style name="MechJeb Keypad Button">
+			<!--
+			Full Cap / Collider
+			-->
+			<MODEL id="0">
+				<comment>Black full cap</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap</model>
+				<texture>pb_Full_Cap_Black,ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap_Black</texture>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Collider</model>
+			</MODEL>
+			<TEXT_LABEL>
+				<name>Center Legend</name>
+				<transform>Legend_Center</transform>
+				<fontSize>10</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+			</TEXT_LABEL>
+			<COLLIDER_EVENT>
+				<name>Collider</name>
+				<collider>pb_Collider</collider>
+				<onClick>0</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+				<sound>ASET/ASET_Props/Sounds/pb_Push02</sound>
+				<volume>1</volume>
+				<variable>fc.GetPersistentAsNumber("MAS_MJComp_On")</variable>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<name>Button press animation</name>
+				<animation>pb_PushAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+		</style>
+		<prop>
+			<name>MAS_pb_MJComp_0</name>
+			<style>MechJeb Keypad Button</style>
+			<COLLIDER_EVENT>
+				<onClick>MAS_MJComp_NumKey("0", "%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL>
+				<text>0</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_1</name>
+			<style>MechJeb Keypad Button</style>
+			<COLLIDER_EVENT>
+				<onClick>MAS_MJComp_NumKey("1", "%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL>
+				<text>1</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_2</name>
+			<style>MechJeb Keypad Button</style>
+			<COLLIDER_EVENT>
+				<onClick>MAS_MJComp_NumKey("2", "%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL>
+				<text>2</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_3</name>
+			<style>MechJeb Keypad Button</style>
+			<COLLIDER_EVENT>
+				<onClick>MAS_MJComp_NumKey("3", "%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL>
+				<text>3</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_4</name>
+			<style>MechJeb Keypad Button</style>
+			<COLLIDER_EVENT>
+				<onClick>MAS_MJComp_NumKey("4", "%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL>
+				<text>4</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_5</name>
+			<style>MechJeb Keypad Button</style>
+			<COLLIDER_EVENT>
+				<onClick>MAS_MJComp_NumKey("5", "%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL>
+				<text>5</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_6</name>
+			<style>MechJeb Keypad Button</style>
+			<COLLIDER_EVENT>
+				<onClick>MAS_MJComp_NumKey("6", "%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL>
+				<text>6</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_7</name>
+			<style>MechJeb Keypad Button</style>
+			<COLLIDER_EVENT>
+				<onClick>MAS_MJComp_NumKey("7", "%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL>
+				<text>7</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_8</name>
+			<style>MechJeb Keypad Button</style>
+			<COLLIDER_EVENT>
+				<onClick>MAS_MJComp_NumKey("8", "%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL>
+				<text>8</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_9</name>
+			<style>MechJeb Keypad Button</style>
+			<COLLIDER_EVENT>
+				<onClick>MAS_MJComp_NumKey("9", "%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL>
+				<text>9</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_Clr</name>
+			<style>MechJeb Keypad Button</style>
+			<COLLIDER_EVENT>
+				<onClick>MAS_MJComp_Clear("%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL>
+				<fontSize>7</fontSize>
+				<text>CLR</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_Del</name>
+			<style>MechJeb Keypad Button</style>
+			<COLLIDER_EVENT>
+				<onClick>MAS_MJComp_Delete("%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL>
+				<fontSize>7</fontSize>
+				<text>DEL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_Minus</name>
+			<style>MechJeb Keypad Button</style>
+			<COLLIDER_EVENT>
+				<onClick>MAS_MJComp_AddKey(-1, "%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL>
+				<text>-</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_Plus</name>
+			<style>MechJeb Keypad Button</style>
+			<COLLIDER_EVENT>
+				<onClick>MAS_MJComp_AddKey(1, "%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL>
+				<text>+</text>
+			</TEXT_LABEL>
+		</prop>
 	</PushButton>
+
+	<!--
+	Flight director / attitude indicator.  Included here
+	because MAS can support an arbitrary number of them, provided you create the
+	supporting controls (power switch, rate and scale controls, GMCP).
+	-->
+	<fdai folder="FDAI">
+		<style name="FDAI">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/FDAI/ASET_FDAI</model>
+			</MODEL>
+			<ROTATION id="0">
+				<comment>RATE ARROWS --------------------</comment>
+				<name>Roll Rate Arrow rotation</name>
+				<transform>RollRateArrowLoc</transform>
+				<variable>0</variable>
+				<startRotation>0, -9.2, 0</startRotation>
+				<endRotation>0, 9.2, 0</endRotation>
+				<range>-10.0, 10.0</range>
+				<blend>true</blend>
+				<speed>2.0</speed>
+			</ROTATION>
+			<ROTATION id="1">
+				<name>Pitch Rate Arrow rotation</name>
+				<transform>PitchlRateArrowLoc</transform>
+				<variable>0</variable>
+				<startRotation>0, -9.2, 0</startRotation>
+				<endRotation>0, 9.2, 0</endRotation>
+				<range>-10.0, 10.0</range>
+				<blend>true</blend>
+				<speed>2.0</speed>
+			</ROTATION>
+			<ROTATION id="2">
+				<name>Yaw Rate Arrow rotation</name>
+				<transform>YawRateArrowLoc</transform>
+				<variable>0</variable>
+				<startRotation>0, -9.2, 0</startRotation>
+				<endRotation>0, 9.2, 0</endRotation>
+				<range>-10.0, 10.0</range>
+				<blend>true</blend>
+				<speed>2.0</speed>
+			</ROTATION>
+			<ROTATION id="3">
+				<comment>ROLL CHEVRON -------------------</comment>
+				<name>Roll Marker rotation</name>
+				<transform>RollMarkerLoc</transform>
+				<variable>0</variable>
+				<startRotation>0, 0, 180</startRotation>
+				<endRotation>0, 0, -180</endRotation>
+				<range>-180, 180</range>
+				<blend>true</blend>
+				<speed>1.0</speed>
+				<longPath>true</longPath>
+				<modulo>360</modulo>
+			</ROTATION>
+			<TRANSLATION id="0">
+				<comment>ERROR NEEDLES ---------------------------------</comment>
+				<name>Pitch Error Needle translation</name>
+				<transform>PitchErrorNeedleObj</transform>
+				<startTranslation>0, -0.0159, 0</startTranslation>
+				<endTranslation>0, 0.0159, 0</endTranslation>
+				<variable>0</variable>
+				<range>12, -12</range>
+				<blend>true</blend>
+				<speed>1.0</speed>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<name>Yaw Error Needle translation</name>
+				<transform>YawErrorNeedleObj</transform>
+				<startTranslation>0, -0.0159, 0</startTranslation>
+				<endTranslation>0, 0.0159, 0</endTranslation>
+				<variable>0</variable>
+				<range>-12, 12</range>
+				<blend>true</blend>
+				<speed>1.0</speed>
+			</TRANSLATION>
+			<TRANSLATION id="2">
+				<name>Roll Error Needle translation</name>
+				<transform>RollErrorNeedleObj</transform>
+				<startTranslation>0, -0.0159, 0</startTranslation>
+				<endTranslation>0, 0.0159, 0</endTranslation>
+				<variable>0</variable>
+				<range>-12, 12</range>
+				<blend>true</blend>
+				<speed>1.0</speed>
+			</TRANSLATION>
+			<ANIMATION_PLAYER id="0">
+				<comment>FLAGS ----------------------------------------------</comment>
+				<name>Error Flag anim</name>
+				<animation>ErrorFlagAnim</animation>
+				<speed>2.0</speed>
+			</ANIMATION_PLAYER>
+			<ANIMATION_PLAYER id="1">
+				<name>Off Flag anim</name>
+				<animation>OFFflagAnim</animation>
+				<speed>2.0</speed>
+			</ANIMATION_PLAYER>
+			<ANIMATION_PLAYER id="2">
+				<name>DP Align Flag anim</name>
+				<animation>PortFlagAnim</animation>
+				<speed>2.0</speed>
+			</ANIMATION_PLAYER>
+			<COLOR_SHIFT id="0">
+				<name>Gauge scale-color backlight</name>
+				<comment>FDAI backlight --------------------------------</comment>
+				<transform>FDAI_NavSphere, RateScaleObj</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_NASAGAUGESCALE_ACTIVECOLOR</activeColor>
+				<variable>0</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Gauge hand-color backlight</name>
+				<transform>ErrorScaleObj, RollScaleRingObj, RollMarkerObj, CrossObj, VehicleMarker, ERROR_FlagObj, PORT_FlagObj</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_NASAGAUGEHAND_ACTIVECOLOR</activeColor>
+				<variable>0</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<name>Error needle backlight</name>
+				<transform>RollErrorNeedleObj, PitchErrorNeedleObj, YawErrorNeedleObj</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>230,230,230,255</activeColor>
+				<variable>0</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
+			<TEXT_LABEL>
+				<name>Device ID Label</name>
+				<transform>panelNumberObj</transform>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.003, -0.006</transformOffset>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<fontSize>4</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<emissive>never</emissive>
+				<passiveColor>8, 8, 8, 255</passiveColor>
+			</TEXT_LABEL>
+			<MODULE>
+				<name>MASNavBall</name>
+				<navBallName>NavSphereRotGO</navBallName>
+				<range>-0.5, 0.5</range>
+				<maxAngleChange>180</maxAngleChange>
+			</MODULE>
+		</style>
+		<prop>
+			<name>MAS_ASET_FDAI-01</name>
+			<style>FDAI</style>
+			<startupScript>fdaiInitialize(1)</startupScript>
+			<ROTATION id="0">
+				<variable>fc.Conditioned(fc.RollRate() * (fc.GetPersistentAsNumber("MAS_FDAI1_RateScalar") * fc.GetPersistentAsNumber("MAS_FDAI1_Power")))</variable>
+			</ROTATION>
+			<ROTATION id="1">
+				<variable>fc.Conditioned(fc.PitchRate() * (fc.GetPersistentAsNumber("MAS_FDAI1_RateScalar") * fc.GetPersistentAsNumber("MAS_FDAI1_Power")))</variable>
+			</ROTATION>
+			<ROTATION id="2">
+				<variable>fc.Conditioned(fc.YawRate() * (fc.GetPersistentAsNumber("MAS_FDAI1_RateScalar") * fc.GetPersistentAsNumber("MAS_FDAI1_Power")))</variable>
+			</ROTATION>
+			<ROTATION id="3">
+				<variable>fc.Conditioned(fc.Roll() * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
+			</ROTATION>
+			<TRANSLATION id="0">
+				<variable>fc.Conditioned(fdaiPitchError(1) * (fc.GetPersistentAsNumber("MAS_FDAI1_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI1_Power")))</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.Conditioned(fdaiYawError(1) * (fc.GetPersistentAsNumber("MAS_FDAI1_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI1_Power")))</variable>
+			</TRANSLATION>
+			<TRANSLATION id="2">
+				<variable>fc.Conditioned(fdaiRollError(1) * (fc.GetPersistentAsNumber("MAS_FDAI1_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI1_Power")))</variable>
+			</TRANSLATION>
+			<ANIMATION_PLAYER id="0">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_ErrorFlag") * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
+			</ANIMATION_PLAYER>
+			<ANIMATION_PLAYER id="1">
+				<variable>fdaiOffFlag(1)</variable>
+			</ANIMATION_PLAYER>
+			<ANIMATION_PLAYER id="2">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_PortFlag") * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
+			</ANIMATION_PLAYER>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_Power") * fc.GetPersistentAsNumber("Backlight"))</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_Power") * fc.GetPersistentAsNumber("Backlight"))</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_Power") * fc.GetPersistentAsNumber("Backlight"))</variable>
+			</COLOR_SHIFT>
+			<TEXT_LABEL>
+				<text>1</text>
+			</TEXT_LABEL>
+			<MODULE>
+				<variable>fdaiOffFlag(1)</variable>
+			</MODULE>
+		</prop>
+		<prop>
+			<name>MAS_ASET_FDAI-02</name>
+			<style>FDAI</style>
+			<startupScript>fdaiInitialize(2)</startupScript>
+			<ROTATION id="0">
+				<variable>fc.Conditioned(fc.RollRate() * (fc.GetPersistentAsNumber("MAS_FDAI2_RateScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")))</variable>
+			</ROTATION>
+			<ROTATION id="1">
+				<variable>fc.Conditioned(fc.PitchRate() * (fc.GetPersistentAsNumber("MAS_FDAI2_RateScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")))</variable>
+			</ROTATION>
+			<ROTATION id="2">
+				<variable>fc.Conditioned(fc.YawRate() * (fc.GetPersistentAsNumber("MAS_FDAI2_RateScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")))</variable>
+			</ROTATION>
+			<ROTATION id="3">
+				<variable>fc.Conditioned(fc.Roll() * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
+			</ROTATION>
+			<TRANSLATION id="0">
+				<variable>fc.Conditioned(fdaiPitchError(2) * (fc.GetPersistentAsNumber("MAS_FDAI2_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")))</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.Conditioned(fdaiYawError(2) * (fc.GetPersistentAsNumber("MAS_FDAI2_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")))</variable>
+			</TRANSLATION>
+			<TRANSLATION id="2">
+				<variable>fc.Conditioned(fdaiRollError(2) * (fc.GetPersistentAsNumber("MAS_FDAI2_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")))</variable>
+			</TRANSLATION>
+			<ANIMATION_PLAYER id="0">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_ErrorFlag") * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
+			</ANIMATION_PLAYER>
+			<ANIMATION_PLAYER id="1">
+				<variable>fdaiOffFlag(2)</variable>
+			</ANIMATION_PLAYER>
+			<ANIMATION_PLAYER id="2">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_PortFlag") * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
+			</ANIMATION_PLAYER>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_Power") * fc.GetPersistentAsNumber("Backlight"))</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_Power") * fc.GetPersistentAsNumber("Backlight"))</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_Power") * fc.GetPersistentAsNumber("Backlight"))</variable>
+			</COLOR_SHIFT>
+			<TEXT_LABEL>
+				<text>2</text>
+			</TEXT_LABEL>
+			<MODULE>
+				<variable>fdaiOffFlag(2)</variable>
+			</MODULE>
+		</prop>
+	</fdai>
+	
+	<!--
+	Flight director / attitude indicator mechanical control panel.  Included here
+	because MAS can support an arbitrary number of them, provided you create the
+	supporting controls (power switch, rate and scale controls).
+	-->
+	<fdaiGMCP folder="FDAI">
+		<style name="GMCP">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/FDAI_GMCP/FDAI_GMCP</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>SelectorColliderPlus Action</name>
+				<comment>Selector Dial action</comment>
+				<collider>SelectorColliderPlus</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<name>SelectorColliderMinus Action</name>
+				<collider>SelectorColliderMinus</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="2">
+				<name>Direction Switch Action</name>
+				<comment>Direction switcher</comment>
+				<collider>DirectionSwitchColider</collider>
+				<sound>ASET/ASET_Props/Sounds/tumbleClick01</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="0">
+				<name>Direction Switch Animation</name>
+				<animation>FDAIGMCPDirSwAnim</animation>
+			</ANIMATION_PLAYER>
+			<COLLIDER_EVENT id="3">
+				<name>Sync SAS Switch Action</name>
+				<comment>Sync SAS switcher</comment>
+				<collider>SyncSwitchColider</collider>
+				<sound>ASET/ASET_Props/Sounds/tumbleClick01</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="1">
+				<name>Sync SAS Switch Animation</name>
+				<animation>FDAIGMCPSyncSwAnim</animation>
+			</ANIMATION_PLAYER>
+			<ANIMATION id="0">
+				<name>Error Warning anim</name>
+				<comment>ERROR warning animation</comment>
+				<animation>FDAIGMCPErrorWarnAnim</animation>
+				<range>0, 1</range>
+			</ANIMATION>
+			<ANIMATION id="1">
+				<name>Sync anim</name>
+				<comment>SYNC animation</comment>
+				<animation>FDAIGMCPSyncWarnAnim</animation>
+				<range>0, 1</range>
+			</ANIMATION>
+			<ANIMATION id="2">
+				<name>Selector Switch anim</name>
+				<comment>Selector animation</comment>
+				<animation>FDAIGMCPSelectorAnim</animation>
+				<range>1, 7</range>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<name>Name-color backlight</name>
+				<comment>backlight</comment>
+				<transform>SignsObj, SyncWarningPlate, ErrorWarningPlate</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Mark-color backlight</name>
+				<transform>SelectorPointerObj, DirectionSwitcherTumblerMark, SyncSwitcherTumblerMark</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_MARK_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
+			<TEXT_LABEL>
+				<name>Device ID Label</name>
+				<transform>panelNumberObj</transform>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.0013, -0.0035</transformOffset>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<fontSize>2.5</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<emissive>never</emissive>
+				<passiveColor>8, 8, 8, 255</passiveColor>
+			</TEXT_LABEL>
+		</style>
+		<prop>
+			<name>MAS_ASET_FDAIGMCP-01</name>
+			<style>GMCP</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fdaiNextMode(1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fdaiPrevMode(1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="2">
+				<onClick>fdaiTogglePositive(1)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="0">
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_Positive")</variable>
+			</ANIMATION_PLAYER>
+			<COLLIDER_EVENT id="3">
+				<onClick>fdaiToggleSyncSAS(1)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="1">
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_SyncSAS")</variable>
+			</ANIMATION_PLAYER>
+			<ANIMATION id="0">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_ErrorFlag") * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
+			</ANIMATION>
+			<ANIMATION id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_SyncSAS") * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
+			</ANIMATION>
+			<ANIMATION id="2">
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_Mode")</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>1</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_ASET_FDAIGMCP-02</name>
+			<style>GMCP</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fdaiNextMode(2)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fdaiPrevMode(2)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="2">
+				<onClick>fdaiTogglePositive(2)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="0">
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI2_Positive")</variable>
+			</ANIMATION_PLAYER>
+			<COLLIDER_EVENT id="3">
+				<onClick>fdaiToggleSyncSAS(2)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="1">
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI2_SyncSAS")</variable>
+			</ANIMATION_PLAYER>
+			<ANIMATION id="0">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_ErrorFlag") * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
+			</ANIMATION>
+			<ANIMATION id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_SyncSAS") * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
+			</ANIMATION>
+			<ANIMATION id="2">
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI2_Mode")</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>2</text>
+			</TEXT_LABEL>
+		</prop>
+	</fdaiGMCP>
+	
+	<!-- ASET signal lamps -->
+	<SignalLamp folder="ASET_SignalLamp">
+		<style name="Signal Lamp">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/ASET_SignalLamp/ASET_SignalLamp</model>
+			</MODEL>
+			<MODEL_SCALE id="0">
+				<name>Lamp Off</name>
+				<transform>LampOFFObj</transform>
+				<startScale>0, 0, 0</startScale>
+				<endScale>-1, -1, -1</endScale>
+				<variable>fc.Conditioned(1)</variable>
+			</MODEL_SCALE>
+			<MODEL_SCALE id="1">
+				<name>Lamp On</name>
+				<transform>LampObj</transform>
+				<startScale>-1,-1,-1</startScale>
+				<endScale>0, 0, 0</endScale>
+				<variable>fc.Conditioned(1)</variable>
+			</MODEL_SCALE>
+			<COLOR_SHIFT>
+				<name>Lamp Color</name>
+				<transform>LampObj</transform>
+				<passiveColor>COLOR_MOARdV_IndicatorLampOff</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_SignalLamp_ARRT_Error</name>
+			<style>Signal Lamp</style>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+				<variable>ARRT_Error()</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_SignalLamp_IMP_Error</name>
+			<style>Signal Lamp</style>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+				<variable>IMP_Error()</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_SignalLamp_Xpointer_Error</name>
+			<style>Signal Lamp</style>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+				<variable>XPtr_Error()</variable>
+			</COLOR_SHIFT>
+		</prop>
+	</SignalLamp>
+	
+	<!-- ASET Digital Indicator -->
+	<DigitalIndicator folder="DigitalIndicator">
+		<!-- Emulate a digital clock with 7 segment LED / LCD -->
+		<style name="LED Clock">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/DigitalIndicator/DigitalIndicator</model>
+			</MODEL>
+			<ANIMATION_PLAYER>
+				<name>Power Off animation</name>
+				<animation>DigitalIndicatorPowerOffAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+				<variable>1 - fc.Conditioned(fc.GetPersistentAsNumber("MAS_Clock_On"))</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<name>Ghost Value</name>
+				<transform>DigitIndicatorNameObj</transform>
+				<transformOffset>0.080,-0.002</transformOffset>
+				<fontSize>15</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>always</emissive>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_GHOSTCOLOR</passiveColor>
+				<text>888[@x8]88[@x16]88</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Value</name>
+				<transform>DigitIndicatorNameObj</transform>
+				<transformOffset>0.080,-0.002</transformOffset>
+				<fontSize>15</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>always</emissive>
+				<activeColor>COLOR_ASET_NUMINPUT_DISPLAY_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_GHOSTCOLOR</passiveColor>
+			</TEXT_LABEL>
+		</style>
+		<prop>
+			<name>MAS_DigitalIndicator_Clock_Apsis</name>
+			<style>LED Clock</style>
+			<TEXT_LABEL id="1">
+				<variable>fc.OrbitPeriod() > 0</variable>
+				<text>{0:METHHH[@x8]mm[@x16]ss} $#$ MAS_Clock_Apsis()</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_Clock_OrbitPeriod</name>
+			<style>LED Clock</style>
+			<TEXT_LABEL id="1">
+				<variable>fc.OrbitPeriod() > 0</variable>
+				<text>{0:METHHH[@x8]mm[@x16]ss} $#$ fc.OrbitPeriod()</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_Clock_Stopwatch</name>
+			<style>LED Clock</style>
+			<TEXT_LABEL id="1">
+				<variable>MAS_Clock_Stopwatch() > 0</variable>
+				<text>{0:METHHH[@x8]mm[@x16]ss} $#$ MAS_Clock_Stopwatch()</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_Clock_Time</name>
+			<style>LED Clock</style>
+			<TEXT_LABEL id="1">
+				<variable>MAS_Clock_Time() > 0</variable>
+				<text>{0:METHHH[@x8]mm[@x16]ss} $#$ MAS_Clock_Time()</text>
+			</TEXT_LABEL>
+		</prop>
+	</DigitalIndicator>
+
 	<!-- Retro (Apollo-ish) warning indicators -->
 	<RetroWarningLight folder="RetroWarningLight">
 		<style name="Retro Warning Light">
