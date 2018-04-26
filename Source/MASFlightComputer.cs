@@ -71,6 +71,10 @@ namespace AvionicsSystems
         public bool requiresPower = false;
         internal bool isPowered = true;
 
+        [KSPField]
+        public string powerOnVariable = string.Empty;
+        internal bool powerOnValid = true;
+
         /// <summary>
         /// Our module ID (so each FC can be distinguished in a save file).
         /// </summary>
@@ -620,7 +624,7 @@ namespace AvionicsSystems
 
                     // Precompute the disruption effects.
                     // TODO: Don't do the string lookup every FixedUpdate...
-                    isPowered = (!requiresPower || vc.ResourceCurrent(MASConfig.ElectricCharge) > 0.0001);
+                    isPowered = (!requiresPower || vc.ResourceCurrent(MASConfig.ElectricCharge) > 0.0001) && powerOnValid;
 
                     if (vessel.geeForce_immediate > gLimit)
                     {
@@ -727,6 +731,11 @@ namespace AvionicsSystems
                 GameEvents.onVesselWasModified.Remove(onVesselChanged);
                 GameEvents.onVesselChange.Remove(onVesselChanged);
                 GameEvents.onVesselCrewWasModified.Remove(onVesselChanged);
+
+                if (!string.IsNullOrEmpty(powerOnVariable))
+                {
+                    UnregisterNumericVariable(powerOnVariable, null, UpdatePowerOnVariable);
+                }
 
                 Utility.LogInfo(this, "{3} variables created: {0} constant variables, {1} native variables, and {2} Lua variables",
                     constantVariableCount, nativeVariableCount, luaVariableCount, variables.Count);
@@ -964,6 +973,11 @@ namespace AvionicsSystems
                 GameEvents.onVesselWasModified.Add(onVesselChanged);
                 GameEvents.onVesselChange.Add(onVesselChanged);
                 GameEvents.onVesselCrewWasModified.Add(onVesselChanged);
+                
+                if (!string.IsNullOrEmpty(powerOnVariable))
+                {
+                    RegisterNumericVariable(powerOnVariable, null, UpdatePowerOnVariable);
+                }
 
                 initialized = true;
             }
@@ -990,6 +1004,11 @@ namespace AvionicsSystems
         #endregion
 
         #region Private Methods
+        private void UpdatePowerOnVariable(double newValue)
+        {
+            powerOnValid = (newValue > 0.0);
+        }
+
         private void UpdateLocalCrew()
         {
             // part.internalModel may be null if the craft is loaded but isn't the active/IVA craft
