@@ -842,6 +842,9 @@ namespace AvionicsSystems
         /// interrupted.  This chance increases as the g-forces exceed the
         /// threshold using a square-root curve.
         /// 
+        /// 3) The optional variable `powerOnVariable` in MASFlightComputer returns
+        /// 0 or less.
+        /// 
         /// The variable `fc.Conditioned(1)` behaves the same as the RasterPropMonitor
         /// ASET Props custom variable `CUSTOM_ALCOR_POWEROFF`, with an inverted
         /// value (`CUSTOM_ALCOR_POWEROFF` returns 1 to indicate "disrupt", but
@@ -865,7 +868,7 @@ namespace AvionicsSystems
             }
             else
             {
-                Utility.LogMessage(this, "fc.Conditioned no-op: {0}", value.GetType());
+                Utility.LogWarning(this, "fc.Conditioned no-op: {0}", value.GetType());
             }
 
             if (fc.isPowered && UnityEngine.Random.value > fc.disruptionChance)
