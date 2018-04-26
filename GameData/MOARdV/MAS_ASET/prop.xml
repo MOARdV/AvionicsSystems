@@ -70,6 +70,10 @@
 	- No border / No Caption / Collider
 	Center large legend white text.
 	Used for the control panel MechJeb keypad buttons.
+	
+	MechJeb Mode Button:
+	- No border / No Caption / Collider
+	Top and optional center legend white text.  Bottom legend / bullets green (SEL)
 	-->
 	<PushButton folder="Push_Button_Modular">
 		<style name="Undecorated Black Full Cap">
@@ -753,6 +757,33 @@
 			</TEXT_LABEL>
 			<TEXT_LABEL id="3">
 				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Clock_On") * (1-fc.GetPersistentAsNumber("MAS_Clock_ClockMode")))</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_ReadWrite</name>
+			<style>Two Mode Bordered Button</style>
+			<MODEL id="1" delete="true" />
+			<COLOR_SHIFT delete="true" />
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MAS_MJComp_WriteEnable")</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("MAS_MJComp_WriteEnable")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_MJComp_On") * fc.GetPersistentAsNumber("Backlight")) * (0.25 + 0.75 * (1 - fc.GetPersistentAsNumber("MAS_MJComp_WriteEnable"))))</variable>
+				<text>READ</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * (1 - fc.GetPersistentAsNumber("MAS_MJComp_WriteEnable")))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_MJComp_On") * fc.GetPersistentAsNumber("Backlight")) * (0.25 + 0.75 * fc.GetPersistentAsNumber("MAS_MJComp_WriteEnable")))</variable>
+				<text>WRITE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * fc.GetPersistentAsNumber("MAS_MJComp_WriteEnable"))</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampAmber</activeColor>
 			</TEXT_LABEL>
 		</prop>
 		<style name="Two Mode Bordered on-off Button">
@@ -2617,6 +2648,229 @@
 			<TEXT_LABEL>
 				<text>+</text>
 			</TEXT_LABEL>
+		</prop>
+		<style name="MechJeb Mode Button">
+			<!--
+			Collider
+			-->
+			<MODEL id="0">
+				<comment>Black full cap</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap</model>
+				<texture>pb_Full_Cap_Black,ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap_Black</texture>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Collider</model>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<name>Collider</name>
+				<collider>pb_Collider</collider>
+				<onClick>0</onClick>
+				<sound>ASET/ASET_Props/Sounds/pb_Push02</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<name>Button press animation</name>
+				<animation>pb_PushAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<name>Upper Legend</name>
+				<transform>Legend_Upper</transform>
+				<fontSize>4.5</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Lower Legend</name>
+				<transform>Legend_Lower</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>0</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>SEL</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>Lower Legend Bullets</name>
+				<transform>Legend_Lower</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>0</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>●           ●</text>
+			</TEXT_LABEL>
+		</style>
+		<prop>
+			<name>MAS_pb_MJComp_Mode0_Off</name>
+			<style>MechJeb Mode Button</style>
+			<TEXT_LABEL id="0">
+				<text>OFF</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * (fc.GetPersistentAsNumber("MAS_MJComp_Mode") == 0))</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampAmber</activeColor>
+				<text>OFF</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * (fc.GetPersistentAsNumber("MAS_MJComp_Mode") == 0))</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampAmber</activeColor>
+			</TEXT_LABEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("MAS_MJComp_Mode", 0)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("MAS_MJComp_Mode") == 0</variable>
+			</ANIMATION_PLAYER>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_Mode1_LaunchAlt</name>
+			<style>MechJeb Mode Button</style>
+			<TEXT_LABEL id="0">
+				<text>LAUNCH</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * (fc.GetPersistentAsNumber("MAS_MJComp_Mode") == 1))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * (fc.GetPersistentAsNumber("MAS_MJComp_Mode") == 1))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<name>Center Legend</name>
+				<transform>Legend_Center</transform>
+				<fontSize>4.5</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+				<text>ALT</text>
+			</TEXT_LABEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("MAS_MJComp_Mode", 1)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("MAS_MJComp_Mode") == 1</variable>
+			</ANIMATION_PLAYER>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_Mode2_LaunchInc</name>
+			<style>MechJeb Mode Button</style>
+			<TEXT_LABEL id="0">
+				<text>LAUNCH</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * (fc.GetPersistentAsNumber("MAS_MJComp_Mode") == 2))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * (fc.GetPersistentAsNumber("MAS_MJComp_Mode") == 2))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<name>Center Legend</name>
+				<transform>Legend_Center</transform>
+				<fontSize>4.5</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+				<text>INC</text>
+			</TEXT_LABEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("MAS_MJComp_Mode", 2)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("MAS_MJComp_Mode") == 2</variable>
+			</ANIMATION_PLAYER>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_Mode3_Alt</name>
+			<style>MechJeb Mode Button</style>
+			<TEXT_LABEL id="0">
+				<text>ALT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * (fc.GetPersistentAsNumber("MAS_MJComp_Mode") == 3))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * (fc.GetPersistentAsNumber("MAS_MJComp_Mode") == 3))</variable>
+			</TEXT_LABEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("MAS_MJComp_Mode", 3)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("MAS_MJComp_Mode") == 3</variable>
+			</ANIMATION_PLAYER>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_Mode4_Ap</name>
+			<style>MechJeb Mode Button</style>
+			<TEXT_LABEL id="0">
+				<text>AP</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * (fc.GetPersistentAsNumber("MAS_MJComp_Mode") == 4))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * (fc.GetPersistentAsNumber("MAS_MJComp_Mode") == 4))</variable>
+			</TEXT_LABEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("MAS_MJComp_Mode", 4)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("MAS_MJComp_Mode") == 4</variable>
+			</ANIMATION_PLAYER>
+		</prop>
+		<prop>
+			<name>MAS_pb_MJComp_Mode5_Pe</name>
+			<style>MechJeb Mode Button</style>
+			<TEXT_LABEL id="0">
+				<text>PE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * (fc.GetPersistentAsNumber("MAS_MJComp_Mode") == 5))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MJComp_On") * (fc.GetPersistentAsNumber("MAS_MJComp_Mode") == 5))</variable>
+			</TEXT_LABEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("MAS_MJComp_Mode", 5)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("MAS_MJComp_Mode") == 5</variable>
+			</ANIMATION_PLAYER>
 		</prop>
 	</PushButton>
 
