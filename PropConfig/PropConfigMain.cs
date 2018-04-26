@@ -68,6 +68,7 @@ namespace PropConfig
             public string name;
             public string comment;
             public int id;
+            public bool delete;
             public List<Tuple<string, string>> fields = new List<Tuple<string, string>>();
         };
 
@@ -174,6 +175,17 @@ namespace PropConfig
             else
             {
                 node.id = 0;
+            }
+
+            string deleteMe = nodeElement.GetAttribute("delete");
+            if (deleteMe == "true")
+            {
+                node.delete = true;
+                return; // early: 
+            }
+            else
+            {
+                node.delete = false;
             }
 
             foreach (XmlNode child in nodeElement)
@@ -372,7 +384,10 @@ namespace PropConfig
                 ConfigNode replacement = prop.model.Find(x => x.name == model.name && x.id == model.id);
                 if (replacement != null)
                 {
-                    finalConfig.model.Add(MergeNodes(model, replacement));
+                    if (replacement.delete == false)
+                    {
+                        finalConfig.model.Add(MergeNodes(model, replacement));
+                    }
                 }
                 else
                 {
@@ -383,7 +398,10 @@ namespace PropConfig
             {
                 if (finalConfig.model.FindIndex(x => x.name == model.name && x.id == model.id) < 0)
                 {
-                    finalConfig.model.Add(model);
+                    if (model.delete == false)
+                    {
+                        finalConfig.model.Add(model);
+                    }
                 }
             }
 
@@ -392,7 +410,10 @@ namespace PropConfig
                 ConfigNode replacement = prop.node.Find(x => x.name == node.name && x.id == node.id);
                 if (replacement != null)
                 {
-                    finalConfig.node.Add(MergeNodes(node, replacement));
+                    if (replacement.delete == false)
+                    {
+                        finalConfig.node.Add(MergeNodes(node, replacement));
+                    }
                 }
                 else
                 {
@@ -403,7 +424,10 @@ namespace PropConfig
             {
                 if (finalConfig.node.FindIndex(x => x.name == node.name && x.id == node.id) < 0)
                 {
-                    finalConfig.node.Add(node);
+                    if (node.delete == false)
+                    {
+                        finalConfig.node.Add(node);
+                    }
                 }
             }
 
@@ -412,7 +436,10 @@ namespace PropConfig
                 ConfigNode replacement = prop.module.Find(x => x.name == module.name && x.id == module.id);
                 if (replacement != null)
                 {
-                    finalConfig.module.Add(MergeNodes(module, replacement));
+                    if (replacement.delete == false)
+                    {
+                        finalConfig.module.Add(MergeNodes(module, replacement));
+                    }
                 }
                 else
                 {
@@ -423,7 +450,10 @@ namespace PropConfig
             {
                 if (finalConfig.module.FindIndex(x => x.name == module.name && x.id == module.id) < 0)
                 {
-                    finalConfig.module.Add(module);
+                    if (module.delete == false)
+                    {
+                        finalConfig.module.Add(module);
+                    }
                 }
             }
 
