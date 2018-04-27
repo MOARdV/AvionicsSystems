@@ -32,6 +32,9 @@
 	- Backlight 5 (3/4 border + caption) / Collider
 	Center legend is white text with green bullets.  eg. Clear Node button
 
+	One Mode Covered White Button:
+	- Backlight 6 (3/4 border + caption) / Cover 2 / Collider
+	
 	One Mode Bordered Color Button:
 	- Backlight 5 (3/4 border + caption) / Collider
 	Center legend is green text with green bullets.  eg. Arm Parachute button
@@ -584,6 +587,137 @@
 				<variable>fc.Conditioned(fc.GetPersistentAsNumber("%AUTOID%"))</variable>
 			</TEXT_LABEL>
 		</prop>
+
+		<style name="One Mode Covered White Button">
+			<!--
+			Full Cap / Backlight 6 / Collider
+			-->
+			<MODEL id="0">
+				<comment>Black full cap</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap</model>
+				<texture>pb_Full_Cap_Black,ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap_Black</texture>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<comment>Glow Border Type 6 - 3/4 wrap around, text on top</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Bcklt_6</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="2">
+				<comment>Clear cover</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Cover02</model>
+				<texture>pb_Glass_Diffuse,ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Glass_Diffuse</texture>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="3">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Collider</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Cover Collider</name>
+				<collider>pb_Cover_Collider</collider>
+				<onClick>0</onClick>
+				<sound>ASET/ASET_Props/Sounds/pb_Cover02</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="0">
+				<name>Cover animation</name>
+				<animation>pb_Cover_Anim</animation>
+				<animationSpeed>1.0</animationSpeed>
+			</ANIMATION_PLAYER>
+			<COLLIDER_EVENT id="1">
+				<name>Collider</name>
+				<collider>pb_Collider</collider>
+				<onClick>0</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+				<sound>ASET/ASET_Props/Sounds/pb_Push02</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="1">
+				<name>Button press animation</name>
+				<animation>pb_PushAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<name>Caption</name>
+				<transform>PanelTextTop_cover</transform>
+				<fontSize>5.8</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Center Legend</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<variable>0</variable>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>Center Legend Bullets</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>0</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>●           ●</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Border</name>
+				<transform>GlowBorder</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_pb_RecoverVessel2</name>
+			<style>One Mode Covered White Button</style>
+			<COLLIDER_EVENT id="0" delete="true" />
+			<ANIMATION_PLAYER id="0">
+				<variable>fc.VesselRecoverable()</variable>
+			</ANIMATION_PLAYER>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.SetPersistent("%AUTOID%", fc.RecoverVessel() + 1)</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>RECOVER$$$VESSEL</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<text>CALL</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.VesselRecoverable())</variable>
+			</TEXT_LABEL>
+		</prop>
+
 		<style name="One Mode Bordered Color Button">
 			<!--
 			Full Cap / Backlight 5 / Collider
@@ -712,6 +846,47 @@
 				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_pb_ReferenceDock</name>
+			<style>One Mode Bordered Color Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetDockToReference()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetDockIsReference()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>REF.$$$DOCK</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetDockIsReference())</variable>
+				<text>REF</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.GetDockIsReference())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_ReferencePod</name>
+			<style>One Mode Bordered Color Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPodToReference()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPodIsReference()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>REF.$$$POD</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetPodIsReference())</variable>
+				<text>REF</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.GetPodIsReference())</variable>
+			</TEXT_LABEL>
+		</prop>
+
 		<style name="Two Mode Bordered Button">
 			<!--
 			Full Cap / Backlight 2 / Collider
@@ -1676,6 +1851,34 @@
 			</TEXT_LABEL>
 			<TEXT_LABEL id="4">
 				<variable>fc.Conditioned(fc.HasRCS() * fc.GetRCSTranslate())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_RecoverVessel</name>
+			<style>Two Mode Bordered on-off Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", fc.RecoverVessel() + 1)</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>RECOVER$$$VESSEL</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(1 - fc.VesselRecoverable())</variable>
+				<text>WAIT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(1 - fc.VesselRecoverable())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.VesselRecoverable())</variable>
+				<text>OK</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.VesselRecoverable())</variable>
 			</TEXT_LABEL>
 		</prop>
 
@@ -2668,6 +2871,18 @@
 				<blend>true</blend>
 				<range>0, 1</range>
 			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_pb_ReactionWheel_Active</name>
+			<style>Split Detail Status Lamp</style>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.GetReactionWheelActive())</variable>
+				<text>GYRO</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.ReactionWheelTorque() * fc.GetReactionWheelActive())</variable>
+				<text>ACTIVE</text>
+			</TEXT_LABEL>
 		</prop>
 
 		<style name="Vertical Detail Status Lamp">
