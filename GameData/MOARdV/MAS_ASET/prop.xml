@@ -14,7 +14,7 @@
 	-->
 
 	<!--
-	Contemporary highly-configurable push buttons
+	Contemporary highly-configurable push buttons.  Listed first because it's a long list.
 
 	TODO: Use a better style naming convention
 
@@ -5022,7 +5022,198 @@
 		</prop>
 	</DigitalIndicator>
 
-	<!-- Retro (Apollo-ish) warning indicators -->
+	<!-- Retro (Apollo-era) "flag" indicators -->
+	<FlagIndicator folder="FlagIndicator">
+		<style name="Flag Indicator">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/FlagIndicator/FlagIndicator</model>
+			</MODEL>
+			<COLOR_SHIFT id="0">
+				<name>Nameplate Diffuse color</name>
+				<transform>namePlate</transform>
+				<colorName>_Color</colorName>
+				<passiveColor>COLOR_ASET_PLATEBKG_DIFFUSE_PASSIVECOLOR</passiveColor>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Nameplate Emissive color</name>
+				<transform>namePlate</transform>
+				<colorName>_EmissiveColor</colorName>
+				<passiveColor>COLOR_ASET_PLATEBKG_EMISSIVE_PASSIVECOLOR</passiveColor>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<name>Warning plate Emissive color</name>
+				<transform>WarningPlate</transform>
+				<colorName>_EmissiveColor</colorName>
+				<passiveColor>0, 0, 0, 255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
+			<TEXT_LABEL>
+				<name>Caption</name>
+				<transform>IndicatorNameObj</transform>
+				<fontSize>2.3</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<transformOffset>0.0087, -0.0015</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<comment>Flag trigger</comment>
+				<name>WarningPlate Cover</name>
+				<transform>CoverLoc</transform>
+				<startScale>0, 0, 0</startScale>
+				<endScale>0, 0, -0.9</endScale>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<comment>startUV: x=0.0 (striped) x=-0.2 (solid), y=0.0 (white), y=0.2 (red), y=0.4 (green), y=0.6 (yellow)</comment>
+				<name>Flag color</name>
+				<transform>WarningPlate</transform>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_FI_AG0</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG1</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(0))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_AG1</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG1</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(1))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_AG2</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG1</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(2))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_AG3</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG1</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(3))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_AG4</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG1</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(4))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_AG5</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG1</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(5))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_AG6</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG1</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(6))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_AG7</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG1</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(7))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_AG8</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG1</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(8))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_AG9</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG1</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(9))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+	</FlagIndicator>
+	
+	<!-- Retro (Apollo-era) warning indicators -->
 	<RetroWarningLight folder="RetroWarningLight">
 		<style name="Retro Warning Light">
 			<MODEL>
@@ -5116,6 +5307,7 @@
 			</TEXTURE_SHIFT>
 		</prop>
 	</RetroWarningLight>
+
 	<!-- Small plates used for labeling groups of controls -->
 	<SmallPlate folder="SmallLabelPlate">
 		<style name="Small Plate">
