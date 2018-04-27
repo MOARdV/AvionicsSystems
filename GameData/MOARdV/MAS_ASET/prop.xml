@@ -1,61 +1,65 @@
 <PropConfig>
-	<!-- 
+	<!--
 	This file is a prop configuration template for the Prop Config utility
 	described on the MAS wiki at https://github.com/MOARdV/AvionicsSystems/wiki/Prop-Config
-	
+
 	The tool and this XML file are used to quickly generate multiple props
 	without the tedious effort of copying config files and making small edits
 	while hoping you didn't overlook something.
-	
+
 	Copyright (c) 2018 MOARdV
-	
+
 	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
 	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
 	-->
 
-	<!-- 
-	Contemporary highly-configurable push buttons 
-	
+	<!--
+	Contemporary highly-configurable push buttons
+
 	TODO: Use a better style naming convention
-	
+
 	Styles:
-	
+
 	Undecorated Black Full Cap:
 	- No Border / No Caption / Collider
 	Two lines of text.  Top Text is standard white legend, lower text is colored status.  eg. Action Group buttons
-	
+
 	Two Status Bordered Captioned Button:
 	- Backlight 5 (3/4 border + caption) / Collider
 	Top legend + bullets amber, bottom legend + bullets green.  eg On/Off reports.  Unused?!?
-	
+
 	One Mode Bordered White Button:
 	- Backlight 5 (3/4 border + caption) / Collider
 	Center legend is white text with green bullets.  eg. Clear Node button
-	
+
+	One Mode Bordered Color Button:
+	- Backlight 5 (3/4 border + caption) / Collider
+	Center legend is green text with green bullets.  eg. Arm Parachute button
+
 	Two Mode Bordered Button:
 	- Backlight 2 (full border) / No Caption / Collider
 	Top and bottom legend are white text with green bullets.
-	
+
 	Two Mode Bordered on-off Button:
 	- Backlight 5 (3/4 border + caption) / Collider
 	Top legend + bullets amber, bottom legend + bullets green.  eg On/Off toggles, Brakes, SAS, RCS.
-	
+
 	Two Mode Bordered Captioned Button:
 	- Backlight 5 (3/4 border + caption) / Collider
 	Top and bottom legend white text, bullets green.  For two-state non-on/off toggles.
-	
+
 	One Status Bordered Lamp:
 	- Backlight 2 (full border) / no collider
 	Center legend and bullets amber.  For single-state status lamps.  eg, warp rate.
-	
+
 	Two Status Bordered Lamp:
 	- Backlight 2 (full border) / no collider
 	Top legend + bullets amber, bottom legend + bullets green.
-	
+
 	Split Detail Status Lamp:
 	- No border / no collider / horizontal split cap
 	Top legend green, bottom legend green and blended brightness.
-	
+
 	MechJeb Program Button:
 	- Backlight 5 (3/4 border + caption) / Collider
 	Top legend white text.  Middle legend / bullets red (error).  Bottom legend / bullets green (OK).
@@ -70,7 +74,7 @@
 	- No border / No Caption / Collider
 	Center large legend white text.
 	Used for the control panel MechJeb keypad buttons.
-	
+
 	MechJeb Mode Button:
 	- No border / No Caption / Collider
 	Top and optional center legend white text.  Bottom legend / bullets green (SEL)
@@ -305,7 +309,7 @@
 			in upper half for an off state, green text in the lower half for an on state.
 			Bullets bracketing the on/off state are separate text elements to maintain
 			consistent position regardless of text.
-			This 
+			This
 			-->
 			<MODEL id="0">
 				<comment>Black full cap</comment>
@@ -419,11 +423,6 @@
 		<style name="One Mode Bordered White Button">
 			<!--
 			Full Cap / Backlight 5 / Collider
-			Full black cap, collider, 3/4 border with caption.  Amber bullet on center
-			legend.  Text is standard button white and dimmable; bullets are not dimmable.
-			This button style is used when there is a single action that may be triggered,
-			with legends describing the action and the bullets indicating availability.
-			Assumes onClick / onRelease collider using autoid to control the animation.
 			-->
 			<MODEL id="0">
 				<comment>Black full cap</comment>
@@ -579,6 +578,134 @@
 			</TEXT_LABEL>
 			<TEXT_LABEL id="2">
 				<variable>fc.Conditioned(fc.GetPersistentAsNumber("%AUTOID%"))</variable>
+			</TEXT_LABEL>
+		</prop>
+		<style name="One Mode Bordered Color Button">
+			<!--
+			Full Cap / Backlight 5 / Collider
+			-->
+			<MODEL id="0">
+				<comment>Black full cap</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap</model>
+				<texture>pb_Full_Cap_Black,ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap_Black</texture>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<comment>Glow Border Type 5 - 3/4 wrap around, text on top</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Bcklt_5</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="2">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Collider</model>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<name>Collider</name>
+				<collider>pb_Collider</collider>
+				<onClick>0</onClick>
+				<sound>ASET/ASET_Props/Sounds/pb_Push02</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<name>Button press animation</name>
+				<animation>pb_PushAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<name>Caption</name>
+				<transform>PanelTextTop_bklt</transform>
+				<fontSize>5.8</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Center Legend</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>0</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>Center Legend Bullets</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>0</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>●           ●</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Border</name>
+				<transform>GlowBorder</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_pb_ParachuteArm</name>
+			<style>One Mode Bordered Color Button</style>
+			<COLLIDER_EVENT>
+				<onClick>parachute.ToggleParachuteArmed()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>parachute.GetParachuteArmed()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>ARM</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(parachute.GetParachuteArmed())</variable>
+				<text>ARM</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(parachute.GetParachuteArmed())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_ParachuteCut</name>
+			<style>One Mode Bordered Color Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", parachute.CutParachute())</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>CUT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(parachute.GetParachuteDeployed())</variable>
+				<text>CUT</text>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(parachute.GetParachuteDeployed())</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
 			</TEXT_LABEL>
 		</prop>
 		<style name="Two Mode Bordered Button">
@@ -1223,6 +1350,196 @@
 				<variable>fc.Conditioned(1 - fc.GetGimbalsLocked())</variable>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_pb_Mk3-9LeftCabin</name>
+			<style>Two Mode Bordered on-off Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MAS_Mk3-9LeftCockpitLight")</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("MAS_Mk3-9LeftCockpitLight")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>CABIN$$$LIGHT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(1 - fc.GetPersistentAsNumber("MAS_Mk3-9LeftCockpitLight"))</variable>
+				<text>OFF</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(1 - fc.GetPersistentAsNumber("MAS_Mk3-9LeftCockpitLight"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Mk3-9LeftCockpitLight"))</variable>
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Mk3-9LeftCockpitLight"))</variable>
+			</TEXT_LABEL>
+			<INT_LIGHT>
+				<name>Interior Lights</name>
+				<lightName>Light01</lightName>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Mk3-9LeftCockpitLight"))</variable>
+			</INT_LIGHT>
+		</prop>
+		<prop>
+			<name>MAS_pb_Mk3-9LeftInstrument</name>
+			<style>Two Mode Bordered on-off Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MAS_Mk3-9LeftInstrumentLight")</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("MAS_Mk3-9LeftInstrumentLight")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>INST$$$LIGHT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(1 - fc.GetPersistentAsNumber("MAS_Mk3-9LeftInstrumentLight"))</variable>
+				<text>OFF</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(1 - fc.GetPersistentAsNumber("MAS_Mk3-9LeftInstrumentLight"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Mk3-9LeftInstrumentLight"))</variable>
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Mk3-9LeftInstrumentLight"))</variable>
+			</TEXT_LABEL>
+			<INT_LIGHT>
+				<name>Interior Lights</name>
+				<lightName>Light_LeftInstrument</lightName>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Mk3-9LeftInstrumentLight"))</variable>
+			</INT_LIGHT>
+		</prop>
+		<prop>
+			<name>MAS_pb_Mk3-9RightCabin</name>
+			<style>Two Mode Bordered on-off Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MAS_Mk3-9RightCabinLight")</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("MAS_Mk3-9RightCabinLight")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>CABIN$$$LIGHT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(1 - fc.GetPersistentAsNumber("MAS_Mk3-9RightCabinLight"))</variable>
+				<text>OFF</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(1 - fc.GetPersistentAsNumber("MAS_Mk3-9RightCabinLight"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Mk3-9RightCabinLight"))</variable>
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Mk3-9RightCabinLight"))</variable>
+			</TEXT_LABEL>
+			<INT_LIGHT>
+				<name>Interior Lights</name>
+				<lightName>Light02</lightName>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Mk3-9RightCabinLight"))</variable>
+			</INT_LIGHT>
+		</prop>
+		<prop>
+			<name>MAS_pb_Mk3-9RightInstrument</name>
+			<style>Two Mode Bordered on-off Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MAS_Mk3-9RightInstrumentLight")</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("MAS_Mk3-9RightInstrumentLight")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>INST$$$LIGHT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(1 - fc.GetPersistentAsNumber("MAS_Mk3-9RightInstrumentLight"))</variable>
+				<text>OFF</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(1 - fc.GetPersistentAsNumber("MAS_Mk3-9RightInstrumentLight"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Mk3-9RightInstrumentLight"))</variable>
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Mk3-9RightInstrumentLight"))</variable>
+			</TEXT_LABEL>
+			<INT_LIGHT>
+				<name>Interior Lights</name>
+				<lightName>Light_RightInstrument</lightName>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Mk3-9RightInstrumentLight"))</variable>
+			</INT_LIGHT>
+		</prop>
+		<prop>
+			<name>MAS_pb_MRK_IntLight</name>
+			<style>Two Mode Bordered on-off Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MAS_MRK_IntLight")</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("MAS_MRK_IntLight")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>UPPER$$$CABIN</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(1 - fc.GetPersistentAsNumber("MAS_MRK_IntLight"))</variable>
+				<text>OFF</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(1 - fc.GetPersistentAsNumber("MAS_MRK_IntLight"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MRK_IntLight"))</variable>
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MRK_IntLight"))</variable>
+			</TEXT_LABEL>
+			<INT_LIGHT>
+				<name>Interior Lights</name>
+				<lightName>Point light (1)</lightName>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MRK_IntLight"))</variable>
+			</INT_LIGHT>
+		</prop>
+		<prop>
+			<name>MAS_pb_ParachuteDeploy</name>
+			<style>Two Mode Bordered on-off Button</style>
+			<COLLIDER_EVENT>
+				<onClick>parachute.DeployParachute()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>parachute.GetParachuteDeployed()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>DEPLOY</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(parachute.DeploymentSafe() &lt; 1)</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+				<text>DNGR</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(parachute.DeploymentSafe() &lt; 1)</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(parachute.GetParachuteDeployed())</variable>
+				<text>OK</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(parachute.GetParachuteDeployed())</variable>
+			</TEXT_LABEL>
+		</prop>
+
 		<style name="Two Mode Bordered Captioned Button">
 			<!--
 			Full Cap / Backlight 5 / Collider
@@ -1931,6 +2248,26 @@
 				<text>LINK</text>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_pb_PowerState</name>
+			<style>Two Status Bordered Lamp</style>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.GeneratorOutput() > 0.01)</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<text>GEN</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GeneratorOutput() > 0.01)</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.AlternatorOutput() > 0.01)</variable>
+				<text>ALT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.AlternatorOutput() > 0.01)</variable>
+			</TEXT_LABEL>
+		</prop>
 		<style name="Split Detail Status Lamp">
 			<!--
 			Split horizontal Cap / no border
@@ -2048,6 +2385,19 @@
 				<blend>true</blend>
 				<range>0, 1</range>
 			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_pb_Node_Active</name>
+			<style>Split Detail Status Lamp</style>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.ManeuverNodeExists())</variable>
+				<text>MNVR</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.ManeuverNodeExists() * fc.PeriodStep(2) * (fc.Abs(fc.ManeuverNodeTime()) &lt; 60))</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampAmber</activeColor>
+				<text>1 MIN</text>
+			</TEXT_LABEL>
 		</prop>
 
 		<style name="MechJeb Program Button">
@@ -3124,7 +3474,7 @@
 			</MODULE>
 		</prop>
 	</fdai>
-	
+
 	<!--
 	Flight director / attitude indicator mechanical control panel.  Included here
 	because MAS can support an arbitrary number of them, provided you create the
@@ -3290,7 +3640,7 @@
 			</TEXT_LABEL>
 		</prop>
 	</fdaiGMCP>
-	
+
 	<!-- ASET signal lamps -->
 	<SignalLamp folder="ASET_SignalLamp">
 		<style name="Signal Lamp">
@@ -3343,7 +3693,7 @@
 			</COLOR_SHIFT>
 		</prop>
 	</SignalLamp>
-	
+
 	<!-- ASET Digital Indicator -->
 	<DigitalIndicator folder="DigitalIndicator">
 		<!-- Emulate a digital clock with 7 segment LED / LCD -->
