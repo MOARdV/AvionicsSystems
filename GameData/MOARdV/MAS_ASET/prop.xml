@@ -1908,6 +1908,33 @@
 				<variable>fc.Conditioned(fc.GetSAS())</variable>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_pb_SolarPanel</name>
+			<style>Two Mode Bordered on-off Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleSolarPanel()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.SolarPanelMoving()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>SOLAR$$$PANEL</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned((fc.SolarPanelPosition() == 1) * fc.SolarPanelCount())</variable>
+				<text>IN</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.SolarPanelPosition() == 1) * fc.SolarPanelCount())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.SolarPanelPosition() == 4)</variable>
+				<text>OUT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.SolarPanelPosition() == 4)</variable>
+			</TEXT_LABEL>
+		</prop>
 
 		<style name="Two Mode Bordered Captioned Button">
 			<!--
@@ -2413,6 +2440,66 @@
 				<activeColor>COLOR_MOARdV_IndicatorLampBlue</activeColor>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_pb_SpeedMode</name>
+			<style>Two Mode Bordered Captioned Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", 2 + fc.ToggleSASSpeedMode())</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>SPEED$$$MODE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetSASSpeedMode() == 1)) * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<text>OBT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.GetSASSpeedMode() == 1)</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetSASSpeedMode() == -1)) * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<text>TGT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.GetSASSpeedMode() == -1)</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="5">
+				<name>Center Legend</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetSASSpeedMode() == 0)) * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+				<text>SRF</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="6">
+				<name>Center Legend Bullets</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetSASSpeedMode() == 0)</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>●           ●</text>
+			</TEXT_LABEL>
+		</prop>
 
 		<style name="One Status Bordered Lamp">
 			<!--
@@ -2682,6 +2769,26 @@
 			</TEXT_LABEL>
 			<TEXT_LABEL id="3">
 				<variable>fc.Conditioned(fc.RadiatorDamaged())</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SolarPanelState</name>
+			<style>Two Status Bordered Lamp</style>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.SolarPanelMoving())</variable>
+				<text>MOVE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.SolarPanelMoving())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.SolarPanelDamaged())</variable>
+				<text>DMG</text>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.SolarPanelDamaged())</variable>
 				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
 			</TEXT_LABEL>
 		</prop>
