@@ -886,6 +886,48 @@
 				<variable>fc.Conditioned(fc.GetPodIsReference())</variable>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_pb_TargetMoon</name>
+			<style>One Mode Bordered Color Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", fc.TargetNextMoon() + 1)</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>TARGET$$$MOON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.BodyNumMoons(-1) > 0)</variable>
+				<text>NEXT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.BodyNumMoons(-1) > 0)</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_TargetVessel</name>
+			<style>One Mode Bordered Color Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", fc.TargetNextVessel() + 1)</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>TARGET$$$VESSEL</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.TargetVesselCount())</variable>
+				<text>NEXT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.TargetVesselCount())</variable>
+			</TEXT_LABEL>
+		</prop>
 
 		<style name="Two Mode Bordered Button">
 			<!--
@@ -1935,6 +1977,96 @@
 				<variable>fc.Conditioned(fc.SolarPanelPosition() == 4)</variable>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_pb_StageState</name>
+			<style>Two Mode Bordered on-off Button</style>
+			<MODEL id="1" delete="true" />
+			<MODEL id="2" delete="true" />
+			<COLLIDER_EVENT delete="true" />
+			<ANIMATION_PLAYER delete="true" />
+			<COLOR_SHIFT delete="true" />
+			<TEXT_LABEL id="0">
+				<transform>PanelTextTop</transform>
+				<text>STAGE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned((1 - fc.StageReady()) * (1 - fc.GetStageLocked()))</variable>
+				<text>WAIT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((1 - fc.StageReady()) * (1 - fc.GetStageLocked()))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.GetStageLocked())</variable>
+				<text>LOCK</text>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.GetStageLocked())</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_Undock</name>
+			<style>Two Mode Bordered on-off Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", fc.Undock() + 1)</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>DOCK</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.Docked())</variable>
+				<text>UNDOCK</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.Docked())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.DockReady())</variable>
+				<text>READY</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.DockReady())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_Yarbrough_IntLight</name>
+			<style>Two Mode Bordered on-off Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MAS_Generic_IntLight")</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("MAS_Generic_IntLight")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>CABIN$$$LIGHT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(1 - fc.GetPersistentAsNumber("MAS_Generic_IntLight"))</variable>
+				<text>OFF</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(1 - fc.GetPersistentAsNumber("MAS_Generic_IntLight"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Generic_IntLight"))</variable>
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Generic_IntLight"))</variable>
+			</TEXT_LABEL>
+			<INT_LIGHT>
+				<comment>The Yarbrough interior lights are simply the generic "Point light"</comment>
+				<name>Interior Lights</name>
+				<lightName>Point light</lightName>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Generic_IntLight"))</variable>
+			</INT_LIGHT>
+		</prop>
 
 		<style name="Two Mode Bordered Captioned Button">
 			<!--
@@ -2495,6 +2627,126 @@
 				<anchor>MiddleCenter</anchor>
 				<emissive>active</emissive>
 				<variable>fc.Conditioned(fc.GetSASSpeedMode() == 0)</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>●           ●</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_Xpointer_Mode</name>
+			<style>Two Mode Bordered Captioned Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", XPtr_SetMode(fc.AddPersistentWrapped("MAS_Xpointer_Mode", 1, 0, 3)))</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>XPTR$$$MODE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetPersistentAsNumber("MAS_Xpointer_Mode") == 0)) * (fc.GetPersistentAsNumber("MAS_Xpointer_Power") * fc.GetPersistentAsNumber("Backlight")))</variable>
+				<text>GRND</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_Xpointer_Mode") == 0) * fc.GetPersistentAsNumber("MAS_Xpointer_Power"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetPersistentAsNumber("MAS_Xpointer_Mode") == 2)) * (fc.GetPersistentAsNumber("MAS_Xpointer_Power") * fc.GetPersistentAsNumber("Backlight")))</variable>
+				<text>VEL</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_Xpointer_Mode") == 2) * fc.GetPersistentAsNumber("MAS_Xpointer_Power"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="5">
+				<name>Center Legend</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetPersistentAsNumber("MAS_Xpointer_Mode") == 1)) * (fc.GetPersistentAsNumber("MAS_Xpointer_Power") * fc.GetPersistentAsNumber("Backlight")))</variable>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+				<text>DIST</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="6">
+				<name>Center Legend Bullets</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_Xpointer_Mode") == 1) * fc.GetPersistentAsNumber("MAS_Xpointer_Power"))</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>●           ●</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_Xpointer_Scale</name>
+			<style>Two Mode Bordered Captioned Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", XPtr_NextScale(fc.AddPersistentWrapped("MAS_Xpointer_Scale", -1, -1, 2)))</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>XPTR$$$SCALE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetPersistentAsNumber("MAS_Xpointer_Scale") == 1)) * (fc.GetPersistentAsNumber("MAS_Xpointer_Power") * fc.GetPersistentAsNumber("Backlight")))</variable>
+				<text>x 1/10</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_Xpointer_Scale") == 1) * fc.GetPersistentAsNumber("MAS_Xpointer_Power"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetPersistentAsNumber("MAS_Xpointer_Scale") == -1)) * (fc.GetPersistentAsNumber("MAS_Xpointer_Power") * fc.GetPersistentAsNumber("Backlight")))</variable>
+				<text>x 10</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_Xpointer_Scale") == -1) * fc.GetPersistentAsNumber("MAS_Xpointer_Power"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="5">
+				<name>Center Legend</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<variable>fc.Conditioned((0.25 + 0.75 * (fc.GetPersistentAsNumber("MAS_Xpointer_Scale") == 0)) * (fc.GetPersistentAsNumber("MAS_Xpointer_Power") * fc.GetPersistentAsNumber("Backlight")))</variable>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+				<text>x 1</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="6">
+				<name>Center Legend Bullets</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned((fc.GetPersistentAsNumber("MAS_Xpointer_Scale") == 0) * fc.GetPersistentAsNumber("MAS_Xpointer_Power"))</variable>
 				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
 				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
 				<text>●           ●</text>
