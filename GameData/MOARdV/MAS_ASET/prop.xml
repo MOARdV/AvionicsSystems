@@ -24,10 +24,6 @@
 	- No Border / No Caption / Collider
 	Two lines of text.  Top Text is standard white legend, lower text is colored status.  eg. Action Group buttons
 
-	Two Status Bordered Captioned Button:
-	- Backlight 5 (3/4 border + caption) / Collider
-	Top legend + bullets amber, bottom legend + bullets green.  eg On/Off reports.  Unused?!?
-
 	One Mode Bordered White Button:
 	- Backlight 5 (3/4 border + caption) / Collider
 	Center legend is white text with green bullets.  eg. Clear Node button
@@ -85,6 +81,10 @@
 	MechJeb Mode Button:
 	- No border / No Caption / Collider
 	Top and optional center legend white text.  Bottom legend / bullets green (SEL)
+	
+	SAS Mode Button:
+	- No border / No Caption / Collider
+	Top and center legend white text.  Bottom legend / bullets green (SEL)
 	-->
 	<PushButton folder="Push_Button_Modular">
 		<style name="Undecorated Black Full Cap">
@@ -1881,6 +1881,33 @@
 				<variable>fc.Conditioned(fc.VesselRecoverable())</variable>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_pb_SAS</name>
+			<style>Two Mode Bordered on-off Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleSAS()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSAS()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>SAS</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(1 - fc.GetSAS())</variable>
+				<text>OFF</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(1 - fc.GetSAS())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.GetSAS())</variable>
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.GetSAS())</variable>
+			</TEXT_LABEL>
+		</prop>
 
 		<style name="Two Mode Bordered Captioned Button">
 			<!--
@@ -3559,6 +3586,7 @@
 				<text>+</text>
 			</TEXT_LABEL>
 		</prop>
+
 		<style name="MechJeb Mode Button">
 			<!--
 			Collider
@@ -3781,6 +3809,311 @@
 			<ANIMATION_PLAYER>
 				<variable>fc.GetPersistentAsNumber("MAS_MJComp_Mode") == 5</variable>
 			</ANIMATION_PLAYER>
+		</prop>
+
+		<style name="SAS Mode Button">
+			<!--
+			Collider
+			-->
+			<MODEL id="0">
+				<comment>Black full cap</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap</model>
+				<texture>pb_Full_Cap_Black,ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap_Black</texture>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Collider</model>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<name>Collider</name>
+				<collider>pb_Collider</collider>
+				<onClick>0</onClick>
+				<sound>ASET/ASET_Props/Sounds/pb_Push02</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<name>Button press animation</name>
+				<animation>pb_PushAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<name>Upper Legend</name>
+				<transform>Legend_Upper</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Center Legend</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>Lower Legend</name>
+				<transform>Legend_Lower</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>0</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<name>Lower Legend Bullets</name>
+				<transform>Legend_Lower</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>0</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>●           ●</text>
+			</TEXT_LABEL>
+		</style>
+		<prop>
+			<name>MAS_pb_SAS_AntiNormal</name>
+			<style>SAS Mode Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(4)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 4</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>ANTI</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>NORMAL</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.GetSASMode() == 4) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned((fc.GetSASMode() == 4) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SAS_AntiTarget</name>
+			<style>SAS Mode Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(8)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 8</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>ANTI</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>TARGET</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.GetSASMode() == 8) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned((fc.GetSASMode() == 8) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SAS_ManeuverNode</name>
+			<style>SAS Mode Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(9)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 9</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>MNVR</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>NODE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.GetSASMode() == 9) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned((fc.GetSASMode() == 9) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SAS_Normal</name>
+			<style>SAS Mode Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(3)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 3</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>NORMAL</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1" delete="true" />
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.GetSASMode() == 3) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned((fc.GetSASMode() == 3) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SAS_Prograde</name>
+			<style>SAS Mode Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(1)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 1</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>PRO</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>GRADE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.GetSASMode() == 1) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned((fc.GetSASMode() == 1) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SAS_RadialIn</name>
+			<style>SAS Mode Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(5)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 5</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>RADIAL</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>IN</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.GetSASMode() == 5) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned((fc.GetSASMode() == 5) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SAS_RadialOut</name>
+			<style>SAS Mode Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(6)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 6</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>RADIAL</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>OUT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.GetSASMode() == 6) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned((fc.GetSASMode() == 6) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SAS_Retrograde</name>
+			<style>SAS Mode Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(2)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 2</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>RETRO</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>GRADE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.GetSASMode() == 2) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned((fc.GetSASMode() == 2) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SAS_StabilityAssist</name>
+			<style>SAS Mode Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(0)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 0</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>STAB</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ASSIST</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.GetSASMode() == 0) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned((fc.GetSASMode() == 0) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SAS_Target</name>
+			<style>SAS Mode Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(7)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 7</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>TARGET</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1" delete="true" />
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.GetSASMode() == 7) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned((fc.GetSASMode() == 7) * fc.GetSAS())</variable>
+			</TEXT_LABEL>
 		</prop>
 	</PushButton>
 
