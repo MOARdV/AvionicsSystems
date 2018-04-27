@@ -60,6 +60,10 @@
 	- No border / no collider / horizontal split cap
 	Top legend green, bottom legend green and blended brightness.
 
+	Vertical Detail Status Lamp:
+	- No border / no collider / vertical split cap
+	Left legend green, right legend green and blended brightness.
+
 	MechJeb Program Button:
 	- Backlight 5 (3/4 border + caption) / Collider
 	Top legend white text.  Middle legend / bullets red (error).  Bottom legend / bullets green (OK).
@@ -1539,6 +1543,141 @@
 				<variable>fc.Conditioned(parachute.GetParachuteDeployed())</variable>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_pb_Radar</name>
+			<style>Two Mode Bordered on-off Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleRadar()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.RadarActive()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>RADAR</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned((1 - fc.RadarActive()) * fc.RadarCount())</variable>
+				<text>STBY</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((1 - fc.RadarActive()) * fc.RadarCount())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.RadarActive())</variable>
+				<text>SCAN</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.RadarActive())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_Radiator</name>
+			<style>Two Mode Bordered on-off Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleRadiator()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.RadiatorMoving()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>RADIATOR$$$DEPLOY</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned((fc.RadiatorPosition() == 1) * fc.RadiatorDeployable())</variable>
+				<text>IN</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.RadiatorPosition() == 1) * fc.RadiatorDeployable())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.RadiatorPosition() == 4)</variable>
+				<text>OUT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.RadiatorPosition() == 4)</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_RCS</name>
+			<style>Two Mode Bordered on-off Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleRCS()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetRCS()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>RCS</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.HasRCS() * (1 - fc.GetRCS()))</variable>
+				<text>OFF</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.HasRCS() * (1 - fc.GetRCS()))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.HasRCS() * fc.GetRCS())</variable>
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.HasRCS() * fc.GetRCS())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_RCS_rotate</name>
+			<style>Two Mode Bordered on-off Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleRCSRotate()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetRCSRotate()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>ROTATE$$$RCS</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.HasRCS() * (1 - fc.GetRCSRotate()))</variable>
+				<text>OFF</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.HasRCS() * (1 - fc.GetRCSRotate()))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.HasRCS() * fc.GetRCSRotate())</variable>
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.HasRCS() * fc.GetRCSRotate())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_RCS_translate</name>
+			<style>Two Mode Bordered on-off Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleRCSTranslate()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetRCSTranslate()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>XLATE$$$RCS</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.HasRCS() * (1 - fc.GetRCSTranslate()))</variable>
+				<text>OFF</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.HasRCS() * (1 - fc.GetRCSTranslate()))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.HasRCS() * fc.GetRCSTranslate())</variable>
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.HasRCS() * fc.GetRCSTranslate())</variable>
+			</TEXT_LABEL>
+		</prop>
 
 		<style name="Two Mode Bordered Captioned Button">
 			<!--
@@ -2016,6 +2155,34 @@
 				<text>●           ●</text>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_pb_Precision</name>
+			<style>Two Mode Bordered Captioned Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePrecisionMode()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPrecisionMode()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>PRECISION$$$MODE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned((0.25 + 0.75 * (1 - fc.GetPrecisionMode())) * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<text>NORM</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((1 - fc.GetPrecisionMode()))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned((0.25 + 0.75 * fc.GetPrecisionMode()) * fc.GetPersistentAsNumber("Backlight"))</variable>
+				<text>PREC</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.GetPrecisionMode())</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampBlue</activeColor>
+			</TEXT_LABEL>
+		</prop>
 
 		<style name="One Status Bordered Lamp">
 			<!--
@@ -2268,6 +2435,27 @@
 				<variable>fc.Conditioned(fc.AlternatorOutput() > 0.01)</variable>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_pb_RadiatorState</name>
+			<style>Two Status Bordered Lamp</style>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.RadiatorMoving())</variable>
+				<text>MOVE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.RadiatorMoving())</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.RadiatorDamaged())</variable>
+				<text>DMG</text>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(fc.RadiatorDamaged())</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+			</TEXT_LABEL>
+		</prop>
+
 		<style name="Split Detail Status Lamp">
 			<!--
 			Split horizontal Cap / no border
@@ -2398,6 +2586,163 @@
 				<activeColor>COLOR_MOARdV_IndicatorLampAmber</activeColor>
 				<text>1 MIN</text>
 			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_Radiator_Active</name>
+			<style>Split Detail Status Lamp</style>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.RadiatorActive())</variable>
+				<text>RAD</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.RadiatorUtilization())</variable>
+				<text>ACTIVE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_Rcs_Active</name>
+			<style>Split Detail Status Lamp</style>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.HasRCS() * fc.GetRCS())</variable>
+				<text>RCS</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.CurrentRCSThrust())</variable>
+				<text>ACTIVE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_RcsTranslateY</name>
+			<style>Split Detail Status Lamp</style>
+			<MODEL id="1">
+				<comment>Square glow border type 2</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Bcklt_2</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.GetRCSActive() * fc.StickTranslationY())</variable>
+				<text>UP</text>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetRCSActive() * fc.StickTranslationY())</variable>
+				<text>DN</text>
+				<range>0, -1</range>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Border</name>
+				<transform>GlowBorder</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_pb_RcsTranslateZ</name>
+			<style>Split Detail Status Lamp</style>
+			<MODEL id="1">
+				<comment>Square glow border type 2</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Bcklt_2</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.GetRCSActive() * fc.StickTranslationZ())</variable>
+				<text>FWD</text>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetRCSActive() * fc.StickTranslationZ())</variable>
+				<text>AFT</text>
+				<range>0, -1</range>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Border</name>
+				<transform>GlowBorder</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
+		</prop>
+
+		<style name="Vertical Detail Status Lamp">
+			<!--
+			Split vertical Cap / no border
+			Split black cap, no collider, no border no caption.  Green text in upper half to identify
+			data being tracked, blended color text in bottom half to show proportional value
+			-->
+			<MODEL id="0">
+				<comment>Black vertical cap</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_SplitVertical_Cap</model>
+				<texture>pb_Full_Cap_Black,ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap_Black</texture>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<TEXT_LABEL id="0">
+				<name>Left Legend</name>
+				<transform>Legend_Left</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>0</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Right Legend</name>
+				<transform>Legend_Right</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>0</variable>
+				<blend>true</blend>
+				<range>0, 1</range>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+			</TEXT_LABEL>
+		</style>
+		<prop>
+			<name>MAS_pb_RcsTranslateX</name>
+			<style>Vertical Detail Status Lamp</style>
+			<MODEL id="1">
+				<comment>Square glow border type 2</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Bcklt_2</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<TEXT_LABEL id="0">
+				<variable>fc.Conditioned(fc.GetRCSActive() * fc.StickTranslationX())</variable>
+				<text>L</text>
+				<fontSize>5</fontSize>
+				<blend>true</blend>
+				<range>0, -1</range>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetRCSActive() * fc.StickTranslationX())</variable>
+				<fontSize>5</fontSize>
+				<text>R</text>
+				<range>0, 1</range>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Border</name>
+				<transform>GlowBorder</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+				<range>0, 1</range>
+			</COLOR_SHIFT>
 		</prop>
 
 		<style name="MechJeb Program Button">
