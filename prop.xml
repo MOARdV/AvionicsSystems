@@ -5064,8 +5064,8 @@
 				<variable>fc.GetPersistentAsNumber("Backlight"))</variable>
 				<blend>true</blend>
 				<range>0, 1</range>
-				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
-				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
 			</TEXT_LABEL>
 			<MODEL_SCALE>
 				<comment>Flag trigger</comment>
@@ -5111,7 +5111,7 @@
 			<name>MAS_FI_AG2</name>
 			<style>Flag Indicator</style>
 			<TEXT_LABEL>
-				<text>AG1</text>
+				<text>AG2</text>
 			</TEXT_LABEL>
 			<MODEL_SCALE>
 				<variable>fc.Conditioned(fc.GetActionGroup(2))</variable>
@@ -5124,7 +5124,7 @@
 			<name>MAS_FI_AG3</name>
 			<style>Flag Indicator</style>
 			<TEXT_LABEL>
-				<text>AG1</text>
+				<text>AG3</text>
 			</TEXT_LABEL>
 			<MODEL_SCALE>
 				<variable>fc.Conditioned(fc.GetActionGroup(3))</variable>
@@ -5137,7 +5137,7 @@
 			<name>MAS_FI_AG4</name>
 			<style>Flag Indicator</style>
 			<TEXT_LABEL>
-				<text>AG1</text>
+				<text>AG4</text>
 			</TEXT_LABEL>
 			<MODEL_SCALE>
 				<variable>fc.Conditioned(fc.GetActionGroup(4))</variable>
@@ -5150,7 +5150,7 @@
 			<name>MAS_FI_AG5</name>
 			<style>Flag Indicator</style>
 			<TEXT_LABEL>
-				<text>AG1</text>
+				<text>AG5</text>
 			</TEXT_LABEL>
 			<MODEL_SCALE>
 				<variable>fc.Conditioned(fc.GetActionGroup(5))</variable>
@@ -5163,7 +5163,7 @@
 			<name>MAS_FI_AG6</name>
 			<style>Flag Indicator</style>
 			<TEXT_LABEL>
-				<text>AG1</text>
+				<text>AG6</text>
 			</TEXT_LABEL>
 			<MODEL_SCALE>
 				<variable>fc.Conditioned(fc.GetActionGroup(6))</variable>
@@ -5176,7 +5176,7 @@
 			<name>MAS_FI_AG7</name>
 			<style>Flag Indicator</style>
 			<TEXT_LABEL>
-				<text>AG1</text>
+				<text>AG7</text>
 			</TEXT_LABEL>
 			<MODEL_SCALE>
 				<variable>fc.Conditioned(fc.GetActionGroup(7))</variable>
@@ -5189,7 +5189,7 @@
 			<name>MAS_FI_AG8</name>
 			<style>Flag Indicator</style>
 			<TEXT_LABEL>
-				<text>AG1</text>
+				<text>AG8</text>
 			</TEXT_LABEL>
 			<MODEL_SCALE>
 				<variable>fc.Conditioned(fc.GetActionGroup(8))</variable>
@@ -5202,10 +5202,75 @@
 			<name>MAS_FI_AG9</name>
 			<style>Flag Indicator</style>
 			<TEXT_LABEL>
-				<text>AG1</text>
+				<text>AG9</text>
 			</TEXT_LABEL>
 			<MODEL_SCALE>
 				<variable>fc.Conditioned(fc.GetActionGroup(9))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_Brakes</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>BRAKE</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetBrakes())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_Gear</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>GEAR</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetGear())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_Lights</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>LIGHT</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetLights())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_RCS</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>RCS</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetRCS())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_SAS</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>SAS</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetSAS())</variable>
 			</MODEL_SCALE>
 			<TEXTURE_SHIFT>
 				<startUV>0.0, 0.4</startUV>
