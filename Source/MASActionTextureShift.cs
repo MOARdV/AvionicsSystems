@@ -37,10 +37,10 @@ namespace AvionicsSystems
     internal class MASActionTextureShift : IMASSubComponent
     {
         private string name = "anonymous";
-        private string variableName = string.Empty;
         private Material localMaterial = null;
-        private Vector2[] startUV;
-        private Vector2[] endUV;
+        private Vector2[] baseUV;
+        private Vector2 startUV;
+        private Vector2 endUV;
         private MASFlightComputer.Variable range1, range2;
         private readonly bool blend;
         private readonly bool rangeMode;
@@ -48,8 +48,12 @@ namespace AvionicsSystems
         private float currentBlend = 0.0f;
         private string[] layer;
 
+        private VariableRegistrar registeredVariables;
+
         internal MASActionTextureShift(ConfigNode config, InternalProp prop, MASFlightComputer comp)
         {
+            registeredVariables = new VariableRegistrar(comp, prop);
+
             if (!config.TryGetValue("name", ref name))
             {
                 name = "anonymous";
@@ -64,13 +68,7 @@ namespace AvionicsSystems
             string layers = "_MainTex";
             config.TryGetValue("layers", ref layers);
 
-            Vector2 rawStartUV = Vector2.zero;
-            Vector2 rawEndUV = Vector2.zero;
-            if (!config.TryGetValue("startUV", ref rawStartUV))
-            {
-                throw new ArgumentException("Missing or invalid 'startUV' in TEXTURE_SHIFT " + name);
-            }
-
+            string variableName = string.Empty;
             if (config.TryGetValue("variable", ref variableName))
             {
                 variableName = variableName.Trim();
@@ -99,43 +97,112 @@ namespace AvionicsSystems
                 rangeMode = false;
             }
 
-            // Final validations
-            if (rangeMode || !string.IsNullOrEmpty(variableName))
-            {
-                if (string.IsNullOrEmpty(variableName))
-                {
-                    throw new ArgumentException("Invalid or missing 'variable' in TEXTURE_SHIFT " + name);
-                }
-                else if (!config.TryGetValue("endUV", ref rawEndUV))
-                {
-                    throw new ArgumentException("Invalid or missing 'endUV' in TEXTURE_SHIFT " + name);
-                }
-            }
-
             Transform t = prop.FindModelTransform(transform);
             Renderer r = t.GetComponent<Renderer>();
             localMaterial = r.material;
 
             layer = layers.Split();
             int layerLength = layer.Length;
-            startUV = new Vector2[layerLength];
-            endUV = new Vector2[layerLength];
+            baseUV = new Vector2[layerLength];
             for (int i = 0; i < layerLength; ++i)
             {
-                Vector2 baseOffset = localMaterial.GetTextureOffset(layer[i]);
-                startUV[i] = rawStartUV + baseOffset;
-                endUV[i] = rawEndUV + baseOffset;
                 layer[i] = layer[i].Trim();
-                localMaterial.SetTextureOffset(layer[i], startUV[i]);
+                baseUV[i] = localMaterial.GetTextureOffset(layer[i]);
             }
 
-            if (string.IsNullOrEmpty(variableName))
+            string startUVstring = string.Empty;
+            if (!config.TryGetValue("startUV", ref startUVstring))
             {
-                Utility.LogMessage(this, "TEXTURE_SHIFT {0} configured as static texture shift, with no variable defined", name);
+                throw new ArgumentException("Missing or invalid 'startUV' in TEXTURE_SHIFT " + name);
             }
             else
             {
-                comp.RegisterNumericVariable(variableName, prop, VariableCallback);
+                string[] uvs = Utility.SplitVariableList(startUVstring);
+                if (uvs.Length != 2)
+                {
+                    throw new ArgumentException("Incorrect number of values in 'startUV' in TEXTURE_SHIFT " + name);
+                }
+
+                registeredVariables.RegisterNumericVariable(uvs[0], (double newValue) =>
+                {
+                    startUV.x = (float)newValue;
+                    UpdateUVs();
+                });
+
+                registeredVariables.RegisterNumericVariable(uvs[1], (double newValue) =>
+                {
+                    startUV.y = (float)newValue;
+                    UpdateUVs();
+                });
+            }
+
+            // Final validations
+            if (rangeMode || !string.IsNullOrEmpty(variableName))
+            {
+                string endUVstring = string.Empty;
+                if (string.IsNullOrEmpty(variableName))
+                {
+                    throw new ArgumentException("Invalid or missing 'variable' in TEXTURE_SHIFT " + name);
+                }
+                else if (!config.TryGetValue("endUV", ref endUVstring))
+                {
+                    throw new ArgumentException("Invalid or missing 'endUV' in TEXTURE_SHIFT " + name);
+                }
+                else
+                {
+                    string[] uvs = Utility.SplitVariableList(endUVstring);
+                    if (uvs.Length != 2)
+                    {
+                        throw new ArgumentException("Incorrect number of values in 'endUV' in TEXTURE_SHIFT " + name);
+                    }
+
+                    registeredVariables.RegisterNumericVariable(uvs[0], (double newValue) =>
+                    {
+                        endUV.x = (float)newValue;
+                        UpdateUVs();
+                    });
+
+                    registeredVariables.RegisterNumericVariable(uvs[1], (double newValue) =>
+                    {
+                        endUV.y = (float)newValue;
+                        UpdateUVs();
+                    });
+                }
+            }
+
+            if (!string.IsNullOrEmpty(variableName))
+            {
+                registeredVariables.RegisterNumericVariable(variableName, VariableCallback);
+            }
+        }
+
+        /// <summary>
+        /// Refresh the UVs
+        /// </summary>
+        private void UpdateUVs()
+        {
+            int layerLength = layer.Length;
+            if (blend)
+            {
+                for (int i = 0; i < layerLength; ++i)
+                {
+                    Vector2 newUV = Vector2.Lerp(baseUV[i] + startUV, baseUV[i] + endUV, currentBlend);
+                    localMaterial.SetTextureOffset(layer[i], newUV);
+                }
+            }
+            else if(currentState)
+            {
+                for (int i = 0; i < layerLength; ++i)
+                {
+                    localMaterial.SetTextureOffset(layer[i], baseUV[i] + endUV);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < layerLength; ++i)
+                {
+                    localMaterial.SetTextureOffset(layer[i], baseUV[i] + startUV);
+                }
             }
         }
 
@@ -153,12 +220,7 @@ namespace AvionicsSystems
                 {
                     currentBlend = newBlend;
 
-                    int layerLength = layer.Length;
-                    for (int i = 0; i < layerLength; ++i)
-                    {
-                        Vector2 newUV = Vector2.Lerp(startUV[i], endUV[i], currentBlend);
-                        localMaterial.SetTextureOffset(layer[i], newUV);
-                    }
+                    UpdateUVs();
                 }
             }
             else
@@ -174,21 +236,7 @@ namespace AvionicsSystems
                 {
                     currentState = newState;
 
-                    int layerLength = layer.Length;
-                    if (currentState)
-                    {
-                        for (int i = 0; i < layerLength; ++i)
-                        {
-                            localMaterial.SetTextureOffset(layer[i], endUV[i]);
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < layerLength; ++i)
-                        {
-                            localMaterial.SetTextureOffset(layer[i], startUV[i]);
-                        }
-                    }
+                    UpdateUVs();
                 }
             }
         }
@@ -207,10 +255,8 @@ namespace AvionicsSystems
         /// </summary>
         public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
-            if (!string.IsNullOrEmpty(variableName))
-            {
-                comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
-            }
+            registeredVariables.ReleaseResources(comp, internalProp);
+
             UnityEngine.Object.Destroy(localMaterial);
         }
     }
