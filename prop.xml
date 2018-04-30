@@ -5075,6 +5075,13 @@
 				<endScale>0, 0, -0.9</endScale>
 			</MODEL_SCALE>
 			<TEXTURE_SHIFT>
+				<!-- 
+				startUV: 
+				x=0.0 is default diagonal striped flag, x=-0.2 is a solid-color flag
+				y=0.0 is white, y=0.2 is red, y=0.4 is green, y=0.6 is yellow
+				Use dynamic Y values to change color, and dynamic X values to toggle
+				stripes.
+				-->
 				<comment>startUV: x=0.0 (striped) x=-0.2 (solid), y=0.0 (white), y=0.2 (red), y=0.4 (green), y=0.6 (yellow)</comment>
 				<name>Flag color</name>
 				<transform>WarningPlate</transform>
