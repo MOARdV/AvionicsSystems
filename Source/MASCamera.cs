@@ -1054,12 +1054,24 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Callback triggered prior to rendering.  We use this event to make sure the cameras
+        /// are pointed in the right direction and that the cameras that are attached to the
+        /// vessel are positioned correctly.
+        /// </summary>
+        /// <param name="whichCamera"></param>
         private void CameraPrerender(Camera whichCamera)
         {
-            if (Array.Exists(cameras, x => x == whichCamera))
+            int cameraIndex = Array.FindIndex(cameras, x => x == whichCamera);
+            if (cameraIndex >= 0)
             {
                 whichCamera.gameObject.transform.rotation = cameraRotation;
-                whichCamera.gameObject.transform.position = cameraTransform.position;
+                if (cameraIndex > 1)
+                {
+                    // GalaxyCamera and ScaledSpace cameras should not move - only rotate.
+                    // The remainder of them move here:
+                    whichCamera.gameObject.transform.position = cameraTransform.position;
+                }
                 whichCamera.fieldOfView = currentFov;
             }
         }
