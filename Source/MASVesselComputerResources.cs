@@ -260,6 +260,24 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Internal fast-access query - bypasses repeated GetResourceIndex
+        /// lookups by using the index fetched previously from GetResourceIndex
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        internal double ResourceDeltaDirect(int index)
+        {
+            if (index >= 0 && index < resources.Length)
+            {
+                return resources[index].deltaPerSecond;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Returns the density of the named resource, or zero if it wasn't found.
         /// </summary>
         /// <param name="resourceId"></param>
@@ -371,6 +389,24 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Internal fast-access query - bypasses repeated GetResourceIndex
+        /// lookups by using the index fetched previously from GetResourceIndex
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        internal double ResourceMaxDirect(int index)
+        {
+            if (index >= 0 && index < resources.Length)
+            {
+                return resources[index].maxQuantity;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Returns the name of the Nth active resource, or an empty string if
         /// the resource index is invalid.
         /// </summary>
@@ -396,6 +432,24 @@ namespace AvionicsSystems
         internal double ResourcePercent(object resourceId)
         {
             int index = GetResourceIndex(resourceId);
+            if (index >= 0 && index < resources.Length)
+            {
+                return (resources[index].maxQuantity > 0.0) ? resources[index].currentQuantity / resources[index].maxQuantity : 0.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Internal fast-access query - bypasses repeated GetResourceIndex
+        /// lookups by using the index fetched previously from GetResourceIndex
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        internal double ResourcePercentDirect(int index)
+        {
             if (index >= 0 && index < resources.Length)
             {
                 return (resources[index].maxQuantity > 0.0) ? resources[index].currentQuantity / resources[index].maxQuantity : 0.0;

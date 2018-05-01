@@ -67,6 +67,8 @@ namespace AvionicsSystems
     /// </mdDoc>
     internal partial class MASFlightComputerProxy
     {
+        private int electricChargeIndex = -1;
+
         /// <summary>
         /// The resource methods report the availability of various resources aboard the
         /// vessel.  They are grouped into three types.
@@ -103,7 +105,11 @@ namespace AvionicsSystems
         /// <returns>Current units of power.</returns>
         public double PowerCurrent()
         {
-            return vc.ResourceCurrent(MASConfig.ElectricCharge);
+            if (electricChargeIndex == -1)
+            {
+                electricChargeIndex = vc.GetResourceIndex(MASConfig.ElectricCharge);
+            }
+            return vc.ResourceCurrentDirect(electricChargeIndex);
         }
 
         /// <summary>
@@ -113,7 +119,11 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double PowerDelta()
         {
-            return vc.ResourceDelta(MASConfig.ElectricCharge);
+            if (electricChargeIndex == -1)
+            {
+                electricChargeIndex = vc.GetResourceIndex(MASConfig.ElectricCharge);
+            }
+            return vc.ResourceDeltaDirect(electricChargeIndex);
         }
 
         /// <summary>
@@ -123,7 +133,11 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double PowerMax()
         {
-            return vc.ResourceMax(MASConfig.ElectricCharge);
+            if (electricChargeIndex == -1)
+            {
+                electricChargeIndex = vc.GetResourceIndex(MASConfig.ElectricCharge);
+            }
+            return vc.ResourceMaxDirect(electricChargeIndex);
         }
 
         /// <summary>
@@ -134,8 +148,13 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double PowerPercent()
         {
-            return vc.ResourcePercent(MASConfig.ElectricCharge);
+            if (electricChargeIndex == -1)
+            {
+                electricChargeIndex = vc.GetResourceIndex(MASConfig.ElectricCharge);
+            }
+            return vc.ResourcePercentDirect(electricChargeIndex);
         }
+
         /// <summary>
         /// Reports whether the vessel's power percentage falls between the two listed bounds.
         /// The bounds do not need to be in numerical order.
@@ -148,12 +167,17 @@ namespace AvionicsSystems
         /// <returns>1 if the power percentage is between the listed bounds.</returns>
         public double PowerThreshold(double firstBound, double secondBound)
         {
-            double vesselMax = vc.ResourceMax(MASConfig.ElectricCharge);
-            if (vesselMax > 0.0f)
+            if (electricChargeIndex == -1)
+            {
+                electricChargeIndex = vc.GetResourceIndex(MASConfig.ElectricCharge);
+            }
+
+            double vesselMax = vc.ResourceMaxDirect(electricChargeIndex);
+            if (vesselMax > 0.0)
             {
                 double min = Math.Min(firstBound, secondBound);
                 double max = Math.Max(firstBound, secondBound);
-                double percent = vc.ResourcePercent(MASConfig.ElectricCharge);
+                double percent = vc.ResourcePercentDirect(electricChargeIndex);
 
                 if (percent >= min && percent <= max)
                 {
