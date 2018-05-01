@@ -106,7 +106,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="resourceId">Either the internal name of the resource (eg, "ElectricCharge") or a number corresponding to the active resources array.</param>
         /// <returns>Index, or a negative number if not found</returns>
-        private int GetResourceIndex(object resourceId)
+        internal int GetResourceIndex(object resourceId)
         {
             int index = -1;
             if (resourceId is string)
@@ -222,6 +222,22 @@ namespace AvionicsSystems
             {
                 return 0.0;
             }
+        }
+
+        /// <summary>
+        /// Internal fast-access query - bypasses repeated GetResourceIndex
+        /// lookups by using the index fetched previously from GetResourceIndex
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        internal double ResourceCurrentDirect(int index)
+        {
+            if (index >= 0 && index < resources.Length)
+            {
+                return resources[index].currentQuantity;
+            }
+
+            return 0.0;
         }
 
         /// <summary>

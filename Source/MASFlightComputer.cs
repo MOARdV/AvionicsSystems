@@ -166,6 +166,8 @@ namespace AvionicsSystems
         /// </summary>
         internal MASVesselComputer vc;
 
+        private int electricChargeIndex = -1;
+
         internal static readonly string vesselIdLabel = "__vesselId";
         internal static readonly string vesselFilterLabel = "__vesselFilter";
 
@@ -537,7 +539,7 @@ namespace AvionicsSystems
         {
             int bit = 1 << bitIndex;
             int andResult = bit & vesselFilterValue;
-            
+
             return (andResult != 0);
         }
 
@@ -622,10 +624,15 @@ namespace AvionicsSystems
                     transferProxy.Update();
                     UpdateRadios();
 
-                    // Precompute the disruption effects.
-                    // TODO: Don't do the string lookup every FixedUpdate...
-                    isPowered = (!requiresPower || vc.ResourceCurrent(MASConfig.ElectricCharge) > 0.0001) && powerOnValid;
+                    // Precompute the disruption chances.
+                    if (electricChargeIndex == -1)
+                    {
+                        // We have to poll it here because the value may not be initialized
+                        // when we're in Start().
+                        electricChargeIndex = vc.GetResourceIndex(MASConfig.ElectricCharge);
+                    }
 
+                    isPowered = (!requiresPower || vc.ResourceCurrentDirect(electricChargeIndex) > 0.0001) && powerOnValid;
                     if (vessel.geeForce_immediate > gLimit)
                     {
                         disruptionChance = baseDisruptionChance * Mathf.Sqrt((float)vessel.geeForce_immediate - gLimit);
@@ -869,11 +876,11 @@ namespace AvionicsSystems
 
                     SetPersistent(vesselFilterLabel, vesselFilterValue.ToString("X"));
                 }
-                
+
                 activeVesselFilter.Clear();
-                for (int i = 1; i < 14; ++i )
+                for (int i = 1; i < 14; ++i)
                 {
-                    if ((vesselFilterValue & (1<<i)) != 0)
+                    if ((vesselFilterValue & (1 << i)) != 0)
                     {
                         activeVesselFilter.Add(vesselBitRemap[i]);
                     }
@@ -973,7 +980,7 @@ namespace AvionicsSystems
                 GameEvents.onVesselWasModified.Add(onVesselChanged);
                 GameEvents.onVesselChange.Add(onVesselChanged);
                 GameEvents.onVesselCrewWasModified.Add(onVesselChanged);
-                
+
                 if (!string.IsNullOrEmpty(powerOnVariable))
                 {
                     RegisterNumericVariable(powerOnVariable, null, UpdatePowerOnVariable);
