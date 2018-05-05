@@ -288,11 +288,7 @@ namespace AvionicsSystems
                 localMaterial[i].SetColor(colorIndex, passiveColor);
             }
 
-            if (string.IsNullOrEmpty(variableName))
-            {
-                Utility.LogMessage(this, "COLOR_SHIFT {0} configured as static color shift, with no variable defined", name);
-            }
-            else
+            if (!string.IsNullOrEmpty(variableName))
             {
                 registeredVariables.RegisterNumericVariable(variableName, VariableCallback);
             }
