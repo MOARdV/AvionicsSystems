@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 - 2017 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -222,7 +222,7 @@ namespace AvionicsSystems
                     // else: do I verify that values appear to match?
                 }
             }
-            
+
             MASConfig.ResetWaypoints = false;
         }
 
@@ -318,8 +318,8 @@ namespace AvionicsSystems
             // Note: VesselModule.vessel is useless at this stage.
             if (HighLogic.LoadedSceneIsFlight)
             {
-                InitializeNavAids(); 
-                
+                InitializeNavAids();
+
                 navBall = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.NavBall>();
                 if (navBall == null)
                 {
@@ -447,7 +447,7 @@ namespace AvionicsSystems
             // This does not account for the stock overlays.  However, that
             // required iterating over the cameras list to find
             // "InternalSpaceOverlay Host".  At least, in 1.1.3.
-            return vessel.isActiveVessel && CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA;
+            return vessel.isActiveVessel && (CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA || CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.Internal);
         }
 
         internal double altitudeASL;
@@ -1045,8 +1045,8 @@ namespace AvionicsSystems
             double grav = vessel.GetTotalMass() * FlightGlobals.getGeeForceAtPosition(vessel.CoM).magnitude; // force of gravity
             terminalVelocity = Math.Sqrt(grav / dragForce) * vessel.speed;
             if (double.IsNaN(terminalVelocity))
-            { 
-                terminalVelocity = 0d; 
+            {
+                terminalVelocity = 0.0;
             }
 
             aeroDataValid = true;
