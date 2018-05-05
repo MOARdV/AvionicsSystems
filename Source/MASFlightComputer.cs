@@ -282,14 +282,21 @@ namespace AvionicsSystems
         /// <param name="callback"></param>
         internal void RegisterNumericVariable(string variableName, InternalProp prop, Action<double> callback)
         {
-            Variable v = GetVariable(variableName, prop);
-
-            if (v.mutable)
+            try
             {
-                v.numericCallbacks += callback;
-            }
+                Variable v = GetVariable(variableName, prop);
 
-            callback(v.SafeValue());
+                if (v.mutable)
+                {
+                    v.numericCallbacks += callback;
+                }
+
+                callback(v.SafeValue());
+            }
+            catch (Exception e)
+            {
+                throw new ArgumentException("Error parsing variable \"" + variableName + "\"", e);
+            }
         }
 
         /// <summary>
@@ -798,38 +805,47 @@ namespace AvionicsSystems
                     chattererProxy = new MASIChatterer();
                     UserData.RegisterType<MASIChatterer>();
                     script.Globals["chatterer"] = chattererProxy;
+                    registeredTables.Add("chatterer", new MASRegisteredTable(chattererProxy));
 
                     engineProxy = new MASIEngine();
                     UserData.RegisterType<MASIEngine>();
                     script.Globals["engine"] = engineProxy;
+                    registeredTables.Add("engine", new MASRegisteredTable(engineProxy));
 
                     farProxy = new MASIFAR(vessel);
                     UserData.RegisterType<MASIFAR>();
                     script.Globals["far"] = farProxy;
+                    registeredTables.Add("far", new MASRegisteredTable(farProxy));
 
                     kacProxy = new MASIKAC(vessel);
                     UserData.RegisterType<MASIKAC>();
                     script.Globals["kac"] = kacProxy;
+                    registeredTables.Add("kac", new MASRegisteredTable(kacProxy));
 
                     mjProxy = new MASIMechJeb();
                     UserData.RegisterType<MASIMechJeb>();
                     script.Globals["mechjeb"] = mjProxy;
+                    registeredTables.Add("mechjeb", new MASRegisteredTable(mjProxy));
 
                     navProxy = new MASINavigation(vessel, this);
                     UserData.RegisterType<MASINavigation>();
                     script.Globals["nav"] = navProxy;
+                    registeredTables.Add("nav", new MASRegisteredTable(navProxy));
 
                     parachuteProxy = new MASIParachute(vessel);
                     UserData.RegisterType<MASIParachute>();
                     script.Globals["parachute"] = parachuteProxy;
+                    registeredTables.Add("parachute", new MASRegisteredTable(parachuteProxy));
 
                     transferProxy = new MASITransfer(vessel);
                     UserData.RegisterType<MASITransfer>();
                     script.Globals["transfer"] = transferProxy;
+                    registeredTables.Add("transfer", new MASRegisteredTable(transferProxy));
 
                     fcProxy = new MASFlightComputerProxy(this, farProxy, mjProxy);
                     UserData.RegisterType<MASFlightComputerProxy>();
                     script.Globals["fc"] = fcProxy;
+                    registeredTables.Add("fc", new MASRegisteredTable(fcProxy));
                 }
                 catch (Exception e)
                 {

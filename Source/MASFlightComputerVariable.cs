@@ -35,6 +35,28 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
+    /// <summary>
+    /// This class is a convenience object that allows me to automate which proxy
+    /// objects have been instantiated, instead of having to manually maintain
+    /// static dictionaries.
+    /// </summary>
+    public class MASRegisteredTable
+    {
+        public Type type
+        {
+            get
+            {
+                return proxy.GetType();
+            }
+            //private set
+        }
+        public object proxy { get; private set; }
+        internal MASRegisteredTable(object who)
+        {
+            proxy = who;
+        }
+    }
+
     public partial class MASFlightComputer : PartModule
     {
         /// <summary>
@@ -70,17 +92,7 @@ namespace AvionicsSystems
         private int nativeVariableCount = 0;
         private int constantVariableCount = 0;
 
-        static private Dictionary<string, Type> typeMap = new Dictionary<string, Type>
-        {
-            {"fc", typeof(MASFlightComputerProxy)},
-            {"chatterer", typeof(MASIChatterer)},
-            {"engine", typeof(MASIEngine)},
-            {"far", typeof(MASIFAR)},
-            {"kac", typeof(MASIKAC)},
-            {"mechjeb", typeof(MASIMechJeb)},
-            {"nav", typeof(MASINavigation)},
-            {"parachute", typeof(MASIParachute)},
-        };
+        private Dictionary<string, MASRegisteredTable> registeredTables = new Dictionary<string, MASRegisteredTable>();
 
         /// <summary>
         /// Given a table (object) name, a method name, and an array of
@@ -92,124 +104,35 @@ namespace AvionicsSystems
         /// <param name="parameters"></param>
         /// <param name="tableRef"></param>
         /// <param name="methodInfo"></param>
-        /// <returns></returns>
-        private bool GetMASIMethod(string tableName, string methodName, Type[] parameters, out object tableRef, out MethodInfo methodInfo)
+        private void GetMASIMethod(string tableName, string methodName, Type[] parameters, out object tableRef, out MethodInfo methodInfo)
         {
             methodInfo = null;
             tableRef = null;
-            //if (typeMap.ContainsKey(tableName)) // Did this already by the caller
+            var tableInfo = registeredTables[tableName];
+            methodInfo = FindMethod(tableName, methodName, tableInfo.type, parameters);
+
+            if (methodInfo != null)
             {
-                methodInfo = FindMethod(methodName, typeMap[tableName], parameters);
-
-                if (methodInfo != null)
-                {
-                    bool parameterMatch = false;
-                    ParameterInfo[] parms = methodInfo.GetParameters();
-                    if (parms.Length == parameters.Length)
-                    {
-                        parameterMatch = true;
-                        for (int i = parms.Length - 1; i >= 0; --i)
-                        {
-                            if (!(parms[i].ParameterType == typeof(object) || parameters[i] == typeof(object) || parms[i].ParameterType == parameters[i]))
-                            {
-                                parameterMatch = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (parameterMatch)
-                    {
-                        switch (tableName)
-                        {
-                            case "fc":
-                                tableRef = fcProxy;
-                                break;
-                            case "chatterer":
-                                tableRef = chattererProxy;
-                                break;
-                            case "engine":
-                                tableRef = engineProxy;
-                                break;
-                            case "far":
-                                tableRef = farProxy;
-                                break;
-                            case "kac":
-                                tableRef = kacProxy;
-                                break;
-                            case "mechjeb":
-                                tableRef = mjProxy;
-                                break;
-                            case "nav":
-                                tableRef = navProxy;
-                                break;
-                            case "parachute":
-                                tableRef = parachuteProxy;
-                                break;
-                        }
-
-                        return (tableRef != null);
-                    }
-                }
+                tableRef = tableInfo.proxy;
             }
-
-            return false;
         }
 
         /// <summary>
         /// Find a method with the supplied name within the supplied class (Type)
         /// with a parameter list that matches the types in the VariableParameter array.
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="tableName"></param>
+        /// <param name="methodName"></param>
         /// <param name="type"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        //private static MethodInfo FindMethod(string name, Type type, VariableParameter[] parameters)
-        //{
-        //    int numParams = parameters.Length;
-        //    MethodInfo[] methods = type.GetMethods();
-        //    for (int i = methods.Length - 1; i >= 0; --i)
-        //    {
-        //        if (methods[i].Name == name)
-        //        {
-        //            ParameterInfo[] methodParams = methods[i].GetParameters();
-        //            if (methodParams.Length == numParams)
-        //            {
-        //                if (numParams == 0)
-        //                {
-        //                    return methods[i];
-        //                }
-        //                else
-        //                {
-        //                    bool match = true;
-        //                    for (int index = 0; index < numParams; ++index)
-        //                    {
-        //                        if (methodParams[index].ParameterType != parameters[index].valueType)
-        //                        {
-        //                            match = false;
-        //                            break;
-        //                        }
-        //                    }
-
-        //                    if (match)
-        //                    {
-        //                        return methods[i];
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    return null;
-        //}
-
-        private static MethodInfo FindMethod(string name, Type type, Type[] parameters)
+        private MethodInfo FindMethod(string tableName, string methodName, Type type, Type[] parameters)
         {
             int numParams = parameters.Length;
             MethodInfo[] methods = type.GetMethods();
             for (int i = methods.Length - 1; i >= 0; --i)
             {
-                if (methods[i].Name == name)
+                if (methods[i].Name == methodName)
                 {
                     ParameterInfo[] methodParams = methods[i].GetParameters();
                     if (methodParams.Length == numParams)
@@ -223,11 +146,17 @@ namespace AvionicsSystems
                             bool match = true;
                             for (int index = 0; index < numParams; ++index)
                             {
-                                //if (methodParams[index].ParameterType != parameters[index])
                                 if (!(methodParams[index].ParameterType == typeof(object) || parameters[index] == typeof(object) || methodParams[index].ParameterType == parameters[index]))
                                 {
                                     match = false;
-                                    break;
+                                    Utility.LogErrorMessage(this, "Processing {0}.{1}(): Did not find a match for parameter {2} (expecting {3}, but got {4}).",
+                                        tableName, methodName,
+                                        index + 1,
+                                        methodParams[index].ParameterType, parameters[index]);
+                                    throw new ArgumentException(string.Format("Parameter type mismatch in {0}.{1}(): Did not find a match for parameter {2} (expecting {3}, but got {4}).",
+                                        tableName, methodName,
+                                        index + 1,
+                                        methodParams[index].ParameterType, parameters[index]));
                                 }
                             }
 
@@ -439,10 +368,13 @@ namespace AvionicsSystems
                 }
                 else
                 {
-                    Utility.LogErrorMessage(this, "There was an error processing variable {0}", canonicalVariableName);
+                    Utility.LogErrorMessage(this, "There was an error processing variable {0}", canonical);
                 }
             }
-
+            if (v == null)
+            {
+                Utility.LogErrorMessage(this, "Failed to generate variable for {0}", canonical);
+            }
             return v;
         }
 
@@ -796,15 +728,19 @@ namespace AvionicsSystems
             tableInstance = null;
             method = null;
 
-            //StringBuilder sb = StringBuilderCache.Acquire();
-            //dotOperatorExpression.print(sb);
-
             CodeGen.NameExpression tableName = dotOperatorExpression.TableName() as CodeGen.NameExpression;
             CodeGen.NameExpression methodName = dotOperatorExpression.MethodName() as CodeGen.NameExpression;
 
-            if (tableName != null && methodName != null && typeMap.ContainsKey(tableName.getName()))
+            if (tableName != null && methodName != null)
             {
-                GetMASIMethod(tableName.getName(), methodName.getName(), parameters, out tableInstance, out method);
+                if (registeredTables.ContainsKey(tableName.getName()))
+                {
+                    GetMASIMethod(tableName.getName(), methodName.getName(), parameters, out tableInstance, out method);
+                }
+                else
+                {
+                    Utility.LogWarning(this, "No table named \"{0}\" is registered in the variables map.  Something may need updated.", tableName.getName());
+                }
             }
         }
 
