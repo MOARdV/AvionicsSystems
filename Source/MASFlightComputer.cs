@@ -603,7 +603,7 @@ namespace AvionicsSystems
                         int nativeIdx = 0, luaIdx = 0;
                         foreach (Variable var in mutableVariablesList)
                         {
-                            if (var.variableType == Variable.VariableType.LuaScript)
+                            if (var.variableType == Variable.VariableType.LuaScript || var.variableType == Variable.VariableType.LuaClosure)
                             {
                                 luaVariables[luaIdx] = var;
                                 ++luaIdx;

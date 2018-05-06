@@ -262,7 +262,13 @@ namespace AvionicsSystems
                     // If we couldn't find a way to optimize the value, fall
                     // back to interpreted Lua script.
                     v = new Variable(result.canonicalName, script);
+                    if (v.valid == false)
+                    {
+                        throw new ArgumentException(string.Format("Unable to process variable {0}", result.canonicalName));
+                    }
+
                     ++luaVariableCount;
+                    Utility.LogMessage(this, "luaVariableCount increased in GetVariable -- this may be buggy -- for {0}", result.canonicalName);
                 }
                 if (!variables.ContainsKey(result.canonicalName))
                 {
@@ -362,7 +368,7 @@ namespace AvionicsSystems
                 {
                     ++nativeVariableCount;
                 }
-                else if (v.variableType == Variable.VariableType.LuaScript)
+                else if (v.variableType == Variable.VariableType.LuaScript || v.variableType == Variable.VariableType.LuaClosure)
                 {
                     ++luaVariableCount;
                 }
@@ -439,37 +445,37 @@ namespace AvionicsSystems
             switch (operatorExpression.Operator())
             {
                 case CodeGen.Parser.LuaToken.PLUS:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() + rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() + rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
                     break;
                 case CodeGen.Parser.LuaToken.MINUS:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() - rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() - rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
                     break;
                 case CodeGen.Parser.LuaToken.MULTIPLY:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() * rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() * rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
                     break;
                 case CodeGen.Parser.LuaToken.DIVIDE:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() / rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() / rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
                     break;
                 case CodeGen.Parser.LuaToken.LESS_THAN:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() < rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() < rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
                     break;
                 case CodeGen.Parser.LuaToken.GREATER_THAN:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() > rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() > rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
                     break;
                 case CodeGen.Parser.LuaToken.EQUALITY:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() == rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() == rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
                     break;
                 case CodeGen.Parser.LuaToken.INEQUALITY:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() != rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() != rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
                     break;
                 case CodeGen.Parser.LuaToken.LESS_EQUAL:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() <= rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() <= rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
                     break;
                 case CodeGen.Parser.LuaToken.GREATER_EQUAL:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() >= rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() >= rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
                     break;
                 case CodeGen.Parser.LuaToken.AND:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.BoolValue() && rhs.BoolValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.BoolValue() && rhs.BoolValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
                     break;
                 default:
 #if PLENTIFUL_LOGGING
@@ -511,37 +517,38 @@ namespace AvionicsSystems
         {
             string canonical = callExpression.CanonicalName();
 
-            if (callExpression.Function().ExpressionType() == CodeGen.ExpressionIs.DotOperator)
-            {
-                int numArgs = callExpression.NumArgs();
-                Variable[] parms = new Variable[numArgs];
-                Type[] parameters = new Type[numArgs];
+            int numArgs = callExpression.NumArgs();
+            Variable[] parms = new Variable[numArgs];
+            Type[] parameters = new Type[numArgs];
 #if EXCESSIVE_LOGGING
                 Utility.LogMessage(this, "--- GenerateCallVariable(): {0} parameters", numArgs);
 #endif
-                for (int i = 0; i < numArgs; ++i)
-                {
-                    CodeGen.Expression exp = callExpression.Arg(i);
+            for (int i = 0; i < numArgs; ++i)
+            {
+                CodeGen.Expression exp = callExpression.Arg(i);
 #if EXCESSIVE_LOGGING
                     Utility.LogMessage(this, "--- GenerateCallVariable(): Parameter {0} is {1} (a {2})", i, "???"/*sb.ToString()*/, exp.ExpressionType());
 #endif
-                    parms[i] = GenerateVariable(exp);
-                    if (parms[i] == null)
-                    {
+                parms[i] = GenerateVariable(exp);
+                if (parms[i] == null)
+                {
 #if PLENTIFUL_LOGGING
                         Utility.LogErrorMessage(this, "!!! GenerateCallVariable(): Unable to generate variable for parameter {0}, punting", i, exp.CanonicalName());
 #endif
-                        return null;
-                    }
-                    else
-                    {
-                        parameters[i] = parms[i].RawValue().GetType();
+                    return null;
+                }
+                else
+                {
+                    parameters[i] = parms[i].RawValue().GetType();
 #if EXCESSIVE_LOGGING
                         Utility.LogMessage(this, "--- GenerateCallVariable(): parameter[{0}] is {1}", i, parameters[i]);
 #endif
-                    }
                 }
+            }
 
+            // Assume this is a MAS function.
+            if (callExpression.Function().ExpressionType() == CodeGen.ExpressionIs.DotOperator)
+            {
                 object tableInstance;
                 MethodInfo method;
                 EvaluateDotOperator(callExpression.Function() as CodeGen.DotOperatorExpression, parameters, out tableInstance, out method);
@@ -568,7 +575,7 @@ namespace AvionicsSystems
 #if EXCESSIVE_LOGGING
                         Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, {1} parameters", canonical, numArgs);
 #endif
-                        return new Variable(canonical, () => dm(tableInstance), cacheable, mutable);
+                        return new Variable(canonical, () => dm(tableInstance), cacheable, mutable, Variable.VariableType.Func);
                     }
                     else if (numArgs == 1)
                     {
@@ -578,7 +585,7 @@ namespace AvionicsSystems
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
                             Func<object, double, object> dm = DynamicMethodFactory.CreateDynFunc<object, double, object>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue()), cacheable, mutable);
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue()), cacheable, mutable, Variable.VariableType.Func);
                         }
                         else if (methodParams[0].ParameterType == typeof(string))
                         {
@@ -591,7 +598,7 @@ namespace AvionicsSystems
                             //    Utility.LogMessage(this, "--- GenerateCallVariable(): Found a candidate for pushable variable: {0} using {1}",
                             //        canonical,parms[0].String());
                             //}
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].String()), cacheable, mutable);
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].String()), cacheable, mutable, Variable.VariableType.Func);
                         }
                         else if (methodParams[0].ParameterType == typeof(bool))
                         {
@@ -599,7 +606,7 @@ namespace AvionicsSystems
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
                             Func<object, bool, object> dm = DynamicMethodFactory.CreateDynFunc<object, bool, object>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].BoolValue()), cacheable, mutable);
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].BoolValue()), cacheable, mutable, Variable.VariableType.Func);
                         }
                         else if (methodParams[0].ParameterType == typeof(object))
                         {
@@ -607,7 +614,7 @@ namespace AvionicsSystems
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
                             Func<object, object, object> dm = DynamicMethodFactory.CreateDynFunc<object, object, object>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].RawValue()), cacheable, mutable);
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].RawValue()), cacheable, mutable, Variable.VariableType.Func);
                         }
                         else
                         {
@@ -619,17 +626,17 @@ namespace AvionicsSystems
                         if (methodParams[0].ParameterType == typeof(double) && methodParams[1].ParameterType == typeof(double))
                         {
                             Func<object, double, double, object> dm = DynamicMethodFactory.CreateFunc<object, double, double, object>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].SafeValue()), cacheable, mutable);
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].SafeValue()), cacheable, mutable, Variable.VariableType.Func);
                         }
                         else if (methodParams[0].ParameterType == typeof(bool) && methodParams[1].ParameterType == typeof(double))
                         {
                             Func<object, bool, double, object> dm = DynamicMethodFactory.CreateFunc<object, bool, double, object>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].BoolValue(), parms[1].SafeValue()), cacheable, mutable);
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].BoolValue(), parms[1].SafeValue()), cacheable, mutable, Variable.VariableType.Func);
                         }
                         else if (methodParams[0].ParameterType == typeof(double) && methodParams[1].ParameterType == typeof(bool))
                         {
                             Func<object, double, bool, object> dm = DynamicMethodFactory.CreateFunc<object, double, bool, object>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].BoolValue()), cacheable, mutable);
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].BoolValue()), cacheable, mutable, Variable.VariableType.Func);
                         }
                         else
                         {
@@ -641,17 +648,17 @@ namespace AvionicsSystems
                         if (methodParams[0].ParameterType == typeof(double) && methodParams[1].ParameterType == typeof(double) && methodParams[2].ParameterType == typeof(double))
                         {
                             Func<object, double, double, double, object> dm = DynamicMethodFactory.CreateFunc<object, double, double, double, object>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].SafeValue(), parms[2].SafeValue()), cacheable, mutable);
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].SafeValue(), parms[2].SafeValue()), cacheable, mutable, Variable.VariableType.Func);
                         }
                         else if (methodParams[0].ParameterType == typeof(string) && methodParams[1].ParameterType == typeof(double) && methodParams[2].ParameterType == typeof(double))
                         {
                             Func<object, string, double, double, object> dm = DynamicMethodFactory.CreateFunc<object, string, double, double, object>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].String(), parms[1].SafeValue(), parms[2].SafeValue()), cacheable, mutable);
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].String(), parms[1].SafeValue(), parms[2].SafeValue()), cacheable, mutable, Variable.VariableType.Func);
                         }
                         else if (methodParams[0].ParameterType == typeof(object) && methodParams[1].ParameterType == typeof(double) && methodParams[2].ParameterType == typeof(double))
                         {
                             Func<object, object, double, double, object> dm = DynamicMethodFactory.CreateFunc<object, object, double, double, object>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].RawValue(), parms[1].SafeValue(), parms[2].SafeValue()), cacheable, mutable);
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].RawValue(), parms[1].SafeValue(), parms[2].SafeValue()), cacheable, mutable, Variable.VariableType.Func);
                         }
                         else
                         {
@@ -667,7 +674,7 @@ namespace AvionicsSystems
                             methodParams[4].ParameterType == typeof(double))
                         {
                             DynamicMethodDelegate dm = DynamicMethodFactory.CreateFunc(method);
-                            return new Variable(canonical, () => dm(tableInstance, new object[] { parms[0].SafeValue(), parms[1].SafeValue(), parms[2].SafeValue(), parms[3].SafeValue(), parms[4].SafeValue() }), cacheable, mutable);
+                            return new Variable(canonical, () => dm(tableInstance, new object[] { parms[0].SafeValue(), parms[1].SafeValue(), parms[2].SafeValue(), parms[3].SafeValue(), parms[4].SafeValue() }), cacheable, mutable, Variable.VariableType.Func);
                         }
                         else
                         {
@@ -689,17 +696,57 @@ namespace AvionicsSystems
             else
             {
                 // I think only a Lua script will hit here.
-                Variable v = new Variable(canonical, script);
+                Variable v = null;
+
+                // If the function is a Name (as opposed to the dot operator above), we assume
+                // that it's supposed to be a Lua script.  We attempt to fetch the global
+                // associated with the function's name.  If that's a DataType.Function, then
+                // we can evaluate it as a closure.
+                if (callExpression.Function().ExpressionType() == CodeGen.ExpressionIs.Name)
+                {
+                    try
+                    {
+                        DynValue closure = script.Globals.Get(callExpression.Function().CanonicalName());
+
+                        if (closure.Type == DataType.Function)
+                        {
+                            if (parms.Length == 0)
+                            {
+                                return new Variable(canonical, () =>
+                                {
+                                    return script.Call(closure).ToObject();
+                                }, true, true, Variable.VariableType.LuaClosure);
+                            }
+                            else
+                            {
+                                // Is this the best way to do this?  Or should I write it as fixed-length arrays per-parameter length instead?
+                                return new Variable(canonical, () =>
+                                {
+                                    object[] callParams = new object[parms.Length];
+                                    for (int i = 0; i < parms.Length; ++i)
+                                    {
+                                        callParams[i] = parms[i].RawValue();
+                                    }
+                                    return script.Call(closure, callParams).ToObject();
+                                }, true, true, Variable.VariableType.LuaClosure);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        // No-op.  Soak the exception and fall back below.
+                    }
+                }
+
+                // Fall back to evaluating the text as a Lua snippet every FixedUpdate.
+                // NOTE: It's possible that Lua stdlib methods (eg, math.sin) are used.  Right now,
+                // I fall back to here to evaluate them.  I suppose I could add Lua table evaluation
+                // to the DotOperator path, and that may allow a more efficient evaluation, since
+                // I'd be able to call the method inside the table directly.
+                v = new Variable(canonical, script);
                 if (v.valid)
                 {
-                    ++luaVariableCount;
-                    if (!variables.ContainsKey(canonical))
-                    {
-                        variables.Add(canonical, v);
-
-                        mutableVariablesList.Add(v);
-                        mutableVariablesChanged = true;
-                    }
+                    Utility.LogMessage(this, "Did not evaluate {0} - fell back to script evaluation.", canonical);
 #if EXCESSIVE_LOGGING
                     Utility.LogMessage(this, "--- GenerateCallVariable(): Created Lua variable for {0}", canonical);
 #endif
@@ -789,6 +836,7 @@ namespace AvionicsSystems
             {
                 Unknown,
                 LuaScript,
+                LuaClosure,
                 Constant,
                 Func,
             };
@@ -854,18 +902,18 @@ namespace AvionicsSystems
             /// <param name="name"></param>
             /// <param name="nativeEvaluator"></param>
             /// <param name="cacheable"></param>
-            public Variable(string name, Func<object> nativeEvaluator, bool cacheable, bool mutable)
+            public Variable(string name, Func<object> nativeEvaluator, bool cacheable, bool mutable, VariableType variableType)
             {
                 this.name = name;
 
                 this.nativeEvaluator = nativeEvaluator;
 
-                ProcessObject(nativeEvaluator());
-
                 this.valid = true;
                 this.cacheable = (mutable) ? cacheable : true;
                 this.mutable = mutable;
-                this.variableType = (mutable) ? VariableType.Func : VariableType.Constant;
+                this.variableType = (mutable) ? variableType : VariableType.Constant;
+
+                ProcessObject(nativeEvaluator());
             }
 
             /// <summary>
@@ -1053,7 +1101,7 @@ namespace AvionicsSystems
 
                     ProcessObject(value.ToObject());
                 }
-                else if (variableType == VariableType.Func)
+                else if (variableType == VariableType.Func || variableType == VariableType.LuaClosure)
                 {
                     object value = nativeEvaluator();
 
