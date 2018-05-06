@@ -373,7 +373,7 @@ namespace AvionicsSystems
             }
             if (v == null)
             {
-                Utility.LogErrorMessage(this, "Failed to generate variable for {0}", canonical);
+                Utility.LogErrorMessage(this, "INITIALIZATION ERROR: Failed to generate variable for {0} - check its name?", canonical);
             }
             return v;
         }
