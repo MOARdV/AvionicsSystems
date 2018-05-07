@@ -455,19 +455,11 @@ namespace AvionicsSystems
         /// Returns or generates an Action that encapsulates the supplied actionName,
         /// which is simply the Lua function(s) that are to be executed.
         /// </summary>
-        /// <param name="actionName"></param>
-        /// <returns></returns>
+        /// <param name="actionName">The action (Lua code snippet) to execute.</param>
+        /// <returns>The Action.</returns>
         internal Action GetAction(string actionName, InternalProp prop)
         {
-            // TODO: Lexer / parsing on this.
             actionName = ConditionVariableName(actionName, prop);
-
-            //var result = CodeGen.Parser.TryParse(actionName);
-            //if (result.type != CodeGen.Parser.ResultType.ERROR)
-            //{
-            //    Utility.LogMessage(this, "IN : {0}", actionName);
-            //    Utility.LogMessage(this, "OUT: {0}", result.canonicalSource);
-            //}
 
             Action action;
             if (actions.TryGetValue(actionName, out action))
