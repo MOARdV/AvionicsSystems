@@ -667,19 +667,8 @@ namespace AvionicsSystems
                     }
                     else if (numArgs == 5)
                     {
-                        if (methodParams[0].ParameterType == typeof(double) &&
-                            methodParams[1].ParameterType == typeof(double) &&
-                            methodParams[2].ParameterType == typeof(double) &&
-                            methodParams[3].ParameterType == typeof(double) &&
-                            methodParams[4].ParameterType == typeof(double))
-                        {
-                            DynamicMethodDelegate dm = DynamicMethodFactory.CreateFunc(method);
-                            return new Variable(canonical, () => dm(tableInstance, new object[] { parms[0].SafeValue(), parms[1].SafeValue(), parms[2].SafeValue(), parms[3].SafeValue(), parms[4].SafeValue() }), cacheable, mutable, Variable.VariableType.Func);
-                        }
-                        else
-                        {
-                            Utility.LogWarning(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0} with {1} parameters.  Falling back to Lua.", canonical, numArgs);
-                        }
+                        DynamicMethodDelegate dm = DynamicMethodFactory.CreateFunc(method);
+                        return new Variable(canonical, () => dm(tableInstance, new object[] { parms[0].RawValue(), parms[1].RawValue(), parms[2].RawValue(), parms[3].RawValue(), parms[4].RawValue() }), cacheable, mutable, Variable.VariableType.Func);
                     }
                     else
                     {
@@ -722,10 +711,10 @@ namespace AvionicsSystems
                                 // Is this the best way to do this?  Or should I write it as fixed-length arrays per-parameter length instead?
                                 return new Variable(canonical, () =>
                                 {
-                                    object[] callParams = new object[parms.Length];
+                                    DynValue[] callParams = new DynValue[parms.Length];
                                     for (int i = 0; i < parms.Length; ++i)
                                     {
-                                        callParams[i] = parms[i].RawValue();
+                                        callParams[i] = parms[i].AsDynValue();
                                     }
                                     return script.Call(closure, callParams).ToObject();
                                 }, true, true, Variable.VariableType.LuaClosure);
@@ -822,11 +811,14 @@ namespace AvionicsSystems
             internal event Action<double> numericCallbacks;
             internal event Action changeCallbacks;
             private Func<object> nativeEvaluator;
+            // Lua script that is invoked:
             private DynValue luaEvaluator;
             private object rawObject;
             private string stringValue;
             private double doubleValue;
             private double safeValue;
+            // Lua-native results
+            private DynValue luaValue;
             internal readonly VariableType variableType = VariableType.Unknown;
 
             /// <summary>
@@ -857,6 +849,7 @@ namespace AvionicsSystems
                 this.variableType = VariableType.Constant;
                 this.cacheable = true;
                 this.mutable = false;
+                this.luaValue = DynValue.NewBoolean(value);
                 //this.invariant = true;
             }
 
@@ -876,6 +869,7 @@ namespace AvionicsSystems
                 this.variableType = VariableType.Constant;
                 this.cacheable = true;
                 this.mutable = false;
+                this.luaValue = DynValue.NewNumber(value);
             }
 
             /// <summary>
@@ -894,6 +888,7 @@ namespace AvionicsSystems
                 this.variableType = VariableType.Constant;
                 this.cacheable = true;
                 this.mutable = false;
+                this.luaValue = DynValue.NewString(value);
             }
 
             /// <summary>
@@ -925,12 +920,11 @@ namespace AvionicsSystems
             {
                 this.name = name;
 
-                DynValue luaValue = null;
                 try
                 {
                     // TODO: MoonSharp "hardwiring" - does it help performance?
                     luaEvaluator = script.LoadString("return " + name);
-                    luaValue = script.Call(luaEvaluator);
+                    this.luaValue = script.Call(luaEvaluator);
                     this.valid = true;
                 }
                 catch (Exception e)
@@ -938,14 +932,14 @@ namespace AvionicsSystems
                     Utility.ComplainLoudly("Error creating variable " + name);
                     Utility.LogErrorMessage(this, "Unknown variable '{0}':", name);
                     Utility.LogErrorMessage(this, e.ToString());
-                    luaValue = null;
+                    this.luaValue = null;
                     this.valid = false;
                 }
 
                 if (this.valid)
                 {
                     this.variableType = VariableType.LuaScript;
-                    ProcessObject(luaValue.ToObject());
+                    ProcessObject(this.luaValue.ToObject());
                 }
                 this.cacheable = true;
                 this.mutable = true;
@@ -977,6 +971,11 @@ namespace AvionicsSystems
                     ProcessObject(nativeEvaluator());
                 }
                 return (safeValue != 0.0);
+            }
+
+            public DynValue AsDynValue()
+            {
+                return luaValue;
             }
 
             /// <summary>
@@ -1039,12 +1038,14 @@ namespace AvionicsSystems
                         doubleValue = (double)value;
                         safeValue = doubleValue;
                         stringValue = doubleValue.ToString();
+                        luaValue = DynValue.NewNumber(doubleValue);
                     }
                     else if (value is string)
                     {
                         stringValue = value as string;
                         doubleValue = double.NaN;
                         safeValue = 0.0;
+                        luaValue = DynValue.NewString(stringValue);
                     }
                     else if (value is bool)
                     {
@@ -1052,12 +1053,14 @@ namespace AvionicsSystems
                         safeValue = (bValue) ? 1.0 : 0.0;
                         doubleValue = double.NaN;
                         stringValue = bValue.ToString();
+                        luaValue = DynValue.NewBoolean(bValue);
                     }
                     else if (value == null)
                     {
                         safeValue = 0.0;
                         doubleValue = double.NaN;
                         stringValue = name;
+                        luaValue = DynValue.NewNil();
                     }
                     else
                     {
@@ -1089,17 +1092,16 @@ namespace AvionicsSystems
             {
                 if (variableType == VariableType.LuaScript)
                 {
-                    DynValue value;
                     try
                     {
-                        value = script.Call(luaEvaluator);
+                        luaValue = script.Call(luaEvaluator);
                     }
                     catch
                     {
-                        value = DynValue.NewNil();
+                        luaValue = DynValue.NewNil();
                     }
 
-                    ProcessObject(value.ToObject());
+                    ProcessObject(luaValue.ToObject());
                 }
                 else if (variableType == VariableType.Func || variableType == VariableType.LuaClosure)
                 {
