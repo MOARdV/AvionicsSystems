@@ -882,6 +882,24 @@ namespace AvionicsSystems
                 return approachSolverBW.resultsReady ? approachSolverBW.targetClosestUT : 0.0;
             }
         }
+        internal double targetClosestSpeed
+        {
+            get
+            {
+                if (activeTarget != null && !approachSolverBW.resultsReady)
+                {
+                    if (targetType == MASVesselComputer.TargetType.CelestialBody)
+                    {
+                        approachSolverBW.SolveApproach(orbit, activeTarget as CelestialBody, universalTime);
+                    }
+                    else
+                    {
+                        approachSolverBW.SolveApproach(orbit, targetOrbit, universalTime);
+                    }
+                }
+                return approachSolverBW.resultsReady ? approachSolverBW.targetClosestSpeed : 0.0;
+            }
+        }
         internal double targetClosestDistance
         {
             get
@@ -890,7 +908,7 @@ namespace AvionicsSystems
                 {
                     if (targetType == MASVesselComputer.TargetType.CelestialBody)
                     {
-                        approachSolverBW.SolveApproach(orbit, activeTarget as CelestialBody, Planetarium.GetUniversalTime());
+                        approachSolverBW.SolveApproach(orbit, activeTarget as CelestialBody, universalTime);
                     }
                     else
                     {

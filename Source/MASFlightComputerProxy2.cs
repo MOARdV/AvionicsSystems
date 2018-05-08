@@ -491,6 +491,31 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Relative speed of the target at closest approach after the scheduled maneuver, in m/s.  If there
+        /// is no maneuver scheduled, or no target, returns 0.
+        /// </summary>
+        /// <returns>Relative speed of the target at closest approach after the maneuver, m/s.</returns>
+        public double ManeuverNodeTargetClosestApproachSpeed()
+        {
+            if (vc.maneuverNodeValid && vc.targetType > 0 && vc.targetOrbit.referenceBody == vc.nodeOrbit.referenceBody)
+            {
+                if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
+                {
+                    solver.SolveApproach(vc.nodeOrbit, vc.activeTarget as CelestialBody, Planetarium.GetUniversalTime());
+                }
+                else
+                {
+                    solver.SolveApproach(vc.nodeOrbit, vc.targetOrbit, Planetarium.GetUniversalTime());
+                }
+                return solver.targetClosestSpeed;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Time when the closest approach with a target occurs after the scheduled maneuver, in seconds.  If there
         /// is no maneuver scheduled, or no target, returns 0.
         /// </summary>
@@ -1184,7 +1209,7 @@ namespace AvionicsSystems
                             scriptCount += 1.0;
                         }
                     }
-                    else if(modules[moduleIndex] is MASComponent)
+                    else if (modules[moduleIndex] is MASComponent)
                     {
                         if ((modules[moduleIndex] as MASComponent).RunStartupScript(fc))
                         {

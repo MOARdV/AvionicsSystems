@@ -1621,6 +1621,23 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the relative speed of the target at closest approach.  If there is no
+        /// target, returns 0.
+        /// </summary>
+        /// <returns>Speed at closest approach in m/s, or 0 if there is no target.</returns>
+        public double TargetClosestApproachSpeed()
+        {
+            if (vc.targetType > 0)
+            {
+                return vc.targetClosestSpeed;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Returns the time until the closest approach to the target.
         /// </summary>
         /// <returns>Time to closest approach in seconds, or 0 if there is no target.</returns>

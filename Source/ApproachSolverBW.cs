@@ -2,7 +2,7 @@
 /*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 - 2018 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -25,8 +25,6 @@
  ****************************************************************************/
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Text;
 
 namespace AvionicsSystems
 {
@@ -129,6 +127,7 @@ namespace AvionicsSystems
         internal bool resultsReady { get; private set; }
         internal double targetClosestDistance { get; private set; }
         internal double targetClosestUT { get; private set; }
+        internal double targetClosestSpeed { get; private set; }
 
         internal void SolveApproach(Orbit vesselOrbit, CelestialBody targetBody, double now)
         {
@@ -137,6 +136,7 @@ namespace AvionicsSystems
             {
                 targetClosestDistance = startOrbit.PeR;
                 targetClosestUT = startOrbit.timeToPe + startOrbit.StartUT;
+                targetClosestSpeed = startOrbit.getOrbitalSpeedAt(targetClosestUT);
                 this.resultsReady = true;
             }
             else
@@ -190,6 +190,8 @@ namespace AvionicsSystems
 
                     this.targetClosestDistance = targetClosestDistance;
                     this.targetClosestUT = targetClosestTime;
+                    Vector3d relativeVelocity = targetOrbit.getOrbitalVelocityAtUT(targetClosestTime) - startOrbit.getOrbitalVelocityAtUT(targetClosestTime);
+                    this.targetClosestSpeed = relativeVelocity.magnitude;
                 }
                 else
                 {
@@ -212,6 +214,9 @@ namespace AvionicsSystems
                             this.targetClosestUT = closestTime;
                         }
                     }
+
+                    Vector3d relativeVelocity = targetOrbit.getOrbitalVelocityAtUT(this.targetClosestUT) - startOrbit.getOrbitalVelocityAtUT(this.targetClosestUT);
+                    this.targetClosestSpeed = relativeVelocity.magnitude;
 
                     //this.targetClosestDistance = closestDistance;
                     //this.targetClosestUT = closestTime;
