@@ -1400,10 +1400,19 @@ namespace AvionicsSystems
             double orbitFraction = Utility.NormalizeAngle(currentEjectionAngle - transferEjectionAngle) / 360.0;
             timeUntilEjection = orbitFraction * o.period;
 
-            double oVel = o.getOrbitalSpeedAt(Planetarium.GetUniversalTime() + timeUntilEjection);
+            try
+            {
+                double oVel = o.getOrbitalSpeedAt(Planetarium.GetUniversalTime() + timeUntilEjection);
 
-            // Convert ejectionVelocity into ejection delta-V.
-            ejectionDeltaV = ejectionVelocity - oVel;
+                // Convert ejectionVelocity into ejection delta-V.
+                ejectionDeltaV = ejectionVelocity - oVel;
+            }
+            catch
+            {
+                // Orbit.getOrbitalSpeedAt() can fail for high eccentricity.  Trap those and
+                // jam ejectionDeltaV to 0 (we must already be ejecting?).
+                ejectionDeltaV = 0.0;
+            }
         }
 
         // Updater method - called at most once per FixedUpdate when the
