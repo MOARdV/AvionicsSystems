@@ -674,7 +674,13 @@ namespace AvionicsSystems
         /// <returns>1 if there is ElectricCharge, 0 otherwise.</returns>
         public double VesselPowered()
         {
-            return (vesselPowered) ? 1.0 : 0.0;
+            if (electricChargeIndex == -1)
+            {
+                // We have to poll it here because the value may not be initialized
+                // when we're in Start().
+                electricChargeIndex = vc.GetResourceIndex(MASConfig.ElectricCharge);
+            }
+            return (vc.ResourceCurrentDirect(electricChargeIndex) > 0.0001) ? 1.0 : 0.0;
         }
         #endregion
 
