@@ -155,8 +155,8 @@ namespace AvionicsSystems.CodeGen
             }
             catch (Exception e)
             {
-                Utility.LogErrorMessage("TryParse(" + source + ") threw an exception:");
-                Utility.LogErrorMessage(e.ToString());
+                Utility.LogStaticErrorMessage("TryParse(" + source + ") threw an exception:");
+                Utility.LogStaticErrorMessage(e.ToString());
                 result.canonicalName = source;
             }
 

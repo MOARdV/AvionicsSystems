@@ -146,7 +146,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="format"></param>
         /// <param name="values"></param>
-        internal static void LogErrorMessage(string format, params object[] values)
+        internal static void LogStaticErrorMessage(string format, params object[] values)
         {
             logSb.Remove(0, logSb.Length);
             logSb.Append("[AvionicsSystems] ").AppendFormat(format, values);

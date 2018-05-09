@@ -147,7 +147,7 @@ namespace AvionicsSystems
             {
                 // If the font isn't recognized as a system font, fall back to
                 // Liberation Sans.
-                Utility.LogErrorMessage("Need to update a font name: {1} (ignore {0})", 0, fontName);
+                Utility.LogStaticErrorMessage("Need to update a font name: {1} (ignore {0})", 0, fontName);
                 if (fonts.ContainsKey("LiberationSans-Regular"))
                 {
                     return fonts["Liberation Sans"][0];

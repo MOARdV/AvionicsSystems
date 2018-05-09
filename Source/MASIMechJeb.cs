@@ -1055,7 +1055,7 @@ namespace AvionicsSystems
                         object vacStat = GetStatsIndex(vacStatsO, i);
                         if (atmStat == null || vacStat == null)
                         {
-                            Utility.LogErrorMessage("atmStat or vacStat did not evaluate");
+                            Utility.LogStaticErrorMessage("atmStat or vacStat did not evaluate");
                             deltaV = deltaVStage = 0.0;
                             return;
                         }
@@ -1588,7 +1588,7 @@ namespace AvionicsSystems
             }
             catch (Exception e)
             {
-                Utility.LogErrorMessage("MJ static ctor exception {0}", e);
+                Utility.LogStaticErrorMessage("MJ static ctor exception {0}", e);
             }
         }
         #endregion

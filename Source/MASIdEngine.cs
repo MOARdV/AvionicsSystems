@@ -324,7 +324,7 @@ namespace AvionicsSystems
                 FieldInfo propRPM_t = ajePropellerAPI_t.GetField("propRPM", BindingFlags.Instance | BindingFlags.Public);
                 if (propRPM_t == null)
                 {
-                    Utility.LogErrorMessage("propRPM_t is null");
+                    Utility.LogStaticErrorMessage("propRPM_t is null");
                     return;
                 }
                 getPropRPM = DynamicMethodFactory.CreateGetField<object, float>(propRPM_t);
@@ -332,7 +332,7 @@ namespace AvionicsSystems
                 FieldInfo propPitch_t = ajePropellerAPI_t.GetField("propPitch", BindingFlags.Instance | BindingFlags.Public);
                 if (propPitch_t == null)
                 {
-                    Utility.LogErrorMessage("propPitch_t is null");
+                    Utility.LogStaticErrorMessage("propPitch_t is null");
                     return;
                 }
                 getPropPitch = DynamicMethodFactory.CreateGetField<object, float>(propPitch_t);
@@ -340,7 +340,7 @@ namespace AvionicsSystems
                 FieldInfo propThrust_t = ajePropellerAPI_t.GetField("propThrust", BindingFlags.Instance | BindingFlags.Public);
                 if (propThrust_t == null)
                 {
-                    Utility.LogErrorMessage("propThrust_t is null");
+                    Utility.LogStaticErrorMessage("propThrust_t is null");
                     return;
                 }
                 getPropThrust = DynamicMethodFactory.CreateGetField<object, float>(propThrust_t);
@@ -348,7 +348,7 @@ namespace AvionicsSystems
                 FieldInfo manifoldPressure_t = ajePropellerAPI_t.GetField("manifoldPressure", BindingFlags.Instance | BindingFlags.Public);
                 if (manifoldPressure_t == null)
                 {
-                    Utility.LogErrorMessage("manifoldPressure_t is null");
+                    Utility.LogStaticErrorMessage("manifoldPressure_t is null");
                     return;
                 }
                 getManifoldPressure = DynamicMethodFactory.CreateGetField<object, float>(manifoldPressure_t);
@@ -356,7 +356,7 @@ namespace AvionicsSystems
                 FieldInfo chargeAirTemp_t = ajePropellerAPI_t.GetField("chargeAirTemp", BindingFlags.Instance | BindingFlags.Public);
                 if (chargeAirTemp_t == null)
                 {
-                    Utility.LogErrorMessage("chargeAirTemp_t is null");
+                    Utility.LogStaticErrorMessage("chargeAirTemp_t is null");
                     return;
                 }
                 getChargeAirTemp = DynamicMethodFactory.CreateGetField<object, float>(chargeAirTemp_t);
@@ -364,7 +364,7 @@ namespace AvionicsSystems
                 FieldInfo netExhaustThrust_t = ajePropellerAPI_t.GetField("netExhaustThrust", BindingFlags.Instance | BindingFlags.Public);
                 if (netExhaustThrust_t == null)
                 {
-                    Utility.LogErrorMessage("netExhaustThrust_t is null");
+                    Utility.LogStaticErrorMessage("netExhaustThrust_t is null");
                     return;
                 }
                 getNetExhaustThrust = DynamicMethodFactory.CreateGetField<object, float>(netExhaustThrust_t);
@@ -372,7 +372,7 @@ namespace AvionicsSystems
                 FieldInfo netMeredithEffect_t = ajePropellerAPI_t.GetField("netMeredithEffect", BindingFlags.Instance | BindingFlags.Public);
                 if (netMeredithEffect_t == null)
                 {
-                    Utility.LogErrorMessage("netMeredithEffect_t is null");
+                    Utility.LogStaticErrorMessage("netMeredithEffect_t is null");
                     return;
                 }
                 getNetMeredithEffect = DynamicMethodFactory.CreateGetField<object, float>(netMeredithEffect_t);
@@ -380,7 +380,7 @@ namespace AvionicsSystems
                 FieldInfo brakeShaftPower_t = ajePropellerAPI_t.GetField("brakeShaftPower", BindingFlags.Instance | BindingFlags.Public);
                 if (brakeShaftPower_t == null)
                 {
-                    Utility.LogErrorMessage("brakeShaftPower_t is null");
+                    Utility.LogStaticErrorMessage("brakeShaftPower_t is null");
                     return;
                 }
                 getBrakeShaftPower = DynamicMethodFactory.CreateGetField<object, float>(brakeShaftPower_t);
@@ -389,7 +389,7 @@ namespace AvionicsSystems
                 FieldInfo boost_t = ajePropellerAPI_t.GetField("boost", BindingFlags.Instance | BindingFlags.Public);
                 if (boost_t == null)
                 {
-                    Utility.LogErrorMessage("boost_t is null");
+                    Utility.LogStaticErrorMessage("boost_t is null");
                     return;
                 }
                 getBoost = DynamicMethodFactory.CreateGetField<object, float>(boost_t);
@@ -398,7 +398,7 @@ namespace AvionicsSystems
                 FieldInfo rpmLever_t = ajePropellerAPI_t.GetField("rpmLever", BindingFlags.Instance | BindingFlags.Public);
                 if (rpmLever_t == null)
                 {
-                    Utility.LogErrorMessage("rpmLever_t is null");
+                    Utility.LogStaticErrorMessage("rpmLever_t is null");
                     return;
                 }
                 getRpmLever = DynamicMethodFactory.CreateGetField<object, float>(rpmLever_t);
@@ -407,7 +407,7 @@ namespace AvionicsSystems
                 FieldInfo mixture_t = ajePropellerAPI_t.GetField("mixture", BindingFlags.Instance | BindingFlags.Public);
                 if (mixture_t == null)
                 {
-                    Utility.LogErrorMessage("mixture_t is null");
+                    Utility.LogStaticErrorMessage("mixture_t is null");
                     return;
                 }
                 getMixture = DynamicMethodFactory.CreateGetField<object, float>(mixture_t);
@@ -416,7 +416,7 @@ namespace AvionicsSystems
                 FieldInfo coreThrottle_t = ajeJetAPI_t.GetField("actualCoreThrottle", BindingFlags.Instance | BindingFlags.Public);
                 if (coreThrottle_t == null)
                 {
-                    Utility.LogErrorMessage("coreThrottle_t is null");
+                    Utility.LogStaticErrorMessage("coreThrottle_t is null");
                     return;
                 }
                 getCoreThrottle = DynamicMethodFactory.CreateGetField<object, float>(coreThrottle_t);
@@ -424,7 +424,7 @@ namespace AvionicsSystems
                 FieldInfo afterburnerThrottle_t = ajeJetAPI_t.GetField("actualABThrottle", BindingFlags.Instance | BindingFlags.Public);
                 if (afterburnerThrottle_t == null)
                 {
-                    Utility.LogErrorMessage("afterburnerThrottle_t is null");
+                    Utility.LogStaticErrorMessage("afterburnerThrottle_t is null");
                     return;
                 }
                 getAfterburnerThrottle = DynamicMethodFactory.CreateGetField<object, float>(afterburnerThrottle_t);
@@ -432,7 +432,7 @@ namespace AvionicsSystems
                 FieldInfo maxEngineTemp_t = ajeJetAPI_t.GetField("maxEngineTemp", BindingFlags.Instance | BindingFlags.Public);
                 if (maxEngineTemp_t == null)
                 {
-                    Utility.LogErrorMessage("maxEngineTemp_t is null");
+                    Utility.LogStaticErrorMessage("maxEngineTemp_t is null");
                     return;
                 }
                 getMaxJetTemp = DynamicMethodFactory.CreateGetField<object, double>(maxEngineTemp_t);
@@ -440,7 +440,7 @@ namespace AvionicsSystems
                 FieldInfo currentEngineTemp_t = ajeJetAPI_t.GetField("engineTempString", BindingFlags.Instance | BindingFlags.Public);
                 if (currentEngineTemp_t == null)
                 {
-                    Utility.LogErrorMessage("currentEngineTemp_t is null");
+                    Utility.LogStaticErrorMessage("currentEngineTemp_t is null");
                     return;
                 }
                 getCurrentJetTemp = DynamicMethodFactory.CreateGetField<object, string>(currentEngineTemp_t);
