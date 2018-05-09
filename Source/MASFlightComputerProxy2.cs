@@ -464,24 +464,27 @@ namespace AvionicsSystems
         /// <returns>Closest approach to the target, or 0.</returns>
         public double ManeuverNodeTargetClosestApproachDistance()
         {
-            if (vc.maneuverNodeValid && vc.targetType > 0 && vc.targetOrbit.referenceBody == vc.nodeOrbit.referenceBody)
+            if (vc.maneuverNodeValid && vc.targetType > 0)
             {
-                if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
+                if (!nodeApproachSolver.resultsReady)
                 {
-                    solver.SolveApproach(vc.nodeOrbit, vc.activeTarget as CelestialBody, Planetarium.GetUniversalTime());
-                }
-                else
-                {
-                    solver.SolveApproach(vc.nodeOrbit, vc.targetOrbit, Planetarium.GetUniversalTime());
+                    if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
+                    {
+                        nodeApproachSolver.SolveBodyIntercept(vc.nodeOrbit, vc.activeTarget as CelestialBody);
+                    }
+                    else
+                    {
+                        nodeApproachSolver.SolveOrbitIntercept(vc.nodeOrbit, vc.targetOrbit);
+                    }
                 }
 
                 if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
                 {
-                    return Math.Max(0.0, solver.targetClosestDistance - (vc.activeTarget as CelestialBody).Radius);
+                    return Math.Max(0.0, nodeApproachSolver.targetClosestDistance - (vc.activeTarget as CelestialBody).Radius);
                 }
                 else
                 {
-                    return solver.targetClosestDistance;
+                    return nodeApproachSolver.targetClosestDistance;
                 }
             }
             else
@@ -497,17 +500,20 @@ namespace AvionicsSystems
         /// <returns>Relative speed of the target at closest approach after the maneuver, m/s.</returns>
         public double ManeuverNodeTargetClosestApproachSpeed()
         {
-            if (vc.maneuverNodeValid && vc.targetType > 0 && vc.targetOrbit.referenceBody == vc.nodeOrbit.referenceBody)
+            if (vc.maneuverNodeValid && vc.targetType > 0)
             {
-                if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
+                if (!nodeApproachSolver.resultsReady)
                 {
-                    solver.SolveApproach(vc.nodeOrbit, vc.activeTarget as CelestialBody, Planetarium.GetUniversalTime());
+                    if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
+                    {
+                        nodeApproachSolver.SolveBodyIntercept(vc.nodeOrbit, vc.activeTarget as CelestialBody);
+                    }
+                    else
+                    {
+                        nodeApproachSolver.SolveOrbitIntercept(vc.nodeOrbit, vc.targetOrbit);
+                    }
                 }
-                else
-                {
-                    solver.SolveApproach(vc.nodeOrbit, vc.targetOrbit, Planetarium.GetUniversalTime());
-                }
-                return solver.targetClosestSpeed;
+                return nodeApproachSolver.targetClosestSpeed;
             }
             else
             {
@@ -522,17 +528,20 @@ namespace AvionicsSystems
         /// <returns>Time until closest approach after the maneuver.</returns>
         public double ManeuverNodeTargetClosestApproachTime()
         {
-            if (vc.maneuverNodeValid && vc.targetType > 0 && vc.targetOrbit.referenceBody == vc.nodeOrbit.referenceBody)
+            if (vc.maneuverNodeValid && vc.targetType > 0)
             {
-                if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
+                if (!nodeApproachSolver.resultsReady)
                 {
-                    solver.SolveApproach(vc.nodeOrbit, vc.activeTarget as CelestialBody, Planetarium.GetUniversalTime());
+                    if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
+                    {
+                        nodeApproachSolver.SolveBodyIntercept(vc.nodeOrbit, vc.activeTarget as CelestialBody);
+                    }
+                    else
+                    {
+                        nodeApproachSolver.SolveOrbitIntercept(vc.nodeOrbit, vc.targetOrbit);
+                    }
                 }
-                else
-                {
-                    solver.SolveApproach(vc.nodeOrbit, vc.targetOrbit, Planetarium.GetUniversalTime());
-                }
-                return Math.Max(solver.targetClosestUT - Planetarium.GetUniversalTime(), 0.0);
+                return Math.Max(nodeApproachSolver.targetClosestUT - Planetarium.GetUniversalTime(), 0.0);
             }
             else
             {

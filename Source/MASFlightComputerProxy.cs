@@ -77,10 +77,9 @@ namespace AvionicsSystems
         private UIStateToggleButton[] SASbtns = null;
 
         private VesselAutopilot.AutopilotMode autopilotMode = VesselAutopilot.AutopilotMode.StabilityAssist;
-        private bool vesselPowered;
         private int vesselSituationConverted;
 
-        private ApproachSolverBW solver;
+        private ApproachSolver nodeApproachSolver;
 
         private double timeToImpact;
 
@@ -92,7 +91,7 @@ namespace AvionicsSystems
             this.fc = fc;
             this.farProxy = farProxy;
             this.mjProxy = mjProxy;
-            this.solver = new ApproachSolverBW();
+            this.nodeApproachSolver = new ApproachSolver();
         }
 
         ~MASFlightComputerProxy()
@@ -132,7 +131,7 @@ namespace AvionicsSystems
         internal void Update()
         {
             autopilotMode = vessel.Autopilot.Mode;
-            vesselPowered = (vc.ResourceCurrent(MASConfig.ElectricCharge) > 0.0001);
+            nodeApproachSolver.ResetComputation();
 
             vesselSituationConverted = ConvertVesselSituation(vessel.situation);
 
@@ -1191,7 +1190,7 @@ namespace AvionicsSystems
             if (vc.dockingNode != null && vc.dockingNode.part == vessel.GetReferenceTransformPart())
             {
                 MASCamera cam = vc.dockingNode.part.FindModuleImplementing<MASCamera>();
-                if(cam != null)
+                if (cam != null)
                 {
                     return cam.cameraName;
                 }

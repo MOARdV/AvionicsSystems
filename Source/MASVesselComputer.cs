@@ -144,7 +144,7 @@ namespace AvionicsSystems
             }
             else
             {
-                Utility.LogErrorMessage("MASVesselComputer.Instance called with null vessel");
+                Utility.LogStaticErrorMessage("MASVesselComputer.Instance called with null vessel");
                 return null;
             }
         }
@@ -856,7 +856,7 @@ namespace AvionicsSystems
             Asteroid,
         };
         internal ITargetable activeTarget = null;
-        internal ApproachSolverBW approachSolverBW = new ApproachSolverBW();
+        internal ApproachSolver approachSolver = new ApproachSolver();
         internal Vector3 targetDisplacement = Vector3.zero;
         internal Vector3 targetDirection = Vector3.zero;
         internal Vector3d targetRelativeVelocity = Vector3.zero;
@@ -868,64 +868,64 @@ namespace AvionicsSystems
         {
             get
             {
-                if (activeTarget != null && !approachSolverBW.resultsReady)
+                if (activeTarget != null && !approachSolver.resultsReady)
                 {
                     if (targetType == MASVesselComputer.TargetType.CelestialBody)
                     {
-                        approachSolverBW.SolveApproach(orbit, activeTarget as CelestialBody, Planetarium.GetUniversalTime());
+                        approachSolver.SolveBodyIntercept(orbit, activeTarget as CelestialBody);
                     }
                     else
                     {
-                        approachSolverBW.SolveApproach(orbit, targetOrbit, universalTime);
+                        approachSolver.SolveOrbitIntercept(orbit, targetOrbit);
                     }
                 }
-                return approachSolverBW.resultsReady ? approachSolverBW.targetClosestUT : 0.0;
+                return approachSolver.resultsReady ? approachSolver.targetClosestUT : 0.0;
             }
         }
         internal double targetClosestSpeed
         {
             get
             {
-                if (activeTarget != null && !approachSolverBW.resultsReady)
+                if (activeTarget != null && !approachSolver.resultsReady)
                 {
                     if (targetType == MASVesselComputer.TargetType.CelestialBody)
                     {
-                        approachSolverBW.SolveApproach(orbit, activeTarget as CelestialBody, universalTime);
+                        approachSolver.SolveBodyIntercept(orbit, activeTarget as CelestialBody);
                     }
                     else
                     {
-                        approachSolverBW.SolveApproach(orbit, targetOrbit, universalTime);
+                        approachSolver.SolveOrbitIntercept(orbit, targetOrbit);
                     }
                 }
-                return approachSolverBW.resultsReady ? approachSolverBW.targetClosestSpeed : 0.0;
+                return approachSolver.resultsReady ? approachSolver.targetClosestSpeed : 0.0;
             }
         }
         internal double targetClosestDistance
         {
             get
             {
-                if (activeTarget != null && !approachSolverBW.resultsReady)
+                if (activeTarget != null && !approachSolver.resultsReady)
                 {
                     if (targetType == MASVesselComputer.TargetType.CelestialBody)
                     {
-                        approachSolverBW.SolveApproach(orbit, activeTarget as CelestialBody, universalTime);
+                        approachSolver.SolveBodyIntercept(orbit, activeTarget as CelestialBody);
                     }
                     else
                     {
-                        approachSolverBW.SolveApproach(orbit, targetOrbit, universalTime);
+                        approachSolver.SolveOrbitIntercept(orbit, targetOrbit);
                     }
                 }
-                if (approachSolverBW.resultsReady)
+                if (approachSolver.resultsReady)
                 {
                     if (targetType == TargetType.CelestialBody)
                     {
                         // If we are targeting a body, account for the radius of the planet when describing closest approach.
                         // That is, targetClosestDistance is effectively PeA.
-                        return Math.Max(0.0, approachSolverBW.targetClosestDistance - (activeTarget as CelestialBody).Radius);
+                        return Math.Max(0.0, approachSolver.targetClosestDistance - (activeTarget as CelestialBody).Radius);
                     }
                     else
                     {
-                        return approachSolverBW.targetClosestDistance;
+                        return approachSolver.targetClosestDistance;
                     }
                 }
                 else
@@ -1003,7 +1003,7 @@ namespace AvionicsSystems
                 targetOrbit = null;
 
             }
-            approachSolverBW.ResetComputation();
+            approachSolver.ResetComputation();
         }
         #endregion
 
