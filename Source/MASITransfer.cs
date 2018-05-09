@@ -1474,7 +1474,7 @@ namespace AvionicsSystems
                     return;
                 }
 
-                hohmannTransfer = (vesselOrbitSteps == 0);
+                hohmannTransfer = (vessel.orbit.referenceBody == vc.activeTarget.GetOrbit().referenceBody);
                 UpdateTransferDeltaV(vesselOrbit, destinationOrbit);
 
                 // transfer phase angle from https://en.wikipedia.org/wiki/Hohmann_transfer_orbit
