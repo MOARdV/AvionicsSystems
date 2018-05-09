@@ -83,7 +83,7 @@ namespace AvionicsSystems
                 // so we need to wait for comp.isInitialized before creating our actions.
                 // This does create a race condition, but I'd be surprised if someone could
                 // get the menu open and clicked within about 1 FixedUpdate.
-                if (!initialized && comp.isInitialized)
+                if (!initialized && comp.initialized)
                 {
                     if (!string.IsNullOrEmpty(activateAction))
                     {
