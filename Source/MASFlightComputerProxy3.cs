@@ -2919,19 +2919,6 @@ namespace AvionicsSystems
         #region Unassigned Region
 
         /// <summary>
-        /// Send a softkey event to the named monitor.  A softkey is a numeric integer code that
-        /// may be interpreted by the active page on that monitor, or it may be forwarded to
-        /// the components of that page (such as an `RPM_MODULE` node).
-        /// </summary>
-        /// <param name="monitorName">The name of the monitor.</param>
-        /// <param name="softkeyNumber">The softkey code to send.</param>
-        /// <returns>1 if the code was processed, 0 otherwise.</returns>
-        public double SendSoftkey(string monitorName, double softkeyNumber)
-        {
-            return (fc.HandleSoftkey(monitorName, (int)softkeyNumber)) ? 1.0 : 0.0;
-        }
-
-        /// <summary>
         /// Remaps `value` from the range [`bound1`, `bound2`] to the range
         /// [`map1`, `map2`].
         /// 
@@ -2948,6 +2935,44 @@ namespace AvionicsSystems
         public double Remap(double value, double bound1, double bound2, double map1, double map2)
         {
             return value.Remap(bound1, bound2, map1, map2);
+        }
+
+        /// <summary>
+        /// Returns `trueValue` when `condition` is true, otherwise returns `falseValue`.
+        /// 
+        /// `trueValue` and `falseValue` may be numbers or strings.  They do not *have* to
+        /// both be numbers or both be strings.
+        /// 
+        /// `condition` must be a boolean value.  For example, `fc.GetActionGroup(0)` returns
+        /// a number.  To make it a boolean, you would need to use `fc.GetActionGroup(0) == 1`.
+        /// </summary>
+        /// <param name="condition">The condition that selects the value.</param>
+        /// <param name="trueValue">The value returned when `condition` is true.</param>
+        /// <param name="falseValue">The value returned when `condition` is false.</param>
+        /// <returns></returns>
+        public object Select(bool condition, object trueValue, object falseValue)
+        {
+            if (condition)
+            {
+                return trueValue;
+            }
+            else
+            {
+                return falseValue;
+            }
+        }
+
+        /// <summary>
+        /// Send a softkey event to the named monitor.  A softkey is a numeric integer code that
+        /// may be interpreted by the active page on that monitor, or it may be forwarded to
+        /// the components of that page (such as an `RPM_MODULE` node).
+        /// </summary>
+        /// <param name="monitorName">The name of the monitor.</param>
+        /// <param name="softkeyNumber">The softkey code to send.</param>
+        /// <returns>1 if the code was processed, 0 otherwise.</returns>
+        public double SendSoftkey(string monitorName, double softkeyNumber)
+        {
+            return (fc.HandleSoftkey(monitorName, (int)softkeyNumber)) ? 1.0 : 0.0;
         }
         #endregion
 

@@ -660,6 +660,11 @@ namespace AvionicsSystems
                             Func<object, object, double, double, object> dm = DynamicMethodFactory.CreateFunc<object, object, double, double, object>(method);
                             return new Variable(canonical, () => dm(tableInstance, parms[0].RawValue(), parms[1].SafeValue(), parms[2].SafeValue()), cacheable, mutable, Variable.VariableType.Func);
                         }
+                        else if (methodParams[0].ParameterType == typeof(bool) && methodParams[1].ParameterType == typeof(object) && methodParams[2].ParameterType == typeof(object))
+                        {
+                            Func<object, bool, object, object, object> dm = DynamicMethodFactory.CreateFunc<object, bool, object, object, object>(method);
+                            return new Variable(canonical, () => dm(tableInstance, parms[0].BoolValue(), parms[1].RawValue(), parms[2].RawValue()), cacheable, mutable, Variable.VariableType.Func);
+                        }
                         else
                         {
                             Utility.LogWarning(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0}, with parameters {1}, {2}, and {3}.  Falling back to Lua.", canonical, methodParams[0].ParameterType, methodParams[1].ParameterType, methodParams[2].ParameterType);
