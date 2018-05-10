@@ -50,6 +50,16 @@ namespace AvionicsSystems
         public string flightComputerId = string.Empty;
 
         /// <summary>
+        /// Ship's description string copied from the editor.  At flight time, we
+        /// will parse this to formulate the action group fields (equivalent to
+        /// AGMEMO in RPM).
+        /// </summary>
+        [KSPField(isPersistant = true)]
+        public string shipDescription = string.Empty;
+        internal string[] agMemoOff = { "AG0", "AG1", "AG2", "AG3", "AG4", "AG5", "AG6", "AG7", "AG8", "AG9" };
+        internal string[] agMemoOn = { "AG0", "AG1", "AG2", "AG3", "AG4", "AG5", "AG6", "AG7", "AG8", "AG9" };
+
+        /// <summary>
         /// The maximum g-loading the command pod can sustain without disrupting
         /// power.
         /// </summary>
@@ -708,6 +718,15 @@ namespace AvionicsSystems
                     luaStopwatch.Stop();
                     ++samplecount;
                 }
+                else if (HighLogic.LoadedSceneIsEditor && EditorLogic.fetch.shipDescriptionField != null)
+                {
+                    string newDescr = EditorLogic.fetch.shipDescriptionField.text.Replace(Utility.EditorNewLine, "$$$");
+                    Utility.LogMessage(this, "newDescr is {0}", newDescr);
+                    if (newDescr != shipDescription)
+                    {
+                        shipDescription = newDescr;
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -905,9 +924,6 @@ namespace AvionicsSystems
                 transferProxy.vc = vc;
                 //realChuteProxy.vessel = vessel;
 
-
-                // TODO: Add MAS script
-
                 // Add User scripts
                 try
                 {
@@ -928,6 +944,40 @@ namespace AvionicsSystems
                 {
                     Utility.ComplainLoudly("User Script Loading error");
                     Utility.LogErrorMessage(this, e.ToString());
+                }
+
+                // Parse action group labels:
+                if (!string.IsNullOrEmpty(shipDescription))
+                {
+                    string[] rows = shipDescription.Replace("$$$", Environment.NewLine).Split(Utility.LineSeparator, StringSplitOptions.RemoveEmptyEntries);
+                    for(int i=0; i<rows.Length; ++i)
+                    {
+                        if (rows[i].StartsWith("AG"))
+                        {
+                            string[] row = rows[i].Split('=');
+                            int groupID;
+                            if (int.TryParse(row[0].Substring(2), out groupID))
+                            {
+                                if (groupID >=0 && groupID <=9)
+                                {
+                                    if (row.Length == 2)
+                                    {
+                                        string[] memo = row[1].Split('|');
+                                        if (memo.Length == 1)
+                                        {
+                                            agMemoOn[groupID] = memo[0].Trim();
+                                            agMemoOff[groupID] = agMemoOn[groupID];
+                                        }
+                                        else if (memo.Length == 2)
+                                        {
+                                            agMemoOn[groupID] = memo[0].Trim();
+                                            agMemoOff[groupID] = memo[1].Trim();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
 
                 // Initialize persistent vars ... note that save game values have

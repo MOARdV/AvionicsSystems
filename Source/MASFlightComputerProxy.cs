@@ -326,6 +326,59 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the current memo from the action group selected by groupID.  If
+        /// the memo was configured with active and inactive descriptions, this memo
+        /// will change.  If an invalid groupID is provided, the result is an
+        /// empty string.  If no memo was specified, the result is "AG0" for action
+        /// group 0, "AG1" for action group 1, etc.
+        /// </summary>
+        /// <param name="groupID">A number between 0 and 9 (inclusive)</param>
+        /// <returns>The memo for the requested group, or an empty string.</returns>
+        public string ActionGroupActiveMemo(double groupID)
+        {
+            int ag = (int)groupID;
+            if (ag < 0 || ag > 9)
+            {
+                return string.Empty;
+            }
+            else if(vessel.ActionGroups[ags[ag]])
+            {
+                return fc.agMemoOn[ag];
+            }
+            else
+            {
+                return fc.agMemoOff[ag];
+            }
+        }
+
+        /// <summary>
+        /// Returns the action group memo specified by the groupID, with active
+        /// selecting whether the memo is for the active mode or the inactive mode.
+        /// If the selected memo does not differentiate between active and inactive,
+        /// the result is the same.  If an invalid groupID is provided, the result is an
+        /// empty string.  If no memo was specified, the result is "AG0" for action
+        /// group 0, "AG1" for action group 1, etc.
+        /// </summary>
+        /// <param name="groupID">A number between 0 and 9 (inclusive)</param>
+        /// <param name="active">Whether the memo is for the active (true) or inactive (false) setting.</param>
+        /// <returns>The memo for the requested group and state, or an empty string.</returns>
+        public string ActionGroupMemo(double groupID, bool active)
+        {
+            if (groupID < 0.0 || groupID > 9.0)
+            {
+                return string.Empty;
+            }
+            else if(active)
+            {
+                return fc.agMemoOn[(int)groupID];
+            }
+            else
+            {
+                return fc.agMemoOff[(int)groupID];
+            }
+        }
+
+        /// <summary>
         /// Get the current state of the specified action group.
         /// </summary>
         /// <param name="groupID">A number between 0 and 9 (inclusive)</param>

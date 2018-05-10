@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -138,8 +138,6 @@ namespace AvionicsSystems
         private readonly Vector4 tangent = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
 
         private static readonly string[] VariableListSeparator = { "$&$", "$#$" };
-        //private static readonly string[] MangledLineSeparator = { "$$$" };
-        private static readonly string[] LineSeparator = { Environment.NewLine };
 
         /// <summary>
         /// Set the default text color
@@ -252,7 +250,7 @@ namespace AvionicsSystems
                 // and it doesn't change.
                 if (immutable || !(text.Contains(VariableListSeparator[0]) || text.Contains(VariableListSeparator[1])))
                 {
-                    string[] textRows = text.Split(LineSeparator, StringSplitOptions.None);
+                    string[] textRows = text.Split(Utility.LineSeparator, StringSplitOptions.None);
                     textRow = new TextRow[textRows.Length];
 
                     for (int i = 0; i < textRows.Length; ++i)
@@ -276,7 +274,7 @@ namespace AvionicsSystems
                     this.comp = comp;
 
                     // preprocessing - split into rows
-                    string[] textRows = text.Split(LineSeparator, StringSplitOptions.None);
+                    string[] textRows = text.Split(Utility.LineSeparator, StringSplitOptions.None);
                     textRow = new TextRow[textRows.Length];
 
                     for (int i = 0; i < textRows.Length; ++i)
