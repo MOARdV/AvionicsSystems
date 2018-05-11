@@ -53,11 +53,12 @@ namespace AvionicsSystems
         private bool usesTexture;
         private float inverseTextureWidth = 1.0f;
 
-        private List<string> registeredVariables = new List<string>();
-        private List<Action<double>> registeredCallbacks = new List<Action<double>>();
+        private VariableRegistrar variableRegistrar;
 
         internal MASPageLineString(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
         {
+            variableRegistrar = new VariableRegistrar(comp, prop);
+
             if (!config.TryGetValue("name", ref name))
             {
                 name = "anonymous";
@@ -114,7 +115,7 @@ namespace AvionicsSystems
                 string[] ranges = Utility.SplitVariableList(range);
                 if (ranges.Length != 2)
                 {
-                    throw new ArgumentException("Incorrect number of values in 'range' in LINE_GRAPH " + name);
+                    throw new ArgumentException("Incorrect number of values in 'range' in LINE_STRING " + name);
                 }
                 range1 = comp.GetVariable(ranges[0], prop);
                 range2 = comp.GetVariable(ranges[1], prop);
@@ -180,8 +181,7 @@ namespace AvionicsSystems
                         RecalculateTextureScale();
                     }
                 };
-                comp.RegisterNumericVariable(vtx[0], prop, vertexX);
-                AddRegistration(vtx[0], vertexX);
+                variableRegistrar.RegisterNumericVariable(vtx[0], vertexX);
 
                 Action<double> vertexY = (double newValue) =>
                 {
@@ -193,8 +193,7 @@ namespace AvionicsSystems
                         RecalculateTextureScale();
                     }
                 };
-                comp.RegisterNumericVariable(vtx[1], prop, vertexY);
-                AddRegistration(vtx[1], vertexY);
+                variableRegistrar.RegisterNumericVariable(vtx[1], vertexY);
             }
             lineRenderer.SetPositions(vertices);
             RenderPage(false);
@@ -203,8 +202,7 @@ namespace AvionicsSystems
             {
                 // Disable the lines if we're in variable mode
                 lineOrigin.SetActive(false);
-                comp.RegisterNumericVariable(variableName, prop, VariableCallback);
-                AddRegistration(variableName, VariableCallback);
+                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
             }
             else
             {
@@ -213,8 +211,7 @@ namespace AvionicsSystems
 
             if (!string.IsNullOrEmpty(rotationVariableName))
             {
-                comp.RegisterNumericVariable(rotationVariableName, prop, RotationCallback);
-                AddRegistration(rotationVariableName, RotationCallback);
+                variableRegistrar.RegisterNumericVariable(rotationVariableName, RotationCallback);
             }
 
             if (string.IsNullOrEmpty(endColorString))
@@ -239,8 +236,7 @@ namespace AvionicsSystems
                         lineRenderer.startColor = startColor;
                         lineRenderer.endColor = startColor;
                     };
-                    comp.RegisterNumericVariable(startColors[0], prop, startColorR);
-                    AddRegistration(startColors[0], startColorR);
+                    variableRegistrar.RegisterNumericVariable(startColors[0], startColorR);
 
                     Action<double> startColorG = (double newValue) =>
                     {
@@ -248,8 +244,7 @@ namespace AvionicsSystems
                         lineRenderer.startColor = startColor;
                         lineRenderer.endColor = startColor;
                     };
-                    comp.RegisterNumericVariable(startColors[1], prop, startColorG);
-                    AddRegistration(startColors[1], startColorG);
+                    variableRegistrar.RegisterNumericVariable(startColors[1], startColorG);
 
                     Action<double> startColorB = (double newValue) =>
                     {
@@ -257,8 +252,7 @@ namespace AvionicsSystems
                         lineRenderer.startColor = startColor;
                         lineRenderer.endColor = startColor;
                     };
-                    comp.RegisterNumericVariable(startColors[2], prop, startColorB);
-                    AddRegistration(startColors[2], startColorB);
+                    variableRegistrar.RegisterNumericVariable(startColors[2], startColorB);
 
                     if (startColors.Length == 4)
                     {
@@ -268,8 +262,7 @@ namespace AvionicsSystems
                             lineRenderer.startColor = startColor;
                             lineRenderer.endColor = startColor;
                         };
-                        comp.RegisterNumericVariable(startColors[3], prop, startColorA);
-                        AddRegistration(startColors[3], startColorA);
+                        variableRegistrar.RegisterNumericVariable(startColors[3], startColorA);
                     }
                 }
 
@@ -296,24 +289,21 @@ namespace AvionicsSystems
                         startColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.startColor = startColor;
                     };
-                    comp.RegisterNumericVariable(startColors[0], prop, startColorR);
-                    AddRegistration(startColors[0], startColorR);
+                    variableRegistrar.RegisterNumericVariable(startColors[0], startColorR);
 
                     Action<double> startColorG = (double newValue) =>
                     {
                         startColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.startColor = startColor;
                     };
-                    comp.RegisterNumericVariable(startColors[1], prop, startColorG);
-                    AddRegistration(startColors[1], startColorG);
+                    variableRegistrar.RegisterNumericVariable(startColors[1], startColorG);
 
                     Action<double> startColorB = (double newValue) =>
                     {
                         startColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.startColor = startColor;
                     };
-                    comp.RegisterNumericVariable(startColors[2], prop, startColorB);
-                    AddRegistration(startColors[2], startColorB);
+                    variableRegistrar.RegisterNumericVariable(startColors[2], startColorB);
 
                     if (startColors.Length == 4)
                     {
@@ -322,8 +312,7 @@ namespace AvionicsSystems
                             startColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             lineRenderer.startColor = startColor;
                         };
-                        comp.RegisterNumericVariable(startColors[3], prop, startColorA);
-                        AddRegistration(startColors[3], startColorA);
+                        variableRegistrar.RegisterNumericVariable(startColors[3], startColorA);
                     }
                 }
 
@@ -344,24 +333,21 @@ namespace AvionicsSystems
                         endColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.endColor = endColor;
                     };
-                    comp.RegisterNumericVariable(endColors[0], prop, endColorR);
-                    AddRegistration(endColors[0], endColorR);
+                    variableRegistrar.RegisterNumericVariable(endColors[0], endColorR);
 
                     Action<double> endColorG = (double newValue) =>
                     {
                         endColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.endColor = endColor;
                     };
-                    comp.RegisterNumericVariable(endColors[1], prop, endColorG);
-                    AddRegistration(endColors[1], endColorG);
+                    variableRegistrar.RegisterNumericVariable(endColors[1], endColorG);
 
                     Action<double> endColorB = (double newValue) =>
                     {
                         endColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.endColor = endColor;
                     };
-                    comp.RegisterNumericVariable(endColors[2], prop, endColorB);
-                    AddRegistration(endColors[2], endColorB);
+                    variableRegistrar.RegisterNumericVariable(endColors[2], endColorB);
 
                     if (endColors.Length == 4)
                     {
@@ -370,8 +356,7 @@ namespace AvionicsSystems
                             endColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             lineRenderer.endColor = endColor;
                         };
-                        comp.RegisterNumericVariable(endColors[3], prop, endColorA);
-                        AddRegistration(endColors[3], endColorA);
+                        variableRegistrar.RegisterNumericVariable(endColors[3], endColorA);
                     }
                 }
 
@@ -388,8 +373,7 @@ namespace AvionicsSystems
                     lineRenderer.startWidth = startWidth;
                     lineRenderer.endWidth = startWidth;
                 };
-                comp.RegisterNumericVariable(startWidthString, prop, startWidthAction);
-                AddRegistration(startWidthString, startWidthAction);
+                variableRegistrar.RegisterNumericVariable(startWidthString, startWidthAction);
             }
             else
             {
@@ -398,28 +382,15 @@ namespace AvionicsSystems
                     startWidth = (float)newValue;
                     lineRenderer.startWidth = startWidth;
                 };
-                comp.RegisterNumericVariable(startWidthString, prop, startWidthAction);
-                AddRegistration(startWidthString, startWidthAction);
+                variableRegistrar.RegisterNumericVariable(startWidthString, startWidthAction);
 
                 Action<double> endWidthAction = (double newValue) =>
                 {
                     endWidth = (float)newValue;
                     lineRenderer.endWidth = endWidth;
                 };
-                comp.RegisterNumericVariable(endWidthString, prop, endWidthAction);
-                AddRegistration(endWidthString, endWidthAction);
+                variableRegistrar.RegisterNumericVariable(endWidthString, endWidthAction);
             }
-        }
-
-        /// <summary>
-        /// Store a variable name / callback pair for later deregistration at module teardown.
-        /// </summary>
-        /// <param name="variableName">Name of the registered variable.</param>
-        /// <param name="variableCallback">Associated callback for the variable.</param>
-        private void AddRegistration(string variableName, Action<double> variableCallback)
-        {
-            registeredVariables.Add(variableName);
-            registeredCallbacks.Add(variableCallback);
         }
 
         /// <summary>
@@ -520,17 +491,7 @@ namespace AvionicsSystems
             UnityEngine.Object.Destroy(lineOrigin);
             lineOrigin = null;
 
-            int numVariables = registeredVariables.Count;
-            if (registeredCallbacks.Count != numVariables)
-            {
-                throw new ArgumentOutOfRangeException("# registered variables != # registered callbacks in LINE_STRING " + name);
-            }
-            for (int i = 0; i < numVariables; ++i)
-            {
-                comp.UnregisterNumericVariable(registeredVariables[i], internalProp, registeredCallbacks[i]);
-            }
-            registeredVariables.Clear();
-            registeredCallbacks.Clear();
+            variableRegistrar.ReleaseResources(comp, internalProp);
         }
     }
 }
