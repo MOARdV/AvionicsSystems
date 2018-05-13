@@ -199,7 +199,7 @@ namespace AvionicsSystems
                 string[] startColors = Utility.SplitVariableList(colorString);
                 if (startColors.Length < 3 || startColors.Length > 4)
                 {
-                    throw new ArgumentException("startColor does not contain 3 or 4 values in LINE_STRING " + name);
+                    throw new ArgumentException("color does not contain 3 or 4 values in VIEWPORT " + name);
                 }
 
                 variableRegistrar.RegisterNumericVariable(startColors[0], (double newValue) =>
