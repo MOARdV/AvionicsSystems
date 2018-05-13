@@ -91,7 +91,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="format"></param>
         /// <param name="values"></param>
-        internal static void LogMessage(string format, params object[] values)
+        internal static void LogStaticMessage(string format, params object[] values)
         {
             if (MASConfig.VerboseLogging)
             {
@@ -489,7 +489,7 @@ namespace AvionicsSystems
             {
                 strb.Append(" - has no data");
             }
-            LogMessage(strb.ToStringAndRelease());
+            LogStaticMessage(strb.ToStringAndRelease());
             if (!node.HasData)
             {
                 return;
@@ -504,7 +504,7 @@ namespace AvionicsSystems
                     strb.Append(' ', depth);
                 }
                 strb.Append("- No values");
-                LogMessage(strb.ToStringAndRelease());
+                LogStaticMessage(strb.ToStringAndRelease());
             }
             for (int i = 0; i < vals.Count; ++i)
             {
@@ -518,7 +518,7 @@ namespace AvionicsSystems
                 strb.Append(vals[i].name);
                 strb.Append(" = ");
                 strb.Append(vals[i].value);
-                LogMessage(strb.ToStringAndRelease());
+                LogStaticMessage(strb.ToStringAndRelease());
             }
 
             var nodes = node.nodes;
@@ -530,7 +530,7 @@ namespace AvionicsSystems
                     strb.Append(' ', depth);
                 }
                 strb.Append("- No child ConfigNode");
-                LogMessage(strb.ToStringAndRelease());
+                LogStaticMessage(strb.ToStringAndRelease());
             }
             for (int i = 0; i < nodes.Count; ++i)
             {
