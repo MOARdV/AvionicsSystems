@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 - 2017 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -51,6 +51,11 @@ namespace AvionicsSystems
         static private Dictionary<Guid, Dictionary<int, float>> knownRadios = new Dictionary<Guid, Dictionary<int, float>>();
 
         /// <summary>
+        /// Dictionary of registered MASVesselComputers.
+        /// </summary>
+        static private Dictionary<Guid, MASVesselComputer> knownVessels = new Dictionary<Guid, MASVesselComputer>();
+
+        /// <summary>
         /// Static boolean used to indicate when the ScenarioModule has had a chance to initialize.
         /// </summary>
         static internal bool PersistentsLoaded
@@ -69,6 +74,7 @@ namespace AvionicsSystems
             PersistentsLoaded = false;
             knownPersistents.Clear();
             knownRadios.Clear();
+            knownVessels.Clear();
         }
 
         /// <summary>
@@ -80,6 +86,7 @@ namespace AvionicsSystems
             PersistentsLoaded = false;
             knownPersistents.Clear();
             knownRadios.Clear();
+            knownVessels.Clear();
         }
 
         /// <summary>
@@ -150,7 +157,7 @@ namespace AvionicsSystems
                         string[] radios = radioNode.GetValues("radio");
                         for (int radioIdx = radios.Length - 1; radioIdx >= 0; --radioIdx)
                         {
-                            string[] settings= radios[radioIdx].Split(',');
+                            string[] settings = radios[radioIdx].Split(',');
                             if (settings.Length == 2)
                             {
                                 int radio;
@@ -203,7 +210,7 @@ namespace AvionicsSystems
                         if (radios.Count > 0)
                         {
                             ConfigNode radioNode = new ConfigNode("NavRadio");
-                            foreach(var radio in radios)
+                            foreach (var radio in radios)
                             {
                                 radioNode.AddValue("radio", new Vector2((int)radio.Key, radio.Value));
                             }
@@ -218,8 +225,8 @@ namespace AvionicsSystems
                     if (fc.Value.ContainsKey(MASFlightComputer.vesselIdLabel))
                     {
                         Utility.LogMessage(this, "Discarding flight computer {0} because vessel ID {1} no longer exists",
-                        fc.Key,
-                        fc.Value[MASFlightComputer.vesselIdLabel]);
+                            fc.Key,
+                            fc.Value[MASFlightComputer.vesselIdLabel]);
                     }
                     else
                     {
@@ -228,6 +235,25 @@ namespace AvionicsSystems
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Method used by MASFlightComputer objects to fetch the per-vessel computer attached
+        /// to the current vessel.
+        /// </summary>
+        /// <param name="vessel">Vessel to fetch</param>
+        /// <returns>Existing or new MASVesselComputer, as needed.</returns>
+        internal static MASVesselComputer FetchVesselComputer(Vessel vessel)
+        {
+            MASVesselComputer vc;
+
+            if (!knownVessels.TryGetValue(vessel.id, out vc))
+            {
+                vc = vessel.gameObject.AddComponent<MASVesselComputer>();
+                knownVessels[vessel.id] = vc;
+            }
+
+            return vc;
         }
 
         /// <summary>
@@ -241,11 +267,13 @@ namespace AvionicsSystems
         /// <returns>The persistent dictionary that the MASFlightComputer should use.</returns>
         internal static Dictionary<string, object> RestoreDictionary(Guid fcId, Dictionary<string, object> existingPersistents)
         {
-            if (!knownPersistents.ContainsKey(fcId))
+            Dictionary<string, object> persistents;
+            if (!knownPersistents.TryGetValue(fcId, out persistents))
             {
+                persistents = existingPersistents;
                 knownPersistents[fcId] = existingPersistents;
             }
-            return knownPersistents[fcId];
+            return persistents;
         }
 
         /// <summary>
@@ -256,11 +284,13 @@ namespace AvionicsSystems
         /// <returns>The persistent dictionary that the MASFlightComputer should use.</returns>
         internal static Dictionary<int, float> RestoreNavRadio(Guid fcId, Dictionary<int, float> existingRadios)
         {
-            if (!knownRadios.ContainsKey(fcId))
+            Dictionary<int, float> radios;
+            if (!knownRadios.TryGetValue(fcId, out radios))
             {
+                radios = existingRadios;
                 knownRadios[fcId] = existingRadios;
             }
-            return knownRadios[fcId];
+            return radios;
         }
     }
 }

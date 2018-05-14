@@ -30,7 +30,7 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
-    internal partial class MASVesselComputer : VesselModule
+    internal partial class MASVesselComputer : MonoBehaviour
     {
         // Tracks per-module data.
 

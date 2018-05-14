@@ -863,7 +863,7 @@ namespace AvionicsSystems
                     Utility.LogErrorMessage(this, e.ToString());
                     Utility.ComplainLoudly("Initialization Failed.  Please check KSP.log");
                 }
-                vc = MASVesselComputer.Instance(vessel);
+                vc = MASPersistent.FetchVesselComputer(vessel);
 
                 if (!MASPersistent.PersistentsLoaded)
                 {
@@ -1163,7 +1163,7 @@ namespace AvionicsSystems
                     parentVesselId = vessel.id;
                     SetPersistent(vesselIdLabel, parentVesselId.ToString());
                 }
-                vc = MASVesselComputer.Instance(vessel);
+                vc = MASPersistent.FetchVesselComputer(vessel);
                 fcProxy.vc = vc;
                 fcProxy.vessel = vessel;
                 chattererProxy.UpdateVessel();

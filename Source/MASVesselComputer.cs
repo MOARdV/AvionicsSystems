@@ -35,7 +35,7 @@ namespace AvionicsSystems
     /// used in Avionics Systems.  As such, it's entirely concerned with keeping
     /// tabs on data, but not much else.
     /// </summary>
-    internal partial class MASVesselComputer : VesselModule
+    internal partial class MASVesselComputer : MonoBehaviour
     {
         internal enum ReferenceType
         {
@@ -45,12 +45,6 @@ namespace AvionicsSystems
             DockingPort,
             Claw
         };
-
-        /// <summary>
-        /// We use this dictionary to quickly fetch the vessel module for a
-        /// given vessel, so we don't have to repeatedly call GetComponent<Vessel>().
-        /// </summary>
-        private static Dictionary<Guid, MASVesselComputer> knownModules = new Dictionary<Guid, MASVesselComputer>();
 
         /// <summary>
         /// Our current reference transform.
@@ -67,6 +61,11 @@ namespace AvionicsSystems
         /// so we're not querying an indeterminate-cost property of Vessel.
         /// </summary>
         internal Orbit orbit;
+
+        /// <summary>
+        /// The vessel this module represents.
+        /// </summary>
+        private Vessel vessel;
 
         /// <summary>
         /// A copy of the module's vessel ID, in case vessel is null'd before OnDestroy fires.
@@ -108,46 +107,6 @@ namespace AvionicsSystems
         /// Current UT.
         /// </summary>
         internal double universalTime;
-
-        /// <summary>
-        /// Time increment since last FixedUpdate.
-        /// </summary>
-        internal double deltaTime;
-
-        /// <summary>
-        /// Returns the MASVesselComputer attached to the specified computer.
-        /// </summary>
-        /// <param name="v"></param>
-        /// <returns></returns>
-        internal static MASVesselComputer Instance(Vessel v)
-        {
-            if (v != null)
-            {
-                if (!knownModules.ContainsKey(v.id))
-                {
-                    for (int i = v.vesselModules.Count - 1; i >= 0; --i)
-                    {
-                        if (v.vesselModules[i] is MASVesselComputer)
-                        {
-                            MASVesselComputer vc = v.vesselModules[i] as MASVesselComputer;
-                            knownModules.Add(v.id, vc);
-                            return vc;
-                        }
-                    }
-
-                    return null;
-                }
-                else
-                {
-                    return knownModules[v.id];
-                }
-            }
-            else
-            {
-                Utility.LogStaticErrorMessage("MASVesselComputer.Instance called with null vessel");
-                return null;
-            }
-        }
 
         /// <summary>
         /// Wrapper method for all of the subcategories of data that are
@@ -241,9 +200,7 @@ namespace AvionicsSystems
                 mainBody = vessel.mainBody;
                 orbit = vessel.orbit;
 
-                double oldUT = universalTime;
                 universalTime = Planetarium.GetUniversalTime();
-                deltaTime = universalTime - oldUT;
 
                 // GetReferenceTransformPart() seems to be pointing at the
                 // previous part when the callback fires, so I use this hack
@@ -313,49 +270,61 @@ namespace AvionicsSystems
         /// The vessel fields of VesselComputer doesn't have good values yet, so this
         /// step is only good for non-specific initial values.
         /// </summary>
-        protected override void OnAwake()
+        public void Awake()
         {
-            // Note: VesselModule.vessel is useless at this stage.
-            if (HighLogic.LoadedSceneIsFlight)
+            if (HighLogic.LoadedSceneIsFlight == false)
             {
-                InitializeNavAids();
-
-                navBall = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.NavBall>();
-                if (navBall == null)
-                {
-                    Utility.LogErrorMessage(this, "navBall was null!");
-                }
-                LinearAtmosphereGauge linearAtmosGauge = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.LinearAtmosphereGauge>();
-                if (linearAtmosGauge == null)
-                {
-                    Utility.LogErrorMessage(this, "linearAtmosGauge was null!");
-                    atmosphereDepthGauge = new KSP.UI.Screens.LinearGauge();
-                }
-                else
-                {
-                    atmosphereDepthGauge = linearAtmosGauge.gauge;
-                }
-
-                // Because vessel isn't really initialized yet, I shove probably-safe
-                // initial values in here:
-                mainBody = FlightGlobals.GetHomeBody();
-                orbit = mainBody.GetOrbit();
-                //mainBody = vessel.mainBody;
-                //vesselId = vessel.id;
-                //orbit = vessel.orbit;
-
-                universalTime = Planetarium.GetUniversalTime();
-
-                GameEvents.OnCameraChange.Add(onCameraChange);
-                GameEvents.onStageActivate.Add(onStageActivate);
-                GameEvents.onVesselChange.Add(onVesselChange);
-                GameEvents.onVesselSOIChanged.Add(onVesselSOIChanged);
-                GameEvents.onVesselWasModified.Add(onVesselWasModified);
-                GameEvents.onVesselReferenceTransformSwitch.Add(onVesselReferenceTransformSwitch);
-
-                // Note: vessel.id is bogus
-                //Utility.LogMessage(this, "OnAwake for {0}", vessel.id);
+                Utility.LogWarning(this, "Someone is creating a vessel computer outside of flight!");
             }
+
+            vessel = gameObject.GetComponent<Vessel>();
+            if (vessel == null)
+            {
+                throw new ArgumentNullException("[MASVesselComputer] Awake(): Could not find the vessel!");
+            }
+            //Utility.LogMessage(this, "Awake() for {0}", vessel.id);
+            InitializeNavAids();
+
+            navBall = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.NavBall>();
+            if (navBall == null)
+            {
+                Utility.LogErrorMessage(this, "navBall was null!");
+            }
+            LinearAtmosphereGauge linearAtmosGauge = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.LinearAtmosphereGauge>();
+            if (linearAtmosGauge == null)
+            {
+                Utility.LogErrorMessage(this, "linearAtmosGauge was null!");
+                atmosphereDepthGauge = new KSP.UI.Screens.LinearGauge();
+            }
+            else
+            {
+                atmosphereDepthGauge = linearAtmosGauge.gauge;
+            }
+
+            mainBody = vessel.mainBody;
+            vesselId = vessel.id;
+            orbit = vessel.orbit;
+
+            universalTime = Planetarium.GetUniversalTime();
+
+            InitResourceData();
+
+            UpdateReferenceTransform(vessel.ReferenceTransform);
+            if (vesselCrewed)
+            {
+                RefreshData();
+            }
+
+            vesselCrewed = (vessel.GetCrewCount() > 0);
+
+            vesselActive = ActiveVessel(vessel);
+
+            GameEvents.OnCameraChange.Add(onCameraChange);
+            GameEvents.onStageActivate.Add(onStageActivate);
+            GameEvents.onVesselChange.Add(onVesselChange);
+            GameEvents.onVesselSOIChanged.Add(onVesselSOIChanged);
+            GameEvents.onVesselWasModified.Add(onVesselWasModified);
+            GameEvents.onVesselReferenceTransformSwitch.Add(onVesselReferenceTransformSwitch);
         }
 
         /// <summary>
@@ -363,74 +332,23 @@ namespace AvionicsSystems
         /// </summary>
         private void OnDestroy()
         {
-            if (HighLogic.LoadedSceneIsFlight)
-            {
-                //Utility.LogMessage(this, "OnDestroy for {0}", vesselId);
+            //Utility.LogMessage(this, "OnDestroy for {0}", vesselId);
 
-                GameEvents.OnCameraChange.Remove(onCameraChange);
-                GameEvents.onStageActivate.Remove(onStageActivate);
-                GameEvents.onVesselChange.Remove(onVesselChange);
-                GameEvents.onVesselSOIChanged.Remove(onVesselSOIChanged);
-                GameEvents.onVesselWasModified.Remove(onVesselWasModified);
-                GameEvents.onVesselReferenceTransformSwitch.Remove(onVesselReferenceTransformSwitch);
+            GameEvents.OnCameraChange.Remove(onCameraChange);
+            GameEvents.onStageActivate.Remove(onStageActivate);
+            GameEvents.onVesselChange.Remove(onVesselChange);
+            GameEvents.onVesselSOIChanged.Remove(onVesselSOIChanged);
+            GameEvents.onVesselWasModified.Remove(onVesselWasModified);
+            GameEvents.onVesselReferenceTransformSwitch.Remove(onVesselReferenceTransformSwitch);
 
-                TeardownResourceData();
-                if (vesselId != Guid.Empty)
-                {
-                    knownModules.Remove(vesselId);
-                }
+            TeardownResourceData();
 
-                vesselId = Guid.Empty;
-                orbit = null;
-                atmosphereDepthGauge = null;
-                mainBody = null;
-                navBall = null;
-                activeTarget = null;
-            }
-        }
-
-        /// <summary>
-        /// Initialize our state.  Fields we rely on have meaningful values at this point.
-        /// </summary>
-        protected override void OnStart()
-        {
-            if (HighLogic.LoadedSceneIsFlight)
-            {
-                mainBody = vessel.mainBody;
-                vesselId = vessel.id;
-                orbit = vessel.orbit;
-
-                // Just so I don't forget how to find this info...
-                //if (mainBody.pqsSurfaceObjects != null && mainBody.pqsController != null)
-                //{
-                //    foreach (PQSSurfaceObject o in mainBody.pqsSurfaceObjects)
-                //    {
-                //        double lat1, lon1, alt1;
-                //        Vector2d latlon=
-                //        mainBody.GetLatitudeAndLongitude(o.transform.position);
-                //        lat1 = latlon.x;
-                //        lon1 = latlon.y;
-                //        alt1 = mainBody.pqsController.GetSurfaceHeight(QuaternionD.AngleAxis(latlon.y, Vector3d.down) * QuaternionD.AngleAxis(latlon.x, Vector3d.forward) * Vector3d.right) - mainBody.Radius;
-                //        Utility.LogMessage(this, "PQSSurfaceObject {0} / {3} @ {1}N/S {2}E/W, {4}m", o.SurfaceObjectName, lat1, lon1, o.DisplaySurfaceObjectName, alt1);
-                //    }
-                //    double vesselaltitude = mainBody.pqsController.GetSurfaceHeight(QuaternionD.AngleAxis(vessel.longitude, Vector3d.down) * QuaternionD.AngleAxis(vessel.latitude, Vector3d.forward) * Vector3d.right) - mainBody.Radius;
-                //    Utility.LogMessage(this, "vessel @ {0}N/S {1}E/W, {2}m", vessel.latitude, vessel.longitude, vesselaltitude);
-                //}
-
-                knownModules[vesselId] = this;
-
-                vesselCrewed = (vessel.GetCrewCount() > 0);
-
-                vesselActive = ActiveVessel(vessel);
-
-                InitResourceData();
-
-                UpdateReferenceTransform(vessel.ReferenceTransform);
-                if (vesselCrewed)
-                {
-                    RefreshData();
-                }
-            }
+            vesselId = Guid.Empty;
+            orbit = null;
+            atmosphereDepthGauge = null;
+            mainBody = null;
+            navBall = null;
+            activeTarget = null;
         }
         #endregion
 

@@ -25,10 +25,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 
 namespace AvionicsSystems
 {
-    internal partial class MASVesselComputer : VesselModule
+    internal partial class MASVesselComputer : MonoBehaviour
     {
         /// <summary>
         /// Array of all resources found on the vessel, for numeric indexing.
