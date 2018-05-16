@@ -79,12 +79,6 @@ namespace AvionicsSystems
                 throw new ArgumentException("Unable to find 'position' in POLYGON " + name);
             }
 
-            string rotationVariableName = string.Empty;
-            if(config.TryGetValue("rotation", ref rotationVariableName))
-            {
-                variableRegistrar.RegisterNumericVariable(rotationVariableName, RotationCallback);
-            }
-
             string variableName = string.Empty;
             if (config.TryGetValue("variable", ref variableName))
             {
@@ -175,6 +169,12 @@ namespace AvionicsSystems
             }
 
             RenderPage(false);
+
+            string rotationVariableName = string.Empty;
+            if (config.TryGetValue("rotation", ref rotationVariableName))
+            {
+                variableRegistrar.RegisterNumericVariable(rotationVariableName, RotationCallback);
+            }
 
             if (!string.IsNullOrEmpty(variableName))
             {
