@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 - 2017 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -38,6 +38,11 @@ namespace AvionicsSystems
         /// <summary>
         /// Called with `true` when the page is active on the monitor, called with
         /// `false` when the page is no longer active.
+        /// 
+        /// Note that it is not needed to switch of the game objects in a given monitor
+        /// page as long as they're attached to the MASPage's pageRoot game object.  This
+        /// callback is intended to handle other required processing (such as starting / stopping
+        /// a coroutine).
         /// </summary>
         /// <param name="enable">true when the page is actively displayed, false when the page
         /// is no longer displayed.</param>
