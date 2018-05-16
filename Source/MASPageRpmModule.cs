@@ -91,7 +91,7 @@ namespace AvionicsSystems
                 string[] ranges = Utility.SplitVariableList(range);
                 if (ranges.Length != 2)
                 {
-                    throw new ArgumentException("Incorrect number of values in 'range' in TEXT " + name);
+                    throw new ArgumentException("Incorrect number of values in 'range' in RPM_MODULE " + name);
                 }
                 range1 = comp.GetVariable(ranges[0], prop);
                 range2 = comp.GetVariable(ranges[1], prop);
@@ -239,7 +239,6 @@ namespace AvionicsSystems
             {
                 // Disable the mesh if we're in variable mode
                 imageObject.SetActive(false);
-                //comp.RegisterNumericVariable(variableName, prop, VariableCallback);
                 variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
             }
             else
@@ -443,10 +442,6 @@ namespace AvionicsSystems
                 UnityEngine.GameObject.Destroy(renderTexture);
                 renderTexture = null;
             }
-            //if (!string.IsNullOrEmpty(variableName))
-            //{
-            //    comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
-            //}
 
             variableRegistrar.ReleaseResources(comp, internalProp);
         }
