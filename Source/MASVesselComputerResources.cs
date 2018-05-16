@@ -480,6 +480,42 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the current mass of the resource remaining in the current stage.
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        internal double ResourceStageMass(object resourceId)
+        {
+            int index = GetResourceIndex(resourceId);
+            if (index >= 0 && index < resources.Length)
+            {
+                return resources[index].currentStage * resources[index].density;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the maximum mass of the resource in the current stage.
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        internal double ResourceStageMassMax(object resourceId)
+        {
+            int index = GetResourceIndex(resourceId);
+            if (index >= 0 && index < resources.Length)
+            {
+                return resources[index].maxStage * resources[index].density;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Returns the maximum amount of the resource in the current stage.
         /// </summary>
         /// <param name="resourceId"></param>

@@ -581,6 +581,26 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the current mass of the selected resource in the current stage.
+        /// </summary>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
+        /// <returns></returns>
+        public double ResourceStageMass(object resourceId)
+        {
+            return vc.ResourceStageMass(resourceId);
+        }
+
+        /// <summary>
+        /// Returns the maximum mass of the selected resource in the current stage.
+        /// </summary>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
+        /// <returns></returns>
+        public double ResourceStageMassMax(object resourceId)
+        {
+            return vc.ResourceStageMassMax(resourceId);
+        }
+
+        /// <summary>
         /// Returns the max amount of the selected resource in the current stage.
         /// </summary>
         /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
