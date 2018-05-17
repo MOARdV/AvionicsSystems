@@ -2377,7 +2377,14 @@ namespace AvionicsSystems
         /// <returns>Ambient temperature in Kelvin or Celsius.</returns>
         public double AmbientTemperature(bool useKelvin)
         {
-            return vessel.atmosphericTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            if (vessel.atmosphericTemperature > 0.0)
+            {
+                return vessel.atmosphericTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
@@ -2387,7 +2394,14 @@ namespace AvionicsSystems
         /// <returns>External temperature in Kelvin or Celsius.</returns>
         public double ExternalTemperature(bool useKelvin)
         {
-            return vessel.externalTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            if (vessel.externalTemperature > 0.0)
+            {
+                return vessel.externalTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
@@ -2407,7 +2421,14 @@ namespace AvionicsSystems
         /// <returns>Current temperature of the hottest engine in Kelvin or Celsius.</returns>
         public double HottestEngineTemperature(bool useKelvin)
         {
-            return vc.hottestEngineTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            if (vc.hottestEngineTemperature > 0.0)
+            {
+                return vc.hottestEngineTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
@@ -2418,7 +2439,14 @@ namespace AvionicsSystems
         /// <returns>Current temperature of the hottest engine in Kelvin or Celsius.</returns>
         public double HottestEngineMaxTemperature(bool useKelvin)
         {
-            return vc.hottestEngineMaxTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            if (vc.hottestEngineMaxTemperature > 0.0)
+            {
+                return vc.hottestEngineMaxTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
@@ -2428,7 +2456,14 @@ namespace AvionicsSystems
         /// <returns>Heat shield maximum temperature in Kelvin or Celsius, or 0 if no heatshields are installed.</returns>
         public double HeatShieldMaxTemperature(bool useKelvin)
         {
-            return vc.hottestAblatorMax + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            if (vc.hottestAblatorMax > 0.0)
+            {
+                return vc.hottestAblatorMax + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
@@ -2438,7 +2473,14 @@ namespace AvionicsSystems
         /// <returns>Heat shield temperature in Kelvin or Celsius, or 0 if no heatshields are installed.</returns>
         public double HeatShieldTemperature(bool useKelvin)
         {
-            return vc.hottestAblator + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            if (vc.hottestAblator > 0.0)
+            {
+                return vc.hottestAblator + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
@@ -2457,7 +2499,14 @@ namespace AvionicsSystems
         /// <returns>Maximum temperature of the interior of the current IVA pod in Kelvin or Celsius.</returns>
         public double InternalMaxTemperature(bool useKelvin)
         {
-            return fc.part.maxTemp + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            if (fc.part.maxTemp > 0.0)
+            {
+                return fc.part.maxTemp + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
@@ -2467,7 +2516,14 @@ namespace AvionicsSystems
         /// <returns>Current temperature of the interior of the current IVA pod in Kelvin or Celsius.</returns>
         public double InternalTemperature(bool useKelvin)
         {
-            return fc.part.temperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            if (fc.part.temperature > 0.0)
+            {
+                return fc.part.temperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
@@ -2486,7 +2542,14 @@ namespace AvionicsSystems
         /// <returns>Maximum temperature of the skin of the current IVA pod in Kelvin or Celsius.</returns>
         public double PodMaxTemperature(bool useKelvin)
         {
-            return fc.part.skinMaxTemp + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            if (fc.part.skinMaxTemp > 0.0)
+            {
+                return fc.part.skinMaxTemp + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
@@ -2496,7 +2559,14 @@ namespace AvionicsSystems
         /// <returns>Current temperature of the skin of the current IVA pod in Kelvin or Celsius.</returns>
         public double PodTemperature(bool useKelvin)
         {
-            return fc.part.skinTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            if (fc.part.skinTemperature > 0.0)
+            {
+                return fc.part.skinTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
@@ -2615,7 +2685,14 @@ namespace AvionicsSystems
         /// <returns>Current temperature of the interior of the current IVA pod in Kelvin or Celsius.</returns>
         public double SkinTemperature(bool useKelvin)
         {
-            return fc.part.skinTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            if (fc.part.skinTemperature > 0.0)
+            {
+                return fc.part.skinTemperature + ((useKelvin) ? 0.0 : KelvinToCelsius);
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
