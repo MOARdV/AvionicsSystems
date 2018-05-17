@@ -150,6 +150,74 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Cargo Bay
+        private List<ModuleCargoBay> cargoBayList = new List<ModuleCargoBay>(8);
+        internal ModuleCargoBay[] moduleCargoBay = new ModuleCargoBay[0];
+        internal int cargoBayPosition;
+        void UpdateCargoBay()
+        {
+            bool cargoBayMoving = false;
+            bool cargoBayRetracted = false;
+            bool cargoBayDeployed = false;
+            /// * 0 - No cargo bay.
+            /// * 1 - cargo bay closed.
+            /// * 2 - cargo bay moving (retracting or extending).
+            /// * 3 - cargo bay open.
+
+            for (int i = moduleCargoBay.Length - 1; i >= 0; --i)
+            {
+                ModuleCargoBay me = moduleCargoBay[i];
+                PartModule deployer = me.part.Modules[me.DeployModuleIndex];
+                /*if (deployer is ModuleServiceModule)
+                {
+                    ModuleServiceModule msm = deployer as ModuleServiceModule;
+                    if (msm.IsDeployed)
+                    {
+                        cargoBayDeployed = true;
+                    }
+                    else
+                    {
+                        cargoBayRetracted = true;
+                    }
+                }
+                else*/
+                if (deployer is ModuleAnimateGeneric)
+                {
+                    ModuleAnimateGeneric mag = deployer as ModuleAnimateGeneric;
+                    if (Mathf.Approximately(me.closedPosition, mag.animTime))
+                    {
+                        cargoBayRetracted = true;
+                    }
+                    else if (Mathf.Approximately(Mathf.Abs(1.0f - me.closedPosition), mag.animTime))
+                    {
+                        cargoBayDeployed = true;
+                    }
+                    else
+                    {
+                        cargoBayMoving = true;
+                    }
+                }
+            }
+
+            if (cargoBayMoving)
+            {
+                cargoBayPosition = 2;
+            }
+            else if (cargoBayRetracted)
+            {
+                cargoBayPosition = 1;
+            }
+            else if (cargoBayDeployed)
+            {
+                cargoBayPosition = 3;
+            }
+            else
+            {
+                cargoBayPosition = 0;
+            }
+        }
+        #endregion
+
         #region Communications
         private List<ModuleDeployableAntenna> antennaList = new List<ModuleDeployableAntenna>(8);
         internal ModuleDeployableAntenna[] moduleAntenna = new ModuleDeployableAntenna[0];
@@ -1265,6 +1333,19 @@ namespace AvionicsSystems
                         {
                             wheelDeploymentList.Add(module as ModuleWheels.ModuleWheelDeployment);
                         }
+                        else if (module is ModuleCargoBay)
+                        {
+                            ModuleCargoBay cb = module as ModuleCargoBay;
+                            if (Modules[cb.DeployModuleIndex] is ModuleAnimateGeneric)
+                            {
+                                // ModuleCargoBay has been used with one of 3 deploy modules:
+                                // 1) ModuleProceduralFairing - we don't count these, since they're already covered by fairing controls.
+                                // 2) ModuleServiceModule - KSP 1.4.x, used so far only in the expansion.  Doesn't appear to have a way
+                                //    to control the service module deployment outside of staging.
+                                // 3) ModuleAnimateGeneric - we can control these.
+                                cargoBayList.Add(cb);
+                            }
+                        }
 
                         foreach (BaseAction ba in module.Actions)
                         {
@@ -1312,6 +1393,7 @@ namespace AvionicsSystems
 
             TransferModules<ModuleAlternator>(alternatorList, ref moduleAlternator);
             TransferModules<ModuleAblator>(ablatorList, ref moduleAblator);
+            TransferModules<ModuleCargoBay>(cargoBayList, ref moduleCargoBay);
             TransferModules<ModuleDeployableAntenna>(antennaList, ref moduleAntenna);
             TransferModules<ModuleDeployableRadiator>(deployableRadiatorList, ref moduleDeployableRadiator);
             TransferModules<MASIdEngine>(idEnginesList, ref moduleIdEngines);
@@ -1338,9 +1420,9 @@ namespace AvionicsSystems
         /// <summary>
         /// Update per-part data that may change per fixed update.
         /// </summary>
-        private void UpdatePartData()
-        {
-        }
+        //private void UpdatePartData()
+        //{
+        //}
 
         /// <summary>
         /// Update per-module data after refreshing the module lists, if needed.
@@ -1353,16 +1435,17 @@ namespace AvionicsSystems
 
                 modulesInvalidated = false;
             }
-            else
-            {
-                // We *still* have to iterate over the parts - but just for resource counting.
-                UpdatePartData();
-            }
+            //else
+            //{
+            //    // We *still* have to iterate over the parts - but just for resource counting.
+            //    UpdatePartData();
+            //}
 
             bool requestReset = false;
             UpdateAircraftEngines();
             UpdateAntenna();
             UpdateCamera();
+            UpdateCargoBay();
             UpdateDockingNodeState();
             requestReset |= UpdateEngines();
             UpdateGimbals();

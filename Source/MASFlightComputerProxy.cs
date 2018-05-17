@@ -341,7 +341,7 @@ namespace AvionicsSystems
             {
                 return string.Empty;
             }
-            else if(vessel.ActionGroups[ags[ag]])
+            else if (vessel.ActionGroups[ags[ag]])
             {
                 return fc.agMemoOn[ag];
             }
@@ -368,7 +368,7 @@ namespace AvionicsSystems
             {
                 return string.Empty;
             }
-            else if(active)
+            else if (active)
             {
                 return fc.agMemoOn[(int)groupID];
             }
@@ -1667,6 +1667,70 @@ namespace AvionicsSystems
             }
 
             return 0.0;
+        }
+        #endregion
+
+        /// <summary>
+        /// The methods in this section provide information on cargo bays, including the
+        /// number of such bays and their deployment state.  There are also methods to
+        /// open and close such bays.
+        /// 
+        /// Note that, for the purpose of this section, cargo bays are defined as parts
+        /// that use ModuleAnimateGeneric to control access to the cargo bay.  The
+        /// ModuleServiceModule introduced for the KSP Making History expansion is not
+        /// counted, since it does not provide a method that MAS can use to deploy the
+        /// covers.
+        /// </summary>
+        #region Cargo Bay
+
+        /// <summary>
+        /// Returns a count of the number of controllable cargo bays on the vessel.
+        /// </summary>
+        /// <returns>The number of controllable cargo bays on the vessel.</returns>
+        public double CargoBayCount()
+        {
+            return vc.moduleCargoBay.Length;
+        }
+
+        /// <summary>
+        /// Provides the status of cargo bay doors.
+        /// 
+        /// * 0 - No cargo bays on the vessel.
+        /// * 1 - At least one cargo bay is closed.
+        /// * 2 - At least cargo bay is moving (opening or closing).
+        /// * 3 - All cargo bays are open.
+        /// </summary>
+        /// <returns>0, 1, 2, or 3.</returns>
+        public double CargoBayPosition()
+        {
+            return vc.cargoBayPosition;
+        }
+
+        /// <summary>
+        /// Opens closed cargo bays, closes open cargo bays.  Will not try to toggle any cargo bays
+        /// that are already in motion.
+        /// </summary>
+        /// <returns>1 if at least one cargo bay is now moving, 0 otherwise.</returns>
+        public double ToggleCargoBay()
+        {
+            bool anyToggled = false;
+
+            for (int i = vc.moduleCargoBay.Length - 1; i >= 0; --i)
+            {
+                ModuleCargoBay me = vc.moduleCargoBay[i];
+                PartModule deployer = me.part.Modules[me.DeployModuleIndex];
+                if (deployer is ModuleAnimateGeneric)
+                {
+                    ModuleAnimateGeneric mag = deployer as ModuleAnimateGeneric;
+                    if (mag.CanMove)
+                    {
+                        mag.Toggle();
+                        anyToggled = true;
+                    }
+                }
+            }
+
+            return (anyToggled) ? 1.0 : 0.0;
         }
         #endregion
 
