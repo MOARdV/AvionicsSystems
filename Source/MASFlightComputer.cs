@@ -721,7 +721,6 @@ namespace AvionicsSystems
                 else if (HighLogic.LoadedSceneIsEditor && EditorLogic.fetch.shipDescriptionField != null)
                 {
                     string newDescr = EditorLogic.fetch.shipDescriptionField.text.Replace(Utility.EditorNewLine, "$$$");
-                    Utility.LogMessage(this, "newDescr is {0}", newDescr);
                     if (newDescr != shipDescription)
                     {
                         shipDescription = newDescr;
