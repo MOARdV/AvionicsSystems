@@ -73,8 +73,12 @@ namespace AvionicsSystems
         private static readonly Func<Vessel, Orbit, Vector3d, double, object> PlaceManeuverNode;
 
         //--- Methods found in MechJebModuleAscentAutopilot
+        private static readonly Func<object, bool> GetAPForceRoll;
         private static readonly Func<object, object> GetLaunchAltitude;
         private static readonly Func<object, double> GetLaunchInclination;
+        private static readonly Func<object, object> GetAPTurnRoll;
+        private static readonly Func<object, object> GetAPVerticalRoll;
+        private static readonly Action<object, bool> SetForceRoll;
         private static readonly Action<object, double> SetLaunchInclination;
 
         //--- Methods found in ModuleAscentGuidance
@@ -361,6 +365,54 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns 1 if MechJeb is installed and the ascent autopilot's Force Roll mode is
+        /// enabled.  Returns 0 otherwise.
+        /// </summary>
+        /// <returns></returns>
+        public double GetForceRoll()
+        {
+            if (mjAvailable)
+            {
+                return GetAPForceRoll(ascentAutopilot) ? 1.0 : 0.0;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Return the current ascent autopilot turn roll.
+        /// </summary>
+        /// <returns>Current turn roll setting.</returns>
+        public double GetTurnRoll()
+        {
+            if (mjAvailable)
+            {
+                object turnRoll = GetAPTurnRoll(ascentAutopilot);
+                if (turnRoll != null)
+                {
+                    return getEditableDoubleMult(turnRoll);
+                }
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Return the current ascent autopilot vertical roll.
+        /// </summary>
+        /// <returns>Current vertical roll setting.</returns>
+        public double GetVerticalRoll()
+        {
+            if (mjAvailable)
+            {
+                object vertRoll = GetAPVerticalRoll(ascentAutopilot);
+                if (vertRoll != null)
+                {
+                    return getEditableDoubleMult(vertRoll);
+                }
+            }
+            return 0.0;
+        }
+
+        /// <summary>
         /// Set the ascent guidance desired altitude.  Altitude is in meters.
         /// </summary>
         /// <param name="altitude"></param>
@@ -395,6 +447,46 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Set the ascent autopilot's turn roll to the value specified.
+        /// </summary>
+        /// <param name="turnRoll">The turn roll, in degrees.</param>
+        /// <returns>1 if the value was set, 0 otherwise.</returns>
+        public double SetTurnRoll(double turnRoll)
+        {
+            if (mjAvailable)
+            {
+                object turnRollED = GetAPTurnRoll(ascentAutopilot);
+                if (turnRollED != null)
+                {
+                    turnRoll = Utility.NormalizeLongitude(turnRoll);
+                    setEditableDoubleMult(turnRollED, turnRoll);
+                    return 1.0;
+                }
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Set the ascent autopilot's vertical roll to the value specified.
+        /// </summary>
+        /// <param name="turnRoll">The vertical roll, in degrees.</param>
+        /// <returns>1 if the value was set, 0 otherwise.</returns>
+        public double SetVerticalRoll(double verticalRoll)
+        {
+            if (mjAvailable)
+            {
+                object vertRollED = GetAPVerticalRoll(ascentAutopilot);
+                if (vertRollED != null)
+                {
+                    verticalRoll = Utility.NormalizeLongitude(verticalRoll);
+                    setEditableDoubleMult(vertRollED, verticalRoll);
+                    return 1.0;
+                }
+            }
+            return 0.0;
+        }
+
+        /// <summary>
         /// Toggles the Ascent Autopilot on or off.
         /// </summary>
         /// <returns>1 if the autopilot was engaged, 0 if it was disengaged or unavailable.</returns>
@@ -403,6 +495,10 @@ namespace AvionicsSystems
             if (mjAvailable)
             {
                 object users = ModuleUsers.GetValue(ascentAutopilot);
+                if (users == null)
+                {
+                    Utility.LogWarning(this, "ascentAutopilot's ModuleUsers is null");
+                }
 
                 if (ModuleEnabled(ascentAutopilot))
                 {
@@ -413,6 +509,21 @@ namespace AvionicsSystems
                     AddUser(users, ascentGuidance);
                     return 1.0;
                 }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Toggle the Ascent Autopilot's "Force Roll" option.
+        /// </summary>
+        /// <returns></returns>
+        public double ToggleForceRoll()
+        {
+            if (mjAvailable)
+            {
+                SetForceRoll(ascentAutopilot, !GetAPForceRoll(ascentAutopilot));
+                return 1.0;
             }
 
             return 0.0;
@@ -1318,12 +1429,31 @@ namespace AvionicsSystems
                 }
 
                 //--- ModuleAscentAutoPilot
+                FieldInfo turnRoll_t = mjModuleAscentAP_t.GetField("turnRoll");
+                if (turnRoll_t == null)
+                {
+                    return;
+                }
+                GetAPTurnRoll = DynamicMethodFactory.CreateGetField<object, object>(turnRoll_t);
+                FieldInfo verticalRoll_t = mjModuleAscentAP_t.GetField("verticalRoll");
+                if (verticalRoll_t == null)
+                {
+                    return;
+                }
+                GetAPVerticalRoll = DynamicMethodFactory.CreateGetField<object, object>(verticalRoll_t);
                 FieldInfo desiredOrbitAltitude_t = mjModuleAscentAP_t.GetField("desiredOrbitAltitude");
                 if (desiredOrbitAltitude_t == null)
                 {
                     return;
                 }
                 GetLaunchAltitude = DynamicMethodFactory.CreateGetField<object, object>(desiredOrbitAltitude_t);
+                FieldInfo forceRoll_t = mjModuleAscentAP_t.GetField("forceRoll");
+                if (forceRoll_t == null)
+                {
+                    return;
+                }
+                GetAPForceRoll = DynamicMethodFactory.CreateGetField<object, bool>(forceRoll_t);
+                SetForceRoll = DynamicMethodFactory.CreateSetField<object, bool>(forceRoll_t);
                 FieldInfo desiredOrbitInclination_t = mjModuleAscentAP_t.GetField("desiredInclination");
                 if (desiredOrbitInclination_t == null)
                 {
