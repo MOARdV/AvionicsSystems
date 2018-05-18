@@ -2640,22 +2640,19 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// If MechJeb is installed, returns the total delta-V remaining for the current stage.
-        /// 
-        /// Otherwise, 0 is returned.
+        /// Returns an estimate of the delta-V remaining for the current stage.
         /// </summary>
-        /// <seealso>MechJeb</seealso>
         /// <returns>Remaining delta-V for this stage in m/s.</returns>
         public double DeltaVStage()
         {
-            if (mjProxy.mjAvailable)
+            double stagePropellantMass = vc.enginePropellant.currentStage;
+            double dV = 0.0;
+            if (stagePropellantMass > 0.0)
             {
-                return mjProxy.StageDeltaV();
+                dV = vc.currentIsp * 9.81 * Math.Log(vessel.totalMass / (vessel.totalMass - 0.001 * stagePropellantMass));
             }
-            else
-            {
-                return 0.0;
-            }
+
+            return dV;
         }
 
         /// <summary>
