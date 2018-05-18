@@ -1165,20 +1165,17 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Adjust RGB channels so one of them is 1.0.  Adjust alpha to 1.0.  Used because
-        /// the OrbitDriver colors are fairly dim and have an alpha of about 0.5.
+        /// Scale color channels by 1/alpha.  Adjust alpha to 1.0.  Used because
+        /// the OrbitDriver colors are fairly dim and have an alpha of about 0.5 (following the
+        /// Unity standard of (0.5, 0.5, 0.5) being the neutral color).
         /// </summary>
         /// <param name="colorIn"></param>
         /// <returns></returns>
         static private Color GainColor(Color colorIn)
         {
-            float gain = Mathf.Max(colorIn.r, colorIn.g);
-            gain = Mathf.Max(gain, colorIn.b);
-            gain = 1.0f / gain;
-
-            colorIn.r *= gain;
-            colorIn.g *= gain;
-            colorIn.b *= gain;
+            colorIn.r /= colorIn.a;
+            colorIn.g /= colorIn.a;
+            colorIn.b /= colorIn.a;
             colorIn.a = 1.0f;
 
             return colorIn;
@@ -1244,7 +1241,9 @@ namespace AvionicsSystems
                 {
                     if (lastBody.atmosphere)
                     {
-                        atmoColor = GainColor(lastBody.atmosphericAmbientColor);
+                        atmoColor = lastBody.atmosphericAmbientColor;
+                        atmoColor.a = 0.5f;
+                        atmoColor = GainColor(atmoColor);
                     }
                 }
                 bodyRenderer.startColor = bodyColor;
