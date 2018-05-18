@@ -274,7 +274,7 @@ namespace AvionicsSystems
         {
             if (vc.maneuverNodeValid && vc.currentIsp > 0.0 && vc.currentMaxThrust > 0.0)
             {
-                return vc.currentIsp * (1.0f - Math.Exp(-vc.maneuverNodeDeltaV / vc.currentIsp / 9.81)) / (vc.currentMaxThrust / (vessel.totalMass * 9.81));
+                return vc.currentIsp * (1.0f - Math.Exp(-vc.maneuverNodeDeltaV / vc.currentIsp / Utility.StandardG)) / (vc.currentMaxThrust / (vessel.totalMass * Utility.StandardG));
             }
             else
             {

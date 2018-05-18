@@ -2649,7 +2649,7 @@ namespace AvionicsSystems
             double dV = 0.0;
             if (stagePropellantMass > 0.0)
             {
-                dV = vc.currentIsp * 9.81 * Math.Log(vessel.totalMass / (vessel.totalMass - 0.001 * stagePropellantMass));
+                dV = vc.currentIsp * Utility.StandardG * Math.Log(vessel.totalMass / (vessel.totalMass - 0.001 * stagePropellantMass));
             }
 
             return dV;

@@ -38,6 +38,8 @@ namespace AvionicsSystems
         internal static readonly double Deg2Rad = Math.PI / 180.0;
         internal static readonly double Rad2Deg = 180.0 / Math.PI;
 
+        internal static readonly double StandardG = 9.80665;
+
         internal static readonly string[] NewLine = { Environment.NewLine };
 
         internal static Dictionary<VesselType, string> typeDict = new Dictionary<VesselType, string>

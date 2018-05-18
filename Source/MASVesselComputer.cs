@@ -1020,7 +1020,7 @@ namespace AvionicsSystems
         private void UpdateMisc()
         {
             // Convert to m/2^s
-            surfaceAccelerationFromGravity = orbit.referenceBody.GeeASL * 9.81;
+            surfaceAccelerationFromGravity = orbit.referenceBody.GeeASL * Utility.StandardG;
             aeroDataValid = false;
         }
 
