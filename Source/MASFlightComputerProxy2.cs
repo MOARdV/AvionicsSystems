@@ -581,10 +581,10 @@ namespace AvionicsSystems
         /// </summary>
         #region Mass
         /// <summary>
-        /// Returns the mass of the vessel.
+        /// Returns the mass of the vessel in tonnes.
         /// </summary>
         /// <param name="wetMass">wet mass if true, dry mass otherwise</param>
-        /// <returns>Vessel mass in kg.</returns>
+        /// <returns>Vessel mass in tonnes.</returns>
         public double Mass(bool wetMass)
         {
             if (wetMass)

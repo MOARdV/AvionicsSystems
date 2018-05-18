@@ -78,7 +78,7 @@ namespace AvionicsSystems
         private ResourceData dummyResource;
 
         /// <summary>
-        /// Total mass of all current resources.
+        /// Total mass of all current resources, in tonnes.
         /// </summary>
         internal float totalResourceMass;
 
