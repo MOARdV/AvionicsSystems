@@ -122,6 +122,17 @@ namespace Documentor
 
                 indexContents.AppendLine().AppendLine("***").AppendLine().AppendLine("### Categories");
                 indexContents.AppendFormat("**Master Category Index**, {0} categories:", region.Count).AppendLine().AppendLine();
+                region.Sort(delegate(IndexToken a, IndexToken b)
+                {
+                    if (a.rawName == b.rawName)
+                    {
+                        return string.Compare(a.decoratedName.ToString(), b.decoratedName.ToString());
+                    }
+                    else
+                    {
+                        return string.Compare(a.rawName, b.rawName);
+                    }
+                });
                 foreach (var i in region)
                 {
                     string[] b = i.sourceFile.Split('.');
