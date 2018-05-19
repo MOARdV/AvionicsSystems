@@ -242,7 +242,13 @@ namespace AvionicsSystems
                 }
 
                 RefreshData();
+
+                PilotFixedUpdate();
                 //Utility.LogMessage(this, "FixedUpdate for {0}", vessel.id);
+            }
+            else
+            {
+                attitudePilotEngaged = false;
             }
         }
 
@@ -631,7 +637,6 @@ namespace AvionicsSystems
         #region Maneuver
         private ManeuverNode node;
         internal Orbit nodeOrbit;
-        private Matrix4x4D mnvrBasis = Matrix4x4D.Identity();
         private double nodeDV = -1.0;
         private void RefreshNodeValues()
         {

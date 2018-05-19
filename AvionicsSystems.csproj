@@ -126,6 +126,7 @@
     <Compile Include="Source\MASThrustReverser.cs" />
     <Compile Include="Source\MASVesselComputer.cs" />
     <Compile Include="Source\IMASSubComponent.cs" />
+    <Compile Include="Source\MASVesselComputerControl.cs" />
     <Compile Include="Source\MASVesselComputerModules.cs" />
     <Compile Include="Source\MASVesselComputerResources.cs" />
     <Compile Include="Source\MdVTextMesh.cs" />

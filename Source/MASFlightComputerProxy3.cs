@@ -851,6 +851,7 @@ namespace AvionicsSystems
             {
                 case 0:
                     TrySetSASMode(VesselAutopilot.AutopilotMode.StabilityAssist);
+                    vc.attitudePilotEngaged = false;
                     break;
                 case 1:
                     TrySetSASMode(VesselAutopilot.AutopilotMode.Prograde);

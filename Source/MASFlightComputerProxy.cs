@@ -67,6 +67,21 @@ namespace AvionicsSystems
     /// </mdDoc>
     internal partial class MASFlightComputerProxy
     {
+        private static readonly MASVesselComputer.ReferenceAttitude[] referenceAttitudes =
+        {
+            MASVesselComputer.ReferenceAttitude.REF_INERTIAL,
+            MASVesselComputer.ReferenceAttitude.REF_ORBIT_PROGRADE,
+            MASVesselComputer.ReferenceAttitude.REF_ORBIT_HORIZONTAL,
+            MASVesselComputer.ReferenceAttitude.REF_SURFACE_PROGRADE,
+            MASVesselComputer.ReferenceAttitude.REF_SURFACE_HORIZONTAL,
+            MASVesselComputer.ReferenceAttitude.REF_SURFACE_NORTH,
+            MASVesselComputer.ReferenceAttitude.REF_TARGET,
+            MASVesselComputer.ReferenceAttitude.REF_TARGET_RELATIVE_VEL,
+            MASVesselComputer.ReferenceAttitude.REF_TARGET_ORIENTATION,
+            MASVesselComputer.ReferenceAttitude.REF_MANEUVER_NODE,
+            MASVesselComputer.ReferenceAttitude.REF_SUN,
+        };
+
         internal const double KelvinToCelsius = -273.15;
 
         private MASFlightComputer fc;
@@ -654,6 +669,177 @@ namespace AvionicsSystems
             }
         }
 
+        #endregion
+
+        /// <summary>
+        /// The Autopilot region provides information about and control over the MAS Vessel
+        /// Computer Control system (which needs a cool name amenable to acronyms).
+        /// 
+        /// The attitude control pilot is very similar to MechJeb's advanced SASS modes.
+        /// 
+        /// Some caveats about the autopilot subsystems:
+        /// 
+        /// The attitude control pilot uses the stock SAS feature to provide steering control.
+        /// When it is engaged, SAS is in Stability Control mode.  If SAS is changed to a
+        /// different mode (such as Prograde), the attitude control pilot is disengaged.
+        /// Likewise, if Stability Control is selected, the attitude pilot disengages.
+        /// 
+        /// Other autopilots may use the attitude control system to steer the vessel.  If
+        /// the attitude control pilot is disengaged, the other autopilot is also disengaged.
+        /// </summary>
+        #region Autopilot
+
+        /// <summary>
+        /// Reports if the attitude control pilot is actively attempting to control
+        /// the vessel's heading.  This pilot could be active if the crew used
+        /// `fc.SetHeading()` to set the vessel's heading, or if another pilot module
+        /// is using the attitude pilot's service.
+        /// </summary>
+        /// <returns>1 if the attitude control pilot is active, 0 otherwise.</returns>
+        public double GetAttitudePilotActive()
+        {
+            return (vc.attitudePilotEngaged) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the currently stored heading offset in the atittude control pilot.
+        /// </summary>
+        /// <returns>Heading relative to the reference attitude, in degrees.</returns>
+        public double GetAttitudePilotHeading()
+        {
+            return vc.relativeHPR.x;
+        }
+
+        /// <summary>
+        /// Returns the currently stored pitch offset in the atittude control pilot.
+        /// </summary>
+        /// <returns>Pitch relative to the reference attitude, in degrees.</returns>
+        public double GetAttitudePilotPitch()
+        {
+            return vc.relativeHPR.y;
+        }
+
+        /// <summary>
+        /// Returns the currently stored roll offset in the atittude control pilot.
+        /// </summary>
+        /// <returns>Roll relative to the reference attitude, in degrees.</returns>
+        public double GetAttitudePilotRoll()
+        {
+            return vc.relativeHPR.z;
+        }
+
+        /// <summary>
+        /// Returns the current attitude reference mode.  This value may be one of
+        /// the following:
+        /// 
+        /// * 0 - Inertial Frame
+        /// * 1 - Orbital Prograde
+        /// * 2 - Orbital Prograde Horizontal
+        /// * 3 - Surface Prograde
+        /// * 4 - Surface Prograde Horizontal
+        /// * 5 - Surface North
+        /// * 6 - Target
+        /// * 7 - Target Prograde
+        /// * 8 - Target Orientation
+        /// * 9 - Maneuver Node
+        /// * 10 - Sun
+        ///
+        /// This reference mode does not indicate whether the attitude control pilot is
+        /// active, but it does indicate which reference attitude will take effect if the
+        /// pilot is engaged.  Refer to the documentation for `fc.SetHeading()` for a
+        /// detailed explanation of the attitude references.
+        /// </summary>
+        /// <returns>One of the numbers listed in the summary.</returns>
+        public double GetAttitudeReference()
+        {
+            return (int)vc.activeReference;
+        }
+
+        /// <summary>
+        /// Set the attitude pilot to the selected state.  If another pilot is using
+        /// the attitude pilot (such as the launch pilot), switching off the attitude
+        /// pilot will disengage the other pilot as well.
+        /// 
+        /// **CAUTION:** If the attitude system has not been initialized, it selects an inertial reference
+        /// attitude, which will cause problems during launch or reentry.
+        /// </summary>
+        /// <param name="active">If true, engage the autopilot and restore the previous attitude.</param>
+        /// <returns>Returns 1 if the autopilot is now on, 0 if it is now off.</returns>
+        public double SetAttitudePilotActive(bool active)
+        {
+            if (active != vc.attitudePilotEngaged)
+            {
+                if (!active)
+                {
+                    // Shutoff is easy.
+                    vc.attitudePilotEngaged = active;
+                }
+                else
+                {
+                    // Engaging takes a couple of extra steps
+                    vc.EngageAttitudePilot(vc.activeReference, vc.relativeHPR);
+                }
+            }
+
+            return (vc.attitudePilotEngaged) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Engages SAS and sets the vessel's heading based on the reference attitude, heading, pitch, and roll.
+        /// The reference attitude is one of the following:
+        /// 
+        /// * 0 - Inertial Frame - the universe's inertial frame of reference, relative to no bodies or vessels.
+        /// * 1 - Orbital Prograde - The orbital prograde direction with Radial Out up.
+        /// * 2 - Orbital Prograde Horizontal - The orbital prograde direction with a surface-relative up.
+        /// * 3 - Surface Prograde - The surface prograde direction with Radial Out up.
+        /// * 4 - Surface Prograde Horizontal - The surface prograde direction with a surface-relative up.
+        /// * 5 - Surface North - Local planetary north with a surface-relative up.
+        /// * 6 - Target - Pointed towards the target with an up direction based on Radial Out.
+        /// * 7 - Target Relative Prograde - Target-relative prograde with an up direction based on Radial Out.
+        /// * 8 - Target Orientation - target's "forward" and "up" directions (for celestial bodies, this
+        /// is an arbitrary direction).
+        /// * 9 - Maneuver Node - towards the maneuver node, with up based on Radial Out.
+        /// * 10 - Sun - towards the Sun, with an inertial reference frame "up".
+        /// </summary>
+        /// <param name="reference">Reference attitude, as described in the summary.</param>
+        /// <param name="heading">Heading (yaw) relative to the reference attitude.</param>
+        /// <param name="pitch">Pitch relative to the reference attitude.</param>
+        /// <param name="roll">Roll relative to the reference attitude.</param>
+        /// <returns>1 if the SetHeading command succeeded, 0 otherwise.</returns>
+        public double SetHeading(double reference, double heading, double pitch, double roll)
+        {
+            int refAtt = (int)reference;
+            if(refAtt < 0 || refAtt > 10)
+            {
+                return 0.0;
+            }
+
+            return (vc.EngageAttitudePilot(referenceAttitudes[refAtt], new Vector3((float)heading, (float)pitch, (float)roll))) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Toggle the MAS attitude pilot.  The exisiting reference attitude and heading, pitch, and roll
+        /// are restored.  If another pilot is using
+        /// the attitude pilot (such as the launch pilot), switching off the attitude
+        /// pilot will disengage the other pilot as well.
+        /// 
+        /// **CAUTION:** If the attitude system has not been initialized, it selects an inertial reference
+        /// attitude, which will cause problems during launch or reentry.
+        /// </summary>
+        /// <returns>Returns 1 if the autopilot is now on, 0 if it is now off.</returns>
+        public double ToggleAttitudePilot()
+        {
+            if (vc.attitudePilotEngaged)
+            {
+                vc.attitudePilotEngaged = false;
+            }
+            else
+            {
+                vc.EngageAttitudePilot(vc.activeReference, vc.relativeHPR);
+            }
+
+            return (vc.attitudePilotEngaged) ? 1.0 : 0.0;
+        }
         #endregion
 
         /// <summary>
