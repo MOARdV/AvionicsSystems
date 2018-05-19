@@ -167,6 +167,8 @@ namespace AvionicsSystems
                 borderRenderer.endColor = borderColor;
                 borderRenderer.startWidth = borderWidth;
                 borderRenderer.endWidth = borderWidth;
+                borderRenderer.positionCount = 4;
+                borderRenderer.loop = true;
 
                 Color32 namedColor;
                 if (comp.TryGetNamedColor(borderColorName, out namedColor))
@@ -221,8 +223,7 @@ namespace AvionicsSystems
                     new Vector3(-halfWidth, -halfWidth, 0.0f),
                     new Vector3(size.x + halfWidth, -halfWidth, 0.0f),
                     new Vector3(size.x + halfWidth, size.y + halfWidth, 0.0f),
-                    new Vector3(-halfWidth, size.y+halfWidth, 0.0f),
-                    new Vector3(-halfWidth, -halfWidth, 0.0f)
+                    new Vector3(-halfWidth, size.y+halfWidth, 0.0f)
                 };
                 borderRenderer.SetPositions(borderPoints);
             }
@@ -242,6 +243,8 @@ namespace AvionicsSystems
             lineRenderer.endColor = sourceColor;
             lineRenderer.startWidth = 2.5f;
             lineRenderer.endWidth = 2.5f;
+            lineRenderer.positionCount = maxSamples;
+            lineRenderer.loop = false;
             RenderPage(false);
 
             for (int i = 0; i < maxSamples; ++i)
@@ -261,36 +264,36 @@ namespace AvionicsSystems
                 }
                 else
                 {
-                    string[] startColors = Utility.SplitVariableList(sourceColorName);
-                    if (startColors.Length < 3 || startColors.Length > 4)
+                    string[] sourceColors = Utility.SplitVariableList(sourceColorName);
+                    if (sourceColors.Length < 3 || sourceColors.Length > 4)
                     {
                         throw new ArgumentException("sourceColor does not contain 3 or 4 values in LINE_GRAPH " + name);
                     }
 
-                    registeredVariables.RegisterNumericVariable(startColors[0], (double newValue) =>
+                    registeredVariables.RegisterNumericVariable(sourceColors[0], (double newValue) =>
                     {
                         sourceColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.startColor = sourceColor;
                         lineRenderer.endColor = sourceColor;
                     });
 
-                    registeredVariables.RegisterNumericVariable(startColors[1], (double newValue) =>
+                    registeredVariables.RegisterNumericVariable(sourceColors[1], (double newValue) =>
                     {
                         sourceColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.startColor = sourceColor;
                         lineRenderer.endColor = sourceColor;
                     });
 
-                    registeredVariables.RegisterNumericVariable(startColors[2], (double newValue) =>
+                    registeredVariables.RegisterNumericVariable(sourceColors[2], (double newValue) =>
                     {
                         sourceColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.startColor = sourceColor;
                         lineRenderer.endColor = sourceColor;
                     });
 
-                    if (startColors.Length == 4)
+                    if (sourceColors.Length == 4)
                     {
-                        registeredVariables.RegisterNumericVariable(startColors[3], (double newValue) =>
+                        registeredVariables.RegisterNumericVariable(sourceColors[3], (double newValue) =>
                         {
                             sourceColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             lineRenderer.startColor = sourceColor;
@@ -307,11 +310,20 @@ namespace AvionicsSystems
             if (!string.IsNullOrEmpty(variableName))
             {
                 // Disable the mesh if we're in variable mode
+                if (borderObject != null)
+                {
+                    borderObject.SetActive(false);
+                }
                 graphObject.SetActive(false);
                 registeredVariables.RegisterNumericVariable(variableName, VariableCallback);
             }
             else
             {
+                currentState = true;
+                if (borderObject != null)
+                {
+                    borderObject.SetActive(true);
+                }
                 graphObject.SetActive(true);
             }
         }
@@ -334,6 +346,7 @@ namespace AvionicsSystems
                 {
                     graphPoints[currentSample] = new Vector3(currentSample * sampleRate, newSample, 0.0f);
                     currentSample++;
+                    lineRenderer.positionCount = currentSample;
                 }
                 else
                 {
@@ -365,6 +378,10 @@ namespace AvionicsSystems
             if (newState != currentState)
             {
                 currentState = newState;
+                if (borderObject != null)
+                {
+                    borderObject.SetActive(currentState);
+                }
                 graphObject.SetActive(currentState);
             }
         }
