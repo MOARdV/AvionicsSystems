@@ -49,7 +49,18 @@ namespace AvionicsSystems
         /// <summary>
         /// Our current reference transform.
         /// </summary>
-        internal Transform referenceTransform;
+        private Transform _referenceTransform;
+        internal Transform referenceTransform
+        {
+            get
+            {
+                if (_referenceTransform == null)
+                {
+                    UpdateReferenceTransform(vessel.ReferenceTransform);
+                }
+                return _referenceTransform;
+            }
+        }
 
         /// <summary>
         /// Type of object that the reference transform is attached to.
@@ -1031,7 +1042,7 @@ namespace AvionicsSystems
 
         private void UpdateReferenceTransform(Transform newRefXform)
         {
-            referenceTransform = newRefXform;
+            _referenceTransform = newRefXform;
             referenceTransformType = ReferenceType.Unknown;
 
             // TODO: Can I infer this from newRefXform?  And is it more
@@ -1093,7 +1104,7 @@ namespace AvionicsSystems
         /// <param name="newMode"></param>
         private void onCameraChange(CameraManager.CameraMode newMode)
         {
-            UpdateReferenceTransform(referenceTransform);
+            UpdateReferenceTransform(_referenceTransform);
             vesselActive = ActiveVessel(vessel);
         }
 
