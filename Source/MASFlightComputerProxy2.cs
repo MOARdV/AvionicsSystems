@@ -272,14 +272,7 @@ namespace AvionicsSystems
         /// <returns>Approximate burn time in seconds, or 0 if no node is scheduled.</returns>
         public double ManeuverNodeBurnTime()
         {
-            if (vc.maneuverNodeValid && vc.currentIsp > 0.0 && vc.currentMaxThrust > 0.0)
-            {
-                return vc.currentIsp * (1.0f - Math.Exp(-vc.maneuverNodeDeltaV / vc.currentIsp / Utility.StandardG)) / (vc.currentMaxThrust / (vessel.totalMass * Utility.StandardG));
-            }
-            else
-            {
-                return 0.0;
-            }
+            return vc.NodeBurnTime();
         }
 
         /// <summary>

@@ -35,7 +35,7 @@ namespace AvionicsSystems
         internal enum ReferenceAttitude
         {
             REF_INERTIAL,
-            
+
             REF_ORBIT_PROGRADE,
             REF_ORBIT_HORIZONTAL, // Orbit prograde, horizontal
 
@@ -56,6 +56,8 @@ namespace AvionicsSystems
         /// </summary>
         internal bool attitudePilotEngaged;
 
+        internal bool maneuverPilotEngaged;
+
         /// <summary>
         /// What reference mode is currently active?
         /// </summary>
@@ -72,16 +74,96 @@ namespace AvionicsSystems
         /// </summary>
         internal Vector3 relativeHPR { get; private set; }
 
+        private KerbalFSM maneuverPilot = new KerbalFSM();
+
         /// <summary>
         /// Used for when we have to switch to Stability Assist mode.
         /// </summary>
         private UIStateToggleButton[] SASbtns = null;
 
         /// <summary>
+        /// Initialize the autopilot FSMs.
+        /// </summary>
+        private void PilotInitialize()
+        {
+            KFSMState idleState = new KFSMState("Idle");
+            idleState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+
+            KFSMState coastState = new KFSMState("Coasting");
+            coastState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+
+            KFSMState flyState = new KFSMState("Flying");
+            flyState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+            flyState.OnFixedUpdate = () =>
+                {
+                    Utility.LogMessage(this, "We're flying...");
+                };
+
+            KFSMEvent stopPilot = new KFSMEvent("Stop Pilot");
+            stopPilot.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+            stopPilot.OnCheckCondition = (KFSMState currentState) =>
+            {
+                if (maneuverPilotEngaged == false || attitudePilotEngaged == false || node == null)
+                {
+                    maneuverPilotEngaged = false;
+                    Utility.LogMessage(this, "StopPilot  event: Transitioning");
+                }
+                return (maneuverPilotEngaged == false || attitudePilotEngaged == false || node == null);
+            };
+            stopPilot.GoToStateOnEvent = idleState;
+
+            KFSMEvent startPilot = new KFSMEvent("Start Pilot");
+            startPilot.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+            startPilot.OnCheckCondition = (KFSMState currentState) =>
+            {
+                if (maneuverPilotEngaged)
+                {
+                    Utility.LogMessage(this, "StartPilot event: Transitioning");
+                }
+                return maneuverPilotEngaged;
+            };
+            startPilot.GoToStateOnEvent = coastState;
+
+            KFSMEvent flyPilot = new KFSMEvent("Fly Pilot");
+            flyPilot.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+            flyPilot.OnCheckCondition = (KFSMState currentState) =>
+                {
+                    if (maneuverPilotEngaged) // Should be redundant?
+                    {
+                        double burnTime = NodeBurnTime();
+                        Utility.LogMessage(this, "Coasting: burnTime is {0:0.0}s, time to MNode is {1:0.0}s",
+                            burnTime, maneuverNodeTime);
+                        if (burnTime > 0.0 && burnTime * 0.5 <= -maneuverNodeTime)
+                        {
+                            Utility.LogMessage(this, "FlyPilot   event: Transitioning");
+                            return true;
+                        }
+                    }
+                    return false;
+                };
+            flyPilot.GoToStateOnEvent = flyState;
+
+            idleState.AddEvent(startPilot);
+            coastState.AddEvent(stopPilot);
+            coastState.AddEvent(flyPilot);
+            flyState.AddEvent(stopPilot);
+
+            maneuverPilot.AddState(idleState);
+            maneuverPilot.AddState(coastState);
+
+            maneuverPilot.StartFSM(idleState);
+        }
+
+        /// <summary>
         /// Internal flight control processing for the vessel.
         /// </summary>
         private void PilotFixedUpdate()
         {
+            if (maneuverPilotEngaged)
+            {
+                Utility.LogMessage(this, "FixedUpdate: FSM state is {0}, started = {1}", maneuverPilot.currentStateName, maneuverPilot.Started);
+                maneuverPilot.FixedUpdateFSM();
+            }
             if (attitudePilotEngaged && vessel.ActionGroups[KSPActionGroup.SAS])
             {
                 if (vessel.Autopilot.Mode == VesselAutopilot.AutopilotMode.StabilityAssist)
@@ -114,26 +196,24 @@ namespace AvionicsSystems
                 else
                 {
                     attitudePilotEngaged = false;
+                    maneuverPilotEngaged = false;
+                    //maneuverPilot.FixedUpdateFSM();
                 }
             }
             else
             {
                 attitudePilotEngaged = false;
+                maneuverPilotEngaged = false;
+                //maneuverPilot.FixedUpdateFSM();
             }
         }
 
         /// <summary>
-        /// Configure and engage SAS.
+        /// Engage SAS for custom attitude control.
         /// </summary>
-        /// <param name="reference">Which attitude reference to apply.</param>
-        /// <param name="HPR">Heading, Pitch, Roll</param>
-        internal bool EngageAttitudePilot(ReferenceAttitude reference, Vector3 HPR)
+        /// <returns>true if SAS engaged, false otherwise.</returns>
+        private bool EngageSAS()
         {
-            if (!ValidReference(reference))
-            {
-                return false;
-            }
-
             if (!vessel.ActionGroups[KSPActionGroup.SAS])
             {
                 vessel.ActionGroups.SetGroup(KSPActionGroup.SAS, true);
@@ -158,12 +238,61 @@ namespace AvionicsSystems
                 }
             }
 
+            return true;
+        }
+
+        /// <summary>
+        /// Configure and engage SAS.
+        /// </summary>
+        /// <param name="reference">Which attitude reference to apply.</param>
+        /// <param name="HPR">Heading, Pitch, Roll</param>
+        internal bool EngageAttitudePilot(ReferenceAttitude reference, Vector3 HPR)
+        {
+            if (!ValidReference(reference))
+            {
+                return false;
+            }
+
+            if (!EngageSAS())
+            {
+                return false;
+            }
+
             relativeHPR = HPR;
             relativeOrientation = Quaternion.AngleAxis(relativeHPR.x, Vector3.up) * Quaternion.AngleAxis(-relativeHPR.y, Vector3.right) * Quaternion.AngleAxis(-relativeHPR.z, Vector3.forward) * Quaternion.Euler(90, 0, 0);
 
             activeReference = reference;
 
             attitudePilotEngaged = true;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Configure SAS for maneuver, activate the maneuver pilot's state machine.
+        /// </summary>
+        /// <returns></returns>
+        internal bool EngageManeuverPilot()
+        {
+            if (!ValidReference(ReferenceAttitude.REF_MANEUVER_NODE))
+            {
+                return false;
+            }
+
+            if (!EngageSAS())
+            {
+                return false;
+            }
+
+            relativeHPR = Vector3.zero;
+            relativeOrientation = Quaternion.AngleAxis(relativeHPR.x, Vector3.up) * Quaternion.AngleAxis(-relativeHPR.y, Vector3.right) * Quaternion.AngleAxis(-relativeHPR.z, Vector3.forward) * Quaternion.Euler(90, 0, 0);
+
+            activeReference = ReferenceAttitude.REF_MANEUVER_NODE;
+
+            attitudePilotEngaged = true;
+            maneuverPilotEngaged = true;
+
+            maneuverPilot.StartFSM("Idle");
 
             return true;
         }
@@ -182,7 +311,7 @@ namespace AvionicsSystems
                     return false;
                 }
             }
-            else if(reference == ReferenceAttitude.REF_TARGET || reference == ReferenceAttitude.REF_TARGET_ORIENTATION || reference == ReferenceAttitude.REF_TARGET_RELATIVE_VEL)
+            else if (reference == ReferenceAttitude.REF_TARGET || reference == ReferenceAttitude.REF_TARGET_ORIENTATION || reference == ReferenceAttitude.REF_TARGET_RELATIVE_VEL)
             {
                 if (activeTarget == null)
                 {

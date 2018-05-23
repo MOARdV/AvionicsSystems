@@ -336,6 +336,8 @@ namespace AvionicsSystems
 
             vesselActive = ActiveVessel(vessel);
 
+            PilotInitialize();
+
             GameEvents.OnCameraChange.Add(onCameraChange);
             GameEvents.onStageActivate.Add(onStageActivate);
             GameEvents.onVesselChange.Add(onVesselChange);
@@ -753,6 +755,19 @@ namespace AvionicsSystems
                 }
             }
         }
+
+        internal double NodeBurnTime()
+        {
+            if (maneuverNodeValid && currentIsp > 0.0 && currentMaxThrust > 0.0)
+            {
+                return currentIsp * (1.0f - Math.Exp(-maneuverNodeDeltaV / currentIsp / Utility.StandardG)) / (currentMaxThrust / (vessel.totalMass * Utility.StandardG));
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
         void UpdateManeuverNode()
         {
             if (vessel.patchedConicSolver != null)

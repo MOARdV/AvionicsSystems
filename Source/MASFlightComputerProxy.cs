@@ -756,6 +756,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns 1 if the maneuver autopilot is active, 0 if it is idle.
+        /// </summary>
+        /// <returns></returns>
+        public double GetManeuverPilotActive()
+        {
+            return (vc.maneuverPilotEngaged) ? 1.0  :0.0;
+        }
+
+        /// <summary>
         /// Set the attitude pilot to the selected state.  If another pilot is using
         /// the attitude pilot (such as the launch pilot), switching off the attitude
         /// pilot will disengage the other pilot as well.
@@ -818,6 +827,31 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Sets the maneuver autopilot state to active or not based on 'active'.
+        /// If no valid maneuver node exists, activating the maneuver pilot has no effect.
+        /// </summary>
+        /// <param name="active">If true, attempts to activate the maneuver autopilot; if false, deactivates it.</param>
+        /// <returns>1 if the maneuver autopilot is active, 0 if it is not active.</returns>
+        public double SetManeuverPilotActive(bool active)
+        {
+            if (active != vc.maneuverPilotEngaged)
+            {
+                if (!active)
+                {
+                    // Shutoff is easy.
+                    vc.maneuverPilotEngaged = active;
+                }
+                else
+                {
+                    // Engaging takes a couple of extra steps
+                    vc.EngageManeuverPilot();
+                }
+            }
+
+            return (vc.maneuverPilotEngaged) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Toggle the MAS attitude pilot.  The exisiting reference attitude and heading, pitch, and roll
         /// are restored.  If another pilot is using
         /// the attitude pilot (such as the launch pilot), switching off the attitude
@@ -839,6 +873,24 @@ namespace AvionicsSystems
             }
 
             return (vc.attitudePilotEngaged) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Toggles the maneuver autopilot.
+        /// </summary>
+        /// <returns>1 if the maneuver pilot is now active, 0 if it is now inactive.</returns>
+        public double ToggleManeuverPilot()
+        {
+            if (vc.maneuverPilotEngaged)
+            {
+                vc.maneuverPilotEngaged = false;
+            }
+            else
+            {
+                vc.EngageManeuverPilot();
+            }
+
+            return (vc.maneuverPilotEngaged) ? 1.0 : 0.0;
         }
         #endregion
 
