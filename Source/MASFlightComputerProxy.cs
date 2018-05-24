@@ -761,7 +761,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double GetManeuverPilotActive()
         {
-            return (vc.maneuverPilotEngaged) ? 1.0  :0.0;
+            return (vc.maneuverPilotEngaged) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -818,7 +818,7 @@ namespace AvionicsSystems
         public double SetHeading(double reference, double heading, double pitch, double roll)
         {
             int refAtt = (int)reference;
-            if(refAtt < 0 || refAtt > 10)
+            if (refAtt < 0 || refAtt > 10)
             {
                 return 0.0;
             }
@@ -1421,6 +1421,25 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Set the vessel's target to the selected body.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>1 if the command succeeds, 0 if an invalid body name or index was provided.</returns>
+        public double SetBodyTarget(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+            if (cb != null)
+            {
+                FlightGlobals.fetch.SetVesselTarget(cb);
+
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
         #endregion
 
         /// <summary>
