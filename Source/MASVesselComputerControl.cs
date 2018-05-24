@@ -92,12 +92,10 @@ namespace AvionicsSystems
             KFSMState coastState = new KFSMState("Coasting");
             coastState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
 
-            KFSMState flyState = new KFSMState("Flying");
+            MASFlyState flyState = new MASFlyState("Flying");
             flyState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
-            flyState.OnFixedUpdate = () =>
-                {
-                    //Utility.LogMessage(this, "We're flying...");
-                };
+            flyState.OnEnter = flyState.OnEnterImpl;
+            flyState.OnFixedUpdate = flyState.OnFixedUpdateImpl;
 
             KFSMEvent stopPilot = new KFSMEvent("Stop Pilot");
             stopPilot.updateMode = KFSMUpdateMode.FIXEDUPDATE;
@@ -132,7 +130,7 @@ namespace AvionicsSystems
                     {
                         double burnTime = NodeBurnTime();
                         //Utility.LogMessage(this, "Coasting: burnTime is {0:0.0}s, time to MNode is {1:0.0}s",
-                        //    burnTime, maneuverNodeTime);
+                        //    burnTime, -maneuverNodeTime);
                         if (burnTime > 0.0 && burnTime * 0.5 <= -maneuverNodeTime)
                         {
                             //Utility.LogMessage(this, "FlyPilot   event: Transitioning");
@@ -378,6 +376,21 @@ namespace AvionicsSystems
             }
 
             return referenceQuat;
+        }
+    }
+
+    internal class MASFlyState : KFSMState
+    {
+        internal MASFlyState(string name):base(name) { ; }
+
+        internal void OnEnterImpl(KFSMState s)
+        {
+            //Utility.LogMessage(this, "OnEnter: {0} @ {1}", s.name, TimeAtStateEnter);
+        }
+
+        internal void OnFixedUpdateImpl()
+        {
+            //Utility.LogMessage(this, "We're flying... @ {0}", Planetarium.GetUniversalTime() - TimeAtStateEnter);
         }
     }
 }
