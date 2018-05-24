@@ -96,7 +96,7 @@ namespace AvionicsSystems
             flyState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
             flyState.OnFixedUpdate = () =>
                 {
-                    Utility.LogMessage(this, "We're flying...");
+                    //Utility.LogMessage(this, "We're flying...");
                 };
 
             KFSMEvent stopPilot = new KFSMEvent("Stop Pilot");
@@ -106,7 +106,7 @@ namespace AvionicsSystems
                 if (maneuverPilotEngaged == false || attitudePilotEngaged == false || node == null)
                 {
                     maneuverPilotEngaged = false;
-                    Utility.LogMessage(this, "StopPilot  event: Transitioning");
+                    //Utility.LogMessage(this, "StopPilot  event: Transitioning");
                 }
                 return (maneuverPilotEngaged == false || attitudePilotEngaged == false || node == null);
             };
@@ -118,7 +118,7 @@ namespace AvionicsSystems
             {
                 if (maneuverPilotEngaged)
                 {
-                    Utility.LogMessage(this, "StartPilot event: Transitioning");
+                    //Utility.LogMessage(this, "StartPilot event: Transitioning");
                 }
                 return maneuverPilotEngaged;
             };
@@ -131,11 +131,11 @@ namespace AvionicsSystems
                     if (maneuverPilotEngaged) // Should be redundant?
                     {
                         double burnTime = NodeBurnTime();
-                        Utility.LogMessage(this, "Coasting: burnTime is {0:0.0}s, time to MNode is {1:0.0}s",
-                            burnTime, maneuverNodeTime);
+                        //Utility.LogMessage(this, "Coasting: burnTime is {0:0.0}s, time to MNode is {1:0.0}s",
+                        //    burnTime, maneuverNodeTime);
                         if (burnTime > 0.0 && burnTime * 0.5 <= -maneuverNodeTime)
                         {
-                            Utility.LogMessage(this, "FlyPilot   event: Transitioning");
+                            //Utility.LogMessage(this, "FlyPilot   event: Transitioning");
                             return true;
                         }
                     }
@@ -161,7 +161,7 @@ namespace AvionicsSystems
         {
             if (maneuverPilotEngaged)
             {
-                Utility.LogMessage(this, "FixedUpdate: FSM state is {0}, started = {1}", maneuverPilot.currentStateName, maneuverPilot.Started);
+                //Utility.LogMessage(this, "FixedUpdate: FSM state is {0}, started = {1}", maneuverPilot.currentStateName, maneuverPilot.Started);
                 maneuverPilot.FixedUpdateFSM();
             }
             if (attitudePilotEngaged && vessel.ActionGroups[KSPActionGroup.SAS])
