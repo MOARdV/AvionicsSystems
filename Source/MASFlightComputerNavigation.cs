@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2017 MOARdV
+ * Copyright (c) 2017-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -135,6 +135,14 @@ namespace AvionicsSystems
             }
         }
 
+        public string waypointName
+        {
+            get
+            {
+                return string.Format("{0} ({1}) {2} @ {3:0.00}", name, identifier, type, frequency);
+            }
+        }
+
         public FinePrint.Waypoint ToWaypoint(int index)
         {
             string cName = celestialName;
@@ -151,7 +159,7 @@ namespace AvionicsSystems
                 wp.longitude = longitude;
                 wp.celestialName = celestialName;
                 wp.altitude = heightAGL;
-                wp.name = string.Format("{0} ({1}) {2} @ {3:0.00}", name, identifier, type, frequency);
+                wp.name = waypointName;
                 wp.index = index;
                 //wp.navigationId = new Guid(wp.name); // TODO: Generate a GUID based on wp.name
                 wp.id = "vessel"; // seems to be icon name.  May be WPM-specific.
@@ -596,7 +604,7 @@ namespace AvionicsSystems
                 if (radio.NavAidInRange(vessel) || (radio.isDME && radio.DMEInRange(vessel)))
                 {
                     double absoluteBearing = radio.GetBearing(vessel.latitude, vessel.longitude);
-                    if(relative)
+                    if (relative)
                     {
                         return Utility.NormalizeAngle(absoluteBearing - vc.heading);
                     }

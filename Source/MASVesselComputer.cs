@@ -138,64 +138,6 @@ namespace AvionicsSystems
             ProcessResourceData();
         }
 
-        /// <summary>
-        /// This method is called when a vessel computer awakens since the waypoint manager doesn't
-        /// appear to be initialized before the Flight scene.  This method ensures that all of the
-        /// MAS NAVAIDS are registered in the waypoint manager.
-        /// </summary>
-        private void InitializeNavAids()
-        {
-            FinePrint.WaypointManager waypointManager = FinePrint.WaypointManager.Instance();
-            List<FinePrint.Waypoint> knownWaypoints = (waypointManager) ? waypointManager.Waypoints : null;
-
-            int numNavAids = MASLoader.navaids.Count;
-            for (int i = 0; i < numNavAids; ++i)
-            {
-                if (MASLoader.navaids[i].maximumRange == -1.0)
-                {
-                    MASLoader.navaids[i].UpdateHorizonDistance();
-                }
-
-                FinePrint.Waypoint newwp = MASLoader.navaids[i].ToWaypoint(i);
-                if (newwp != null)
-                {
-                    FinePrint.Waypoint wp = (knownWaypoints == null) ? null : knownWaypoints.Find(x => x.name == newwp.name);
-                    if (MASConfig.ResetWaypoints && wp != null)
-                    {
-                        ScenarioCustomWaypoints.RemoveWaypoint(wp);
-                        wp = null;
-                    }
-                    if (wp == null)
-                    {
-                        // Note: this is round-about, but it appears to be the way to register
-                        // waypoints to show up in Waypoint Manager.  If I simply add the
-                        // waypoint directly using FinePrint.WaypointManager, it's present there, but
-                        // not in the Waypoint Manager mod's GUI list.  So this is a simple
-                        // way to get compatibility.
-                        ConfigNode master = new ConfigNode("CUSTOM_WAYPOINTS");
-
-                        ConfigNode child = new ConfigNode("WAYPOINT");
-                        child.AddValue("latitude", newwp.latitude);
-                        child.AddValue("longitude", newwp.longitude);
-                        child.AddValue("altitude", newwp.altitude);
-                        child.AddValue("celestialName", newwp.celestialName);
-                        child.AddValue("name", newwp.name);
-                        child.AddValue("id", newwp.id);
-                        child.AddValue("index", newwp.index);
-                        child.AddValue("navigationId", newwp.navigationId.ToString());
-
-                        master.AddNode(child);
-                        ScenarioCustomWaypoints.Instance.OnLoad(master);
-
-                        //FinePrint.WaypointManager.AddWaypoint(newwp);
-                    }
-                    // else: do I verify that values appear to match?
-                }
-            }
-
-            MASConfig.ResetWaypoints = false;
-        }
-
         #region Monobehaviour
         /// <summary>
         /// Update per-Vessel fields.
@@ -300,7 +242,6 @@ namespace AvionicsSystems
                 throw new ArgumentNullException("[MASVesselComputer] Awake(): Could not find the vessel!");
             }
             //Utility.LogMessage(this, "Awake() for {0}", vessel.id);
-            InitializeNavAids();
 
             navBall = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.NavBall>();
             if (navBall == null)

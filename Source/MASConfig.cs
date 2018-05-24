@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2017 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -36,6 +36,11 @@ namespace AvionicsSystems
         /// </summary>
         public struct Navigation
         {
+            /// <summary>
+            /// Controls whether or not the nav radio beacons are added to the waypoints database.
+            /// </summary>
+            public bool enableNavBeacons;
+
             /// <summary>
             /// Overall scalar to change general signal propagation.  The small radius of Kerbin makes
             /// values swing wildly on altitude.  Defaults to 2.0.
@@ -75,6 +80,7 @@ namespace AvionicsSystems
         /// </summary>
         MASConfig()
         {
+            navigation.enableNavBeacons = false;
             navigation.generalPropagation = 2.0f;
             navigation.NDBPropagation = 1.0f;
             navigation.VORPropagation = 1.2f;
@@ -100,6 +106,11 @@ namespace AvionicsSystems
             if (!node.TryGetValue("LuaUpdatePriority", ref LuaUpdatePriority))
             {
                 LuaUpdatePriority = 1;
+            }
+
+            if (!node.TryGetValue("EnableNavBeacons", ref navigation.enableNavBeacons))
+            {
+                navigation.enableNavBeacons = false;
             }
 
             if (!node.TryGetValue("GeneralPropagation", ref navigation.generalPropagation))
@@ -132,6 +143,7 @@ namespace AvionicsSystems
             node.AddValue("VerboseLogging", VerboseLogging);
             node.AddValue("ElectricCharge", ElectricCharge);
             node.AddValue("LuaUpdatePriority", LuaUpdatePriority);
+            node.AddValue("EnableNavBeacons", navigation.enableNavBeacons);
             node.AddValue("GeneralPropagation", navigation.generalPropagation);
             node.AddValue("NDBPropagation", navigation.NDBPropagation);
             node.AddValue("VORPropagation", navigation.VORPropagation);

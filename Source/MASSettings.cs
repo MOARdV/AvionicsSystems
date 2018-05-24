@@ -118,7 +118,6 @@ namespace AvionicsSystems
                        new DialogGUIVerticalLayout(
                            new DialogGUIHorizontalLayout(
                                new DialogGUIVerticalLayout(
-                                   //new DialogGUIFlexibleSpace(),
                                    new DialogGUILabel(Localizer.GetStringByTag("#MAS_Settings_General_Section"), true),
                                    new DialogGUISpace(10.0f),
                                    new DialogGUIToggle(verboseLogging, Localizer.GetStringByTag("#MAS_Settings_Verbose_Logging"), (bool newValue) => { verboseLogging = newValue; }),
@@ -132,9 +131,10 @@ namespace AvionicsSystems
                                    new DialogGUIFlexibleSpace()
                                    ),
                                 new DialogGUIVerticalLayout(
-                                   //new DialogGUIFlexibleSpace(),
                                    new DialogGUILabel(Localizer.GetStringByTag("#MAS_Settings_RadioNav_Section"), true),
                                    new DialogGUISpace(10.0f),
+                                   new DialogGUIToggle(enableNavBeacons, Localizer.GetStringByTag("#MAS_Settings_Nav_Beacons"), (bool newValue) => { enableNavBeacons = newValue; }),
+                                   new DialogGUISpace(5.0f),
                                    new DialogGUILabel(delegate { return Localizer.Format("#MAS_Settings_Radio_Propagation", generalPropagation.ToString("P0")); }, true),
                                    new DialogGUISlider(delegate { return generalPropagation; }, 1.0f, 3.0f, false, 140.0f, 30.0f, (float newValue) => { generalPropagation = newValue; }),
                                    new DialogGUISpace(5.0f),
@@ -148,7 +148,6 @@ namespace AvionicsSystems
                                    new DialogGUISlider(delegate { return DMEPropagation; }, 1.0f, 2.0f, false, 140.0f, 30.0f, (float newValue) => { DMEPropagation = newValue; }),
                                    new DialogGUISpace(5.0f),
                                    new DialogGUIToggle(resetWaypoints, Localizer.GetStringByTag("#MAS_Settings_Reset_Waypoints"), (bool selected) => { resetWaypoints = selected; }, 140.0f, 30.0f),
-                                   //new DialogGUILabel(delegate { return "CAUTION!  Reset Waypoints";}, false, true),
                                    new DialogGUIFlexibleSpace()
                                     )
                                ),
@@ -178,6 +177,7 @@ namespace AvionicsSystems
         private bool verboseLogging;
         private int luaUpdatePriority;
         private int cameraTextureScale;
+        private bool enableNavBeacons;
         private float generalPropagation;
         private float NDBPropagation;
         private float VORPropagation;
@@ -188,6 +188,7 @@ namespace AvionicsSystems
             verboseLogging = MASConfig.VerboseLogging;
             luaUpdatePriority = MASConfig.LuaUpdatePriority;
             cameraTextureScale = MASConfig.CameraTextureScale;
+            enableNavBeacons = MASConfig.navigation.enableNavBeacons;
             generalPropagation = MASConfig.navigation.generalPropagation;
             NDBPropagation = MASConfig.navigation.NDBPropagation;
             VORPropagation = MASConfig.navigation.VORPropagation;
@@ -200,6 +201,7 @@ namespace AvionicsSystems
             MASConfig.VerboseLogging = verboseLogging;
             MASConfig.LuaUpdatePriority = luaUpdatePriority;
             MASConfig.CameraTextureScale = cameraTextureScale;
+            MASConfig.navigation.enableNavBeacons = enableNavBeacons;
             MASConfig.navigation.generalPropagation = generalPropagation;
             MASConfig.navigation.NDBPropagation = NDBPropagation;
             MASConfig.navigation.VORPropagation = VORPropagation;
