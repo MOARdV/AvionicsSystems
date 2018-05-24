@@ -125,7 +125,7 @@ namespace AvionicsSystems
                                    new DialogGUILabel(delegate { return Localizer.Format("#MAS_Settings_Lua_Update_Priority", luaUpdatePriority.ToString()); }, true),
                                    new DialogGUISlider(delegate { return (float)luaUpdatePriority; }, 1.0f, 4.0f, true, 140.0f, 30.0f, (float newValue) => { luaUpdatePriority = (int)newValue; }),
                                    new DialogGUISpace(5.0f),
-                                   new DialogGUILabel(delegate { return string.Format("#MAS_Settings_Camera_Texture_Size", (1 << cameraTextureScale).ToString()); }, true),
+                                   new DialogGUILabel(delegate { return Localizer.Format("#MAS_Settings_Camera_Texture_Size", (1 << cameraTextureScale).ToString()); }, true),
                                    new DialogGUISlider(delegate { return (float)cameraTextureScale; }, 0.0f, 2.0f, true, 140.0f, 30.0f, (float newValue) => { cameraTextureScale = (int)newValue; }),
                                    new DialogGUISpace(5.0f),
                                    new DialogGUIFlexibleSpace()
