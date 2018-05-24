@@ -84,14 +84,18 @@ namespace AvionicsSystems
                 double wpLat = NavWaypoint.fetch.Latitude;
                 double wpLon = NavWaypoint.fetch.Longitude;
 
-                var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
-                int numWP = waypoints.Count;
-                for (int i = 0; i < numWP; ++i)
+                FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
+                if (instance != null)
                 {
-                    if (waypoints[i].latitude == wpLat && waypoints[i].longitude == wpLon)
+                    var waypoints = instance.Waypoints;
+                    int numWP = waypoints.Count;
+                    for (int i = 0; i < numWP; ++i)
                     {
-                        activeWaypoint = i;
-                        break;
+                        if (waypoints[i].latitude == wpLat && waypoints[i].longitude == wpLon)
+                        {
+                            activeWaypoint = i;
+                            break;
+                        }
                     }
                 }
             }
@@ -841,12 +845,18 @@ namespace AvionicsSystems
                 NavWaypoint.fetch.Deactivate();
             }
 
-            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
+            if (instance == null)
+            {
+                return 0.0;
+            }
+            var waypoints = instance.Waypoints;
 
             if (index >= 0 && index < waypoints.Count)
             {
                 NavWaypoint.fetch.Setup(waypoints[index]);
                 NavWaypoint.fetch.Activate();
+                return 1.0;
             }
 
             return 0.0;
@@ -871,7 +881,12 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
+            if (instance == null)
+            {
+                return 0.0;
+            }
+            var waypoints = instance.Waypoints;
             if (index >= 0 && index < waypoints.Count)
             {
                 return waypoints[index].altitude;
@@ -895,7 +910,12 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
+            if (instance == null)
+            {
+                return -1.0;
+            }
+            var waypoints = instance.Waypoints;
             if (index >= 0 && index < waypoints.Count)
             {
                 return BearingFromVessel(waypoints[index].latitude, waypoints[index].longitude);
@@ -916,7 +936,12 @@ namespace AvionicsSystems
         /// <returns>The number of waypoints.</returns>
         public double WaypointCount()
         {
-            return FinePrint.WaypointManager.Instance().Waypoints.Count;
+            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
+            if (instance == null)
+            {
+                return 0.0;
+            }
+            return instance.Waypoints.Count;
         }
 
         /// <summary>
@@ -928,7 +953,12 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
+            if (instance == null)
+            {
+                return -1.0;
+            }
+            var waypoints = instance.Waypoints;
             if (index >= 0 && index < waypoints.Count)
             {
                 return CrossTrackDistanceFromVessel(waypoints[index].latitude, waypoints[index].longitude);
@@ -952,7 +982,12 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
+            if (instance == null)
+            {
+                return -1.0;
+            }
+            var waypoints = instance.Waypoints;
             if (index >= 0 && index < waypoints.Count)
             {
                 return SlantDistanceFromVessel(waypoints[index].latitude, waypoints[index].longitude, waypoints[index].altitude);
@@ -977,7 +1012,12 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
+            if (instance == null)
+            {
+                return -1.0;
+            }
+            var waypoints = instance.Waypoints;
             if (index >= 0 && index < waypoints.Count)
             {
                 return GroundDistanceFromVessel(waypoints[index].latitude, waypoints[index].longitude);
@@ -1002,7 +1042,12 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
+            if (instance == null)
+            {
+                return 0.0;
+            }
+            var waypoints = instance.Waypoints;
             if (index >= 0 && index < waypoints.Count)
             {
                 return waypoints[index].latitude;
@@ -1027,7 +1072,12 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
+            if (instance == null)
+            {
+                return 0.0;
+            }
+            var waypoints = instance.Waypoints;
             if (index >= 0 && index < waypoints.Count)
             {
                 return waypoints[index].longitude;
@@ -1059,7 +1109,12 @@ namespace AvionicsSystems
                 index = activeWaypoint;
             }
 
-            var waypoints = FinePrint.WaypointManager.Instance().Waypoints;
+            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
+            if (instance == null)
+            {
+                return string.Empty;
+            }
+            var waypoints = instance.Waypoints;
             if (index >= 0 && index < waypoints.Count)
             {
                 return waypoints[index].name;
