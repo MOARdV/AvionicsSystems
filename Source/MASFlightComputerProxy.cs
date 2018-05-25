@@ -781,7 +781,7 @@ namespace AvionicsSystems
                 if (!active)
                 {
                     // Shutoff is easy.
-                    vc.attitudePilotEngaged = active;
+                    vc.CancelAutopilots();
                 }
                 else
                 {
@@ -839,7 +839,7 @@ namespace AvionicsSystems
                 if (!active)
                 {
                     // Shutoff is easy.
-                    vc.maneuverPilotEngaged = active;
+                    vc.CancelAutopilots();
                 }
                 else
                 {
@@ -857,7 +857,7 @@ namespace AvionicsSystems
         /// the attitude pilot (such as the launch pilot), switching off the attitude
         /// pilot will disengage the other pilot as well.
         /// 
-        /// **CAUTION:** If the attitude system has not been initialized, it selects an inertial reference
+        /// **CAUTION:** If the attitude system has not been initialized, it defaults to an inertial reference
         /// attitude, which will cause problems during launch or reentry.
         /// </summary>
         /// <returns>Returns 1 if the autopilot is now on, 0 if it is now off.</returns>
@@ -865,7 +865,7 @@ namespace AvionicsSystems
         {
             if (vc.attitudePilotEngaged)
             {
-                vc.attitudePilotEngaged = false;
+                vc.CancelAutopilots();
             }
             else
             {
@@ -883,7 +883,7 @@ namespace AvionicsSystems
         {
             if (vc.maneuverPilotEngaged)
             {
-                vc.maneuverPilotEngaged = false;
+                vc.CancelAutopilots();
             }
             else
             {

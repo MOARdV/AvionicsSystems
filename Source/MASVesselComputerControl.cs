@@ -1,4 +1,5 @@
-﻿/*****************************************************************************
+﻿#define VERBOSE_AUTOPILOT_LOGGING
+/*****************************************************************************
  * The MIT License (MIT)
  * 
  * Copyright (c) 2018 MOARdV
@@ -56,6 +57,9 @@ namespace AvionicsSystems
         /// </summary>
         internal bool attitudePilotEngaged;
 
+        /// <summary>
+        /// Is the MAS maneuver autopilot doing something?
+        /// </summary>
         internal bool maneuverPilotEngaged;
 
         /// <summary>
@@ -82,9 +86,26 @@ namespace AvionicsSystems
         private UIStateToggleButton[] SASbtns = null;
 
         /// <summary>
+        /// Shut off all of the autopilots.
+        /// </summary>
+        internal void CancelAutopilots()
+        {
+            attitudePilotEngaged = false;
+            maneuverPilotEngaged = false;
+        }
+
+        /// <summary>
         /// Initialize the autopilot FSMs.
         /// </summary>
         private void PilotInitialize()
+        {
+            ManeuverPilotInitialize();
+        }
+
+        /// <summary>
+        /// Intiialize the maneuver pilot FSM.
+        /// </summary>
+        private void ManeuverPilotInitialize()
         {
             KFSMState idleState = new KFSMState("Idle");
             idleState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
@@ -92,7 +113,7 @@ namespace AvionicsSystems
             KFSMState coastState = new KFSMState("Coasting");
             coastState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
 
-            MASFlyState flyState = new MASFlyState("Flying");
+            MASFlyState flyState = new MASFlyState("Flying", this);
             flyState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
             flyState.OnEnter = flyState.OnEnterImpl;
             flyState.OnFixedUpdate = flyState.OnFixedUpdateImpl;
@@ -101,12 +122,13 @@ namespace AvionicsSystems
             stopPilot.updateMode = KFSMUpdateMode.FIXEDUPDATE;
             stopPilot.OnCheckCondition = (KFSMState currentState) =>
             {
-                if (maneuverPilotEngaged == false || attitudePilotEngaged == false || node == null)
+                bool stopThisPilot = (maneuverPilotEngaged == false || attitudePilotEngaged == false || node == null);
+                if (stopThisPilot)
                 {
-                    maneuverPilotEngaged = false;
+                    CancelAutopilots();
                     //Utility.LogMessage(this, "StopPilot  event: Transitioning");
                 }
-                return (maneuverPilotEngaged == false || attitudePilotEngaged == false || node == null);
+                return (stopThisPilot);
             };
             stopPilot.GoToStateOnEvent = idleState;
 
@@ -114,10 +136,6 @@ namespace AvionicsSystems
             startPilot.updateMode = KFSMUpdateMode.FIXEDUPDATE;
             startPilot.OnCheckCondition = (KFSMState currentState) =>
             {
-                if (maneuverPilotEngaged)
-                {
-                    //Utility.LogMessage(this, "StartPilot event: Transitioning");
-                }
                 return maneuverPilotEngaged;
             };
             startPilot.GoToStateOnEvent = coastState;
@@ -129,11 +147,12 @@ namespace AvionicsSystems
                     if (maneuverPilotEngaged) // Should be redundant?
                     {
                         double burnTime = NodeBurnTime();
-                        //Utility.LogMessage(this, "Coasting: burnTime is {0:0.0}s, time to MNode is {1:0.0}s",
-                        //    burnTime, -maneuverNodeTime);
-                        if (burnTime > 0.0 && burnTime * 0.5 <= -maneuverNodeTime)
+
+                        if (burnTime > 0.0 && burnTime * 0.5 >= -maneuverNodeTime)
                         {
-                            //Utility.LogMessage(this, "FlyPilot   event: Transitioning");
+#if VERBOSE_AUTOPILOT_LOGGING
+                            Utility.LogMessage(this, "FlyPilot   event: Transitioning");
+#endif
                             return true;
                         }
                     }
@@ -141,13 +160,43 @@ namespace AvionicsSystems
                 };
             flyPilot.GoToStateOnEvent = flyState;
 
+            KFSMEvent doneFlying = new KFSMEvent("Done Event");
+            doneFlying.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+            doneFlying.OnCheckCondition = (KFSMState currentState) =>
+                {
+                    if (maneuverNodeDeltaV < 0.15)
+                    {
+                        CancelAutopilots();
+                        if (vessel.patchedConicSolver != null)
+                        {
+                            vessel.patchedConicSolver.maneuverNodes.Clear();
+                        }
+                        try
+                        {
+                            FlightInputHandler.state.mainThrottle = 0.0f;
+                        }
+                        catch
+                        {
+
+                        }
+#if VERBOSE_AUTOPILOT_LOGGING
+                        Utility.LogMessage(this, "Done flying...");
+#endif
+                        return true;
+                    }
+                    return false;
+                };
+            doneFlying.GoToStateOnEvent = idleState;
+
             idleState.AddEvent(startPilot);
             coastState.AddEvent(stopPilot);
             coastState.AddEvent(flyPilot);
             flyState.AddEvent(stopPilot);
+            flyState.AddEvent(doneFlying);
 
             maneuverPilot.AddState(idleState);
             maneuverPilot.AddState(coastState);
+            maneuverPilot.AddState(flyState);
 
             maneuverPilot.StartFSM(idleState);
         }
@@ -193,16 +242,12 @@ namespace AvionicsSystems
                 }
                 else
                 {
-                    attitudePilotEngaged = false;
-                    maneuverPilotEngaged = false;
-                    //maneuverPilot.FixedUpdateFSM();
+                    CancelAutopilots();
                 }
             }
             else
             {
-                attitudePilotEngaged = false;
-                maneuverPilotEngaged = false;
-                //maneuverPilot.FixedUpdateFSM();
+                CancelAutopilots();
             }
         }
 
@@ -231,7 +276,7 @@ namespace AvionicsSystems
                 }
                 else
                 {
-                    attitudePilotEngaged = false;
+                    CancelAutopilots();
                     return false;
                 }
             }
@@ -368,7 +413,10 @@ namespace AvionicsSystems
                     //}
                     break;
                 case ReferenceAttitude.REF_MANEUVER_NODE:
+                    // TODO: use radialOut at the time of the maneuver, not the current radialOut.  Or use the current top vector
                     referenceQuat = Quaternion.LookRotation(maneuverNodeVector.normalized, radialOut);
+                    //referenceQuat = Quaternion.LookRotation(maneuverNodeVector.normalized, top); // This doesn't work right...
+                    //referenceQuat = Quaternion.LookRotation(maneuverNodeVector.normalized, vessel.GetTransform().up); // this just spins....
                     break;
                 case ReferenceAttitude.REF_SUN:
                     referenceQuat = Quaternion.LookRotation((Planetarium.fetch.Sun.transform.position - vessel.CoM).normalized, Vector3.up);
@@ -379,18 +427,74 @@ namespace AvionicsSystems
         }
     }
 
+    /// <summary>
+    /// The maneuver autopilot's Fly State needs to maintain some state in order to make
+    /// decisions on the throttle limit, so it's implemented here as a superset of the
+    /// KFSMState.
+    /// </summary>
     internal class MASFlyState : KFSMState
     {
-        internal MASFlyState(string name):base(name) { ; }
+        private MASVesselComputer vc;
+        private double startDV;
+        private double lastDV;
 
-        internal void OnEnterImpl(KFSMState s)
+        internal MASFlyState(string name, MASVesselComputer vc) : base(name) { this.vc = vc; }
+
+        internal void OnEnterImpl(KFSMState previousState)
         {
-            //Utility.LogMessage(this, "OnEnter: {0} @ {1}", s.name, TimeAtStateEnter);
+            startDV = Math.Max(vc.maneuverNodeDeltaV, 0.01);
+            lastDV = startDV;
         }
 
         internal void OnFixedUpdateImpl()
         {
-            //Utility.LogMessage(this, "We're flying... @ {0}", Planetarium.GetUniversalTime() - TimeAtStateEnter);
+            float maxThrottle = 1.0f;
+
+#if VERBOSE_AUTOPILOT_LOGGING
+            Utility.LogMessage(this, "We're flying... {0:0.00}m/s remain", vc.maneuverNodeDeltaV);
+#endif
+
+            if (vc.maneuverNodeDeltaV > lastDV)
+            {
+                Utility.LogWarning(this, " ... remaining dV is increasing!");
+            }
+
+            // TODO: Remaining maneuver time limiter.
+
+            double netDVPercent = Math.Min((startDV - vc.maneuverNodeDeltaV) / startDV, 1.0);
+            if (netDVPercent > 0.90)
+            {
+                float throttleLimit = Mathf.SmoothStep(0.9f, 0.1f, ((float)netDVPercent - 0.90f) * 10.0f);
+                maxThrottle = Mathf.Min(maxThrottle, throttleLimit);
+#if VERBOSE_AUTOPILOT_LOGGING
+                Utility.LogMessage(this, " ... limit {0:0.00} due to netDVPercent {1:0.00}", throttleLimit, netDVPercent);
+#endif
+            }
+            else if (netDVPercent < 0.10)
+            {
+                float throttleLimit = Mathf.SmoothStep(0.1f, 1.0f, ((float)netDVPercent) * 10.0f);
+                maxThrottle = Mathf.Min(maxThrottle, throttleLimit);
+#if VERBOSE_AUTOPILOT_LOGGING
+                Utility.LogMessage(this, " ... limit {0:0.00} due to netDVPercent {1:0.00}", throttleLimit, netDVPercent);
+#endif
+            }
+
+            float headingError = Vector3.Angle(vc.forward, vc.maneuverNodeVector.normalized);
+            if (headingError > 0.1f)
+            {
+                float throttleLimit = Mathf.SmoothStep(1.0f, 0.0f, (headingError - 0.1f) * 0.2f);
+                maxThrottle = Mathf.Min(maxThrottle, throttleLimit);
+#if VERBOSE_AUTOPILOT_LOGGING
+                Utility.LogMessage(this, " ... limit {0:0.00} due to headingError {1:0.0}", throttleLimit, headingError);
+#endif
+            }
+
+#if VERBOSE_AUTOPILOT_LOGGING
+            Utility.LogMessage(this, " ... throttle is {0:0.00}", maxThrottle);
+#endif
+            FlightInputHandler.state.mainThrottle = maxThrottle;
+
+            lastDV = vc.maneuverNodeDeltaV;
         }
     }
 }
