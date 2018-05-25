@@ -145,7 +145,7 @@ namespace Documentor
                     string link = string.Join("", linkName);
                     link = link.ToLower();
 
-                    indexContents.AppendLine(string.Format("* **{0}:** `{1}` {4} ([see](https://github.com/MOARdV/AvionicsSystems/wiki/{2}#{3}))", i.rawName, decoratedName, b[0], link, i.summary));
+                    indexContents.AppendLine(string.Format("* **{0}:** `{1}` {4} ([see](https://github.com/MOARdV/AvionicsSystems/wiki/{2}#{3}-category))", i.rawName, decoratedName, b[0], link, i.summary));
                 }
 
                 indexContents.AppendLine().AppendLine("***");
