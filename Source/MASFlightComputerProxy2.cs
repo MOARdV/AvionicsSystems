@@ -208,7 +208,8 @@ namespace AvionicsSystems
         /// <param name="normaldV">ΔV in the normal direction at the time of the maneuver, in m/s.</param>
         /// <param name="radialdV">ΔV in the radial direction at the time of the maneuver, in m/s.</param>
         /// <param name="timeUT">UT to schedule the maneuver, in seconds.</param>
-        public void AddManeuverNode(double progradedV, double normaldV, double radialdV, double timeUT)
+        /// <returns>1 if the manuever node was created, 0 on any errors.</returns>
+        public double AddManeuverNode(double progradedV, double normaldV, double radialdV, double timeUT)
         {
             if (vessel.patchedConicSolver != null)
             {
@@ -218,7 +219,7 @@ namespace AvionicsSystems
                     double.IsNaN(timeUT) || double.IsInfinity(timeUT))
                 {
                     // bad parameters?
-                    return;
+                    return 0.0;
                 }
 
                 Vector3d dV = new Vector3d(radialdV, normaldV, progradedV);
@@ -229,7 +230,11 @@ namespace AvionicsSystems
                 vessel.patchedConicSolver.maneuverNodes.Clear();
                 ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(timeUT);
                 mn.OnGizmoUpdated(dV, timeUT);
+
+                return 1.0;
             }
+
+            return 0.0;
         }
 
         /// <summary>
