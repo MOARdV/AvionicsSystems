@@ -3,8 +3,8 @@ MOARdV's Avionics Systems for Kerbal Space Program - a new generation of IVA enh
 
 ## Short Intro
 
-MOARdV's Avionics Systems (MAS) is a project to rebuild RasterPropMonitor
-from the ground up.  The goal is to provide a leaner, more performant design without sacrificing
+MOARdV's Avionics Systems (MAS) is a replacement for RasterPropMonitor.
+The goal is to provide a more powerful and more performant design without sacrificing
 features that are available in RPM.  A longer-winded explanation is available in the
 wiki's [Introduction](https://github.com/MOARdV/AvionicsSystems/wiki/Introduction).
 
@@ -21,17 +21,14 @@ components and their licenses.
 
 ## Where are the IVAs?
 
-MAS is intended to be a toolkit for developing IVAs.  I do not intend to include a multiple example
-IVAs like RPM had - good IVAs take a lot of time to create, and there will not be stock-derived sample
+MAS is intended to be a toolkit for developing IVAs.  I do not intend to include many example
+IVAs like RPM had - good IVAs take a lot of time to create, and I have no plans for stock-derived sample
 props with this mod, so any IVAs included with MAS will have other dependencies.  My expectation is that
 IVAs using MAS will include at least one of alexustas's props packs - [ASET Props Pack](http://forum.kerbalspaceprogram.com/index.php?/topic/116430-aset-props-pack-v14-for-the-modders-who-create-iva/) and/or
 [ASET Avionics Pack](http://forum.kerbalspaceprogram.com/index.php?/topic/116479-aset-avionics-pack-v-20-for-the-modders-who-create-iva/) adapted to MAS.
 
 However, since it is important to have *something* to look at before deciding to adopt this mod for IVA
 development, there are two IVAs included in this package.
-
-Please understand that the IVAs are under development, and they may be missing some features.
-The MRK command pod is the primary development pod at this time.
 
 Included in this distribution is an updated IVA for the MRK DM command pod, part of the [Commonwealth Rockets](https://forum.kerbalspaceprogram.com/index.php?/topic/164365-13-commonwealth-rockets-tea-powered-spaceflight-in-development/) mod.
 The MRK DM(r) 6-Kerbal pod does not currently include MAS props.  It will be updated at a later time, once
@@ -43,13 +40,17 @@ called YarbroughMk1-1A2_Update.cfg.  This file updates the command pod to KSP 1.
 based on my personal gameplay preferences.  **NOTE:** The career mode values (cost, tech tree placement) are guesses, since
 I never play career mode.  Feedback on whether they're reasonable would be appreciated.
 
+Please understand that the IVAs are under development, and they may be missing some features.
+The MRK command pod is the primary development pod at this time.
+
 You will need to download and install [Module Manager](https://forum.kerbalspaceprogram.com/index.php?/topic/50533-130-module-manager-281-june-29th-2017-with-n-cats-physics/), the Yarbrough08 command pod, and
 ASET Props Pack v1.5 (or later) in order to fly either IVA.
 
 ## Where are the Props?
 
 Converting props to MAS is an easy but repetitive task.  To help out with it, I've created the [Prop Config](https://github.com/MOARdV/AvionicsSystems/wiki/Prop-Config)
-tool to automate a good deal of the process.  The Prop Config tool is released separately from the main MAS distribution.
+tool to automate a good deal of the process.  The Prop Config tool is released separately from the main MAS distribution - it is not
+included in the main MAS zip.
 
 ## What about RPM?
 
