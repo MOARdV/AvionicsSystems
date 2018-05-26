@@ -95,6 +95,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Are any pilots active?
+        /// </summary>
+        /// <returns></returns>
+        internal bool PilotActive()
+        {
+            return attitudePilotEngaged || maneuverPilotEngaged;
+        }
+
+        /// <summary>
         /// Initialize the autopilot FSMs.
         /// </summary>
         private void PilotInitialize()

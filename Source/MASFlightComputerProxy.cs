@@ -765,6 +765,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns 1 if any MAS autopilot is active, 0 if all are idle.
+        /// </summary>
+        /// <returns></returns>
+        public double GetPilotActive()
+        {
+            return (vc.PilotActive()) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Set the attitude pilot to the selected state.  If another pilot is using
         /// the attitude pilot (such as the launch pilot), switching off the attitude
         /// pilot will disengage the other pilot as well.
