@@ -190,6 +190,51 @@ function MAS_Mfd2_Plan_Create(functionId, altitudeId)
 
 end
 
+local manualVariableNames =
+{
+	"-ManualPlanPrograde",
+	"-ManualPlanNormal",
+	"-ManualPlanRadial",
+	"-ManualPlanTime"
+}
+
+function MAS_Mfd2_Manual_Plan_Create(propId)
+	local when = fc.GetPersistentAsNumber(propId .. manualVariableNames[4])
+	
+	if when > 0 then
+		return fc.AddManeuverNode(fc.GetPersistentAsNumber(propId .. manualVariableNames[1]),
+			fc.GetPersistentAsNumber(propId .. manualVariableNames[2]),
+			fc.GetPersistentAsNumber(propId .. manualVariableNames[3]),
+			when + fc.UT())
+	end
+	
+	return 0
+end
+
+function MAS_Mfd2_Manual_Plan_Change(propId, direction, scale, variable)
+	local persistent = propId .. manualVariableNames[variable+1]
+	local amount = direction * scale * 0.1
+	
+	if variable == 3 then
+		if amount == 10 then amount = 60
+		elseif amount == 100 then amount = 3600
+		end
+		
+		fc.AddPersistentClamped(persistent, amount, 0, 604800)
+	else
+		fc.AddPersistent(persistent, amount)
+	end
+	
+	return 1
+end
+
+function MAS_Mfd2_Manual_Plan_Clear(propId)
+	fc.SetPersistent(propId .. manualVariableNames[1], 0)
+	fc.SetPersistent(propId .. manualVariableNames[2], 0)
+	fc.SetPersistent(propId .. manualVariableNames[3], 0)
+	fc.SetPersistent(propId .. manualVariableNames[4], 0)
+end
+
 ------------------------------------------------------------------------------
 -- Preflight MechJeb configuration.  Unlike some other configuration inputs,
 -- the input values are read from mechjeb directly, so we know the result is
