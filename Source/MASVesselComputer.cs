@@ -201,7 +201,7 @@ namespace AvionicsSystems
             }
             else
             {
-                attitudePilotEngaged = false;
+                CancelAutopilots();
             }
         }
 
@@ -328,6 +328,79 @@ namespace AvionicsSystems
             return vessel.isActiveVessel && (CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA || CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.Internal);
         }
 
+        private double timeToImpact_;
+        internal double timeToImpact
+        {
+            get
+            {
+                if (timeToImpact_ < 0.0)
+                {
+                    RefreshLandingEstimate();
+                }
+                return timeToImpact_;
+            }
+        }
+        private double landingAltitude_;
+        internal double landingAltitude
+        {
+            get
+            {
+                if (timeToImpact_ < 0.0)
+                {
+                    RefreshLandingEstimate();
+                }
+                return landingAltitude_;
+            }
+        }
+        private double landingLongitude_;
+        internal double landingLongitude
+        {
+            get
+            {
+                if (timeToImpact_ < 0.0)
+                {
+                    RefreshLandingEstimate();
+                }
+                return landingLongitude_;
+            }
+        }
+        private double landingLatitude_;
+        internal double landingLatitude
+        {
+            get
+            {
+                if (timeToImpact_ < 0.0)
+                {
+                    RefreshLandingEstimate();
+                }
+                return landingLatitude_;
+            }
+        }
+
+        private void RefreshLandingEstimate()
+        {
+            if (orbit.PeA < 0.0 && orbit.eccentricity < 1.0)
+            {
+                // Initialize refinement:
+                landingAltitude_ = 0.0;
+
+                //for (int i = 0; i < 4; ++i) // TODO
+                {
+                    timeToImpact_ = Utility.NextTimeToRadius(orbit, landingAltitude_ + orbit.referenceBody.Radius);
+
+                    Vector3d pos = orbit.getPositionAtUT(timeToImpact_ + Planetarium.GetUniversalTime());
+                    orbit.referenceBody.GetLatLonAlt(pos, out landingLatitude_, out landingLongitude_, out landingAltitude_);
+                }
+            }
+            else
+            {
+                timeToImpact_ = 0.0;
+                landingAltitude_ = 0.0;
+                landingLongitude_ = 0.0;
+                landingLatitude_ = 0.0;
+            }
+        }
+
         internal double altitudeASL;
         internal double altitudeTerrain;
         internal double altitudeTerrainRate;
@@ -387,6 +460,7 @@ namespace AvionicsSystems
             altitudeTerrainRate = altitudeTerrainRate * (1.0 - alpha) + ((Math.Min(altitudeTerrain, altitudeASL) - previousAltitudeTerrain) / TimeWarp.fixedDeltaTime) * alpha;
 
             altitudeBottom_ = -1.0;
+            timeToImpact_ = -1.0;
             apoapsis = orbit.ApA;
             periapsis = orbit.PeA;
         }

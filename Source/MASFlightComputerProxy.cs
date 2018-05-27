@@ -96,8 +96,6 @@ namespace AvionicsSystems
 
         private ApproachSolver nodeApproachSolver;
 
-        private double timeToImpact;
-
         private CommNet.CommLink lastLink;
 
         [MoonSharpHidden]
@@ -155,15 +153,6 @@ namespace AvionicsSystems
                 neighboringVessels[i] = null;
             }
             neighboringVesselsCurrent = false;
-
-            if (vessel.orbit.PeA < 0.0)
-            {
-                timeToImpact = TimeToAltitude(0.0);
-            }
-            else
-            {
-                timeToImpact = 0.0;
-            }
 
             try
             {

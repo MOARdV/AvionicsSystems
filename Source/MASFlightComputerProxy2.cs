@@ -2410,17 +2410,7 @@ namespace AvionicsSystems
             }
             else
             {
-                if (timeToImpact > 0.0)
-                {
-                    Vector3d pos = vc.orbit.getPositionAtUT(timeToImpact + Planetarium.GetUniversalTime());
-                    double lat, lon, alt;
-                    vc.orbit.referenceBody.GetLatLonAlt(pos, out lat, out lon, out alt);
-                    return alt;
-                }
-                else
-                {
-                    return 0.0;
-                }
+                return vc.landingAltitude;
             }
         }
 
@@ -2441,17 +2431,7 @@ namespace AvionicsSystems
             }
             else
             {
-                if (timeToImpact > 0.0)
-                {
-                    Vector3d pos = vc.orbit.getPositionAtUT(timeToImpact + Planetarium.GetUniversalTime());
-                    double lat, lon, alt;
-                    vc.orbit.referenceBody.GetLatLonAlt(pos, out lat, out lon, out alt);
-                    return lat;
-                }
-                else
-                {
-                    return 0.0;
-                }
+                return vc.landingLatitude;
             }
         }
 
@@ -2472,21 +2452,7 @@ namespace AvionicsSystems
             }
             else
             {
-                if (timeToImpact > 0.0)
-                {
-                    double rotationPerSecond = (vc.orbit.referenceBody.rotates) ? (360.0 / vc.orbit.referenceBody.rotationPeriod) : 0.0;
-
-                    Vector3d pos = vc.orbit.getPositionAtUT(timeToImpact + Planetarium.GetUniversalTime());
-                    double lat, lon, alt;
-                    vc.orbit.referenceBody.GetLatLonAlt(pos, out lat, out lon, out alt);
-                    lon = Utility.NormalizeLongitude(lon - rotationPerSecond * timeToImpact);
-
-                    return lon;
-                }
-                else
-                {
-                    return 0.0;
-                }
+                return vc.landingLongitude;
             }
         }
 
@@ -2505,9 +2471,7 @@ namespace AvionicsSystems
             }
             else
             {
-                double tImpact = TimeToAltitude(0.0);
-
-                return (tImpact > 0.0) ? 1.0 : 0.0;
+                return (vc.timeToImpact > 0.0) ? 1.0 : 0.0;
             }
         }
 

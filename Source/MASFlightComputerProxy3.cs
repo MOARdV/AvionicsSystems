@@ -2951,7 +2951,7 @@ namespace AvionicsSystems
             }
             else
             {
-                return timeToImpact;
+                return vc.timeToImpact;
             }
         }
 
