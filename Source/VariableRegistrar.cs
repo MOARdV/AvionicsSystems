@@ -52,6 +52,7 @@ namespace AvionicsSystems
         /// <param name="action">The action to trigger.</param>
         internal void RegisterNumericVariable(string name, Action<double> action)
         {
+            name = name.Trim();
             comp.RegisterNumericVariable(name, internalProp, action);
             variableName.Add(name);
             variableAction.Add(action);
