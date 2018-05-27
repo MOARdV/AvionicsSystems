@@ -468,8 +468,7 @@ namespace AvionicsSystems
                 Utility.LogWarning(this, " ... remaining dV is increasing!");
             }
 
-            // TODO: Remaining maneuver time limiter.
-
+            /*
             double netDVPercent = Math.Min((startDV - vc.maneuverNodeDeltaV) / startDV, 1.0);
             if (netDVPercent > 0.90)
             {
@@ -485,6 +484,26 @@ namespace AvionicsSystems
                 maxThrottle = Mathf.Min(maxThrottle, throttleLimit);
 #if VERBOSE_AUTOPILOT_LOGGING
                 Utility.LogMessage(this, " ... limit {0:0.00} due to netDVPercent {1:0.00}", throttleLimit, netDVPercent);
+#endif
+            }
+            */
+            
+            float netDV = (float)(startDV - vc.maneuverNodeDeltaV);
+            if (netDV < 2.0f)
+            {
+                float throttleLimit = Mathf.SmoothStep(0.1f, 1.0f, netDV * 0.5f);
+                maxThrottle = Mathf.Min(maxThrottle, throttleLimit);
+#if VERBOSE_AUTOPILOT_LOGGING
+                Utility.LogMessage(this, " ... limit {0:0.00} due to netDV {1:0.00}", throttleLimit, netDV);
+#endif
+            }
+
+            if (vc.maneuverNodeDeltaV < 2.5)
+            {
+                float throttleLimit = Mathf.SmoothStep(0.1f, 1.0f, ((float)vc.maneuverNodeDeltaV) * 0.4f);
+                maxThrottle = Mathf.Min(maxThrottle, throttleLimit);
+#if VERBOSE_AUTOPILOT_LOGGING
+                Utility.LogMessage(this, " ... limit {0:0.00} due to vc.maneuverNodeDeltaV {1:0.00}", throttleLimit, vc.maneuverNodeDeltaV);
 #endif
             }
 
