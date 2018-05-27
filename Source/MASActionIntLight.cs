@@ -29,17 +29,24 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
+    /// <summary>
+    /// The MASActionIntLight component provides a means to interact with
+    /// lights in the IVA.
+    /// </summary>
     internal class MASActionIntLight : IMASSubComponent
     {
         private string name = "anonymous";
-        private string variableName = string.Empty;
         private MASFlightComputer.Variable range1, range2;
         private readonly bool rangeMode;
         private bool currentState;
         private Light[] controlledLights;
+        private Color lightColor;
+        private VariableRegistrar variableRegistrar;
 
         internal MASActionIntLight(ConfigNode config, InternalProp prop, MASFlightComputer comp)
         {
+            variableRegistrar = new VariableRegistrar(comp, prop);
+
             if (!config.TryGetValue("name", ref name))
             {
                 name = "anonymous";
@@ -49,11 +56,6 @@ namespace AvionicsSystems
             if (!config.TryGetValue("lightName", ref lightName))
             {
                 throw new ArgumentException("Missing 'lightName' in INT_LIGHT " + name);
-            }
-
-            if (!config.TryGetValue("variable", ref variableName) || string.IsNullOrEmpty(variableName))
-            {
-                throw new ArgumentException("Invalid or missing 'variable' in INT_LIGHT " + name);
             }
 
             Light[] availableLights = prop.part.internalModel.FindModelComponents<Light>();
@@ -79,7 +81,70 @@ namespace AvionicsSystems
                 return;
             }
 
-            variableName = variableName.Trim();
+            string variableName = string.Empty;
+            if (!config.TryGetValue("variable", ref variableName) || string.IsNullOrEmpty(variableName))
+            {
+                throw new ArgumentException("Invalid or missing 'variable' in INT_LIGHT " + name);
+            }
+
+            string colorString = string.Empty;
+            if (config.TryGetValue("color", ref colorString))
+            {
+                Color32 color32;
+                if (comp.TryGetNamedColor(colorString, out color32))
+                {
+                    lightColor = color32;
+                    UpdateColor();
+                }
+                else
+                {
+                    string[] colors = Utility.SplitVariableList(colorString);
+                    if (colors.Length < 3 || colors.Length > 4)
+                    {
+                        throw new ArgumentException("'lightColor' does not contain 3 or 4 values in INT_LIGHT " + name);
+                    }
+
+                    variableRegistrar.RegisterNumericVariable(colors[0], (double newValue) =>
+                    {
+                        lightColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        UpdateColor();
+                    });
+
+                    variableRegistrar.RegisterNumericVariable(colors[1], (double newValue) =>
+                    {
+                        lightColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        UpdateColor();
+                    });
+
+                    variableRegistrar.RegisterNumericVariable(colors[2], (double newValue) =>
+                    {
+                        lightColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                        UpdateColor();
+                    });
+
+                    if (colors.Length == 4)
+                    {
+                        variableRegistrar.RegisterNumericVariable(colors[3], (double newValue) =>
+                        {
+                            lightColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
+                            UpdateColor();
+                        });
+                    }
+                }
+            }
+
+            string intensityString = string.Empty;
+            if (config.TryGetValue("intensity", ref intensityString))
+            {
+                variableRegistrar.RegisterNumericVariable(intensityString, (double newValue) =>
+                {
+                    float intensity = Mathf.Clamp((float)newValue, 0.0f, 8.0f);
+                    for (int i = controlledLights.Length - 1; i >= 0; --i)
+                    {
+                        controlledLights[i].intensity = intensity;
+                    }
+                });
+            }
 
             string range = string.Empty;
             if (config.TryGetValue("range", ref range))
@@ -104,7 +169,18 @@ namespace AvionicsSystems
                 controlledLights[i].enabled = currentState;
             }
 
-            comp.RegisterNumericVariable(variableName, prop, VariableCallback);
+            variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
+        }
+
+        /// <summary>
+        /// Update the color for the lights.
+        /// </summary>
+        private void UpdateColor()
+        {
+            for (int i = controlledLights.Length - 1; i >= 0; --i)
+            {
+                controlledLights[i].color = lightColor;
+            }
         }
 
         /// <summary>
@@ -144,7 +220,7 @@ namespace AvionicsSystems
         /// </summary>
         public void ReleaseResources(MASFlightComputer comp, InternalProp prop)
         {
-            comp.UnregisterNumericVariable(variableName, prop, VariableCallback);
+            variableRegistrar.ReleaseResources(comp, prop);
         }
     }
 }
