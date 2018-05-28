@@ -27,7 +27,7 @@ function MAS_Mfd2_Init(propId)
 			fc.SetPersistent(propId .. "-PlanMode", "MAS_MFD2_ManualPlan")
 		end
 	end
-	
+
 	if fc.GetPersistentExists(propId .. "-Att-ManualCaption") < 1 then
 		fc.SetPersistent(propId .. "-Att-ManualCaption", "Srf Prograde")
 	end
@@ -200,31 +200,31 @@ local manualVariableNames =
 
 function MAS_Mfd2_Manual_Plan_Create(propId)
 	local when = fc.GetPersistentAsNumber(propId .. manualVariableNames[4])
-	
+
 	if when > 0 then
 		return fc.AddManeuverNode(fc.GetPersistentAsNumber(propId .. manualVariableNames[1]),
 			fc.GetPersistentAsNumber(propId .. manualVariableNames[2]),
 			fc.GetPersistentAsNumber(propId .. manualVariableNames[3]),
 			when + fc.UT())
 	end
-	
+
 	return 0
 end
 
 function MAS_Mfd2_Manual_Plan_Change(propId, direction, scale, variable)
 	local persistent = propId .. manualVariableNames[variable+1]
 	local amount = direction * scale * 0.1
-	
+
 	if variable == 3 then
 		if amount == 10 then amount = 60
 		elseif amount == 100 then amount = 3600
 		end
-		
+
 		fc.AddPersistentClamped(persistent, amount, 0, 604800)
 	else
 		fc.AddPersistent(persistent, amount)
 	end
-	
+
 	return 1
 end
 
@@ -233,6 +233,21 @@ function MAS_Mfd2_Manual_Plan_Clear(propId)
 	fc.SetPersistent(propId .. manualVariableNames[2], 0)
 	fc.SetPersistent(propId .. manualVariableNames[3], 0)
 	fc.SetPersistent(propId .. manualVariableNames[4], 0)
+end
+
+function MAS_Mfd2_WarpToManeuver()
+	local burnTime = fc.ManeuverNodeBurnTime()
+
+	if fc.ManeuverNodeExists() > 0 and burnTime > 0 then
+		-- ManeuverNodeTime is negative if it is in the future, so we add to
+		-- the base value.
+		local timeToManeuver = fc.ManeuverNodeTime() + 0.5 * burnTime + 5
+
+		--fc.LogMessage("Maneuver T = " .. fc.ManeuverNodeTime() .. ", burn = " .. burnTime .. ", timeToManeuver = " .. timeToManeuver)
+		if timeToManeuver < 0 then
+			fc.WarpTo(fc.UT() - timeToManeuver)
+		end
+	end
 end
 
 ------------------------------------------------------------------------------
@@ -344,15 +359,15 @@ function MAS_Mfd2_Att_Yaw(propId)
 	local autoMode = fc.GetPersistentAsNumber(propId .. "-Att-Auto")
 
 	local yaw = 0
-	
+
 	if autoMode > 0 then
-		
+
 		fc.SetPersistent(propId .. "-Att-ManualError", 0)
 		fc.SetPersistent(propId .. "-Att-Pitch", 0)
-		
+
 	else
 		local manualMode = fc.GetPersistentAsNumber(propId .. "-Att-ManualMode") + 1
-		
+
 		-- Validation of special modes (remember I added +1 to them)
 		if manualMode == 9 then
 			-- Manuever Node
@@ -376,7 +391,7 @@ function MAS_Mfd2_Att_Yaw(propId)
 		else
 			fc.SetPersistent(propId .. "-Att-ManualError", 0)
 		end
-		
+
 		yaw = manualYawValue[manualMode]()
 		fc.SetPersistent(propId .. "-Att-Pitch", manualPitchValue[manualMode]())
 	end
