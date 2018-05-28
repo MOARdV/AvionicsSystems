@@ -496,15 +496,24 @@ namespace AvionicsSystems
         {
             CodeGen.Expression right = prefixExpression.getRight();
 
-            if (prefixExpression.getOperator() == CodeGen.Parser.LuaToken.MINUS && right is CodeGen.NumberExpression)
+            if (prefixExpression.getOperator() == CodeGen.Parser.LuaToken.MINUS)
             {
-                double numericConstant = -(right as CodeGen.NumberExpression).getNumber();
-                return new Variable(numericConstant);
+                if (right is CodeGen.NumberExpression)
+                {
+                    double numericConstant = -(right as CodeGen.NumberExpression).getNumber();
+                    return new Variable(numericConstant);
+                }
+                else
+                {
+                    Variable v = GenerateVariable(right);
+                    if (v != null)
+                    {
+                        return new Variable(prefixExpression.CanonicalName(), () => -v.SafeValue(), true, true, Variable.VariableType.Func);
+                    }
+                }
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         /// <summary>
