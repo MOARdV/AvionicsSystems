@@ -157,7 +157,7 @@ end
 
 -- When we first load a vessel, all of the variables above are set to the
 -- defaults listed.  This is great if the vessel hasn't flown, but if we're
--- already in flight, they may be incorrect.  THis function initializes them.
+-- already in flight, they may be incorrect.  This function restores values.
 function fdaiInitialize(which)
 
 	local fdai = GetFDAI(which)
@@ -198,7 +198,13 @@ function fdaiInitialize(which)
 		fdai.power = false
 	end
 
-	fdaiUpdateModes(which, fc.GetPersistentAsNumber(persistentPrefix .. "Mode"))
+	local fdaiMode = fc.GetPersistentAsNumber(persistentPrefix .. "Mode")
+	if fdaiMode < 1 or fdaiMode > 7 then
+		fdaiMode = 1
+		fc.SetPersistent(persistentPrefix .. "Mode", fdaiMode)
+	end
+	
+	fdaiUpdateModes(which, fdaiMode)
 
 	-- Sync to SAS behavior is restored automatically in fdaiOffFlag()
 end
