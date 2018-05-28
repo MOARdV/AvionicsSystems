@@ -379,17 +379,46 @@ namespace AvionicsSystems
 
         private void RefreshLandingEstimate()
         {
-            if (orbit.PeA < 0.0 && orbit.eccentricity < 1.0)
+            if (orbit.PeA < 0.0 && orbit.eccentricity < 1.0 && vessel.verticalSpeed < 0.0 && !(vessel.Landed || vessel.Splashed))
             {
-                // Initialize refinement:
+                // Initial estimate:
                 landingAltitude_ = 0.0;
 
-                //for (int i = 0; i < 4; ++i) // TODO
+                timeToImpact_ = Utility.NextTimeToRadius(orbit, landingAltitude_ + orbit.referenceBody.Radius);
+                Vector3d pos = orbit.getPositionAtUT(timeToImpact_ + Planetarium.GetUniversalTime());
+
+                Vector2d latlon = orbit.referenceBody.GetLatitudeAndLongitude(pos);
+                landingAltitude_ = orbit.referenceBody.TerrainAltitude(latlon.x, latlon.y);
+                landingLatitude_ = latlon.x;
+                landingLongitude_ = latlon.y;
+
+                landingAltitude_ = Math.Min(orbit.ApA, Math.Max(orbit.PeA, Math.Max(landingAltitude_, 0.0)));
+
+                double lastImpact = timeToImpact_;
+
+                //Utility.LogMessage(this, "RefreshLandingEstimate():");
+                for (int i = 0; i < 6; ++i)
                 {
                     timeToImpact_ = Utility.NextTimeToRadius(orbit, landingAltitude_ + orbit.referenceBody.Radius);
 
-                    Vector3d pos = orbit.getPositionAtUT(timeToImpact_ + Planetarium.GetUniversalTime());
-                    orbit.referenceBody.GetLatLonAlt(pos, out landingLatitude_, out landingLongitude_, out landingAltitude_);
+                    pos = orbit.getPositionAtUT(timeToImpact_ + Planetarium.GetUniversalTime());
+                    latlon = orbit.referenceBody.GetLatitudeAndLongitude(pos);
+                    landingAltitude_ = orbit.referenceBody.TerrainAltitude(latlon.x, latlon.y);
+                    landingLatitude_ = latlon.x;
+                    landingLongitude_ = latlon.y;
+
+                    landingAltitude_ = Math.Min(orbit.ApA, Math.Max(orbit.PeA, Math.Max(landingAltitude_, 0.0)));
+
+                    //Utility.LogMessage(this, "[{2}]: {0:0}m in {1:0}s", landingAltitude_, timeToImpact_, i);
+
+                    if (Math.Abs(timeToImpact_ - lastImpact) < 2.0)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        lastImpact = timeToImpact_;
+                    }
                 }
             }
             else
