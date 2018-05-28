@@ -6416,7 +6416,14 @@
 			</ROTATION>
 			<TEXT_LABEL>
 				<text>INST.$$$PANEL</text>
+				<variable>fc.Conditioned(fc.Max(0.25, fc.GetPersistentAsNumber("Backlight")))</variable>
 			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.Max(0.25, fc.GetPersistentAsNumber("Backlight")))</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.Max(0.25, fc.GetPersistentAsNumber("Backlight")))</variable>
+			</COLOR_SHIFT>
 		</prop>
 		<prop>
 			<name>MAS_swRotary_GenericIntLight</name>
