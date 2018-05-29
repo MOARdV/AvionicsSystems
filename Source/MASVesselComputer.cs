@@ -379,7 +379,7 @@ namespace AvionicsSystems
 
         private void RefreshLandingEstimate()
         {
-            if (orbit.PeA < 0.0 && orbit.eccentricity < 1.0 && vessel.verticalSpeed < 0.0 && !(vessel.Landed || vessel.Splashed))
+            if (orbit.PeA < 0.0 && orbit.eccentricity < 1.0 && !(vessel.Landed || vessel.Splashed))
             {
                 // Initial estimate:
                 landingAltitude_ = 0.0;
