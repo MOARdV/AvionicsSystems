@@ -178,7 +178,7 @@ namespace AvionicsSystems
 
             if (!GameDatabase.Instance.IsReady())
             {
-                Utility.LogErrorMessage(this, "GameDatabase.IsReady is false");
+                Utility.LogError(this, "GameDatabase.IsReady is false");
                 throw new Exception("MASLoader: GameDatabase is not ready.  Unable to continue.");
             }
 
@@ -325,33 +325,33 @@ namespace AvionicsSystems
             string name = string.Empty;
             if (!node.TryGetValue("name", ref name))
             {
-                Utility.LogErrorMessage(this, "No name in bitmap font");
+                Utility.LogError(this, "No name in bitmap font");
                 return;
             }
 
             string texName = string.Empty;
             if (!node.TryGetValue("texture", ref texName))
             {
-                Utility.LogErrorMessage(this, "No texture in bitmap font");
+                Utility.LogError(this, "No texture in bitmap font");
                 return;
             }
 
             string fontDefinitionName = string.Empty;
             if (!node.TryGetValue("fontDefinition", ref fontDefinitionName))
             {
-                Utility.LogErrorMessage(this, "No fontDefinition in bitmap font");
+                Utility.LogError(this, "No fontDefinition in bitmap font");
                 return;
             }
 
             Vector2 fontSize = Vector2.zero;
             if (!node.TryGetValue("fontSize", ref fontSize))
             {
-                Utility.LogErrorMessage(this, "No fontSize in bitmap font");
+                Utility.LogError(this, "No fontSize in bitmap font");
                 return;
             }
             if (fontSize.x <= 0 || fontSize.y <= 0)
             {
-                Utility.LogErrorMessage(this, "invalid font sizein bitmap font");
+                Utility.LogError(this, "invalid font sizein bitmap font");
                 return;
             }
 
@@ -359,14 +359,14 @@ namespace AvionicsSystems
             if (fontTex == null)
             {
                 // Font doesn't exist
-                Utility.LogErrorMessage(this, "Can't load texture {0}", texName);
+                Utility.LogError(this, "Can't load texture {0}", texName);
                 return;
             }
 
             string fontDefinition = File.ReadAllLines(KSPUtil.ApplicationRootPath + "GameData/" + fontDefinitionName, Encoding.UTF8)[0];
             if (string.IsNullOrEmpty(fontDefinition))
             {
-                Utility.LogErrorMessage(this, "Can't open font definition file {0}", fontDefinitionName);
+                Utility.LogError(this, "Can't open font definition file {0}", fontDefinitionName);
                 return;
             }
 
@@ -432,12 +432,12 @@ namespace AvionicsSystems
 
             if (!string.IsNullOrEmpty(www.error))
             {
-                Utility.LogErrorMessage(this, "Error loading AssetBundle {1}: {0}", www.error, assetBundleName);
+                Utility.LogError(this, "Error loading AssetBundle {1}: {0}", www.error, assetBundleName);
                 return null;
             }
             else if (www.assetBundle == null)
             {
-                Utility.LogErrorMessage(this, "Unable to load AssetBundle {0}", assetBundleName);
+                Utility.LogError(this, "Unable to load AssetBundle {0}", assetBundleName);
                 return null;
             }
 
@@ -466,7 +466,7 @@ namespace AvionicsSystems
                     platform = "windows";
                     break;
                 default:
-                    Utility.LogErrorMessage(this, "Unsupported/unexpected platform {0}", Application.platform);
+                    Utility.LogError(this, "Unsupported/unexpected platform {0}", Application.platform);
                     return;
             }
 
@@ -488,7 +488,7 @@ namespace AvionicsSystems
                     shader = bundle.LoadAsset<Shader>(assetNames[i]);
                     if (!shader.isSupported)
                     {
-                        Utility.LogErrorMessage(this, "Shader {0} - unsupported in this configuration", shader.name);
+                        Utility.LogError(this, "Shader {0} - unsupported in this configuration", shader.name);
                     }
                     shaders[shader.name] = shader;
                 }
@@ -516,7 +516,7 @@ namespace AvionicsSystems
                     string[] fnames = font.fontNames;
                     if (fnames.Length == 0)
                     {
-                        Utility.LogErrorMessage(this, "Font {0} - did not find fontName.", font.name);
+                        Utility.LogError(this, "Font {0} - did not find fontName.", font.name);
                     }
                     else
                     {
@@ -564,56 +564,56 @@ namespace AvionicsSystems
                     navaid.name = string.Empty;
                     if (!navaidNode[navaidIdx].TryGetValue("name", ref navaid.name))
                     {
-                        Utility.LogErrorMessage(this, "Did not get 'name' for NAVAID");
+                        Utility.LogError(this, "Did not get 'name' for NAVAID");
                         canAdd = false;
                     }
 
                     navaid.identifier = string.Empty;
                     if (!navaidNode[navaidIdx].TryGetValue("id", ref navaid.identifier))
                     {
-                        Utility.LogErrorMessage(this, "Did not get 'id' for NAVAID {0}", navaid.name);
+                        Utility.LogError(this, "Did not get 'id' for NAVAID {0}", navaid.name);
                         canAdd = false;
                     }
 
                     navaid.celestialName = string.Empty;
                     if (!navaidNode[navaidIdx].TryGetValue("celestialName", ref navaid.celestialName))
                     {
-                        Utility.LogErrorMessage(this, "Did not get 'celestialName' for NAVAID {0}", navaid.name);
+                        Utility.LogError(this, "Did not get 'celestialName' for NAVAID {0}", navaid.name);
                         canAdd = false;
                     }
 
                     navaid.frequency = 0.0f;
                     if (!navaidNode[navaidIdx].TryGetValue("frequency", ref navaid.frequency))
                     {
-                        Utility.LogErrorMessage(this, "Did not get 'frequency' for NAVAID {0}", navaid.name);
+                        Utility.LogError(this, "Did not get 'frequency' for NAVAID {0}", navaid.name);
                         canAdd = false;
                     }
 
                     navaid.latitude = 0.0;
                     if (!navaidNode[navaidIdx].TryGetValue("latitude", ref navaid.latitude))
                     {
-                        Utility.LogErrorMessage(this, "Did not get 'latitude' for NAVAID {0}", navaid.name);
+                        Utility.LogError(this, "Did not get 'latitude' for NAVAID {0}", navaid.name);
                         canAdd = false;
                     }
 
                     navaid.longitude = 0.0;
                     if (!navaidNode[navaidIdx].TryGetValue("longitude", ref navaid.longitude))
                     {
-                        Utility.LogErrorMessage(this, "Did not get 'longitude' for NAVAID {0}", navaid.name);
+                        Utility.LogError(this, "Did not get 'longitude' for NAVAID {0}", navaid.name);
                         canAdd = false;
                     }
 
                     navaid.altitude = 0.0;
                     if (!navaidNode[navaidIdx].TryGetValue("altitude", ref navaid.altitude))
                     {
-                        Utility.LogErrorMessage(this, "Did not get 'altitude' for NAVAID {0}", navaid.name);
+                        Utility.LogError(this, "Did not get 'altitude' for NAVAID {0}", navaid.name);
                         canAdd = false;
                     }
 
                     string type = string.Empty;
                     if (!navaidNode[navaidIdx].TryGetValue("type", ref type))
                     {
-                        Utility.LogErrorMessage(this, "Did not get 'type' for NAVAID {0}", navaid.name);
+                        Utility.LogError(this, "Did not get 'type' for NAVAID {0}", navaid.name);
                         canAdd = false;
                     }
                     switch (type)
@@ -637,7 +637,7 @@ namespace AvionicsSystems
                             navaid.type = NavAidType.ILS_DME;
                             break;
                         default:
-                            Utility.LogErrorMessage(this, "Did not get valid 'type' for NAVAID {0}", navaid.name);
+                            Utility.LogError(this, "Did not get valid 'type' for NAVAID {0}", navaid.name);
                             canAdd = false;
                             break;
                     }
@@ -651,27 +651,27 @@ namespace AvionicsSystems
                     {
                         if (!navaidNode[navaidIdx].TryGetValue("maximumRangeLocalizer", ref navaid.maximumRangeLocalizer))
                         {
-                            Utility.LogErrorMessage(this, "Did not get 'maximumRangeLocalizer' for {1} {0}", navaid.name, navaid.type);
+                            Utility.LogError(this, "Did not get 'maximumRangeLocalizer' for {1} {0}", navaid.name, navaid.type);
                             canAdd = false;
                         }
                         if (!navaidNode[navaidIdx].TryGetValue("maximumRangeGlidePath", ref navaid.maximumRangeGlidePath))
                         {
-                            Utility.LogErrorMessage(this, "Did not get 'maximumRangeGlidePath' for {1} {0}", navaid.name, navaid.type);
+                            Utility.LogError(this, "Did not get 'maximumRangeGlidePath' for {1} {0}", navaid.name, navaid.type);
                             canAdd = false;
                         }
                         if (!navaidNode[navaidIdx].TryGetValue("glidePathDefault", ref navaid.glidePathDefault))
                         {
-                            Utility.LogErrorMessage(this, "Did not get 'glidePathDefault' for {1} {0}", navaid.name, navaid.type);
+                            Utility.LogError(this, "Did not get 'glidePathDefault' for {1} {0}", navaid.name, navaid.type);
                             canAdd = false;
                         }
                         if (!navaidNode[navaidIdx].TryGetValue("approachHeadingILS", ref navaid.approachHeadingILS))
                         {
-                            Utility.LogErrorMessage(this, "Did not get 'approachBearingILS' for {1} {0}", navaid.name, navaid.type);
+                            Utility.LogError(this, "Did not get 'approachBearingILS' for {1} {0}", navaid.name, navaid.type);
                             canAdd = false;
                         }
                         if (!navaidNode[navaidIdx].TryGetValue("localizerSectorILS", ref navaid.localizerSectorILS))
                         {
-                            Utility.LogErrorMessage(this, "Did not get 'horizontalSectorILS' for {1} {0}", navaid.name, navaid.type);
+                            Utility.LogError(this, "Did not get 'horizontalSectorILS' for {1} {0}", navaid.name, navaid.type);
                             canAdd = false;
                         }
                     }
@@ -693,14 +693,14 @@ namespace AvionicsSystems
                     ConfigNode.Value val = morseCodeNode[morseCodeGroupIdx].values[entry];
                     if (val.name.Length > 1)
                     {
-                        Utility.LogErrorMessage(this, "Got an invalid morse code of '{0}'", val.name);
+                        Utility.LogError(this, "Got an invalid morse code of '{0}'", val.name);
                     }
                     else
                     {
                         AudioClip clip = GameDatabase.Instance.GetAudioClip(val.value);
                         if (clip == null)
                         {
-                            Utility.LogErrorMessage(this, "Could not load audio clip {0} for morse code '{1}", val.value, val.name);
+                            Utility.LogError(this, "Could not load audio clip {0} for morse code '{1}", val.value, val.name);
                         }
                         else
                         {

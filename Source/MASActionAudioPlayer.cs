@@ -211,7 +211,7 @@ namespace AvionicsSystems
             AudioClip clip = GameDatabase.Instance.GetAudioClip(soundVariable.String());
             if (clip == null)
             {
-                Utility.LogErrorMessage(this, "Unable to load audio clip '{0}'.", soundVariable.String());
+                Utility.LogError(this, "Unable to load audio clip '{0}'.", soundVariable.String());
                 hasAudioClip = false;
             }
             else

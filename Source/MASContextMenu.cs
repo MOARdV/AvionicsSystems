@@ -91,7 +91,7 @@ namespace AvionicsSystems
 
                         if (onActivate == null)
                         {
-                            Utility.LogErrorMessage(this, "Failed to initialize action '{1}' for {0}", menuName, activateAction);
+                            Utility.LogError(this, "Failed to initialize action '{1}' for {0}", menuName, activateAction);
                         }
                     }
                     if (!string.IsNullOrEmpty(deactivateAction))
@@ -100,7 +100,7 @@ namespace AvionicsSystems
 
                         if (onDeactivate == null)
                         {
-                            Utility.LogErrorMessage(this, "Failed to initialize action '{1}' for {0}", menuName, deactivateAction);
+                            Utility.LogError(this, "Failed to initialize action '{1}' for {0}", menuName, deactivateAction);
                         }
                     }
                     initialized = true;

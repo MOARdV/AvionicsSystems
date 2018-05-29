@@ -304,7 +304,7 @@ namespace AvionicsSystems
                                 }
                                 catch (Exception e)
                                 {
-                                    Utility.LogErrorMessage(this, "Variable {0} threw an exception", variables[var]);
+                                    Utility.LogError(this, "Variable {0} threw an exception", variables[var]);
                                     throw e;
                                 }
                             }
@@ -489,8 +489,8 @@ namespace AvionicsSystems
             }
             catch (Exception e)
             {
-                Utility.LogErrorMessage(this, "Trapped exception:");
-                Utility.LogErrorMessage(this, e.ToString());
+                Utility.LogError(this, "Trapped exception:");
+                Utility.LogError(this, e.ToString());
             }
         }
 
@@ -526,8 +526,8 @@ namespace AvionicsSystems
                 }
                 catch (Exception e)
                 {
-                    Utility.LogErrorMessage(this, "Exception caught creating MdVTextMesh components:");
-                    Utility.LogErrorMessage(this, e.ToString());
+                    Utility.LogError(this, "Exception caught creating MdVTextMesh components:");
+                    Utility.LogError(this, e.ToString());
                 }
             }
         }

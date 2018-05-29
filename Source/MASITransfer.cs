@@ -1463,7 +1463,7 @@ namespace AvionicsSystems
                 if (vesselOrbit.referenceBody != destinationOrbit.referenceBody)
                 {
                     // We can't find a common orbit?
-                    Utility.LogErrorMessage(this, "Bailing out compute transfer parameters: unable to reconcile orbits");
+                    Utility.LogError(this, "Bailing out compute transfer parameters: unable to reconcile orbits");
                     return;
                 }
 

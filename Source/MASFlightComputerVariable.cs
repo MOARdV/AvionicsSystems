@@ -154,7 +154,7 @@ namespace AvionicsSystems
                                 if (!(methodParams[index].ParameterType == typeof(object) || parameters[index] == typeof(object) || methodParams[index].ParameterType == parameters[index]))
                                 {
                                     match = false;
-                                    Utility.LogErrorMessage(this, "Processing {0}.{1}(): Did not find a match for parameter {2} (expecting {3}, but got {4}).",
+                                    Utility.LogError(this, "Processing {0}.{1}(): Did not find a match for parameter {2} (expecting {3}, but got {4}).",
                                         tableName, methodName,
                                         index + 1,
                                         methodParams[index].ParameterType, parameters[index]);
@@ -285,7 +285,7 @@ namespace AvionicsSystems
                     }
                     else if (v.variableType == Variable.VariableType.Unknown)
                     {
-                        Utility.LogErrorMessage(this, "There was an error processing variable {0}", variableName);
+                        Utility.LogError(this, "There was an error processing variable {0}", variableName);
                     }
 #if PLENTIFUL_LOGGING
                     Utility.LogMessage(this, "Adding new variable '{0}'", result.canonicalName);
@@ -383,12 +383,12 @@ namespace AvionicsSystems
                 }
                 else
                 {
-                    Utility.LogErrorMessage(this, "There was an error processing variable {0}", canonical);
+                    Utility.LogError(this, "There was an error processing variable {0}", canonical);
                 }
             }
             if (v == null)
             {
-                Utility.LogErrorMessage(this, "INITIALIZATION ERROR: Failed to generate variable for {0} - check its name?", canonical);
+                Utility.LogError(this, "INITIALIZATION ERROR: Failed to generate variable for {0} - check its name?", canonical);
             }
             return v;
         }
@@ -1050,8 +1050,8 @@ namespace AvionicsSystems
                 catch (Exception e)
                 {
                     Utility.ComplainLoudly("Error creating variable " + name);
-                    Utility.LogErrorMessage(this, "Unknown variable '{0}':", name);
-                    Utility.LogErrorMessage(this, e.ToString());
+                    Utility.LogError(this, "Unknown variable '{0}':", name);
+                    Utility.LogError(this, e.ToString());
                     this.luaValue = null;
                     this.valid = false;
                 }

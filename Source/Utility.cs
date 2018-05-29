@@ -164,7 +164,7 @@ namespace AvionicsSystems
         /// <param name="who"></param>
         /// <param name="format"></param>
         /// <param name="values"></param>
-        internal static void LogErrorMessage(object who, string format, params object[] values)
+        internal static void LogError(object who, string format, params object[] values)
         {
             logSb.Remove(0, logSb.Length);
             logSb.Append("[").Append(who.GetType().Name).Append("] ").AppendFormat(format, values);

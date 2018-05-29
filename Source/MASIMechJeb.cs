@@ -1282,7 +1282,7 @@ namespace AvionicsSystems
                 }
                 catch (Exception e)
                 {
-                    Utility.LogErrorMessage(this, "mechjeb.UpdateVessel threw exception: {0}", e);
+                    Utility.LogError(this, "mechjeb.UpdateVessel threw exception: {0}", e);
                     mjAvailable = false;
                 }
             }

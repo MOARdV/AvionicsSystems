@@ -329,7 +329,7 @@ namespace AvionicsSystems
                 }
                 else
                 {
-                    Utility.LogErrorMessage(this, "Unrecognized anchor '{0}' in config for {1} ({2})", anchor, prop.propID, prop.propName);
+                    Utility.LogError(this, "Unrecognized anchor '{0}' in config for {1} ({2})", anchor, prop.propID, prop.propName);
                 }
             }
 
@@ -354,7 +354,7 @@ namespace AvionicsSystems
                 }
                 else
                 {
-                    Utility.LogErrorMessage(this, "Unrecognized alignment '{0}' in config for {1} ({2})", alignment, prop.propID, prop.propName);
+                    Utility.LogError(this, "Unrecognized alignment '{0}' in config for {1} ({2})", alignment, prop.propID, prop.propName);
                 }
             }
 
@@ -394,7 +394,7 @@ namespace AvionicsSystems
             }
             else
             {
-                Utility.LogErrorMessage(this, "Unrecognized emissive mode '{0}' in config for {1} ({2})", emissive, prop.propID, prop.propName);
+                Utility.LogError(this, "Unrecognized emissive mode '{0}' in config for {1} ({2})", emissive, prop.propID, prop.propName);
                 emissiveMode = EmissiveMode.always;
             }
 

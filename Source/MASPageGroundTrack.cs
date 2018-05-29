@@ -509,7 +509,7 @@ namespace AvionicsSystems
                             {
                                 // Try to trap Invalid index exceptions.  This seems to be the only
                                 // condition where it could happen.
-                                Utility.LogErrorMessage(this, "vert1[0].x overflowed: {0:0} >= {1:0}",
+                                Utility.LogError(this, "vert1[0].x overflowed: {0:0} >= {1:0}",
                                     vert1[i].x, size.x);
                                 Utility.LogMessage(this, " ({0:0.000} - {1:0.000}) = {2:0.000}", (float)(positions[i].y) / 360.0f, startLongitudeNormalized, (float)(positions[i].y) / 360.0f - startLongitudeNormalized);
                             }
@@ -552,8 +552,8 @@ namespace AvionicsSystems
             }
             catch (Exception e)
             {
-                Utility.LogErrorMessage(this, "convertPositions threw an exception:");
-                Utility.LogErrorMessage(this, "{0}", e);
+                Utility.LogError(this, "convertPositions threw an exception:");
+                Utility.LogError(this, "{0}", e);
             }
         }
 

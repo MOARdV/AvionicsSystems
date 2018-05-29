@@ -78,7 +78,7 @@ namespace AvionicsSystems
                 }
                 catch (Exception e)
                 {
-                    Utility.LogErrorMessage(this, "Can't find transform {0} in COLOR_SHIFT {1}", transforms[i].Trim(), name);
+                    Utility.LogError(this, "Can't find transform {0} in COLOR_SHIFT {1}", transforms[i].Trim(), name);
                     throw e;
                 }
             }

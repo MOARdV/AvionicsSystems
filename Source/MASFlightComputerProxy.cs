@@ -3079,7 +3079,7 @@ namespace AvionicsSystems
             catch (Exception e)
             {
                 // RPM had a try-catch.  Why?
-                Utility.LogErrorMessage(this, "SetThrottle({0:0.00}) threw {1}", throttle, e);
+                Utility.LogError(this, "SetThrottle({0:0.00}) threw {1}", throttle, e);
             }
             return throttle;
         }

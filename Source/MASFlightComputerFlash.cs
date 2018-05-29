@@ -49,7 +49,7 @@ namespace AvionicsSystems
                 }
                 catch
                 {
-                    Utility.LogErrorMessage(this, "Exception caught in {0:0.00} - callback no longer valid?", period);
+                    Utility.LogError(this, "Exception caught in {0:0.00} - callback no longer valid?", period);
                 }
             }
         };

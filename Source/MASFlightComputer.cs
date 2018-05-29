@@ -320,7 +320,7 @@ namespace AvionicsSystems
             }
             else
             {
-                Utility.LogErrorMessage(this, "UnregisterNumericVariable: Did not find {0}", variableName);
+                Utility.LogError(this, "UnregisterNumericVariable: Did not find {0}", variableName);
             }
         }
 
@@ -488,8 +488,8 @@ namespace AvionicsSystems
                         catch (Exception e)
                         {
                             Utility.ComplainLoudly("Action " + actionName + " triggered an exception");
-                            Utility.LogErrorMessage(this, "Action {0} triggered exception:", actionName);
-                            Utility.LogErrorMessage(this, e.ToString());
+                            Utility.LogError(this, "Action {0} triggered exception:", actionName);
+                            Utility.LogError(this, e.ToString());
                         }
                     };
 
@@ -672,8 +672,8 @@ namespace AvionicsSystems
                         }
                         catch (Exception e)
                         {
-                            Utility.LogErrorMessage(this, "FixedUpdate exception on variable {0}:", nativeVariables[i].name);
-                            Utility.LogErrorMessage(this, e.ToString());
+                            Utility.LogError(this, "FixedUpdate exception on variable {0}:", nativeVariables[i].name);
+                            Utility.LogError(this, e.ToString());
                             //throw e;
                         }
                     }
@@ -713,7 +713,7 @@ namespace AvionicsSystems
                         }
                         catch (Exception e)
                         {
-                            Utility.LogErrorMessage(this, "FixedUpdate exception on variable {0}", luaVariables[i].name);
+                            Utility.LogError(this, "FixedUpdate exception on variable {0}", luaVariables[i].name);
                             luaStopwatch.Stop();
                             throw e;
                         }
@@ -731,8 +731,8 @@ namespace AvionicsSystems
                         }
                         catch (Exception e)
                         {
-                            Utility.LogErrorMessage(this, "FixedUpdate exception on variable {0}:", dependentVariables[i].name);
-                            Utility.LogErrorMessage(this, e.ToString());
+                            Utility.LogError(this, "FixedUpdate exception on variable {0}:", dependentVariables[i].name);
+                            Utility.LogError(this, e.ToString());
                             //throw e;
                         }
                     }
@@ -751,7 +751,7 @@ namespace AvionicsSystems
             }
             catch (Exception e)
             {
-                Utility.LogErrorMessage(this, "MASFlightComputer.FixedUpdate exception: {0}", e);
+                Utility.LogError(this, "MASFlightComputer.FixedUpdate exception: {0}", e);
             }
         }
 
@@ -884,8 +884,8 @@ namespace AvionicsSystems
                 }
                 catch (Exception e)
                 {
-                    Utility.LogErrorMessage(this, "Proxy object configuration failed:");
-                    Utility.LogErrorMessage(this, e.ToString());
+                    Utility.LogError(this, "Proxy object configuration failed:");
+                    Utility.LogError(this, e.ToString());
                     Utility.ComplainLoudly("Initialization Failed.  Please check KSP.log");
                 }
                 vc = MASPersistent.FetchVesselComputer(vessel);
@@ -962,13 +962,13 @@ namespace AvionicsSystems
                 catch (MoonSharp.Interpreter.SyntaxErrorException e)
                 {
                     Utility.ComplainLoudly("User Script Loading error");
-                    Utility.LogErrorMessage(this, " - {0}", e.DecoratedMessage);
-                    Utility.LogErrorMessage(this, e.ToString());
+                    Utility.LogError(this, " - {0}", e.DecoratedMessage);
+                    Utility.LogError(this, e.ToString());
                 }
                 catch (Exception e)
                 {
                     Utility.ComplainLoudly("User Script Loading error");
-                    Utility.LogErrorMessage(this, e.ToString());
+                    Utility.LogError(this, e.ToString());
                 }
 
                 // Parse action group labels:

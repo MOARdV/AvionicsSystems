@@ -77,7 +77,7 @@ namespace AvionicsSystems
 
             if (controlledLights == null)
             {
-                Utility.LogErrorMessage(this, "No lights named '{0}' found in internalModel '{1}'", lightName, prop.part.internalModel.internalName);
+                Utility.LogError(this, "No lights named '{0}' found in internalModel '{1}'", lightName, prop.part.internalModel.internalName);
                 return;
             }
 

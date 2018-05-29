@@ -138,11 +138,11 @@ namespace AvionicsSystems
                                 }
                                 else
                                 {
-                                    Utility.LogErrorMessage(this, "Failed to parse {0} ({1}) as a double", val.name, value[1].Trim());
+                                    Utility.LogError(this, "Failed to parse {0} ({1}) as a double", val.name, value[1].Trim());
                                 }
                                 break;
                             default:
-                                Utility.LogErrorMessage(this, "Found unknown persistent type {0}", value[0]);
+                                Utility.LogError(this, "Found unknown persistent type {0}", value[0]);
                                 break;
                         }
                         //Utility.LogMessage(this, "{0} = {1}", val.name.Trim(), persistentVars[val.name.Trim()]);

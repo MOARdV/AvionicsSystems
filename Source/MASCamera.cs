@@ -116,7 +116,7 @@ namespace AvionicsSystems
 
             if (!MASLoader.shaders.ContainsKey(shader))
             {
-                Utility.LogErrorMessage(this, "Invalid shader \"{0}\" in MASCamera MODE {1} in {2}.", shader, name, partName);
+                Utility.LogError(this, "Invalid shader \"{0}\" in MASCamera MODE {1} in {2}.", shader, name, partName);
                 throw new ArgumentException("MASCameraNode: Invalid post-processing shader name.");
             }
 
@@ -460,13 +460,13 @@ namespace AvionicsSystems
             }
             else if (string.IsNullOrEmpty(cameraTransformName))
             {
-                Utility.LogErrorMessage(this, "No 'cameraTransformName' provided in part.");
+                Utility.LogError(this, "No 'cameraTransformName' provided in part.");
                 Utility.ComplainLoudly("Missing 'cameraTransformName' in MASCamera");
                 throw new NotImplementedException("MASCamera: Missing 'cameraTransformName' in module config node.");
             }
             else
             {
-                Utility.LogErrorMessage(this, "Unable to find transform \"{0}\" in part", cameraTransformName);
+                Utility.LogError(this, "Unable to find transform \"{0}\" in part", cameraTransformName);
                 Utility.ComplainLoudly("Unable to find camera transform in MASCamera part");
             }
 
@@ -538,7 +538,7 @@ namespace AvionicsSystems
             ConfigNode partConfigNode = Utility.GetPartModuleConfigNode(part, "MASCamera", index);
             if (partConfigNode == null)
             {
-                Utility.LogErrorMessage(this, "Unable to load part config node for MASCamera {0}.", part.partName);
+                Utility.LogError(this, "Unable to load part config node for MASCamera {0}.", part.partName);
                 throw new NotImplementedException("MASCamera: Unable to load part config node for MASCamera.");
             }
 

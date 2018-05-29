@@ -78,7 +78,7 @@ namespace AvionicsSystems
                 case "TRIGGER_EVENT":
                     return new MASActionTriggerEvent(config, prop, comp);
                 default:
-                    Utility.LogErrorMessage(config, "Unrecognized MASComponent child node {0} found", config.name);
+                    Utility.LogError(config, "Unrecognized MASComponent child node {0} found", config.name);
                     return null;
             }
         }
@@ -132,8 +132,8 @@ namespace AvionicsSystems
             {
                 string message = string.Format("Failed to configure prop #{0} ({1})", internalProp.propID, internalProp.propName);
                 Utility.ComplainLoudly(message);
-                Utility.LogErrorMessage(this, message);
-                Utility.LogErrorMessage(this, e.ToString());
+                Utility.LogError(this, message);
+                Utility.LogError(this, e.ToString());
             }
         }
 

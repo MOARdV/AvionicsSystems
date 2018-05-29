@@ -88,7 +88,7 @@ namespace AvionicsSystems
                     ajeJetModule = part.Modules["ModuleEnginesAJEJet"];
                     if (ajePropellerModule == null && ajeJetModule == null)
                     {
-                        Utility.LogErrorMessage(this, "Didn't find any supported AJE engine");
+                        Utility.LogError(this, "Didn't find any supported AJE engine");
                     }
                 }
 

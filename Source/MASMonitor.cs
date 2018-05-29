@@ -269,8 +269,8 @@ namespace AvionicsSystems
                 catch (Exception e)
                 {
                     Utility.ComplainLoudly("MASMonitor configuration failed.");
-                    Utility.LogErrorMessage(this, "Failed to configure prop #{0} ({1})", internalProp.propID, internalProp.propName);
-                    Utility.LogErrorMessage(this, e.ToString());
+                    Utility.LogError(this, "Failed to configure prop #{0} ({1})", internalProp.propID, internalProp.propName);
+                    Utility.LogError(this, e.ToString());
                 }
             }
         }
@@ -397,7 +397,7 @@ namespace AvionicsSystems
             }
             catch
             {
-                Utility.LogErrorMessage(this, "Unable to switch to page '" + pageSelector.String() + "'");
+                Utility.LogError(this, "Unable to switch to page '" + pageSelector.String() + "'");
             }
         }
     }

@@ -246,12 +246,12 @@ namespace AvionicsSystems
             navBall = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.NavBall>();
             if (navBall == null)
             {
-                Utility.LogErrorMessage(this, "navBall was null!");
+                Utility.LogError(this, "navBall was null!");
             }
             LinearAtmosphereGauge linearAtmosGauge = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.LinearAtmosphereGauge>();
             if (linearAtmosGauge == null)
             {
-                Utility.LogErrorMessage(this, "linearAtmosGauge was null!");
+                Utility.LogError(this, "linearAtmosGauge was null!");
                 atmosphereDepthGauge = new KSP.UI.Screens.LinearGauge();
             }
             else
@@ -977,7 +977,7 @@ namespace AvionicsSystems
                 }
                 else
                 {
-                    Utility.LogErrorMessage(this, "UpdateTarget() - unable to classify target {0}", activeTarget.GetType().Name);
+                    Utility.LogError(this, "UpdateTarget() - unable to classify target {0}", activeTarget.GetType().Name);
                     targetType = TargetType.None;
                 }
 

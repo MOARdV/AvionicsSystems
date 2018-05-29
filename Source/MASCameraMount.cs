@@ -141,7 +141,7 @@ namespace AvionicsSystems
                     panTransform = part.FindModelTransform(panTransformName);
                     if (panTransform == null)
                     {
-                        Utility.LogErrorMessage(this, "Unable to find a pan transform named \"{0}\"", panTransformName);
+                        Utility.LogError(this, "Unable to find a pan transform named \"{0}\"", panTransformName);
                     }
                     else
                     {
@@ -155,7 +155,7 @@ namespace AvionicsSystems
                     tiltTransform = part.FindModelTransform(tiltTransformName);
                     if (tiltTransform == null)
                     {
-                        Utility.LogErrorMessage(this, "Unable to find a tilt transform named \"{0}\"", tiltTransformName);
+                        Utility.LogError(this, "Unable to find a tilt transform named \"{0}\"", tiltTransformName);
                     }
                     else
                     {

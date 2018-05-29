@@ -130,7 +130,7 @@ namespace AvionicsSystems
                 }
                 catch (Exception)
                 {
-                    Utility.LogErrorMessage(this, "Unable to find a resource ID for \"{0}\".  Disabling resource consumption.", resourceName);
+                    Utility.LogError(this, "Unable to find a resource ID for \"{0}\".  Disabling resource consumption.", resourceName);
                     resourceAmount = 0.0f;
                 }
             }
@@ -160,8 +160,8 @@ namespace AvionicsSystems
                 catch (Exception e)
                 {
                     Utility.ComplainLoudly("MASRadar cannot find the radar transform");
-                    Utility.LogErrorMessage(this, "Unable to find the named transform {0}", radarTransform);
-                    Utility.LogErrorMessage(this, "Exception: {0}", e);
+                    Utility.LogError(this, "Unable to find the named transform {0}", radarTransform);
+                    Utility.LogError(this, "Exception: {0}", e);
                     scanTransform = part.transform;
                 }
             }
@@ -182,8 +182,8 @@ namespace AvionicsSystems
                 }
                 catch (Exception e)
                 {
-                    Utility.LogErrorMessage(this, "Setting dockingNode transform.");
-                    Utility.LogErrorMessage(this, "Exception: {0}", e);
+                    Utility.LogError(this, "Setting dockingNode transform.");
+                    Utility.LogError(this, "Exception: {0}", e);
                 }
             }
 
@@ -206,8 +206,8 @@ namespace AvionicsSystems
                 }
                 catch (Exception e)
                 {
-                    Utility.LogErrorMessage(this, "Grabbing deploy module.");
-                    Utility.LogErrorMessage(this, "Exception: {0}", e);
+                    Utility.LogError(this, "Grabbing deploy module.");
+                    Utility.LogError(this, "Exception: {0}", e);
                 }
             }
             targetDockingPorts = targetDockingPorts && scanTransformIsDockingNode;
@@ -397,7 +397,7 @@ namespace AvionicsSystems
                 }
                 catch (Exception)
                 {
-                    Utility.LogErrorMessage(this, "Unable to find a resource ID for \"{0}\".  Disabling resource consumption.", resourceName);
+                    Utility.LogError(this, "Unable to find a resource ID for \"{0}\".  Disabling resource consumption.", resourceName);
                     resourceAmount = 0.0f;
                 }
             }
