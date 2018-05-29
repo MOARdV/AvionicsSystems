@@ -124,14 +124,14 @@ namespace AvionicsSystems
 
             if (s[1].Length < 2)
             {
-                Utility.LogStaticErrorMessage("Invalid second parameter.  Must be two characters minimum length. \"{1}\"", value, formatSpecification);
+                Utility.LogStaticError("Invalid second parameter.  Must be two characters minimum length. \"{1}\"", value, formatSpecification);
                 return formatSpecification;
             }
 
             int numChars = 0;
             if (!int.TryParse(s[2], out numChars) || numChars < 1)
             {
-                Utility.LogStaticErrorMessage("Invalid third parameter.  Must be an integer. \"{1}\"", value, formatSpecification);
+                Utility.LogStaticError("Invalid third parameter.  Must be an integer. \"{1}\"", value, formatSpecification);
                 return formatSpecification;
             }
 

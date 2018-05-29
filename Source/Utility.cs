@@ -68,7 +68,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="format"></param>
         /// <param name="values"></param>
-        internal static void LogInfo(string format, params object[] values)
+        internal static void LogStaticInfo(string format, params object[] values)
         {
             logSb.Remove(0, logSb.Length);
             logSb.Append("[AvionicsSystems] ").AppendFormat(format, values);
@@ -125,7 +125,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="format"></param>
         /// <param name="values"></param>
-        internal static void LogWarning(string format, params object[] values)
+        internal static void LogStaticWarning(string format, params object[] values)
         {
             logSb.Remove(0, logSb.Length);
             logSb.Append("[AvionicsSystems] ").AppendFormat(format, values);
@@ -151,7 +151,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="format"></param>
         /// <param name="values"></param>
-        internal static void LogStaticErrorMessage(string format, params object[] values)
+        internal static void LogStaticError(string format, params object[] values)
         {
             logSb.Remove(0, logSb.Length);
             logSb.Append("[AvionicsSystems] ").AppendFormat(format, values);

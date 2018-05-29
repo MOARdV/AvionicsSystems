@@ -340,48 +340,48 @@ namespace AvionicsSystems
                 PropertyInfo rcAnyDeployed = rcAPI_t.GetProperty("AnyDeployed", BindingFlags.Instance | BindingFlags.Public);
                 if (rcAnyDeployed == null)
                 {
-                    Utility.LogStaticErrorMessage("rcAnyDeployed is null");
+                    Utility.LogStaticError("rcAnyDeployed is null");
                     return;
                 }
                 getAnyDeployed_t = rcAnyDeployed.GetGetMethod();
                 if (getAnyDeployed_t == null)
                 {
-                    Utility.LogStaticErrorMessage("getAnyDeployed_t is null");
+                    Utility.LogStaticError("getAnyDeployed_t is null");
                     return;
                 }
 
                 armChute_t = rcAPI_t.GetMethod("GUIArm", BindingFlags.Instance | BindingFlags.Public);
                 if (armChute_t == null)
                 {
-                    Utility.LogStaticErrorMessage("armChute_t is null");
+                    Utility.LogStaticError("armChute_t is null");
                     return;
                 }
 
                 disarmChute_t = rcAPI_t.GetMethod("GUIDisarm", BindingFlags.Instance | BindingFlags.Public);
                 if (disarmChute_t == null)
                 {
-                    Utility.LogStaticErrorMessage("disarmChute_t is null");
+                    Utility.LogStaticError("disarmChute_t is null");
                     return;
                 }
 
                 deployChute_t = rcAPI_t.GetMethod("GUIDeploy", BindingFlags.Instance | BindingFlags.Public);
                 if (deployChute_t == null)
                 {
-                    Utility.LogStaticErrorMessage("deployChute_t is null");
+                    Utility.LogStaticError("deployChute_t is null");
                     return;
                 }
 
                 cutChute_t = rcAPI_t.GetMethod("GUICut", BindingFlags.Instance | BindingFlags.Public);
                 if (cutChute_t == null)
                 {
-                    Utility.LogStaticErrorMessage("cutChute_t is null");
+                    Utility.LogStaticError("cutChute_t is null");
                     return;
                 }
 
                 FieldInfo armed_t = rcAPI_t.GetField("armed", BindingFlags.Instance | BindingFlags.Public);
                 if (armed_t == null)
                 {
-                    Utility.LogStaticErrorMessage("armed_t is null");
+                    Utility.LogStaticError("armed_t is null");
                     return;
                 }
                 getArmed = DynamicMethodFactory.CreateGetField<object, bool>(armed_t);
@@ -389,7 +389,7 @@ namespace AvionicsSystems
                 safeState_t = rcAPI_t.GetField("safeState", BindingFlags.Instance | BindingFlags.Public);
                 if (safeState_t == null)
                 {
-                    Utility.LogStaticErrorMessage("safeState_t is null");
+                    Utility.LogStaticError("safeState_t is null");
                     return;
                 }
 

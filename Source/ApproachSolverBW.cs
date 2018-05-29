@@ -151,7 +151,7 @@ namespace AvionicsSystems
                 }
             }
 
-            Utility.LogStaticErrorMessage("... Wait!  Exception because o.nextPath {0} and endTransition is {1}",
+            Utility.LogStaticError("... Wait!  Exception because o.nextPath {0} and endTransition is {1}",
                 (o.nextPatch != null) ? "!null" : "null", o.patchEndTransition);
 
             throw new ArgumentNullException("FindOrbit failed... no valid orbits existed during validUT");
