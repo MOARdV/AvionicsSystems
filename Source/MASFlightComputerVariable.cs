@@ -598,17 +598,20 @@ namespace AvionicsSystems
                 if (tableInstance != null)
                 {
                     bool cacheable = true;
-                    bool mutable = true;
                     bool dependent = false;
+                    bool mutable = true;
+                    bool persistent = false;
 
                     object[] attrs = method.GetCustomAttributes(typeof(MASProxyAttribute), true);
                     if (attrs.Length > 0)
                     {
                         for (int i = 0; i < attrs.Length; ++i)
                         {
-                            cacheable = !(attrs[i] as MASProxyAttribute).Uncacheable;
-                            mutable = !(attrs[i] as MASProxyAttribute).Immutable;
-                            dependent = (attrs[i] as MASProxyAttribute).Dependent;
+                            MASProxyAttribute attr = attrs[i] as MASProxyAttribute;
+                            cacheable = !attr.Uncacheable;
+                            mutable = !attr.Immutable;
+                            dependent = attr.Dependent;
+                            persistent = attr.Persistent;
                         }
                     }
                     ParameterInfo[] methodParams = method.GetParameters();
@@ -641,7 +644,20 @@ namespace AvionicsSystems
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
                             Func<object, string, object> dm = DynamicMethodFactory.CreateDynFunc<object, string, object>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].String()), cacheable, mutable, Variable.VariableType.Func);
+                            if (persistent)
+                            {
+                                dependent = false;
+                                if (parms[0].variableType == Variable.VariableType.Constant)
+                                {
+                                    dependent = true;
+                                }
+                            }
+                            Variable newVar = new Variable(canonical, () => dm(tableInstance, parms[0].String()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
+                            if (persistent && dependent)
+                            {
+                                RegisterPersistentNotice(parms[0].name, newVar.TriggerUpdate);
+                            }
+                            return newVar;
                         }
                         else if (methodParams[0].ParameterType == typeof(bool))
                         {
@@ -1239,7 +1255,6 @@ namespace AvionicsSystems
                         {
                             triggerUpdate = false;
                             ProcessObject(nativeEvaluator());
-
                         }
                         break;
                     default:

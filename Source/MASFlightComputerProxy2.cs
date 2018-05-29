@@ -2303,6 +2303,7 @@ namespace AvionicsSystems
             return fc.AppendPersistent(persistentName, addon, (int)maxLength);
         }
 
+        [MASProxy(Persistent = true)]
         /// <summary>
         /// Return value of the persistent.  Strings are returned as strings,
         /// numbers are returned as numbers.  If the persistent does not exist
@@ -2315,6 +2316,7 @@ namespace AvionicsSystems
             return fc.GetPersistent(persistentName);
         }
 
+        [MASProxy(Persistent = true)]
         /// <summary>
         /// Return the value of the persistent as a number.  If the persistent
         /// does not exist yet, or it is a string that can not be converted to

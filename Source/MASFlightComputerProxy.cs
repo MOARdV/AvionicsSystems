@@ -3389,10 +3389,14 @@ namespace AvionicsSystems
     /// A method flagged as Dependent is a value that can change, but it does not need
     /// to be queried each FixedUpdate.
     /// 
+    /// A method flagged as Persistent is a persistent value query.  Provided the string
+    /// parameter is a constant, it will only be re-evaluated when the persistent value
+    /// is updated.
+    /// 
     /// A method flagged as Uncacheable is expected to change each time it's called,
     /// such as random number generators.
     /// 
-    /// Both of these attributes affect only variables that can be transformed to a
+    /// These attributes affect only variables that can be transformed to a
     /// native evaluator - Lua scripts are always cacheable + mutable.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
@@ -3400,6 +3404,7 @@ namespace AvionicsSystems
     {
         private bool immutable;
         private bool dependent;
+        private bool persistent;
         private bool uncacheable;
 
         public bool Immutable
@@ -3423,6 +3428,18 @@ namespace AvionicsSystems
             set
             {
                 dependent = value;
+            }
+        }
+
+        public bool Persistent
+        {
+            get
+            {
+                return persistent;
+            }
+            set
+            {
+                persistent = value;
             }
         }
 

@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 - 2017 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -38,6 +38,45 @@ namespace AvionicsSystems
         /// </summary>
         private Dictionary<string, object> persistentVars = new Dictionary<string, object>();
 
+        /// <summary>
+        /// Callback-based system to notify the GetPersistent variables that a variable changed.
+        /// </summary>
+        private Dictionary<string, PersistentChangedNotification> persistentNotices = new Dictionary<string, PersistentChangedNotification>();
+
+        /// <summary>
+        /// Registers a callback with one of the persistent strings, allowing the Get queries
+        /// to be callback-based (Dependent variables) instead of polling.
+        /// </summary>
+        /// <param name="persistentName"></param>
+        /// <param name="callback"></param>
+        private void RegisterPersistentNotice(string persistentName, Action<double> callback)
+        {
+            PersistentChangedNotification notice;
+            if (!persistentNotices.TryGetValue(persistentName, out notice))
+            {
+                notice = new PersistentChangedNotification();
+                persistentNotices[persistentName] = notice;
+            }
+            notice.numericCallbacks += callback;
+        }
+
+        /// <summary>
+        /// Used to notify registered persistent value watchers that a persistent has
+        /// changed.
+        /// </summary>
+        /// <param name="persistentName"></param>
+        private void UpdatePersistent(string persistentName)
+        {
+            PersistentChangedNotification notice;
+            if (!persistentNotices.TryGetValue(persistentName, out notice))
+            {
+                notice = new PersistentChangedNotification();
+                persistentNotices[persistentName] = notice;
+            }
+
+            notice.TriggerCallbacks();
+        }
+
         #region Persistent Access
         /// <summary>
         /// Add a quantity to a persistent.  If the persistent doesn't exist,
@@ -72,6 +111,10 @@ namespace AvionicsSystems
 
             v += amount;
             persistentVars[persistentName] = v;
+            if (amount != 0.0)
+            {
+                UpdatePersistent(persistentName);
+            }
             return v;
         }
 
@@ -113,9 +156,14 @@ namespace AvionicsSystems
                 v = 0.0;
             }
 
+            double oldV = v;
             v += amount;
             v = v.Clamp(minValue, maxValue);
             persistentVars[persistentName] = v;
+            if (Math.Abs(oldV - v) > 0.0)
+            {
+                UpdatePersistent(persistentName);
+            }
             return v;
         }
 
@@ -166,6 +214,7 @@ namespace AvionicsSystems
                 return v;
             }
 
+            double oldV = v;
             v += amount;
             double range = maxValue - minValue;
             while (v < minValue)
@@ -179,6 +228,10 @@ namespace AvionicsSystems
             }
 
             persistentVars[persistentName] = v;
+            if (Math.Abs(oldV - v) > 0.0)
+            {
+                UpdatePersistent(persistentName);
+            }
             return v;
         }
 
@@ -203,11 +256,16 @@ namespace AvionicsSystems
                     persistBuffer = persistBuffer.Substring(0, maxLength);
                 }
                 persistentVars[persistentName] = persistBuffer;
+                if (pvo.ToString() != persistBuffer)
+                {
+                    UpdatePersistent(persistentName);
+                }
                 return persistBuffer;
             }
             else
             {
                 persistentVars[persistentName] = addon;
+                UpdatePersistent(persistentName);
 
                 return addon;
             }
@@ -279,6 +337,7 @@ namespace AvionicsSystems
         internal object SetPersistent(string persistentName, object value)
         {
             persistentVars[persistentName] = value;
+            UpdatePersistent(persistentName);
             return value;
         }
 
@@ -309,6 +368,7 @@ namespace AvionicsSystems
             {
                 result = value;
                 persistentVars[persistentName] = result;
+                UpdatePersistent(persistentName);
                 // Early return: Initializing the value
                 return result;
             }
@@ -334,7 +394,8 @@ namespace AvionicsSystems
 
             if (result != value)
             { 
-                persistentVars[persistentName] = result; 
+                persistentVars[persistentName] = result;
+                UpdatePersistent(persistentName);
             }
 
             return result;
@@ -358,6 +419,7 @@ namespace AvionicsSystems
                     double v = (double)o;
                     double newVal = (v > 0.0) ? 0.0 : 1.0;
                     persistentVars[persistentName] = newVal;
+                    UpdatePersistent(persistentName);
                     return newVal;
                 }
                 else
@@ -367,6 +429,7 @@ namespace AvionicsSystems
                     {
                         double newVal = (v > 0.0) ? 0.0 : 1.0;
                         persistentVars[persistentName] = newVal;
+                        UpdatePersistent(persistentName);
                         return newVal;
                     }
                     else
@@ -378,9 +441,27 @@ namespace AvionicsSystems
             else
             {
                 persistentVars[persistentName] = 1.0;
+                UpdatePersistent(persistentName);
                 return 1.0;
             }
         }
         #endregion
+    }
+
+    /// <summary>
+    /// Helper class to trigger persistent variable changes, so persistents don't have to
+    /// be polled.
+    /// </summary>
+    internal class PersistentChangedNotification
+    {
+        internal event Action<double> numericCallbacks;
+
+        internal void TriggerCallbacks()
+        {
+            if (numericCallbacks != null)
+            {
+                numericCallbacks.Invoke(0.0);
+            }
+        }
     }
 }
