@@ -1216,32 +1216,35 @@ namespace AvionicsSystems
             /// <param name="script"></param>
             internal void Evaluate(Script script)
             {
-                if (variableType == VariableType.LuaScript)
+                switch (variableType)
                 {
-                    try
-                    {
-                        luaValue = script.Call(luaEvaluator);
-                    }
-                    catch
-                    {
-                        luaValue = DynValue.NewNil();
-                    }
+                    case VariableType.LuaScript:
+                        try
+                        {
+                            luaValue = script.Call(luaEvaluator);
+                        }
+                        catch
+                        {
+                            luaValue = DynValue.NewNil();
+                        }
 
-                    ProcessObject(luaValue.ToObject());
-                }
-                else if (variableType == VariableType.Func || variableType == VariableType.LuaClosure)
-                {
-                    object value = nativeEvaluator();
+                        ProcessObject(luaValue.ToObject());
+                        break;
+                    case VariableType.Func:
+                    case VariableType.LuaClosure:
+                        ProcessObject(nativeEvaluator());
+                        break;
+                    case VariableType.Dependent:
+                        if (triggerUpdate)
+                        {
+                            triggerUpdate = false;
+                            ProcessObject(nativeEvaluator());
 
-                    ProcessObject(value);
-                }
-                else if (variableType == VariableType.Dependent && triggerUpdate)
-                {
-                    triggerUpdate = false;
-
-                    object value = nativeEvaluator();
-
-                    ProcessObject(value);
+                        }
+                        break;
+                    default:
+                        Utility.LogError(this, "Attempting to evaluate {0}, which is listed as {1} - this should not happen.", name, variableType);
+                        break;
                 }
             }
 
