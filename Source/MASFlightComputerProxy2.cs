@@ -605,6 +605,7 @@ namespace AvionicsSystems
         /// </summary>
         #region Math
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the absolute value of `value`.
         /// </summary>
@@ -614,6 +615,7 @@ namespace AvionicsSystems
             return Math.Abs(value);
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns 1 if `value` is at least equal to `lowerBound` and not greater
         /// than `upperBound`.  Returns 0 otherwise.
@@ -631,6 +633,7 @@ namespace AvionicsSystems
             return (value >= lowerBound && value <= upperBound) ? 1.0 : 0.0;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Rounds a number up to the next integer.
         /// </summary>
@@ -641,6 +644,7 @@ namespace AvionicsSystems
             return Math.Ceiling(value);
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Clamps `value` to stay within the range `a` to `b`, inclusive.  `a` does not
         /// have to be less than `b`.
@@ -656,7 +660,7 @@ namespace AvionicsSystems
             return Math.Max(Math.Min(value, max), min);
         }
 
-
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Rounds a number down to the next integer.
         /// </summary>
@@ -667,6 +671,7 @@ namespace AvionicsSystems
             return Math.Floor(value);
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Return the larger value
         /// </summary>
@@ -678,6 +683,7 @@ namespace AvionicsSystems
             return Math.Max(a, b);
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Return the smaller value
         /// </summary>
@@ -689,6 +695,7 @@ namespace AvionicsSystems
             return Math.Min(a, b);
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Normalizes an angle to the range [0, 360).
         /// </summary>
@@ -699,6 +706,7 @@ namespace AvionicsSystems
             return Utility.NormalizeAngle(angle);
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Normalizes an angle to the range [-180, 180).
         /// </summary>
@@ -709,6 +717,7 @@ namespace AvionicsSystems
             return Utility.NormalizeLongitude(angle);
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Converts an angle to a pitch value in the range of [-90, +90].
         /// </summary>
@@ -731,6 +740,7 @@ namespace AvionicsSystems
             }
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Apply a log10-like curve to the value.
         /// 
@@ -759,6 +769,7 @@ namespace AvionicsSystems
             }
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Divides `numerator` by `denominator`.  If the denominator is zero, this method
         /// returns 0 instead of infinity or throwing a divide-by-zero exception.
@@ -821,6 +832,7 @@ namespace AvionicsSystems
             }
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Converts the supplied RGB value into a MAS text color tag
         /// (eg, `fc.HexColor(255, 255, 0)` returns "[#ffff00]").
@@ -841,6 +853,7 @@ namespace AvionicsSystems
             return string.Format("[#{0:X2}{1:X2}{2:X2}]", r, g, b);
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Converts the supplied RGBA value into a MAS text color tag
         /// (eg, `fc.HexColor(255, 255, 0, 255)` returns "[#ffff00ff]").
@@ -956,11 +969,13 @@ namespace AvionicsSystems
         /// [MASFlightComputerProxy].
         /// </summary>
         /// <param name="message">The string to write.  Strings may be formatted using the Lua string library, or using the `..` concatenation operator.</param>
-        public void LogMessage(string message)
+        public double LogMessage(string message)
         {
             Utility.LogMessage(this, message);
+            return 1.0;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the U texture shift required to display the map icon listed below.
         /// This function is intended to be used in conjunction with the '%MAP_ICON%' texture in
@@ -1056,6 +1071,7 @@ namespace AvionicsSystems
             return 0.0;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the V texture shift required to display the map icon listed below.
         /// This function is intended to be used in conjunction with the '%MAP_ICON%' texture in
@@ -2294,7 +2310,6 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="persistentName">The name of the persistent variable to query.</param>
         /// <returns>The value of the persistent, or its name if it does not exist.</returns>
-        [MASProxyAttribute(Pushable = true)]
         public object GetPersistent(string persistentName)
         {
             return fc.GetPersistent(persistentName);
@@ -2308,7 +2323,6 @@ namespace AvionicsSystems
         /// <param name="persistentName">The name of the persistent variable to query.</param>
         /// <returns>The numeric value of the persistent, or 0 if it either does not
         /// exist, or it cannot be converted to a number.</returns>
-        [MASProxyAttribute(Pushable = true)]
         public double GetPersistentAsNumber(string persistentName)
         {
             return fc.GetPersistentAsNumber(persistentName);
@@ -2320,7 +2334,6 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="persistentName">The persistent variable name to check.</param>
         /// <returns>1 if the variable contains initialized data, 0 if it does not.</returns>
-        [MASProxyAttribute(Pushable = true)]
         public double GetPersistentExists(string persistentName)
         {
             return fc.GetPersistentExists(persistentName) ? 1.0 : 0.0;

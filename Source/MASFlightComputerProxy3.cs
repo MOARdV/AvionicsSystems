@@ -3016,6 +3016,7 @@ namespace AvionicsSystems
         /// </summary>
         #region Unassigned Region
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Remaps `value` from the range [`bound1`, `bound2`] to the range
         /// [`map1`, `map2`].
@@ -3035,6 +3036,7 @@ namespace AvionicsSystems
             return value.Remap(bound1, bound2, map1, map2);
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns `trueValue` when `condition` is true, otherwise returns `falseValue`.
         /// 

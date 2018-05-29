@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 - 2017 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -120,7 +120,7 @@ namespace AvionicsSystems
         /// <param name="bearing2"></param>
         /// <returns>Lat (x)/Lon (y) of intersection</returns>
         [MoonSharpHidden]
-        internal Vector2d IntersectionOfTwoPaths(double lat1, double lon1, double bearing1, double lat2, double lon2, double bearing2)
+        static internal Vector2d IntersectionOfTwoPaths(double lat1, double lon1, double bearing1, double lat2, double lon2, double bearing2)
         {
             // φ is latitude, λ is longitudem, θ is bearing
             double phi1 = Utility.Deg2Rad * lat1;
@@ -200,6 +200,7 @@ namespace AvionicsSystems
         /// </summary>
         #region General Navigation
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the great-circle route bearing from (lat1, lon1) to (lat2, lon2).
         /// </summary>
@@ -379,6 +380,7 @@ namespace AvionicsSystems
             return GroundDistance(vessel.latitude, Utility.NormalizeLongitude(vessel.longitude), latitude, longitude);
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Return the latitude where two great-circle paths intersect.
         /// </summary>
@@ -394,6 +396,7 @@ namespace AvionicsSystems
             return IntersectionOfTwoPaths(latitude1, longitude1, bearing1, latitude2, longitude2, bearing2).x;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Return the longitude where two great-circle paths intersect.
         /// </summary>

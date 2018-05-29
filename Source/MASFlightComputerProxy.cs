@@ -3386,11 +3386,8 @@ namespace AvionicsSystems
     /// A method flagged as Immutable is evaluated once when it's created, and never
     /// again (useful for values that never change in a game session).
     /// 
-    /// A method flagged as Pushable is a value that can change, but it does not need
-    /// to be queried each FixedUpdate.  This method is primarily intended for the
-    /// GetPersistent and GetPersistentAsNumber queries, which are called often but
-    /// do not update frequently.  The various persistent variable manipulation routines
-    /// will update the variable directly, instead of MAS polling them each FixedUpdate.
+    /// A method flagged as Dependent is a value that can change, but it does not need
+    /// to be queried each FixedUpdate.
     /// 
     /// A method flagged as Uncacheable is expected to change each time it's called,
     /// such as random number generators.
@@ -3402,7 +3399,7 @@ namespace AvionicsSystems
     public class MASProxyAttribute : System.Attribute
     {
         private bool immutable;
-        private bool pushable;
+        private bool dependent;
         private bool uncacheable;
 
         public bool Immutable
@@ -3417,15 +3414,15 @@ namespace AvionicsSystems
             }
         }
 
-        public bool Pushable
+        public bool Dependent
         {
             get
             {
-                return pushable;
+                return dependent;
             }
             set
             {
-                pushable = value;
+                dependent = value;
             }
         }
 

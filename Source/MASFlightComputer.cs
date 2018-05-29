@@ -28,10 +28,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 
-// TODO:
-// 
-// Research Attributes - can I come up with attributes for methods to automate
-// which ones can be cached and which ones are variable?
 namespace AvionicsSystems
 {
     /// <summary>
@@ -221,9 +217,11 @@ namespace AvionicsSystems
 
         private Stopwatch nativeStopwatch = new Stopwatch();
         private Stopwatch luaStopwatch = new Stopwatch();
+        private Stopwatch dependentStopwatch = new Stopwatch();
         long samplecount = 0;
-        long nativeVariablesCount = 0;
-        long luaVariablesCount = 0;
+        long nativeEvaluationCount = 0;
+        long luaEvaluationCount = 0;
+        long dependentEvaluationCount = 0;
 
         #region Internal Interface
         /// <summary>
@@ -601,7 +599,8 @@ namespace AvionicsSystems
                     {
                         nativeVariables = new Variable[nativeVariableCount];
                         luaVariables = new Variable[luaVariableCount];
-                        int nativeIdx = 0, luaIdx = 0;
+                        dependentVariables = new Variable[dependentVariableCount];
+                        int nativeIdx = 0, luaIdx = 0, dependentIdx = 0;
                         foreach (Variable var in mutableVariablesList)
                         {
                             if (var.variableType == Variable.VariableType.LuaScript || var.variableType == Variable.VariableType.LuaClosure)
@@ -614,12 +613,17 @@ namespace AvionicsSystems
                                 nativeVariables[nativeIdx] = var;
                                 ++nativeIdx;
                             }
+                            else if (var.variableType == Variable.VariableType.Dependent)
+                            {
+                                dependentVariables[dependentIdx] = var;
+                                ++dependentIdx;
+                            }
                             else
                             {
                                 throw new ArgumentException(string.Format("Unexpected variable type {0} for variable {1} in mutableVariablesList", var.variableType, var.name));
                             }
                         }
-                        Utility.LogMessage(this, "Resizing variables lists to N:{0} L:{1}", nativeVariableCount, luaVariableCount);
+                        Utility.LogMessage(this, "Resizing variables lists to N:{0} L:{1} D:{2}", nativeVariableCount, luaVariableCount, dependentVariableCount);
                         mutableVariablesChanged = false;
                     }
 
@@ -673,7 +677,7 @@ namespace AvionicsSystems
                             //throw e;
                         }
                     }
-                    nativeVariablesCount += count;
+                    nativeEvaluationCount += count;
                     nativeStopwatch.Stop();
 
                     luaStopwatch.Start();
@@ -714,8 +718,26 @@ namespace AvionicsSystems
                             throw e;
                         }
                     }
-                    luaVariablesCount += count;
+                    luaEvaluationCount += count;
                     luaStopwatch.Stop();
+
+                    dependentStopwatch.Start();
+                    count = dependentVariables.Length;
+                    for (int i = 0; i < count; ++i)
+                    {
+                        try
+                        {
+                            dependentVariables[i].Evaluate(script);
+                        }
+                        catch (Exception e)
+                        {
+                            Utility.LogErrorMessage(this, "FixedUpdate exception on variable {0}:", dependentVariables[i].name);
+                            Utility.LogErrorMessage(this, e.ToString());
+                            //throw e;
+                        }
+                    }
+                    dependentEvaluationCount += count;
+                    dependentStopwatch.Stop();
                     ++samplecount;
                 }
                 else if (HighLogic.LoadedSceneIsEditor && EditorLogic.fetch.shipDescriptionField != null)
@@ -760,17 +782,21 @@ namespace AvionicsSystems
                     UnregisterNumericVariable(powerOnVariable, null, UpdatePowerOnVariable);
                 }
 
-                Utility.LogInfo(this, "{3} variables created: {0} constant variables, {1} native variables, and {2} Lua variables",
-                    constantVariableCount, nativeVariableCount, luaVariableCount, variables.Count);
+                Utility.LogInfo(this, "{3} variables created: {0} constant variables, {1} native variables, {2} Lua variables, and {4} dependent variables",
+                    constantVariableCount, nativeVariableCount, luaVariableCount, variables.Count, dependentVariableCount);
                 if (samplecount > 0)
                 {
                     double msPerFixedUpdate = 1000.0 * (double)(nativeStopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
-                    double samplesPerMs = (double)nativeVariablesCount / (1000.0 * (double)(nativeStopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
+                    double samplesPerMs = (double)nativeEvaluationCount / (1000.0 * (double)(nativeStopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
                     Utility.LogInfo(this, "FixedUpdate native average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
 
                     msPerFixedUpdate = 1000.0 * (double)(luaStopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
-                    samplesPerMs = (double)luaVariablesCount / (1000.0 * (double)(luaStopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
+                    samplesPerMs = (double)luaEvaluationCount / (1000.0 * (double)(luaStopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
                     Utility.LogInfo(this, "FixedUpdate Lua    average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
+
+                    msPerFixedUpdate = 1000.0 * (double)(dependentStopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
+                    samplesPerMs = (double)dependentEvaluationCount / (1000.0 * (double)(dependentStopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
+                    Utility.LogInfo(this, "FixedUpdate Expr   average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
                 }
             }
         }
@@ -949,7 +975,7 @@ namespace AvionicsSystems
                 if (!string.IsNullOrEmpty(shipDescription))
                 {
                     string[] rows = shipDescription.Replace("$$$", Environment.NewLine).Split(Utility.LineSeparator, StringSplitOptions.RemoveEmptyEntries);
-                    for(int i=0; i<rows.Length; ++i)
+                    for (int i = 0; i < rows.Length; ++i)
                     {
                         if (rows[i].StartsWith("AG"))
                         {
@@ -957,7 +983,7 @@ namespace AvionicsSystems
                             int groupID;
                             if (int.TryParse(row[0].Substring(2), out groupID))
                             {
-                                if (groupID >=0 && groupID <=9)
+                                if (groupID >= 0 && groupID <= 9)
                                 {
                                     if (row.Length == 2)
                                     {

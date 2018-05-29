@@ -48,7 +48,6 @@ namespace AvionicsSystems
             {
                 return proxy.GetType();
             }
-            //private set
         }
         public object proxy { get; private set; }
         internal MASRegisteredTable(object who)
@@ -88,8 +87,14 @@ namespace AvionicsSystems
         /// </summary>
         private Variable[] luaVariables = new Variable[0];
 
+        /// <summary>
+        /// Array of dependent variables.
+        /// </summary>
+        private Variable[] dependentVariables = new Variable[0];
+
         private int luaVariableCount = 0;
         private int nativeVariableCount = 0;
+        private int dependentVariableCount = 0;
         private int constantVariableCount = 0;
 
         private Dictionary<string, MASRegisteredTable> registeredTables = new Dictionary<string, MASRegisteredTable>();
@@ -368,6 +373,10 @@ namespace AvionicsSystems
                 {
                     ++nativeVariableCount;
                 }
+                else if (v.variableType == Variable.VariableType.Dependent)
+                {
+                    ++dependentVariableCount;
+                }
                 else if (v.variableType == Variable.VariableType.LuaScript || v.variableType == Variable.VariableType.LuaClosure)
                 {
                     ++luaVariableCount;
@@ -445,37 +454,59 @@ namespace AvionicsSystems
             switch (operatorExpression.Operator())
             {
                 case CodeGen.Parser.LuaToken.PLUS:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() + rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() + rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
+                    lhs.numericCallbacks += v.TriggerUpdate;
+                    rhs.numericCallbacks += v.TriggerUpdate;
                     break;
                 case CodeGen.Parser.LuaToken.MINUS:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() - rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() - rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
+                    lhs.numericCallbacks += v.TriggerUpdate;
+                    rhs.numericCallbacks += v.TriggerUpdate;
                     break;
                 case CodeGen.Parser.LuaToken.MULTIPLY:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() * rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() * rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
+                    lhs.numericCallbacks += v.TriggerUpdate;
+                    rhs.numericCallbacks += v.TriggerUpdate;
                     break;
                 case CodeGen.Parser.LuaToken.DIVIDE:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() / rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() / rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
+                    lhs.numericCallbacks += v.TriggerUpdate;
+                    rhs.numericCallbacks += v.TriggerUpdate;
                     break;
                 case CodeGen.Parser.LuaToken.LESS_THAN:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() < rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() < rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
+                    lhs.numericCallbacks += v.TriggerUpdate;
+                    rhs.numericCallbacks += v.TriggerUpdate;
                     break;
                 case CodeGen.Parser.LuaToken.GREATER_THAN:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() > rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() > rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
+                    lhs.numericCallbacks += v.TriggerUpdate;
+                    rhs.numericCallbacks += v.TriggerUpdate;
                     break;
                 case CodeGen.Parser.LuaToken.EQUALITY:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() == rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() == rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
+                    lhs.numericCallbacks += v.TriggerUpdate;
+                    rhs.numericCallbacks += v.TriggerUpdate;
                     break;
                 case CodeGen.Parser.LuaToken.INEQUALITY:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() != rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() != rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
+                    lhs.numericCallbacks += v.TriggerUpdate;
+                    rhs.numericCallbacks += v.TriggerUpdate;
                     break;
                 case CodeGen.Parser.LuaToken.LESS_EQUAL:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() <= rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() <= rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
+                    lhs.numericCallbacks += v.TriggerUpdate;
+                    rhs.numericCallbacks += v.TriggerUpdate;
                     break;
                 case CodeGen.Parser.LuaToken.GREATER_EQUAL:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() >= rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() >= rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
+                    lhs.numericCallbacks += v.TriggerUpdate;
+                    rhs.numericCallbacks += v.TriggerUpdate;
                     break;
                 case CodeGen.Parser.LuaToken.AND:
-                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.BoolValue() && rhs.BoolValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Func);
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.BoolValue() && rhs.BoolValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
+                    lhs.numericCallbacks += v.TriggerUpdate;
+                    rhs.numericCallbacks += v.TriggerUpdate;
                     break;
                 default:
 #if PLENTIFUL_LOGGING
@@ -508,7 +539,9 @@ namespace AvionicsSystems
                     Variable v = GenerateVariable(right);
                     if (v != null)
                     {
-                        return new Variable(prefixExpression.CanonicalName(), () => -v.SafeValue(), true, true, Variable.VariableType.Func);
+                        Variable newVar = new Variable(prefixExpression.CanonicalName(), () => -v.SafeValue(), true, true, Variable.VariableType.Dependent);
+                        v.numericCallbacks += newVar.TriggerUpdate;
+                        return newVar;
                     }
                 }
             }
@@ -566,7 +599,8 @@ namespace AvionicsSystems
                 {
                     bool cacheable = true;
                     bool mutable = true;
-                    bool pushable = false;
+                    bool dependent = false;
+
                     object[] attrs = method.GetCustomAttributes(typeof(MASProxyAttribute), true);
                     if (attrs.Length > 0)
                     {
@@ -574,7 +608,7 @@ namespace AvionicsSystems
                         {
                             cacheable = !(attrs[i] as MASProxyAttribute).Uncacheable;
                             mutable = !(attrs[i] as MASProxyAttribute).Immutable;
-                            pushable = (attrs[i] as MASProxyAttribute).Pushable;
+                            dependent = (attrs[i] as MASProxyAttribute).Dependent;
                         }
                     }
                     ParameterInfo[] methodParams = method.GetParameters();
@@ -594,7 +628,12 @@ namespace AvionicsSystems
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
                             Func<object, double, object> dm = DynamicMethodFactory.CreateDynFunc<object, double, object>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue()), cacheable, mutable, Variable.VariableType.Func);
+                            Variable newVar = new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
+                            if (dependent)
+                            {
+                                parms[0].numericCallbacks += newVar.TriggerUpdate;
+                            }
+                            return newVar;
                         }
                         else if (methodParams[0].ParameterType == typeof(string))
                         {
@@ -602,11 +641,6 @@ namespace AvionicsSystems
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
                             Func<object, string, object> dm = DynamicMethodFactory.CreateDynFunc<object, string, object>(method);
-                            //if (!parms[0].mutable && pushable)
-                            //{
-                            //    Utility.LogMessage(this, "--- GenerateCallVariable(): Found a candidate for pushable variable: {0} using {1}",
-                            //        canonical,parms[0].String());
-                            //}
                             return new Variable(canonical, () => dm(tableInstance, parms[0].String()), cacheable, mutable, Variable.VariableType.Func);
                         }
                         else if (methodParams[0].ParameterType == typeof(bool))
@@ -615,7 +649,12 @@ namespace AvionicsSystems
                             Utility.LogMessage(this, "--- GenerateCallVariable(): Creating variable for {0}, with 1 parameter of type {1}", canonical, methodParams[0].ParameterType);
 #endif
                             Func<object, bool, object> dm = DynamicMethodFactory.CreateDynFunc<object, bool, object>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].BoolValue()), cacheable, mutable, Variable.VariableType.Func);
+                            Variable newVar = new Variable(canonical, () => dm(tableInstance, parms[0].BoolValue()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
+                            if (dependent)
+                            {
+                                parms[0].numericCallbacks += newVar.TriggerUpdate;
+                            }
+                            return newVar;
                         }
                         else if (methodParams[0].ParameterType == typeof(object))
                         {
@@ -635,17 +674,35 @@ namespace AvionicsSystems
                         if (methodParams[0].ParameterType == typeof(double) && methodParams[1].ParameterType == typeof(double))
                         {
                             Func<object, double, double, object> dm = DynamicMethodFactory.CreateFunc<object, double, double, object>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].SafeValue()), cacheable, mutable, Variable.VariableType.Func);
+                            Variable newVar = new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].SafeValue()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
+                            if (dependent)
+                            {
+                                parms[0].numericCallbacks += newVar.TriggerUpdate;
+                                parms[1].numericCallbacks += newVar.TriggerUpdate;
+                            }
+                            return newVar;
                         }
                         else if (methodParams[0].ParameterType == typeof(bool) && methodParams[1].ParameterType == typeof(double))
                         {
                             Func<object, bool, double, object> dm = DynamicMethodFactory.CreateFunc<object, bool, double, object>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].BoolValue(), parms[1].SafeValue()), cacheable, mutable, Variable.VariableType.Func);
+                            Variable newVar = new Variable(canonical, () => dm(tableInstance, parms[0].BoolValue(), parms[1].SafeValue()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
+                            if (dependent)
+                            {
+                                parms[0].numericCallbacks += newVar.TriggerUpdate;
+                                parms[1].numericCallbacks += newVar.TriggerUpdate;
+                            }
+                            return newVar;
                         }
                         else if (methodParams[0].ParameterType == typeof(double) && methodParams[1].ParameterType == typeof(bool))
                         {
                             Func<object, double, bool, object> dm = DynamicMethodFactory.CreateFunc<object, double, bool, object>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].BoolValue()), cacheable, mutable, Variable.VariableType.Func);
+                            Variable newVar = new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].BoolValue()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
+                            if (dependent)
+                            {
+                                parms[0].numericCallbacks += newVar.TriggerUpdate;
+                                parms[1].numericCallbacks += newVar.TriggerUpdate;
+                            }
+                            return newVar;
                         }
                         else
                         {
@@ -657,7 +714,14 @@ namespace AvionicsSystems
                         if (methodParams[0].ParameterType == typeof(double) && methodParams[1].ParameterType == typeof(double) && methodParams[2].ParameterType == typeof(double))
                         {
                             Func<object, double, double, double, object> dm = DynamicMethodFactory.CreateFunc<object, double, double, double, object>(method);
-                            return new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].SafeValue(), parms[2].SafeValue()), cacheable, mutable, Variable.VariableType.Func);
+                            Variable newVar = new Variable(canonical, () => dm(tableInstance, parms[0].SafeValue(), parms[1].SafeValue(), parms[2].SafeValue()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
+                            if (dependent)
+                            {
+                                parms[0].numericCallbacks += newVar.TriggerUpdate;
+                                parms[1].numericCallbacks += newVar.TriggerUpdate;
+                                parms[2].numericCallbacks += newVar.TriggerUpdate;
+                            }
+                            return newVar;
                         }
                         else if (methodParams[0].ParameterType == typeof(string) && methodParams[1].ParameterType == typeof(double) && methodParams[2].ParameterType == typeof(double))
                         {
@@ -679,10 +743,32 @@ namespace AvionicsSystems
                             Utility.LogWarning(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0}, with parameters {1}, {2}, and {3}.  Falling back to Lua.", canonical, methodParams[0].ParameterType, methodParams[1].ParameterType, methodParams[2].ParameterType);
                         }
                     }
+                    else if (numArgs == 4)
+                    {
+                        DynamicMethodDelegate dm = DynamicMethodFactory.CreateFunc(method);
+                        Variable newVar = new Variable(canonical, () => dm(tableInstance, new object[] { parms[0].RawValue(), parms[1].RawValue(), parms[2].RawValue(), parms[3].RawValue() }), cacheable, mutable, Variable.VariableType.Func);
+                        if (dependent)
+                        {
+                            parms[0].numericCallbacks += newVar.TriggerUpdate;
+                            parms[1].numericCallbacks += newVar.TriggerUpdate;
+                            parms[2].numericCallbacks += newVar.TriggerUpdate;
+                            parms[3].numericCallbacks += newVar.TriggerUpdate;
+                        }
+                        return newVar;
+                    }
                     else if (numArgs == 5)
                     {
                         DynamicMethodDelegate dm = DynamicMethodFactory.CreateFunc(method);
-                        return new Variable(canonical, () => dm(tableInstance, new object[] { parms[0].RawValue(), parms[1].RawValue(), parms[2].RawValue(), parms[3].RawValue(), parms[4].RawValue() }), cacheable, mutable, Variable.VariableType.Func);
+                        Variable newVar = new Variable(canonical, () => dm(tableInstance, new object[] { parms[0].RawValue(), parms[1].RawValue(), parms[2].RawValue(), parms[3].RawValue(), parms[4].RawValue() }), cacheable, mutable, Variable.VariableType.Func);
+                        if (dependent)
+                        {
+                            parms[0].numericCallbacks += newVar.TriggerUpdate;
+                            parms[1].numericCallbacks += newVar.TriggerUpdate;
+                            parms[2].numericCallbacks += newVar.TriggerUpdate;
+                            parms[3].numericCallbacks += newVar.TriggerUpdate;
+                            parms[4].numericCallbacks += newVar.TriggerUpdate;
+                        }
+                        return newVar;
                     }
                     else
                     {
@@ -834,17 +920,38 @@ namespace AvionicsSystems
             // Lua-native results
             private DynValue luaValue;
             internal readonly VariableType variableType = VariableType.Unknown;
+            private bool triggerUpdate;
 
             /// <summary>
             /// How do we evaluate this variable?
             /// </summary>
             public enum VariableType
             {
+                /// <summary>
+                /// Invalid type
+                /// </summary>
                 Unknown,
+                /// <summary>
+                /// Complex Lua script
+                /// </summary>
                 LuaScript,
+                /// <summary>
+                /// Simple Lua closure
+                /// </summary>
                 LuaClosure,
+                /// <summary>
+                /// Constant numeric or string value
+                /// </summary>
                 Constant,
+                /// <summary>
+                /// A lambda expression whose results are non-deterministic (does not depend on inputs)
+                /// </summary>
                 Func,
+                /// <summary>
+                /// A lambda expression whose results are always wholly dependent on the input(s), and thus
+                /// does not need to be evaluated on every FixedUpdate.
+                /// </summary>
+                Dependent,
             };
 
             /// <summary>
@@ -864,7 +971,6 @@ namespace AvionicsSystems
                 this.cacheable = true;
                 this.mutable = false;
                 this.luaValue = DynValue.NewBoolean(value);
-                //this.invariant = true;
             }
 
             /// <summary>
@@ -1060,6 +1166,12 @@ namespace AvionicsSystems
                         doubleValue = double.NaN;
                         safeValue = 0.0;
                         luaValue = DynValue.NewString(stringValue);
+                        // Note - this is primarily for Dependent variables who
+                        // don't care about safeValue.
+                        if (numericCallbacks != null)
+                        {
+                            numericCallbacks.Invoke(safeValue);
+                        }
                     }
                     else if (value is bool)
                     {
@@ -1123,6 +1235,26 @@ namespace AvionicsSystems
 
                     ProcessObject(value);
                 }
+                else if (variableType == VariableType.Dependent && triggerUpdate)
+                {
+                    triggerUpdate = false;
+
+                    object value = nativeEvaluator();
+
+                    ProcessObject(value);
+                }
+            }
+
+            /// <summary>
+            /// Only a Dependent variable uses this method.  When a depedenent variable is created,
+            /// this callback is registered with the numeric callback of the source variable(s) so
+            /// that the dependent variable is notified when a source value has changed, thus triggering
+            /// its own update (and those of any down-stream dependent variables).
+            /// </summary>
+            /// <param name="unused"></param>
+            public void TriggerUpdate(double unused)
+            {
+                triggerUpdate = true;
             }
         }
     }
