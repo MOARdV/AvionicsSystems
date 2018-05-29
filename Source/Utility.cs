@@ -127,9 +127,12 @@ namespace AvionicsSystems
         /// <param name="values"></param>
         internal static void LogStaticWarning(string format, params object[] values)
         {
-            logSb.Remove(0, logSb.Length);
-            logSb.Append("[AvionicsSystems] ").AppendFormat(format, values);
-            UnityEngine.Debug.LogWarning(logSb.ToString());
+            if (MASConfig.VerboseLogging)
+            {
+                logSb.Remove(0, logSb.Length);
+                logSb.Append("[AvionicsSystems] ").AppendFormat(format, values);
+                UnityEngine.Debug.LogWarning(logSb.ToString());
+            }
         }
 
         /// <summary>
@@ -140,14 +143,17 @@ namespace AvionicsSystems
         /// <param name="values"></param>
         internal static void LogWarning(object who, string format, params object[] values)
         {
-            logSb.Remove(0, logSb.Length);
-            logSb.Append("[").Append(who.GetType().Name).Append("] ").AppendFormat(format, values);
+            if (MASConfig.VerboseLogging)
+            {
+                logSb.Remove(0, logSb.Length);
+                logSb.Append("[").Append(who.GetType().Name).Append("] ").AppendFormat(format, values);
 
-            UnityEngine.Debug.LogWarning(logSb.ToString());
+                UnityEngine.Debug.LogWarning(logSb.ToString());
+            }
         }
 
         /// <summary>
-        /// Log an error
+        /// Log an error.  Never suppressed.
         /// </summary>
         /// <param name="format"></param>
         /// <param name="values"></param>
@@ -159,7 +165,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Log an error associated with an object
+        /// Log an error associated with an object.  Never suppressed.
         /// </summary>
         /// <param name="who"></param>
         /// <param name="format"></param>
