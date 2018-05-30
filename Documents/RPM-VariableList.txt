@@ -3,13 +3,11 @@ most of the variables in RasterPropMonitor, along with the MAS equivalent.  I'm 
 as a master list of how much work I still need to do, although it doubles as a handy
 translation guide for anyone else who needs it.
 
-Incomplete variables (to-do list): 42 variables
+Incomplete variables (to-do list): 40 variables
 "BESTSPEEDATIMPACT":
 "BIOMEID":
 "BIOMENAME":
 "CURRENTINTAKEAIRFLOW":
-"EFFECTIVERAWTHROTTLE":
-"EFFECTIVETHROTTLE":
 "FUNDS":
 "HOTTESTPARTMAXTEMP":
 "HOTTESTPARTNAME":
@@ -92,8 +90,8 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "EASPEED": fc.EquivalentAirspeed()
 "ECCENTRICITY": fc.Eccentricity()
 "EFFECTIVEACCEL": fc.Acceleration()
-"EFFECTIVERAWTHROTTLE":
-"EFFECTIVETHROTTLE":
+"EFFECTIVERAWTHROTTLE": fc.CurrentThrust(false)
+"EFFECTIVETHROTTLE": fc.CurrentThrust(true)
 "ELECOUTPUTALTERNATOR": fc.AlternatorOutput()
 "ELECOUTPUTFUELCELL": fc.FuelCellOutput()
 "ELECOUTPUTGENERATOR": fc.GeneratorOutput()
