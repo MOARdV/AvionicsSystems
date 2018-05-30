@@ -77,7 +77,8 @@ namespace AvionicsSystems
                 case "VIEWPORT":
                     return new MASPageViewport(config, prop, comp, monitor, pageRoot, depth);
                 default:
-                    throw new ArgumentException("Unrecognized MASPage child node " + config.name);
+                    Utility.LogError(config, "Unrecognized MASPage child node {0} found", config.name);
+                    return null;
             }
         }
 
@@ -129,8 +130,12 @@ namespace AvionicsSystems
             int numComponents = components.Length;
             for (int i = 0; i < numComponents; ++i)
             {
-                component.Add(CreatePageComponent(components[i], prop, comp, monitor, pageRoot.transform, depth));
-                depth -= MASMonitor.depthDelta;
+                var pageComponent = CreatePageComponent(components[i], prop, comp, monitor, pageRoot.transform, depth);
+                if (pageComponent != null)
+                {
+                    component.Add(pageComponent);
+                    depth -= MASMonitor.depthDelta;
+                }
             }
         }
 
