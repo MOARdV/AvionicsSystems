@@ -23,6 +23,7 @@
  * 
  ****************************************************************************/
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -111,8 +112,28 @@ namespace AvionicsSystems
                 rangeMode = false;
             }
 
+            comp.StartCoroutine(DelayedRegistration(prop, comp));
+        }
+
+        /// <summary>
+        /// This is a workaround.  The problem is that MODEL_SCALE changes the scale of
+        /// its affected transform, which also affects child transforms.  When a TEXT_LABEL
+        /// is attached to one of the child transforms, the scaling from this node can affect
+        /// where that child node is placed.  So, instead of initializing localScale and
+        /// creating the callback during the constructor, we delay that final initialization
+        /// using a coroutine.
+        /// </summary>
+        /// <param name="prop">The prop this node is attached to.</param>
+        /// <param name="comp">The flight computer.</param>
+        /// <returns>yields immediate for the next FixedUpdate.</returns>
+        private IEnumerator DelayedRegistration(InternalProp prop, MASFlightComputer comp)
+        {
+            yield return MASConfig.waitForFixedUpdate;
+
             this.transform.localScale = startScale;
             comp.RegisterNumericVariable(variableName, prop, VariableCallback);
+
+            yield return null;
         }
 
         /// <summary>
