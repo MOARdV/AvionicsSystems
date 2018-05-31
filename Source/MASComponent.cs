@@ -98,7 +98,7 @@ namespace AvionicsSystems
                 MASFlightComputer comp = MASFlightComputer.Instance(internalProp.part);
                 if (comp == null)
                 {
-                    throw new ArgumentNullException("Unable to find ASFlightComputer in part - please check part configs");
+                    throw new ArgumentNullException("Unable to find MASFlightComputer in part - please check part configs");
                 }
 
                 ConfigNode moduleConfig = Utility.GetPropModuleConfigNode(internalProp.propName, ClassName);
