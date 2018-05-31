@@ -759,30 +759,28 @@ namespace AvionicsSystems
                             Utility.LogWarning(this, "!!! GenerateCallVariable(): Don't know how to create variable for {0}, with parameters {1}, {2}, and {3}.  Falling back to Lua.", canonical, methodParams[0].ParameterType, methodParams[1].ParameterType, methodParams[2].ParameterType);
                         }
                     }
-                    else if (numArgs == 4)
+                    else if (numArgs >= 4)
                     {
+                        // Support any arbitrary number of arguments.
                         DynamicMethodDelegate dm = DynamicMethodFactory.CreateFunc(method);
-                        Variable newVar = new Variable(canonical, () => dm(tableInstance, new object[] { parms[0].RawValue(), parms[1].RawValue(), parms[2].RawValue(), parms[3].RawValue() }), cacheable, mutable, Variable.VariableType.Func);
+
+                        Variable newVar = new Variable(canonical, () =>
+                            {
+                                object[] paramList = new object[numArgs];
+                                for (int i = 0; i < numArgs; ++i)
+                                {
+                                    paramList[i] = parms[i].RawValue();
+                                }
+                                return dm(tableInstance, paramList);
+                            }
+                            , cacheable, mutable, Variable.VariableType.Func);
+
                         if (dependent)
                         {
-                            parms[0].numericCallbacks += newVar.TriggerUpdate;
-                            parms[1].numericCallbacks += newVar.TriggerUpdate;
-                            parms[2].numericCallbacks += newVar.TriggerUpdate;
-                            parms[3].numericCallbacks += newVar.TriggerUpdate;
-                        }
-                        return newVar;
-                    }
-                    else if (numArgs == 5)
-                    {
-                        DynamicMethodDelegate dm = DynamicMethodFactory.CreateFunc(method);
-                        Variable newVar = new Variable(canonical, () => dm(tableInstance, new object[] { parms[0].RawValue(), parms[1].RawValue(), parms[2].RawValue(), parms[3].RawValue(), parms[4].RawValue() }), cacheable, mutable, Variable.VariableType.Func);
-                        if (dependent)
-                        {
-                            parms[0].numericCallbacks += newVar.TriggerUpdate;
-                            parms[1].numericCallbacks += newVar.TriggerUpdate;
-                            parms[2].numericCallbacks += newVar.TriggerUpdate;
-                            parms[3].numericCallbacks += newVar.TriggerUpdate;
-                            parms[4].numericCallbacks += newVar.TriggerUpdate;
+                            for (int i = 0; i < numArgs; ++i)
+                            {
+                                parms[i].numericCallbacks += newVar.TriggerUpdate;
+                            }
                         }
                         return newVar;
                     }
