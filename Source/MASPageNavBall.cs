@@ -164,7 +164,7 @@ namespace AvionicsSystems
             }
 
             // Set up our navball renderer
-            Shader displayShader = Shader.Find("KSP/Alpha/Unlit Transparent");
+            Shader displayShader = MASLoader.shaders["MOARdV/Monitor"];
             navballRenTex = new RenderTexture(512, 512, 24, RenderTextureFormat.ARGB32);
             navballRenTex.Create();
             navballRenTex.DiscardContents();

@@ -119,7 +119,7 @@ namespace AvionicsSystems
             int numVertices = vertexStrings.Length;
             vertices = new Vector3[numVertices];
 
-            polygonMaterial = new Material(Shader.Find("KSP/Alpha/Unlit Transparent"));
+            polygonMaterial = new Material(MASLoader.shaders["MOARdV/Monitor"]);
             polygonMaterial.color = color;
             meshRenderer.material = polygonMaterial;
 

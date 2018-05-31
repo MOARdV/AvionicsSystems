@@ -177,7 +177,7 @@ namespace AvionicsSystems
             mesh.RecalculateBounds();
             mesh.UploadMeshData(true);
             meshFilter.mesh = mesh;
-            imageMaterial = new Material(Shader.Find("KSP/Alpha/Unlit Transparent"));
+            imageMaterial = new Material(MASLoader.shaders["MOARdV/Monitor"]);
             imageMaterial.mainTexture = mainTexture;
             imageMaterial.mainTextureScale = new Vector2(1.00f, textureSpan);
             meshRenderer.material = imageMaterial;
