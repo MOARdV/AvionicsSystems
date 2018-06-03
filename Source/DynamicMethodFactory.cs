@@ -104,6 +104,74 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Create a delegate who takes a single parameter and returns nothing.
+        /// </summary>
+        /// <typeparam name="T">Type of the first/only parameter.</typeparam>
+        /// <param name="methodInfo">MethodInfo describing the method we're calling.</param>
+        /// <returns>Action delegate</returns>
+        static internal Action<T> CreateAction<T>(MethodInfo methodInfo)
+        {
+            // Up front validation:
+            ParameterInfo[] parms = methodInfo.GetParameters();
+            if (methodInfo.IsStatic)
+            {
+                if (parms.Length != 1)
+                {
+                    throw new ArgumentException("CreateAction<T> called with static method that takes " + parms.Length + " parameters");
+                }
+
+                //if (typeof(T) != parms[0].ParameterType)
+                //{
+                //    // What to do?
+                //}
+            }
+            else
+            {
+                if (parms.Length != 0)
+                {
+                    throw new ArgumentException("CreateAction<T> called with non-static method that takes " + parms.Length + " parameters");
+                }
+                // How do I validate T?
+                //if (typeof(T) != parms[0].ParameterType)
+                //{
+                //    // What to do?
+                //}
+            }
+
+            Type[] _argTypes = { typeof(T) };
+
+            // Create dynamic method and obtain its IL generator to
+            // inject code.
+            DynamicMethod dynam =
+                new DynamicMethod(
+                "", // name - don't care
+                typeof(void), // return type
+                _argTypes, // argument types
+                typeof(DynamicMethodFactory));
+            ILGenerator il = dynam.GetILGenerator();
+
+            il.Emit(OpCodes.Ldarg_0);
+
+            // Perform actual call.
+            // If method is not final a callvirt is required
+            // otherwise a normal call will be emitted.
+            if (methodInfo.IsFinal)
+            {
+                il.Emit(OpCodes.Call, methodInfo);
+            }
+            else
+            {
+                il.Emit(OpCodes.Callvirt, methodInfo);
+            }
+
+            // Emit return opcode.
+            il.Emit(OpCodes.Ret);
+
+
+            return (Action<T>)dynam.CreateDelegate(typeof(Action<T>));
+        }
+
+        /// <summary>
         /// Create a delegate who takes a single parameter and returns an object of TResult.
         /// </summary>
         /// <typeparam name="T">Type of the first/only parameter.</typeparam>
@@ -121,10 +189,10 @@ namespace AvionicsSystems
                     throw new ArgumentException("CreateFunc<T, TResult> called with static method that takes " + parms.Length + " parameters");
                 }
 
-                if (typeof(T) != parms[0].ParameterType)
-                {
-                    // What to do?
-                }
+                //if (typeof(T) != parms[0].ParameterType)
+                //{
+                //    // What to do?
+                //}
             }
             else
             {
@@ -192,6 +260,80 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Create a delegate who takes a two parameters and returns nothing.
+        /// </summary>
+        /// <typeparam name="T">Type of the first parameter.</typeparam>
+        /// <typeparam name="U">Type of the second parameter.</typeparam>
+        /// <param name="methodInfo">MethodInfo describing the method we're calling.</param>
+        /// <returns>Action delegate</returns>
+        static internal Action<T, U> CreateAction<T, U>(MethodInfo methodInfo)
+        {
+            // Up front validation:
+            ParameterInfo[] parms = methodInfo.GetParameters();
+            if (methodInfo.IsStatic)
+            {
+                if (parms.Length != 2)
+                {
+                    throw new ArgumentException("CreateAction<T,U> called with static method that takes " + parms.Length + " parameters");
+                }
+
+                //if (typeof(T) != parms[0].ParameterType)
+                //{
+                //    // What to do?
+                //}
+                //if (typeof(U) != parms[1].ParameterType)
+                //{
+                //    // What to do?
+                //}
+            }
+            else
+            {
+                if (parms.Length != 1)
+                {
+                    throw new ArgumentException("CreateAction<T,U> called with non-static method that takes " + parms.Length + " parameters");
+                }
+                // How do I validate T?
+                //if (typeof(T) != parms[0].ParameterType)
+                //{
+                //    // What to do?
+                //}
+            }
+
+            Type[] _argTypes = { typeof(T), typeof(U) };
+
+            // Create dynamic method and obtain its IL generator to
+            // inject code.
+            DynamicMethod dynam =
+                new DynamicMethod(
+                "", // name - don't care
+                typeof(void), // return type
+                _argTypes, // argument types
+                typeof(DynamicMethodFactory));
+            ILGenerator il = dynam.GetILGenerator();
+
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldarg_1);
+
+            // Perform actual call.
+            // If method is not final a callvirt is required
+            // otherwise a normal call will be emitted.
+            if (methodInfo.IsFinal)
+            {
+                il.Emit(OpCodes.Call, methodInfo);
+            }
+            else
+            {
+                il.Emit(OpCodes.Callvirt, methodInfo);
+            }
+
+            // Emit return opcode.
+            il.Emit(OpCodes.Ret);
+
+
+            return (Action<T,U>)dynam.CreateDelegate(typeof(Action<T,U>));
+        }
+
+        /// <summary>
         /// Create a function that takes two typed parameters and returns a TResult
         /// (which may be null if the method returns void).
         /// </summary>
@@ -211,14 +353,14 @@ namespace AvionicsSystems
                     throw new ArgumentException("CreateFunc<T, U, TResult> called with static method that takes " + parms.Length + " parameters");
                 }
 
-                if (typeof(T) != parms[0].ParameterType)
-                {
-                    // What to do?
-                }
-                if (typeof(U) != parms[1].ParameterType)
-                {
-                    // What to do?
-                }
+                //if (typeof(T) != parms[0].ParameterType)
+                //{
+                //    // What to do?
+                //}
+                //if (typeof(U) != parms[1].ParameterType)
+                //{
+                //    // What to do?
+                //}
             }
             else
             {
@@ -231,10 +373,10 @@ namespace AvionicsSystems
                 //{
                 //    // What to do?
                 //}
-                if (typeof(U) != parms[0].ParameterType)
-                {
-                    // What to do?
-                }
+                //if (typeof(U) != parms[0].ParameterType)
+                //{
+                //    // What to do?
+                //}
             }
 
             if (methodInfo.ReturnType != typeof(TResult) && typeof(TResult) != typeof(object))
@@ -309,18 +451,18 @@ namespace AvionicsSystems
                     throw new ArgumentException("CreateFunc<T, U, V, TResult> called with static method that takes " + parms.Length + " parameters");
                 }
 
-                if (typeof(T) != parms[0].ParameterType)
-                {
-                    throw new ArgumentException("CreateFunc<T, U, V, TResult> parameter [0] mismatch");
-                }
-                if (typeof(U) != parms[1].ParameterType)
-                {
-                    throw new ArgumentException("CreateFunc<T, U, V, TResult> parameter [1] mismatch");
-                }
-                if (typeof(V) != parms[2].ParameterType)
-                {
-                    throw new ArgumentException("CreateFunc<T, U, V, TResult> parameter [2] mismatch");
-                }
+                //if (typeof(T) != parms[0].ParameterType)
+                //{
+                //    throw new ArgumentException("CreateFunc<T, U, V, TResult> parameter [0] mismatch");
+                //}
+                //if (typeof(U) != parms[1].ParameterType)
+                //{
+                //    throw new ArgumentException("CreateFunc<T, U, V, TResult> parameter [1] mismatch");
+                //}
+                //if (typeof(V) != parms[2].ParameterType)
+                //{
+                //    throw new ArgumentException("CreateFunc<T, U, V, TResult> parameter [2] mismatch");
+                //}
             }
             else
             {
@@ -333,14 +475,14 @@ namespace AvionicsSystems
                 //{
                 //    // What to do?
                 //}
-                if (typeof(U) != parms[0].ParameterType)
-                {
-                    throw new ArgumentException("CreateFunc<T, U, V, TResult> parameter [0] mismatch");
-                }
-                if (typeof(V) != parms[1].ParameterType)
-                {
-                    throw new ArgumentException("CreateFunc<T, U, V, TResult> parameter [1] mismatch");
-                }
+                //if (typeof(U) != parms[0].ParameterType)
+                //{
+                //    throw new ArgumentException("CreateFunc<T, U, V, TResult> parameter [0] mismatch");
+                //}
+                //if (typeof(V) != parms[1].ParameterType)
+                //{
+                //    throw new ArgumentException("CreateFunc<T, U, V, TResult> parameter [1] mismatch");
+                //}
             }
 
             if (methodInfo.ReturnType != typeof(TResult) && typeof(TResult) != typeof(object))
@@ -418,22 +560,22 @@ namespace AvionicsSystems
                     throw new ArgumentException("CreateFunc<T, U, V, W, TResult> called with static method that takes " + parms.Length + " parameters");
                 }
 
-                if (typeof(T) != parms[0].ParameterType)
-                {
-                    throw new ArgumentException("CreateFunc<T, U, V, W, TResult> parameter [0] mismatch");
-                }
-                if (typeof(U) != parms[1].ParameterType)
-                {
-                    throw new ArgumentException("CreateFunc<T, U, V, W, TResult> parameter [1] mismatch");
-                }
-                if (typeof(V) != parms[2].ParameterType)
-                {
-                    throw new ArgumentException("CreateFunc<T, U, V, W, TResult> parameter [2] mismatch");
-                }
-                if (typeof(W) != parms[3].ParameterType)
-                {
-                    throw new ArgumentException("CreateFunc<T, U, V, W, TResult> parameter [3] mismatch");
-                }
+                //if (typeof(T) != parms[0].ParameterType)
+                //{
+                //    throw new ArgumentException("CreateFunc<T, U, V, W, TResult> parameter [0] mismatch");
+                //}
+                //if (typeof(U) != parms[1].ParameterType)
+                //{
+                //    throw new ArgumentException("CreateFunc<T, U, V, W, TResult> parameter [1] mismatch");
+                //}
+                //if (typeof(V) != parms[2].ParameterType)
+                //{
+                //    throw new ArgumentException("CreateFunc<T, U, V, W, TResult> parameter [2] mismatch");
+                //}
+                //if (typeof(W) != parms[3].ParameterType)
+                //{
+                //    throw new ArgumentException("CreateFunc<T, U, V, W, TResult> parameter [3] mismatch");
+                //}
             }
             else
             {
@@ -446,18 +588,18 @@ namespace AvionicsSystems
                 //{
                 //    // What to do?
                 //}
-                if (typeof(U) != parms[0].ParameterType)
-                {
-                    throw new ArgumentException("CreateFunc<T, U, V, W, TResult> parameter [0] mismatch");
-                }
-                if (typeof(V) != parms[1].ParameterType)
-                {
-                    throw new ArgumentException("CreateFunc<T, U, V, W, TResult> parameter [1] mismatch");
-                }
-                if (typeof(W) != parms[2].ParameterType)
-                {
-                    throw new ArgumentException("CreateFunc<T, U, V, W, TResult> parameter [2] mismatch");
-                }
+                //if (typeof(U) != parms[0].ParameterType)
+                //{
+                //    throw new ArgumentException("CreateFunc<T, U, V, W, TResult> parameter [0] mismatch");
+                //}
+                //if (typeof(V) != parms[1].ParameterType)
+                //{
+                //    throw new ArgumentException("CreateFunc<T, U, V, W, TResult> parameter [1] mismatch");
+                //}
+                //if (typeof(W) != parms[2].ParameterType)
+                //{
+                //    throw new ArgumentException("CreateFunc<T, U, V, W, TResult> parameter [2] mismatch");
+                //}
             }
 
             if (methodInfo.ReturnType != typeof(TResult) && typeof(TResult) != typeof(object))
