@@ -130,11 +130,27 @@ namespace AvionicsSystems
             int numComponents = components.Length;
             for (int i = 0; i < numComponents; ++i)
             {
-                var pageComponent = CreatePageComponent(components[i], prop, comp, monitor, pageRoot.transform, depth);
-                if (pageComponent != null)
+                try
                 {
-                    component.Add(pageComponent);
-                    depth -= MASMonitor.depthDelta;
+                    var pageComponent = CreatePageComponent(components[i], prop, comp, monitor, pageRoot.transform, depth);
+                    if (pageComponent != null)
+                    {
+                        component.Add(pageComponent);
+                        depth -= MASMonitor.depthDelta;
+                    }
+                }
+                catch(Exception e)
+                {
+                    string componentName = string.Empty;
+                    if (!config.TryGetValue("name", ref componentName))
+                    {
+                        componentName = "anonymous";
+                    }
+
+                    string error = string.Format("Error configuring MASPage " + name + " " + config.name + " " + componentName + ":");
+                    Utility.LogError(this, error);
+                    Utility.LogError(this, "{0}", e.ToString());
+                    Utility.ComplainLoudly(error);
                 }
             }
         }

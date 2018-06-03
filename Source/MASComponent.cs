@@ -111,11 +111,28 @@ namespace AvionicsSystems
                 ConfigNode[] actionNodes = moduleConfig.GetNodes();
                 for (int i = 0; i < actionNodes.Length; ++i)
                 {
-                    IMASSubComponent action = CreateAction(actionNodes[i], internalProp, comp);
-                    if (action != null)
+                    try
                     {
-                        ++nodeCount;
-                        actions.Add(action);
+                        IMASSubComponent action = CreateAction(actionNodes[i], internalProp, comp);
+                        if (action != null)
+                        {
+                            ++nodeCount;
+                            actions.Add(action);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        string componentName = string.Empty;
+                        if (!actionNodes[i].TryGetValue("name", ref componentName))
+                        {
+                            componentName = "anonymous";
+                        }
+
+                        string message = string.Format("Error configuring prop #{0} ({1})", internalProp.propID, internalProp.propName);
+                        Utility.LogError(this, message);
+                        Utility.LogError(this, "Error in " + actionNodes[i].name + " " + componentName + ":");
+                        Utility.LogError(this, "{0}", e.ToString());
+                        Utility.ComplainLoudly(message);
                     }
                 }
 
