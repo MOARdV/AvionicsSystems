@@ -142,6 +142,11 @@ namespace AvionicsSystems
         private MASITransfer transferProxy;
 
         /// <summary>
+        /// Instance of the VTOL manager proxy class.
+        /// </summary>
+        private MASIVTOL vtolProxy;
+
+        /// <summary>
         /// Have we initialized?
         /// </summary>
         internal bool initialized { get; private set; }
@@ -770,6 +775,7 @@ namespace AvionicsSystems
             kacProxy = null;
             parachuteProxy = null;
             transferProxy = null;
+            vtolProxy = null;
             if (initialized)
             {
                 Utility.LogMessage(this, "OnDestroy for {0}", flightComputerId);
@@ -782,13 +788,13 @@ namespace AvionicsSystems
                     UnregisterNumericVariable(powerOnVariable, null, UpdatePowerOnVariable);
                 }
 
-                Utility.LogInfo(this, "{3} variables created: {0} constant variables, {1} native variables, {2} Lua variables, and {4} dependent variables",
+                Utility.LogInfo(this, "{3} variables created: {0} constant variables, {1} lambda variables, {2} Lua variables, and {4} dependent variables",
                     constantVariableCount, nativeVariableCount, luaVariableCount, variables.Count, dependentVariableCount);
                 if (samplecount > 0)
                 {
                     double msPerFixedUpdate = 1000.0 * (double)(nativeStopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
                     double samplesPerMs = (double)nativeEvaluationCount / (1000.0 * (double)(nativeStopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
-                    Utility.LogInfo(this, "FixedUpdate native average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
+                    Utility.LogInfo(this, "FixedUpdate Lambda average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
 
                     msPerFixedUpdate = 1000.0 * (double)(luaStopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
                     samplesPerMs = (double)luaEvaluationCount / (1000.0 * (double)(luaStopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
@@ -877,6 +883,11 @@ namespace AvionicsSystems
                     script.Globals["transfer"] = transferProxy;
                     registeredTables.Add("transfer", new MASRegisteredTable(transferProxy));
 
+                    vtolProxy = new MASIVTOL();
+                    UserData.RegisterType<MASIVTOL>();
+                    script.Globals["vtol"] = vtolProxy;
+                    registeredTables.Add("vtol", new MASRegisteredTable(vtolProxy));
+
                     fcProxy = new MASFlightComputerProxy(this, farProxy, mjProxy);
                     UserData.RegisterType<MASFlightComputerProxy>();
                     script.Globals["fc"] = fcProxy;
@@ -941,13 +952,10 @@ namespace AvionicsSystems
                 fcProxy.vc = vc;
                 fcProxy.vessel = vessel;
                 engineProxy.vc = vc;
-
-                //farProxy.vessel = vessel;
-                //kacProxy.vessel = vessel;
                 mjProxy.UpdateVessel(vessel, vc);
                 parachuteProxy.vc = vc;
                 transferProxy.vc = vc;
-                //realChuteProxy.vessel = vessel;
+                vtolProxy.UpdateVessel(vessel);
 
                 // Add User scripts
                 try
@@ -1201,6 +1209,7 @@ namespace AvionicsSystems
                 parachuteProxy.vessel = vessel;
                 transferProxy.vc = vc;
                 transferProxy.vessel = vessel;
+                vtolProxy.UpdateVessel(vessel);
             }
             UpdateLocalCrew();
         }
