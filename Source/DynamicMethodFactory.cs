@@ -49,13 +49,13 @@ namespace AvionicsSystems
         /// Create a delegate that returns the value of a field reflected in FieldInfo.
         /// </summary>
         /// <typeparam name="Tinstance">Instance of the variable</typeparam>
-        /// <typeparam name="Return">Type to return</typeparam>
+        /// <typeparam name="TResult">Type to return</typeparam>
         /// <param name="field">FieldInfo for the field of interest.</param>
         /// <returns>A delegate to fetch the value.</returns>
-        static internal Func<Tinstance, Return> CreateGetField<Tinstance, Return>(FieldInfo field)
+        static internal Func<Tinstance, TResult> CreateGetField<Tinstance, TResult>(FieldInfo field)
         {
             string methodName = field.ReflectedType.FullName + ".get_" + field.Name;
-            DynamicMethod setterMethod = new DynamicMethod(methodName, typeof(Return), new Type[1] { typeof(Tinstance) }, true);
+            DynamicMethod setterMethod = new DynamicMethod(methodName, typeof(TResult), new Type[1] { typeof(Tinstance) }, true);
             ILGenerator gen = setterMethod.GetILGenerator();
             if (field.IsStatic)
             {
@@ -66,8 +66,14 @@ namespace AvionicsSystems
                 gen.Emit(OpCodes.Ldarg_0);
                 gen.Emit(OpCodes.Ldfld, field);
             }
+            // If result is of value type it needs to be boxed if
+            // we're returning a generic object
+            if (field.FieldType.IsValueType && typeof(TResult) == typeof(object))
+            {
+                gen.Emit(OpCodes.Box, field.FieldType);
+            }
             gen.Emit(OpCodes.Ret);
-            return (Func<Tinstance, Return>)setterMethod.CreateDelegate(typeof(Func<Tinstance, Return>));
+            return (Func<Tinstance, TResult>)setterMethod.CreateDelegate(typeof(Func<Tinstance, TResult>));
         }
 
         /// <summary>
