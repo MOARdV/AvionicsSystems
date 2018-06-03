@@ -45,22 +45,21 @@ namespace AvionicsSystems
         internal static readonly Type wbiVtolManager_t;
 
         // Initialization
-        private static readonly Func<object, Vessel, object> wbiFindControllers;
+        private static readonly Action<object, Vessel> wbiFindControllers;
 
         // Hover mode control
         private static readonly Func<object, bool> wbiGetHoverActive;
-        private static readonly Func<object, object> wbiToggleHover;
+        private static readonly Action<object> wbiToggleHover;
         private static readonly Func<object, float> wbiGetVerticalSpeed;
-        private static readonly Func<object, float, object> wbiDecreaseVerticalSpeed;
-        private static readonly Func<object, float, object> wbiIncreaseVerticalSpeed;
-        private static readonly Func<object, object> wbiKillVerticalSpeed;
+        private static readonly Action<object, float> wbiDecreaseVerticalSpeed;
+        private static readonly Action<object, float> wbiIncreaseVerticalSpeed;
+        private static readonly Action<object> wbiKillVerticalSpeed;
 
         // Thrust mode
-        private static readonly FieldInfo ThrustMode_t;
-        //private static readonly Func<object, object> wbiGetThrustMode;
-        private static readonly Func<object, object> wbiSetForwardThrust;
-        private static readonly Func<object, object> wbiSetReverseThrust;
-        private static readonly Func<object, object> wbiSetVTOLThrust;
+        private static readonly Func<object, object> wbiGetThrustMode;
+        private static readonly Action<object> wbiSetForwardThrust;
+        private static readonly Action<object> wbiSetReverseThrust;
+        private static readonly Action<object> wbiSetVTOLThrust;
 
         private object vtolManager;
         private Vessel vessel;
@@ -156,8 +155,7 @@ namespace AvionicsSystems
             object manager = GetVtolManager();
             if (manager != null)
             {
-                object mode = ThrustMode_t.GetValue(manager);
-                //object mode = wbiGetThrustMode(manager); // Direct call doesn't work...
+                object mode = wbiGetThrustMode(manager);
 
                 switch ((int)mode)
                 {
@@ -215,7 +213,7 @@ namespace AvionicsSystems
             object manager = GetVtolManager();
             if (manager != null)
             {
-                object currentModeO = ThrustMode_t.GetValue(manager);
+                object currentModeO = wbiGetThrustMode(manager);
                 int currentMode = (int)currentModeO;
                 int newMode = (int)mode;
 
@@ -269,7 +267,7 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Didn't find FindControllers");
                     return;
                 }
-                wbiFindControllers = DynamicMethodFactory.CreateDynFunc<object, Vessel, object>(FindControllers_t);
+                wbiFindControllers = DynamicMethodFactory.CreateAction<object, Vessel>(FindControllers_t);
 
                 // Hover
                 FieldInfo HoverActive_t = wbiVtolManager_t.GetField("hoverActive", BindingFlags.Instance | BindingFlags.Public);
@@ -286,7 +284,7 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Didn't find ToggleHover");
                     return;
                 }
-                wbiToggleHover = DynamicMethodFactory.CreateFunc<object, object>(ToggleHover_t);
+                wbiToggleHover = DynamicMethodFactory.CreateAction<object>(ToggleHover_t);
 
                 // VSpd
                 MethodInfo KillVerticalSpeed_t = wbiVtolManager_t.GetMethod("KillVerticalSpeed", BindingFlags.Instance | BindingFlags.Public);
@@ -295,7 +293,7 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Didn't find KillVerticalSpeed");
                     return;
                 }
-                wbiKillVerticalSpeed = DynamicMethodFactory.CreateFunc<object, object>(KillVerticalSpeed_t);
+                wbiKillVerticalSpeed = DynamicMethodFactory.CreateAction<object>(KillVerticalSpeed_t);
 
                 MethodInfo IncreaseVerticalSpeed_t = wbiVtolManager_t.GetMethod("IncreaseVerticalSpeed", BindingFlags.Instance | BindingFlags.Public);
                 if (IncreaseVerticalSpeed_t == null)
@@ -303,7 +301,7 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Didn't find IncreaseVerticalSpeed");
                     return;
                 }
-                wbiIncreaseVerticalSpeed = DynamicMethodFactory.CreateDynFunc<object, float, object>(IncreaseVerticalSpeed_t);
+                wbiIncreaseVerticalSpeed = DynamicMethodFactory.CreateAction<object, float>(IncreaseVerticalSpeed_t);
 
                 MethodInfo DecreaseVerticalSpeed_t = wbiVtolManager_t.GetMethod("DecreaseVerticalSpeed", BindingFlags.Instance | BindingFlags.Public);
                 if (DecreaseVerticalSpeed_t == null)
@@ -311,16 +309,16 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Didn't find DecreaseVerticalSpeed");
                     return;
                 }
-                wbiDecreaseVerticalSpeed = DynamicMethodFactory.CreateDynFunc<object, float, object>(DecreaseVerticalSpeed_t);
+                wbiDecreaseVerticalSpeed = DynamicMethodFactory.CreateAction<object, float>(DecreaseVerticalSpeed_t);
 
                 // Thrust mode
-                ThrustMode_t = wbiVtolManager_t.GetField("thrustMode", BindingFlags.Instance | BindingFlags.Public);
+                FieldInfo ThrustMode_t = wbiVtolManager_t.GetField("thrustMode", BindingFlags.Instance | BindingFlags.Public);
                 if (ThrustMode_t == null)
                 {
                     Utility.LogStaticError("Didn't find thrustMode");
                     return;
                 }
-                //wbiGetThrustMode = DynamicMethodFactory.CreateGetField<object, object>(ThrustMode_t);
+                wbiGetThrustMode = DynamicMethodFactory.CreateGetField<object, object>(ThrustMode_t);
 
                 MethodInfo SetForwardThrust_t = wbiVtolManager_t.GetMethod("SetForwardThrust", BindingFlags.Instance | BindingFlags.Public);
                 if (SetForwardThrust_t == null)
@@ -328,7 +326,7 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Didn't find SetForwardThrust");
                     return;
                 }
-                wbiSetForwardThrust = DynamicMethodFactory.CreateFunc<object, object>(SetForwardThrust_t);
+                wbiSetForwardThrust = DynamicMethodFactory.CreateAction<object>(SetForwardThrust_t);
 
                 MethodInfo SetReverseThrust_t = wbiVtolManager_t.GetMethod("SetReverseThrust", BindingFlags.Instance | BindingFlags.Public);
                 if (SetReverseThrust_t == null)
@@ -336,7 +334,7 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Didn't find SetReverseThrust");
                     return;
                 }
-                wbiSetReverseThrust = DynamicMethodFactory.CreateFunc<object, object>(SetReverseThrust_t);
+                wbiSetReverseThrust = DynamicMethodFactory.CreateAction<object>(SetReverseThrust_t);
 
                 MethodInfo SetVTOLThrust_t = wbiVtolManager_t.GetMethod("SetVTOLThrust", BindingFlags.Instance | BindingFlags.Public);
                 if (SetVTOLThrust_t == null)
@@ -344,7 +342,7 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Didn't find SetVTOLThrust");
                     return;
                 }
-                wbiSetVTOLThrust = DynamicMethodFactory.CreateFunc<object, object>(SetVTOLThrust_t);
+                wbiSetVTOLThrust = DynamicMethodFactory.CreateAction<object>(SetVTOLThrust_t);
 
                 FieldInfo VerticalSpeed_t = wbiVtolManager_t.GetField("verticalSpeed", BindingFlags.Instance | BindingFlags.Public);
                 if (VerticalSpeed_t == null)
