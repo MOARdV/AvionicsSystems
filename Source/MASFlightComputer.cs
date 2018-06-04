@@ -81,6 +81,9 @@ namespace AvionicsSystems
         public string powerOnVariable = string.Empty;
         internal bool powerOnValid = true;
 
+        [KSPField]
+        public string startupScript = string.Empty;
+
         /// <summary>
         /// Our module ID (so each FC can be distinguished in a save file).
         /// </summary>
@@ -1074,6 +1077,26 @@ namespace AvionicsSystems
                 if (!string.IsNullOrEmpty(powerOnVariable))
                 {
                     RegisterNumericVariable(powerOnVariable, null, UpdatePowerOnVariable);
+                }
+
+                // All the things are initialized ... Let's see if there's a startupScript
+                if (!string.IsNullOrEmpty(startupScript))
+                {
+                    DynValue dv = script.LoadString(startupScript);
+
+                    if (dv.IsNil() == false)
+                    {
+                        try
+                        {
+                            script.Call(dv);
+                        }
+                        catch (Exception e)
+                        {
+                            Utility.ComplainLoudly("MASFlightComputer startupScript triggered an exception");
+                            Utility.LogError(this, "MASFlightComputer startupScript triggered an exception:");
+                            Utility.LogError(this, e.ToString());
+                        }
+                    }
                 }
 
                 initialized = true;
