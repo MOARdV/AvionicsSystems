@@ -705,6 +705,193 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
+        /// The Resource Converter category allows an IVA creator to register to track specific resources
+        /// converters (ModuleResourceConverter) that are of interest to the IVA.  By default, the
+        /// MASFlightComputer installs a Resource Converter tracker for "ElectricCharge" (or whatever
+        /// override resource is configured in the persistent file) as `id` number 0.  This tracker
+        /// is used to provide information for the Fuel Cell functions (FuelCellCount(), etc).
+        /// 
+        /// Any number of trackers may be installed.  The only requirement is that each must be given a
+        /// unique `id` that is a positive integer (1 or higher).  When assigning a ModuleResourceConverter
+        /// that has multiple outputs to a group, MAS will place it in the group with the highest `id`.
+        /// 
+        /// For example, say a ModuleResourceConverter took "Water" as an input, and it generated "LqdHydrogen"
+        /// and "Oxidizer" for output.  If Resource Converter group 1 tracked "LqdHydrogen" output and group 2
+        /// tracked "Oxidizer", then this resource converter would be assigned to group 2, since it is the
+        /// highest priority resource of the two listed.
+        /// 
+        /// If an IVA tries to register more than one resource type to the same `id`, only the first
+        /// one found will be registered.  For instance, if a MASFlightComputer script attempts to
+        /// call `fc.TrackResourceConverter(1, "LqdHydrogen")` and then calls `fc.TrackResourceConverter(1, "Oxidizer")`,
+        /// then group 1 will track "LqdHydrogen".  MAS will return a -1 on the second call to indicate that
+        /// the requested group id is already in use with a different resource.
+        /// </summary>
+        #region Resource Converter
+        /// <summary>
+        /// Returns 1 if at least one resource converter in the group selected by `id` is enabled; 0 otherwise.
+        /// </summary>
+        /// <param name="id">The id number of the resource converter group to query.  Must be an integer 0 or larger.</param>
+        /// <returns>1 if any selected resource converter is switched on; 0 otherwise.</returns>
+        public double GetResourceConverterActive(double id)
+        {
+            int idNum = (int)id;
+
+            var rc = vc.resourceConverterList.Find(x => x.id == idNum);
+            if (rc != null)
+            {
+                return (rc.converterActive) ? 1.0 : 0.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the number of resource converters that generate the output selected by the
+        /// resource converter group `id`.
+        /// </summary>
+        /// <param name="id">The id number of the resource converter group to query.  Must be an integer 0 or larger.</param>
+        /// <returns></returns>
+        public double ResourceConverterCount(double id)
+        {
+            int idNum = (int)id;
+
+            var rc = vc.resourceConverterList.Find(x => x.id == idNum);
+            if (rc != null)
+            {
+                return rc.moduleConverter.Length;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the current output of installed fuel cells.
+        /// </summary>
+        /// <param name="id">The id number of the resource converter group to query.  Must be an integer 0 or larger.</param>
+        /// <returns>Units of the resource generated per second.</returns>
+        public double ResourceConverterOutput(double id)
+        {
+            int idNum = (int)id;
+
+            var rc = vc.resourceConverterList.Find(x => x.id == idNum);
+            if (rc != null)
+            {
+                return rc.netOutput;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Toggles the resource converter group selected by `id` on or off.
+        /// </summary>
+        /// <param name="id">The id number of the resource converter group to query.  Must be an integer 0 or larger.</param>
+        /// <returns>1 if resource converters are now active, 0 if they're off or they could not be toggled.</returns>
+        public double ToggleResourceConverterActive(double id)
+        {
+            int idNum = (int)id;
+
+            var rc = vc.resourceConverterList.Find(x => x.id == idNum);
+            if (rc != null)
+            {
+                bool state = !rc.converterActive;
+                bool anyChanged = false;
+                for (int i = rc.moduleConverter.Length - 1; i >= 0; --i)
+                {
+                    if (!rc.moduleConverter[i].AlwaysActive)
+                    {
+                        anyChanged = true;
+                        if (state)
+                        {
+                            rc.moduleConverter[i].StartResourceConverter();
+                        }
+                        else
+                        {
+                            rc.moduleConverter[i].StopResourceConverter();
+                        }
+                    }
+                }
+
+                return (state && anyChanged) ? 1.0 : 0.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Registers a family of Resource Converters with MAS.  A resource converter is defined by two components:
+        /// the `id` and the `resourceName`.
+        /// 
+        /// The `id` defines the priority, with larger numbers indicating
+        /// a higher priority.  When a specific ModuleResourceConverter has more than one output,
+        /// MAS will add the module to the highest-priority tracked resource converter.
+        /// 
+        /// For example, if a particular resource converter outputs "LiquidFuel" and "Oxidizer", and
+        /// "LiquidFuel" is registered as `id = 1`, and "Oxidizer" is registered as `id = 2`, then MAS
+        /// will treat that resource converter as `id = 2` with an "Oxidizer" output.
+        /// 
+        /// If more than one call to `TrackResourceConverter` uses the same `id` with different `resourceName`
+        /// values, only the first such call applies.  Additional calls using a different `resourceName` will
+        /// have no effect, and `TrackResourceConverter()` will return -1.
+        /// 
+        /// `id` must be a positive number.  `id = 0` is reserved for "ElectricCharge", which corresponds with
+        /// the Fuel Cell methods.  If a call to `TrackResourceConverter` uses "ElectricCharge" with an `id`
+        /// greater than zero, then the Fuel Cell methods will behave as if no fuel cells
+        /// are installed.
+        /// 
+        /// The `resourceName` must be one of the `name` fields for a `RESOURCE_DEFINITION`, such as
+        /// "ElectricCharge" in GameData/Squad/Resources/ResourcesGeneric.cfg.  If an invalid `resourceName`
+        /// is provided (for instance, if it is for a resource included in a mod that is not installed),
+        /// there are no errors - MAS behaves as if there are no relevant resource converters.
+        /// 
+        /// </summary>
+        /// <param name="id">The id number to assign to this resource.  Must be an integer 1 or larger.</param>
+        /// <param name="resourceName">The name of the resource (from the `name` field of a RESOURCE_DEFINITION).</param>
+        /// <returns>1 if the converter was registered (or was already registered with the same id), -1 if a resource converter was registered using that `id` with a different `resourceName`,
+        /// and 0 if an invalid `id` was provided.</returns>
+        public double TrackResourceConverter(double id, string resourceName)
+        {
+            int idNum = (int)id;
+            if (idNum < 1)
+            {
+                return 0.0;
+            }
+            resourceName = resourceName.Trim();
+
+            MASVesselComputer.GeneralPurposeResourceConverter rc = vc.resourceConverterList.Find(x => x.id == idNum);
+            if (rc == null)
+            {
+                rc = new MASVesselComputer.GeneralPurposeResourceConverter();
+                rc.id = idNum;
+                rc.outputResource = resourceName;
+
+                int prevIdx = vc.resourceConverterList.FindLastIndex(x => x.id < idNum);
+                if (prevIdx == -1 || prevIdx == vc.resourceConverterList.Count - 1)
+                {
+                    vc.resourceConverterList.Add(rc);
+                }
+                else
+                {
+                    vc.resourceConverterList.Insert(prevIdx + 1, rc);
+                }
+
+                return 1.0;
+            }
+            else
+            {
+                if (rc.outputResource == resourceName)
+                {
+                    return 1.0;
+                }
+                else
+                {
+                    return -1.0;
+                }
+            }
+        }
+        #endregion
+
+        /// <summary>
         /// The SAS section provides methods to control and query the state of
         /// a vessel's SAS stability system.
         /// </summary>

@@ -661,17 +661,12 @@ namespace AvionicsSystems
         #region Power Production
         private List<ModuleAlternator> alternatorList = new List<ModuleAlternator>();
         internal ModuleAlternator[] moduleAlternator = new ModuleAlternator[0];
-        private List<ModuleResourceConverter> fuelCellList = new List<ModuleResourceConverter>();
-        internal ModuleResourceConverter[] moduleFuelCell = new ModuleResourceConverter[0];
-        internal List<float> fuelCellOutputList = new List<float>();
-        internal float[] fuelCellOutput = new float[0];
         private List<ModuleGenerator> generatorList = new List<ModuleGenerator>();
         internal ModuleGenerator[] moduleGenerator = new ModuleGenerator[0];
         internal List<float> generatorOutputList = new List<float>();
         internal float[] generatorOutput = new float[0];
         private List<ModuleDeployableSolarPanel> solarPanelList = new List<ModuleDeployableSolarPanel>();
         internal ModuleDeployableSolarPanel[] moduleSolarPanel = new ModuleDeployableSolarPanel[0];
-        internal bool fuelCellActive;
         internal bool generatorActive;
         internal bool solarPanelsDeployable;
         internal float solarPanelsEfficiency;
@@ -679,19 +674,16 @@ namespace AvionicsSystems
         internal bool solarPanelsMoving;
         internal int solarPanelPosition;
         internal float netAlternatorOutput;
-        internal float netFuelCellOutput;
         internal float netGeneratorOutput;
         internal float netSolarOutput;
         private void UpdatePower()
         {
             // TODO: What about detecting if dynamic pressure is low enough to deploy solar panels?
             netAlternatorOutput = 0.0f;
-            netFuelCellOutput = 0.0f;
             netGeneratorOutput = 0.0f;
             netSolarOutput = 0.0f;
             solarPanelsEfficiency = 0.0f;
 
-            fuelCellActive = false;
             generatorActive = false;
             solarPanelsDeployable = false;
             solarPanelsRetractable = false;
@@ -711,16 +703,6 @@ namespace AvionicsSystems
                         output *= moduleGenerator[i].throttle;
                     }
                     netGeneratorOutput += output;
-                }
-            }
-
-            for (int i = moduleFuelCell.Length - 1; i >= 0; --i)
-            {
-                fuelCellActive |= (moduleFuelCell[i].IsActivated && !moduleFuelCell[i].AlwaysActive);
-
-                if (moduleFuelCell[i].IsActivated)
-                {
-                    netFuelCellOutput += (float)moduleFuelCell[i].lastTimeFactor * fuelCellOutput[i];
                 }
             }
 
@@ -996,6 +978,40 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Resource Converters
+        internal class GeneralPurposeResourceConverter
+        {
+            internal List<ModuleResourceConverter> converterList = new List<ModuleResourceConverter>();
+            internal ModuleResourceConverter[] moduleConverter = new ModuleResourceConverter[0];
+            internal List<float> outputRatioList = new List<float>();
+            internal float[] outputRatio = new float[0];
+            internal string outputResource = string.Empty;
+            internal int id;
+            internal float netOutput = 0.0f;
+            internal bool converterActive = false;
+        }
+        internal List<GeneralPurposeResourceConverter> resourceConverterList = new List<GeneralPurposeResourceConverter>();
+        private void UpdateResourceConverter()
+        {
+            for (int rsrc = resourceConverterList.Count - 1; rsrc >= 0; --rsrc)
+            {
+                GeneralPurposeResourceConverter rc = resourceConverterList[rsrc];
+                rc.converterActive = false;
+                rc.netOutput = 0.0f;
+
+                for (int i = rc.moduleConverter.Length - 1; i >= 0; --i)
+                {
+                    rc.converterActive |= (rc.moduleConverter[i].IsActivated && !rc.moduleConverter[i].AlwaysActive);
+
+                    if (rc.moduleConverter[i].IsActivated)
+                    {
+                        rc.netOutput += (float)rc.moduleConverter[i].lastTimeFactor * rc.outputRatio[i];
+                    }
+                }
+            }
+        }
+        #endregion
+
         #region Thermal Management
         private List<ModuleActiveRadiator> radiatorList = new List<ModuleActiveRadiator>();
         internal ModuleActiveRadiator[] moduleRadiator = new ModuleActiveRadiator[0];
@@ -1255,14 +1271,15 @@ namespace AvionicsSystems
                         else if (module is ModuleResourceConverter)
                         {
                             ModuleResourceConverter gen = module as ModuleResourceConverter;
-                            ConversionRecipe recipe = gen.Recipe;
-                            for (int i = 0; i < recipe.Outputs.Count; ++i)
+                            List<ResourceRatio> outputs = gen.Recipe.Outputs;
+                            int outputCount = outputs.Count;
+                            for (int rsrc = resourceConverterList.Count - 1; rsrc >= 0; --rsrc)
                             {
-                                if (recipe.Outputs[i].ResourceName == "ElectricCharge")
+                                int rrIdx = outputs.FindIndex(x => x.ResourceName == resourceConverterList[rsrc].outputResource);
+                                if (rrIdx > -1)
                                 {
-                                    fuelCellList.Add(gen);
-                                    fuelCellOutputList.Add((float)recipe.Outputs[i].Ratio);
-                                    break;
+                                    resourceConverterList[rsrc].converterList.Add(gen);
+                                    resourceConverterList[rsrc].outputRatioList.Add((float)outputs[rrIdx].Ratio);
                                 }
                             }
                         }
@@ -1397,8 +1414,6 @@ namespace AvionicsSystems
             TransferModules<ModuleDeployableAntenna>(antennaList, ref moduleAntenna);
             TransferModules<ModuleDeployableRadiator>(deployableRadiatorList, ref moduleDeployableRadiator);
             TransferModules<MASIdEngine>(idEnginesList, ref moduleIdEngines);
-            TransferModules<ModuleResourceConverter>(fuelCellList, ref moduleFuelCell);
-            TransferModules<float>(fuelCellOutputList, ref fuelCellOutput);
             TransferModules<ModuleGenerator>(generatorList, ref moduleGenerator);
             TransferModules<float>(generatorOutputList, ref generatorOutput);
             TransferModules<ModuleGimbal>(gimbalsList, ref moduleGimbals);
@@ -1415,6 +1430,12 @@ namespace AvionicsSystems
             TransferModules<ModuleWheels.ModuleWheelDamage>(wheelDamageList, ref moduleWheelDamage);
             TransferModules<ModuleWheels.ModuleWheelDeployment>(wheelDeploymentList, ref moduleWheelDeployment);
             TransferModules<ModuleWheelBase>(wheelBaseList, ref moduleWheelBase);
+
+            for (int i = resourceConverterList.Count - 1; i >= 0; --i)
+            {
+                TransferModules<ModuleResourceConverter>(resourceConverterList[i].converterList, ref resourceConverterList[i].moduleConverter);
+                TransferModules<float>(resourceConverterList[i].outputRatioList, ref resourceConverterList[i].outputRatio);
+            }
         }
 
         /// <summary>
@@ -1455,6 +1476,7 @@ namespace AvionicsSystems
             UpdateRadiators();
             UpdateRcs();
             UpdateReactionWheels();
+            UpdateResourceConverter();
 
             if (requestReset)
             {

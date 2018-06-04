@@ -903,6 +903,15 @@ namespace AvionicsSystems
                     Utility.ComplainLoudly("Initialization Failed.  Please check KSP.log");
                 }
                 vc = MASPersistent.FetchVesselComputer(vessel);
+                // Initialize the resourceConverterList with ElectricCharge at index 0
+                if (vc.resourceConverterList.Count > 0)
+                {
+                    vc.resourceConverterList.Clear();
+                }
+                var rc = new MASVesselComputer.GeneralPurposeResourceConverter();
+                rc.id = 0;
+                rc.outputResource = MASConfig.ElectricCharge;
+                vc.resourceConverterList.Add(rc);
 
                 if (!MASPersistent.PersistentsLoaded)
                 {

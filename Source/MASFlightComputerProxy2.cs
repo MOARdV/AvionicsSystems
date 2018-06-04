@@ -2515,6 +2515,11 @@ namespace AvionicsSystems
         /// 
         /// For all of these components, if the player has changed the `ElectricCharge` field
         /// in the MAS config file, these components will track that resource instead.
+        /// 
+        /// The Fuel Cell methods track any ModuleResourceConverter that outputs
+        /// ElectricCharge, unless a different resource converter tracker has been installed
+        /// with a higher priority.  For general-purpose ModuleResourceConverter tracking,
+        /// refer to Resource Converter category.
         /// </summary>
         #region Power Production
         /// <summary>
@@ -2543,7 +2548,7 @@ namespace AvionicsSystems
         /// <returns>Number of fuel cells.</returns>
         public double FuelCellCount()
         {
-            return vc.moduleFuelCell.Length;
+            return ResourceConverterCount(0.0);
         }
 
         /// <summary>
@@ -2552,7 +2557,7 @@ namespace AvionicsSystems
         /// <returns>Units of ElectricCharge/second.</returns>
         public double FuelCellOutput()
         {
-            return vc.netFuelCellOutput;
+            return ResourceConverterOutput(0.0);
         }
 
         /// <summary>
@@ -2580,7 +2585,7 @@ namespace AvionicsSystems
         /// <returns>1 if any fuel cell is switched on; 0 otherwise.</returns>
         public double GetFuelCellActive()
         {
-            return (vc.fuelCellActive) ? 1.0 : 0.0;
+            return GetResourceConverterActive(0.0);
         }
 
         /// <summary>
@@ -2674,25 +2679,7 @@ namespace AvionicsSystems
         /// <returns>1 if fuel cells are now active, 0 if they're off or they could not be toggled.</returns>
         public double ToggleFuelCellActive()
         {
-            bool state = !vc.fuelCellActive;
-            bool anyChanged = false;
-            for (int i = vc.moduleFuelCell.Length - 1; i >= 0; --i)
-            {
-                if (!vc.moduleFuelCell[i].AlwaysActive)
-                {
-                    anyChanged = true;
-                    if (state)
-                    {
-                        vc.moduleFuelCell[i].StartResourceConverter();
-                    }
-                    else
-                    {
-                        vc.moduleFuelCell[i].StopResourceConverter();
-                    }
-                }
-            }
-
-            return (state && anyChanged) ? 1.0 : 0.0;
+            return ToggleResourceConverterActive(0.0);
         }
 
         /// <summary>
