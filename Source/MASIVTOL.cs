@@ -49,6 +49,9 @@ namespace AvionicsSystems
 
         // Hover mode control
         private static readonly Func<object, bool> wbiGetHoverActive;
+        private static readonly Func<object, bool> wbiEnginesAreActive;
+        private static readonly Action<object> wbiStartEngines;
+        private static readonly Action<object> wbiStopEngines;
         private static readonly Action<object> wbiToggleHover;
         private static readonly Func<object, float> wbiGetVerticalSpeed;
         private static readonly Action<object, float> wbiDecreaseVerticalSpeed;
@@ -122,6 +125,21 @@ namespace AvionicsSystems
                 }
 
                 return 1.0;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the engines managed by the VTOL manager are active, or 0 if they are
+        /// shut down, or if there are no managed engines.
+        /// </summary>
+        /// <returns>1 if engines are active, otherwise 0.</returns>
+        public double GetEnginesActive()
+        {
+            object manager = GetVtolManager();
+            if (manager != null)
+            {
+                return wbiEnginesAreActive(manager) ? 1.0 : 0.0;
             }
             return 0.0;
         }
@@ -239,6 +257,33 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Toggles engines managed by the VTOL manager.
+        /// 
+        /// Note that these engines are also reported and controlled through the
+        /// standard `fc` engine interface, so it is possible to switch them on
+        /// and off through both.
+        /// </summary>
+        /// <returns>1 if engines toggled, 0 if there is no manager.</returns>
+        public double ToggleEngines()
+        {
+            object manager = GetVtolManager();
+            if (manager != null)
+            {
+                bool currentState = wbiEnginesAreActive(manager);
+                if (currentState == true)
+                {
+                    wbiStopEngines(manager);
+                }
+                else
+                {
+                    wbiStartEngines(manager);
+                }
+                return 1.0;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
         /// Toggles VTOL hover mode.
         /// </summary>
         /// <returns></returns>
@@ -270,6 +315,30 @@ namespace AvionicsSystems
                 wbiFindControllers = DynamicMethodFactory.CreateAction<object, Vessel>(FindControllers_t);
 
                 // Hover
+                MethodInfo EnginesAreActive_t = wbiVtolManager_t.GetMethod("EnginesAreActive", BindingFlags.Instance | BindingFlags.Public);
+                if (EnginesAreActive_t == null)
+                {
+                    Utility.LogStaticError("Didn't find EnginesAreActive");
+                    return;
+                }
+                wbiEnginesAreActive = DynamicMethodFactory.CreateFunc<object, bool>(EnginesAreActive_t);
+
+                MethodInfo StartEngines_t = wbiVtolManager_t.GetMethod("StartEngines", BindingFlags.Instance | BindingFlags.Public);
+                if (StartEngines_t == null)
+                {
+                    Utility.LogStaticError("Didn't find StartEngines");
+                    return;
+                }
+                wbiStartEngines = DynamicMethodFactory.CreateAction<object>(StartEngines_t);
+
+                MethodInfo StopEngines_t = wbiVtolManager_t.GetMethod("StopEngines", BindingFlags.Instance | BindingFlags.Public);
+                if (StopEngines_t == null)
+                {
+                    Utility.LogStaticError("Didn't find StopEngines");
+                    return;
+                }
+                wbiStopEngines = DynamicMethodFactory.CreateAction<object>(StopEngines_t);
+
                 FieldInfo HoverActive_t = wbiVtolManager_t.GetField("hoverActive", BindingFlags.Instance | BindingFlags.Public);
                 if (HoverActive_t == null)
                 {
