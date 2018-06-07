@@ -1401,7 +1401,9 @@ namespace AvionicsSystems
         /// <returns>The vessel's velocity fore/aft velocity in m/s.</returns>
         public double SurfaceForwardSpeed()
         {
-            return Vector3.Dot(vc.surfacePrograde, vc.surfaceForward);
+            // TODO: the following dot returns a negative number, but lateral speed is right.
+            // What did I get turned around?
+            return -Vector3.Dot(vc.surfacePrograde, vc.surfaceForward) * vessel.srfSpeed;
         }
 
         /// <summary>
@@ -1412,7 +1414,7 @@ namespace AvionicsSystems
         /// <returns>The vessel's left/right velocity in m/s.  Right is positive; left is negative.</returns>
         public double SurfaceLateralSpeed()
         {
-            return Vector3.Dot(vc.surfacePrograde, vc.surfaceRight);
+            return Vector3.Dot(vc.surfacePrograde, vc.surfaceRight) * vessel.srfSpeed;
         }
 
         /// <summary>
