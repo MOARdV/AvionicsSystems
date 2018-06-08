@@ -587,6 +587,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the force of gravity affecting the vessel.
+        /// </summary>
+        /// <returns>Force of gravity in kN.</returns>
+        public double GravityForce()
+        {
+            return vc.GravForce();
+        }
+
+        /// <summary>
         /// Returns 1 if the body the vessel is orbiting has an atmosphere.
         /// </summary>
         /// <returns>1 if there is an atmosphere, 0 otherwise.</returns>

@@ -1002,6 +1002,7 @@ namespace AvionicsSystems
 
         private bool aeroDataValid = false;
         private double dragForce;
+        private double gravForce;
         private double liftForce;
         private double terminalVelocity;
 
@@ -1011,10 +1012,6 @@ namespace AvionicsSystems
             {
                 return;
             }
-
-            dragForce = 0.0;
-            liftForce = 0.0;
-            terminalVelocity = 0.0;
 
             // Code substantially from NathanKell's AeroGUI mod,
             // https://github.com/NathanKell/AeroGUI/blob/ccfd5e2e40fdf13e6ce66517ceb1db418689a5f0/AeroGUI/AeroGUI.cs#L301
@@ -1053,8 +1050,8 @@ namespace AvionicsSystems
 
             dragForce = Vector3d.Dot(force, -nVel); // drag force, = pDrag + lift-induced drag
 
-            double grav = vessel.GetTotalMass() * FlightGlobals.getGeeForceAtPosition(vessel.CoM).magnitude; // force of gravity
-            terminalVelocity = Math.Sqrt(grav / dragForce) * vessel.speed;
+            gravForce = vessel.GetTotalMass() * FlightGlobals.getGeeForceAtPosition(vessel.CoM).magnitude; // force of gravity
+            terminalVelocity = Math.Sqrt(gravForce / dragForce) * vessel.speed;
             if (double.IsNaN(terminalVelocity))
             {
                 terminalVelocity = 0.0;
@@ -1071,6 +1068,15 @@ namespace AvionicsSystems
             }
 
             return dragForce;
+        }
+        internal double GravForce()
+        {
+            if (!aeroDataValid)
+            {
+                UpdateAeroForces();
+            }
+
+            return gravForce;
         }
         internal double LiftForce()
         {
