@@ -627,6 +627,28 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the force of lift opposed to gravity.  If FAR is installed, this variable uses
+        /// FAR's computations for lift.
+        /// </summary>
+        /// <returns>Lift opposed to gravity in kN.</returns>
+        public double LiftUpForce()
+        {
+            if (vc.mainBody.atmosphere == false || vc.altitudeASL > vc.mainBody.atmosphereDepth)
+            {
+                return 0.0;
+            }
+
+            if (MASIFAR.farFound)
+            {
+                return farProxy.LiftForce() * Vector3d.Dot(vc.up, vc.top);
+            }
+            else
+            {
+                return vc.LiftUpForce();
+            }
+        }
+
+        /// <summary>
         /// Returns the static atmospheric pressure in standard atmospheres.
         /// </summary>
         /// <returns></returns>

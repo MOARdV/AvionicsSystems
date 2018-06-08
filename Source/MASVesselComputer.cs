@@ -1004,12 +1004,28 @@ namespace AvionicsSystems
         private double dragForce;
         private double gravForce;
         private double liftForce;
+        private double liftUpForce;
         private double terminalVelocity;
 
         private void UpdateAeroForces()
         {
             if (aeroDataValid)
             {
+                return;
+            }
+
+            aeroDataValid = true;
+
+            gravForce = vessel.GetTotalMass() * FlightGlobals.getGeeForceAtPosition(vessel.CoM).magnitude; // force of gravity
+
+            // Short-circuit these computations if there's no atmosphere.
+            if (vessel.atmDensity == 0.0)
+            {
+                liftForce = 0.0;
+                dragForce = 0.0;
+                terminalVelocity = 0.0;
+                liftUpForce = 0.0;
+
                 return;
             }
 
@@ -1050,14 +1066,13 @@ namespace AvionicsSystems
 
             dragForce = Vector3d.Dot(force, -nVel); // drag force, = pDrag + lift-induced drag
 
-            gravForce = vessel.GetTotalMass() * FlightGlobals.getGeeForceAtPosition(vessel.CoM).magnitude; // force of gravity
-            terminalVelocity = Math.Sqrt(gravForce / dragForce) * vessel.speed;
-            if (double.IsNaN(terminalVelocity))
-            {
-                terminalVelocity = 0.0;
-            }
+            liftUpForce = Vector3d.Dot(force, up);
 
-            aeroDataValid = true;
+            // Stabilize these values near 0.
+            double clampedDrag = Math.Max(dragForce, 0.001);
+            double clampedSpeed = Math.Max(vessel.srfSpeed, 0.5);
+
+            terminalVelocity = Math.Sqrt(gravForce / clampedDrag) * clampedSpeed;
         }
 
         internal double DragForce()
@@ -1086,6 +1101,15 @@ namespace AvionicsSystems
             }
 
             return liftForce;
+        }
+        internal double LiftUpForce()
+        {
+            if (!aeroDataValid)
+            {
+                UpdateAeroForces();
+            }
+
+            return liftUpForce;
         }
         internal double TerminalVelocity()
         {
