@@ -388,7 +388,8 @@ namespace AvionicsSystems
             }
             if (v == null)
             {
-                Utility.LogError(this, "INITIALIZATION ERROR: Failed to generate variable for {0} - check its name?", canonical);
+                Utility.LogWarning(this, "CAUTION: Failed to generate variable for {0} - check its name?", canonical);
+                Utility.LogMessage(this, "Additional info: expression was type {0}", expression.GetType());
             }
             return v;
         }
@@ -505,6 +506,11 @@ namespace AvionicsSystems
                     break;
                 case CodeGen.Parser.LuaToken.AND:
                     v = new Variable(operatorExpression.CanonicalName(), () => lhs.BoolValue() && rhs.BoolValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
+                    lhs.numericCallbacks += v.TriggerUpdate;
+                    rhs.numericCallbacks += v.TriggerUpdate;
+                    break;
+                case CodeGen.Parser.LuaToken.OR:
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.BoolValue() || rhs.BoolValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
                     lhs.numericCallbacks += v.TriggerUpdate;
                     rhs.numericCallbacks += v.TriggerUpdate;
                     break;
