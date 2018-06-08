@@ -127,6 +127,9 @@ namespace AvionicsSystems
                 rangeMode = false;
             }
 
+            bool loop = false;
+            config.TryGetValue("loop", ref loop);
+
             lineOrigin = new GameObject();
             lineOrigin.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
             lineOrigin.layer = pageRoot.gameObject.layer;
@@ -142,6 +145,7 @@ namespace AvionicsSystems
             lineRenderer.endColor = endColor;
             lineRenderer.startWidth = startWidth;
             lineRenderer.endWidth = endWidth;
+            lineRenderer.loop = loop;
 
             int numVertices = vertexStrings.Length;
             lineRenderer.positionCount = numVertices;
