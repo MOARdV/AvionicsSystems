@@ -551,6 +551,18 @@ namespace AvionicsSystems
                     }
                 }
             }
+            else if (prefixExpression.getOperator() == CodeGen.Parser.LuaToken.TILDE)
+            {
+                Variable v = GenerateVariable(right);
+                if (v != null)
+                {
+                    Variable newVar = new Variable(prefixExpression.CanonicalName(), () => !v.BoolValue(), true, true, Variable.VariableType.Dependent);
+                    v.numericCallbacks += newVar.TriggerUpdate;
+                    return newVar;
+                }
+
+            }
+
 
             return null;
         }
