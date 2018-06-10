@@ -31,6 +31,18 @@ function MAS_Mfd2_Init(propId)
 	if fc.GetPersistentExists(propId .. "-Att-ManualCaption") < 1 then
 		fc.SetPersistent(propId .. "-Att-ManualCaption", "Srf Prograde")
 	end
+	
+	local result = fc.TrackResourceConverter(1, "ElectroPlasma")
+	
+	if result < 1 then
+		fc.LogMessage("Error registering ElectroPlasma: " .. result)
+	end
+	
+	result = fc.TrackResourceConverter(2, "GravityWaves")
+	
+	if result < 1 then
+		fc.LogMessage("Error registering GravityWaves: " .. result)
+	end
 end
 
 ------------------------------------------------------------------------------
@@ -426,3 +438,31 @@ function MAS_Mfd2_Rsrc_Minus(propId, rowId)
 		fc.AddPersistentWrapped(propId .. "-RsrcUser3", -1, 0, fc.ResourceCount())
 	end
 end
+
+------------------------------------------------------------------------------
+-- Verify that the WBI VTOL Manager is available.
+function MAS_Mfd2_Vtol_Validate(propId, returnPage)
+	if vtol.Available() < 1 then
+		fc.SetPersistent(propId, returnPage)
+	end
+end
+
+------------------------------------------------------------------------------
+-- Flight Instrumentation page configuration
+function MAS_Mfd2_Flight_Select_Instrument(propId, panel, direction)
+	if panel == 1 then
+		fc.AddPersistentWrapped(propId .. "-FlightPanel1", direction, 0, 3)
+	elseif panel == 2 then
+		fc.AddPersistentWrapped(propId .. "-FlightPanel2", direction, 0, 2)
+	elseif panel == 3 then
+		fc.AddPersistentWrapped(propId .. "-FlightPanel3", direction, 0, 2)
+	elseif panel == 4 then
+		-- If I don't have alternative panels yet, use 0 for direction
+		fc.AddPersistentWrapped(propId .. "-FlightPanel4", 0, 0, 2)
+	elseif panel == 5 then
+		fc.AddPersistentWrapped(propId .. "-FlightPanel5", 0, 0, 2)
+	elseif panel == 6 then
+		fc.AddPersistentWrapped(propId .. "-FlightPanel6", 0, 0, 2)
+	end
+end
+
