@@ -342,7 +342,8 @@ namespace AvionicsSystems.CodeGen
                     // Close quote
                     if (tok.Type == TokenType.Symbol && tok.Id == 2)
                     {
-                        tokenList.Add(new Token(TokenType.QuotedString, sb.ToString(), sb.ToString(), 0, startPosition, tok.EndPosition, tok.LineBegin, tok.LineNumber, tok.EndLineBegin, tok.EndLineNumber));
+                        string builtString = sb.ToStringAndRelease();
+                        tokenList.Add(new Token(TokenType.QuotedString, builtString, builtString, 0, startPosition, tok.EndPosition, tok.LineBegin, tok.LineNumber, tok.EndLineBegin, tok.EndLineNumber));
                         inQuote = false;
                     }
                 }
@@ -353,7 +354,7 @@ namespace AvionicsSystems.CodeGen
                     {
                         inQuote = true;
                         startPosition = tok.StartPosition;
-                        sb = new StringBuilder();
+                        sb = StringBuilderCache.Acquire();
                         sb.Append(tok.Text);
                     }
                     else if (tok.Type == TokenType.Decimal)
