@@ -561,7 +561,7 @@ namespace AvionicsSystems
                     }
                 }
             }
-            else if (prefixExpression.getOperator() == CodeGen.Parser.LuaToken.TILDE)
+            else if (prefixExpression.getOperator() == CodeGen.Parser.LuaToken.NOT)
             {
                 Variable v = GenerateVariable(right);
                 if (v != null)

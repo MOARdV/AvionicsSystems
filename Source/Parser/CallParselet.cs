@@ -41,6 +41,11 @@ namespace AvionicsSystems.CodeGen
 {
     class CallParselet : InfixParselet
     {
+        public CallParselet(int precedence)
+        {
+            mPrecedence = precedence;
+        }
+
         public Expression parse(Parser parser, Expression left, Token token)
         {
             // Parse the comma-separated arguments until we hit, ")".
@@ -61,7 +66,9 @@ namespace AvionicsSystems.CodeGen
 
         public int getPrecedence()
         {
-            return Parser.CALL;
+            return mPrecedence;
         }
+        
+        private readonly int mPrecedence;
     }
 }

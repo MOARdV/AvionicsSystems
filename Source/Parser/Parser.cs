@@ -68,7 +68,7 @@ using System.Text;
 namespace AvionicsSystems.CodeGen
 {
     /// <summary>
-    /// The Parser class converts a text string into a Delegate whenever the
+    /// The Parser class is used to convert a text string into a Delegate whenever the
     /// text can be parsed successfully.  The actual parser is based on a Pratt Parser
     /// implemented in Java at https://github.com/munificent/bantam
     /// with appropriate changes for C#.
@@ -163,33 +163,6 @@ namespace AvionicsSystems.CodeGen
             return result;
         }
 
-        private static Dictionary<string, int> LexerTokens = new Dictionary<string, int>
-        {
-            {".", 1},  // dot operator -> identify table -dot- method
-            {"\"", 2}, // quotation mark -> reassemble strings
-            {"~", 3},  // tilde -> not operator
-            {"..", 4}, // dot-dot -> concatenation operator
-            {"(", 16}, // open paren -> function parameter list entry
-            {")", 17}, // close paren -> function parameter list exit
-            {",", 18}, // comma operator -> function list separator
-            {"*", 32}, // multiplication operator
-            {"/", 33}, // division operator
-            {"+", 34}, // addition operator
-            {"-", 35}, // dash -> might be 'minus', might be 'unary negation'
-            {"%", 36}, // modulo operator
-            {"^", 37}, // exponentation operator
-            {"<", 48}, // less than
-            {">", 49}, // greater than
-            {"==", 50}, // equality
-            {"~=", 51}, // inequality
-            {"<=", 52}, // less than / equal to
-            {">=", 53}, // greater than / equal to
-
-            // Text doesn't actually parse to symbols :(
-            {"and", 64}, // logical AND
-            {"or", 65}, // logical OR
-        };
-
         internal enum LuaToken
         {
             DOT,
@@ -209,7 +182,6 @@ namespace AvionicsSystems.CodeGen
             RIGHT_PAREN,
             COMMA,
             ASSIGN,
-            TILDE,
 
             LESS_THAN,
             GREATER_THAN,
@@ -220,6 +192,7 @@ namespace AvionicsSystems.CodeGen
 
             AND,
             OR,
+            NOT,
 
             //FALSE,
             //TRUE,
@@ -229,29 +202,138 @@ namespace AvionicsSystems.CodeGen
             EOF
         };
 
+        // +++ MOARdV updates
+        internal struct LuaTokenData
+        {
+            internal readonly LuaToken token;
+            internal readonly int id;
+            internal readonly string symbol;
+
+            internal LuaTokenData(LuaToken token, int id, string symbol)
+            {
+                this.token = token;
+                this.id = id;
+                this.symbol = symbol;
+            }
+        };
+
+        internal static readonly LuaTokenData[] lexerTokens = new LuaTokenData[]
+        {
+            new LuaTokenData(LuaToken.DOT, 1, "."), // dot operator -> identify table -dot- method
+            new LuaTokenData(LuaToken.STRING, 2, "\""), // quotation mark -> reassemble strings
+            new LuaTokenData(LuaToken.CONCAT, 4, ".."), // dot-dot -> concatenation operator
+            new LuaTokenData(LuaToken.LEFT_PAREN, 16, "("), // open paren -> function parameter list entry
+            new LuaTokenData(LuaToken.RIGHT_PAREN, 17, ")"), // close paren -> function parameter list exit
+            new LuaTokenData(LuaToken.COMMA, 18, ","), // comma operator -> function list separator
+            new LuaTokenData(LuaToken.MULTIPLY, 32, "*"), // multiplication operator
+            new LuaTokenData(LuaToken.DIVIDE, 33, "/"), // division operator
+            new LuaTokenData(LuaToken.PLUS, 34, "+"), // addition operator
+            new LuaTokenData(LuaToken.MINUS, 35, "-"), // dash -> might be 'minus', might be 'unary negation'
+            new LuaTokenData(LuaToken.MODULO, 36, "%"), // modulo operator
+            new LuaTokenData(LuaToken.EXPONENT, 37, "^"), // exponentation operator
+            new LuaTokenData(LuaToken.LESS_THAN, 48, "<"), // less than
+            new LuaTokenData(LuaToken.GREATER_THAN, 49, ">"), // greater than
+            new LuaTokenData(LuaToken.EQUALITY, 50, "=="), // equality
+            new LuaTokenData(LuaToken.INEQUALITY, 51, "~="), // inequality
+            new LuaTokenData(LuaToken.LESS_EQUAL, 52, "<="), // less than / equal to
+            new LuaTokenData(LuaToken.GREATER_EQUAL, 53, ">="), // greater than / equal to
+
+            // Text doesn't actually parse to symbols :(
+            new LuaTokenData(LuaToken.AND, 64, "and"), // logical AND
+            new LuaTokenData(LuaToken.OR, 65, "or"), // logical OR
+            new LuaTokenData(LuaToken.NOT, 66, "not"), // logical NOT
+        };
+
+        private static LexerSettings lexerSettings;
+
+        private static readonly Dictionary<LuaToken, PrefixParselet> prefixParselets = new Dictionary<LuaToken, PrefixParselet>()
+        {
+            { LuaToken.NUMBER, new NumberParselet() },
+            { LuaToken.NAME, new NameParselet() },
+            { LuaToken.STRING, new StringParselet() },
+            { LuaToken.LEFT_PAREN, new GroupParselet() },
+
+            // NOT: priority 9
+            { LuaToken.NOT, new PrefixOperatorParselet(9) },
+
+            // PREFIX: priority 11
+            { LuaToken.PLUS, new PrefixOperatorParselet(11) },
+            { LuaToken.MINUS, new PrefixOperatorParselet(11) },
+        };
+
+        private static readonly Dictionary<LuaToken, InfixParselet> infixParselets = new Dictionary<LuaToken, InfixParselet>()
+        {
+            // priorities are listed lowest to highest (larger number = higher priority)
+            // Based on Lua 5.2 reference manual for LOGICAL OR through EXPONENT, although
+            // some of those are prefix operators, or otherwise not used here.
+            
+            // ASSIGNMENT: priority 1
+
+            // CONDITIONAL: priority 2
+
+            // LOGICAL OR: priority 3
+            { LuaToken.OR, new BinaryOperatorParselet(3, false) },
+
+            // LOGICAL AND: priority 4
+            { LuaToken.AND, new BinaryOperatorParselet(4, false) },
+
+            // COMPARISON: priority 5
+            { LuaToken.LESS_THAN, new BinaryOperatorParselet(5, false) },
+            { LuaToken.GREATER_THAN, new BinaryOperatorParselet(5, false) },
+            { LuaToken.EQUALITY, new BinaryOperatorParselet(5, false) },
+            { LuaToken.INEQUALITY, new BinaryOperatorParselet(5, false) },
+            { LuaToken.LESS_EQUAL, new BinaryOperatorParselet(5, false) },
+            { LuaToken.GREATER_EQUAL, new BinaryOperatorParselet(5, false) },
+
+            // STRING CONCANTENATE: priority 6
+            { LuaToken.CONCAT, new BinaryOperatorParselet(6, false) },
+            
+            // ADDITION: priority 7
+            { LuaToken.PLUS, new BinaryOperatorParselet(7, false) },
+            { LuaToken.MINUS, new BinaryOperatorParselet(7, false) },
+
+            // PRODUCT: priority 8
+            { LuaToken.MULTIPLY, new BinaryOperatorParselet(8, false) },
+            { LuaToken.DIVIDE, new BinaryOperatorParselet(8, false) },
+            { LuaToken.MODULO, new BinaryOperatorParselet(8, false) },
+
+            // NOT: priority 9
+
+            // EXPONENT: priority 10
+            { LuaToken.EXPONENT, new BinaryOperatorParselet(10, false) },
+
+            // PREFIX: priority 11
+
+            // POSTFIX: priority 12
+
+            // CALL: priority 13
+            { LuaToken.LEFT_PAREN, new CallParselet(13) },
+            { LuaToken.DOT, new BinaryOperatorParselet(13, false) },
+            
+        };
+        // --- MOARdV updates
+
         List<Token> tokenList = new List<Token>();
         int mTokens = 0;
         List<Token> mRead = new List<Token>();
-        Dictionary<LuaToken, PrefixParselet> mPrefixParselets = new Dictionary<LuaToken, PrefixParselet>();
-        Dictionary<LuaToken, InfixParselet> mInfixParselets = new Dictionary<LuaToken, InfixParselet>();
-
-        // precedence order
-        internal static readonly int ASSIGNMENT = 1;
-        internal static readonly int CONDITIONAL = 2;
-        internal static readonly int LOGICAL = 3;
-        internal static readonly int COMPARISON = 4;
-        internal static readonly int SUM = 5;
-        internal static readonly int PRODUCT = 6;
-        internal static readonly int EXPONENT = 7;
-        internal static readonly int PREFIX = 8;
-        internal static readonly int POSTFIX = 9;
-        internal static readonly int CALL = 10;
 
         private Parser(string source)
         {
-            LexerSettings settings = new LexerSettings();
-            settings.Symbols = LexerTokens;
-            Lexer lex = new Lexer(source.Trim(), settings);
+            // MdV++
+            // Initialize the static (reusable) lexer settings if we haven't already
+            if (lexerSettings == null)
+            {
+                Dictionary<string, int> lexerTokenDict = new Dictionary<string, int>();
+                foreach (LuaTokenData token in lexerTokens)
+                {
+                    lexerTokenDict.Add(token.symbol, token.id);
+                }
+
+                lexerSettings = new LexerSettings();
+                lexerSettings.Symbols = lexerTokenDict;
+            }
+            Lexer lex = new Lexer(source.Trim(), lexerSettings);
+            // MdV--
 
             bool inQuote = false;
             int startPosition = 0;
@@ -284,6 +366,8 @@ namespace AvionicsSystems.CodeGen
                     }
                     else if (tok.Type == TokenType.Identifier)
                     {
+                        // The Lexer won't tokenize keywords as symbols, so we have to convert them
+                        // here.
                         if (tok.Text == "and")
                         {
                             tokenList.Add(new Token(TokenType.Symbol, tok.Text, tok.Text, 64, 0, 0, 0, 0, 0, 0));
@@ -291,6 +375,10 @@ namespace AvionicsSystems.CodeGen
                         else if (tok.Text == "or")
                         {
                             tokenList.Add(new Token(TokenType.Symbol, tok.Text, tok.Text, 65, 0, 0, 0, 0, 0, 0));
+                        }
+                        else if (tok.Text == "not")
+                        {
+                            tokenList.Add(new Token(TokenType.Symbol, tok.Text, tok.Text, 66, 0, 0, 0, 0, 0, 0));
                         }
                         else
                         {
@@ -303,37 +391,6 @@ namespace AvionicsSystems.CodeGen
                     }
                 }
             }
-
-            // Now have tokens ready for parsing.
-            // This could be done externally.  It also could be hardcoded.
-
-            register(LuaToken.NUMBER, new NumberParselet());
-            register(LuaToken.NAME, new NameParselet());
-            register(LuaToken.STRING, new StringParselet());
-            register(LuaToken.LEFT_PAREN, new CallParselet());
-            register(LuaToken.LEFT_PAREN, new GroupParselet());
-
-            register(LuaToken.PLUS, new PrefixOperatorParselet(PREFIX));
-            register(LuaToken.MINUS, new PrefixOperatorParselet(PREFIX));
-            register(LuaToken.TILDE, new PrefixOperatorParselet(PREFIX));
-
-            register(LuaToken.PLUS, new BinaryOperatorParselet(SUM, false));
-            register(LuaToken.MINUS, new BinaryOperatorParselet(SUM, false));
-            register(LuaToken.CONCAT, new BinaryOperatorParselet(SUM, false));
-            register(LuaToken.MULTIPLY, new BinaryOperatorParselet(PRODUCT, false));
-            register(LuaToken.DIVIDE, new BinaryOperatorParselet(PRODUCT, false));
-            register(LuaToken.MODULO, new BinaryOperatorParselet(PRODUCT, false));
-            register(LuaToken.EXPONENT, new BinaryOperatorParselet(EXPONENT, false));
-            register(LuaToken.DOT, new BinaryOperatorParselet(CALL, false));
-            //register(LuaToken.DOT, new BinaryOperatorParselet(POSTFIX, false));
-            register(LuaToken.LESS_THAN, new BinaryOperatorParselet(COMPARISON, false));
-            register(LuaToken.GREATER_THAN, new BinaryOperatorParselet(COMPARISON, false));
-            register(LuaToken.EQUALITY, new BinaryOperatorParselet(COMPARISON, false));
-            register(LuaToken.INEQUALITY, new BinaryOperatorParselet(COMPARISON, false));
-            register(LuaToken.LESS_EQUAL, new BinaryOperatorParselet(COMPARISON, false));
-            register(LuaToken.GREATER_EQUAL, new BinaryOperatorParselet(COMPARISON, false));
-            register(LuaToken.AND, new BinaryOperatorParselet(LOGICAL, false));
-            register(LuaToken.OR, new BinaryOperatorParselet(LOGICAL, false));
         }
 
         internal Expression parseExpression(int precedence)
@@ -342,7 +399,7 @@ namespace AvionicsSystems.CodeGen
             PrefixParselet prefix = null;
 
             var type = token.getType();
-            if (!mPrefixParselets.TryGetValue(type, out prefix))
+            if (!prefixParselets.TryGetValue(type, out prefix))
             {
                 throw new Exception("Could not parse \"" + token.Text + "\".");
             }
@@ -353,21 +410,11 @@ namespace AvionicsSystems.CodeGen
             {
                 token = consume();
 
-                InfixParselet infix = mInfixParselets[token.getType()];
+                InfixParselet infix = infixParselets[token.getType()];
                 left = infix.parse(this, left, token);
             }
 
             return left;
-        }
-
-        internal void register(LuaToken token, PrefixParselet parselet)
-        {
-            mPrefixParselets[token] = parselet;
-        }
-
-        internal void register(LuaToken token, InfixParselet parselet)
-        {
-            mInfixParselets[token] = parselet;
         }
 
         internal Expression parseExpression()
@@ -431,7 +478,7 @@ namespace AvionicsSystems.CodeGen
         {
             var type = lookAhead(0).getType();
             InfixParselet parser;
-            if (mInfixParselets.TryGetValue(type, out parser))
+            if (infixParselets.TryGetValue(type, out parser))
             {
                 return parser.getPrecedence();
             }
@@ -451,8 +498,6 @@ namespace AvionicsSystems.CodeGen
             {
                 case 1:
                     return Parser.LuaToken.DOT;
-                case 3:
-                    return Parser.LuaToken.TILDE;
                 case 4:
                     return Parser.LuaToken.CONCAT;
                 case 16:
@@ -489,6 +534,8 @@ namespace AvionicsSystems.CodeGen
                     return Parser.LuaToken.AND;
                 case 65:
                     return Parser.LuaToken.OR;
+                case 66:
+                    return Parser.LuaToken.NOT;
             }
             throw new Exception("Unhandled symbol id " + id.ToString());
         }
@@ -551,8 +598,6 @@ namespace AvionicsSystems.CodeGen
                     return "%";
                 case Parser.LuaToken.EXPONENT:
                     return "^";
-                case Parser.LuaToken.TILDE:
-                    return "~";
                 case Parser.LuaToken.DOT:
                     return ".";
                 case Parser.LuaToken.CONCAT:
@@ -573,6 +618,8 @@ namespace AvionicsSystems.CodeGen
                     return "and";
                 case Parser.LuaToken.OR:
                     return "or";
+                case Parser.LuaToken.NOT:
+                    return "not";
             }
 
             throw new Exception("Un-punctuable token " + token.ToString());
