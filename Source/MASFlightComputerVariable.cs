@@ -181,14 +181,13 @@ namespace AvionicsSystems
         /// Get the named Variable (for direct access).
         /// 
         /// So, that's the really short summary, but it does not tell you what
-        /// I am really doing.
+        /// I am doing.
         /// 
-        /// The MoonSharp interpreter, version 1.6.0, seems to be able to
-        /// process about 90-ish variables per millisecond using the test IVA
-        /// I created (Yarbrough Mk1-1A2, 228 mutable variables).  That's really
-        /// poor performance - around 2.5ms per FixedUpdate, which fires every
-        /// 20ms at default frequency.  In other words, about 1/8 of the FixedUpdate
-        /// time budget, just for the MAS variables.  No bueno.
+        /// The MoonSharp interpreter, version 1.6.0, processes about 60-90
+        /// variables per millisecond using the various test IVAs I've created.
+        /// That's really poor performance - around 2.5ms per FixedUpdate, which
+        /// fires every 20ms at default frequency.  In other words, a big chunk
+        /// of the FixedUpdate time budget, just for MAS variables.  No bueno.
         /// 
         /// So, I use a Lexer object (see Parser/Lexer.cs) and the Bantam Pratt
         /// parser to transform the variable to an expression tree.  The expression
@@ -200,7 +199,7 @@ namespace AvionicsSystems
         /// 
         /// A simple initial implementation where I transfered constants and simple
         /// single-parameter methods (eg 'fc.GetPersistentAsNumber("SomePersistent"),
-        /// moves the refresh rate above 120 updates/ms.  That's better.  The fewer
+        /// moved the refresh rate above 120 updates/ms.  That's better.  The fewer
         /// calls into Lua / MoonSharp, the better.  The simple implementation also
         /// accounted for about half of the total number of variables.
         /// </summary>
@@ -216,80 +215,93 @@ namespace AvionicsSystems
                 throw new ArgumentException("[MASFlightComputer] Trying to GetVariable with empty variableName");
             }
 
-            CodeGen.Parser.CompilerResult result = CodeGen.Parser.TryParse(variableName);
+            Variable v = null;
 
-            // Because variables may be added when parsing an expression tree, we need to
-            // make sure we check the canonical variable name map here.
-            // TODO: Can I short-cut this by testing for canonicalVariableName[variableName],
-            // and then testing for variables[canonicalVariableName]?
-            if (!canonicalVariableName.ContainsKey(variableName))
+            // Find out if we've already parsed a variable with this name.  If we have,
+            // and we've already generated a Variable based on it, don't run it through
+            // the parser again (which takes some time and creates a few temporary allocations).
+            // Performance doesn't actually seem affected in my installation, though, so
+            // maybe parsing these text snippets isn't that costly.
+            string canonicalName;
+            if (canonicalVariableName.TryGetValue(variableName, out canonicalName))
             {
-                canonicalVariableName[variableName] = result.canonicalName;
+                variables.TryGetValue(canonicalName, out v);
             }
 
-            Variable v = null;
-            if (!variables.TryGetValue(result.canonicalName, out v))
+            if (v == null)
             {
+                CodeGen.Parser.CompilerResult result = CodeGen.Parser.TryParse(variableName);
+
+                // Because variables may be added when parsing an expression tree, we need to
+                // make sure we check the canonical variable name map here.
+                if (!canonicalVariableName.ContainsKey(variableName))
+                {
+                    canonicalVariableName[variableName] = result.canonicalName;
+                }
+
+                if (!variables.TryGetValue(result.canonicalName, out v))
+                {
 #if PLENTIFUL_LOGGING
                 Utility.LogMessage(this, "*  *  *");
                 Utility.LogMessage(this, "Generating variable from {0}", result.canonicalName);
 #endif
-                if (result.type == CodeGen.Parser.ResultType.NUMERIC_CONSTANT)
-                {
+                    if (result.type == CodeGen.Parser.ResultType.NUMERIC_CONSTANT)
+                    {
 #if EXCESSIVE_LOGGING
                     Utility.LogMessage(this, "- NUMERIC_CONSTANT");
 #endif
-                    v = new Variable(result.numericConstant);
-                    ++constantVariableCount;
-                }
-                else if (result.type == CodeGen.Parser.ResultType.STRING_CONSTANT)
-                {
+                        v = new Variable(result.numericConstant);
+                        ++constantVariableCount;
+                    }
+                    else if (result.type == CodeGen.Parser.ResultType.STRING_CONSTANT)
+                    {
 #if EXCESSIVE_LOGGING
                     Utility.LogMessage(this, "- STRING_CONSTANT");
 #endif
-                    v = new Variable(result.stringConstant);
-                    ++constantVariableCount;
-                }
-                else if (result.type == CodeGen.Parser.ResultType.EXPRESSION_TREE)
-                {
+                        v = new Variable(result.stringConstant);
+                        ++constantVariableCount;
+                    }
+                    else if (result.type == CodeGen.Parser.ResultType.EXPRESSION_TREE)
+                    {
 #if EXCESSIVE_LOGGING
 
                     Utility.LogMessage(this, "- EXPRESSION_TREE");
 #endif
-                    v = GenerateVariable(result.expressionTree);
-                }
+                        v = GenerateVariable(result.expressionTree);
+                    }
 
-                if (v == null)
-                {
+                    if (v == null)
+                    {
 #if PLENTIFUL_LOGGING
                     Utility.LogMessage(this, "- fall back to Lua scripting");
 #endif
-                    // If we couldn't find a way to optimize the value, fall
-                    // back to interpreted Lua script.
-                    v = new Variable(result.canonicalName, script);
-                    if (v.valid == false)
-                    {
-                        throw new ArgumentException(string.Format("Unable to process variable {0}", result.canonicalName));
-                    }
+                        // If we couldn't find a way to optimize the value, fall
+                        // back to interpreted Lua script.
+                        v = new Variable(result.canonicalName, script);
+                        if (v.valid == false)
+                        {
+                            throw new ArgumentException(string.Format("Unable to process variable {0}", result.canonicalName));
+                        }
 
-                    ++luaVariableCount;
-                    Utility.LogMessage(this, "luaVariableCount increased in GetVariable -- this may be buggy -- for {0}", result.canonicalName);
-                }
-                if (!variables.ContainsKey(result.canonicalName))
-                {
-                    variables.Add(result.canonicalName, v);
-                    if (v.mutable)
-                    {
-                        mutableVariablesList.Add(v);
-                        mutableVariablesChanged = true;
+                        ++luaVariableCount;
+                        Utility.LogMessage(this, "luaVariableCount increased in GetVariable -- this may be buggy -- for {0}", result.canonicalName);
                     }
-                    else if (v.variableType == Variable.VariableType.Unknown)
+                    if (!variables.ContainsKey(result.canonicalName))
                     {
-                        Utility.LogError(this, "There was an error processing variable {0}", variableName);
-                    }
+                        variables.Add(result.canonicalName, v);
+                        if (v.mutable)
+                        {
+                            mutableVariablesList.Add(v);
+                            mutableVariablesChanged = true;
+                        }
+                        else if (v.variableType == Variable.VariableType.Unknown)
+                        {
+                            Utility.LogError(this, "There was an error processing variable {0}", variableName);
+                        }
 #if PLENTIFUL_LOGGING
                     Utility.LogMessage(this, "Adding new variable '{0}'", result.canonicalName);
 #endif
+                    }
                 }
             }
 
