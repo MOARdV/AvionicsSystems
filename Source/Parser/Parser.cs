@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 - 2017 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -176,6 +176,8 @@ namespace AvionicsSystems.CodeGen
             {"/", 33}, // division operator
             {"+", 34}, // addition operator
             {"-", 35}, // dash -> might be 'minus', might be 'unary negation'
+            {"%", 36}, // modulo operator
+            {"^", 37}, // exponentation operator
             {"<", 48}, // less than
             {">", 49}, // greater than
             {"==", 50}, // equality
@@ -196,7 +198,9 @@ namespace AvionicsSystems.CodeGen
             MINUS,
             MULTIPLY,
             DIVIDE,
+            MODULO,
             CONCAT,
+            EXPONENT,
 
             NUMBER,
             STRING,
@@ -231,6 +235,7 @@ namespace AvionicsSystems.CodeGen
         Dictionary<LuaToken, PrefixParselet> mPrefixParselets = new Dictionary<LuaToken, PrefixParselet>();
         Dictionary<LuaToken, InfixParselet> mInfixParselets = new Dictionary<LuaToken, InfixParselet>();
 
+        // precedence order
         internal static readonly int ASSIGNMENT = 1;
         internal static readonly int CONDITIONAL = 2;
         internal static readonly int LOGICAL = 3;
@@ -259,7 +264,6 @@ namespace AvionicsSystems.CodeGen
                     // Close quote
                     if (tok.Type == TokenType.Symbol && tok.Id == 2)
                     {
-                        // TODO: Do I care about anything here beyond the first 4 parameters?
                         tokenList.Add(new Token(TokenType.QuotedString, sb.ToString(), sb.ToString(), 0, startPosition, tok.EndPosition, tok.LineBegin, tok.LineNumber, tok.EndLineBegin, tok.EndLineNumber));
                         inQuote = false;
                     }
@@ -318,6 +322,8 @@ namespace AvionicsSystems.CodeGen
             register(LuaToken.CONCAT, new BinaryOperatorParselet(SUM, false));
             register(LuaToken.MULTIPLY, new BinaryOperatorParselet(PRODUCT, false));
             register(LuaToken.DIVIDE, new BinaryOperatorParselet(PRODUCT, false));
+            register(LuaToken.MODULO, new BinaryOperatorParselet(PRODUCT, false));
+            register(LuaToken.EXPONENT, new BinaryOperatorParselet(EXPONENT, false));
             register(LuaToken.DOT, new BinaryOperatorParselet(CALL, false));
             //register(LuaToken.DOT, new BinaryOperatorParselet(POSTFIX, false));
             register(LuaToken.LESS_THAN, new BinaryOperatorParselet(COMPARISON, false));
@@ -352,7 +358,6 @@ namespace AvionicsSystems.CodeGen
             }
 
             return left;
-
         }
 
         internal void register(LuaToken token, PrefixParselet parselet)
@@ -464,6 +469,10 @@ namespace AvionicsSystems.CodeGen
                     return Parser.LuaToken.PLUS;
                 case 35:
                     return Parser.LuaToken.MINUS;
+                case 36:
+                    return Parser.LuaToken.MODULO;
+                case 37:
+                    return Parser.LuaToken.EXPONENT;
                 case 48:
                     return Parser.LuaToken.LESS_THAN;
                 case 49:
@@ -538,6 +547,10 @@ namespace AvionicsSystems.CodeGen
                     return "*";
                 case Parser.LuaToken.DIVIDE:
                     return "/";
+                case Parser.LuaToken.MODULO:
+                    return "%";
+                case Parser.LuaToken.EXPONENT:
+                    return "^";
                 case Parser.LuaToken.TILDE:
                     return "~";
                 case Parser.LuaToken.DOT:

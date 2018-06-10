@@ -474,6 +474,16 @@ namespace AvionicsSystems
                     lhs.numericCallbacks += v.TriggerUpdate;
                     rhs.numericCallbacks += v.TriggerUpdate;
                     break;
+                case CodeGen.Parser.LuaToken.MODULO:
+                    v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() % rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
+                    lhs.numericCallbacks += v.TriggerUpdate;
+                    rhs.numericCallbacks += v.TriggerUpdate;
+                    break;
+                case CodeGen.Parser.LuaToken.EXPONENT:
+                    v = new Variable(operatorExpression.CanonicalName(), () => Math.Pow(lhs.SafeValue(), rhs.SafeValue()), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
+                    lhs.numericCallbacks += v.TriggerUpdate;
+                    rhs.numericCallbacks += v.TriggerUpdate;
+                    break;
                 case CodeGen.Parser.LuaToken.LESS_THAN:
                     v = new Variable(operatorExpression.CanonicalName(), () => lhs.SafeValue() < rhs.SafeValue(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
                     lhs.numericCallbacks += v.TriggerUpdate;

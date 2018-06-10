@@ -789,6 +789,26 @@ namespace AvionicsSystems
             }
         }
 
+        [MASProxy(Dependent = true)]
+        /// <summary>
+        /// Returns the remainder of `numerator` divided by `denominator`.  If the denominator is zero, this method
+        /// returns 0 instead of infinity or throwing a divide-by-zero exception.
+        /// </summary>
+        /// <param name="numerator">The numerator</param>
+        /// <param name="denominator">The denominator</param>
+        /// <returns>A value between 0 and `denominator`, or 0 if the denominator is zero.</returns>
+        public double SafeModulo(double numerator, double denominator)
+        {
+            if (Math.Abs(denominator) > 0.0)
+            {
+                return numerator % denominator;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
         #endregion
 
         /// <summary>
