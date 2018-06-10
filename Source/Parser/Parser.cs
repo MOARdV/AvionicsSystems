@@ -202,7 +202,6 @@ namespace AvionicsSystems.CodeGen
             EOF
         };
 
-        // +++ MOARdV updates
         internal struct LuaTokenData
         {
             internal readonly LuaToken token;
@@ -311,7 +310,6 @@ namespace AvionicsSystems.CodeGen
             { LuaToken.DOT, new BinaryOperatorParselet(13, false) },
             
         };
-        // --- MOARdV updates
 
         List<Token> tokenList = new List<Token>();
         int mTokens = 0;
@@ -319,7 +317,6 @@ namespace AvionicsSystems.CodeGen
 
         private Parser(string source)
         {
-            // MdV++
             // Initialize the static (reusable) lexer settings if we haven't already
             if (lexerSettings == null)
             {
@@ -333,7 +330,6 @@ namespace AvionicsSystems.CodeGen
                 lexerSettings.Symbols = lexerTokenDict;
             }
             Lexer lex = new Lexer(source.Trim(), lexerSettings);
-            // MdV--
 
             bool inQuote = false;
             int startPosition = 0;
