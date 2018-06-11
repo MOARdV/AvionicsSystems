@@ -60,8 +60,6 @@ namespace AvionicsSystems
 
         #region Message Logging
 
-        private static StringBuilder logSb = new StringBuilder();
-
         /// <summary>
         /// Log a message.  Logged regardless of the MAS Settings debug flag.
         /// </summary>
@@ -69,9 +67,9 @@ namespace AvionicsSystems
         /// <param name="values"></param>
         internal static void LogStaticInfo(string format, params object[] values)
         {
-            logSb.Remove(0, logSb.Length);
+            StringBuilder logSb = StringBuilderCache.Acquire();
             logSb.Append("[AvionicsSystems] ").AppendFormat(format, values);
-            UnityEngine.Debug.Log(logSb.ToString());
+            UnityEngine.Debug.Log(logSb.ToStringAndRelease());
         }
 
         /// <summary>
@@ -81,10 +79,10 @@ namespace AvionicsSystems
         /// <param name="values"></param>
         internal static void LogInfo(object who, string format, params object[] values)
         {
-            logSb.Remove(0, logSb.Length);
+            StringBuilder logSb = StringBuilderCache.Acquire();
             logSb.Append("[").Append(who.GetType().Name).Append("] ").AppendFormat(format, values);
 
-            UnityEngine.Debug.Log(logSb.ToString());
+            UnityEngine.Debug.Log(logSb.ToStringAndRelease());
         }
 
         /// <summary>
@@ -96,9 +94,9 @@ namespace AvionicsSystems
         {
             if (MASConfig.VerboseLogging)
             {
-                logSb.Remove(0, logSb.Length);
+                StringBuilder logSb = StringBuilderCache.Acquire();
                 logSb.Append("[AvionicsSystems] ").AppendFormat(format, values);
-                UnityEngine.Debug.Log(logSb.ToString());
+                UnityEngine.Debug.Log(logSb.ToStringAndRelease());
             }
         }
 
@@ -112,10 +110,10 @@ namespace AvionicsSystems
         {
             if (MASConfig.VerboseLogging)
             {
-                logSb.Remove(0, logSb.Length);
+                StringBuilder logSb = StringBuilderCache.Acquire();
                 logSb.Append("[").Append(who.GetType().Name).Append("] ").AppendFormat(format, values);
 
-                UnityEngine.Debug.Log(logSb.ToString());
+                UnityEngine.Debug.Log(logSb.ToStringAndRelease());
             }
         }
 
@@ -128,9 +126,9 @@ namespace AvionicsSystems
         {
             if (MASConfig.VerboseLogging)
             {
-                logSb.Remove(0, logSb.Length);
+                StringBuilder logSb = StringBuilderCache.Acquire();
                 logSb.Append("[AvionicsSystems] ").AppendFormat(format, values);
-                UnityEngine.Debug.LogWarning(logSb.ToString());
+                UnityEngine.Debug.LogWarning(logSb.ToStringAndRelease());
             }
         }
 
@@ -144,10 +142,10 @@ namespace AvionicsSystems
         {
             if (MASConfig.VerboseLogging)
             {
-                logSb.Remove(0, logSb.Length);
+                StringBuilder logSb = StringBuilderCache.Acquire();
                 logSb.Append("[").Append(who.GetType().Name).Append("] ").AppendFormat(format, values);
 
-                UnityEngine.Debug.LogWarning(logSb.ToString());
+                UnityEngine.Debug.LogWarning(logSb.ToStringAndRelease());
             }
         }
 
@@ -158,9 +156,9 @@ namespace AvionicsSystems
         /// <param name="values"></param>
         internal static void LogStaticError(string format, params object[] values)
         {
-            logSb.Remove(0, logSb.Length);
+            StringBuilder logSb = StringBuilderCache.Acquire();
             logSb.Append("[AvionicsSystems] ").AppendFormat(format, values);
-            UnityEngine.Debug.LogError(logSb.ToString());
+            UnityEngine.Debug.LogError(logSb.ToStringAndRelease());
         }
 
         /// <summary>
@@ -171,10 +169,10 @@ namespace AvionicsSystems
         /// <param name="values"></param>
         internal static void LogError(object who, string format, params object[] values)
         {
-            logSb.Remove(0, logSb.Length);
+            StringBuilder logSb = StringBuilderCache.Acquire();
             logSb.Append("[").Append(who.GetType().Name).Append("] ").AppendFormat(format, values);
 
-            UnityEngine.Debug.LogError(logSb.ToString());
+            UnityEngine.Debug.LogError(logSb.ToStringAndRelease());
         }
         #endregion
 
