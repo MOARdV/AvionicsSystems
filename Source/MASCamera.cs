@@ -344,7 +344,7 @@ namespace AvionicsSystems
         private readonly Camera[] cameras = { null, null, null, null, null };
         private readonly GameObject[] cameraBody = { null, null, null, null, null };
         internal RenderTexture cameraRentex;
-        internal event Action<RenderTexture, Material> renderCallback;
+        private event Action<RenderTexture, Material> renderCallback;
         private bool cameraLive;
 
         /*
@@ -489,7 +489,7 @@ namespace AvionicsSystems
 
                 deploymentController = part.FindModuleImplementing<MASDeployableCamera>();
 
-                CreateFlightCameras(1.0f);
+                CreateFlightCameras();
 
                 Camera.onPreCull += CameraPrerender;
             }
@@ -508,15 +508,13 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Update parameters affected by a mode change.
+        /// Iterate over the cameras to apply a new rentex to them.
         /// </summary>
-        private void ApplyMode()
+        private void UpdateCameras()
         {
-            if (cameraRentex.width != mode[activeMode].cameraResolution)
+            for (int i = 0; i < cameras.Length; ++i)
             {
-                cameraRentex.Release();
-                cameraRentex = new RenderTexture(mode[activeMode].cameraResolution, mode[activeMode].cameraResolution, 24);
-                for (int i = 0; i < cameras.Length; ++i)
+                if (cameras[i] != null)
                 {
                     cameras[i].targetTexture = cameraRentex;
                 }
@@ -524,9 +522,35 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Update parameters affected by a mode change.
+        /// </summary>
+        private void ApplyMode()
+        {
+            if (cameraRentex == null)
+            {
+                return;
+            }
+            try
+            {
+                if (cameraRentex.width != mode[activeMode].cameraResolution)
+                {
+                    cameraRentex.Release();
+                    cameraRentex = new RenderTexture(mode[activeMode].cameraResolution, mode[activeMode].cameraResolution, 24);
+
+                    UpdateCameras();
+                }
+            }
+            catch (Exception e)
+            {
+                Utility.LogError(this, "ApplyMode() threw an exception in {0}:", vessel.vesselName);
+                Utility.LogError(this, e.ToString());
+            }
+        }
+
+        /// <summary>
         /// Create the cameras used during flight.
         /// </summary>
-        private void CreateFlightCameras(float aspectRatio)
+        private void CreateFlightCameras()
         {
             cameraLive = true;
 
@@ -556,9 +580,10 @@ namespace AvionicsSystems
                 mode[i] = new MASCameraMode(modeNodes[i], part.partName);
             }
 
-            //var afg = UnityEngine.Object.FindObjectOfType<AtmosphereFromGround>();
             for (int i = 0; i < cameras.Length; ++i)
             {
+                // It looks like the FXCamera can be null when the vessel being loaded isn't the current vessel
+                // (such as when entering physics range).
                 Camera sourceCamera = GetCameraByName(knownCameraNames[i]);
                 if (sourceCamera != null)
                 {
@@ -568,7 +593,7 @@ namespace AvionicsSystems
 
                     cameras[i].CopyFrom(sourceCamera);
                     cameras[i].enabled = true;
-                    cameras[i].aspect = aspectRatio;
+                    cameras[i].aspect = 1.0f;
                     cameras[i].targetTexture = cameraRentex;
 
                     // These get stomped on at render time:
@@ -612,6 +637,9 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Callback when the part's detached - don't show FoV ray in the editor.
+        /// </summary>
         private void DetachPart()
         {
             showFov = false;
@@ -671,6 +699,42 @@ namespace AvionicsSystems
         #endregion
 
         #region Flight
+        private int subscriberCount = 0;
+
+        /// <summary>
+        /// Callback to subscribe to a camera's renderer.
+        /// </summary>
+        /// <param name="callback">The callback to invoke.</param>
+        internal void SubscribeCamera(Action<RenderTexture, Material> callback)
+        {
+            int countBefore = (renderCallback == null) ? 0 : renderCallback.GetInvocationList().Length;
+            renderCallback += callback;
+            int countAfter = renderCallback.GetInvocationList().Length;
+            if (countAfter > countBefore)
+            {
+                ++subscriberCount;
+                //Utility.LogMessage(this, "Subscribing  : Now {0} subscribers for {1} in {2}", subscriberCount, cameraName, vessel.vesselName);
+            }
+        }
+
+        /// <summary>
+        /// Callback to unsubscribe from a camera's renderer.
+        /// </summary>
+        /// <param name="callback">The callback to invoke.</param>
+        internal void UnsubscribeCamera(Action<RenderTexture, Material> callback)
+        {
+            if (renderCallback != null)
+            {
+                int countBefore = renderCallback.GetInvocationList().Length;
+                renderCallback -= callback;
+                int countAfter = (renderCallback == null) ? 0 : renderCallback.GetInvocationList().Length;
+                if (countAfter < countBefore)
+                {
+                    --subscriberCount;
+                    //Utility.LogMessage(this, "Unsubscribing: Now {0} subscribers for {1} in {2}", subscriberCount, cameraName, vessel.vesselName);
+                }
+            }
+        }
 
         /// <summary>
         /// Change the current field of view by `deltaFoV` degrees, remaining within
@@ -861,7 +925,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public int SetMode(int newMode)
         {
-            if (newMode >= 0 || newMode < mode.Length)
+            if (newMode >= 0 && newMode < mode.Length && newMode != activeMode)
             {
                 activeMode = newMode;
                 ApplyMode();
@@ -1030,7 +1094,10 @@ namespace AvionicsSystems
                     cameraLive = (renderCallback != null);
                     for (int i = cameraBody.Length - 1; i >= 0; --i)
                     {
-                        cameras[i].enabled = cameraLive;
+                        if (cameras[i] != null)
+                        {
+                            cameras[i].enabled = cameraLive;
+                        }
                     }
                 }
 
