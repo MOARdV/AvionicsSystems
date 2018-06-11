@@ -394,6 +394,7 @@ namespace AvionicsSystems
             // TrueAnomalyAtRadius returns a TA between 0 and PI, representing
             // when the orbit crosses that altitude while ascending from Pe (0) to Ap (PI).
             double taAtRadius = orbit.TrueAnomalyAtRadius(radius);
+            if (double.IsNaN(taAtRadius))
             {
                 Utility.LogStaticWarning("NextTimeToRadius(): taAtRadius is NaN");
             }
@@ -406,7 +407,9 @@ namespace AvionicsSystems
             {
                 timeToTa1 = NormalizeOrbitTime(orbit.GetUTforTrueAnomaly(taAtRadius, orbit.period) - Planetarium.GetUniversalTime(), orbit);
             }
+            catch (Exception e)
             {
+                Utility.LogStaticError("Exception: {0}", e);
                 Utility.LogStaticError("taAtRadius = {0:0.000}, orbit.period = {1:0.000}", taAtRadius, orbit.period);
                 timeToTa1 = 0.0;
             }
