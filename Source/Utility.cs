@@ -394,11 +394,22 @@ namespace AvionicsSystems
             // TrueAnomalyAtRadius returns a TA between 0 and PI, representing
             // when the orbit crosses that altitude while ascending from Pe (0) to Ap (PI).
             double taAtRadius = orbit.TrueAnomalyAtRadius(radius);
+            {
+                Utility.LogStaticWarning("NextTimeToRadius(): taAtRadius is NaN");
+            }
             // GetUTForTrueAnomaly gives us a time for when that will occur.  I don't know
             // what parameter 2 is really supposed to do (wrapAfterSeconds), because after
             // subtracting vc.UT, I see values sometimes 2 orbits in the past.  Which is why
             // we have to normalize it here to the next time we cross that TA.
-            double timeToTa1 = NormalizeOrbitTime(orbit.GetUTforTrueAnomaly(taAtRadius, orbit.period) - Planetarium.GetUniversalTime(), orbit);
+            double timeToTa1;
+            try
+            {
+                timeToTa1 = NormalizeOrbitTime(orbit.GetUTforTrueAnomaly(taAtRadius, orbit.period) - Planetarium.GetUniversalTime(), orbit);
+            }
+            {
+                Utility.LogStaticError("taAtRadius = {0:0.000}, orbit.period = {1:0.000}", taAtRadius, orbit.period);
+                timeToTa1 = 0.0;
+            }
 
             // Now, what about the other time we cross that altitude (in the range of -PI to 0)?
             // Easy.  The orbit is symmetrical around 0, so the other TA is -taAtAltitude.
