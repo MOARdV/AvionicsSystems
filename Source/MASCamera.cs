@@ -344,7 +344,7 @@ namespace AvionicsSystems
         private readonly Camera[] cameras = { null, null, null, null, null };
         private readonly GameObject[] cameraBody = { null, null, null, null, null };
         internal RenderTexture cameraRentex;
-        private event Action<RenderTexture, Material> renderCallback;
+        internal event Action<RenderTexture, Material> renderCallback;
         private bool cameraLive;
 
         /*
@@ -508,20 +508,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Iterate over the cameras to apply a new rentex to them.
-        /// </summary>
-        private void UpdateCameras()
-        {
-            for (int i = 0; i < cameras.Length; ++i)
-            {
-                if (cameras[i] != null)
-                {
-                    cameras[i].targetTexture = cameraRentex;
-                }
-            }
-        }
-
-        /// <summary>
         /// Update parameters affected by a mode change.
         /// </summary>
         private void ApplyMode()
@@ -537,7 +523,13 @@ namespace AvionicsSystems
                     cameraRentex.Release();
                     cameraRentex = new RenderTexture(mode[activeMode].cameraResolution, mode[activeMode].cameraResolution, 24);
 
-                    UpdateCameras();
+                    for (int i = 0; i < cameras.Length; ++i)
+                    {
+                        if (cameras[i] != null)
+                        {
+                            cameras[i].targetTexture = cameraRentex;
+                        }
+                    }
                 }
             }
             catch (Exception e)
@@ -548,14 +540,44 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Create a clone of one of the KSP standard cameras.
+        /// </summary>
+        /// <param name="index">The index in the array where the new Camera will reside.</param>
+        private void ConstructCamera(int index)
+        {
+            Camera sourceCamera = GetCameraByName(knownCameraNames[index]);
+            if (sourceCamera != null)
+            {
+                cameraBody[index] = new GameObject();
+                cameraBody[index].name = string.Format("MASCamera-{0}-{1}", index, cameraBody[index].GetInstanceID());
+                cameras[index] = cameraBody[index].AddComponent<Camera>();
+
+                cameras[index].CopyFrom(sourceCamera);
+                cameras[index].enabled = false;
+                cameras[index].aspect = 1.0f;
+
+                // These get stomped on at render time:
+                cameras[index].fieldOfView = currentFov;
+                cameras[index].transform.rotation = Quaternion.identity;
+
+                // Minor hack to bring the near clip plane for the "up close"
+                // cameras drastically closer to where the cameras notionally
+                // are.  Experimentally, these two cameras have N/F of 0.4 / 300.0,
+                // or 750:1 Far/Near ratio.  Changing this to 8192:1 brings the
+                // near plane to 37cm or so, which hopefully is close enough to
+                // see nearby details without creating z-fighting artifacts.
+                if (index == 3 || index == 4)
+                {
+                    cameras[index].nearClipPlane = cameras[index].farClipPlane / 8192.0f;
+                }
+            }
+        }
+
+        /// <summary>
         /// Create the cameras used during flight.
         /// </summary>
         private void CreateFlightCameras()
         {
-            cameraLive = true;
-
-            cameraRentex = new RenderTexture(256, 256, 24);
-
             List<MASCamera> cameraModules = part.FindModulesImplementing<MASCamera>();
             int index = cameraModules.IndexOf(this);
 
@@ -582,40 +604,10 @@ namespace AvionicsSystems
 
             for (int i = 0; i < cameras.Length; ++i)
             {
-                // It looks like the FXCamera can be null when the vessel being loaded isn't the current vessel
-                // (such as when entering physics range).
-                Camera sourceCamera = GetCameraByName(knownCameraNames[i]);
-                if (sourceCamera != null)
-                {
-                    cameraBody[i] = new GameObject();
-                    cameraBody[i].name = "MASCamera-" + i + "-" + cameraBody[i].GetInstanceID();
-                    cameras[i] = cameraBody[i].AddComponent<Camera>();
-
-                    cameras[i].CopyFrom(sourceCamera);
-                    cameras[i].enabled = true;
-                    cameras[i].aspect = 1.0f;
-                    cameras[i].targetTexture = cameraRentex;
-
-                    // These get stomped on at render time:
-                    cameras[i].fieldOfView = currentFov;
-                    cameras[i].transform.rotation = Quaternion.identity;
-
-                    // Minor hack to bring the near clip plane for the "up close"
-                    // cameras drastically closer to where the cameras notionally
-                    // are.  Experimentally, these two cameras have N/F of 0.4 / 300.0,
-                    // or 750:1 Far/Near ratio.  Changing this to 8192:1 brings the
-                    // near plane to 37cm or so, which hopefully is close enough to
-                    // see nearby details without creating z-fighting artifacts.
-                    if (i == 3 || i == 4)
-                    {
-                        cameras[i].nearClipPlane = cameras[i].farClipPlane / 8192.0f;
-                    }
-                }
+                ConstructCamera(i);
             }
 
-            // Need to init cameras before applying mode.
             activeMode = Mathf.Clamp(activeMode, 0, mode.Length - 1);
-            ApplyMode();
         }
 
         /// <summary>
@@ -699,43 +691,6 @@ namespace AvionicsSystems
         #endregion
 
         #region Flight
-        private int subscriberCount = 0;
-
-        /// <summary>
-        /// Callback to subscribe to a camera's renderer.
-        /// </summary>
-        /// <param name="callback">The callback to invoke.</param>
-        internal void SubscribeCamera(Action<RenderTexture, Material> callback)
-        {
-            int countBefore = (renderCallback == null) ? 0 : renderCallback.GetInvocationList().Length;
-            renderCallback += callback;
-            int countAfter = renderCallback.GetInvocationList().Length;
-            if (countAfter > countBefore)
-            {
-                ++subscriberCount;
-                //Utility.LogMessage(this, "Subscribing  : Now {0} subscribers for {1} in {2}", subscriberCount, cameraName, vessel.vesselName);
-            }
-        }
-
-        /// <summary>
-        /// Callback to unsubscribe from a camera's renderer.
-        /// </summary>
-        /// <param name="callback">The callback to invoke.</param>
-        internal void UnsubscribeCamera(Action<RenderTexture, Material> callback)
-        {
-            if (renderCallback != null)
-            {
-                int countBefore = renderCallback.GetInvocationList().Length;
-                renderCallback -= callback;
-                int countAfter = (renderCallback == null) ? 0 : renderCallback.GetInvocationList().Length;
-                if (countAfter < countBefore)
-                {
-                    --subscriberCount;
-                    //Utility.LogMessage(this, "Unsubscribing: Now {0} subscribers for {1} in {2}", subscriberCount, cameraName, vessel.vesselName);
-                }
-            }
-        }
-
         /// <summary>
         /// Change the current field of view by `deltaFoV` degrees, remaining within
         /// camera FoV limits.
@@ -1092,11 +1047,33 @@ namespace AvionicsSystems
                 if (cameraLive != (renderCallback != null))
                 {
                     cameraLive = (renderCallback != null);
+
+                    if (cameraLive)
+                    {
+                        if (cameraRentex == null)
+                        {
+                            cameraRentex = new RenderTexture(mode[activeMode].cameraResolution, mode[activeMode].cameraResolution, 24);
+                        }
+                    }
+                    else
+                    {
+                        cameraRentex.Release();
+                        cameraRentex = null;
+                    }
+
                     for (int i = cameraBody.Length - 1; i >= 0; --i)
                     {
+                        if (cameras[i] == null)
+                        {
+                            ConstructCamera(i);
+                        }
+
+                        // It looks like the FXCamera can be null when the vessel being loaded isn't the current vessel
+                        // (such as when entering physics range), so we have to null-check here.
                         if (cameras[i] != null)
                         {
                             cameras[i].enabled = cameraLive;
+                            cameras[i].targetTexture = cameraRentex;
                         }
                     }
                 }

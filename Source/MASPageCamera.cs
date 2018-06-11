@@ -252,7 +252,7 @@ namespace AvionicsSystems
                 MASCamera newCamera = comp.vc.FindCameraModule(cameraSelector.String());
                 if (activeCamera != null)
                 {
-                    activeCamera.UnsubscribeCamera(ReadCamera);
+                    activeCamera.renderCallback -= ReadCamera;
                 }
                 activeCamera = newCamera;
                 if (activeCamera != null)
@@ -260,7 +260,7 @@ namespace AvionicsSystems
                     if (pageEnabled)
                     {
                         activeCamera.UpdateFlightComputer(comp);
-                        activeCamera.SubscribeCamera(ReadCamera);
+                        activeCamera.renderCallback += ReadCamera;
                     }
                 }
                 else if (!coroutineActive)
@@ -277,7 +277,7 @@ namespace AvionicsSystems
             {
                 if (activeCamera != null)
                 {
-                    activeCamera.UnsubscribeCamera(ReadCamera);
+                    activeCamera.renderCallback -= ReadCamera;
                 }
 
                 activeCamera = null;
@@ -335,11 +335,11 @@ namespace AvionicsSystems
                 if (enable)
                 {
                     activeCamera.UpdateFlightComputer(comp);
-                    activeCamera.SubscribeCamera(ReadCamera);
+                    activeCamera.renderCallback += ReadCamera;
                 }
                 else
                 {
-                    activeCamera.UnsubscribeCamera(ReadCamera);
+                    activeCamera.renderCallback -= ReadCamera;
                 }
             }
         }
@@ -372,7 +372,7 @@ namespace AvionicsSystems
 
             if (activeCamera != null)
             {
-                activeCamera.UnsubscribeCamera(ReadCamera);
+                activeCamera.renderCallback -= ReadCamera;
             }
             activeCamera = null;
 
