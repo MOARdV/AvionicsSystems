@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -25,14 +25,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-//using System.Text;
 using UnityEngine;
 
 namespace AvionicsSystems
 {
     public partial class MASFlightComputer : PartModule
     {
-        private Dictionary<float, FlashModule> flashModule = new Dictionary<float,FlashModule>();
+        private Dictionary<float, FlashModule> flashModule = new Dictionary<float, FlashModule>();
 
         private class FlashModule
         {
@@ -40,8 +39,12 @@ namespace AvionicsSystems
             internal bool state;
             internal event Action<bool> flashCallbacks;
 
-            internal void Toggle()
+            internal bool Toggle()
             {
+                if (flashCallbacks == null)
+                {
+                    return false;
+                }
                 try
                 {
                     state = !state;
@@ -51,6 +54,7 @@ namespace AvionicsSystems
                 {
                     Utility.LogError(this, "Exception caught in {0:0.00} - callback no longer valid?", period);
                 }
+                return true;
             }
         };
 
@@ -75,7 +79,7 @@ namespace AvionicsSystems
         {
             period = QuantizePeriod(period);
 
-            if(flashModule.ContainsKey(period))
+            if (flashModule.ContainsKey(period))
             {
                 flashModule[period].flashCallbacks += callback;
                 callback(flashModule[period].state);
@@ -86,7 +90,7 @@ namespace AvionicsSystems
                 fm.period = period;
                 fm.state = false;
                 fm.flashCallbacks += callback;
-                flashModule.Add(period,fm);
+                flashModule.Add(period, fm);
                 callback(false);
 
                 StartCoroutine(FlashCoroutine(fm));
@@ -114,10 +118,14 @@ namespace AvionicsSystems
         /// <returns></returns>
         private IEnumerator FlashCoroutine(FlashModule fm)
         {
-            while(fm.period > 0.0f)
+            while (fm.period > 0.0f)
             {
                 yield return new WaitForSeconds(fm.period / TimeWarp.CurrentRate);
-                fm.Toggle();
+                if (!fm.Toggle())
+                {
+                    flashModule.Remove(fm.period);
+                    yield return null;
+                }
             }
         }
     }
