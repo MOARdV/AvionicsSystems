@@ -1198,6 +1198,231 @@ namespace AvionicsSystems
             return MASLoader.masVersion;
         }
 
+        [MASProxy(Dependent = true)]
+        /// <summary>
+        /// Returns the B color value for the navball marker icon selected.
+        /// This function is intended to be used in conjunction with the '%NAVBALL_ICON%' texture in
+        /// MASMonitor IMAGE nodes.
+        /// 
+        /// * 0 - Prograde
+        /// * 1 - Retrograde
+        /// * 2 - Radial Out
+        /// * 3 - Radial In
+        /// * 4 - Normal +
+        /// * 5 - Normal - (anti-normal)
+        /// * 6 - Maneuver Node
+        /// * 7 - Target +
+        /// * 8 - Target - (anti-target)
+        /// 
+        /// If an invalid number is supplied, this function treats is as "Prograde".
+        /// </summary>
+        /// <param name="iconId">The icon as explained in the description.</param>
+        /// <returns>The B value to use in `passiveColor` or `activeColor`.</returns>
+        public double NavballB(double iconId)
+        {
+            int index = (int)iconId;
+            switch (index)
+            {
+                case 1:
+                    return 0.0;
+                case 2:
+                    return 255.0;
+                case 3:
+                    return 255.0;
+                case 4:
+                    return 206.0;
+                case 5:
+                    return 206.0;
+                case 6:
+                    return 249.0;
+                case 7:
+                    return 255.0;
+                case 8:
+                    return 255.0;
+            }
+            return 0.0;
+        }
+
+        [MASProxy(Dependent = true)]
+        /// <summary>
+        /// Returns the G color value for the navball marker icon selected.
+        /// This function is intended to be used in conjunction with the '%NAVBALL_ICON%' texture in
+        /// MASMonitor IMAGE nodes.
+        /// 
+        /// * 0 - Prograde
+        /// * 1 - Retrograde
+        /// * 2 - Radial Out
+        /// * 3 - Radial In
+        /// * 4 - Normal +
+        /// * 5 - Normal - (anti-normal)
+        /// * 6 - Maneuver Node
+        /// * 7 - Target +
+        /// * 8 - Target - (anti-target)
+        /// 
+        /// If an invalid number is supplied, this function treats is as "Prograde".
+        /// </summary>
+        /// <param name="iconId">The icon as explained in the description.</param>
+        /// <returns>The G value to use in `passiveColor` or `activeColor`.</returns>
+        public double NavballG(double iconId)
+        {
+            int index = (int)iconId;
+            switch (index)
+            {
+                case 1:
+                    return 203.0;
+                case 2:
+                    return 155.0;
+                case 3:
+                    return 155.0;
+                case 4:
+                    return 0.0;
+                case 5:
+                    return 0.0;
+                case 6:
+                    return 102.0;
+                case 7:
+                    return 0.0;
+                case 8:
+                    return 0.0;
+            }
+            return 203.0;
+        }
+
+        [MASProxy(Dependent = true)]
+        /// <summary>
+        /// Returns the R color value for the navball marker icon selected.
+        /// This function is intended to be used in conjunction with the '%NAVBALL_ICON%' texture in
+        /// MASMonitor IMAGE nodes.
+        /// 
+        /// * 0 - Prograde
+        /// * 1 - Retrograde
+        /// * 2 - Radial Out
+        /// * 3 - Radial In
+        /// * 4 - Normal +
+        /// * 5 - Normal - (anti-normal)
+        /// * 6 - Maneuver Node
+        /// * 7 - Target +
+        /// * 8 - Target - (anti-target)
+        /// 
+        /// If an invalid number is supplied, this function treats is as "Prograde".
+        /// </summary>
+        /// <param name="iconId">The icon as explained in the description.</param>
+        /// <returns>The R value to use in `passiveColor` or `activeColor`.</returns>
+        public double NavballR(double iconId)
+        {
+            int index = (int)iconId;
+            switch (index)
+            {
+                case 1:
+                    return 255.0;
+                case 2:
+                    return 0.0;
+                case 3:
+                    return 0.0;
+                case 4:
+                    return 156.0;
+                case 5:
+                    return 156.0;
+                case 6:
+                    return 0.0;
+                case 7:
+                    return 255.0;
+                case 8:
+                    return 255.0;
+            }
+            return 255.0;
+        }
+
+        [MASProxy(Dependent = true)]
+        /// <summary>
+        /// Returns the U texture shift to select the navball marker icon as listed below.
+        /// This function is intended to be used in conjunction with the '%NAVBALL_ICON%' texture in
+        /// MASMonitor IMAGE nodes.
+        /// 
+        /// * 0 - Prograde
+        /// * 1 - Retrograde
+        /// * 2 - Radial Out
+        /// * 3 - Radial In
+        /// * 4 - Normal +
+        /// * 5 - Normal - (anti-normal)
+        /// * 6 - Maneuver Node
+        /// * 7 - Target +
+        /// * 8 - Target - (anti-target)
+        /// 
+        /// If an invalid number is supplied, this function treats is as "Prograde".
+        /// </summary>
+        /// <param name="iconId">The icon as explained in the description.</param>
+        /// <returns>The U value to use in `uvShift`.</returns>
+        public double NavballU(double iconId)
+        {
+            int index = (int)iconId;
+            switch (index)
+            {
+                case 1:
+                    return (1.0 / 3.0);
+                case 2:
+                    return (1.0 / 3.0);
+                case 3:
+                    return 0.0;
+                case 4:
+                    return 0.0;
+                case 5:
+                    return (1.0 / 3.0);
+                case 6:
+                    return (2.0 / 3.0);
+                case 7:
+                    return (2.0 / 3.0);
+                case 8:
+                    return (2.0 / 3.0);
+            }
+            return 0.0;
+        }
+
+        [MASProxy(Dependent = true)]
+        /// <summary>
+        /// Returns the V texture shift to select the navball marker icon as listed below.
+        /// This function is intended to be used in conjunction with the '%NAVBALL_ICON%' texture in
+        /// MASMonitor IMAGE nodes.
+        /// 
+        /// * 0 - Prograde
+        /// * 1 - Retrograde
+        /// * 2 - Radial Out
+        /// * 3 - Radial In
+        /// * 4 - Normal +
+        /// * 5 - Normal - (anti-normal)
+        /// * 6 - Maneuver Node
+        /// * 7 - Target +
+        /// * 8 - Target - (anti-target)
+        /// 
+        /// If an invalid number is supplied, this function treats is as "Prograde".
+        /// </summary>
+        /// <param name="iconId">The icon as explained in the description.</param>
+        /// <returns>The V value to use in `uvShift`.</returns>
+        public double NavballV(double iconId)
+        {
+            int index = (int)iconId;
+            switch (index)
+            {
+                case 1:
+                    return (2.0 / 3.0);
+                case 2:
+                    return (1.0 / 3.0);
+                case 3:
+                    return (1.0 / 3.0);
+                case 4:
+                    return 0.0;
+                case 5:
+                    return 0.0;
+                case 6:
+                    return 0.0;
+                case 7:
+                    return (2.0 / 3.0);
+                case 8:
+                    return (1.0 / 3.0);
+            }
+            return 2.0 / 3.0;
+        }
+
         /// <summary>
         /// Play the audio file specified in `sound`, at the volume specified in `volume`.
         /// If `stopCurrent` is true, any current sound clip is canceled first.  If `stopCurrent`

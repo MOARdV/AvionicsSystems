@@ -78,6 +78,10 @@ namespace AvionicsSystems
             {
                 mainTexture = MASLoader.OrbitIconsAtlas();
             }
+            else if (textureName == "%NAVBALL_ICON%")
+            {
+                mainTexture = GameDatabase.Instance.GetTexture("Squad/Props/IVANavBall/ManeuverNode_vectors", false);
+            }
             else
             {
                 if (textureName == "%FLAG%")
