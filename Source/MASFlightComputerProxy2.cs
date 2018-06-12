@@ -1528,7 +1528,7 @@ namespace AvionicsSystems
             }
             else
             {
-                return vc.GetRelativePitch(vc.surfacePrograde);
+                return vc.GetRelativePitch(vc.surfacePrograde) * (Math.Min(2.0, vessel.srfSpeed) * 0.5);
             }
         }
 
@@ -1891,7 +1891,7 @@ namespace AvionicsSystems
             }
             else
             {
-                return vc.GetRelativeYaw(vc.surfacePrograde);
+                return vc.GetRelativeYaw(vc.surfacePrograde) * (Math.Min(2.0, vessel.srfSpeed) * 0.5);
             }
         }
 
