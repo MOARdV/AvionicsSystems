@@ -47,6 +47,10 @@ namespace AvionicsSystems
         // Initialization
         private static readonly Action<object, Vessel> wbiFindControllers;
 
+        // Air Park control
+        private static readonly Action<object> wbiTogglePark;
+        private static readonly Func<object, bool> wbiGetParkActive;
+
         // Hover mode control
         private static readonly Func<object, bool> wbiGetHoverActive;
         private static readonly Func<object, bool> wbiEnginesAreActive;
@@ -57,6 +61,15 @@ namespace AvionicsSystems
         private static readonly Action<object, float> wbiDecreaseVerticalSpeed;
         private static readonly Action<object, float> wbiIncreaseVerticalSpeed;
         private static readonly Action<object> wbiKillVerticalSpeed;
+
+        // Rotation control
+        private static readonly Func<object, bool> wbiCanRotateMax;
+        private static readonly Func<object, bool> wbiCanRotateMin;
+        private static readonly Action<object> wbiRotateMax;
+        private static readonly Action<object> wbiRotateMin;
+        private static readonly Action<object> wbiRotateNeutral;
+        private static readonly Action<object, float> wbiDecreaseRotationAngle;
+        private static readonly Action<object, float> wbiIncreaseRotationAngle;
 
         // Thrust mode
         private static readonly Func<object, object> wbiGetThrustMode;
@@ -96,6 +109,13 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// The WBI VTOL Manager has several features that it controls.  The VTOL
+        /// Capabilities category provides a way to query the availability of those
+        /// features on a given craft.
+        /// </summary>
+        #region VTOL Capabilities
+
+        /// <summary>
         /// Indicates whether the Wild Blue Industries VTOL manager mod is available.
         /// </summary>
         /// <returns></returns>
@@ -103,6 +123,123 @@ namespace AvionicsSystems
         {
             return (wbivtolInstalled) ? 1.0 : 0.0;
         }
+
+        /// <summary>
+        /// Returns 1 if the current vessel supports Air Park mode.
+        /// 
+        /// **NOTE:** KerbalActuators needs an update to support this feature.  Currently, this function
+        /// always returns 1 if the WBI VTOL Manager mod is installed.
+        /// </summary>
+        /// <returns></returns>
+        public double HasAirPark()
+        {
+            object manager = GetVtolManager();
+            if (manager != null)
+            {
+                return 1.0;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the current vessel has WBI Hover controller components.
+        /// 
+        /// **NOTE:** KerbalActuators needs an update to support this feature.  Currently, this function
+        /// always returns 1 if the WBI VTOL Manager mod is installed.
+        /// </summary>
+        /// <returns></returns>
+        public double HasHover()
+        {
+            object manager = GetVtolManager();
+            if (manager != null)
+            {
+                return 1.0;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if at least one WBI Rotation Controller is installed.
+        /// </summary>
+        /// <returns></returns>
+        public double HasRotationController()
+        {
+            object manager = GetVtolManager();
+            if (manager != null)
+            {
+                return (wbiCanRotateMax(manager) || wbiCanRotateMin(manager)) ? 1.0 : 0.0;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the current vessel has WBI Thrust Vector components.
+        /// 
+        /// **NOTE:** KerbalActuators needs an update to support this feature.  Currently, this function
+        /// always returns 1 if the WBI VTOL Manager mod is installed.
+        /// </summary>
+        /// <returns></returns>
+        public double HasThrustVector()
+        {
+            object manager = GetVtolManager();
+            if (manager != null)
+            {
+                return 1.0;
+            }
+            return 0.0;
+        }
+
+        #endregion
+
+        /// <summary>
+        /// The VTOL Air Park category provides the interface to toggle and query the Air Park mode
+        /// in vessels equipped with that capability.
+        /// </summary>
+        #region VTOL Air Park
+
+        /// <summary>
+        /// Returns 1 if the Air Park feature is active.  Returns 0 if it is inactive or unavailable.
+        /// 
+        /// **NOTE:** KerbalActuators will require an update before this feature will return 0 when
+        /// Air Park is unavailable.
+        /// </summary>
+        /// <returns></returns>
+        public double GetParked()
+        {
+            object manager = GetVtolManager();
+            if (manager != null)
+            {
+                return wbiGetParkActive(manager) ? 1.0 : 0.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Toggle the Air Park feature.  Returns 1 if Air Park is now active, returns 0
+        /// otherwise (including if Air Park is unavailable).
+        /// </summary>
+        /// <returns></returns>
+        public double ToggleAirPark()
+        {
+            object manager = GetVtolManager();
+            if (manager != null)
+            {
+                wbiTogglePark(manager);
+                return wbiGetParkActive(manager) ? 1.0 : 0.0;
+            }
+            return 0.0;
+        }
+
+        #endregion
+
+        /// <summary>
+        /// The VTOL Hover category provides the interface for controlling engines that function as
+        /// VTOL thrusters.  It allows MAS to query the current commanded vertical speed, as well
+        /// as change it.  It also allows VTOL engines to be switched on or off separately from
+        /// the main `fc.ToggleEnginesEnabled()` command.
+        /// </summary>
+        #region VTOL Hover
 
         /// <summary>
         /// Increase (positive amount) or decrease (negative amount) the
@@ -159,36 +296,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the current thrust mode for the VTOL engines.  If none are
-        /// available, returns 1 (forward).
-        /// 
-        /// Valid return values:
-        /// * -1: Reverse Thrust
-        /// * 0: VTOL Thrust
-        /// * 1: Forward Thrust
-        /// </summary>
-        /// <returns></returns>
-        public double GetThrustMode()
-        {
-            object manager = GetVtolManager();
-            if (manager != null)
-            {
-                object mode = wbiGetThrustMode(manager);
-
-                switch ((int)mode)
-                {
-                    case 0:
-                        return 1.0;
-                    case 1:
-                        return -1.0;
-                    case 2:
-                        return 0.0;
-                }
-            }
-            return 1.0;
-        }
-
-        /// <summary>
         /// Returns the commanded vertical speed in m/s.
         /// </summary>
         /// <param name="amount"></param>
@@ -214,44 +321,6 @@ namespace AvionicsSystems
             {
                 wbiKillVerticalSpeed(manager);
                 return 1.0;
-            }
-            return 0.0;
-        }
-
-        /// <summary>
-        /// Set the VTOL manager thrust mode.  Valid settings are:
-        /// * -1: Reverse Thrust
-        /// * 0: VTOL Thrust
-        /// * 1: Forward Thrust
-        /// </summary>
-        /// <param name="mode"></param>
-        /// <returns>1 if the mode was changed, 0 if it was not</returns>
-        public double SetThrustMode(double mode)
-        {
-            object manager = GetVtolManager();
-            if (manager != null)
-            {
-                object currentModeO = wbiGetThrustMode(manager);
-                int currentMode = (int)currentModeO;
-                int newMode = (int)mode;
-
-                // currentMode is WBIThrustModes, which maps 0 = Forward, 1 = Reverse, 2 = VTOL
-                // MAS thrust mode is 1 = Forward, -1 = Reverse, 0 = VTOL
-                if (newMode == 1 && currentMode != 0)
-                {
-                    wbiSetForwardThrust(manager);
-                    return 1.0;
-                }
-                else if (newMode == 0 && currentMode != 2)
-                {
-                    wbiSetVTOLThrust(manager);
-                    return 1.0;
-                }
-                else if (newMode == -1 && currentMode != 1)
-                {
-                    wbiSetReverseThrust(manager);
-                    return 1.0;
-                }
             }
             return 0.0;
         }
@@ -298,6 +367,159 @@ namespace AvionicsSystems
             return 0.0;
         }
 
+        #endregion
+
+        /// <summary>
+        /// The VTOL Rotation Controller category provides the interface for controlling engines
+        /// that support configurable positions, such as tilt-rotor engines.
+        /// </summary>
+        #region VTOL Rotation Controller
+
+        /// <summary>
+        /// Instructs the rotation controller to adjust the position of the rotatable engines by
+        /// the specified number of degrees.
+        /// </summary>
+        /// <param name="changeDegrees">The number of degrees to rotate the engines.  Positive rotates towards the up position,
+        /// negative rotates towards the down position.</param>
+        /// <returns>1 if a change was commanded, 0 otherwise.</returns>
+        public double ChangeRotation(double changeDegrees)
+        {
+            object manager = GetVtolManager();
+            if (manager != null)
+            {
+                if (changeDegrees > 0.0)
+                {
+                    wbiIncreaseRotationAngle(manager, (float)changeDegrees);
+                    return 1.0;
+                }
+                else if(changeDegrees < 0.0)
+                {
+                    wbiDecreaseRotationAngle(manager, -(float)changeDegrees);
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Instructs the rotation controller to set engines to either full-up, full-down,
+        /// or neutral, depending on `position`.
+        /// 
+        /// If `position` is zero, the engines are moved to their neutral positions.  If `position` is
+        /// greater than zero, the engines are moved to their full-up position, as long as the engines
+        /// support that rotation.  If `position` is negative and the engines support a full-down
+        /// position, the engines will be moved to their full-down position.
+        /// </summary>
+        /// <param name="position">Either 0 (for neutral), a positive value (for full-up), or a negative value (for full-down).</param>
+        /// <returns>1 if a rotation was successfully commanded, 0 otherwise.</returns>
+        public double SetRotation(double position)
+        {
+            object manager = GetVtolManager();
+            if (manager != null)
+            {
+                if (position > 0.0)
+                {
+                    if (wbiCanRotateMax(manager))
+                    {
+                        wbiRotateMax(manager);
+                        return 0.0;
+                    }
+                }
+                else if (position < 0.0)
+                {
+                    if (wbiCanRotateMin(manager))
+                    {
+                        wbiRotateMin(manager);
+                        return 0.0;
+                    }
+                }
+                else
+                {
+                    wbiRotateNeutral(manager);
+                    return 1.0;
+                }
+            }
+            return 0.0;
+        }
+        #endregion
+
+        /// <summary>
+        /// The VTOL Thrust Vector category provides methods to query and set the thrust
+        /// mode of engines that may switch between VTOL and Forward thrust modes, as welll
+        /// as potentially Reverse thrust.
+        /// </summary>
+        #region VTOL Thrust Vector
+
+        /// <summary>
+        /// Returns the current thrust mode for the VTOL engines.  If none are
+        /// available, returns 1 (forward).
+        /// 
+        /// Valid return values:
+        /// * -1: Reverse Thrust
+        /// * 0: VTOL Thrust
+        /// * 1: Forward Thrust
+        /// </summary>
+        /// <returns></returns>
+        public double GetThrustMode()
+        {
+            object manager = GetVtolManager();
+            if (manager != null)
+            {
+                object mode = wbiGetThrustMode(manager);
+
+                switch ((int)mode)
+                {
+                    case 0:
+                        return 1.0;
+                    case 1:
+                        return -1.0;
+                    case 2:
+                        return 0.0;
+                }
+            }
+            return 1.0;
+        }
+
+        /// <summary>
+        /// Set the VTOL manager thrust mode.  Valid settings are:
+        /// * -1: Reverse Thrust
+        /// * 0: VTOL Thrust
+        /// * 1: Forward Thrust
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <returns>1 if the mode was changed, 0 if it was not</returns>
+        public double SetThrustMode(double mode)
+        {
+            object manager = GetVtolManager();
+            if (manager != null)
+            {
+                object currentModeO = wbiGetThrustMode(manager);
+                int currentMode = (int)currentModeO;
+                int newMode = (int)mode;
+
+                // currentMode is WBIThrustModes, which maps 0 = Forward, 1 = Reverse, 2 = VTOL
+                // MAS thrust mode is 1 = Forward, -1 = Reverse, 0 = VTOL
+                if (newMode == 1 && currentMode != 0)
+                {
+                    wbiSetForwardThrust(manager);
+                    return 1.0;
+                }
+                else if (newMode == 0 && currentMode != 2)
+                {
+                    wbiSetVTOLThrust(manager);
+                    return 1.0;
+                }
+                else if (newMode == -1 && currentMode != 1)
+                {
+                    wbiSetReverseThrust(manager);
+                    return 1.0;
+                }
+            }
+            return 0.0;
+        }
+        #endregion
+
         [MoonSharpHidden]
         static MASIVTOL()
         {
@@ -313,6 +535,23 @@ namespace AvionicsSystems
                     return;
                 }
                 wbiFindControllers = DynamicMethodFactory.CreateAction<object, Vessel>(FindControllers_t);
+
+                // Air Park
+                MethodInfo IsParked_t = wbiVtolManager_t.GetMethod("IsParked", BindingFlags.Instance | BindingFlags.Public);
+                if (IsParked_t == null)
+                {
+                    Utility.LogStaticError("Didn't find IsParked");
+                    return;
+                }
+                wbiGetParkActive = DynamicMethodFactory.CreateFunc<object, bool>(IsParked_t);
+
+                MethodInfo TogglePark_t = wbiVtolManager_t.GetMethod("TogglePark", BindingFlags.Instance | BindingFlags.Public);
+                if (TogglePark_t == null)
+                {
+                    Utility.LogStaticError("Didn't find TogglePark");
+                    return;
+                }
+                wbiTogglePark = DynamicMethodFactory.CreateAction<object>(TogglePark_t);
 
                 // Hover
                 MethodInfo EnginesAreActive_t = wbiVtolManager_t.GetMethod("EnginesAreActive", BindingFlags.Instance | BindingFlags.Public);
@@ -354,6 +593,63 @@ namespace AvionicsSystems
                     return;
                 }
                 wbiToggleHover = DynamicMethodFactory.CreateAction<object>(ToggleHover_t);
+
+                // Rotation
+                MethodInfo CanRotateMax_t = wbiVtolManager_t.GetMethod("CanRotateMax", BindingFlags.Instance | BindingFlags.Public);
+                if (CanRotateMax_t == null)
+                {
+                    Utility.LogStaticError("Didn't find CanRotateMax");
+                    return;
+                }
+                wbiCanRotateMax = DynamicMethodFactory.CreateFunc<object, bool>(CanRotateMax_t);
+
+                MethodInfo CanRotateMin_t = wbiVtolManager_t.GetMethod("CanRotateMin", BindingFlags.Instance | BindingFlags.Public);
+                if (CanRotateMin_t == null)
+                {
+                    Utility.LogStaticError("Didn't find CanRotateMin");
+                    return;
+                }
+                wbiCanRotateMin = DynamicMethodFactory.CreateFunc<object, bool>(CanRotateMin_t);
+
+                MethodInfo RotateToMax_t = wbiVtolManager_t.GetMethod("RotateToMax", BindingFlags.Instance | BindingFlags.Public);
+                if (RotateToMax_t == null)
+                {
+                    Utility.LogStaticError("Didn't find RotateToMax");
+                    return;
+                }
+                wbiRotateMax = DynamicMethodFactory.CreateAction<object>(RotateToMax_t);
+
+                MethodInfo RotateToMin_t = wbiVtolManager_t.GetMethod("RotateToMin", BindingFlags.Instance | BindingFlags.Public);
+                if (RotateToMin_t == null)
+                {
+                    Utility.LogStaticError("Didn't find RotateToMin");
+                    return;
+                }
+                wbiRotateMin = DynamicMethodFactory.CreateAction<object>(RotateToMin_t);
+
+                MethodInfo RotateToNeutral_t = wbiVtolManager_t.GetMethod("RotateToNeutral", BindingFlags.Instance | BindingFlags.Public);
+                if (ToggleHover_t == null)
+                {
+                    Utility.LogStaticError("Didn't find RotateToNeutral");
+                    return;
+                }
+                wbiRotateNeutral = DynamicMethodFactory.CreateAction<object>(RotateToNeutral_t);
+
+                MethodInfo IncreaseRotationAngle_t = wbiVtolManager_t.GetMethod("IncreaseRotationAngle", BindingFlags.Instance | BindingFlags.Public);
+                if (IncreaseRotationAngle_t == null)
+                {
+                    Utility.LogStaticError("Didn't find IncreaseRotationAngle");
+                    return;
+                }
+                wbiIncreaseRotationAngle = DynamicMethodFactory.CreateAction<object, float>(IncreaseRotationAngle_t);
+
+                MethodInfo DecreaseRotationAngle_t = wbiVtolManager_t.GetMethod("DecreaseRotationAngle", BindingFlags.Instance | BindingFlags.Public);
+                if (DecreaseRotationAngle_t == null)
+                {
+                    Utility.LogStaticError("Didn't find DecreaseRotationAngle");
+                    return;
+                }
+                wbiDecreaseRotationAngle = DynamicMethodFactory.CreateAction<object, float>(DecreaseRotationAngle_t);
 
                 // VSpd
                 MethodInfo KillVerticalSpeed_t = wbiVtolManager_t.GetMethod("KillVerticalSpeed", BindingFlags.Instance | BindingFlags.Public);
