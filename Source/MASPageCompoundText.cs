@@ -43,6 +43,10 @@ namespace AvionicsSystems
         private float lineAdvance;
         private int maxLines;
 
+        private MASFlightComputer.Variable range1, range2;
+        private readonly bool rangeMode;
+        private bool currentState;
+
         private bool coroutineActive = false;
         private MASFlightComputer comp;
 
@@ -216,7 +220,57 @@ namespace AvionicsSystems
             }
             textElements = textNodes.ToArray();
 
+            string masterVariableName = string.Empty;
+            if (config.TryGetValue("variable", ref masterVariableName))
+            {
+                rootObject.SetActive(false);
+
+                string range = string.Empty;
+                if (config.TryGetValue("range", ref range))
+                {
+                    string[] ranges = Utility.SplitVariableList(range);
+                    if (ranges.Length != 2)
+                    {
+                        throw new ArgumentException("Incorrect number of values in 'range' in COMPOUND_TEXT " + name);
+                    }
+                    range1 = comp.GetVariable(ranges[0], prop);
+                    range2 = comp.GetVariable(ranges[1], prop);
+
+                    rangeMode = true;
+                }
+                else
+                {
+                    rangeMode = false;
+                }
+
+                registeredVariables.RegisterNumericVariable(masterVariableName, VariableCallback);
+            }
+            else
+            {
+                rootObject.SetActive(true);
+            }
+
             RenderPage(false);
+        }
+
+        /// <summary>
+        /// Handle a changed value
+        /// </summary>
+        /// <param name="newValue"></param>
+        private void VariableCallback(double newValue)
+        {
+            if (rangeMode)
+            {
+                newValue = (newValue.Between(range1.SafeValue(), range2.SafeValue())) ? 1.0 : 0.0;
+            }
+
+            bool newState = (newValue > 0.0);
+
+            if (newState != currentState)
+            {
+                currentState = newState;
+                rootObject.SetActive(currentState);
+            }
         }
 
         /// <summary>
@@ -229,7 +283,7 @@ namespace AvionicsSystems
 
             int numActiveLines = 0;
             Vector3 newPosition = Vector3.zero;
-            for (int i = 0; i < textElements.Length; ++i ) 
+            for (int i = 0; i < textElements.Length; ++i)
             {
                 if (numActiveLines < maxLines && textElements[i].currentState == true)
                 {
@@ -286,7 +340,7 @@ namespace AvionicsSystems
         /// be rendered.  false indicates that the page has completed rendering.</param>
         public void RenderPage(bool enable)
         {
-            for (int i= textElements.Length-1; i>=0; --i)
+            for (int i = textElements.Length - 1; i >= 0; --i)
             {
                 if (textElements[i].textMesh != null)
                 {
