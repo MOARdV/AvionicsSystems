@@ -597,6 +597,7 @@ namespace AvionicsSystems
             Array.Sort(resources, resourceNameComparer);
 
             enginePropellant.name = "Engine Propellant Mass";
+            enginePropellant.density = 0.0f;
             enginePropellant.currentQuantity = 0.0f;
             enginePropellant.maxQuantity = 0.0f;
             enginePropellant.previousQuantity = 0.0f;
@@ -711,17 +712,18 @@ namespace AvionicsSystems
                     resources[i].previousQuantity = resources[i].currentQuantity;
                 }
 
-                float density = 1000.0f * resources[i].density;
                 if (enginePropellantIds.Contains(resources[i].id))
                 {
-                    enginePropellant.currentStage += resources[i].currentStage * density;
-                    enginePropellant.maxStage += resources[i].maxStage * density;
-                    enginePropellant.currentQuantity += resources[i].currentQuantity * density;
-                    enginePropellant.maxQuantity += resources[i].maxQuantity * density;
+                    enginePropellant.currentStage += resources[i].currentStage;
+                    enginePropellant.maxStage += resources[i].maxStage;
+                    enginePropellant.currentQuantity += resources[i].currentQuantity;
+                    enginePropellant.maxQuantity += resources[i].maxQuantity;
+                    enginePropellant.density += resources[i].currentStage * resources[i].density;
                 }
 
                 if (rcsPropellantIds.Contains(resources[i].id))
                 {
+                    float density = 1000.0f * resources[i].density;
                     rcsPropellant.currentStage += resources[i].currentStage * density;
                     rcsPropellant.maxStage += resources[i].maxStage * density;
                     rcsPropellant.currentQuantity += resources[i].currentQuantity * density;
@@ -738,6 +740,10 @@ namespace AvionicsSystems
                 enginePropellant.deltaPerSecond = 0.0f;
             }
             enginePropellant.previousQuantity = enginePropellant.currentQuantity;
+            if (enginePropellant.currentStage > 0.0f)
+            {
+                enginePropellant.density /= enginePropellant.currentStage;
+            }
 
             if (rcsPropellant.previousQuantity > 0.0f)
             {

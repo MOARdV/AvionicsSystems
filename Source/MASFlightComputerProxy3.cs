@@ -189,27 +189,48 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Reports the total mass, in kg, of resources consumed by all currently-active engines on the vessel.
+        /// Reports the total quantity in units (U) of resources currently being consumed by all active engines on the vessel.
         /// </summary>
-        /// <returns>The current mass of the active propellants in the vessel, in kg.</returns>
+        /// <returns>The current quantity of the active propellants in the vessel, in U.</returns>
         public double PropellantCurrent()
         {
             return vc.enginePropellant.currentQuantity;
         }
 
         /// <summary>
-        /// Reports the propellant consumption rate in kg/s for all active engines on the vessel.
+        /// Reports the propellant consumption rate in U/s for all active engines on the vessel.
         /// </summary>
-        /// <returns>The current propellant consumption rate, in kg/s.</returns>
+        /// <returns>The current propellant consumption rate, in U/s.</returns>
         public double PropellantDelta()
         {
             return vc.enginePropellant.deltaPerSecond;
         }
 
         /// <summary>
-        /// Reports the maximum amount of propellant, in kg, that may be carried aboard the vessel.
+        /// Returns the current density of the propellant.  Note that because different propellants for different
+        /// engines may be consumed at different rates, the density is only valid for the current propellant quantity.
+        /// It should not be used to determine maximum propellant mass, unless you know in advance that all active
+        /// propellants load are consumed at the same rate.
         /// </summary>
-        /// <returns>The maximum propellant capacity, in kg.</returns>
+        /// <returns>Propellant density in kg/U.</returns>
+        public double PropellantDensity()
+        {
+            return vc.enginePropellant.density * 1000.0;
+        }
+
+        /// <summary>
+        /// Reports the current mass of the propellant.
+        /// </summary>
+        /// <returns>The current propellant mass, in kg.</returns>
+        public double PropellantMass()
+        {
+            return vc.enginePropellant.currentQuantity * vc.enginePropellant.density * 1000.0;
+        }
+
+        /// <summary>
+        /// Reports the maximum amount of propellant, in units (U), that may be carried aboard the vessel.
+        /// </summary>
+        /// <returns>The maximum propellant capacity, in U.</returns>
         public double PropellantMax()
         {
             return vc.enginePropellant.maxQuantity;
@@ -234,19 +255,19 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Reports the current amount of propellant available, in kg, to active engines on the current stage.
+        /// Reports the current amount of propellant available, in U, to active engines on the current stage.
         /// </summary>
-        /// <returns>The current mass of propellant accessible by the current stage, in kg.</returns>
+        /// <returns>The current quantity of propellant accessible by the current stage, in U.</returns>
         public double PropellantStageCurrent()
         {
             return vc.enginePropellant.currentStage;
         }
 
         /// <summary>
-        /// Reports the maximum amount of propellant available, in kg, to the active engiens on the
+        /// Reports the maximum amount of propellant available, in U, to the active engiens on the
         /// current stage.
         /// </summary>
-        /// <returns>The maximum mass of propellant accessibly by the current stage, in kg.</returns>
+        /// <returns>The maximum quantity of propellant accessible by the current stage, in U.</returns>
         public double PropellantStageMax()
         {
             return vc.enginePropellant.maxStage;
