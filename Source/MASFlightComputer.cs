@@ -24,6 +24,7 @@
  ****************************************************************************/
 using MoonSharp.Interpreter;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
@@ -1076,6 +1077,9 @@ namespace AvionicsSystems
                 audioObject.name = "MASFlightComputerAudio-" + flightComputerId;
                 audioSource = audioObject.AddComponent<AudioSource>();
                 audioSource.spatialBlend = 0.0f;
+                morseAudioObject.name = "MASFlightComputerMorseAudio-" + flightComputerId;
+                morseAudioSource = audioObject.AddComponent<AudioSource>();
+                morseAudioSource.spatialBlend = 0.0f;
 
                 UpdateLocalCrew();
 
@@ -1175,6 +1179,69 @@ namespace AvionicsSystems
         #region Audio Player
         GameObject audioObject = new GameObject();
         AudioSource audioSource;
+        GameObject morseAudioObject = new GameObject();
+        AudioSource morseAudioSource;
+        string morseSequence;
+        float morseVolume;
+        bool playingSequence;
+
+        private IEnumerator MorsePlayerCoroutine()
+        {
+            while (morseSequence.Length > 0)
+            {
+                char first = morseSequence[0];
+                if (first == ' ')
+                {
+                    yield return new WaitForSecondsRealtime(0.25f);
+                }
+                else
+                {
+                    AudioClip clip = GameDatabase.Instance.GetAudioClip(string.Format("MOARdV/Sounds/morse_{0}", first));
+                    if (clip != null)
+                    {
+                        audioSource.clip = clip;
+                        audioSource.volume = morseVolume;
+                        audioSource.Play();
+                        yield return new WaitForSecondsRealtime(clip.length + 0.05f);
+                    }
+                }
+
+                morseSequence = morseSequence.Substring(1);
+            }
+
+            playingSequence = false;
+            yield return null;
+        }
+
+        /// <summary>
+        /// Play a morse code sequence.
+        /// </summary>
+        /// <param name="sequence"></param>
+        /// <param name="volume"></param>
+        /// <param name="stopCurrent"></param>
+        /// <returns></returns>
+        internal double PlayMorseSequence(string sequence, float volume, bool stopCurrent)
+        {
+            if (stopCurrent)
+            {
+                morseAudioSource.Stop();
+            }
+            else if (morseAudioSource.isPlaying)
+            {
+                return 0.0;
+            }
+
+            morseSequence = sequence.ToUpper();
+            morseVolume = GameSettings.SHIP_VOLUME * volume;
+
+            if (!playingSequence)
+            {
+                StartCoroutine(MorsePlayerCoroutine());
+                playingSequence = true;
+            }
+
+            return 1.0;
+        }
 
         /// <summary>
         /// Select and play an audio clip.

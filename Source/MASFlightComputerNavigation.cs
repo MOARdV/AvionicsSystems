@@ -861,5 +861,27 @@ namespace AvionicsSystems
 
             return 0.0;
         }
+
+        /// <summary>
+        ///  Play the Morse code identifier for the selected radio.  If no valid radio is selected,
+        ///  or no radio is in range, this function does nothing.
+        /// </summary>
+        /// <param name="radioId">Radio to use</param>
+        /// <param name="volume">The volume to use for playback, between 0 and 1 (inclusive).</param>
+        /// <param name="stopCurrent">If 'true', stops any current audio clip being played.</param>
+        /// <returns>1 if a valid identifier is playing, 0 otherwise.</returns>
+        internal double PlayNavAidIdentifier(int radioId, double volume, bool stopCurrent)
+        {
+            NavRadio radio;
+            if (navRadio.TryGetValue(radioId, out radio) && radio.beaconIndex >= 0)
+            {
+                if (radio.NavAidInRange(vessel))
+                {
+                    return PlayMorseSequence(radio.beacon[radio.beaconIndex].identifier, Mathf.Clamp01((float)volume), stopCurrent);
+                }
+            }
+
+            return 0.0;
+        }
     }
 }

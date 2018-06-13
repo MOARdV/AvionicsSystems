@@ -1438,6 +1438,19 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Play the sequence of letters as a Morse Code sequence.  Letters play automatically,
+        /// and a space ' ' inserts a pause in the sequence.  All other characters are skipped.
+        /// </summary>
+        /// <param name="sequence">The sequence of letters to play as a Morse Code.</param>
+        /// <param name="volume">The volume to use for playback, between 0 and 1 (inclusive).</param>
+        /// <param name="stopCurrent">If 'true', stops any current audio clip being played.</param>
+        /// <returns></returns>
+        public double PlayMorseSequence(string sequence, double volume, bool stopCurrent)
+        {
+            return fc.PlayMorseSequence(sequence, Mathf.Clamp01((float)volume), stopCurrent);
+        }
+
+        /// <summary>
         /// Recover the vessel if it is recoverable.  Has no effect if the craft can not be
         /// recovered.
         /// </summary>

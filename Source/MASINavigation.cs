@@ -793,6 +793,19 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Plays the Morse code identifier for the selected radio.  If `radioId` is not set to a
+        /// valid frequency, or no radios are in range, no audio is played.
+        /// </summary>
+        /// <param name="radioId">The id of the radio, any integer value.</param>
+        /// <param name="volume">The volume to use for playback, between 0 and 1 (inclusive).</param>
+        /// <param name="stopCurrent">If 'true', stops any current audio clip being played.</param>
+        /// <returns>1 if a Morse sequence is being played, 0 otherwise.</returns>
+        public double PlayNavAidIdentifier(double radioId, double volume, bool stopCurrent)
+        {
+            return fc.PlayNavAidIdentifier((int)radioId, volume, stopCurrent);
+        }
+
+        /// <summary>
         /// Sets the specified navigational radio to the frequency.
         /// 
         /// If frequency is less than or equal to 0.0, the radio is
