@@ -1558,6 +1558,40 @@ namespace AvionicsSystems
             return (fc != null && fc.part != null) ? fc.part.crashTolerance : 0.0;
         }
 
+        /// <summary>
+        /// Returns the time (in seconds) until a suicide burn (maximum thrust burn) must
+        /// start to avoid lithobraking.  If the orbit does not impact the surface, or it
+        /// is too late to avoid impact, returns 0.
+        /// </summary>
+        /// <returns>Time in seconds until the burn must start, or 0.</returns>
+        public double SuicideBurnTime()
+        {
+            if (vc.timeToImpact > 0.0)
+            {
+                // 'sine'
+                double verticalThrustComponent = Math.Max(0.0, Vector3.Dot(vc.up, -vessel.srf_velocity));
+                // 'T'
+                double twr = vc.currentLimitedMaxThrust / vessel.totalMass;
+                // 'g'
+                double g = FlightGlobals.getGeeForceAtPosition(vessel.CoM).magnitude;
+                // '2.0 * g * sine'
+                double verticalTerm = -2.0 * g * verticalThrustComponent;
+                // 'decelTerm'
+                double decelTerm =(verticalTerm * verticalTerm) + 4.0 * (twr * twr - g * g);
+                if (decelTerm < 0.0)
+                {
+                    return 0.0;
+                }
+
+                double effectiveDecel = 0.5 * (verticalTerm + Math.Sqrt(decelTerm));
+                double decelTime = vc.surfaceForward.magnitude / effectiveDecel;
+
+                return Math.Max(0.0, vc.timeToImpact - decelTime * 0.5 - Planetarium.GetUniversalTime());
+            }
+
+            return 0.0;
+        }
+
         #endregion
 
         /// <summary>
