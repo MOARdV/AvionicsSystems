@@ -48,10 +48,12 @@ namespace AvionicsSystems
         private static readonly Action<object, Vessel> wbiFindControllers;
 
         // Air Park control
+        private static readonly Func<object, bool> wbiAirParkAvailable;
         private static readonly Action<object> wbiTogglePark;
         private static readonly Func<object, bool> wbiGetParkActive;
 
         // Hover mode control
+        private static readonly Func<object, bool> wbiHoverControllerAvailable;
         private static readonly Func<object, bool> wbiGetHoverActive;
         private static readonly Func<object, bool> wbiEnginesAreActive;
         private static readonly Action<object> wbiStartEngines;
@@ -63,8 +65,12 @@ namespace AvionicsSystems
         private static readonly Action<object> wbiKillVerticalSpeed;
 
         // Rotation control
+        private static readonly Func<object, bool> wbiRotationControllerAvailable;
         private static readonly Func<object, bool> wbiCanRotateMax;
         private static readonly Func<object, bool> wbiCanRotateMin;
+        private static readonly Func<object, float> wbiGetMaxRotation;
+        private static readonly Func<object, float> wbiGetMinRotation;
+        private static readonly Func<object, float> wbiGetCurrentRotation;
         private static readonly Action<object> wbiRotateMax;
         private static readonly Action<object> wbiRotateMin;
         private static readonly Action<object> wbiRotateNeutral;
@@ -72,6 +78,7 @@ namespace AvionicsSystems
         private static readonly Action<object, float> wbiIncreaseRotationAngle;
 
         // Thrust mode
+        private static readonly Func<object, bool> wbiThrustControllerAvailable;
         private static readonly Func<object, object> wbiGetThrustMode;
         private static readonly Action<object> wbiSetForwardThrust;
         private static readonly Action<object> wbiSetReverseThrust;
@@ -126,9 +133,6 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Returns 1 if the current vessel supports Air Park mode.
-        /// 
-        /// **NOTE:** KerbalActuators needs an update to support this feature.  Currently, this function
-        /// always returns 1 if the WBI VTOL Manager mod is installed.
         /// </summary>
         /// <returns></returns>
         public double HasAirPark()
@@ -136,16 +140,13 @@ namespace AvionicsSystems
             object manager = GetVtolManager();
             if (manager != null)
             {
-                return 1.0;
+                return (wbiAirParkAvailable(manager)) ? 1.0 : 0.0;
             }
             return 0.0;
         }
 
         /// <summary>
         /// Returns 1 if the current vessel has WBI Hover controller components.
-        /// 
-        /// **NOTE:** KerbalActuators needs an update to support this feature.  Currently, this function
-        /// always returns 1 if the WBI VTOL Manager mod is installed.
         /// </summary>
         /// <returns></returns>
         public double HasHover()
@@ -153,7 +154,7 @@ namespace AvionicsSystems
             object manager = GetVtolManager();
             if (manager != null)
             {
-                return 1.0;
+                return (wbiHoverControllerAvailable(manager)) ? 1.0 : 0.0;
             }
             return 0.0;
         }
@@ -167,16 +168,13 @@ namespace AvionicsSystems
             object manager = GetVtolManager();
             if (manager != null)
             {
-                return (wbiCanRotateMax(manager) || wbiCanRotateMin(manager)) ? 1.0 : 0.0;
+                return (wbiRotationControllerAvailable(manager)) ? 1.0 : 0.0;
             }
             return 0.0;
         }
 
         /// <summary>
         /// Returns 1 if the current vessel has WBI Thrust Vector components.
-        /// 
-        /// **NOTE:** KerbalActuators needs an update to support this feature.  Currently, this function
-        /// always returns 1 if the WBI VTOL Manager mod is installed.
         /// </summary>
         /// <returns></returns>
         public double HasThrustVector()
@@ -184,7 +182,7 @@ namespace AvionicsSystems
             object manager = GetVtolManager();
             if (manager != null)
             {
-                return 1.0;
+                return (wbiThrustControllerAvailable(manager)) ? 1.0 : 0.0;
             }
             return 0.0;
         }
@@ -199,15 +197,12 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Returns 1 if the Air Park feature is active.  Returns 0 if it is inactive or unavailable.
-        /// 
-        /// **NOTE:** KerbalActuators will require an update before this feature will return 0 when
-        /// Air Park is unavailable.
         /// </summary>
         /// <returns></returns>
         public double GetParked()
         {
             object manager = GetVtolManager();
-            if (manager != null)
+            if (manager != null && wbiAirParkAvailable(manager))
             {
                 return wbiGetParkActive(manager) ? 1.0 : 0.0;
             }
@@ -223,7 +218,7 @@ namespace AvionicsSystems
         public double ToggleAirPark()
         {
             object manager = GetVtolManager();
-            if (manager != null)
+            if (manager != null && wbiAirParkAvailable(manager))
             {
                 wbiTogglePark(manager);
                 return wbiGetParkActive(manager) ? 1.0 : 0.0;
@@ -245,13 +240,18 @@ namespace AvionicsSystems
         /// Increase (positive amount) or decrease (negative amount) the
         /// commanded vertical speed in m/s.
         /// </summary>
-        /// <param name="amount"></param>
-        /// <returns></returns>
+        /// <param name="amount">The change in vertical speed in m/s.  Positive is up, negative is down.</param>
+        /// <returns>1 if a change was commanded, 0 otherwise.</returns>
         public double ChangeVerticalSpeed(double amount)
         {
             object manager = GetVtolManager();
             if (manager != null)
             {
+                if (!wbiHoverControllerAvailable(manager))
+                {
+                    return 0.0;
+                }
+
                 if (amount > 0.0)
                 {
                     wbiIncreaseVerticalSpeed(manager, (float)amount);
@@ -319,6 +319,10 @@ namespace AvionicsSystems
             object manager = GetVtolManager();
             if (manager != null)
             {
+                if (!wbiHoverControllerAvailable(manager))
+                {
+                    return 0.0;
+                }
                 wbiKillVerticalSpeed(manager);
                 return 1.0;
             }
@@ -361,6 +365,10 @@ namespace AvionicsSystems
             object manager = GetVtolManager();
             if (manager != null)
             {
+                if (!wbiHoverControllerAvailable(manager))
+                {
+                    return 0.0;
+                }
                 wbiToggleHover(manager);
                 return 1.0;
             }
@@ -392,7 +400,7 @@ namespace AvionicsSystems
                     wbiIncreaseRotationAngle(manager, (float)changeDegrees);
                     return 1.0;
                 }
-                else if(changeDegrees < 0.0)
+                else if (changeDegrees < 0.0)
                 {
                     wbiDecreaseRotationAngle(manager, -(float)changeDegrees);
                     return 1.0;
@@ -494,6 +502,11 @@ namespace AvionicsSystems
             object manager = GetVtolManager();
             if (manager != null)
             {
+                if (!wbiThrustControllerAvailable(manager))
+                {
+                    return 0.0;
+                }
+
                 object currentModeO = wbiGetThrustMode(manager);
                 int currentMode = (int)currentModeO;
                 int newMode = (int)mode;
@@ -535,6 +548,48 @@ namespace AvionicsSystems
                     return;
                 }
                 wbiFindControllers = DynamicMethodFactory.CreateAction<object, Vessel>(FindControllers_t);
+
+                // Capabilities
+                MethodInfo AirParkControllerActive_t = wbiVtolManager_t.GetMethod("AirParkControllerActive", BindingFlags.Instance | BindingFlags.Public);
+                if (AirParkControllerActive_t != null)
+                {
+                    wbiAirParkAvailable = DynamicMethodFactory.CreateFunc<object, bool>(AirParkControllerActive_t);
+                }
+                else
+                {
+                    Utility.LogStaticError("Didn't find AirParkControllerActive");
+                    return;
+                }
+                MethodInfo HoverControllerActive_t = wbiVtolManager_t.GetMethod("HoverControllerActive", BindingFlags.Instance | BindingFlags.Public);
+                if (HoverControllerActive_t != null)
+                {
+                    wbiHoverControllerAvailable = DynamicMethodFactory.CreateFunc<object, bool>(HoverControllerActive_t);
+                }
+                else
+                {
+                    Utility.LogStaticError("Didn't find HoverControllerActive");
+                    return;
+                }
+                MethodInfo HasRotationControllers_t = wbiVtolManager_t.GetMethod("HasRotationControllers", BindingFlags.Instance | BindingFlags.Public);
+                if (HasRotationControllers_t != null)
+                {
+                    wbiRotationControllerAvailable = DynamicMethodFactory.CreateFunc<object, bool>(HasRotationControllers_t);
+                }
+                else
+                {
+                    Utility.LogStaticError("Didn't find HasRotationControllers");
+                    return;
+                }
+                MethodInfo ThrustVectorControllerActive_t = wbiVtolManager_t.GetMethod("ThrustVectorControllerActive", BindingFlags.Instance | BindingFlags.Public);
+                if (ThrustVectorControllerActive_t != null)
+                {
+                    wbiThrustControllerAvailable = DynamicMethodFactory.CreateFunc<object, bool>(ThrustVectorControllerActive_t);
+                }
+                else
+                {
+                    Utility.LogStaticError("Didn't find ThrustVectorControllerActive");
+                    return;
+                }
 
                 // Air Park
                 MethodInfo IsParked_t = wbiVtolManager_t.GetMethod("IsParked", BindingFlags.Instance | BindingFlags.Public);
@@ -650,6 +705,30 @@ namespace AvionicsSystems
                     return;
                 }
                 wbiDecreaseRotationAngle = DynamicMethodFactory.CreateAction<object, float>(DecreaseRotationAngle_t);
+
+                MethodInfo GetMaxRotation_t = wbiVtolManager_t.GetMethod("GetMaxRotation", BindingFlags.Instance | BindingFlags.Public);
+                if (GetMaxRotation_t == null)
+                {
+                    Utility.LogStaticError("Didn't find GetMaxRotation");
+                    return;
+                }
+                wbiGetMaxRotation = DynamicMethodFactory.CreateFunc<object, float>(GetMaxRotation_t);
+
+                MethodInfo GetMinRotation_t = wbiVtolManager_t.GetMethod("GetMinRotation", BindingFlags.Instance | BindingFlags.Public);
+                if (GetMinRotation_t == null)
+                {
+                    Utility.LogStaticError("Didn't find GetMinRotation");
+                    return;
+                }
+                wbiGetMinRotation = DynamicMethodFactory.CreateFunc<object, float>(GetMinRotation_t);
+
+                MethodInfo GetCurrentRotation_t = wbiVtolManager_t.GetMethod("GetCurrentRotation", BindingFlags.Instance | BindingFlags.Public);
+                if (GetCurrentRotation_t == null)
+                {
+                    Utility.LogStaticError("Didn't find GetCurrentRotation");
+                    return;
+                }
+                wbiGetCurrentRotation = DynamicMethodFactory.CreateFunc<object, float>(GetCurrentRotation_t);
 
                 // VSpd
                 MethodInfo KillVerticalSpeed_t = wbiVtolManager_t.GetMethod("KillVerticalSpeed", BindingFlags.Instance | BindingFlags.Public);
