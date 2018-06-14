@@ -968,7 +968,7 @@ namespace AvionicsSystems
                 mjProxy.UpdateVessel(vessel, vc);
                 parachuteProxy.vc = vc;
                 transferProxy.vc = vc;
-                vtolProxy.UpdateVessel(vessel);
+                vtolProxy.UpdateVessel(vessel, vc);
 
                 // Add User scripts
                 try
@@ -1308,7 +1308,7 @@ namespace AvionicsSystems
                 parachuteProxy.vessel = vessel;
                 transferProxy.vc = vc;
                 transferProxy.vessel = vessel;
-                vtolProxy.UpdateVessel(vessel);
+                vtolProxy.UpdateVessel(vessel, vc);
             }
             UpdateLocalCrew();
         }

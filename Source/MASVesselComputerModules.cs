@@ -395,6 +395,7 @@ namespace AvionicsSystems
         internal MASIdEngine[] moduleIdEngines = new MASIdEngine[0];
         private List<ModuleEngines> enginesList = new List<ModuleEngines>(8);
         internal ModuleEngines[] moduleEngines = new ModuleEngines[0];
+        internal PartModule moduleGraviticEngine = null;
         private float[] invMaxISP = new float[0];
         internal float currentThrust; // current net thrust, kN
         internal float currentLimitedMaxThrust; // Max thrust, accounting for throttle limits, kN
@@ -1203,6 +1204,7 @@ namespace AvionicsSystems
             }
 
             activeEnginesGimbal = false;
+            moduleGraviticEngine = null;
 
             // Update the lists of modules
             for (int partIdx = vessel.parts.Count - 1; partIdx >= 0; --partIdx)
@@ -1224,6 +1226,14 @@ namespace AvionicsSystems
                                 if (vessel.parts[partIdx].FindModuleImplementing<ModuleGimbal>() != null)
                                 {
                                     activeEnginesGimbal = true;
+                                }
+                            }
+                            // Crazy Mode controllers are a special-case engine.
+                            if (MASIVTOL.wbiWBIGraviticEngine_t != null && MASIVTOL.wbiWBIGraviticEngine_t.IsAssignableFrom(module.GetType()))
+                            {
+                                if (MASIVTOL.wbiCrazyModeIsActive(module))
+                                {
+                                    moduleGraviticEngine = module;
                                 }
                             }
                         }

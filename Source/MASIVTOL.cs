@@ -43,6 +43,7 @@ namespace AvionicsSystems
         internal static readonly bool wbivtolInstalled;
 
         internal static readonly Type wbiVtolManager_t;
+        internal static readonly Type wbiWBIGraviticEngine_t;
 
         // Initialization
         private static readonly Action<object, Vessel> wbiFindControllers;
@@ -51,6 +52,12 @@ namespace AvionicsSystems
         private static readonly Func<object, bool> wbiAirParkAvailable;
         private static readonly Action<object> wbiTogglePark;
         private static readonly Func<object, bool> wbiGetParkActive;
+
+        // Crazy Mode control
+        internal static readonly Func<object, bool> wbiCrazyModeIsActive; // This method is used to select the command crazy-mode engine.
+        private static readonly Func<object, bool> wbiCrazyModeUnlocked;
+        private static readonly Func<object, object> wbiGetWarpDirection;
+        private static readonly Action<object, int> wbiSetWarpDirection;
 
         // Hover mode control
         private static readonly Func<object, bool> wbiHoverControllerAvailable;
@@ -86,9 +93,10 @@ namespace AvionicsSystems
 
         private object vtolManager;
         private Vessel vessel;
+        private MASVesselComputer vc;
 
         [MoonSharpHidden]
-        internal void UpdateVessel(Vessel vessel)
+        internal void UpdateVessel(Vessel vessel, MASVesselComputer vc)
         {
             if (vessel != this.vessel)
             {
@@ -99,6 +107,7 @@ namespace AvionicsSystems
                     wbiFindControllers(vtolManager, this.vessel);
                 }
             }
+            this.vc = vc;
         }
 
         private object GetVtolManager()
@@ -143,6 +152,15 @@ namespace AvionicsSystems
                 return (wbiAirParkAvailable(manager)) ? 1.0 : 0.0;
             }
             return 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the current vessel has WBI Crazy Mode components.
+        /// </summary>
+        /// <returns></returns>
+        public double HasCrazyMode()
+        {
+            return (vc.moduleGraviticEngine != null && wbiCrazyModeUnlocked(vc.moduleGraviticEngine)) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -226,6 +244,64 @@ namespace AvionicsSystems
             return 0.0;
         }
 
+        #endregion
+
+        /// <summary>
+        /// The VTOL Crazy Mode category provides the interface with the WBI Flying Saucer mod's
+        /// Crazy Mode warp features.
+        /// </summary>
+        #region VTOL Crazy Mode
+
+        /// <summary>
+        /// Get the Crazy Mode Warp Direction as specified below:
+        /// 
+        /// * 0: Stop
+        /// * 1: Forward
+        /// * 2: Back
+        /// * 3: Left
+        /// * 4: Right
+        /// * 5: Up
+        /// * 6: Down
+        /// </summary>
+        /// <returns>The current crazy mode warp direction, or 0 if crazy mode is unavailable.</returns>
+        public double GetWarpDirection()
+        {
+            if (vc.moduleGraviticEngine != null && wbiCrazyModeUnlocked(vc.moduleGraviticEngine))
+            {
+                object direction = wbiGetWarpDirection(vc.moduleGraviticEngine);
+                return (double)(int)direction;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Set the Crazy Mode Warp Direction as specified below:
+        /// 
+        /// * 0: Stop
+        /// * 1: Forward
+        /// * 2: Back
+        /// * 3: Left
+        /// * 4: Right
+        /// * 5: Up
+        /// * 6: Down
+        /// </summary>
+        /// <param name="direction">One of the values from the description.</param>
+        /// <returns>1 if the mode was set, 0 if it could not be set.</returns>
+        public double SetWarpDirection(double direction)
+        {
+            if (vc.moduleGraviticEngine != null && wbiCrazyModeUnlocked(vc.moduleGraviticEngine) && wbiSetWarpDirection != null)
+            {
+                int dir = (int)direction;
+                if (dir >= 0 && dir <= 6)
+                {
+                    wbiSetWarpDirection(vc.moduleGraviticEngine, dir);
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+        }
         #endregion
 
         /// <summary>
@@ -795,6 +871,42 @@ namespace AvionicsSystems
                     return;
                 }
                 wbiGetVerticalSpeed = DynamicMethodFactory.CreateGetField<object, float>(VerticalSpeed_t);
+
+                wbiWBIGraviticEngine_t = Utility.GetExportedType("FlyingSaucers", "WildBlueIndustries.WBIGraviticEngine");
+                if (wbiWBIGraviticEngine_t != null)
+                {
+                    MethodInfo IsCrazyModeUnlocked_t = wbiWBIGraviticEngine_t.GetMethod("IsCrazyModeUnlocked", BindingFlags.Instance | BindingFlags.Public);
+                    if (IsCrazyModeUnlocked_t == null)
+                    {
+                        Utility.LogStaticError("Didn't find IsCrazyModeUnlocked");
+                        return;
+                    }
+                    wbiCrazyModeUnlocked = DynamicMethodFactory.CreateFunc<object, bool>(IsCrazyModeUnlocked_t);
+
+                    MethodInfo IsActive_t = wbiWBIGraviticEngine_t.GetMethod("IsActive", BindingFlags.Instance | BindingFlags.Public);
+                    if (IsActive_t == null)
+                    {
+                        Utility.LogStaticError("Didn't find IsActive");
+                        return;
+                    }
+                    wbiCrazyModeIsActive = DynamicMethodFactory.CreateFunc<object, bool>(IsActive_t);
+
+                    MethodInfo GetWarpDirection_t = wbiWBIGraviticEngine_t.GetMethod("GetWarpDirection", BindingFlags.Instance | BindingFlags.Public);
+                    if (GetWarpDirection_t == null)
+                    {
+                        Utility.LogStaticError("Didn't find GetWarpDirection");
+                        return;
+                    }
+                    wbiGetWarpDirection = DynamicMethodFactory.CreateFunc<object, object>(GetWarpDirection_t);
+
+                    MethodInfo SetWarpDirection_t = wbiWBIGraviticEngine_t.GetMethod("SetWarpDirection", BindingFlags.Instance | BindingFlags.Public);
+                    if (SetWarpDirection_t == null)
+                    {
+                        Utility.LogStaticError("Didn't find SetWarpDirection");
+                        return;
+                    }
+                    wbiSetWarpDirection = DynamicMethodFactory.CreateAction<object, int>(SetWarpDirection_t);
+                }
 
                 wbivtolInstalled = true;
             }
