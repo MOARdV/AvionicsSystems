@@ -441,10 +441,19 @@ end
 
 ------------------------------------------------------------------------------
 -- Verify that the WBI VTOL Manager is available.
-function MAS_Mfd2_Vtol_Validate(propId, returnPage)
-	if vtol.Available() < 1 then
-		fc.SetPersistent(propId, returnPage)
+function MAS_Mfd2_Vtol_IfValid(propId)
+	if vtol.Available() == 1 then
+		fc.SetPersistent(propId, "MAS_MFD2_VtolManager")
 	end
+end
+
+------------------------------------------------------------------------------
+function MAS_Mfd2_Flight_HomeSoftkey(propId, panel6Mode)
+	
+	if panel6Mode == 1 then
+		nav.SetWaypoint(fc.AddPersistentWrapped(propId .. "-NavWaypoint", 1, 0, nav.WaypointCount()))
+	end
+
 end
 
 ------------------------------------------------------------------------------
@@ -460,9 +469,9 @@ function MAS_Mfd2_Flight_Select_Instrument(propId, panel, direction)
 		-- If I don't have alternative panels yet, use 0 for direction
 		fc.AddPersistentWrapped(propId .. "-FlightPanel4", 0, 0, 2)
 	elseif panel == 5 then
-		fc.AddPersistentWrapped(propId .. "-FlightPanel5", 0, 0, 2)
+		fc.AddPersistentWrapped(propId .. "-FlightPanel5", direction, 0, 2)
 	elseif panel == 6 then
-		fc.AddPersistentWrapped(propId .. "-FlightPanel6", 0, 0, 2)
+		fc.AddPersistentWrapped(propId .. "-FlightPanel6", direction, 0, 2)
 	end
 end
 
