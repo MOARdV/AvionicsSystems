@@ -1189,21 +1189,18 @@ namespace AvionicsSystems
         {
             while (morseSequence.Length > 0)
             {
+                AudioClip clip;
                 char first = morseSequence[0];
                 if (first == ' ')
                 {
                     yield return new WaitForSecondsRealtime(0.25f);
                 }
-                else
+                else if (MASLoader.morseCode.TryGetValue(first, out clip))
                 {
-                    AudioClip clip = GameDatabase.Instance.GetAudioClip(string.Format("MOARdV/Sounds/morse_{0}", first));
-                    if (clip != null)
-                    {
-                        audioSource.clip = clip;
-                        audioSource.volume = morseVolume;
-                        audioSource.Play();
-                        yield return new WaitForSecondsRealtime(clip.length + 0.05f);
-                    }
+                    audioSource.clip = clip;
+                    audioSource.volume = morseVolume;
+                    audioSource.Play();
+                    yield return new WaitForSecondsRealtime(clip.length + 0.05f);
                 }
 
                 morseSequence = morseSequence.Substring(1);
