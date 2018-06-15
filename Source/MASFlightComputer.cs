@@ -126,6 +126,11 @@ namespace AvionicsSystems
         private MASIKAC kacProxy;
 
         /// <summary>
+        /// Instance of the Kerbal Engineer proxy class;
+        /// </summary>
+        private MASIKerbalEngineer keProxy;
+
+        /// <summary>
         /// Instance of the MechJeb proxy class.
         /// </summary>
         private MASIMechJeb mjProxy;
@@ -639,6 +644,7 @@ namespace AvionicsSystems
                     fcProxy.Update();
                     farProxy.Update();
                     kacProxy.Update();
+                    keProxy.Update();
                     mjProxy.Update();
                     navProxy.Update();
                     parachuteProxy.Update();
@@ -777,6 +783,7 @@ namespace AvionicsSystems
             navProxy = null;
             farProxy = null;
             kacProxy = null;
+            keProxy = null;
             parachuteProxy = null;
             transferProxy = null;
             vtolProxy = null;
@@ -867,6 +874,11 @@ namespace AvionicsSystems
                     script.Globals["kac"] = kacProxy;
                     registeredTables.Add("kac", new MASRegisteredTable(kacProxy));
 
+                    keProxy = new MASIKerbalEngineer();
+                    UserData.RegisterType<MASIKerbalEngineer>();
+                    script.Globals["ke"] = keProxy;
+                    registeredTables.Add("ke", new MASRegisteredTable(keProxy));
+
                     mjProxy = new MASIMechJeb();
                     UserData.RegisterType<MASIMechJeb>();
                     script.Globals["mechjeb"] = mjProxy;
@@ -892,7 +904,7 @@ namespace AvionicsSystems
                     script.Globals["vtol"] = vtolProxy;
                     registeredTables.Add("vtol", new MASRegisteredTable(vtolProxy));
 
-                    fcProxy = new MASFlightComputerProxy(this, farProxy, mjProxy);
+                    fcProxy = new MASFlightComputerProxy(this, farProxy, keProxy, mjProxy);
                     UserData.RegisterType<MASFlightComputerProxy>();
                     script.Globals["fc"] = fcProxy;
                     registeredTables.Add("fc", new MASRegisteredTable(fcProxy));

@@ -87,6 +87,7 @@ namespace AvionicsSystems
         private MASFlightComputer fc;
         internal MASVesselComputer vc;
         internal MASIFAR farProxy;
+        internal MASIKerbalEngineer keProxy;
         internal MASIMechJeb mjProxy;
         internal Vessel vessel;
         private UIStateToggleButton[] SASbtns = null;
@@ -99,10 +100,11 @@ namespace AvionicsSystems
         private CommNet.CommLink lastLink;
 
         [MoonSharpHidden]
-        public MASFlightComputerProxy(MASFlightComputer fc, MASIFAR farProxy, MASIMechJeb mjProxy)
+        public MASFlightComputerProxy(MASFlightComputer fc, MASIFAR farProxy, MASIKerbalEngineer keProxy, MASIMechJeb mjProxy)
         {
             this.fc = fc;
             this.farProxy = farProxy;
+            this.keProxy = keProxy;
             this.mjProxy = mjProxy;
             this.nodeApproachSolver = new ApproachSolver();
         }
@@ -112,6 +114,7 @@ namespace AvionicsSystems
             fc = null;
             vc = null;
             farProxy = null;
+            keProxy = null;
             mjProxy = null;
             vessel = null;
             SASbtns = null;
@@ -2911,11 +2914,15 @@ namespace AvionicsSystems
         /// 
         /// Otherwise, 0 is returned.
         /// </summary>
-        /// <seealso>MechJeb</seealso>
+        /// <seealso>MechJeb, Kerbal Engineer Redux</seealso>
         /// <returns>Remaining delta-V in m/s.</returns>
         public double DeltaV()
         {
-            if (mjProxy.mjAvailable)
+            if (MASIKerbalEngineer.keFound)
+            {
+                return keProxy.DeltaV();
+            }
+            else if (mjProxy.mjAvailable)
             {
                 return mjProxy.DeltaV();
             }
@@ -2931,14 +2938,15 @@ namespace AvionicsSystems
         /// <returns>Remaining delta-V for this stage in m/s.</returns>
         public double DeltaVStage()
         {
-            double stagePropellantMass = vc.enginePropellant.currentStage;
-            double dV = 0.0;
+            // mass in tonnes.
+            double stagePropellantMass = vc.enginePropellant.currentStage * vc.enginePropellant.density;
+
             if (stagePropellantMass > 0.0)
             {
-                dV = vc.currentIsp * Utility.StandardG * Math.Log(vessel.totalMass / (vessel.totalMass - 0.001 * stagePropellantMass));
+                return vc.currentIsp * Utility.StandardG * Math.Log(vessel.totalMass / (vessel.totalMass - stagePropellantMass));
             }
 
-            return dV;
+            return 0.0;
         }
 
         /// <summary>

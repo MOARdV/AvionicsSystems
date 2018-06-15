@@ -3,7 +3,7 @@ most of the variables in RasterPropMonitor, along with the MAS equivalent.  I'm 
 as a master list of how much work I still need to do, although it doubles as a handy
 translation guide for anyone else who needs it.
 
-Incomplete variables (to-do list): 40 variables
+Incomplete variables (to-do list): 39 variables
 "BESTSPEEDATIMPACT":
 "BIOMEID":
 "BIOMENAME":
@@ -26,7 +26,6 @@ Incomplete variables (to-do list): 40 variables
 "SCIENCECOUNT":
 "SCIENCEDATA":
 "SPEEDATIMPACT":
-"SUICIDEBURNSTARTSECS":
 "TARGETANGLEX":
 "TARGETANGLEY":
 "TARGETANGLEZ":
@@ -271,7 +270,7 @@ List of all variables defined in RPMCEvaluators.cs with MAS equivalents:
 "STICKYAW": fc.StickYaw()
 "STICKYAWTRIM": fc.StickTrimYaw()
 "STOREDSTRING": -replaced with initialized persistent variables-
-"SUICIDEBURNSTARTSECS":
+"SUICIDEBURNSTARTSECS": fc.SuicideBurnTime()
 "SURFSPEED": fc.SurfaceSpeed()
 "SURFSPEEDMACH": fc.MachNumber()
 "TARGETALTITUDE": fc.TargetAltitude()
