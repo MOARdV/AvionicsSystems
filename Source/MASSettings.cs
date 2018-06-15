@@ -128,6 +128,8 @@ namespace AvionicsSystems
                                    new DialogGUILabel(delegate { return Localizer.Format("#MAS_Settings_Camera_Texture_Size", (1 << cameraTextureScale).ToString()); }, true),
                                    new DialogGUISlider(delegate { return (float)cameraTextureScale; }, 0.0f, 2.0f, true, 140.0f, 30.0f, (float newValue) => { cameraTextureScale = (int)newValue; }),
                                    new DialogGUISpace(5.0f),
+                                   new DialogGUIToggle(enableCommNetWaypoints, Localizer.GetStringByTag("#MAS_Settings_CommNet_Waypoints"), (bool newValue) => { enableCommNetWaypoints = newValue; }),
+                                   new DialogGUISpace(5.0f),
                                    new DialogGUIFlexibleSpace()
                                    ),
                                 new DialogGUIVerticalLayout(
@@ -178,6 +180,7 @@ namespace AvionicsSystems
         private int luaUpdatePriority;
         private int cameraTextureScale;
         private bool enableNavBeacons;
+        private bool enableCommNetWaypoints;
         private float generalPropagation;
         private float NDBPropagation;
         private float VORPropagation;
@@ -188,6 +191,7 @@ namespace AvionicsSystems
             verboseLogging = MASConfig.VerboseLogging;
             luaUpdatePriority = MASConfig.LuaUpdatePriority;
             cameraTextureScale = MASConfig.CameraTextureScale;
+            enableCommNetWaypoints = MASConfig.EnableCommNetWaypoints;
             enableNavBeacons = MASConfig.navigation.enableNavBeacons;
             generalPropagation = MASConfig.navigation.generalPropagation;
             NDBPropagation = MASConfig.navigation.NDBPropagation;
@@ -201,6 +205,7 @@ namespace AvionicsSystems
             MASConfig.VerboseLogging = verboseLogging;
             MASConfig.LuaUpdatePriority = luaUpdatePriority;
             MASConfig.CameraTextureScale = cameraTextureScale;
+            MASConfig.EnableCommNetWaypoints = enableCommNetWaypoints;
             MASConfig.navigation.enableNavBeacons = enableNavBeacons;
             MASConfig.navigation.generalPropagation = generalPropagation;
             MASConfig.navigation.NDBPropagation = NDBPropagation;

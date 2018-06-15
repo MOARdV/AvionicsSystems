@@ -161,7 +161,7 @@ namespace AvionicsSystems
                 wp.altitude = heightAGL;
                 wp.name = waypointName;
                 wp.index = index;
-                //wp.navigationId = new Guid(wp.name); // TODO: Generate a GUID based on wp.name
+                wp.navigationId = Guid.NewGuid();
                 wp.id = "vessel"; // seems to be icon name.  May be WPM-specific.
 
                 return wp;

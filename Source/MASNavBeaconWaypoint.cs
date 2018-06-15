@@ -76,6 +76,8 @@ namespace AvionicsSystems
 
             if (MASConfig.navigation.enableNavBeacons)
             {
+                bool anyAdded = false;
+                ConfigNode master = new ConfigNode("CUSTOM_WAYPOINTS");
                 for (int i = 0; i < numNavAids; ++i)
                 {
                     // Make sure all navigation beacons are updated and added to the waypoint manager.
@@ -102,7 +104,6 @@ namespace AvionicsSystems
                         // waypoint directly using FinePrint.WaypointManager, it's present there, but
                         // not in the Waypoint Manager mod's GUI list.  So this is a simple
                         // way to get compatibility.
-                        ConfigNode master = new ConfigNode("CUSTOM_WAYPOINTS");
 
                         ConfigNode child = new ConfigNode("WAYPOINT");
                         child.AddValue("latitude", newwp.latitude);
@@ -115,23 +116,83 @@ namespace AvionicsSystems
                         child.AddValue("navigationId", newwp.navigationId.ToString());
 
                         master.AddNode(child);
-                        ScenarioCustomWaypoints.Instance.OnLoad(master);
-
+                        anyAdded = true;
                         //FinePrint.WaypointManager.AddWaypoint(newwp);
                     }
                 }
-            }
-            else
-            {
-                if (knownWaypoints == null || knownWaypoints.Count == 0)
+                if (anyAdded)
                 {
-                    return;
+                    ScenarioCustomWaypoints.Instance.OnLoad(master);
                 }
-
+            }
+            else if (knownWaypoints != null && knownWaypoints.Count > 0)
+            {
                 for (int i = 0; i < numNavAids; ++i)
                 {
                     // If nav beacons are disabled, remove them from the database
                     string waypointName = MASLoader.navaids[i].waypointName;
+                    FinePrint.Waypoint wp = knownWaypoints.Find(x => x.name == waypointName);
+
+                    if (wp != null)
+                    {
+                        ScenarioCustomWaypoints.RemoveWaypoint(wp);
+                        knownWaypoints.Remove(wp);
+                    }
+                }
+            }
+
+            if (MASConfig.EnableCommNetWaypoints)
+            {
+                CelestialBody kerbin = Planetarium.fetch.Home;
+
+                int index = 0;
+                bool anyAdded = false;
+                ConfigNode master = new ConfigNode("CUSTOM_WAYPOINTS");
+                foreach (var keyValue in MASLoader.deepSpaceNetwork)
+                {
+                    string waypointName = keyValue.Key;
+                    FinePrint.Waypoint wp = (knownWaypoints == null) ? null : knownWaypoints.Find(x => x.name == waypointName);
+                    if (MASConfig.ResetWaypoints && wp != null)
+                    {
+                        ScenarioCustomWaypoints.RemoveWaypoint(wp);
+                        wp = null;
+                    }
+                    ConfigNode child = new ConfigNode("WAYPOINT");
+                    if (wp == null)
+                    {
+                        Guid g = Guid.NewGuid();
+
+                        // Waypoint altitude keeps reporting a 0 when I query it.
+                        // I've tried using altitude above datum (TerrainAltitude) and
+                        // AGL (10 meters, here), and I keep seeing a 0 for altitude.
+                        // It looks like altitude is not actually stored in ScenarioCustomWaypoints,
+                        // so I may have to derive that value myself.
+                        //double altitude = kerbin.TerrainAltitude(keyValue.Value.x, keyValue.Value.y, false);
+
+                        child.AddValue("latitude", keyValue.Value.x);
+                        child.AddValue("longitude", keyValue.Value.y);
+                        child.AddValue("altitude", 10.0);
+                        //child.AddValue("altitude", altitude); // This isn't working?
+                        child.AddValue("celestialName", kerbin.name);
+                        child.AddValue("name", waypointName);
+                        child.AddValue("id", "vessel");
+                        child.AddValue("index", ++index);
+                        child.AddValue("navigationId", g.ToString());
+                        anyAdded = true;
+                    }
+
+                    master.AddNode(child);
+                }
+                if (anyAdded)
+                {
+                    ScenarioCustomWaypoints.Instance.OnLoad(master);
+                }
+            }
+            else if (knownWaypoints != null && knownWaypoints.Count > 0)
+            {
+                foreach (var keyValue in MASLoader.deepSpaceNetwork)
+                {
+                    string waypointName = keyValue.Key;
                     FinePrint.Waypoint wp = knownWaypoints.Find(x => x.name == waypointName);
 
                     if (wp != null)

@@ -67,6 +67,7 @@ namespace AvionicsSystems
         static internal string ElectricCharge = "ElectricCharge";
         static internal int LuaUpdatePriority = 1;
         static internal int CameraTextureScale = 0;
+        static internal bool EnableCommNetWaypoints = false;
 
         static internal bool ResetWaypoints = false;
 
@@ -108,6 +109,16 @@ namespace AvionicsSystems
                 LuaUpdatePriority = 1;
             }
 
+            if (!node.TryGetValue("EnableCommNetWaypoints", ref EnableCommNetWaypoints))
+            {
+                EnableCommNetWaypoints = false;
+            }
+
+            if (!node.TryGetValue("CameraTextureScale", ref CameraTextureScale))
+            {
+                CameraTextureScale = 0;
+            }
+
             if (!node.TryGetValue("EnableNavBeacons", ref navigation.enableNavBeacons))
             {
                 navigation.enableNavBeacons = false;
@@ -143,6 +154,8 @@ namespace AvionicsSystems
             node.AddValue("VerboseLogging", VerboseLogging);
             node.AddValue("ElectricCharge", ElectricCharge);
             node.AddValue("LuaUpdatePriority", LuaUpdatePriority);
+            node.AddValue("CameraTextureScale", CameraTextureScale);
+            node.AddValue("EnableCommNetWaypoints", EnableCommNetWaypoints);
             node.AddValue("EnableNavBeacons", navigation.enableNavBeacons);
             node.AddValue("GeneralPropagation", navigation.generalPropagation);
             node.AddValue("NDBPropagation", navigation.NDBPropagation);
