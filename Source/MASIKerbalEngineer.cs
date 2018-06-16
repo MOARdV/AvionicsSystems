@@ -24,9 +24,7 @@
  ****************************************************************************/
 using MoonSharp.Interpreter;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
 namespace AvionicsSystems
 {
@@ -41,7 +39,7 @@ namespace AvionicsSystems
     /// </mdDoc>
     internal class MASIKerbalEngineer
     {
-        private bool enableUpdates = false;
+        private bool requestUpdates = false;
 
         internal static readonly bool keFound;
 
@@ -57,15 +55,15 @@ namespace AvionicsSystems
         private static readonly Func<double> keImpactLongitude;
         private static readonly Func<double> keImpactAltitude;
         private static readonly Func<double> keImpactTime;
-        
+
         //--- Stage accessors
         private static readonly Func<object, double> keGetDeltaV;
         private static readonly Func<object, double> keGetTotalDeltaV;
-        
+
         [MoonSharpHidden]
         internal void Update()
         {
-            if (enableUpdates)
+            if (requestUpdates)
             {
                 keSimulationRequestUpdate();
                 keImpactRequestUpdate();
@@ -73,7 +71,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// The KER Simulation category reports information from the KER simulation.
+        /// The KER Simulation category reports information from Kerbal Enginner Redux.
         /// </summary>
         #region KER Simulation
 
@@ -85,7 +83,7 @@ namespace AvionicsSystems
         {
             if (keFound)
             {
-                enableUpdates = true;
+                requestUpdates = true;
                 if (keSimulationReady())
                 {
                     object lastStage = keLastStage();
@@ -107,7 +105,7 @@ namespace AvionicsSystems
         {
             if (keFound)
             {
-                enableUpdates = true;
+                requestUpdates = true;
                 if (keImpactReady())
                 {
                     return keImpactAltitude();
@@ -125,7 +123,7 @@ namespace AvionicsSystems
         {
             if (keFound)
             {
-                enableUpdates = true;
+                requestUpdates = true;
                 if (keImpactReady())
                 {
                     return keImpactLatitude();
@@ -143,7 +141,7 @@ namespace AvionicsSystems
         {
             if (keFound)
             {
-                enableUpdates = true;
+                requestUpdates = true;
                 if (keImpactReady())
                 {
                     return keImpactLongitude();
@@ -161,7 +159,7 @@ namespace AvionicsSystems
         {
             if (keFound)
             {
-                enableUpdates = true;
+                requestUpdates = true;
                 if (keImpactReady())
                 {
                     return keImpactTime();
@@ -179,7 +177,7 @@ namespace AvionicsSystems
         {
             if (keFound)
             {
-                enableUpdates = true;
+                requestUpdates = true;
                 if (keSimulationReady())
                 {
                     object lastStage = keLastStage();
@@ -325,7 +323,7 @@ namespace AvionicsSystems
                 return;
             }
             keImpactTime = (Func<double>)Delegate.CreateDelegate(typeof(Func<double>), getInfo_t);
-            
+
             //--- Stage accessors
             FieldInfo DeltaV_t = keStage_t.GetField("deltaV", BindingFlags.Instance | BindingFlags.Public);
             if (DeltaV_t == null)
@@ -334,7 +332,7 @@ namespace AvionicsSystems
                 return;
             }
             keGetDeltaV = DynamicMethodFactory.CreateGetField<object, double>(DeltaV_t);
-            
+
             FieldInfo TotalDeltaV_t = keStage_t.GetField("totalDeltaV", BindingFlags.Instance | BindingFlags.Public);
             if (TotalDeltaV_t == null)
             {

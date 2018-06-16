@@ -2737,6 +2737,30 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the predicted time until landing in seconds.
+        /// 
+        /// See the [category description](#description) for limitations on this function.
+        /// </summary>
+        /// <seealso>MechJeb, Kerbal Engineer Redux</seealso>
+        /// <returns>Estimated time until landing, or 0 if the orbit does not lithobrake.</returns>
+        public double LandingTime()
+        {
+            if (MASIKerbalEngineer.keFound)
+            {
+                return keProxy.LandingTime();
+            }
+            else if (mjProxy.LandingComputerActive() > 0.0)
+            {
+                return mjProxy.LandingTime();
+            }
+            else
+            {
+                double landingTime = vc.timeToImpact;
+                return (landingTime > 0.0) ? (landingTime) : 0.0;
+            }
+        }
+
+        /// <summary>
         /// Returns 1 if landing predictions are valid.  If Kerbal Engineer Redux is installed,
         /// MAS will use KER's predictions.  Otherwise, if MechJeb is installed, MAS will
         /// use MechJeb's landing computer (if it is active).  If neither of those options

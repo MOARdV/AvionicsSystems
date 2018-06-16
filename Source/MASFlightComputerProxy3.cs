@@ -1562,31 +1562,41 @@ namespace AvionicsSystems
         /// Returns the time (in seconds) until a suicide burn (maximum thrust burn) must
         /// start to avoid lithobraking.  If the orbit does not impact the surface, or it
         /// is too late to avoid impact, returns 0.
+        /// 
+        /// If Kerbal Engineer Redux is installed, MAS will use the KER prediction of time-of-impact.
+        /// If KER is not installed, MAS uses its own estimate of time-to-impact.
         /// </summary>
+        /// <seealso>MechJeb, Kerbal Engineer Redux</seealso>
         /// <returns>Time in seconds until the burn must start, or 0.</returns>
         public double SuicideBurnTime()
         {
-            if (vc.timeToImpact > 0.0)
+            double timeToImpact = 0.0;
+            if (MASIKerbalEngineer.keFound)
             {
-                // 'sine'
-                double verticalThrustComponent = Math.Max(0.0, Vector3.Dot(vc.up, -vessel.srf_velocity));
-                // 'T'
-                double twr = vc.currentLimitedMaxThrust / vessel.totalMass;
-                // 'g'
+                timeToImpact = keProxy.LandingTime();
+            }
+            else if (mjProxy.LandingComputerActive() > 0.0)
+            {
+                timeToImpact = mjProxy.LandingTime();
+            }
+            else
+            {
+                timeToImpact = vc.timeToImpact;
+            }
+
+            if (timeToImpact > 0.0)
+            {
+                double sine = Mathf.Max(0.0f, Vector3.Dot(-(vessel.srf_velocity.normalized), vc.up));
                 double g = FlightGlobals.getGeeForceAtPosition(vessel.CoM).magnitude;
-                // '2.0 * g * sine'
-                double verticalTerm = -2.0 * g * verticalThrustComponent;
-                // 'decelTerm'
-                double decelTerm =(verticalTerm * verticalTerm) + 4.0 * (twr * twr - g * g);
-                if (decelTerm < 0.0)
+                double T = vc.currentLimitedMaxThrust / vessel.totalMass;
+
+                double effectiveDecel = 0.5 * (-2 * g * sine + Math.Sqrt((2 * g * sine) * (2 * g * sine) + 4 * (T * T - g * g)));
+                if (!double.IsNaN(effectiveDecel))
                 {
-                    return 0.0;
+                    double decelTime = vessel.srfSpeed / effectiveDecel;
+
+                    return Math.Max(0.0, timeToImpact - decelTime * 0.5);
                 }
-
-                double effectiveDecel = 0.5 * (verticalTerm + Math.Sqrt(decelTerm));
-                double decelTime = vc.surfaceForward.magnitude / effectiveDecel;
-
-                return Math.Max(0.0, vc.timeToImpact - decelTime * 0.5 - Planetarium.GetUniversalTime());
             }
 
             return 0.0;
