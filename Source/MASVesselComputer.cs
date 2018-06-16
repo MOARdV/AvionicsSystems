@@ -328,6 +328,7 @@ namespace AvionicsSystems
             return vessel.isActiveVessel && (CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA || CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.Internal);
         }
 
+        // Time in seconds until impact.  0 if there is no impact.
         private double timeToImpact_;
         internal double timeToImpact
         {
