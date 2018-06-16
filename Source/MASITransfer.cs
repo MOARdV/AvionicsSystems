@@ -100,7 +100,7 @@ namespace AvionicsSystems
         /// no plane change is required.  Eccentric orbits, or non-coplanar
         /// orbits, will not reflect the total ΔV required.
         /// </summary>
-        #region Delta-V
+        #region Transfer Delta-V
 
         /// <summary>
         /// Returns an estimate of the ΔV required to circularize a Hohmann transfer at
@@ -213,7 +213,7 @@ namespace AvionicsSystems
         /// transfer, the target ejection angle will reflect the ejection angle
         /// required to take advantage of the Oberth effect during the ejection.
         /// </summary>
-        #region Ejection Angle
+        #region Transfer Ejection Angle
 
         /// <summary>
         /// Reports the vessel's current ejection angle.  When this value matches
@@ -339,7 +339,7 @@ namespace AvionicsSystems
         /// The MAS Maneuver Planner is not as full-featured as MechJeb - it does not
         /// work with parabolic / hyperbolic orbits, for instance.
         /// </summary>
-        #region Maneuver Planning
+        #region Transfer Maneuver Planning
 
         /// <summary>
         /// Raise or lower the altitude of the apoapsis.  The maneuver node is placed at
@@ -951,7 +951,7 @@ namespace AvionicsSystems
         /// If the vessel is not in a situtation where the Oberth Effect would be applicable,
         /// these fields all return 0.
         /// </summary>
-        #region Oberth Effect
+        #region Transfer Oberth Effect
 
         /// <summary>
         /// The current ejection angle for the moon in degrees.  When this value matches
@@ -1106,7 +1106,7 @@ namespace AvionicsSystems
         /// burn when its current phase angle reaches the transfer phase angle.
         /// Alternatively, when the relative phase angle reaches 0, initiate a burn.
         /// </summary>
-        #region Phase Angle
+        #region Transfer Phase Angle
         /// <summary>
         /// Returns the current phase angle between the vessel and its target.
         /// </summary>

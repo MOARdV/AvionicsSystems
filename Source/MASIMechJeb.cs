@@ -226,7 +226,7 @@ namespace AvionicsSystems
         /// actions (such as whether
         /// MechJeb functionality is available on a given craft).
         /// </summary>
-        #region General
+        #region MechJeb General
         /// <summary>
         /// Returns 1 if any of the MechJeb autopilots MAS can control are active.
         /// </summary>
@@ -310,7 +310,7 @@ namespace AvionicsSystems
         /// The Ascent Autopilot and Guidance methods provide an interface to MechJeb's
         /// Ascent Autopilot.
         /// </summary>
-        #region Ascent Autopilot and Guidance
+        #region MechJeb Ascent Autopilot and Guidance
 
         /// <summary>
         /// Returns 1 if the MJ Ascent Autopilot is enabled; 0 otherwise.
@@ -535,7 +535,7 @@ namespace AvionicsSystems
         /// Landing Autopilot.  It can also independently trigger the Landing Computer to
         /// provide landing predictions.
         /// </summary>
-        #region Landing Autopilot and Computer
+        #region MechJeb Landing Autopilot and Computer
         /// <summary>
         /// Returns 1 if the MechJeb landing autopilot is engaged.
         /// </summary>
@@ -700,7 +700,7 @@ namespace AvionicsSystems
         /// The Maneuver Planner and Node Executor section provides access to the MechJeb autopilot
         /// and maneuver node planner.
         /// </summary>
-        #region Maneuver Planner and Node Executor
+        #region MechJeb Maneuver Planner and Node Executor
         /// <summary>
         /// Change apoapsis to the specified altitude in meters.  Command is
         /// ignored if Ap &lt; Pe or the orbit is hyperbolic and the vessel is
@@ -885,7 +885,7 @@ namespace AvionicsSystems
         /// <summary>
         /// The Performance section provides metrics of vessel performance as computed my MechJeb.
         /// </summary>
-        #region Performance
+        #region MechJeb Performance
 
         /// <summary>
         /// Returns the dV remaining for the vessel.
@@ -910,7 +910,7 @@ namespace AvionicsSystems
         /// The Rendezvous Autopilot category contains methods to interact with the Rendezvous
         /// Autopilot.
         /// </summary>
-        #region Rendezvous Autopilot
+        #region MechJeb Rendezvous Autopilot
         /// <summary>
         /// Returns 1 if the rendezvous autopilot is engaged.
         /// </summary>
@@ -955,7 +955,7 @@ namespace AvionicsSystems
         /// MechJeb's SASS attitude control system can be queried and controlled using
         /// methods from this category.
         /// </summary>
-        #region SASS
+        #region MechJeb SASS
         /// <summary>
         /// Returns the number of the currently active SASS mode, or zero if MechJeb
         /// is unavailable.
