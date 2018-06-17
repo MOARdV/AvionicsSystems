@@ -1791,7 +1791,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Return the instantaneous rate of change of the vessel heading in degrees per second.
         /// 
-        /// Note that extreme rates (in excess of 180 degrees per second) will be misreported.
+        /// Note that extreme rates may be misreported.
         /// </summary>
         /// <returns>A value in the range of [-180, 180).</returns>
         public double HeadingRate()
