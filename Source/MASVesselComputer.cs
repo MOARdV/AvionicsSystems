@@ -552,6 +552,9 @@ namespace AvionicsSystems
 
         internal float progradeHeading;
 
+        private float lastHeading;
+        internal double headingRate = 0.0;
+
         /// <summary>
         /// Because the gimbal is reflected for presentation, we need to
         /// mirror the value here so the gimbal is correct.
@@ -606,6 +609,10 @@ namespace AvionicsSystems
             {
                 surfaceAttitude.z = -surfaceAttitude.z;
             }
+
+            double headingChange = Utility.NormalizeLongitude(surfaceAttitude.y - lastHeading);
+            lastHeading = surfaceAttitude.y;
+            headingRate = headingChange / TimeWarp.fixedDeltaTime;
 
             up = vessel.upAxis;
             prograde = vessel.obt_velocity.normalized;
