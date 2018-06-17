@@ -5814,15 +5814,15 @@
 				<text>ALARM</text>
 			</TEXT_LABEL>
 			<AUDIO_PLAYER>
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Master_Alarm"))</variable>
+				<variable>fc.Conditioned(MAS_RWL_MasterAlarm())</variable>
 			</AUDIO_PLAYER>
 			<COLOR_SHIFT>
 				<activeColor>COLOR_MOARdV_RWL_Red</activeColor>
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Master_Alarm"))</variable>
+				<variable>fc.Conditioned(MAS_RWL_MasterAlarm())</variable>
 			</COLOR_SHIFT>
 			<TEXTURE_SHIFT>
 				<endUV>0.0, 0.6</endUV>
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Master_Alarm"))</variable>
+				<variable>fc.Conditioned(MAS_RWL_MasterAlarm())</variable>
 			</TEXTURE_SHIFT>
 		</prop>
 		<prop>
@@ -5834,15 +5834,15 @@
 			<AUDIO_PLAYER>
 				<sound>ASET/ASET_Props/Sounds/apollospec</sound>
 				<volume>0.5</volume>
-				<variable>fc.Conditioned(fc.PropellantStageThreshold(0.0, 0.1) + fc.PowerThreshold(0.0, 0.1) + fc.RcsStageThreshold(0.0, 0.1) + fc.ResourceThreshold("Ablator", 0.0, 0.1) + ((1 - parachute.GetParachuteArmedOrDeployed()) * fc.AtmosphereDepth() * (fc.VerticalSpeed() &lt; 0) * fc.VesselFlying()))</variable>
+				<variable>fc.Conditioned(MAS_RWL_MasterCaution())</variable>
 			</AUDIO_PLAYER>
 			<COLOR_SHIFT>
 				<activeColor>COLOR_MOARdV_RWL_Amber</activeColor>
-				<variable>fc.Conditioned(fc.PropellantStageThreshold(0.0, 0.1) + fc.PowerThreshold(0.0, 0.1) + fc.RcsStageThreshold(0.0, 0.1) + fc.ResourceThreshold("Ablator", 0.0, 0.1) + ((1 - parachute.GetParachuteArmedOrDeployed()) * fc.AtmosphereDepth() * (fc.VerticalSpeed() &lt; 0) * fc.VesselFlying()))</variable>
+				<variable>fc.Conditioned(MAS_RWL_MasterCaution())</variable>
 			</COLOR_SHIFT>
 			<TEXTURE_SHIFT>
 				<endUV>0.0, 0.4</endUV>
-				<variable>fc.Conditioned(fc.PropellantStageThreshold(0.0, 0.1) + fc.PowerThreshold(0.0, 0.1) + fc.RcsStageThreshold(0.0, 0.1) + fc.ResourceThreshold("Ablator", 0.0, 0.1) + ((1 - parachute.GetParachuteArmedOrDeployed()) * fc.AtmosphereDepth() * (fc.VerticalSpeed() &lt; 0) * fc.VesselFlying()))</variable>
+				<variable>fc.Conditioned(MAS_RWL_MasterCaution())</variable>
 			</TEXTURE_SHIFT>
 		</prop>
 	</RetroWarningLight>
