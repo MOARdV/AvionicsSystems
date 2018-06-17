@@ -4477,6 +4477,473 @@
 	</PushButton>
 
 	<!--
+	Crew Manuals.  Many variants included in the ASET Props
+	-->
+	<crewManual folder="CrewManual01">
+		<style name="ASET_Manual">
+			<MODEL>
+				<model>ASET/ASET_Props/Misc/CrewManual01/CrewManual01</model>
+			</MODEL>
+			<TEXTURE_SHIFT id="0">
+				<comment>color setup</comment>
+				<name>Manual Ring 01</name>
+				<transform>ManualRing01</transform>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<name>Manual Ring 02</name>
+				<transform>ManualRing02</transform>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="2">
+				<name>Manual Ring 03</name>
+				<transform>ManualRing03</transform>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="3">
+				<comment>manual side label</comment>
+				<name>Manual Side Label</name>
+				<transform>ManualSideLabel</transform>
+			</TEXTURE_SHIFT>
+			<IMAGE>
+				<comment>mission flag</comment>
+				<name>Mission Flag</name>
+				<texture>%FLAG%</texture>
+				<transform>MissonLogoObj</transform>
+			</IMAGE>
+			<TEXT_LABEL id="0">
+				<name>Manual name</name>
+				<transform>ManualNameObj</transform>
+				<fontSize>9</fontSize>
+				<lineSpacing>1.0</lineSpacing>
+				<font>Liberation Sans</font>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>never</emissive>
+				<passiveColor>COLOR_MOARdV_BlackPrintedText</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Spine title</name>
+				<transform>SideManualNameObj</transform>
+				<fontSize>7</fontSize>
+				<lineSpacing>1.0</lineSpacing>
+				<font>Liberation Sans</font>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>never</emissive>
+				<passiveColor>COLOR_MOARdV_BlackPrintedText</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>Serial Number</name>
+				<transform>SerialNumberObj</transform>
+				<fontSize>3</fontSize>
+				<lineSpacing>1.0</lineSpacing>
+				<font>Liberation Sans</font>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>never</emissive>
+				<passiveColor>COLOR_MOARdV_BlackPrintedText</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<name>Misc Text 1</name>
+				<transform>MiscTextObj</transform>
+				<fontSize>4</fontSize>
+				<lineSpacing>1.0</lineSpacing>
+				<font>Liberation Sans</font>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>never</emissive>
+				<passiveColor>COLOR_MOARdV_BlackPrintedText</passiveColor>
+				<text>Mission Operations Directorate$$$Operations Division</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<name>Misc Text 2</name>
+				<transform>Misc2TextObj</transform>
+				<fontSize>4</fontSize>
+				<lineSpacing>1.0</lineSpacing>
+				<font>Liberation Sans</font>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>never</emissive>
+				<passiveColor>COLOR_MOARdV_BlackPrintedText</passiveColor>
+				<text>Kerbal Space Center</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="5">
+				<name>Vessel Name</name>
+				<transform>VesselNameObj</transform>
+				<fontSize>7</fontSize>
+				<lineSpacing>1.0</lineSpacing>
+				<font>Liberation Sans</font>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>never</emissive>
+				<oneshot>true</oneshot>
+				<passiveColor>COLOR_MOARdV_BlackPrintedText</passiveColor>
+				<text>&lt;=0=&gt; $&amp;$ fc.VesselName()</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="6">
+				<name>ALCORtextObj</name>
+				<transform>ALCORtextObj</transform>
+				<fontSize>4</fontSize>
+				<lineSpacing>1.0</lineSpacing>
+				<font>Liberation Sans</font>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>never</emissive>
+				<passiveColor>COLOR_MOARdV_BlackPrintedText</passiveColor>
+				<text>ADVANCED LANDING CAPSULE$$$FOR    ORBITAL    RENDEZVOUS$$$ALCOR</text>
+			</TEXT_LABEL>
+		</style>
+		<prop>
+			<name>MAS_CrewManual_AscentChklist</name>
+			<style>ASET_Manual</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.75, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="2">
+				<startUV>0.75, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="3">
+				<startUV>0.25, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>Ascent Checklist</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>Ascent Checklist</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>ALC00236-A2, REV A</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_CrewManual_TakeOffChecklist</name>
+			<style>ASET_Manual</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.5, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.5, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="2">
+				<startUV>0.5, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="3">
+				<startUV>0.5, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>Take-Off Checklist</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>Take-Off Checklist</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>ALC00236-A2, REV A</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_CrewManual_DeorbitPreparationBook</name>
+			<style>ASET_Manual</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.5, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.5, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="2">
+				<startUV>0.5, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="3">
+				<startUV>0.5, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>Deorbit Preparation</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>Deorbit Preparation</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>ALC00236-A2, REV A</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_CrewManual_EVAChklist</name>
+			<style>ASET_Manual</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.5, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.5, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="2">
+				<startUV>0.5, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="3">
+				<startUV>0.5, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>EVA Checklist</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>EVA Checklist</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>ALC00236-A2, REV A</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_CrewManual_FlightPlan</name>
+			<style>ASET_Manual</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="2">
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="3">
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>FLIGHT PLAN</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>FLIGHT PLAN</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>ALC00236-A2, REV A</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_CrewManual_MaintenanceBook</name>
+			<style>ASET_Manual</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.25, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.25, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="2">
+				<startUV>0.25, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="3">
+				<startUV>0.25, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>In-Flight Maintenance</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>In-Flight Maintenance</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>ALC00236-A2, REV A</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_CrewManual_MalfunctionProceduresBook</name>
+			<style>ASET_Manual</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="2">
+				<startUV>0, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="3">
+				<startUV>0, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>Malfunction$$$Procedures</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>Malfunction Procedures</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>ALC00236-A2, REV A</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_CrewManual_OrbChklist</name>
+			<style>ASET_Manual</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.5, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.5, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="2">
+				<startUV>0.5, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="3">
+				<startUV>0.5, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>Orbit Operations$$$Checklist</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>Orbit Operations Checklist</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>ALC00236-A2, REV A</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_CrewManual_Photo-TVChklist</name>
+			<style>ASET_Manual</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="2">
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="3">
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>Photo/TV Checklist</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>Photo/TV Checklist</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>ALC00236-A2, REV A</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_CrewManual_PostInsertionBook</name>
+			<style>ASET_Manual</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.5, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.5, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="2">
+				<startUV>0.5, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="3">
+				<startUV>0.5, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>Post Insertion</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>Post Insertion</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>ALC00236-A2, REV A</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_CrewManual_ReferenceDataBook</name>
+			<style>ASET_Manual</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.75, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="2">
+				<startUV>0.75, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="3">
+				<startUV>0.75, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>Reference Data</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>Reference Data</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>ALC00236-A2, REV A</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_CrewManual_RendezvousChecklist</name>
+			<style>ASET_Manual</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.75, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="2">
+				<startUV>0.75, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="3">
+				<startUV>0.75, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>Rendezvous$$$Checklist</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>Rendezvous Checklist</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>ALC00236-A2, REV A</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_CrewManual_SystemsDataBook</name>
+			<style>ASET_Manual</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.75, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="2">
+				<startUV>0.75, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="3">
+				<startUV>0.75, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>Systems Data</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>Systems Data</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>ALC00236-A2, REV A</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_CrewManual_MalfunctionChklist</name>
+			<style>ASET_Manual</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.25, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.25, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="2">
+				<startUV>0.25, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="3">
+				<startUV>0.25, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>Malfunction$$$Checklist</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>Malfunction Checklist</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>ALC00236-A2, REV A</text>
+			</TEXT_LABEL>
+		</prop>
+	</crewManual>
+	
+	<!--
 	Flight director / attitude indicator.  Included here
 	because MAS can support an arbitrary number of them, provided you create the
 	supporting controls (power switch, rate and scale controls, GMCP).
