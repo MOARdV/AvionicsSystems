@@ -459,15 +459,17 @@ end
 ------------------------------------------------------------------------------
 -- Flight Instrumentation page configuration
 function MAS_Mfd2_Flight_Select_Instrument(propId, panel, direction)
+	-- panel is a number from 0 to 6 (inclusive) that tells me which panel is
+	-- selected by the player.  If it's 0, I ignore this click.  Otherwise, I
+	-- update the persistent that is tied to the selected panel.
 	if panel == 1 then
-		fc.AddPersistentWrapped(propId .. "-FlightPanel1", direction, 0, 3)
+		fc.AddPersistentWrapped(propId .. "-FlightPanel1", direction, 0, 4)
 	elseif panel == 2 then
 		fc.AddPersistentWrapped(propId .. "-FlightPanel2", direction, 0, 2)
 	elseif panel == 3 then
 		fc.AddPersistentWrapped(propId .. "-FlightPanel3", direction, 0, 2)
 	elseif panel == 4 then
-		-- If I don't have alternative panels yet, use 0 for direction
-		fc.AddPersistentWrapped(propId .. "-FlightPanel4", 0, 0, 2)
+		fc.AddPersistentWrapped(propId .. "-FlightPanel4", direction, 0, 2)
 	elseif panel == 5 then
 		fc.AddPersistentWrapped(propId .. "-FlightPanel5", direction, 0, 2)
 	elseif panel == 6 then
