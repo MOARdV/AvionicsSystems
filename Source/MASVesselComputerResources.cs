@@ -596,7 +596,7 @@ namespace AvionicsSystems
             // cheaper than a string search.
             Array.Sort(resources, resourceNameComparer);
 
-            enginePropellant.name = "Engine Propellant Mass";
+            enginePropellant.name = "Engine Propellant";
             enginePropellant.density = 0.0f;
             enginePropellant.currentQuantity = 0.0f;
             enginePropellant.maxQuantity = 0.0f;
@@ -606,7 +606,8 @@ namespace AvionicsSystems
             enginePropellant.maxStage = 0.0f;
             // Balance of fields are "don't care".
 
-            rcsPropellant.name = "RCS Propellant Mass";
+            rcsPropellant.name = "RCS Propellant";
+            rcsPropellant.density = 0.0f;
             rcsPropellant.currentQuantity = 0.0f;
             rcsPropellant.maxQuantity = 0.0f;
             rcsPropellant.previousQuantity = 0.0f;
@@ -675,11 +676,13 @@ namespace AvionicsSystems
             enginePropellant.maxStage = 0.0f;
             enginePropellant.currentQuantity = 0.0f;
             enginePropellant.maxQuantity = 0.0f;
+            enginePropellant.density = 0.0f;
 
             rcsPropellant.currentStage = 0.0f;
             rcsPropellant.maxStage = 0.0f;
             rcsPropellant.currentQuantity = 0.0f;
             rcsPropellant.maxQuantity = 0.0f;
+            rcsPropellant.density = 0.0f;
 
             float timeDelta = 1.0f / TimeWarp.fixedDeltaTime;
             for (int i = resources.Length - 1; i >= 0; --i)
@@ -723,11 +726,11 @@ namespace AvionicsSystems
 
                 if (rcsPropellantIds.Contains(resources[i].id))
                 {
-                    float density = 1000.0f * resources[i].density;
-                    rcsPropellant.currentStage += resources[i].currentStage * density;
-                    rcsPropellant.maxStage += resources[i].maxStage * density;
-                    rcsPropellant.currentQuantity += resources[i].currentQuantity * density;
-                    rcsPropellant.maxQuantity += resources[i].maxQuantity * density;
+                    rcsPropellant.currentStage += resources[i].currentStage;
+                    rcsPropellant.maxStage += resources[i].maxStage;
+                    rcsPropellant.currentQuantity += resources[i].currentQuantity;
+                    rcsPropellant.maxQuantity += resources[i].maxQuantity;
+                    rcsPropellant.density += resources[i].currentStage * resources[i].density;
                 }
             }
 
@@ -754,6 +757,10 @@ namespace AvionicsSystems
                 rcsPropellant.deltaPerSecond = 0.0f;
             }
             rcsPropellant.previousQuantity = rcsPropellant.currentQuantity;
+            if (rcsPropellant.currentStage > 0.0f)
+            {
+                rcsPropellant.density /= rcsPropellant.currentStage;
+            }
 
             // sort the array of installed indices.
             Array.Sort<int>(this.vesselActiveResource);

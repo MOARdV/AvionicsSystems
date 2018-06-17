@@ -359,9 +359,9 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Tracks the current total mass of all resources consumed by installed RCS thrusters.
+        /// Tracks the current units of all resources consumed by installed RCS thrusters.
         /// </summary>
-        /// <returns>Total RCS propellant mass in kg.</returns>
+        /// <returns>Total RCS propellant quantity in units.</returns>
         public double RcsCurrent()
         {
             return vc.rcsPropellant.currentQuantity;
@@ -370,16 +370,34 @@ namespace AvionicsSystems
         /// <summary>
         /// Tracks the current resource consumption rate by installed RCS thrusters.
         /// </summary>
-        /// <returns>RCS propellant consumption rate in kg/s.</returns>
+        /// <returns>RCS propellant consumption rate in units/s.</returns>
         public double RcsDelta()
         {
             return vc.rcsPropellant.deltaPerSecond;
         }
 
         /// <summary>
-        /// Tracks the total mass that can be carried in all RCS propellant tanks.
+        /// Reports the current density of propellant for all RCS thrusters.
         /// </summary>
-        /// <returns>Maximum propellant capacity in kg.</returns>
+        /// <returns>RCS propellant consumption rate in kg/U.</returns>
+        public double RcsDensity()
+        {
+            return vc.rcsPropellant.density * 1000.0;
+        }
+
+        /// <summary>
+        /// Reports the current mass of RCS propellant accessible by the current stage.
+        /// </summary>
+        /// <returns>Current RCS propellant mass, in kg.</returns>
+        public double RcsMass()
+        {
+            return vc.rcsPropellant.currentStage * vc.rcsPropellant.density * 1000.0;
+        }
+
+        /// <summary>
+        /// Tracks the total units that can be carried in all RCS propellant tanks.
+        /// </summary>
+        /// <returns>Maximum propellant capacity in units.</returns>
         public double RcsMax()
         {
             return vc.rcsPropellant.maxQuantity;
@@ -397,7 +415,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Reports the current amount of RCS propellant available to the active stage.
         /// </summary>
-        /// <returns>Available RCS propellant, in kg.</returns>
+        /// <returns>Available RCS propellant, in units.</returns>
         public double RcsStageCurrent()
         {
             return vc.rcsPropellant.currentStage;
@@ -406,7 +424,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Reports the maximum amount of RCS propellant storage accessible by the current stage.
         /// </summary>
-        /// <returns>Maximum stage RCS propellant mass, in kg.</returns>
+        /// <returns>Maximum stage RCS propellant mass, in units.</returns>
         public double RcsStageMax()
         {
             return vc.rcsPropellant.maxStage;
