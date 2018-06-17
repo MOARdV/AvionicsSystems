@@ -203,6 +203,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the total number of parachutes installed on the vessel.
+        /// </summary>
+        /// <returns></returns>
+        public double ParachuteCount()
+        {
+            return (vc.moduleParachute.Length + deployRealChute.Length);
+        }
+
+        /// <summary>
         /// Toggles the armed state of any RealChute parachutes.
         /// </summary>
         /// <returns>1 if parachutes are armed, 0 otherwise</returns>
