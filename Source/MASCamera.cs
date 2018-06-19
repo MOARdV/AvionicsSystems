@@ -341,6 +341,7 @@ namespace AvionicsSystems
             "Camera 00",
             "FXCamera"
         };
+        private Camera scaledSpace;
         private readonly Camera[] cameras = { null, null, null, null, null };
         private readonly GameObject[] cameraBody = { null, null, null, null, null };
         internal RenderTexture cameraRentex;
@@ -421,7 +422,6 @@ namespace AvionicsSystems
             if (cameraTransform != null)
             {
                 // Make everything in-order, and clamp the current values to a legal range.
-                // TODO: And clamp the ranges to legal ranges.
                 if (fovRange.y < fovRange.x)
                 {
                     fovRange = new Vector2(fovRange.y, fovRange.x);
@@ -441,6 +441,14 @@ namespace AvionicsSystems
                 currentPan = Mathf.Clamp(currentPan, panRange.x, panRange.y);
                 goalPan = Mathf.Clamp(goalPan, panRange.x, panRange.y);
                 panRate = Mathf.Abs(panRate);
+                if (panRange.y < 0.0f)
+                {
+                    Utility.LogWarning(this, "Camera {0} has a maximum panRange less than zero, so it is unable to point directly along the transform's axis.", cameraTransformName);
+                }
+                if (panRange.x > 0.0f)
+                {
+                    Utility.LogWarning(this, "Camera {0} has a minimum panRange greater than zero, so it is unable to point directly along the transform's axis.", cameraTransformName);
+                }
 
                 if (tiltRange.y < tiltRange.x)
                 {
@@ -451,6 +459,14 @@ namespace AvionicsSystems
                 currentTilt = Mathf.Clamp(currentTilt, tiltRange.x, tiltRange.y);
                 goalTilt = Mathf.Clamp(goalTilt, tiltRange.x, tiltRange.y);
                 tiltRate = Mathf.Abs(tiltRate);
+                if (tiltRange.y < 0.0f)
+                {
+                    Utility.LogWarning(this, "Camera {0} has a maximum tiltRange less than zero, so it is unable to point directly along the transform's axis.", cameraTransformName);
+                }
+                if (tiltRange.x > 0.0f)
+                {
+                    Utility.LogWarning(this, "Camera {0} has a minimum tiltRange greater than zero, so it is unable to point directly along the transform's axis.", cameraTransformName);
+                }
 
                 if (HighLogic.LoadedSceneIsEditor)
                 {
@@ -491,7 +507,7 @@ namespace AvionicsSystems
 
                 CreateFlightCameras();
 
-                Camera.onPreCull += CameraPrerender;
+                Camera.onPreCull += CameraPreCull;
             }
 
             refreshRate = Math.Max(refreshRate, 1);
@@ -553,7 +569,6 @@ namespace AvionicsSystems
                 cameras[index] = cameraBody[index].AddComponent<Camera>();
 
                 cameras[index].CopyFrom(sourceCamera);
-                cameras[index].enabled = false;
                 cameras[index].aspect = 1.0f;
 
                 // These get stomped on at render time:
@@ -570,6 +585,14 @@ namespace AvionicsSystems
                 {
                     cameras[index].nearClipPlane = cameras[index].farClipPlane / 8192.0f;
                 }
+                // The ScaledSpace camera needs to move around scaled space.  Until / unless
+                // I figure out how to locate my position in SS, I'll just copy the existing
+                // camera's position.
+                if (index == 1)
+                {
+                    scaledSpace = sourceCamera;
+                }
+                cameras[index].enabled = false;
             }
         }
 
@@ -644,7 +667,7 @@ namespace AvionicsSystems
         {
             if (HighLogic.LoadedSceneIsFlight)
             {
-                Camera.onPreCull -= CameraPrerender;
+                Camera.onPreCull -= CameraPreCull;
             }
 
             if (minFovRenderer != null)
@@ -1099,12 +1122,12 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Callback triggered prior to rendering.  We use this event to make sure the cameras
+        /// Callback triggered prior to culling.  We use this event to make sure the cameras
         /// are pointed in the right direction and that the cameras that are attached to the
         /// vessel are positioned correctly.
         /// </summary>
         /// <param name="whichCamera"></param>
-        private void CameraPrerender(Camera whichCamera)
+        private void CameraPreCull(Camera whichCamera)
         {
             int cameraIndex = Array.FindIndex(cameras, x => x == whichCamera);
             if (cameraIndex >= 0)
@@ -1115,6 +1138,10 @@ namespace AvionicsSystems
                     // GalaxyCamera and ScaledSpace cameras should not move - only rotate.
                     // The remainder of them move here:
                     whichCamera.gameObject.transform.position = cameraTransform.position;
+                }
+                else if (cameraIndex == 1)
+                {
+                    whichCamera.gameObject.transform.position = scaledSpace.gameObject.transform.position;
                 }
                 whichCamera.fieldOfView = currentFov;
             }
