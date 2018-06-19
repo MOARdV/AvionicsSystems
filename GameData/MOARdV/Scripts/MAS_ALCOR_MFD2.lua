@@ -440,6 +440,23 @@ function MAS_Mfd2_Rsrc_Minus(propId, rowId)
 end
 
 ------------------------------------------------------------------------------
+--
+function MAS_Mfd2_NextCameraMode(cameraId)
+	
+	local modeCount = fc.GetCameraModeCount(cameraId)
+	
+	if modeCount > 1 then
+		local activeMode = fc.GetCameraMode(cameraId)
+		
+		if activeMode < (modeCount - 1) then
+			fc.SetCameraMode(cameraId, activeMode + 1)
+		else
+			fc.SetCameraMode(cameraId, 0)
+		end
+	end
+end
+
+------------------------------------------------------------------------------
 -- Verify that the WBI VTOL Manager is available.
 function MAS_Mfd2_Vtol_IfValid(propId)
 	if vtol.Available() == 1 then
@@ -477,3 +494,19 @@ function MAS_Mfd2_Flight_Select_Instrument(propId, panel, direction)
 	end
 end
 
+------------------------------------------------------------------------------
+-- System Menus
+function MAS_Mfd2_System_Menu_Select(propId, activeRow)
+	if activeRow == 0 then
+		fc.SetPersistent(propId, "MAS_MFD2_ActionGroup")
+	end
+end
+
+------------------------------------------------------------------------------
+function MAS_Mfd2_ActionGroup_Menu_Select(propId, activeRow)
+	if activeRow >= 0 and activeRow <= 8 then
+		fc.ToggleActionGroup(activeRow + 1)
+	elseif activeRow == 9 then
+		fc.ToggleActionGroup(0)
+	end
+end
