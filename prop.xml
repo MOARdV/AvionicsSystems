@@ -5559,7 +5559,7 @@
 			<name>MAS_FI_AG0</name>
 			<style>Flag Indicator</style>
 			<TEXT_LABEL>
-				<text>AG1</text>
+				<text>AG0</text>
 			</TEXT_LABEL>
 			<MODEL_SCALE>
 				<variable>fc.Conditioned(fc.GetActionGroup(0))</variable>
