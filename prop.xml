@@ -5699,6 +5699,19 @@
 			</TEXTURE_SHIFT>
 		</prop>
 		<prop>
+			<name>MAS_FI_Docked</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>DOCKED</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.Docked())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
 			<name>MAS_FI_Gear</name>
 			<style>Flag Indicator</style>
 			<TEXT_LABEL>
@@ -5712,6 +5725,19 @@
 			</TEXTURE_SHIFT>
 		</prop>
 		<prop>
+			<name>MAS_FI_Landed</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>CONTACT</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.VesselLanded())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
 			<name>MAS_FI_Lights</name>
 			<style>Flag Indicator</style>
 			<TEXT_LABEL>
@@ -5719,6 +5745,19 @@
 			</TEXT_LABEL>
 			<MODEL_SCALE>
 				<variable>fc.Conditioned(fc.GetLights())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_ManeuverNode</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>NODE</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.ManeuverNodeExists())</variable>
 			</MODEL_SCALE>
 			<TEXTURE_SHIFT>
 				<startUV>0.0, 0.4</startUV>
@@ -5745,6 +5784,33 @@
 			</TEXT_LABEL>
 			<MODEL_SCALE>
 				<variable>fc.Conditioned(fc.GetSAS())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_Target</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>TARGET</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.TargetType())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<!-- waypoint -->
+		<prop>
+			<name>MAS_FI_Waypoint</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>WAYPT</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(nav.WaypointActive())</variable>
 			</MODEL_SCALE>
 			<TEXTURE_SHIFT>
 				<startUV>0.0, 0.4</startUV>
