@@ -465,6 +465,23 @@ function MAS_Mfd2_Vtol_IfValid(propId)
 end
 
 ------------------------------------------------------------------------------
+-- Conditional R7 softkey
+function MAS_Mfd2_Flight_R7Softkey(propId, panel4Mode)
+	
+	if panel4Mode == 0 then
+		local activeMode = vtol.GetThrustMode()
+		
+		if activeMode == 1 then
+			vtol.SetThrustMode(-1)
+		else
+			vtol.SetThrustMode(activeMode + 1)
+		end
+	end
+
+end
+
+------------------------------------------------------------------------------
+-- Conditional HOME softkey
 function MAS_Mfd2_Flight_HomeSoftkey(propId, panel6Mode)
 	
 	if panel6Mode == 1 then
