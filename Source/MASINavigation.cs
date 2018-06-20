@@ -208,7 +208,7 @@ namespace AvionicsSystems
         /// <param name="longitude1">Longitude of position 1 in degrees.  Negative values indicate west, positive is east.</param>
         /// <param name="latitude2">Latitude of position 2 in degrees.  Negative values indicate south, positive is north.</param>
         /// <param name="longitude2">Longitude of position 2 in degrees.  Negative values indicate west, positive is east.</param>
-        /// <returns>Bearing (heading) in degrees.</returns>
+        /// <returns>Bearing (heading) in degrees, in the range [0, 360).</returns>
         public double Bearing(double latitude1, double longitude1, double latitude2, double longitude2)
         {
             double lat1 = latitude1 * Utility.Deg2Rad;
@@ -227,7 +227,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="latitude">Latitude of the destination point in degrees.  Negative values indicate south, positive is north.</param>
         /// <param name="longitude">Longitude of destination point in degrees.  Negative values indicate west, positive is east.</param>
-        /// <returns>Hearing in degrees from the vessel to the destination.</returns>
+        /// <returns>Hearing in degrees from the vessel to the destination, in the range [0, 360).</returns>
         public double BearingFromVessel(double latitude, double longitude)
         {
             return Bearing(vessel.latitude, Utility.NormalizeLongitude(vessel.longitude), latitude, longitude);
@@ -270,7 +270,7 @@ namespace AvionicsSystems
             Vector3d targetNormal = QuaternionD.AngleAxis(longitude, Vector3d.down) * QuaternionD.AngleAxis(latitude, Vector3d.forward) * Vector3d.right;
             double targetAngularDistance = Vector3d.Angle(vesselNormal, targetNormal) * Utility.Deg2Rad;
 
-            return Math.Asin(Math.Sin(targetAngularDistance) * Math.Sin((targetBearing - fc.vc.progradeHeading) * Utility.Deg2Rad)) * vessel.mainBody.Radius;
+            return Math.Asin(Math.Sin(targetAngularDistance) * Math.Sin((targetBearing - fc.vc.heading) * Utility.Deg2Rad)) * vessel.mainBody.Radius;
         }
 
         /// <summary>
@@ -462,7 +462,7 @@ namespace AvionicsSystems
         /// Returns the bearing to the current active target.  If no target is active, returns 0.
         /// </summary>
         /// <param name="relative">If true, bearing is relative to the vessel's current bearing; if false, it is absolute hearing.</param>
-        /// <returns>Returns the bearing to the target, or 0.</returns>
+        /// <returns>Returns the bearing to the target in the range [0, 360), or 0.</returns>
         public double TargetBearing(bool relative)
         {
             double latitude = 0.0;
@@ -499,7 +499,7 @@ namespace AvionicsSystems
                     longitude = vessel.mainBody.GetLongitude(fc.vc.activeTarget.GetTransform().position);
                     break;
             }
-            double offset = (relative) ? fc.vc.progradeHeading : 0.0;
+            double offset = (relative) ? fc.vc.heading : 0.0;
             return Utility.NormalizeAngle(BearingFromVessel(latitude, longitude) - offset);
         }
 
@@ -921,7 +921,7 @@ namespace AvionicsSystems
         /// Get the absolute bearing to the selected waypoint (bearing relative to North).
         /// </summary>
         /// <param name="waypointIndex">The waypoint index, or -1 to select the current active waypoint.</param>
-        /// <returns>The bearing to the waypoint, or -1 if there is no selected waypoint.</returns>
+        /// <returns>The bearing to the waypoint, in the range [0, 360), or -1 if there is no selected waypoint.</returns>
         public double WaypointBearing(double waypointIndex)
         {
             int index = (int)waypointIndex;
