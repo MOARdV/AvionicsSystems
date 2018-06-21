@@ -639,8 +639,8 @@ namespace AvionicsSystems
         /// names.
         /// </summary>
         /// <param name="colorString">String to convert</param>
-        /// <param name="comp">Reference to the ASFlightComputer</param>
-        /// <returns></returns>
+        /// <param name="comp">Reference to the MASFlightComputer</param>
+        /// <returns>Color value.</returns>
         internal static UnityEngine.Color32 ParseColor32(string colorString, MASFlightComputer comp)
         {
             colorString = colorString.Trim();
@@ -652,6 +652,11 @@ namespace AvionicsSystems
             }
             else
             {
+                int numCommas = colorString.Split(',').Length - 1;
+                if (numCommas < 2 || numCommas > 3)
+                {
+                    Utility.LogStaticWarning("Parsing color string \"{0}\": it does not appear to have the right number of entries for an R,G,B{{,A}} entry.", colorString);
+                }
                 return ConfigNode.ParseColor32(colorString);
             }
         }
