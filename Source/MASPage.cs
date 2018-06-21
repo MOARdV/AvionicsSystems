@@ -144,7 +144,7 @@ namespace AvionicsSystems
                 catch(Exception e)
                 {
                     string componentName = string.Empty;
-                    if (!config.TryGetValue("name", ref componentName))
+                    if (!components[i].TryGetValue("name", ref componentName))
                     {
                         componentName = "anonymous";
                     }
