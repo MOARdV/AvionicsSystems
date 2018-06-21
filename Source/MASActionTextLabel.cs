@@ -32,7 +32,6 @@ namespace AvionicsSystems
 {
     class MASActionTextLabel : IMASSubComponent
     {
-        private string name = "anonymous";
         private MASFlightComputer.Variable range1, range2;
         private Color passiveColor = XKCDColors.White;
         private Color activeColor = XKCDColors.White;
@@ -57,14 +56,9 @@ namespace AvionicsSystems
             flash
         };
 
-        internal MASActionTextLabel(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        internal MASActionTextLabel(ConfigNode config, InternalProp prop, MASFlightComputer comp):base(config, prop, comp)
         {
             registeredVariables = new VariableRegistrar(comp, prop);
-
-            if (!config.TryGetValue("name", ref name))
-            {
-                name = "anonymous";
-            }
 
             string transform = string.Empty;
             if (!config.TryGetValue("transform", ref transform))
@@ -583,20 +577,11 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        ///  Return the name of the action.
-        /// </summary>
-        /// <returns></returns>
-        public string Name()
-        {
-            return name;
-        }
-
-        /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
+        public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
-            registeredVariables.ReleaseResources(comp, internalProp);
+            variableRegistrar.ReleaseResources();;
 
             this.comp = null;
         }

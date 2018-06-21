@@ -37,8 +37,6 @@ namespace AvionicsSystems
     /// </summary>
     class MASActionModelScale : IMASSubComponent
     {
-        private string name = "anonymous";
-        private string variableName = string.Empty;
         private Vector3 startScale = Vector3.zero;
         private Vector3 endScale = Vector3.zero;
         private Transform transform;
@@ -48,13 +46,8 @@ namespace AvionicsSystems
         private bool currentState = false;
         private float currentBlend = 0.0f;
 
-        internal MASActionModelScale(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        internal MASActionModelScale(ConfigNode config, InternalProp prop, MASFlightComputer comp):base(config, prop, comp)
         {
-            if (!config.TryGetValue("name", ref name))
-            {
-                name = "anonymous";
-            }
-
             string transform = string.Empty;
             if (!config.TryGetValue("transform", ref transform))
             {
@@ -68,6 +61,7 @@ namespace AvionicsSystems
             }
             Vector3 initialScale = this.transform.localScale;
 
+            string variableName = string.Empty;
             if (!config.TryGetValue("variable", ref variableName) || string.IsNullOrEmpty(variableName))
             {
                 throw new ArgumentException("Invalid or missing 'variable' in MODEL_SCALE " + name);
@@ -112,7 +106,7 @@ namespace AvionicsSystems
                 rangeMode = false;
             }
 
-            comp.StartCoroutine(DelayedRegistration(prop, comp));
+            comp.StartCoroutine(DelayedRegistration(variableName));
         }
 
         /// <summary>
@@ -123,15 +117,13 @@ namespace AvionicsSystems
         /// creating the callback during the constructor, we delay that final initialization
         /// using a coroutine.
         /// </summary>
-        /// <param name="prop">The prop this node is attached to.</param>
-        /// <param name="comp">The flight computer.</param>
         /// <returns>yields immediate for the next FixedUpdate.</returns>
-        private IEnumerator DelayedRegistration(InternalProp prop, MASFlightComputer comp)
+        private IEnumerator DelayedRegistration(string variableName)
         {
             yield return MASConfig.waitForFixedUpdate;
 
             this.transform.localScale = startScale;
-            comp.RegisterNumericVariable(variableName, prop, VariableCallback);
+            variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
 
             yield return null;
         }
@@ -180,23 +172,11 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        ///  Return the name of the action.
-        /// </summary>
-        /// <returns></returns>
-        public string Name()
-        {
-            return name;
-        }
-
-        /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
+        public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
-            if (!string.IsNullOrEmpty(variableName))
-            {
-                comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
-            }
+            variableRegistrar.ReleaseResources();
             transform = null;
         }
     }

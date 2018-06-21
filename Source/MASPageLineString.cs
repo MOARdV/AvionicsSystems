@@ -35,8 +35,6 @@ namespace AvionicsSystems
     /// </summary>
     class MASPageLineString : IMASMonitorComponent
     {
-        private string name = "anonymous";
-
         private Color startColor = Color.white, endColor = Color.white;
 
         private float startWidth = 1.0f, endWidth = 1.0f;
@@ -53,17 +51,9 @@ namespace AvionicsSystems
         private bool usesTexture;
         private float inverseTextureWidth = 1.0f;
 
-        private VariableRegistrar variableRegistrar;
-
         internal MASPageLineString(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
+            : base(config, prop, comp)
         {
-            variableRegistrar = new VariableRegistrar(comp, prop);
-
-            if (!config.TryGetValue("name", ref name))
-            {
-                name = "anonymous";
-            }
-
             string startColorString = string.Empty;
             if (!config.TryGetValue("startColor", ref startColorString))
             {
@@ -449,45 +439,15 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="enable">true indicates that the page is about to
         /// be rendered.  false indicates that the page has completed rendering.</param>
-        public void RenderPage(bool enable)
+        public override void RenderPage(bool enable)
         {
             lineRenderer.enabled = enable;
         }
 
         /// <summary>
-        /// Called with `true` when the page is active on the monitor, called with
-        /// `false` when the page is no longer active.
-        /// </summary>
-        /// <param name="enable">true when the page is actively displayed, false when the page
-        /// is no longer displayed.</param>
-        public void SetPageActive(bool enable)
-        {
-
-        }
-
-        /// <summary>
-        /// Handle a softkey event.
-        /// </summary>
-        /// <param name="keyId">The numeric ID of the key to handle.</param>
-        /// <returns>true if the component handled the key, false otherwise.</returns>
-        public bool HandleSoftkey(int keyId)
-        {
-            return false;
-        }
-
-        /// <summary>
-        ///  Return the name of the action.
-        /// </summary>
-        /// <returns></returns>
-        public string Name()
-        {
-            return name;
-        }
-
-        /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
+        public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
             lineRenderer = null;
             UnityEngine.Object.Destroy(lineMaterial);
@@ -495,7 +455,7 @@ namespace AvionicsSystems
             UnityEngine.Object.Destroy(lineOrigin);
             lineOrigin = null;
 
-            variableRegistrar.ReleaseResources(comp, internalProp);
+            variableRegistrar.ReleaseResources();
         }
     }
 }

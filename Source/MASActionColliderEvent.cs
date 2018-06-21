@@ -37,9 +37,7 @@ namespace AvionicsSystems
     /// </summary>
     class MASActionColliderEvent : IMASSubComponent
     {
-        private string name = "anonymous";
         private ButtonObject buttonObject;
-        private string variableName = string.Empty;
         private MASFlightComputer.Variable range1, range2;
         private bool rangeMode = false;
 
@@ -116,12 +114,8 @@ namespace AvionicsSystems
         }
 
         internal MASActionColliderEvent(ConfigNode config, InternalProp internalProp, MASFlightComputer comp)
+            : base(config, internalProp, comp)
         {
-            if (!config.TryGetValue("name", ref name))
-            {
-                name = "anonymous";
-            }
-
             string collider = string.Empty;
             if (!config.TryGetValue("collider", ref collider))
             {
@@ -185,6 +179,7 @@ namespace AvionicsSystems
             buttonObject.autoRepeat = (autoRepeat > 0.0f);
             buttonObject.repeatRate = autoRepeat;
 
+            string variableName = string.Empty;
             if (config.TryGetValue("variable", ref variableName))
             {
                 variableName = variableName.Trim();
@@ -257,18 +252,9 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        ///  Return the name of the action.
-        /// </summary>
-        /// <returns></returns>
-        public string Name()
-        {
-            return name;
-        }
-
-        /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
+        public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
             if (buttonObject != null)
             {
@@ -276,10 +262,7 @@ namespace AvionicsSystems
                 buttonObject.onRelease = null;
                 buttonObject.parent = null;
             }
-            if (!string.IsNullOrEmpty(variableName))
-            {
-                comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
-            }
+            variableRegistrar.ReleaseResources();
         }
     }
 }

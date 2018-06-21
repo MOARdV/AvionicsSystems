@@ -34,8 +34,6 @@ namespace AvionicsSystems
     {
         const int numObjects = 6;
 
-        private string name = "anonymous";
-
         private GameObject[] lineOrigin = new GameObject[numObjects];
         private Material[] lineMaterial = new Material[numObjects];
         private LineRenderer[] lineRenderer = new LineRenderer[numObjects];
@@ -52,7 +50,6 @@ namespace AvionicsSystems
         private Color targetColor;
         private Color maneuverColor;
 
-        private VariableRegistrar variableRegistrar;
         private readonly int vertexCount;
         private readonly Vector2 size;
         private bool currentState;
@@ -69,15 +66,9 @@ namespace AvionicsSystems
         private float startLongitudeNormalized;
         private MASFlightComputer comp;
 
-        internal MASPageGroundTrack(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
+        internal MASPageGroundTrack(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth):base(config, prop, comp)
         {
-            variableRegistrar = new VariableRegistrar(comp, prop);
             this.comp = comp;
-
-            if (!config.TryGetValue("name", ref name))
-            {
-                name = "anonymous";
-            }
 
             Vector2 position = Vector2.zero;
             if (!config.TryGetValue("position", ref position))
@@ -645,7 +636,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="enable">true indicates that the page is about to
         /// be rendered.  false indicates that the page has completed rendering.</param>
-        public void RenderPage(bool enable)
+        public override void RenderPage(bool enable)
         {
             if (updateVessel)
             {
@@ -665,45 +656,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Called with `true` when the page is active on the monitor, called with
-        /// `false` when the page is no longer active.
-        /// </summary>
-        /// <param name="enable">true when the page is actively displayed, false when the page
-        /// is no longer displayed.</param>
-        public void SetPageActive(bool enable)
-        {
-            pageActive = enable;
-        }
-
-        /// <summary>
-        /// Handle a softkey event.
-        /// </summary>
-        /// <param name="keyId">The numeric ID of the key to handle.</param>
-        /// <returns>true if the component handled the key, false otherwise.</returns>
-        public bool HandleSoftkey(int keyId)
-        {
-            return false;
-        }
-
-        /// <summary>
-        ///  Return the name of the action.
-        /// </summary>
-        /// <returns></returns>
-        public string Name()
-        {
-            return name;
-        }
-
-        /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
+        public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
             coroutineEnabled = false;
             updateVessel = false;
             updateTarget = false;
             updateManeuver = false;
-            variableRegistrar.ReleaseResources(comp, internalProp);
+            variableRegistrar.ReleaseResources();
 
             for (int i = lineOrigin.Length - 1; i >= 0; --i)
             {

@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2017 MOARdV
+ * Copyright (c) 2017-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -35,15 +35,9 @@ namespace AvionicsSystems
     /// </summary>
     internal class MASActionImage : IMASSubComponent
     {
-        private string name = "anonymous";
-
         internal MASActionImage(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+            : base(config, prop, comp)
         {
-            if (!config.TryGetValue("name", ref name))
-            {
-                name = "anonymous";
-            }
-
             string textureName = string.Empty;
             if (!config.TryGetValue("texture", ref textureName))
             {
@@ -81,20 +75,10 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        ///  Return the name of the action.
-        /// </summary>
-        /// <returns></returns>
-        public string Name()
-        {
-            return name;
-        }
-
-        /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp, InternalProp prop)
+        public override void ReleaseResources(MASFlightComputer comp, InternalProp prop)
         {
-            //comp.UnregisterNumericVariable(variableName, prop, VariableCallback);
         }
     }
 }

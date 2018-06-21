@@ -36,9 +36,6 @@ namespace AvionicsSystems
     /// </summary>
     internal class MASPageRpmModule : IMASMonitorComponent
     {
-        private string name = "anonymous";
-
-        private VariableRegistrar variableRegistrar;
         private GameObject imageObject;
         private MeshRenderer meshRenderer;
         private Material imageMaterial;
@@ -57,15 +54,9 @@ namespace AvionicsSystems
         private bool coroutineActive;
         private MASFlightComputer comp;
 
-        internal MASPageRpmModule(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
+        internal MASPageRpmModule(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth):base(config, prop, comp)
         {
-            variableRegistrar = new VariableRegistrar(comp, prop);
-
             this.comp = comp;
-            if (!config.TryGetValue("name", ref name))
-            {
-                name = "anonymous";
-            }
 
             Vector2 position = Vector2.zero;
             if (!config.TryGetValue("position", ref position))
@@ -356,7 +347,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="enable">true indicates that the page is about to
         /// be rendered.  false indicates that the page has completed rendering.</param>
-        public void RenderPage(bool enable)
+        public override void RenderPage(bool enable)
         {
             meshRenderer.enabled = enable;
         }
@@ -367,7 +358,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="enable">true when the page is actively displayed, false when the page
         /// is no longer displayed.</param>
-        public void SetPageActive(bool enable)
+        public override void SetPageActive(bool enable)
         {
             pageEnabled = enable;
 
@@ -390,7 +381,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="keyId">The numeric ID of the key to handle.</param>
         /// <returns>true if the component handled the key, false otherwise.</returns>
-        public bool HandleSoftkey(int keyId)
+        public override bool HandleSoftkey(int keyId)
         {
             if (buttonClickMethod != null)
             {
@@ -401,18 +392,9 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        ///  Return the name of the action.
-        /// </summary>
-        /// <returns></returns>
-        public string Name()
-        {
-            return name;
-        }
-
-        /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
+        public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
             renderMethod = null;
             pageActiveMethod = null;
@@ -443,7 +425,7 @@ namespace AvionicsSystems
                 renderTexture = null;
             }
 
-            variableRegistrar.ReleaseResources(comp, internalProp);
+            variableRegistrar.ReleaseResources();
         }
     }
 }

@@ -36,7 +36,6 @@ namespace AvionicsSystems
     /// </summary>
     class MASActionAnimation : IMASSubComponent
     {
-        private string name = "anonymous";
         private string variableName = string.Empty;
         private string animationName = string.Empty;
         private MASFlightComputer comp;
@@ -49,14 +48,9 @@ namespace AvionicsSystems
         private float goalBlend = 0.0f;
         private bool coroutineActive = false;
 
-        internal MASActionAnimation(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        internal MASActionAnimation(ConfigNode config, InternalProp prop, MASFlightComputer comp):base(config, prop, comp)
         {
             this.comp = comp;
-
-            if (!config.TryGetValue("name", ref name))
-            {
-                name = "anonymous";
-            }
 
             bool exterior = false;
             if (!config.TryGetValue("animation", ref animationName))
@@ -107,7 +101,7 @@ namespace AvionicsSystems
                 throw new ArgumentException("Invalid or missing 'range' in ANIMATION " + name);
             }
 
-            comp.RegisterNumericVariable(variableName, prop, VariableCallback);
+            variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
         }
 
         /// <summary>
@@ -183,20 +177,11 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        ///  Return the name of the action.
-        /// </summary>
-        /// <returns></returns>
-        public string Name()
-        {
-            return name;
-        }
-
-        /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp, InternalProp prop)
+        public override void ReleaseResources(MASFlightComputer comp, InternalProp prop)
         {
-            comp.UnregisterNumericVariable(variableName, prop, VariableCallback);
+            variableRegistrar.ReleaseResources();
             animationState = null;
             animation = null;
         }

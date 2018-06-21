@@ -29,8 +29,6 @@ namespace AvionicsSystems
 {
     class MASPageOrbitDisplay : IMASMonitorComponent
     {
-        private string name = "anonymous";
-
         private GameObject imageObject;
         private GameObject cameraObject;
         private MeshRenderer rentexRenderer;
@@ -41,9 +39,8 @@ namespace AvionicsSystems
 
         // 1/2 width and 1/2 height.
         private Vector2 size;
-        private VariableRegistrar variableRegistrar;
         private MASFlightComputer comp;
-        
+
         /// <summary>
         /// This angle provides the reference direction to the vessel's argument of periapsis.
         /// We need this to make sure other orbits are correctly rotated to the same frame
@@ -106,14 +103,9 @@ namespace AvionicsSystems
         /// <param name="pageRoot"></param>
         /// <param name="depth"></param>
         internal MASPageOrbitDisplay(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
+            : base(config, prop, comp)
         {
-            variableRegistrar = new VariableRegistrar(comp, prop);
             this.comp = comp;
-
-            if (!config.TryGetValue("name", ref name))
-            {
-                name = "anonymous";
-            }
 
             Vector2 position = Vector2.zero;
             if (!config.TryGetValue("position", ref position))
@@ -1077,7 +1069,7 @@ namespace AvionicsSystems
                     lastValue.endTrueAnomaly = orbit.TrueAnomalyAtUT(orbit.EndUT);
                     if (spewDebug) Utility.LogMessage(this, "endTA is {0:0.00} because endUT is {1:0} and patchEnd is {2} (start is {3})", lastValue.endTrueAnomaly, orbit.EndUT, orbit.patchEndTransition, orbit.patchStartTransition);
                     lastValue.closedEllipse = false;
-                    if(lastValue.endTrueAnomaly < lastValue.startTrueAnomaly)
+                    if (lastValue.endTrueAnomaly < lastValue.startTrueAnomaly)
                     {
                         lastValue.endTrueAnomaly += 2.0 * Math.PI;
                     }
@@ -1222,7 +1214,7 @@ namespace AvionicsSystems
             // Do this step first to make sure lastBody is current
             if (lastBody != comp.vc.mainBody)
             {
-                invalidateVertices = true; 
+                invalidateVertices = true;
                 lastBody = comp.vc.mainBody;
 
                 if (!useBodyColor)
@@ -1458,7 +1450,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="enable">true indicates that the page is about to
         /// be rendered.  false indicates that the page has completed rendering.</param>
-        public void RenderPage(bool enable)
+        public override void RenderPage(bool enable)
         {
             rentexRenderer.enabled = enable;
         }
@@ -1469,34 +1461,15 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="enable">true when the page is actively displayed, false when the page
         /// is no longer displayed.</param>
-        public void SetPageActive(bool enable)
+        public override void SetPageActive(bool enable)
         {
             orbitCamera.enabled = enable;
         }
 
         /// <summary>
-        /// Handle a softkey event.
-        /// </summary>
-        /// <param name="keyId">The numeric ID of the key to handle.</param>
-        /// <returns>true if the component handled the key, false otherwise.</returns>
-        public bool HandleSoftkey(int keyId)
-        {
-            return false;
-        }
-
-        /// <summary>
-        ///  Return the name of the action.
-        /// </summary>
-        /// <returns></returns>
-        public string Name()
-        {
-            return name;
-        }
-
-        /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
+        public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
             Camera.onPreCull -= CameraPrerender;
             Camera.onPostRender -= CameraPostrender;
@@ -1511,7 +1484,7 @@ namespace AvionicsSystems
             UnityEngine.GameObject.Destroy(cameraObject);
             cameraObject = null;
 
-            variableRegistrar.ReleaseResources(comp, internalProp);
+            variableRegistrar.ReleaseResources();
         }
 
         /// <summary>

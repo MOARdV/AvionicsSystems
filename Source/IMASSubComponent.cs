@@ -25,15 +25,21 @@
 
 namespace AvionicsSystems
 {
-    internal interface IMASMonitorComponent:IMASSubComponent
+    internal abstract class IMASMonitorComponent : IMASSubComponent
     {
+        internal IMASMonitorComponent(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+            : base(config, prop, comp)
+        {
+
+        }
+
         /// <summary>
         /// Called with `true` prior to the page rendering.  Called with
         /// `false` after the page completes rendering.
         /// </summary>
         /// <param name="enable">true indicates that the page is about to
         /// be rendered.  false indicates that the page has completed rendering.</param>
-        void RenderPage(bool enable);
+        public abstract void RenderPage(bool enable);
 
         /// <summary>
         /// Called with `true` when the page is active on the monitor, called with
@@ -46,27 +52,54 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="enable">true when the page is actively displayed, false when the page
         /// is no longer displayed.</param>
-        void SetPageActive(bool enable);
+        virtual public void SetPageActive(bool enable)
+        {
+
+        }
 
         /// <summary>
         /// Handle a softkey event.
         /// </summary>
         /// <param name="keyId">The numeric ID of the key to handle.</param>
         /// <returns>true if the component handled the key, false otherwise.</returns>
-        bool HandleSoftkey(int keyId);
+        virtual public bool HandleSoftkey(int keyId)
+        {
+            return false;
+        }
     }
 
-    internal interface IMASSubComponent
+    internal abstract class IMASSubComponent
     {
+        internal readonly string name;
+        internal VariableRegistrar variableRegistrar;
+
+        /// <summary>
+        /// Configure the common fields.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="prop"></param>
+        /// <param name="comp"></param>
+        internal IMASSubComponent(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        {
+            variableRegistrar = new VariableRegistrar(comp, prop);
+            if (!config.TryGetValue("name", ref name))
+            {
+                name = "anonymous";
+            }
+        }
+
         /// <summary>
         /// Optional name reported for this subcomponent.
         /// </summary>
         /// <returns>Supplied name or "anonymous"</returns>
-        string Name();
+        public string Name()
+        {
+            return name;
+        }
 
         /// <summary>
         /// Release any resources obtained during the lifetime of this object.
         /// </summary>
-        void ReleaseResources(MASFlightComputer comp, InternalProp prop);
+        public abstract void ReleaseResources(MASFlightComputer comp, InternalProp prop);
     }
 }

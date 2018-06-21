@@ -32,8 +32,6 @@ namespace AvionicsSystems
 {
     internal class MASPageCompoundText : IMASMonitorComponent
     {
-        private string name = "anonymous";
-
         private GameObject rootObject;
         private CompoundPageText[] textElements;
 
@@ -50,15 +48,10 @@ namespace AvionicsSystems
         private bool coroutineActive = false;
         private MASFlightComputer comp;
 
-        internal MASPageCompoundText(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
+        internal MASPageCompoundText(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth):base(config, prop, comp)
         {
             registeredVariables = new VariableRegistrar(comp, prop);
             this.comp = comp;
-
-            if (!config.TryGetValue("name", ref name))
-            {
-                name = "anonymous";
-            }
 
             if (!config.TryGetValue("maxLines", ref maxLines))
             {
@@ -338,7 +331,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="enable">true indicates that the page is about to
         /// be rendered.  false indicates that the page has completed rendering.</param>
-        public void RenderPage(bool enable)
+        public override void RenderPage(bool enable)
         {
             for (int i = textElements.Length - 1; i >= 0; --i)
             {
@@ -350,45 +343,16 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Called with `true` when the page is active on the monitor, called with
-        /// `false` when the page is no longer active.
-        /// </summary>
-        /// <param name="enable">true when the page is actively displayed, false when the page
-        /// is no longer displayed.</param>
-        public void SetPageActive(bool enable)
-        {
-        }
-
-        /// <summary>
-        /// Handle a softkey event.
-        /// </summary>
-        /// <param name="keyId">The numeric ID of the key to handle.</param>
-        /// <returns>true if the component handled the key, false otherwise.</returns>
-        public bool HandleSoftkey(int keyId)
-        {
-            return false;
-        }
-
-        /// <summary>
-        ///  Return the name of the action.
-        /// </summary>
-        /// <returns></returns>
-        public string Name()
-        {
-            return name;
-        }
-
-        /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
+        public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
             this.comp = null;
 
             UnityEngine.GameObject.Destroy(rootObject);
             rootObject = null;
 
-            registeredVariables.ReleaseResources(comp, internalProp);
+            variableRegistrar.ReleaseResources();;
             textElements = null;
         }
 

@@ -32,10 +32,7 @@ namespace AvionicsSystems
 {
     class MASActionTranslation : IMASSubComponent
     {
-        private string name = "anonymous";
-        private string variableName;
         private MASFlightComputer.Variable range1, range2;
-        //private Quaternion startRotation, endRotation;
         private Vector3 startTranslation, endTranslation;
         private MASFlightComputer comp;
         private Transform transform;
@@ -48,13 +45,8 @@ namespace AvionicsSystems
         private float currentBlend = 0.0f;
         private float goalBlend = 0.0f;
 
-        internal MASActionTranslation(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        internal MASActionTranslation(ConfigNode config, InternalProp prop, MASFlightComputer comp):base(config, prop, comp)
         {
-            if (!config.TryGetValue("name", ref name))
-            {
-                name = "anonymous";
-            }
-
             string transform = string.Empty;
             if (!config.TryGetValue("transform", ref transform))
             {
@@ -63,6 +55,7 @@ namespace AvionicsSystems
 
             this.transform = prop.FindModelTransform(transform);
 
+            string variableName = string.Empty;
             if (config.TryGetValue("variable", ref variableName))
             {
                 variableName = variableName.Trim();
@@ -141,7 +134,7 @@ namespace AvionicsSystems
             }
             else
             {
-                comp.RegisterNumericVariable(variableName, prop, VariableCallback);
+                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
             }
         }
 
@@ -240,23 +233,11 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        ///  Return the name of the action.
-        /// </summary>
-        /// <returns></returns>
-        public string Name()
-        {
-            return name;
-        }
-
-        /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp, InternalProp prop)
+        public override void ReleaseResources(MASFlightComputer comp, InternalProp prop)
         {
-            if (!string.IsNullOrEmpty(variableName))
-            {
-                comp.UnregisterNumericVariable(variableName, prop, VariableCallback);
-            }
+            variableRegistrar.ReleaseResources();
             this.comp = null;
             transform = null;
         }

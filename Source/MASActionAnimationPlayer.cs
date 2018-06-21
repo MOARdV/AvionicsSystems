@@ -31,8 +31,6 @@ namespace AvionicsSystems
 {
     internal class MASActionAnimationPlayer : IMASSubComponent
     {
-        private string name = "anonymous";
-        private string variableName = string.Empty;
         private float animationSpeed = 1.0f;
         private string animationName = string.Empty;
         private Animation animation;
@@ -44,12 +42,8 @@ namespace AvionicsSystems
 
         // TODO: Support 'reverse'?
         internal MASActionAnimationPlayer(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+            : base(config, prop, comp)
         {
-            if (!config.TryGetValue("name", ref name))
-            {
-                name = "anonymous";
-            }
-
             bool exterior = false;
             if (!config.TryGetValue("animation", ref animationName))
             {
@@ -73,6 +67,7 @@ namespace AvionicsSystems
 
             config.TryGetValue("animationSpeed", ref animationSpeed);
 
+            string variableName = string.Empty;
             if (!config.TryGetValue("variable", ref variableName) || string.IsNullOrEmpty(variableName))
             {
                 throw new ArgumentException("Invalid or missing 'variable' in ANIMATION_PLAYER " + name);
@@ -96,7 +91,7 @@ namespace AvionicsSystems
                 rangeMode = false;
             }
 
-            comp.RegisterNumericVariable(variableName, prop, VariableCallback);
+            variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
         }
 
         /// <summary>
@@ -156,20 +151,10 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        ///  Return the name of the action.
-        /// </summary>
-        /// <returns></returns>
-        public string Name()
-        {
-            return name;
-        }
-
-        /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp, InternalProp prop)
+        public override void ReleaseResources(MASFlightComputer comp, InternalProp prop)
         {
-            comp.UnregisterNumericVariable(variableName, prop, VariableCallback);
             animationState = null;
             animation = null;
         }

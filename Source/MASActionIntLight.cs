@@ -35,23 +35,15 @@ namespace AvionicsSystems
     /// </summary>
     internal class MASActionIntLight : IMASSubComponent
     {
-        private string name = "anonymous";
         private MASFlightComputer.Variable range1, range2;
         private readonly bool rangeMode;
         private bool currentState;
         private Light[] controlledLights;
         private Color lightColor;
-        private VariableRegistrar variableRegistrar;
 
         internal MASActionIntLight(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+            : base(config, prop, comp)
         {
-            variableRegistrar = new VariableRegistrar(comp, prop);
-
-            if (!config.TryGetValue("name", ref name))
-            {
-                name = "anonymous";
-            }
-
             string lightName = string.Empty;
             if (!config.TryGetValue("lightName", ref lightName))
             {
@@ -207,20 +199,11 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        ///  Return the name of the action.
-        /// </summary>
-        /// <returns></returns>
-        public string Name()
-        {
-            return name;
-        }
-
-        /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp, InternalProp prop)
+        public override void ReleaseResources(MASFlightComputer comp, InternalProp prop)
         {
-            variableRegistrar.ReleaseResources(comp, prop);
+            variableRegistrar.ReleaseResources();
         }
     }
 }

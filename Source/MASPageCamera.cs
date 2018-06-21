@@ -33,13 +33,11 @@ namespace AvionicsSystems
 {
     internal class MASPageCamera : IMASMonitorComponent
     {
-        private string name = "anonymous";
         private GameObject imageObject;
         private Material imageMaterial;
         private MeshRenderer meshRenderer;
         private RenderTexture cameraTexture;
         private Texture missingCameraTexture;
-        private string variableName;
         private MASFlightComputer.Variable range1, range2;
         private readonly bool rangeMode;
         private MASFlightComputer.Variable cameraSelector;
@@ -52,12 +50,9 @@ namespace AvionicsSystems
         private long renderFrames = 0;
 
         internal MASPageCamera(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
+            : base(config, prop, comp)
         {
             this.comp = comp;
-            if (!config.TryGetValue("name", ref name))
-            {
-                name = "anonymous";
-            }
 
             Vector2 position = Vector2.zero;
             if (!config.TryGetValue("position", ref position))
@@ -90,6 +85,7 @@ namespace AvionicsSystems
                 missingCameraTexture = GameDatabase.Instance.GetTexture(missingTextureName, false);
             }
 
+            string variableName = string.Empty;
             if (config.TryGetValue("variable", ref variableName))
             {
                 variableName = variableName.Trim();
@@ -156,7 +152,7 @@ namespace AvionicsSystems
                 currentState = false;
                 // Disable the mesh if we're in variable mode
                 imageObject.SetActive(false);
-                comp.RegisterNumericVariable(variableName, prop, VariableCallback);
+                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
             }
             else
             {
@@ -316,7 +312,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="enable">true indicates that the page is about to
         /// be rendered.  false indicates that the page has completed rendering.</param>
-        public void RenderPage(bool enable)
+        public override void RenderPage(bool enable)
         {
             meshRenderer.enabled = enable;
         }
@@ -327,7 +323,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="enable">true when the page is actively displayed, false when the page
         /// is no longer displayed.</param>
-        public void SetPageActive(bool enable)
+        public override void SetPageActive(bool enable)
         {
             pageEnabled = enable;
             if (activeCamera != null)
@@ -345,28 +341,9 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Handle a softkey event.
-        /// </summary>
-        /// <param name="keyId">The numeric ID of the key to handle.</param>
-        /// <returns>true if the component handled the key, false otherwise.</returns>
-        public bool HandleSoftkey(int keyId)
-        {
-            return false;
-        }
-
-        /// <summary>
-        ///  Return the name of the action.
-        /// </summary>
-        /// <returns></returns>
-        public string Name()
-        {
-            return name;
-        }
-
-        /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
+        public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
             this.comp = null;
 
@@ -388,10 +365,7 @@ namespace AvionicsSystems
             UnityEngine.GameObject.Destroy(imageMaterial);
             imageMaterial = null;
 
-            if (!string.IsNullOrEmpty(variableName))
-            {
-                comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
-            }
+            variableRegistrar.ReleaseResources();
 
             if (!string.IsNullOrEmpty(cameraSelector.name))
             {

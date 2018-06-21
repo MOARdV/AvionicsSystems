@@ -37,7 +37,6 @@ namespace AvionicsSystems
     /// </summary>
     class MASActionTriggerEvent : IMASSubComponent
     {
-        private string name = "anonymous";
         private string variableName;
         private MASFlightComputer.Variable range1, range2;
         private readonly bool rangeMode;
@@ -47,13 +46,8 @@ namespace AvionicsSystems
         Action triggerEvent;
         Action exitEvent = null;
 
-        internal MASActionTriggerEvent(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        internal MASActionTriggerEvent(ConfigNode config, InternalProp prop, MASFlightComputer comp):base(config, prop, comp)
         {
-            if (!config.TryGetValue("name", ref name))
-            {
-                name = "anonymous";
-            }
-
             if (!config.TryGetValue("variable", ref variableName) || string.IsNullOrEmpty(variableName))
             {
                 throw new ArgumentException("Invalid or missing 'variable' in TRIGGER_EVENT " + name);
@@ -159,18 +153,9 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        ///  Return the name of the action.
-        /// </summary>
-        /// <returns></returns>
-        public string Name()
-        {
-            return name;
-        }
-
-        /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
+        public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
             this.comp = null;
             range1 = null;

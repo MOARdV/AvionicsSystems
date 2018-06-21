@@ -31,10 +31,6 @@ namespace AvionicsSystems
 {
     internal class MASActionAudioPlayer : IMASSubComponent
     {
-        private string name = "anonymous";
-        private string variableName = string.Empty;
-        private string pitchVariableName = string.Empty;
-        private string volumeVariableName = string.Empty;
         private string soundVariableName = string.Empty;
         private float pitch = 1.0f;
         private float volume = 1.0f;
@@ -55,13 +51,12 @@ namespace AvionicsSystems
             LOOP
         };
 
-        internal MASActionAudioPlayer(ConfigNode config, InternalProp internalProp, MASFlightComputer comp)
+        internal MASActionAudioPlayer(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+            : base(config, prop, comp)
         {
-            if (!config.TryGetValue("name", ref name))
-            {
-                name = "anonymous";
-            }
-
+            string variableName = string.Empty;
+            string pitchVariableName = string.Empty;
+            string volumeVariableName = string.Empty;
             if (!config.TryGetValue("volume", ref volumeVariableName))
             {
                 volumeVariableName = "1";
@@ -137,9 +132,9 @@ namespace AvionicsSystems
             }
 
             Transform audioTransform = new GameObject().transform;
-            audioTransform.gameObject.name = Utility.ComposeObjectName(this.GetType().Name, name, internalProp.propID);
-            audioTransform.gameObject.layer = internalProp.transform.gameObject.layer;
-            audioTransform.SetParent(internalProp.transform, false);
+            audioTransform.gameObject.name = Utility.ComposeObjectName(this.GetType().Name, name, prop.propID);
+            audioTransform.gameObject.layer = prop.transform.gameObject.layer;
+            audioTransform.SetParent(prop.transform, false);
             audioSource = audioTransform.gameObject.AddComponent<AudioSource>();
 
             audioSource.clip = clip;
@@ -168,8 +163,8 @@ namespace AvionicsSystems
                 {
                     throw new ArgumentException("Incorrect number of values in 'range' in AUDIO_PLAYER " + name);
                 }
-                range1 = comp.GetVariable(ranges[0], internalProp);
-                range2 = comp.GetVariable(ranges[1], internalProp);
+                range1 = comp.GetVariable(ranges[0], prop);
+                range2 = comp.GetVariable(ranges[1], prop);
                 rangeMode = true;
             }
             else
@@ -181,12 +176,12 @@ namespace AvionicsSystems
 
             GameEvents.OnCameraChange.Add(OnCameraChange);
 
-            comp.RegisterNumericVariable(pitchVariableName, internalProp, PitchCallback);
-            comp.RegisterNumericVariable(volumeVariableName, internalProp, VolumeCallback);
-            comp.RegisterNumericVariable(variableName, internalProp, VariableCallback);
+            variableRegistrar.RegisterNumericVariable(pitchVariableName, PitchCallback);
+            variableRegistrar.RegisterNumericVariable(volumeVariableName, VolumeCallback);
+            variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
             if (!string.IsNullOrEmpty(soundVariableName))
             {
-                soundVariable = comp.RegisterOnVariableChange(soundVariableName, internalProp, SoundClipCallback);
+                soundVariable = comp.RegisterOnVariableChange(soundVariableName, prop, SoundClipCallback);
                 // Initialize the audio.
                 SoundClipCallback();
             }
@@ -302,27 +297,19 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        ///  Return the name of the action.
-        /// </summary>
-        /// <returns></returns>
-        public string Name()
-        {
-            return name;
-        }
-
-        /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
+        public override void ReleaseResources(MASFlightComputer comp, InternalProp prop)
         {
             GameEvents.OnCameraChange.Remove(OnCameraChange);
-            comp.UnregisterNumericVariable(pitchVariableName, internalProp, PitchCallback);
-            comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
-            comp.UnregisterNumericVariable(volumeVariableName, internalProp, VolumeCallback);
+
+            variableRegistrar.ReleaseResources();
+
             if (!string.IsNullOrEmpty(soundVariableName))
             {
-                comp.UnregisterOnVariableChange(soundVariableName, internalProp, SoundClipCallback);
+                comp.UnregisterOnVariableChange(soundVariableName, prop, SoundClipCallback);
             }
+
             audioSource.Stop();
             audioSource.clip = null;
             audioSource = null;

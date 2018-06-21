@@ -31,12 +31,9 @@ namespace AvionicsSystems
 {
     internal class MASPageHorizontalStrip : IMASMonitorComponent
     {
-        private string name = "anonymous";
         private GameObject imageObject;
         private Material imageMaterial;
         private MeshRenderer meshRenderer;
-        private readonly string variableName;
-        private readonly string inputName;
         private readonly float textureOffset;
         private readonly float texelWidth;
         private MASFlightComputer.Variable range1, range2;
@@ -46,12 +43,8 @@ namespace AvionicsSystems
         private bool currentState;
 
         internal MASPageHorizontalStrip(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
+            : base(config, prop, comp)
         {
-            if (!config.TryGetValue("name", ref name))
-            {
-                name = "anonymous";
-            }
-
             string textureName = string.Empty;
             if (!config.TryGetValue("texture", ref textureName))
             {
@@ -81,6 +74,8 @@ namespace AvionicsSystems
                 throw new ArgumentException("Unable to find 'size' in HORIZONTAL_STRIP " + name);
             }
 
+            string variableName = string.Empty;
+            string inputName = string.Empty;
             if (!config.TryGetValue("input", ref inputName))
             {
                 throw new ArgumentException("Unable to find 'input' in HORIZONTAL_STRIP " + name);
@@ -183,12 +178,12 @@ namespace AvionicsSystems
             meshRenderer.material = imageMaterial;
             RenderPage(false);
 
-            comp.RegisterNumericVariable(inputName, prop, InputCallback);
+            variableRegistrar.RegisterNumericVariable(inputName, InputCallback);
             if (!string.IsNullOrEmpty(variableName))
             {
                 // Disable the mesh if we're in variable mode
                 imageObject.SetActive(false);
-                comp.RegisterNumericVariable(variableName, prop, VariableCallback);
+                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
             }
             else
             {
@@ -234,56 +229,22 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="enable">true indicates that the page is about to
         /// be rendered.  false indicates that the page has completed rendering.</param>
-        public void RenderPage(bool enable)
+        public override void RenderPage(bool enable)
         {
             meshRenderer.enabled = enable;
         }
 
         /// <summary>
-        /// Called with `true` when the page is active on the monitor, called with
-        /// `false` when the page is no longer active.
-        /// </summary>
-        /// <param name="enable">true when the page is actively displayed, false when the page
-        /// is no longer displayed.</param>
-        public void SetPageActive(bool enable)
-        {
-
-        }
-
-        /// <summary>
-        /// Handle a softkey event.
-        /// </summary>
-        /// <param name="keyId">The numeric ID of the key to handle.</param>
-        /// <returns>true if the component handled the key, false otherwise.</returns>
-        public bool HandleSoftkey(int keyId)
-        {
-            return false;
-        }
-
-        /// <summary>
-        ///  Return the name of the action.
-        /// </summary>
-        /// <returns></returns>
-        public string Name()
-        {
-            return name;
-        }
-
-        /// <summary>
         /// Release resources
         /// </summary>
-        public void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
+        public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
             UnityEngine.GameObject.Destroy(imageObject);
             imageObject = null;
             UnityEngine.GameObject.Destroy(imageMaterial);
             imageMaterial = null;
 
-            comp.UnregisterNumericVariable(inputName, internalProp, InputCallback);
-            if (!string.IsNullOrEmpty(variableName))
-            {
-                comp.UnregisterNumericVariable(variableName, internalProp, VariableCallback);
-            }
+            variableRegistrar.ReleaseResources();
         }
     }
 }

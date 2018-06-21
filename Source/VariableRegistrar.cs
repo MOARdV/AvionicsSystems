@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2017 MOARdV
+ * Copyright (c) 2017-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -24,7 +24,6 @@
  ****************************************************************************/
 using System;
 using System.Collections.Generic;
-//using System.Text;
 
 namespace AvionicsSystems
 {
@@ -61,20 +60,8 @@ namespace AvionicsSystems
         /// <summary>
         /// Iterate over all registered variables and unregister them.
         /// </summary>
-        /// <param name="comp"></param>
-        /// <param name="internalProp"></param>
-        internal void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
+        internal void ReleaseResources()
         {
-            if (comp != this.comp)
-            {
-                Utility.LogWarning(this, "ReleaseResource: comp and this.comp don't match");
-            }
-
-            if (internalProp != this.internalProp)
-            {
-                Utility.LogWarning(this, "ReleaseResource: internalProp and this.internalProp don't match");
-            }
-
             for (int i = variableName.Count - 1; i >= 0; --i)
             {
                 comp.UnregisterNumericVariable(variableName[i], internalProp, variableAction[i]);
