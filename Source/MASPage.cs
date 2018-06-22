@@ -68,6 +68,8 @@ namespace AvionicsSystems
                     return new MASPageOrbitDisplay(config, prop, comp, monitor, pageRoot, depth);
                 case "POLYGON":
                     return new MASPagePolygon(config, prop, comp, monitor, pageRoot, depth);
+                case "ROLLING_DIGIT":
+                    return new MASPageRollingDigit(config, prop, comp, monitor, pageRoot, depth);
                 case "RPM_MODULE":
                     return new MASPageRpmModule(config, prop, comp, monitor, pageRoot, depth);
                 case "TEXT":

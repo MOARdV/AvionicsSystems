@@ -107,6 +107,7 @@
     <Compile Include="Source\MASPageLineString.cs" />
     <Compile Include="Source\MASPageOrbitDisplay.cs" />
     <Compile Include="Source\MASPagePolygon.cs" />
+    <Compile Include="Source\MASPageRollingDigit.cs" />
     <Compile Include="Source\MASPageViewport.cs" />
     <Compile Include="Source\MASPersistent.cs" />
     <Compile Include="Source\MASRadar.cs" />
