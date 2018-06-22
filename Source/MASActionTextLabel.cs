@@ -46,7 +46,6 @@ namespace AvionicsSystems
         private MASFlightComputer comp;
         private EmissiveMode emissiveMode = EmissiveMode.always;
         private readonly int emissiveFactorIndex = Shader.PropertyToID("_EmissiveFactor");
-        private VariableRegistrar registeredVariables;
         enum EmissiveMode
         {
             always,
@@ -56,10 +55,9 @@ namespace AvionicsSystems
             flash
         };
 
-        internal MASActionTextLabel(ConfigNode config, InternalProp prop, MASFlightComputer comp):base(config, prop, comp)
+        internal MASActionTextLabel(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+            : base(config, prop, comp)
         {
-            registeredVariables = new VariableRegistrar(comp, prop);
-
             string transform = string.Empty;
             if (!config.TryGetValue("transform", ref transform))
             {
@@ -144,7 +142,7 @@ namespace AvionicsSystems
                         throw new ArgumentException("passiveColor does not contain 3 or 4 values in TEXT_LABEL " + name);
                     }
 
-                    registeredVariables.RegisterNumericVariable(startColors[0], (double newValue) =>
+                    variableRegistrar.RegisterNumericVariable(startColors[0], (double newValue) =>
                     {
                         passiveColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         if (blend)
@@ -157,7 +155,7 @@ namespace AvionicsSystems
                         }
                     });
 
-                    registeredVariables.RegisterNumericVariable(startColors[1], (double newValue) =>
+                    variableRegistrar.RegisterNumericVariable(startColors[1], (double newValue) =>
                     {
                         passiveColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         if (blend)
@@ -170,7 +168,7 @@ namespace AvionicsSystems
                         }
                     });
 
-                    registeredVariables.RegisterNumericVariable(startColors[2], (double newValue) =>
+                    variableRegistrar.RegisterNumericVariable(startColors[2], (double newValue) =>
                     {
                         passiveColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         if (blend)
@@ -185,7 +183,7 @@ namespace AvionicsSystems
 
                     if (startColors.Length == 4)
                     {
-                        registeredVariables.RegisterNumericVariable(startColors[3], (double newValue) =>
+                        variableRegistrar.RegisterNumericVariable(startColors[3], (double newValue) =>
                         {
                             passiveColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             if (blend)
@@ -220,7 +218,7 @@ namespace AvionicsSystems
                         throw new ArgumentException("activeColor does not contain 3 or 4 values in TEXT_LABEL " + name);
                     }
 
-                    registeredVariables.RegisterNumericVariable(startColors[0], (double newValue) =>
+                    variableRegistrar.RegisterNumericVariable(startColors[0], (double newValue) =>
                     {
                         activeColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         if (blend)
@@ -233,7 +231,7 @@ namespace AvionicsSystems
                         }
                     });
 
-                    registeredVariables.RegisterNumericVariable(startColors[1], (double newValue) =>
+                    variableRegistrar.RegisterNumericVariable(startColors[1], (double newValue) =>
                     {
                         activeColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         if (blend)
@@ -246,7 +244,7 @@ namespace AvionicsSystems
                         }
                     });
 
-                    registeredVariables.RegisterNumericVariable(startColors[2], (double newValue) =>
+                    variableRegistrar.RegisterNumericVariable(startColors[2], (double newValue) =>
                     {
                         activeColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         if (blend)
@@ -261,7 +259,7 @@ namespace AvionicsSystems
 
                     if (startColors.Length == 4)
                     {
-                        registeredVariables.RegisterNumericVariable(startColors[3], (double newValue) =>
+                        variableRegistrar.RegisterNumericVariable(startColors[3], (double newValue) =>
                         {
                             activeColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             if (blend)
@@ -465,7 +463,7 @@ namespace AvionicsSystems
 
             if (!string.IsNullOrEmpty(variableName))
             {
-                registeredVariables.RegisterNumericVariable(variableName, VariableCallback);
+                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
             }
         }
 
@@ -581,7 +579,7 @@ namespace AvionicsSystems
         /// </summary>
         public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
-            variableRegistrar.ReleaseResources();;
+            variableRegistrar.ReleaseResources(); ;
 
             this.comp = null;
         }

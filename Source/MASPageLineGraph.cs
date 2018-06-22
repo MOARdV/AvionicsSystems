@@ -45,7 +45,6 @@ namespace AvionicsSystems
         private Color sourceColor = Color.white;
         private readonly float verticalSpan;
         private readonly float sampleRate;
-        private VariableRegistrar registeredVariables;
         private readonly MASFlightComputer.Variable sourceValue;
         private readonly MASFlightComputer.Variable sourceRange1, sourceRange2;
         private MASFlightComputer.Variable range1, range2;
@@ -56,10 +55,9 @@ namespace AvionicsSystems
         private int maxSamples;
         private Vector3[] graphPoints;
 
-        internal MASPageLineGraph(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth):base(config, prop, comp)
+        internal MASPageLineGraph(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
+            : base(config, prop, comp)
         {
-            registeredVariables = new VariableRegistrar(comp, prop);
-
             Vector2 position = Vector2.zero;
             if (!config.TryGetValue("position", ref position))
             {
@@ -179,21 +177,21 @@ namespace AvionicsSystems
                         throw new ArgumentException("borderColor does not contain 3 or 4 values in LINE_GRAPH " + name);
                     }
 
-                    registeredVariables.RegisterNumericVariable(startColors[0], (double newValue) =>
+                    variableRegistrar.RegisterNumericVariable(startColors[0], (double newValue) =>
                     {
                         borderColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         borderRenderer.startColor = borderColor;
                         borderRenderer.endColor = borderColor;
                     });
 
-                    registeredVariables.RegisterNumericVariable(startColors[1], (double newValue) =>
+                    variableRegistrar.RegisterNumericVariable(startColors[1], (double newValue) =>
                     {
                         borderColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         borderRenderer.startColor = borderColor;
                         borderRenderer.endColor = borderColor;
                     });
 
-                    registeredVariables.RegisterNumericVariable(startColors[2], (double newValue) =>
+                    variableRegistrar.RegisterNumericVariable(startColors[2], (double newValue) =>
                     {
                         borderColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         borderRenderer.startColor = borderColor;
@@ -202,7 +200,7 @@ namespace AvionicsSystems
 
                     if (startColors.Length == 4)
                     {
-                        registeredVariables.RegisterNumericVariable(startColors[3], (double newValue) =>
+                        variableRegistrar.RegisterNumericVariable(startColors[3], (double newValue) =>
                         {
                             borderColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             borderRenderer.startColor = borderColor;
@@ -264,21 +262,21 @@ namespace AvionicsSystems
                         throw new ArgumentException("sourceColor does not contain 3 or 4 values in LINE_GRAPH " + name);
                     }
 
-                    registeredVariables.RegisterNumericVariable(sourceColors[0], (double newValue) =>
+                    variableRegistrar.RegisterNumericVariable(sourceColors[0], (double newValue) =>
                     {
                         sourceColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.startColor = sourceColor;
                         lineRenderer.endColor = sourceColor;
                     });
 
-                    registeredVariables.RegisterNumericVariable(sourceColors[1], (double newValue) =>
+                    variableRegistrar.RegisterNumericVariable(sourceColors[1], (double newValue) =>
                     {
                         sourceColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.startColor = sourceColor;
                         lineRenderer.endColor = sourceColor;
                     });
 
-                    registeredVariables.RegisterNumericVariable(sourceColors[2], (double newValue) =>
+                    variableRegistrar.RegisterNumericVariable(sourceColors[2], (double newValue) =>
                     {
                         sourceColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.startColor = sourceColor;
@@ -287,7 +285,7 @@ namespace AvionicsSystems
 
                     if (sourceColors.Length == 4)
                     {
-                        registeredVariables.RegisterNumericVariable(sourceColors[3], (double newValue) =>
+                        variableRegistrar.RegisterNumericVariable(sourceColors[3], (double newValue) =>
                         {
                             sourceColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             lineRenderer.startColor = sourceColor;
@@ -309,7 +307,7 @@ namespace AvionicsSystems
                     borderObject.SetActive(false);
                 }
                 graphObject.SetActive(false);
-                registeredVariables.RegisterNumericVariable(variableName, VariableCallback);
+                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
             }
             else
             {
@@ -407,7 +405,7 @@ namespace AvionicsSystems
             UnityEngine.Object.Destroy(borderObject);
             borderObject = null;
 
-            variableRegistrar.ReleaseResources();;
+            variableRegistrar.ReleaseResources(); ;
         }
     }
 }

@@ -42,7 +42,6 @@ namespace AvionicsSystems
         private readonly bool rangeMode;
         private bool currentState;
 
-        private VariableRegistrar registeredVariables;
         private Vector3 imageOrigin = Vector3.zero;
         private Vector2 position = Vector2.zero;
         private Vector2 fontScale;
@@ -52,10 +51,9 @@ namespace AvionicsSystems
         private MASFlightComputer comp;
         private InternalProp prop;
 
-        internal MASPageText(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth):base(config, prop, comp)
+        internal MASPageText(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
+            : base(config, prop, comp)
         {
-            registeredVariables = new VariableRegistrar(comp, prop);
-
             if (!config.TryGetValue("text", ref text))
             {
                 string textfile = string.Empty;
@@ -191,13 +189,13 @@ namespace AvionicsSystems
                     throw new ArgumentException("position does not contain 2 values in TEXT " + name);
                 }
 
-                registeredVariables.RegisterNumericVariable(positions[0], (double newValue) =>
+                variableRegistrar.RegisterNumericVariable(positions[0], (double newValue) =>
                 {
                     position.x = (float)newValue * fontScale.x;
                     meshObject.transform.position = imageOrigin + new Vector3(position.x, -position.y, 0.0f);
                 });
 
-                registeredVariables.RegisterNumericVariable(positions[1], (double newValue) =>
+                variableRegistrar.RegisterNumericVariable(positions[1], (double newValue) =>
                 {
                     position.y = (float)newValue * fontScale.y;
                     meshObject.transform.position = imageOrigin + new Vector3(position.x, -position.y, 0.0f);
@@ -231,7 +229,7 @@ namespace AvionicsSystems
             {
                 // Disable the mesh if we're in variable mode
                 meshObject.SetActive(false);
-                registeredVariables.RegisterNumericVariable(variableName, VariableCallback);
+                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
             }
             else
             {
@@ -317,7 +315,7 @@ namespace AvionicsSystems
             UnityEngine.GameObject.Destroy(meshObject);
             meshObject = null;
 
-            variableRegistrar.ReleaseResources();;
+            variableRegistrar.ReleaseResources();
         }
     }
 }

@@ -47,12 +47,9 @@ namespace AvionicsSystems
         private float currentBlend = 0.0f;
         private string[] layer;
 
-        private VariableRegistrar registeredVariables;
-
-        internal MASActionTextureShift(ConfigNode config, InternalProp prop, MASFlightComputer comp):base(config, prop, comp)
+        internal MASActionTextureShift(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+            : base(config, prop, comp)
         {
-            registeredVariables = new VariableRegistrar(comp, prop);
-
             string transform = string.Empty;
             if (!config.TryGetValue("transform", ref transform))
             {
@@ -117,13 +114,13 @@ namespace AvionicsSystems
                     throw new ArgumentException("Incorrect number of values in 'startUV' in TEXTURE_SHIFT " + name);
                 }
 
-                registeredVariables.RegisterNumericVariable(uvs[0], (double newValue) =>
+                variableRegistrar.RegisterNumericVariable(uvs[0], (double newValue) =>
                 {
                     startUV.x = (float)newValue;
                     UpdateUVs();
                 });
 
-                registeredVariables.RegisterNumericVariable(uvs[1], (double newValue) =>
+                variableRegistrar.RegisterNumericVariable(uvs[1], (double newValue) =>
                 {
                     startUV.y = (float)newValue;
                     UpdateUVs();
@@ -150,13 +147,13 @@ namespace AvionicsSystems
                         throw new ArgumentException("Incorrect number of values in 'endUV' in TEXTURE_SHIFT " + name);
                     }
 
-                    registeredVariables.RegisterNumericVariable(uvs[0], (double newValue) =>
+                    variableRegistrar.RegisterNumericVariable(uvs[0], (double newValue) =>
                     {
                         endUV.x = (float)newValue;
                         UpdateUVs();
                     });
 
-                    registeredVariables.RegisterNumericVariable(uvs[1], (double newValue) =>
+                    variableRegistrar.RegisterNumericVariable(uvs[1], (double newValue) =>
                     {
                         endUV.y = (float)newValue;
                         UpdateUVs();
@@ -166,7 +163,7 @@ namespace AvionicsSystems
 
             if (!string.IsNullOrEmpty(variableName))
             {
-                registeredVariables.RegisterNumericVariable(variableName, VariableCallback);
+                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
             }
         }
 
@@ -184,7 +181,7 @@ namespace AvionicsSystems
                     localMaterial.SetTextureOffset(layer[i], newUV);
                 }
             }
-            else if(currentState)
+            else if (currentState)
             {
                 for (int i = 0; i < layerLength; ++i)
                 {
@@ -240,7 +237,7 @@ namespace AvionicsSystems
         /// </summary>
         public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
-            variableRegistrar.ReleaseResources();;
+            variableRegistrar.ReleaseResources(); ;
 
             UnityEngine.Object.Destroy(localMaterial);
         }

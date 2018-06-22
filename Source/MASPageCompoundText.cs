@@ -35,7 +35,6 @@ namespace AvionicsSystems
         private GameObject rootObject;
         private CompoundPageText[] textElements;
 
-        private VariableRegistrar registeredVariables;
         private Vector3 textOrigin = Vector3.zero;
         private Vector2 position = Vector2.zero;
         private float lineAdvance;
@@ -48,9 +47,9 @@ namespace AvionicsSystems
         private bool coroutineActive = false;
         private MASFlightComputer comp;
 
-        internal MASPageCompoundText(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth):base(config, prop, comp)
+        internal MASPageCompoundText(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
+            : base(config, prop, comp)
         {
-            registeredVariables = new VariableRegistrar(comp, prop);
             this.comp = comp;
 
             if (!config.TryGetValue("maxLines", ref maxLines))
@@ -112,13 +111,13 @@ namespace AvionicsSystems
                     throw new ArgumentException("position does not contain 2 values in COMPOUND_TEXT " + name);
                 }
 
-                registeredVariables.RegisterNumericVariable(positions[0], (double newValue) =>
+                variableRegistrar.RegisterNumericVariable(positions[0], (double newValue) =>
                 {
                     position.x = (float)newValue * monitor.fontSize.x;
                     rootObject.transform.position = textOrigin + new Vector3(position.x, -position.y, 0.0f);
                 });
 
-                registeredVariables.RegisterNumericVariable(positions[1], (double newValue) =>
+                variableRegistrar.RegisterNumericVariable(positions[1], (double newValue) =>
                 {
                     position.y = (float)newValue * monitor.fontSize.y;
                     rootObject.transform.position = textOrigin + new Vector3(position.x, -position.y, 0.0f);
@@ -197,7 +196,7 @@ namespace AvionicsSystems
                     {
                         cpt.textObject.SetActive(false);
                     }
-                    registeredVariables.RegisterNumericVariable(variableName, (double newValue) => VariableCallback(newValue, cpt));
+                    variableRegistrar.RegisterNumericVariable(variableName, (double newValue) => VariableCallback(newValue, cpt));
                 }
                 else
                 {
@@ -236,7 +235,7 @@ namespace AvionicsSystems
                     rangeMode = false;
                 }
 
-                registeredVariables.RegisterNumericVariable(masterVariableName, VariableCallback);
+                variableRegistrar.RegisterNumericVariable(masterVariableName, VariableCallback);
             }
             else
             {
@@ -352,7 +351,7 @@ namespace AvionicsSystems
             UnityEngine.GameObject.Destroy(rootObject);
             rootObject = null;
 
-            variableRegistrar.ReleaseResources();;
+            variableRegistrar.ReleaseResources(); ;
             textElements = null;
         }
 
