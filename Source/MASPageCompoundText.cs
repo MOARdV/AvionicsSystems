@@ -40,10 +40,6 @@ namespace AvionicsSystems
         private float lineAdvance;
         private int maxLines;
 
-        private MASFlightComputer.Variable range1, range2;
-        private readonly bool rangeMode;
-        private bool currentState;
-
         private bool coroutineActive = false;
         private MASFlightComputer comp;
 
@@ -217,24 +213,6 @@ namespace AvionicsSystems
             {
                 rootObject.SetActive(false);
 
-                string range = string.Empty;
-                if (config.TryGetValue("range", ref range))
-                {
-                    string[] ranges = Utility.SplitVariableList(range);
-                    if (ranges.Length != 2)
-                    {
-                        throw new ArgumentException("Incorrect number of values in 'range' in COMPOUND_TEXT " + name);
-                    }
-                    range1 = comp.GetVariable(ranges[0], prop);
-                    range2 = comp.GetVariable(ranges[1], prop);
-
-                    rangeMode = true;
-                }
-                else
-                {
-                    rangeMode = false;
-                }
-
                 variableRegistrar.RegisterNumericVariable(masterVariableName, VariableCallback);
             }
             else
@@ -251,16 +229,8 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void VariableCallback(double newValue)
         {
-            if (rangeMode)
+            if (EvaluateVariable(newValue))
             {
-                newValue = (newValue.Between(range1.SafeValue(), range2.SafeValue())) ? 1.0 : 0.0;
-            }
-
-            bool newState = (newValue > 0.0);
-
-            if (newState != currentState)
-            {
-                currentState = newState;
                 rootObject.SetActive(currentState);
             }
         }

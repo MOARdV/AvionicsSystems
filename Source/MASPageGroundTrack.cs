@@ -52,10 +52,7 @@ namespace AvionicsSystems
 
         private readonly int vertexCount;
         private readonly Vector2 size;
-        private bool currentState;
         private bool pageActive = false;
-        private readonly bool rangeMode;
-        private MASFlightComputer.Variable range1, range2;
         private bool coroutineEnabled = true;
         private bool updateVessel = false;
         private bool updateTarget = false;
@@ -353,38 +350,12 @@ namespace AvionicsSystems
             string variableName = string.Empty;
             if (config.TryGetValue("variable", ref variableName))
             {
-                string range = string.Empty;
-                if (config.TryGetValue("range", ref range))
-                {
-                    string[] ranges = Utility.SplitVariableList(range);
-                    if (ranges.Length != 2)
-                    {
-                        throw new ArgumentException("Incorrect number of values in 'range' in GROUND_TRACK " + name);
-                    }
-                    range1 = comp.GetVariable(ranges[0], prop);
-                    range2 = comp.GetVariable(ranges[1], prop);
-
-                    rangeMode = true;
-                }
-                else
-                {
-                    rangeMode = false;
-                }
-
                 // Disable the mesh if we're in variable mode
                 SetAllActive(false);
                 variableRegistrar.RegisterNumericVariable(variableName, (double newValue) =>
                 {
-                    if (rangeMode)
+                    if (EvaluateVariable(newValue))
                     {
-                        newValue = (newValue.Between(range1.SafeValue(), range2.SafeValue())) ? 1.0 : 0.0;
-                    }
-
-                    bool newState = (newValue > 0.0);
-
-                    if (newState != currentState)
-                    {
-                        currentState = newState;
                         SetAllActive(currentState);
                     }
                 });

@@ -39,10 +39,7 @@ namespace AvionicsSystems
         private Material borderMaterial;
         private LineRenderer lineRenderer;
         private MeshRenderer meshRenderer;
-        private MASFlightComputer.Variable range1, range2;
         private readonly MASFlightComputer.Variable sourceRange1, sourceRange2;
-        private readonly bool rangeMode;
-        private bool currentState;
         private float lastValue = -1.0f;
         private float barWidth;
         private Vector3[] vertices = new Vector3[4];
@@ -154,24 +151,6 @@ namespace AvionicsSystems
             if (config.TryGetValue("variable", ref variableName))
             {
                 variableName = variableName.Trim();
-            }
-
-            string range = string.Empty;
-            if (config.TryGetValue("range", ref range))
-            {
-                ranges = Utility.SplitVariableList(range);
-                if (ranges.Length != 2)
-                {
-                    throw new ArgumentException("Incorrect number of values in 'range' in HORIZONTAL_BAR " + name);
-                }
-                range1 = comp.GetVariable(ranges[0], prop);
-                range2 = comp.GetVariable(ranges[1], prop);
-
-                rangeMode = true;
-            }
-            else
-            {
-                rangeMode = false;
             }
 
             // Set up our display surface.
@@ -453,16 +432,8 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void VariableCallback(double newValue)
         {
-            if (rangeMode)
+            if (EvaluateVariable(newValue))
             {
-                newValue = (newValue.Between(range1.SafeValue(), range2.SafeValue())) ? 1.0 : 0.0;
-            }
-
-            bool newState = (newValue > 0.0);
-
-            if (newState != currentState)
-            {
-                currentState = newState;
                 if (borderObject != null)
                 {
                     borderObject.SetActive(currentState);

@@ -22,15 +22,62 @@
  * DEALINGS IN THE SOFTWARE.
  * 
  ****************************************************************************/
+using System;
 
 namespace AvionicsSystems
 {
     internal abstract class IMASMonitorComponent : IMASSubComponent
     {
+        internal MASFlightComputer.Variable range1, range2;
+        internal readonly bool rangeMode;
+        internal bool currentState;
+
         internal IMASMonitorComponent(ConfigNode config, InternalProp prop, MASFlightComputer comp)
             : base(config, prop, comp)
         {
 
+            string range = string.Empty;
+            if (config.TryGetValue("range", ref range))
+            {
+                string[] ranges = Utility.SplitVariableList(range);
+                if (ranges.Length != 2)
+                {
+                    throw new ArgumentException("Incorrect number of values in 'range' in "+ config.name +" " + name);
+                }
+                range1 = comp.GetVariable(ranges[0], prop);
+                range2 = comp.GetVariable(ranges[1], prop);
+
+                rangeMode = true;
+            }
+            else
+            {
+                rangeMode = false;
+            }
+        }
+
+        /// <summary>
+        /// Evaluate the variable to determine what the new state of the component should be.
+        /// </summary>
+        /// <param name="newValue">Value from the variable callback</param>
+        /// <returns>Whether currentMode has changed.</returns>
+        internal bool EvaluateVariable(double newValue)
+        {
+            if (rangeMode)
+            {
+                newValue = (newValue.Between(range1.SafeValue(), range2.SafeValue())) ? 1.0 : 0.0;
+            }
+
+            bool newState = (newValue > 0.0);
+            
+            if (newState != currentState)
+            {
+                currentState = newState;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>

@@ -35,13 +35,8 @@ namespace AvionicsSystems
         private MeshRenderer meshRenderer;
         private MeshFilter meshFilter;
 
-        private MASFlightComputer.Variable range1, range2;
-        private readonly bool rangeMode;
-        private bool currentState;
-
         private Font font;
         private bool dynamic;
-        private bool invalidated;
         private int fontSize;
         private float characterScalar = 1.0f;
         private int fixedAdvance = 0;
@@ -119,24 +114,6 @@ namespace AvionicsSystems
             if (config.TryGetValue("variable", ref variableName))
             {
                 variableName = variableName.Trim();
-            }
-
-            string range = string.Empty;
-            if (config.TryGetValue("range", ref range))
-            {
-                string[] ranges = Utility.SplitVariableList(range);
-                if (ranges.Length != 2)
-                {
-                    throw new ArgumentException("Incorrect number of values in 'range' in ROLLING_DIGIT " + name);
-                }
-                range1 = comp.GetVariable(ranges[0], prop);
-                range2 = comp.GetVariable(ranges[1], prop);
-
-                rangeMode = true;
-            }
-            else
-            {
-                rangeMode = false;
             }
 
             if (string.IsNullOrEmpty(localFonts))
@@ -299,7 +276,8 @@ namespace AvionicsSystems
             Font.textureRebuilt += FontRebuiltCallback;
             font.RequestCharactersInTexture(charactersUsed, fontSize, style);
 
-            invalidated = true;
+            digitsChanged = true;
+            fractionChanged = true;
         }
 
         /// <summary>
@@ -308,16 +286,8 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void VariableCallback(double newValue)
         {
-            if (rangeMode)
+            if (EvaluateVariable(newValue))
             {
-                newValue = (newValue.Between(range1.SafeValue(), range2.SafeValue())) ? 1.0 : 0.0;
-            }
-
-            bool newState = (newValue > 0.0);
-
-            if (newState != currentState)
-            {
-                currentState = newState;
                 meshObject.SetActive(currentState);
             }
         }
@@ -358,7 +328,8 @@ namespace AvionicsSystems
         {
             if (whichFont == font)
             {
-                invalidated = true;
+                digitsChanged = true;
+                fractionChanged = true;
                 meshRenderer.material.mainTexture = whichFont.material.mainTexture;
             }
         }
@@ -479,6 +450,13 @@ namespace AvionicsSystems
         {
             int primeDigit = (int)(fraction);
             float offset = fraction % 1.0f;
+            // Adjust which digits we display, so the 'next' value doesn't appear and disappear too soon.
+            if (fraction > 0.5f)
+            {
+                primeDigit = (primeDigit + 1) % 10;
+                offset -= 1.0f;
+            }
+
             int nextDigit = (primeDigit + 1) % 10;
             int prevDigit = (primeDigit + 9) % 10;
             float xPos = fixedAdvance * numDigits;
@@ -511,12 +489,6 @@ namespace AvionicsSystems
 
             if (enable)
             {
-                if (invalidated)
-                {
-                    digitsChanged = true;
-                    fractionChanged = true;
-                }
-
                 if (digitsChanged)
                 {
                     UpdateDigits();
@@ -526,7 +498,7 @@ namespace AvionicsSystems
                     UpdateFraction();
                 }
 
-                if (invalidated || digitsChanged || fractionChanged)
+                if (digitsChanged || fractionChanged)
                 {
                     meshFilter.mesh.Clear();
                     meshFilter.mesh.vertices = vertices;
@@ -540,7 +512,6 @@ namespace AvionicsSystems
 
                 digitsChanged = false;
                 fractionChanged = false;
-                invalidated = false;
             }
         }
 

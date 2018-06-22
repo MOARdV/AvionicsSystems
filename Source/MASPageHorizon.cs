@@ -36,13 +36,10 @@ namespace AvionicsSystems
         private MeshRenderer meshRenderer;
         private readonly float textureOffset;
         private readonly Vector2 texelSize;
-        private MASFlightComputer.Variable range1, range2;
         private readonly MASFlightComputer.Variable pitchRange1, pitchRange2;
         private readonly MASFlightComputer.Variable displayPitchRange1, displayPitchRange2;
         private readonly MASFlightComputer.Variable rollRange1, rollRange2;
         private readonly MASFlightComputer.Variable displayRollRange1, displayRollRange2;
-        private readonly bool rangeMode;
-        private bool currentState;
         private float lastRoll = 0.0f;
         private float oldPitchCenter = -1.0f;
 
@@ -152,24 +149,6 @@ namespace AvionicsSystems
                 variableName = variableName.Trim();
             }
 
-            string range = string.Empty;
-            if (config.TryGetValue("range", ref range))
-            {
-                ranges = Utility.SplitVariableList(range);
-                if (ranges.Length != 2)
-                {
-                    throw new ArgumentException("Incorrect number of values in 'range' in HORIZON " + name);
-                }
-                range1 = comp.GetVariable(ranges[0], prop);
-                range2 = comp.GetVariable(ranges[1], prop);
-
-                rangeMode = true;
-            }
-            else
-            {
-                rangeMode = false;
-            }
-
             // Set up our display surface.
             imageObject = new GameObject();
             imageObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
@@ -277,16 +256,8 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void VariableCallback(double newValue)
         {
-            if (rangeMode)
+            if (EvaluateVariable(newValue))
             {
-                newValue = (newValue.Between(range1.SafeValue(), range2.SafeValue())) ? 1.0 : 0.0;
-            }
-
-            bool newState = (newValue > 0.0);
-
-            if (newState != currentState)
-            {
-                currentState = newState;
                 imageObject.SetActive(currentState);
             }
         }

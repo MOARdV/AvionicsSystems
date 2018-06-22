@@ -43,10 +43,6 @@ namespace AvionicsSystems
         private Material lineMaterial;
         private LineRenderer lineRenderer;
 
-        private MASFlightComputer.Variable range1, range2;
-        private readonly bool rangeMode;
-        private bool currentState;
-
         private readonly int numVertices;
         private float radiusX, radiusY;
         private float startAngle, endAngle;
@@ -103,24 +99,6 @@ namespace AvionicsSystems
 
             string rotationVariableName = string.Empty;
             config.TryGetValue("rotation", ref rotationVariableName);
-
-            string range = string.Empty;
-            if (config.TryGetValue("range", ref range))
-            {
-                string[] ranges = Utility.SplitVariableList(range);
-                if (ranges.Length != 2)
-                {
-                    throw new ArgumentException("Incorrect number of values in 'range' in ELLIPSE " + name);
-                }
-                range1 = comp.GetVariable(ranges[0], prop);
-                range2 = comp.GetVariable(ranges[1], prop);
-
-                rangeMode = true;
-            }
-            else
-            {
-                rangeMode = false;
-            }
 
             lineOrigin = new GameObject();
             lineOrigin.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
@@ -465,16 +443,8 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void VariableCallback(double newValue)
         {
-            if (rangeMode)
+            if (EvaluateVariable(newValue))
             {
-                newValue = (newValue.Between(range1.SafeValue(), range2.SafeValue())) ? 1.0 : 0.0;
-            }
-
-            bool newState = (newValue > 0.0);
-
-            if (newState != currentState)
-            {
-                currentState = newState;
                 lineOrigin.SetActive(currentState);
             }
         }

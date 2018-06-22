@@ -36,11 +36,8 @@ namespace AvionicsSystems
         private MeshRenderer meshRenderer;
         private readonly float textureOffset;
         private readonly float texelWidth;
-        private MASFlightComputer.Variable range1, range2;
         private readonly MASFlightComputer.Variable inputRange1, inputRange2;
         private readonly MASFlightComputer.Variable displayRange1, displayRange2;
-        private readonly bool rangeMode;
-        private bool currentState;
 
         internal MASPageVerticalStrip(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
             : base(config, prop, comp)
@@ -121,24 +118,6 @@ namespace AvionicsSystems
                 variableName = variableName.Trim();
             }
 
-            string range = string.Empty;
-            if (config.TryGetValue("range", ref range))
-            {
-                ranges = Utility.SplitVariableList(range);
-                if (ranges.Length != 2)
-                {
-                    throw new ArgumentException("Incorrect number of values in 'range' in VERTICAL_STRIP " + name);
-                }
-                range1 = comp.GetVariable(ranges[0], prop);
-                range2 = comp.GetVariable(ranges[1], prop);
-
-                rangeMode = true;
-            }
-            else
-            {
-                rangeMode = false;
-            }
-
             // Set up our display surface.
             imageObject = new GameObject();
             imageObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
@@ -211,16 +190,8 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void VariableCallback(double newValue)
         {
-            if (rangeMode)
+            if (EvaluateVariable(newValue))
             {
-                newValue = (newValue.Between(range1.SafeValue(), range2.SafeValue())) ? 1.0 : 0.0;
-            }
-
-            bool newState = (newValue > 0.0);
-
-            if (newState != currentState)
-            {
-                currentState = newState;
                 imageObject.SetActive(currentState);
             }
         }

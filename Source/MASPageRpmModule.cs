@@ -47,9 +47,6 @@ namespace AvionicsSystems
         private Func<object, bool, int, object> pageActiveMethod;
         private Func<object, int, object> buttonClickMethod;
 
-        private MASFlightComputer.Variable range1, range2;
-        private readonly bool rangeMode;
-        private bool currentState;
         private bool pageEnabled;
         private bool coroutineActive;
         private MASFlightComputer comp;
@@ -74,24 +71,6 @@ namespace AvionicsSystems
             if (config.TryGetValue("variable", ref variableName))
             {
                 variableName = variableName.Trim();
-            }
-
-            string range = string.Empty;
-            if (config.TryGetValue("range", ref range))
-            {
-                string[] ranges = Utility.SplitVariableList(range);
-                if (ranges.Length != 2)
-                {
-                    throw new ArgumentException("Incorrect number of values in 'range' in RPM_MODULE " + name);
-                }
-                range1 = comp.GetVariable(ranges[0], prop);
-                range2 = comp.GetVariable(ranges[1], prop);
-
-                rangeMode = true;
-            }
-            else
-            {
-                rangeMode = false;
             }
 
             displayTexture = new RenderTexture(((int)size.x) >> MASConfig.CameraTextureScale, ((int)size.y) >> MASConfig.CameraTextureScale, 24, RenderTextureFormat.ARGB32);
@@ -250,16 +229,8 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void VariableCallback(double newValue)
         {
-            if (rangeMode)
+            if (EvaluateVariable(newValue))
             {
-                newValue = (newValue.Between(range1.SafeValue(), range2.SafeValue())) ? 1.0 : 0.0;
-            }
-
-            bool newState = (newValue > 0.0);
-
-            if (newState != currentState)
-            {
-                currentState = newState;
                 imageObject.SetActive(currentState);
 
                 if (pageActiveMethod != null)
