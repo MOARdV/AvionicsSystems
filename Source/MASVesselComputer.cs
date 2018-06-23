@@ -1024,7 +1024,7 @@ namespace AvionicsSystems
 
             aeroDataValid = true;
 
-            gravForce = vessel.GetTotalMass() * FlightGlobals.getGeeForceAtPosition(vessel.CoM).magnitude; // force of gravity
+            gravForce = 1000.0 * vessel.GetTotalMass() * FlightGlobals.getGeeForceAtPosition(vessel.CoM).magnitude; // force of gravity
 
             // Short-circuit these computations if there's no atmosphere.
             if (vessel.atmDensity == 0.0)
@@ -1042,6 +1042,7 @@ namespace AvionicsSystems
 
             Vector3d vLift = Vector3d.zero; // the sum of lift from all parts
             Vector3d vDrag = Vector3d.zero; // the sum of drag from all parts
+            double areaDrag = 0.0;
 
             for (int i = vessel.Parts.Count - 1; i >= 0; --i)
             {
@@ -1062,6 +1063,8 @@ namespace AvionicsSystems
                     vLift += wing.liftForce;
                     vDrag += wing.dragForce;
                 }
+
+                areaDrag += p.DragCubes.AreaDrag * PhysicsGlobals.DragCubeMultiplier * PhysicsGlobals.DragMultiplier;
             }
 
             Vector3d force = vLift + vDrag; // sum of all forces on the craft
@@ -1076,11 +1079,7 @@ namespace AvionicsSystems
 
             liftUpForce = Vector3d.Dot(force, up);
 
-            // Stabilize these values near 0.
-            double clampedDrag = Math.Max(dragForce, 0.001);
-            double clampedSpeed = Math.Max(vessel.srfSpeed, 0.5);
-
-            terminalVelocity = Math.Sqrt(gravForce / clampedDrag) * clampedSpeed;
+            terminalVelocity = Math.Sqrt(2.0 * gravForce / (areaDrag * vessel.atmDensity));
         }
 
         internal double DragForce()
