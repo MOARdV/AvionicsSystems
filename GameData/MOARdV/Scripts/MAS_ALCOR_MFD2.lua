@@ -466,7 +466,7 @@ end
 
 ------------------------------------------------------------------------------
 -- Conditional R7 softkey
-function MAS_Mfd2_Flight_R7Softkey(propId, panel4Mode)
+function MAS_Mfd2_Flight_R7Softkey(panel4Mode)
 	
 	if panel4Mode == 0 then
 		local activeMode = vtol.GetThrustMode()
@@ -481,6 +481,36 @@ function MAS_Mfd2_Flight_R7Softkey(propId, panel4Mode)
 end
 
 ------------------------------------------------------------------------------
+-- Conditional R9 softkey
+function MAS_Mfd2_Flight_R9Softkey(cameraId, panel5Mode)
+	
+	if panel5Mode == 2 then
+		local modeCount = fc.GetCameraModeCount(cameraId)
+		
+		if modeCount > 1 then
+			local activeMode = fc.GetCameraMode(cameraId)
+			
+			if activeMode < (modeCount - 1) then
+				fc.SetCameraMode(cameraId, activeMode + 1)
+			else
+				fc.SetCameraMode(cameraId, 0)
+			end
+		end
+	end
+
+end
+
+------------------------------------------------------------------------------
+-- Conditional R10 softkey
+function MAS_Mfd2_Flight_R10Softkey(propId, panel5Mode)
+	
+	if panel5Mode == 2 then
+		fc.AddPersistentWrapped(propId .. "-CameraSelect", 1, 0, fc.CameraCount())
+	end
+
+end
+
+------------------------------------------------------------------------------
 -- Conditional HOME softkey
 function MAS_Mfd2_Flight_HomeSoftkey(propId, panel6Mode)
 	
@@ -488,6 +518,27 @@ function MAS_Mfd2_Flight_HomeSoftkey(propId, panel6Mode)
 		nav.SetWaypoint(fc.AddPersistentWrapped(propId .. "-NavWaypoint", 1, 0, nav.WaypointCount()))
 	end
 
+end
+
+local terrainDistance =
+{
+}
+------------------------------------------------------------------------------
+--
+function MAS_Mfd2_Flight_TerrainHeight(distanceIndex)
+	
+	if (distanceIndex == 1) then
+		local hdg = fc.Heading()
+		local altitude = fc.Altitude()
+		
+		for i=1, 16 do
+			local lat = nav.DestinationLatitudeFromVessel(250 * i, hdg)
+			local lon = nav.DestinationLongitudeFromVessel(250 * i, hdg)
+			terrainDistance[i] = altitude - math.max(0, fc.BodyTerrainHeight(-1, lat, lon))
+		end
+	end
+	
+	return terrainDistance[distanceIndex]
 end
 
 ------------------------------------------------------------------------------
@@ -505,7 +556,7 @@ function MAS_Mfd2_Flight_Select_Instrument(propId, panel, direction)
 	elseif panel == 4 then
 		fc.AddPersistentWrapped(propId .. "-FlightPanel4", direction, 0, 2)
 	elseif panel == 5 then
-		fc.AddPersistentWrapped(propId .. "-FlightPanel5", direction, 0, 2)
+		fc.AddPersistentWrapped(propId .. "-FlightPanel5", direction, 0, 4)
 	elseif panel == 6 then
 		fc.AddPersistentWrapped(propId .. "-FlightPanel6", direction, 0, 2)
 	end
