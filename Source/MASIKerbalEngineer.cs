@@ -195,13 +195,8 @@ namespace AvionicsSystems
         static MASIKerbalEngineer()
         {
             Type keSimProcessor_t = Utility.GetExportedType("KerbalEngineer", "KerbalEngineer.Flight.Readouts.Vessel.SimulationProcessor");
-            Utility.LogStaticMessage("keSimProcessor_t is {0}", (keSimProcessor_t == null) ? "null" : "not null");
-
             Type keImpactProcessor_t = Utility.GetExportedType("KerbalEngineer", "KerbalEngineer.Flight.Readouts.Surface.ImpactProcessor");
-            Utility.LogStaticMessage("keImpactProcessor_t is {0}", (keImpactProcessor_t == null) ? "null" : "not null");
-
             Type keStage_t = Utility.GetExportedType("KerbalEngineer", "KerbalEngineer.VesselSimulator.Stage");
-            Utility.LogStaticMessage("keStage_t is {0}", (keStage_t == null) ? "null" : "not null");
 
             if (keSimProcessor_t == null || keImpactProcessor_t == null || keStage_t == null)
             {
