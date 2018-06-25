@@ -86,6 +86,11 @@ namespace AvionicsSystems
             }
         }
 
+        private static bool IsTextNode(ConfigNode config)
+        {
+            return (config.name == "TEXT") || (config.name == "ROLLING_DIGIT") || (config.name == "COMPOUND_TEXT");
+        }
+
         internal MASPage(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform rootTransform)
         {
             if (!config.TryGetValue("name", ref name))
@@ -132,6 +137,122 @@ namespace AvionicsSystems
             float depth = 0.0f;
             ConfigNode[] components = config.GetNodes();
             int numComponents = components.Length;
+
+            if (Array.Exists(components, x => x.name == "SUB_PAGE"))
+            {
+                // Need to collate
+                List<ConfigNode> newComponents = new List<ConfigNode>();
+
+                for (int i = 0; i < numComponents; ++i)
+                {
+                    ConfigNode node = components[i];
+                    if (node.name == "SUB_PAGE")
+                    {
+                        string subPageName = string.Empty;
+                        // Test for 'name'
+                        if (!node.TryGetValue("name", ref subPageName))
+                        {
+                            throw new ArgumentException("No 'name' field in SUB_PAGE found in MASPage " + name);
+                        }
+
+                        // Test for 'variable'
+                        string variableString = string.Empty;
+
+                        bool editVariable = (node.TryGetValue("variable", ref variableString));
+
+                        // Test for 'position'
+                        bool editPosition = false;
+                        string[] position = new string[0];
+                        string positionString = string.Empty;
+                        if (node.TryGetValue("position", ref positionString))
+                        {
+                            position = Utility.SplitVariableList(positionString);
+                            if (position.Length != 2)
+                            {
+                                throw new ArgumentException("Invalid number of entries in 'position' for SUB_PAGE '" + subPageName + "' in MASPage " + name);
+                            }
+                            editPosition = true;
+                        }
+
+                        // Find the sub page.
+                        List<ConfigNode> subPageNodes;
+                        if (!MASLoader.subPages.TryGetValue(subPageName, out subPageNodes))
+                        {
+                            throw new ArgumentException("Unable to find MAS_SUB_PAGE '" + subPageName + "' for SUB_PAGE found in MASPage " + name);
+                        }
+
+                        if (editVariable || editPosition)
+                        {
+                            for (int subPageNodeIdx = 0; subPageNodeIdx < subPageNodes.Count; ++subPageNodeIdx)
+                            {
+                                ConfigNode subNode = subPageNodes[subPageNodeIdx].CreateCopy();
+                                string subNodeName = string.Empty;
+                                if (!subNode.TryGetValue("name", ref subNodeName))
+                                {
+                                    subNodeName = "anonymous";
+                                }
+
+                                if (editVariable)
+                                {
+                                    string currentVariable = string.Empty;
+                                    if (subNode.TryGetValue("variable", ref currentVariable))
+                                    {
+                                        subNode.SetValue("variable", string.Format("({0}) and ({1})", variableString, currentVariable));
+                                    }
+                                    else
+                                    {
+                                        subNode.SetValue("variable", variableString, true);
+                                    }
+                                }
+
+                                if (editPosition)
+                                {
+                                    string currentPositionString = string.Empty;
+                                    if (subNode.TryGetValue("position", ref currentPositionString))
+                                    {
+                                        string[] currentPosition = Utility.SplitVariableList(currentPositionString);
+                                        if (currentPosition.Length != 2)
+                                        {
+                                            throw new ArgumentException("Invalid number of values in 'position' for node '" + subNodeName + "' in MAS_SUB_PAGE " + subPageName);
+                                        }
+
+                                        if (IsTextNode(subNode))
+                                        {
+                                            subNode.SetValue("position", string.Format("{4} * ({0}) + ({1}), {5} * ({2}) + ({3})",
+                                                position[0], currentPosition[0], position[1], currentPosition[1],
+                                                1.0f / monitor.fontSize.x, 1.0f / monitor.fontSize.y));
+                                        }
+                                        else
+                                        {
+                                            subNode.SetValue("position", string.Format("({0}) + ({1}), ({2}) + ({3})",
+                                                position[0], currentPosition[0], position[1], currentPosition[1]));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        subNode.SetValue("position", string.Format("{0}, {1}", position[0], position[1]), true);
+                                    }
+                                }
+
+                                newComponents.Add(subNode);
+                            }
+                        }
+                        else
+                        {
+                            // Simple and fast case: no edits required.
+                            newComponents.AddRange(subPageNodes);
+                        }
+                    }
+                    else
+                    {
+                        newComponents.Add(node);
+                    }
+                }
+
+                components = newComponents.ToArray();
+                numComponents = components.Length;
+            }
+
             for (int i = 0; i < numComponents; ++i)
             {
                 try

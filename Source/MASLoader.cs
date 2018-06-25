@@ -65,6 +65,11 @@ namespace AvionicsSystems
         static public Dictionary<char, AudioClip> morseCode = new Dictionary<char, AudioClip>(26);
 
         /// <summary>
+        /// Dictionary of all MAS_SUBPAGE nodes.
+        /// </summary>
+        static public Dictionary<string, List<ConfigNode>> subPages = new Dictionary<string, List<ConfigNode>>();
+
+        /// <summary>
         /// List of all radio navigation beacons found in the installation.
         /// </summary>
         static public List<NavAid> navaids = new List<NavAid>();
@@ -707,6 +712,26 @@ namespace AvionicsSystems
                             morseCode[val.value[0]] = clip;
                         }
                     }
+                }
+            }
+
+            subPages.Clear();
+            ConfigNode[] subPageNode = GameDatabase.Instance.GetConfigNodes("MAS_SUB_PAGE");
+            for (int subPageIdx = 0; subPageIdx < subPageNode.Length; ++subPageIdx)
+            {
+                string subPageName = string.Empty;
+                if (subPageNode[subPageIdx].TryGetValue("name", ref subPageName))
+                {
+                    List<ConfigNode> subPageNodes = new List<ConfigNode>();
+                    ConfigNode[] nodes = subPageNode[subPageIdx].GetNodes();
+
+                    subPageNodes.AddRange(nodes);
+
+                    subPages.Add(subPageName, subPageNodes);
+                }
+                else
+                {
+                    Utility.LogError(this, "Found a MAS_SUB_PAGE missing 'name'.  Skipping.");
                 }
             }
         }
