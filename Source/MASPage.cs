@@ -143,7 +143,7 @@ namespace AvionicsSystems
                         depth -= MASMonitor.depthDelta;
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     string componentName = string.Empty;
                     if (!components[i].TryGetValue("name", ref componentName))
@@ -156,6 +156,11 @@ namespace AvionicsSystems
                     Utility.LogError(this, "{0}", e.ToString());
                     Utility.ComplainLoudly(error);
                 }
+            }
+
+            if (numComponents > 256)
+            {
+                Utility.LogWarning(this, "{0} elements were used in MASPage {1}. This may exceed the number of supported elements.", numComponents, name);
             }
         }
 
