@@ -1248,7 +1248,12 @@ namespace AvionicsSystems
                         throw new NotImplementedException("ProcessObject found an unexpected return type " + value.GetType() + " for " + name);
                     }
 
-                    if (!Mathf.Approximately((float)safeValue, (float)oldSafeValue))
+                    // There is actually inadequate precision in a 32 bit float
+                    // to detect fixed update time deltas by the time 96 hours
+                    // have passed on the UT clock, so we leave the values as
+                    // double precision and compare the delta to the Mathf.Epsilon.
+                    //if (!Mathf.Approximately((float)safeValue, (float)oldSafeValue))
+                    if (Math.Abs(oldSafeValue - safeValue) > Mathf.Epsilon)
                     {
                         if (numericCallbacks != null)
                         {
