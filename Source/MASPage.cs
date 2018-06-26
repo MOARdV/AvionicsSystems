@@ -230,7 +230,16 @@ namespace AvionicsSystems
                                     }
                                     else
                                     {
-                                        subNode.SetValue("position", string.Format("{0}, {1}", position[0], position[1]), true);
+                                        if (IsTextNode(subNode))
+                                        {
+                                            subNode.SetValue("position", string.Format("{2} * {0}, {3} * {1}",
+                                                position[0], position[1],
+                                                1.0f / monitor.fontSize.x, 1.0f / monitor.fontSize.y), true);
+                                        }
+                                        else
+                                        {
+                                            subNode.SetValue("position", string.Format("{0}, {1}", position[0], position[1]), true);
+                                        }
                                     }
                                 }
 
