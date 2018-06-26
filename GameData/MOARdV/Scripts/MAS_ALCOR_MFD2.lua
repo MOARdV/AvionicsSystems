@@ -556,7 +556,7 @@ function MAS_Mfd2_Flight_Select_Instrument(propId, panel, direction)
 	elseif panel == 4 then
 		fc.AddPersistentWrapped(propId .. "-FlightPanel4", direction, 0, 2)
 	elseif panel == 5 then
-		fc.AddPersistentWrapped(propId .. "-FlightPanel5", direction, 0, 4)
+		fc.AddPersistentWrapped(propId .. "-FlightPanel5", direction, 0, 3)
 	elseif panel == 6 then
 		fc.AddPersistentWrapped(propId .. "-FlightPanel6", direction, 0, 2)
 	end
@@ -567,14 +567,5 @@ end
 function MAS_Mfd2_System_Menu_Select(propId, activeRow)
 	if activeRow == 0 then
 		fc.SetPersistent(propId, "MAS_MFD2_ActionGroup")
-	end
-end
-
-------------------------------------------------------------------------------
-function MAS_Mfd2_ActionGroup_Menu_Select(propId, activeRow)
-	if activeRow >= 0 and activeRow <= 8 then
-		fc.ToggleActionGroup(activeRow + 1)
-	elseif activeRow == 9 then
-		fc.ToggleActionGroup(0)
 	end
 end
