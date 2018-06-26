@@ -92,6 +92,10 @@ namespace AvionicsSystems
         {
             attitudePilotEngaged = false;
             maneuverPilotEngaged = false;
+            if (vessel.ActionGroups[KSPActionGroup.SAS])
+            {
+                vessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.StabilityAssist);
+            }
         }
 
         /// <summary>
