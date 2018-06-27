@@ -87,6 +87,7 @@ namespace AvionicsSystems
         internal struct ResourceData
         {
             internal string name;
+            internal string displayName;
 
             internal int id;
             internal float density;
@@ -166,6 +167,26 @@ namespace AvionicsSystems
                 }
             }
             return -1.0;
+        }
+
+        /// <summary>
+        /// Returns the indexed propellant display name or an empty string.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        internal string PropellantStageDisplayName(int index)
+        {
+            if (index >= 0 && index < enginePropellantIds.Count)
+            {
+                try
+                {
+                    ResourceData rd = GetResourceData(enginePropellantIds[index]);
+                    return rd.displayName;
+                }
+                catch { }
+            }
+
+            return string.Empty;
         }
 
         /// <summary>
@@ -408,6 +429,23 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the display name of the Nth active resource, or an empty string if
+        /// the resource index is invalid.
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        internal string ResourceDisplayName(object resourceId)
+        {
+            int index = GetResourceIndex(resourceId);
+            if (index >= 0 && index < resources.Length)
+            {
+                return resources[index].displayName;
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Returns the name of the Nth active resource, or an empty string if
         /// the resource index is invalid.
         /// </summary>
@@ -578,6 +616,7 @@ namespace AvionicsSystems
                 vesselActiveResource[index] = int.MaxValue;
 
                 resources[index].name = thatResource.name;
+                resources[index].displayName = thatResource.displayName;
 
                 resources[index].id = thatResource.id;
                 resources[index].density = thatResource.density;
@@ -597,6 +636,7 @@ namespace AvionicsSystems
             Array.Sort(resources, resourceNameComparer);
 
             enginePropellant.name = "Engine Propellant";
+            enginePropellant.displayName = "Engine Propellant";
             enginePropellant.density = 0.0f;
             enginePropellant.currentQuantity = 0.0f;
             enginePropellant.maxQuantity = 0.0f;
@@ -607,6 +647,7 @@ namespace AvionicsSystems
             // Balance of fields are "don't care".
 
             rcsPropellant.name = "RCS Propellant";
+            rcsPropellant.displayName = "RCS Propellant";
             rcsPropellant.density = 0.0f;
             rcsPropellant.currentQuantity = 0.0f;
             rcsPropellant.maxQuantity = 0.0f;

@@ -274,6 +274,17 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the display (localized) name of the active propellant indexed by `index`.  This call is equivalent
+        /// to `fc.ResourceDisplayName(fc.PropellantStageResourceId(index))`.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.PropellantStageCount()` - 1, inclusive.</param>
+        /// <returns>The name of the propellant, or an empty string for invalid indices.</returns>
+        public string PropellantStageDisplayName(double index)
+        {
+            return vc.PropellantStageDisplayName((int)index);
+        }
+
+        /// <summary>
         /// Returns the name of the active propellant indexed by `index`.  This call is equivalent
         /// to `fc.ResourceName(fc.PropellantStageResourceId(index))`.
         /// </summary>
@@ -585,6 +596,17 @@ namespace AvionicsSystems
         public double ResourceMax(object resourceId)
         {
             return vc.ResourceMax(resourceId);
+        }
+
+        /// <summary>
+        /// Returns the display (localized) name of the selected resource, or an empty string if it doesn't
+        /// exist.
+        /// </summary>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
+        /// <returns></returns>
+        public string ResourceDisplayName(object resourceId)
+        {
+            return vc.ResourceDisplayName(resourceId);
         }
 
         /// <summary>
