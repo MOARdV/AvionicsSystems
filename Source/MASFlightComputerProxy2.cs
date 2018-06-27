@@ -771,6 +771,25 @@ namespace AvionicsSystems
 
         [MASProxy(Dependent = true)]
         /// <summary>
+        /// Round the given value towards zero (round down for positive values,
+        /// round up for negative values).
+        /// </summary>
+        /// <param name="sourceValue"></param>
+        /// <returns></returns>
+        public double RoundZero(double sourceValue)
+        {
+            if (sourceValue < 0.0)
+            {
+                return Math.Ceiling(sourceValue);
+            }
+            else
+            {
+                return Math.Floor(sourceValue);
+            }
+        }
+
+        [MASProxy(Dependent = true)]
+        /// <summary>
         /// Divides `numerator` by `denominator`.  If the denominator is zero, this method
         /// returns 0 instead of infinity or throwing a divide-by-zero exception.
         /// </summary>
