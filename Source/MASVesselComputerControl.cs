@@ -90,12 +90,16 @@ namespace AvionicsSystems
         /// </summary>
         internal void CancelAutopilots()
         {
-            attitudePilotEngaged = false;
-            maneuverPilotEngaged = false;
-            if (vessel.ActionGroups[KSPActionGroup.SAS])
+            if (attitudePilotEngaged)
             {
-                vessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.StabilityAssist);
+                if (vessel.ActionGroups[KSPActionGroup.SAS])
+                {
+                    vessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.StabilityAssist);
+                }
+
+                attitudePilotEngaged = false;
             }
+            maneuverPilotEngaged = false;
         }
 
         /// <summary>
