@@ -147,3 +147,19 @@ function MAS_kOS_Pilot_BufferError(bufferValue, headingMode)
 	
 	return 0
 end
+
+------------------------------------------------------------------------------
+--
+function MAS_kOS_Resource_AdjustAlarm(amount, activePanel, resourceBase)
+	if activePanel > 0 and activePanel < 10 then
+		fc.AddPersistentClamped(resourceBase .. activePanel, amount, 0, 1)
+	end
+end
+
+------------------------------------------------------------------------------
+--
+function MAS_kOS_Resource_ChangeResource(direction, activePanel, resourceBase)
+	if activePanel > 0 and activePanel < 10 then
+		fc.AddPersistentWrapped(resourceBase .. activePanel, direction, 0, fc.ResourceCount())
+	end
+end
