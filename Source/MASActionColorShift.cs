@@ -317,7 +317,7 @@ namespace AvionicsSystems
         {
             if (blend)
             {
-                float newBlend = Mathf.InverseLerp((float)range1.SafeValue(), (float)range2.SafeValue(), (float)newValue);
+                float newBlend = Mathf.InverseLerp((float)range1.DoubleValue(), (float)range2.DoubleValue(), (float)newValue);
 
                 if (!Mathf.Approximately(newBlend, currentBlend))
                 {
@@ -329,7 +329,7 @@ namespace AvionicsSystems
             {
                 if (rangeMode)
                 {
-                    newValue = (newValue.Between(range1.SafeValue(), range2.SafeValue())) ? 1.0 : 0.0;
+                    newValue = (newValue.Between(range1.DoubleValue(), range2.DoubleValue())) ? 1.0 : 0.0;
                 }
 
                 bool newState = (newValue > 0.0);

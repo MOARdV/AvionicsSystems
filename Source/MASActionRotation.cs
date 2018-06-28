@@ -303,8 +303,8 @@ namespace AvionicsSystems
 
                 if (modulo)
                 {
-                    float lowValue = (float)range1.SafeValue();
-                    float highValue = (float)range2.SafeValue();
+                    float lowValue = (float)range1.DoubleValue();
+                    float highValue = (float)range2.DoubleValue();
                     if (highValue < lowValue)
                     {
                         float tmp = lowValue;
@@ -323,7 +323,7 @@ namespace AvionicsSystems
                 }
                 else
                 {
-                    newBlend = Mathf.InverseLerp((float)range1.SafeValue(), (float)range2.SafeValue(), (float)newValue);
+                    newBlend = Mathf.InverseLerp((float)range1.DoubleValue(), (float)range2.DoubleValue(), (float)newValue);
                 }
 
                 if (!Mathf.Approximately(newBlend, currentBlend))
@@ -344,7 +344,7 @@ namespace AvionicsSystems
             {
                 if (rangeMode)
                 {
-                    newValue = (newValue.Between(range1.SafeValue(), range2.SafeValue())) ? 1.0 : 0.0;
+                    newValue = (newValue.Between(range1.DoubleValue(), range2.DoubleValue())) ? 1.0 : 0.0;
                 }
 
                 bool newState = (newValue > 0.0);

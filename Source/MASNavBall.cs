@@ -144,7 +144,7 @@ namespace AvionicsSystems
         {
             if (rangeMode)
             {
-                currentState = newValue.Between(range1.SafeValue(), range2.SafeValue());
+                currentState = newValue.Between(range1.DoubleValue(), range2.DoubleValue());
             }
             else
             {

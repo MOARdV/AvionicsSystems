@@ -177,8 +177,8 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void InputCallback(double newValue)
         {
-            float iLerp = Mathf.InverseLerp((float)inputRange1.SafeValue(), (float)inputRange2.SafeValue(), (float)newValue);
-            float newCenter = Mathf.Lerp((float)displayRange1.SafeValue() * texelWidth, (float)displayRange2.SafeValue() * texelWidth, iLerp);
+            float iLerp = Mathf.InverseLerp((float)inputRange1.DoubleValue(), (float)inputRange2.DoubleValue(), (float)newValue);
+            float newCenter = Mathf.Lerp((float)displayRange1.DoubleValue() * texelWidth, (float)displayRange2.DoubleValue() * texelWidth, iLerp);
             imageMaterial.mainTextureOffset = new Vector2(newCenter + textureOffset, 0.0f);
         }
 

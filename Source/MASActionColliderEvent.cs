@@ -240,7 +240,7 @@ namespace AvionicsSystems
         {
             if (rangeMode)
             {
-                newValue = (newValue.Between(range1.SafeValue(), range2.SafeValue())) ? 1.0 : 0.0;
+                newValue = (newValue.Between(range1.DoubleValue(), range2.DoubleValue())) ? 1.0 : 0.0;
             }
 
             bool newState = (newValue > 0.0);

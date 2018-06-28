@@ -312,7 +312,7 @@ namespace AvionicsSystems
                     v.numericCallbacks += callback;
                 }
 
-                callback(v.SafeValue());
+                callback(v.DoubleValue());
             }
             catch (Exception e)
             {

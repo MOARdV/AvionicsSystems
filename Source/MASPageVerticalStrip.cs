@@ -177,8 +177,8 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void InputCallback(double newValue)
         {
-            float iLerp = Mathf.InverseLerp((float)inputRange1.SafeValue(), (float)inputRange2.SafeValue(), (float)newValue);
-            float newCenter = Mathf.Lerp((float)displayRange1.SafeValue() * texelWidth, (float)displayRange2.SafeValue() * texelWidth, iLerp);
+            float iLerp = Mathf.InverseLerp((float)inputRange1.DoubleValue(), (float)inputRange2.DoubleValue(), (float)newValue);
+            float newCenter = Mathf.Lerp((float)displayRange1.DoubleValue() * texelWidth, (float)displayRange2.DoubleValue() * texelWidth, iLerp);
             // Since we invert the vertical coordinates to place y=0 at the top, we need to flip the offset here,
             // too.
             imageMaterial.mainTextureOffset = new Vector2(0.0f, 1.0f - (newCenter + textureOffset));

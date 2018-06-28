@@ -387,7 +387,7 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void SourceCallback(double newValue)
         {
-            float iLerp = 1.0f - Mathf.InverseLerp((float)sourceRange1.SafeValue(), (float)sourceRange2.SafeValue(), (float)newValue);
+            float iLerp = 1.0f - Mathf.InverseLerp((float)sourceRange1.DoubleValue(), (float)sourceRange2.DoubleValue(), (float)newValue);
             if (!Mathf.Approximately(lastValue, iLerp))
             {
                 float posLerp = 1.0f - iLerp;

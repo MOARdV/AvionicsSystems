@@ -310,7 +310,7 @@ namespace AvionicsSystems
             waitToSample = new WaitForSeconds(sampleRate);
             while (lineRenderer != null)
             {
-                float newSample = verticalSpan * Mathf.InverseLerp((float)sourceRange1.SafeValue(), (float)sourceRange2.SafeValue(), (float)sourceValue.SafeValue());
+                float newSample = verticalSpan * Mathf.InverseLerp((float)sourceRange1.DoubleValue(), (float)sourceRange2.DoubleValue(), (float)sourceValue.DoubleValue());
                 newSample = Mathf.Round(newSample);
 
                 if (currentSample < maxSamples)

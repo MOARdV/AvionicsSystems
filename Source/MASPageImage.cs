@@ -271,7 +271,7 @@ namespace AvionicsSystems
                     {
                         variableRegistrar.RegisterNumericVariable(colorVariableName, (double newValue) =>
                         {
-                            float newBlend = Mathf.InverseLerp((float)colorRange1.SafeValue(), (float)colorRange2.SafeValue(), (float)newValue);
+                            float newBlend = Mathf.InverseLerp((float)colorRange1.DoubleValue(), (float)colorRange2.DoubleValue(), (float)newValue);
 
                             if (!Mathf.Approximately(newBlend, currentBlend))
                             {
@@ -284,7 +284,7 @@ namespace AvionicsSystems
                     {
                         variableRegistrar.RegisterNumericVariable(colorVariableName, (double newValue) =>
                         {
-                            float newBlend = (newValue.Between(colorRange1.SafeValue(), colorRange2.SafeValue())) ? 1.0f : 0.0f;
+                            float newBlend = (newValue.Between(colorRange1.DoubleValue(), colorRange2.DoubleValue())) ? 1.0f : 0.0f;
                             if (newBlend != currentBlend)
                             {
                                 currentBlend = newBlend;

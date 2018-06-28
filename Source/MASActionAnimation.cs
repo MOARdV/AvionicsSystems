@@ -110,7 +110,7 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void VariableCallback(double newValue)
         {
-            float newBlend = Mathf.InverseLerp((float)range1.SafeValue(), (float)range2.SafeValue(), (float)newValue);
+            float newBlend = Mathf.InverseLerp((float)range1.DoubleValue(), (float)range2.DoubleValue(), (float)newValue);
 
             if (!Mathf.Approximately(currentBlend, newBlend))
             {

@@ -274,7 +274,7 @@ namespace AvionicsSystems
         {
             if (cpt.rangeMode)
             {
-                newValue = (newValue.Between(cpt.range1.SafeValue(), cpt.range2.SafeValue())) ? 1.0 : 0.0;
+                newValue = (newValue.Between(cpt.range1.DoubleValue(), cpt.range2.DoubleValue())) ? 1.0 : 0.0;
             }
 
             bool newState = (newValue > 0.0);

@@ -223,8 +223,8 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void RollCallback(double newValue)
         {
-            float iLerp = Mathf.InverseLerp((float)rollRange1.SafeValue(), (float)rollRange2.SafeValue(), (float)newValue);
-            float newRoll = Mathf.Lerp((float)displayRollRange1.SafeValue(), (float)displayRollRange2.SafeValue(), iLerp);
+            float iLerp = Mathf.InverseLerp((float)rollRange1.DoubleValue(), (float)rollRange2.DoubleValue(), (float)newValue);
+            float newRoll = Mathf.Lerp((float)displayRollRange1.DoubleValue(), (float)displayRollRange2.DoubleValue(), iLerp);
 
             if (!Mathf.Approximately(newRoll, lastRoll))
             {
@@ -240,8 +240,8 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void PitchCallback(double newValue)
         {
-            float iLerp = Mathf.InverseLerp((float)pitchRange1.SafeValue(), (float)pitchRange2.SafeValue(), (float)newValue);
-            float newCenter = Mathf.Lerp((float)displayPitchRange1.SafeValue() * texelSize.y, (float)displayPitchRange2.SafeValue() * texelSize.y, iLerp);
+            float iLerp = Mathf.InverseLerp((float)pitchRange1.DoubleValue(), (float)pitchRange2.DoubleValue(), (float)newValue);
+            float newCenter = Mathf.Lerp((float)displayPitchRange1.DoubleValue() * texelSize.y, (float)displayPitchRange2.DoubleValue() * texelSize.y, iLerp);
 
             if (!Mathf.Approximately(newCenter, oldPitchCenter))
             {
