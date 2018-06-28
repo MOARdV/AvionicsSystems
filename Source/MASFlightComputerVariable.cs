@@ -275,9 +275,10 @@ namespace AvionicsSystems
 #if PLENTIFUL_LOGGING
                     Utility.LogMessage(this, "- fall back to Lua scripting");
 #endif
-                        // If we couldn't find a way to optimize the value, fall
+                        // If we couldn't find a way to evaluate the value above, fall
                         // back to interpreted Lua script.
-                        v = new Variable(result.canonicalName, script);
+                        DynValue luaEvaluator = script.LoadString("return " + result.canonicalName);
+                        v = new Variable(result.canonicalName, () => script.Call(luaEvaluator).ToObject(), true, true, Variable.VariableType.LuaScript);
                         if (v.valid == false)
                         {
                             throw new ArgumentException(string.Format("Unable to process variable {0}", result.canonicalName));
@@ -389,7 +390,7 @@ namespace AvionicsSystems
                 {
                     ++dependentVariableCount;
                 }
-                else if (v.variableType == Variable.VariableType.LuaScript || v.variableType == Variable.VariableType.LuaClosure)
+                else if (v.variableType == Variable.VariableType.LuaScript)
                 {
                     ++luaVariableCount;
                 }
@@ -858,7 +859,7 @@ namespace AvionicsSystems
                                 return new Variable(canonical, () =>
                                 {
                                     return script.Call(closure).ToObject();
-                                }, true, true, Variable.VariableType.LuaClosure);
+                                }, true, true, Variable.VariableType.LuaScript);
                             }
                             else
                             {
@@ -871,7 +872,7 @@ namespace AvionicsSystems
                                         callParams[i] = parms[i].AsDynValue();
                                     }
                                     return script.Call(closure, callParams).ToObject();
-                                }, true, true, Variable.VariableType.LuaClosure);
+                                }, true, true, Variable.VariableType.LuaScript);
                             }
                         }
                     }
@@ -886,7 +887,9 @@ namespace AvionicsSystems
                 // I fall back to here to evaluate them.  I suppose I could add Lua table evaluation
                 // to the DotOperator path, and that may allow a more efficient evaluation, since
                 // I'd be able to call the method inside the table directly.
-                v = new Variable(canonical, script);
+                DynValue luaEvaluator = script.LoadString("return " + name);
+                v = new Variable(canonical, () => script.Call(luaEvaluator).ToObject(), true, true, Variable.VariableType.LuaScript);
+
                 if (v.valid)
                 {
                     Utility.LogMessage(this, "Did not evaluate {0} - fell back to script evaluation.", canonical);
@@ -983,10 +986,6 @@ namespace AvionicsSystems
             /// </summary>
             private Func<object> nativeEvaluator;
             /// <summary>
-            /// Lua script that is invoked.  I'm removing this.
-            /// </summary>
-            private DynValue luaEvaluator;
-            /// <summary>
             /// Result of previous evaluation as a boxed value.
             /// </summary>
             private object rawObject;
@@ -1022,13 +1021,9 @@ namespace AvionicsSystems
                 /// </summary>
                 Unknown,
                 /// <summary>
-                /// Complex Lua script
+                /// Lua script
                 /// </summary>
                 LuaScript,
-                /// <summary>
-                /// Simple Lua closure
-                /// </summary>
-                LuaClosure,
                 /// <summary>
                 /// Constant numeric or string value
                 /// </summary>
@@ -1119,40 +1114,6 @@ namespace AvionicsSystems
             }
 
             /// <summary>
-            /// Construct a dynamic Lua Variable.
-            /// </summary>
-            /// <param name="name"></param>
-            /// <param name="script"></param>
-            public Variable(string name, Script script)
-            {
-                this.name = name;
-
-                try
-                {
-                    // TODO: MoonSharp "hardwiring" - does it help performance?
-                    luaEvaluator = script.LoadString("return " + name);
-                    this.luaValue = script.Call(luaEvaluator);
-                    this.valid = true;
-                }
-                catch (Exception e)
-                {
-                    Utility.ComplainLoudly("Error creating variable " + name);
-                    Utility.LogError(this, "Unknown variable '{0}':", name);
-                    Utility.LogError(this, e.ToString());
-                    this.luaValue = null;
-                    this.valid = false;
-                }
-
-                if (this.valid)
-                {
-                    this.variableType = VariableType.LuaScript;
-                    ProcessObject(this.luaValue.ToObject());
-                }
-                this.cacheable = true;
-                this.mutable = true;
-            }
-
-            /// <summary>
             /// Return the raw object for customized processing.
             /// </summary>
             /// <returns></returns>
@@ -1180,6 +1141,10 @@ namespace AvionicsSystems
                 return (doubleValue != 0.0);
             }
 
+            /// <summary>
+            /// Return the value as a DynValue for Lua processing.
+            /// </summary>
+            /// <returns></returns>
             public DynValue AsDynValue()
             {
                 return luaValue;
@@ -1229,6 +1194,10 @@ namespace AvionicsSystems
                     if (value is double)
                     {
                         doubleValue = (double)value;
+                        if (double.IsNaN(doubleValue) || double.IsInfinity(doubleValue))
+                        {
+                            doubleValue = 0.0;
+                        }
                         stringValue = string.Format("{0:R}", doubleValue);
                         luaValue = DynValue.NewNumber(doubleValue);
                     }
@@ -1287,24 +1256,12 @@ namespace AvionicsSystems
             /// snippet using the supplied Lua script.
             /// </summary>
             /// <param name="script"></param>
-            internal void Evaluate(Script script)
+            internal void Evaluate()
             {
                 switch (variableType)
                 {
-                    case VariableType.LuaScript:
-                        try
-                        {
-                            luaValue = script.Call(luaEvaluator);
-                        }
-                        catch
-                        {
-                            luaValue = DynValue.NewNil();
-                        }
-
-                        ProcessObject(luaValue.ToObject());
-                        break;
                     case VariableType.Func:
-                    case VariableType.LuaClosure:
+                    case VariableType.LuaScript:
                         ProcessObject(nativeEvaluator());
                         break;
                     case VariableType.Dependent:

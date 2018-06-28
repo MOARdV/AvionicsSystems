@@ -617,7 +617,7 @@ namespace AvionicsSystems
                         int nativeIdx = 0, luaIdx = 0, dependentIdx = 0;
                         foreach (Variable var in mutableVariablesList)
                         {
-                            if (var.variableType == Variable.VariableType.LuaScript || var.variableType == Variable.VariableType.LuaClosure)
+                            if (var.variableType == Variable.VariableType.LuaScript)
                             {
                                 luaVariables[luaIdx] = var;
                                 ++luaIdx;
@@ -683,7 +683,7 @@ namespace AvionicsSystems
                     {
                         try
                         {
-                            nativeVariables[i].Evaluate(script);
+                            nativeVariables[i].Evaluate();
                         }
                         catch (Exception e)
                         {
@@ -724,7 +724,7 @@ namespace AvionicsSystems
                     {
                         try
                         {
-                            luaVariables[i].Evaluate(script);
+                            luaVariables[i].Evaluate();
                         }
                         catch (Exception e)
                         {
@@ -742,7 +742,7 @@ namespace AvionicsSystems
                     {
                         try
                         {
-                            dependentVariables[i].Evaluate(script);
+                            dependentVariables[i].Evaluate();
                         }
                         catch (Exception e)
                         {
