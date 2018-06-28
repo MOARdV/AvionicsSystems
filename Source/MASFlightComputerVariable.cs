@@ -984,7 +984,7 @@ namespace AvionicsSystems
             /// <summary>
             /// The delegate that is invoked to evaluate this variable.
             /// </summary>
-            private Func<object> nativeEvaluator;
+            private Func<object> evaluator;
             /// <summary>
             /// Result of previous evaluation as a boxed value.
             /// </summary>
@@ -1001,6 +1001,10 @@ namespace AvionicsSystems
             /// Lua DynValue version of the result.
             /// </summary>
             private DynValue luaValue;
+            /// <summary>
+            /// The value type of the variable, for dynamic value conversion to DynValue.
+            /// </summary>
+            private ValueType valueType = ValueType.Nil;
             /// <summary>
             /// The type of variable (constant, lambda/delegate, Lua)
             /// </summary>
@@ -1040,6 +1044,18 @@ namespace AvionicsSystems
             };
 
             /// <summary>
+            /// Classifier to identify the type of variable this represents, so AsDynValue can evaluate
+            /// at call-time the correct DynValue to return for mutable variables.
+            /// </summary>
+            private enum ValueType
+            {
+                Boolean,
+                Double,
+                String,
+                Nil
+            };
+
+            /// <summary>
             /// Construct a constant boolean Variable.
             /// </summary>
             /// <param name="value"></param>
@@ -1055,6 +1071,7 @@ namespace AvionicsSystems
                 this.cacheable = true;
                 this.mutable = false;
                 this.luaValue = DynValue.NewBoolean(value);
+                this.valueType = ValueType.Boolean;
             }
 
             /// <summary>
@@ -1073,6 +1090,7 @@ namespace AvionicsSystems
                 this.cacheable = true;
                 this.mutable = false;
                 this.luaValue = DynValue.NewNumber(value);
+                this.valueType = ValueType.Double;
             }
 
             /// <summary>
@@ -1091,26 +1109,47 @@ namespace AvionicsSystems
                 this.cacheable = true;
                 this.mutable = false;
                 this.luaValue = DynValue.NewString(value);
+                this.valueType = ValueType.String;
             }
 
             /// <summary>
             /// Construct a dynamic native evaluator.
             /// </summary>
             /// <param name="name"></param>
-            /// <param name="nativeEvaluator"></param>
+            /// <param name="evaluator"></param>
             /// <param name="cacheable"></param>
-            public Variable(string name, Func<object> nativeEvaluator, bool cacheable, bool mutable, VariableType variableType)
+            public Variable(string name, Func<object> evaluator, bool cacheable, bool mutable, VariableType variableType)
             {
                 this.name = name;
 
-                this.nativeEvaluator = nativeEvaluator;
+                this.evaluator = evaluator;
 
                 this.valid = true;
                 this.cacheable = (mutable) ? cacheable : true;
                 this.mutable = mutable;
                 this.variableType = (mutable) ? variableType : VariableType.Constant;
 
-                ProcessObject(nativeEvaluator());
+                ProcessObject();
+
+                if (!mutable)
+                {
+                    switch (valueType)
+                    {
+                        case ValueType.Boolean:
+                            luaValue =  DynValue.NewBoolean(doubleValue != 0.0);
+                            break;
+                        case ValueType.Double:
+                            luaValue =  DynValue.NewNumber(doubleValue);
+                            break;
+                        case ValueType.String:
+                            luaValue =  DynValue.NewString(stringValue);
+                            break;
+                        case ValueType.Nil:
+                            luaValue = DynValue.NewNil();
+                            break;
+                    }
+
+                }
             }
 
             /// <summary>
@@ -1122,7 +1161,7 @@ namespace AvionicsSystems
                 if (!cacheable)
                 {
                     // Only permitted for native objects
-                    ProcessObject(nativeEvaluator());
+                    ProcessObject();
                 }
                 return rawObject;
             }
@@ -1136,7 +1175,7 @@ namespace AvionicsSystems
                 if (!cacheable)
                 {
                     // Only permitted for native objects
-                    ProcessObject(nativeEvaluator());
+                    ProcessObject();
                 }
                 return (doubleValue != 0.0);
             }
@@ -1147,7 +1186,25 @@ namespace AvionicsSystems
             /// <returns></returns>
             public DynValue AsDynValue()
             {
-                return luaValue;
+                if (variableType == VariableType.Constant)
+                {
+                    return luaValue;
+                }
+                else
+                {
+                    switch (valueType)
+                    {
+                        case ValueType.Boolean:
+                            return DynValue.NewBoolean(doubleValue != 0.0);
+                        case ValueType.Double:
+                            return DynValue.NewNumber(doubleValue);
+                        case ValueType.String:
+                            return DynValue.NewString(stringValue);
+                    }
+
+                    // ValueType.Nil and fallthrough:
+                    return DynValue.NewNil();
+                }
             }
 
             /// <summary>
@@ -1160,7 +1217,7 @@ namespace AvionicsSystems
                 if (!cacheable)
                 {
                     // Only permitted for native objects
-                    ProcessObject(nativeEvaluator());
+                    ProcessObject();
                 }
                 return doubleValue;
             }
@@ -1174,7 +1231,7 @@ namespace AvionicsSystems
                 if (!cacheable)
                 {
                     // Only permitted for native objects
-                    ProcessObject(nativeEvaluator());
+                    ProcessObject();
                 }
                 return stringValue;
             }
@@ -1184,8 +1241,9 @@ namespace AvionicsSystems
             /// evaluator.
             /// </summary>
             /// <param name="value"></param>
-            private void ProcessObject(object value)
+            private void ProcessObject()
             {
+                object value = evaluator();
                 if (rawObject == null || !value.Equals(rawObject))
                 {
                     double oldSafeValue = doubleValue;
@@ -1199,13 +1257,13 @@ namespace AvionicsSystems
                             doubleValue = 0.0;
                         }
                         stringValue = string.Format("{0:R}", doubleValue);
-                        luaValue = DynValue.NewNumber(doubleValue);
+                        valueType = ValueType.Double;
                     }
                     else if (value is string)
                     {
                         stringValue = value as string;
                         doubleValue = 0.0;
-                        luaValue = DynValue.NewString(stringValue);
+                        valueType = ValueType.String;
                         // Note - this is primarily for Dependent variables who
                         // don't care about safeValue.
                         if (numericCallbacks != null)
@@ -1218,13 +1276,13 @@ namespace AvionicsSystems
                         bool bValue = (bool)value;
                         doubleValue = (bValue) ? 1.0 : 0.0;
                         stringValue = bValue.ToString();
-                        luaValue = DynValue.NewBoolean(bValue);
+                        valueType = ValueType.Boolean;
                     }
                     else if (value == null)
                     {
                         doubleValue = 0.0;
                         stringValue = name;
-                        luaValue = DynValue.NewNil();
+                        valueType = ValueType.Nil;
                     }
                     else
                     {
@@ -1252,29 +1310,18 @@ namespace AvionicsSystems
             }
 
             /// <summary>
-            /// Evaluate updates the variable in question by calling the code
-            /// snippet using the supplied Lua script.
+            /// Evaluate() conditionally updates the variable by calling the evaluator.
             /// </summary>
-            /// <param name="script"></param>
             internal void Evaluate()
             {
-                switch (variableType)
+                if (variableType == VariableType.Dependent && triggerUpdate == false)
                 {
-                    case VariableType.Func:
-                    case VariableType.LuaScript:
-                        ProcessObject(nativeEvaluator());
-                        break;
-                    case VariableType.Dependent:
-                        if (triggerUpdate)
-                        {
-                            triggerUpdate = false;
-                            ProcessObject(nativeEvaluator());
-                        }
-                        break;
-                    default:
-                        Utility.LogError(this, "Attempting to evaluate {0}, which is listed as {1} - this should not happen.", name, variableType);
-                        break;
+                    return; // early
                 }
+
+                triggerUpdate = false;
+
+                ProcessObject();
             }
 
             /// <summary>
