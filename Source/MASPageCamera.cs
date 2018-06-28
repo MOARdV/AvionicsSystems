@@ -343,12 +343,12 @@ namespace AvionicsSystems
                 comp.UnregisterOnVariableChange(cameraSelector.name, internalProp, CameraSelectCallback);
             }
 
-            if (renderFrames > 0)
-            {
-                double msPerFrame = 1000.0 * (double)(renderStopwatch.ElapsedTicks) / (double)(renderFrames * Stopwatch.Frequency);
-                Utility.LogMessage(this, "Camera page {0}: {1} frames rendered, {2}/frame",
-                    name, renderFrames, msPerFrame);
-            }
+            //if (renderFrames > 0)
+            //{
+            //    double msPerFrame = 1000.0 * (double)(renderStopwatch.ElapsedTicks) / (double)(renderFrames * Stopwatch.Frequency);
+            //    Utility.LogMessage(this, "Camera page {0}: {1} frames rendered, {2:0.0}ms/frame",
+            //        name, renderFrames, msPerFrame);
+            //}
         }
     }
 }
