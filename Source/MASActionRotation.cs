@@ -36,7 +36,7 @@ namespace AvionicsSystems
     /// </summary>
     class MASActionRotation : IMASSubComponent
     {
-        private MASFlightComputer.Variable range1, range2;
+        private Variable range1, range2;
         // Beginning and ending rotation points for all rotations
         private Quaternion startRotation, endRotation;
         // midpoint rotation for 180* < rotation < 360*, and midpoint1
@@ -303,8 +303,8 @@ namespace AvionicsSystems
 
                 if (modulo)
                 {
-                    float lowValue = (float)range1.DoubleValue();
-                    float highValue = (float)range2.DoubleValue();
+                    float lowValue = (float)range1.AsDouble();
+                    float highValue = (float)range2.AsDouble();
                     if (highValue < lowValue)
                     {
                         float tmp = lowValue;
@@ -323,7 +323,7 @@ namespace AvionicsSystems
                 }
                 else
                 {
-                    newBlend = Mathf.InverseLerp((float)range1.DoubleValue(), (float)range2.DoubleValue(), (float)newValue);
+                    newBlend = Mathf.InverseLerp((float)range1.AsDouble(), (float)range2.AsDouble(), (float)newValue);
                 }
 
                 if (!Mathf.Approximately(newBlend, currentBlend))
@@ -344,7 +344,7 @@ namespace AvionicsSystems
             {
                 if (rangeMode)
                 {
-                    newValue = (newValue.Between(range1.DoubleValue(), range2.DoubleValue())) ? 1.0 : 0.0;
+                    newValue = (newValue.Between(range1.AsDouble(), range2.AsDouble())) ? 1.0 : 0.0;
                 }
 
                 bool newState = (newValue > 0.0);

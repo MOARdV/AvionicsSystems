@@ -35,7 +35,7 @@ namespace AvionicsSystems
         private string animationName = string.Empty;
         private Animation animation;
         private AnimationState animationState;
-        private MASFlightComputer.Variable range1, range2;
+        private Variable range1, range2;
         private readonly bool rangeMode = false;
         private bool playedOnce = false;
         private bool currentState = false;
@@ -104,7 +104,7 @@ namespace AvionicsSystems
             {
                 if (rangeMode)
                 {
-                    newValue = (newValue.Between(range1.DoubleValue(), range2.DoubleValue())) ? 1.0 : 0.0;
+                    newValue = (newValue.Between(range1.AsDouble(), range2.AsDouble())) ? 1.0 : 0.0;
                 }
 
                 bool newState = (newValue > 0.0);
@@ -129,7 +129,7 @@ namespace AvionicsSystems
             {
                 if (rangeMode)
                 {
-                    newValue = (newValue.Between(range1.DoubleValue(), range2.DoubleValue())) ? 1.0 : 0.0;
+                    newValue = (newValue.Between(range1.AsDouble(), range2.AsDouble())) ? 1.0 : 0.0;
                 }
 
                 if (newValue > 0.0)

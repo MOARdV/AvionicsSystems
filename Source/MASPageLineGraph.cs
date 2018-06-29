@@ -45,8 +45,8 @@ namespace AvionicsSystems
         private Color sourceColor = Color.white;
         private readonly float verticalSpan;
         private readonly float sampleRate;
-        private readonly MASFlightComputer.Variable sourceValue;
-        private readonly MASFlightComputer.Variable sourceRange1, sourceRange2;
+        private readonly Variable sourceValue;
+        private readonly Variable sourceRange1, sourceRange2;
 
         private int currentSample;
         private int maxSamples;
@@ -310,7 +310,7 @@ namespace AvionicsSystems
             waitToSample = new WaitForSeconds(sampleRate);
             while (lineRenderer != null)
             {
-                float newSample = verticalSpan * Mathf.InverseLerp((float)sourceRange1.DoubleValue(), (float)sourceRange2.DoubleValue(), (float)sourceValue.DoubleValue());
+                float newSample = verticalSpan * Mathf.InverseLerp((float)sourceRange1.AsDouble(), (float)sourceRange2.AsDouble(), (float)sourceValue.AsDouble());
                 newSample = Mathf.Round(newSample);
 
                 if (currentSample < maxSamples)

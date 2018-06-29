@@ -293,7 +293,7 @@ namespace AvionicsSystems
                         if (rowText.Length > 1)
                         {
                             string[] variables = rowText[1].Split(';');
-                            tr.variable = new MASFlightComputer.Variable[variables.Length];
+                            tr.variable = new Variable[variables.Length];
                             tr.evals = new object[variables.Length];
                             tr.callback = () => { invalidated = true; tr.rowInvalidated = true; };
                             for (int var = 0; var < tr.variable.Length; ++var)
@@ -360,7 +360,7 @@ namespace AvionicsSystems
                 string[] variables = staticText[1].Split(';');
                 TextRow tr = new TextRow();
                 tr.formatString = staticText[0];
-                tr.variable = new MASFlightComputer.Variable[variables.Length];
+                tr.variable = new Variable[variables.Length];
                 tr.evals = new object[variables.Length];
                 for (int var = 0; var < tr.variable.Length; ++var)
                 {
@@ -1612,7 +1612,7 @@ namespace AvionicsSystems
         {
             internal string formatString;
             internal string formattedData;
-            internal MASFlightComputer.Variable[] variable;
+            internal Variable[] variable;
             internal object[] evals;
             internal Action callback;
             internal int textLength;
@@ -1633,7 +1633,7 @@ namespace AvionicsSystems
                     {
                         for (int i = 0; i < variable.Length; ++i)
                         {
-                            evals[i] = variable[i].RawValue();
+                            evals[i] = variable[i].AsObject();
                         }
 
                         formattedData = string.Format(formatter, formatString, evals);

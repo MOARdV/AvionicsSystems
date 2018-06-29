@@ -38,7 +38,7 @@ namespace AvionicsSystems
     class MASActionTriggerEvent : IMASSubComponent
     {
         private string variableName;
-        private MASFlightComputer.Variable range1, range2;
+        private Variable range1, range2;
         private readonly bool rangeMode;
         private bool currentState = false;
         private bool autoRepeat = false;
@@ -111,7 +111,7 @@ namespace AvionicsSystems
         {
             if (rangeMode)
             {
-                newValue = (newValue.Between(range1.DoubleValue(), range2.DoubleValue())) ? 1.0 : 0.0;
+                newValue = (newValue.Between(range1.AsDouble(), range2.AsDouble())) ? 1.0 : 0.0;
             }
 
             bool newState = (newValue > 0.0);

@@ -30,7 +30,7 @@ namespace AvionicsSystems
 {
     // This delegate must be used for any method that uses out or ref parameters.
     // The other methods do not support 'out' and 'ref'.
-    public delegate object DynamicMethodDelegate(object param0, object[] param1);
+    public delegate TResult DynamicMethodDelegate<TResult>(object param0, object[] param1);
 
     /// <summary>
     /// The DynamicMethodFactory provides a way to generate delegates where one
@@ -662,19 +662,24 @@ namespace AvionicsSystems
         // Changes to support out / reference parameters from
         // http://stackoverflow.com/questions/29131117/using-ilgenerator-emit-to-call-a-method-in-another-assembly-that-has-an-out-para
         // with a fix to the code that copies values into locals.
-        static internal DynamicMethodDelegate CreateFunc(MethodInfo methodInfo)
+        static internal DynamicMethodDelegate<TResult> CreateFunc<TResult>(MethodInfo methodInfo)
         {
             ParameterInfo[] parms = methodInfo.GetParameters();
             int numparams = parms.Length;
 
             Type[] _argTypes = { typeof(object), typeof(object[]) };
 
+            if (methodInfo.ReturnType != typeof(TResult) && typeof(TResult) != typeof(object))
+            {
+                throw new ArgumentException("CreateFunc<TResult> called with mismatched return types");
+            }
+
             // Create dynamic method and obtain its IL generator to
             // inject code.
             DynamicMethod dynam =
                 new DynamicMethod(
                 "",
-                typeof(object),
+                typeof(TResult),
                 _argTypes,
                 typeof(DynamicMethodFactory));
             ILGenerator il = dynam.GetILGenerator();
@@ -769,7 +774,7 @@ namespace AvionicsSystems
             if (methodInfo.ReturnType != typeof(void))
             {
                 // If result is of value type it needs to be boxed
-                if (methodInfo.ReturnType.IsValueType)
+                if (methodInfo.ReturnType.IsValueType && typeof(TResult) == typeof(object))
                 {
                     il.Emit(OpCodes.Box, methodInfo.ReturnType);
                 }
@@ -783,7 +788,7 @@ namespace AvionicsSystems
             il.Emit(OpCodes.Ret);
 
 
-            return (DynamicMethodDelegate)dynam.CreateDelegate(typeof(DynamicMethodDelegate));
+            return (DynamicMethodDelegate<TResult>)dynam.CreateDelegate(typeof(DynamicMethodDelegate<TResult>));
         }
     }
 }

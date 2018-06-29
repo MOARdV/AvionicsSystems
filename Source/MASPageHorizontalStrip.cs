@@ -36,8 +36,8 @@ namespace AvionicsSystems
         private MeshRenderer meshRenderer;
         private readonly float textureOffset;
         private readonly float texelWidth;
-        private readonly MASFlightComputer.Variable inputRange1, inputRange2;
-        private readonly MASFlightComputer.Variable displayRange1, displayRange2;
+        private readonly Variable inputRange1, inputRange2;
+        private readonly Variable displayRange1, displayRange2;
 
         internal MASPageHorizontalStrip(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
             : base(config, prop, comp)
@@ -177,8 +177,8 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void InputCallback(double newValue)
         {
-            float iLerp = Mathf.InverseLerp((float)inputRange1.DoubleValue(), (float)inputRange2.DoubleValue(), (float)newValue);
-            float newCenter = Mathf.Lerp((float)displayRange1.DoubleValue() * texelWidth, (float)displayRange2.DoubleValue() * texelWidth, iLerp);
+            float iLerp = Mathf.InverseLerp((float)inputRange1.AsDouble(), (float)inputRange2.AsDouble(), (float)newValue);
+            float newCenter = Mathf.Lerp((float)displayRange1.AsDouble() * texelWidth, (float)displayRange2.AsDouble() * texelWidth, iLerp);
             imageMaterial.mainTextureOffset = new Vector2(newCenter + textureOffset, 0.0f);
         }
 

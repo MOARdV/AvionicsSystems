@@ -32,7 +32,7 @@ namespace AvionicsSystems
 {
     class MASActionTranslation : IMASSubComponent
     {
-        private MASFlightComputer.Variable range1, range2;
+        private Variable range1, range2;
         private Vector3 startTranslation, endTranslation;
         private MASFlightComputer comp;
         private Transform transform;
@@ -178,7 +178,7 @@ namespace AvionicsSystems
             {
                 float newBlend;
 
-                newBlend = Mathf.InverseLerp((float)range1.DoubleValue(), (float)range2.DoubleValue(), (float)newValue);
+                newBlend = Mathf.InverseLerp((float)range1.AsDouble(), (float)range2.AsDouble(), (float)newValue);
 
                 if (!Mathf.Approximately(newBlend, currentBlend))
                 {
@@ -199,7 +199,7 @@ namespace AvionicsSystems
             {
                 if (rangeMode)
                 {
-                    newValue = (newValue.Between(range1.DoubleValue(), range2.DoubleValue())) ? 1.0 : 0.0;
+                    newValue = (newValue.Between(range1.AsDouble(), range2.AsDouble())) ? 1.0 : 0.0;
                 }
 
                 bool newState = (newValue > 0.0);

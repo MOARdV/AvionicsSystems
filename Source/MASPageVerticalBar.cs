@@ -39,7 +39,7 @@ namespace AvionicsSystems
         private Material borderMaterial;
         private LineRenderer lineRenderer;
         private MeshRenderer meshRenderer;
-        private readonly MASFlightComputer.Variable sourceRange1, sourceRange2;
+        private readonly Variable sourceRange1, sourceRange2;
         private float lastValue = -1.0f;
         private float barHeight;
         private Vector3[] vertices = new Vector3[4];
@@ -387,7 +387,7 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void SourceCallback(double newValue)
         {
-            float iLerp = 1.0f - Mathf.InverseLerp((float)sourceRange1.DoubleValue(), (float)sourceRange2.DoubleValue(), (float)newValue);
+            float iLerp = 1.0f - Mathf.InverseLerp((float)sourceRange1.AsDouble(), (float)sourceRange2.AsDouble(), (float)newValue);
             if (!Mathf.Approximately(lastValue, iLerp))
             {
                 float posLerp = 1.0f - iLerp;

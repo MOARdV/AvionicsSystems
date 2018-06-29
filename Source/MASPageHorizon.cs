@@ -36,10 +36,10 @@ namespace AvionicsSystems
         private MeshRenderer meshRenderer;
         private readonly float textureOffset;
         private readonly Vector2 texelSize;
-        private readonly MASFlightComputer.Variable pitchRange1, pitchRange2;
-        private readonly MASFlightComputer.Variable displayPitchRange1, displayPitchRange2;
-        private readonly MASFlightComputer.Variable rollRange1, rollRange2;
-        private readonly MASFlightComputer.Variable displayRollRange1, displayRollRange2;
+        private readonly Variable pitchRange1, pitchRange2;
+        private readonly Variable displayPitchRange1, displayPitchRange2;
+        private readonly Variable rollRange1, rollRange2;
+        private readonly Variable displayRollRange1, displayRollRange2;
         private float lastRoll = 0.0f;
         private float oldPitchCenter = -1.0f;
 
@@ -223,8 +223,8 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void RollCallback(double newValue)
         {
-            float iLerp = Mathf.InverseLerp((float)rollRange1.DoubleValue(), (float)rollRange2.DoubleValue(), (float)newValue);
-            float newRoll = Mathf.Lerp((float)displayRollRange1.DoubleValue(), (float)displayRollRange2.DoubleValue(), iLerp);
+            float iLerp = Mathf.InverseLerp((float)rollRange1.AsDouble(), (float)rollRange2.AsDouble(), (float)newValue);
+            float newRoll = Mathf.Lerp((float)displayRollRange1.AsDouble(), (float)displayRollRange2.AsDouble(), iLerp);
 
             if (!Mathf.Approximately(newRoll, lastRoll))
             {
@@ -240,8 +240,8 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void PitchCallback(double newValue)
         {
-            float iLerp = Mathf.InverseLerp((float)pitchRange1.DoubleValue(), (float)pitchRange2.DoubleValue(), (float)newValue);
-            float newCenter = Mathf.Lerp((float)displayPitchRange1.DoubleValue() * texelSize.y, (float)displayPitchRange2.DoubleValue() * texelSize.y, iLerp);
+            float iLerp = Mathf.InverseLerp((float)pitchRange1.AsDouble(), (float)pitchRange2.AsDouble(), (float)newValue);
+            float newCenter = Mathf.Lerp((float)displayPitchRange1.AsDouble() * texelSize.y, (float)displayPitchRange2.AsDouble() * texelSize.y, iLerp);
 
             if (!Mathf.Approximately(newCenter, oldPitchCenter))
             {

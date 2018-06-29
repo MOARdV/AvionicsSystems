@@ -60,7 +60,7 @@ namespace AvionicsSystems
 
         [KSPField]
         public string monitorID;
-        private MASFlightComputer.Variable pageSelector;
+        private Variable pageSelector;
 
         [KSPField]
         public string startupScript;
@@ -256,9 +256,9 @@ namespace AvionicsSystems
                         string variableName = "fc.GetPersistent(\"" + monitorID.Trim() + "\")";
                         pageSelector = comp.RegisterOnVariableChange(variableName, internalProp, PageChanged);
                         // See if we have a saved page to restore.
-                        if (!string.IsNullOrEmpty(pageSelector.String()) && page.ContainsKey(pageSelector.String()))
+                        if (!string.IsNullOrEmpty(pageSelector.AsString()) && page.ContainsKey(pageSelector.AsString()))
                         {
-                            currentPage = page[pageSelector.String()];
+                            currentPage = page[pageSelector.AsString()];
                         }
                         comp.RegisterMonitor(monitorID, internalProp, this);
                     }
@@ -389,7 +389,7 @@ namespace AvionicsSystems
         {
             try
             {
-                MASPage newPage = page[pageSelector.String()];
+                MASPage newPage = page[pageSelector.AsString()];
 
                 currentPage.SetPageActive(false);
                 currentPage = newPage;
@@ -397,7 +397,7 @@ namespace AvionicsSystems
             }
             catch
             {
-                Utility.LogError(this, "Unable to switch to page '" + pageSelector.String() + "'");
+                Utility.LogError(this, "Unable to switch to page '" + pageSelector.AsString() + "'");
             }
         }
     }

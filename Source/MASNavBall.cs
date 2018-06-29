@@ -55,7 +55,7 @@ namespace AvionicsSystems
         [KSPField]
         public float maxAngle = 180.0f;
 
-        private MASFlightComputer.Variable range1, range2;
+        private Variable range1, range2;
         private bool currentState = false;
         private bool rangeMode = false;
 
@@ -144,7 +144,7 @@ namespace AvionicsSystems
         {
             if (rangeMode)
             {
-                currentState = newValue.Between(range1.DoubleValue(), range2.DoubleValue());
+                currentState = newValue.Between(range1.AsDouble(), range2.AsDouble());
             }
             else
             {

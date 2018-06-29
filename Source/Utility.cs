@@ -356,7 +356,7 @@ namespace AvionicsSystems
             double taAtRadius = orbit.TrueAnomalyAtRadius(radius);
             if (double.IsNaN(taAtRadius))
             {
-                Utility.LogStaticWarning("NextTimeToRadius(): taAtRadius is NaN");
+                return 0.0;
             }
             // GetUTForTrueAnomaly gives us a time for when that will occur.  I don't know
             // what parameter 2 is really supposed to do (wrapAfterSeconds), because after

@@ -274,7 +274,7 @@ namespace AvionicsSystems
         {
             if (cpt.rangeMode)
             {
-                newValue = (newValue.Between(cpt.range1.DoubleValue(), cpt.range2.DoubleValue())) ? 1.0 : 0.0;
+                newValue = (newValue.Between(cpt.range1.AsDouble(), cpt.range2.AsDouble())) ? 1.0 : 0.0;
             }
 
             bool newState = (newValue > 0.0);
@@ -330,7 +330,7 @@ namespace AvionicsSystems
             internal string name;
             internal GameObject textObject;
             internal MdVTextMesh textMesh;
-            internal MASFlightComputer.Variable range1, range2;
+            internal Variable range1, range2;
             internal bool rangeMode;
             internal bool currentState;
         };

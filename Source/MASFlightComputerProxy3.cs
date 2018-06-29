@@ -3022,6 +3022,7 @@ namespace AvionicsSystems
         /// The Time section provides access to the various timers in MAS (and KSP).
         /// </summary>
         #region Time
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the hour of the day (0-5.999... using the Kerbin clock, 0-23.999... using the
         /// Earth clock).  Fraction of the hour is retained.
@@ -3043,6 +3044,7 @@ namespace AvionicsSystems
             return vessel.missionTime;
         }
 
+        [MASProxy(Dependent=true)]
         /// <summary>
         /// Given a standard time in seconds, return the minutes of the hour (a
         /// number from 0 to 60).  Fractions of a minute are retained and negative
@@ -3055,6 +3057,7 @@ namespace AvionicsSystems
             return (Math.Abs(time) / 60.0) % 60.0;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Given a standard time in seconds, return the seconds of the minute (the
         /// number from 0 to 60).  Fractions of a second are retained and negative

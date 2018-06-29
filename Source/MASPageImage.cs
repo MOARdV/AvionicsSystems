@@ -40,7 +40,7 @@ namespace AvionicsSystems
         private MeshRenderer meshRenderer;
         private Color passiveColor = Color.white, activeColor = Color.white;
         private float currentBlend;
-        private MASFlightComputer.Variable colorRange1, colorRange2;
+        private Variable colorRange1, colorRange2;
         private readonly int colorField = Shader.PropertyToID("_Color");
         private Vector2 uvScale = Vector2.one;
         private Vector2 uvShift = Vector2.zero;
@@ -271,7 +271,7 @@ namespace AvionicsSystems
                     {
                         variableRegistrar.RegisterNumericVariable(colorVariableName, (double newValue) =>
                         {
-                            float newBlend = Mathf.InverseLerp((float)colorRange1.DoubleValue(), (float)colorRange2.DoubleValue(), (float)newValue);
+                            float newBlend = Mathf.InverseLerp((float)colorRange1.AsDouble(), (float)colorRange2.AsDouble(), (float)newValue);
 
                             if (!Mathf.Approximately(newBlend, currentBlend))
                             {
@@ -284,7 +284,7 @@ namespace AvionicsSystems
                     {
                         variableRegistrar.RegisterNumericVariable(colorVariableName, (double newValue) =>
                         {
-                            float newBlend = (newValue.Between(colorRange1.DoubleValue(), colorRange2.DoubleValue())) ? 1.0f : 0.0f;
+                            float newBlend = (newValue.Between(colorRange1.AsDouble(), colorRange2.AsDouble())) ? 1.0f : 0.0f;
                             if (newBlend != currentBlend)
                             {
                                 currentBlend = newBlend;

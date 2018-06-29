@@ -38,7 +38,7 @@ namespace AvionicsSystems
         private MeshRenderer meshRenderer;
         private RenderTexture cameraTexture;
         private Texture missingCameraTexture;
-        private MASFlightComputer.Variable cameraSelector;
+        private Variable cameraSelector;
         private MASCamera activeCamera = null;
         private MASFlightComputer comp;
         private bool pageEnabled = false;
@@ -216,7 +216,7 @@ namespace AvionicsSystems
                 // This can return null at startup when the VC hasn't had a chance
                 // to run.  Unfortunately, that means we have to call this callback
                 // every time the camera should be enabled.
-                MASCamera newCamera = comp.vc.FindCameraModule(cameraSelector.String());
+                MASCamera newCamera = comp.vc.FindCameraModule(cameraSelector.AsString());
                 if (activeCamera != null)
                 {
                     activeCamera.renderCallback -= ReadCamera;

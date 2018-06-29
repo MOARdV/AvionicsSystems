@@ -34,8 +34,8 @@ namespace AvionicsSystems
         private string soundVariableName = string.Empty;
         private float pitch = 1.0f;
         private float volume = 1.0f;
-        private MASFlightComputer.Variable range1, range2;
-        private MASFlightComputer.Variable soundVariable;
+        private Variable range1, range2;
+        private Variable soundVariable;
         private AudioSource audioSource;
         private readonly bool rangeMode = false;
         private readonly bool mustPlayOnce = false;
@@ -203,10 +203,10 @@ namespace AvionicsSystems
         {
             audioSource.Stop();
 
-            AudioClip clip = GameDatabase.Instance.GetAudioClip(soundVariable.String());
+            AudioClip clip = GameDatabase.Instance.GetAudioClip(soundVariable.AsString());
             if (clip == null)
             {
-                Utility.LogError(this, "Unable to load audio clip '{0}'.", soundVariable.String());
+                Utility.LogError(this, "Unable to load audio clip '{0}'.", soundVariable.AsString());
                 hasAudioClip = false;
             }
             else
@@ -280,7 +280,7 @@ namespace AvionicsSystems
         {
             if (rangeMode)
             {
-                newValue = (newValue.Between(range1.DoubleValue(), range2.DoubleValue())) ? 1.0 : 0.0;
+                newValue = (newValue.Between(range1.AsDouble(), range2.AsDouble())) ? 1.0 : 0.0;
             }
 
             bool newState = (newValue > 0.0);

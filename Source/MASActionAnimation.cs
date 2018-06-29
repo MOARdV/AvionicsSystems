@@ -41,7 +41,7 @@ namespace AvionicsSystems
         private MASFlightComputer comp;
         private Animation animation;
         private AnimationState animationState;
-        private MASFlightComputer.Variable range1, range2;
+        private Variable range1, range2;
         private readonly bool rateLimited = false;
         private readonly float speed = 0.0f;
         private float currentBlend = -0.01f;
@@ -110,7 +110,7 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void VariableCallback(double newValue)
         {
-            float newBlend = Mathf.InverseLerp((float)range1.DoubleValue(), (float)range2.DoubleValue(), (float)newValue);
+            float newBlend = Mathf.InverseLerp((float)range1.AsDouble(), (float)range2.AsDouble(), (float)newValue);
 
             if (!Mathf.Approximately(currentBlend, newBlend))
             {

@@ -58,9 +58,9 @@ namespace AvionicsSystems
 
         //--- Methods found in OrbitalManeuverCalculator
         // Actually, this requires 5 parameters, with the 5 an 'out' parameter.
-        private static readonly DynamicMethodDelegate DeltaVAndTimeForInterplanetaryTransferEjection;
+        private static readonly DynamicMethodDelegate<object> DeltaVAndTimeForInterplanetaryTransferEjection;
         // The 4th parameter is an 'out' parameter.
-        private static readonly DynamicMethodDelegate DeltaVAndTimeForHohmannTransfer;
+        private static readonly DynamicMethodDelegate<object> DeltaVAndTimeForHohmannTransfer;
         private static readonly Func<Orbit, double, double, Vector3d> DeltaVToChangeApoapsis;
         private static readonly Func<Orbit, double, double, Vector3d> DeltaVToChangePeriapsis;
         private static readonly Func<Orbit, double, Vector3d> DeltaVToCircularize;
@@ -1179,7 +1179,7 @@ namespace AvionicsSystems
                         double vac = (double)StatsStageDv.GetValue(vacStat);
                         double stagedV = UtilMath.LerpUnclamped(vac, atm, atmospheresLocal);
                         //Utility.LogMessage(this, "{0,2}: A = {1:0.0} - V = {2:0.0}, getter says A = {3:0.0} - V = {4:0.0}", i, atm, vac, atm1, vac1);
-                        
+
                         deltaV += stagedV;
 
                         if (i == (atmStatsLength - 1))
@@ -1572,7 +1572,7 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("deltaVAndTimeForHohmannTransfer");
                 }
-                DeltaVAndTimeForHohmannTransfer = DynamicMethodFactory.CreateFunc(deltaVAndTimeForHohmannTransfer);
+                DeltaVAndTimeForHohmannTransfer = DynamicMethodFactory.CreateFunc<object>(deltaVAndTimeForHohmannTransfer);
 
                 MethodInfo deltaVToMatchVelocities = mjOrbitalManeuverCalculator_t.GetMethod("DeltaVToMatchVelocities", BindingFlags.Static | BindingFlags.Public);
                 if (deltaVToMatchVelocities == null)
@@ -1586,7 +1586,7 @@ namespace AvionicsSystems
                 {
                     throw new NotImplementedException("deltaVAndTimeForInterplanetaryTransferEjection");
                 }
-                DeltaVAndTimeForInterplanetaryTransferEjection = DynamicMethodFactory.CreateFunc(deltaVAndTimeForInterplanetaryTransferEjection);
+                DeltaVAndTimeForInterplanetaryTransferEjection = DynamicMethodFactory.CreateFunc<object>(deltaVAndTimeForInterplanetaryTransferEjection);
 
                 //--- ReentrySimulation.Result
                 Type mjReentrySim_t = Utility.GetExportedType("MechJeb2", "MuMech.ReentrySimulation");

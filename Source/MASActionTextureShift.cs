@@ -40,7 +40,7 @@ namespace AvionicsSystems
         private Vector2[] baseUV;
         private Vector2 startUV;
         private Vector2 endUV;
-        private MASFlightComputer.Variable range1, range2;
+        private Variable range1, range2;
         private readonly bool blend;
         private readonly bool rangeMode;
         private bool currentState = false;
@@ -205,7 +205,7 @@ namespace AvionicsSystems
         {
             if (blend)
             {
-                float newBlend = Mathf.InverseLerp((float)range1.DoubleValue(), (float)range2.DoubleValue(), (float)newValue);
+                float newBlend = Mathf.InverseLerp((float)range1.AsDouble(), (float)range2.AsDouble(), (float)newValue);
 
                 if (!Mathf.Approximately(newBlend, currentBlend))
                 {
@@ -218,7 +218,7 @@ namespace AvionicsSystems
             {
                 if (rangeMode)
                 {
-                    newValue = (newValue.Between(range1.DoubleValue(), range2.DoubleValue())) ? 1.0 : 0.0;
+                    newValue = (newValue.Between(range1.AsDouble(), range2.AsDouble())) ? 1.0 : 0.0;
                 }
 
                 bool newState = (newValue > 0.0);

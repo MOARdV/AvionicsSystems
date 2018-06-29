@@ -153,6 +153,7 @@
     <Compile Include="Source\Parser\PrefixOperatorParselet.cs" />
     <Compile Include="Source\Parser\PrefixParselet.cs" />
     <Compile Include="Source\Utility.cs" />
+    <Compile Include="Source\Variable.cs" />
     <Compile Include="Source\VariableRegistrar.cs" />
   </ItemGroup>
   <ItemGroup>
