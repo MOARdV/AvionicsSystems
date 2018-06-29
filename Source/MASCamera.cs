@@ -51,19 +51,19 @@ namespace AvionicsSystems
         public readonly int cameraResolution;
 
         /// <summary>
-        /// Names of the shader properties.
-        /// </summary>
-        public string[] propertyName = new string[0];
-
-        /// <summary>
         /// MAS variables that update shader properties.
         /// </summary>
-        public string[] propertyValue = new string[0];
+        private string[] propertyValue = new string[0];
 
         /// <summary>
-        /// Callbacks for updating properties.
+        /// Map property names to shader ID numbers.
         /// </summary>
-        public Action<double>[] propertyCallback = new Action<double>[0];
+        private int[] propertyId = new int[0];
+
+        /// <summary>
+        /// The registrar that manages subscribing / unsubscribing.
+        /// </summary>
+        private VariableRegistrar variableRegistrar = new VariableRegistrar(null, null);
 
         /// <summary>
         /// The flight computer we registered with.
@@ -95,9 +95,8 @@ namespace AvionicsSystems
                     int listLength = propertiesList.Length;
                     if (listLength > 0)
                     {
-                        propertyName = new string[listLength];
+                        propertyId = new int[listLength];
                         propertyValue = new string[listLength];
-                        propertyCallback = new Action<double>[listLength];
 
                         for (int i = 0; i < listLength; ++i)
                         {
@@ -106,7 +105,7 @@ namespace AvionicsSystems
                             {
                                 throw new ArgumentOutOfRangeException("Incorrect number of parameters for property: requires 2, found " + pair.Length + " in property " + propertiesList[i] + " for camera MODE " + name);
                             }
-                            propertyName[i] = pair[0].Trim();
+                            propertyId[i] = Shader.PropertyToID(pair[0].Trim());
                             propertyValue[i] = pair[1].Trim();
                         }
                     }
@@ -142,26 +141,12 @@ namespace AvionicsSystems
             Utility.LastPowerOf2(ref cameraResolution, 64, 2048);
         }
 
+        /// <summary>
+        /// Unsubscribe from the property callbacks for this shader mode.
+        /// </summary>
         public void UnregisterShaderProperties()
         {
-            if (comp != null)
-            {
-                for (int i = 0; i < propertyValue.Length; ++i)
-                {
-                    comp.UnregisterNumericVariable(propertyValue[i], null, propertyCallback[i]);
-                }
-                comp = null;
-            }
-        }
-
-        /// <summary>
-        /// Callback to update the shader's properties.
-        /// </summary>
-        /// <param name="propertyId">The property ID to update.</param>
-        /// <param name="newValue">The new value for that property.</param>
-        private void PropertyCallback(int propertyId, double newValue)
-        {
-            postProcShader.SetFloat(propertyId, (float)newValue);
+            variableRegistrar.ReleaseResources();
         }
 
         /// <summary>
@@ -178,12 +163,12 @@ namespace AvionicsSystems
             UnregisterShaderProperties();
 
             this.comp = comp;
+            variableRegistrar = new VariableRegistrar(comp, null);
 
             for (int i = 0; i < propertyValue.Length; ++i)
             {
-                int propertyId = Shader.PropertyToID(propertyName[i]);
-                propertyCallback[i] = delegate(double a) { PropertyCallback(propertyId, a); };
-                comp.RegisterNumericVariable(propertyValue[i], null, propertyCallback[i]);
+                int id = propertyId[i];
+                variableRegistrar.RegisterNumericVariable(propertyValue[i], (double newValue) => postProcShader.SetFloat(id, (float)newValue));
             }
         }
     }
