@@ -484,7 +484,7 @@ end
 -- Conditional R9 softkey
 function MAS_Mfd2_Flight_R9Softkey(cameraId, panel5Mode)
 	
-	if panel5Mode == 2 then
+	if panel5Mode == 1 then
 		local modeCount = fc.GetCameraModeCount(cameraId)
 		
 		if modeCount > 1 then
@@ -504,7 +504,7 @@ end
 -- Conditional R10 softkey
 function MAS_Mfd2_Flight_R10Softkey(propId, panel5Mode)
 	
-	if panel5Mode == 2 then
+	if panel5Mode == 1 then
 		fc.AddPersistentWrapped(propId .. "-CameraSelect", 1, 0, fc.CameraCount())
 	end
 
