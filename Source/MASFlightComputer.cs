@@ -321,24 +321,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Unregister an object from receiving callback notifications.
-        /// </summary>
-        /// <param name="variableName"></param>
-        /// <param name="callback"></param>
-        internal void UnregisterNumericVariable(string variableName, InternalProp prop, Action<double> callback)
-        {
-            variableName = ConditionVariableName(variableName, prop);
-            if (canonicalVariableName.ContainsKey(variableName))
-            {
-                variables[canonicalVariableName[variableName]].UnregisterNumericCallback(callback);
-            }
-            else
-            {
-                Utility.LogError(this, "UnregisterNumericVariable: Did not find {0}", variableName);
-            }
-        }
-
-        /// <summary>
         /// Register a callback to notify the recipient that the variable has changed.
         /// </summary>
         /// <param name="variableName"></param>
@@ -794,11 +776,6 @@ namespace AvionicsSystems
                 GameEvents.onVesselChange.Remove(onVesselChanged);
                 GameEvents.onVesselCrewWasModified.Remove(onVesselChanged);
 
-                if (!string.IsNullOrEmpty(powerOnVariable))
-                {
-                    UnregisterNumericVariable(powerOnVariable, null, UpdatePowerOnVariable);
-                }
-
                 Utility.LogInfo(this, "{3} variables created: {0} constant variables, {1} lambda variables, {2} Lua variables, and {4} dependent variables",
                     constantVariableCount, nativeVariableCount, luaVariableCount, variables.Count, dependentVariableCount);
                 if (samplecount > 0)
@@ -1101,7 +1078,7 @@ namespace AvionicsSystems
 
                 if (!string.IsNullOrEmpty(powerOnVariable))
                 {
-                    RegisterNumericVariable(powerOnVariable, null, UpdatePowerOnVariable);
+                    RegisterNumericVariable(powerOnVariable, null, (double newValue) => powerOnValid = (newValue > 0.0));
                 }
 
                 // All the things are initialized ... Let's see if there's a startupScript
@@ -1149,11 +1126,6 @@ namespace AvionicsSystems
         #endregion
 
         #region Private Methods
-        private void UpdatePowerOnVariable(double newValue)
-        {
-            powerOnValid = (newValue > 0.0);
-        }
-
         private void UpdateLocalCrew()
         {
             // part.internalModel may be null if the craft is loaded but isn't the active/IVA craft
