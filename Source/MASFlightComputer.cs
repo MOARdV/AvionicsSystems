@@ -301,16 +301,14 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="variableName"></param>
         /// <param name="callback"></param>
-        internal void RegisterNumericVariable(string variableName, InternalProp prop, Action<double> callback)
+        internal Variable RegisterNumericVariable(string variableName, InternalProp prop, Action<double> callback)
         {
+            Variable v = null;
             try
             {
-                Variable v = GetVariable(variableName, prop);
+                v = GetVariable(variableName, prop);
 
-                if (v.mutable)
-                {
-                    v.numericCallbacks += callback;
-                }
+                v.RegisterNumericCallback(callback);
 
                 callback(v.AsDouble());
             }
@@ -318,6 +316,8 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Error parsing variable \"" + variableName + "\"", e);
             }
+
+            return v;
         }
 
         /// <summary>
@@ -330,7 +330,7 @@ namespace AvionicsSystems
             variableName = ConditionVariableName(variableName, prop);
             if (canonicalVariableName.ContainsKey(variableName))
             {
-                variables[canonicalVariableName[variableName]].numericCallbacks -= callback;
+                variables[canonicalVariableName[variableName]].UnregisterNumericCallback(callback);
             }
             else
             {

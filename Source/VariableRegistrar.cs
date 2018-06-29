@@ -35,13 +35,15 @@ namespace AvionicsSystems
     {
         private MASFlightComputer comp;
         private InternalProp internalProp;
-        private List<string> variableName = new List<string>();
+        private List<Variable> variable = new List<Variable>();
         private List<Action<double>> variableAction = new List<Action<double>>();
+        private bool isEnabled;
 
         internal VariableRegistrar(MASFlightComputer comp, InternalProp internalProp)
         {
             this.comp = comp;
             this.internalProp = internalProp;
+            isEnabled = true;
         }
 
         /// <summary>
@@ -52,9 +54,43 @@ namespace AvionicsSystems
         internal void RegisterNumericVariable(string name, Action<double> action)
         {
             name = name.Trim();
-            comp.RegisterNumericVariable(name, internalProp, action);
-            variableName.Add(name);
-            variableAction.Add(action);
+            Variable v = comp.RegisterNumericVariable(name, internalProp, action);
+            if (v != null)
+            {
+                variableAction.Add(action);
+                variable.Add(v);
+            }
+        }
+
+        /// <summary>
+        /// Enable or disable callback registration for the tracked variables.  Unregistering when a given
+        /// MASMonitor component is not visible, for instance, can have a big impact on performance.
+        /// </summary>
+        /// <param name="enable"></param>
+        internal void EnableCallbacks(bool enable)
+        {
+            if (isEnabled == enable)
+            {
+                Utility.LogMessage(this, "EnableCallbacks({0}) - I think I'm already in that mode", enable);
+            }
+            isEnabled = enable;
+
+            if (enable)
+            {
+                for (int i = variable.Count - 1; i >= 0; --i)
+                {
+                    variable[i].RegisterNumericCallback(variableAction[i]);
+                    // In case the value has updated since last time we were active:
+                    variableAction[i](variable[i].AsDouble());
+                }
+            }
+            else
+            {
+                for (int i = variable.Count - 1; i >= 0; --i)
+                {
+                    variable[i].UnregisterNumericCallback(variableAction[i]);
+                }
+            }
         }
 
         /// <summary>
@@ -62,14 +98,17 @@ namespace AvionicsSystems
         /// </summary>
         internal void ReleaseResources()
         {
-            for (int i = variableName.Count - 1; i >= 0; --i)
+            if (isEnabled)
             {
-                comp.UnregisterNumericVariable(variableName[i], internalProp, variableAction[i]);
+                for (int i = variable.Count - 1; i >= 0; --i)
+                {
+                    variable[i].UnregisterNumericCallback(variableAction[i]);
+                }
             }
 
             this.comp = null;
             this.internalProp = null;
-            variableName.Clear();
+            variable.Clear();
             variableAction.Clear();
         }
     }

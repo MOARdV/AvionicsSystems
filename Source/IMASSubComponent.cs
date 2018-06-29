@@ -42,7 +42,7 @@ namespace AvionicsSystems
                 string[] ranges = Utility.SplitVariableList(range);
                 if (ranges.Length != 2)
                 {
-                    throw new ArgumentException("Incorrect number of values in 'range' in "+ config.name +" " + name);
+                    throw new ArgumentException("Incorrect number of values in 'range' in " + config.name + " " + name);
                 }
                 range1 = comp.GetVariable(ranges[0], prop);
                 range2 = comp.GetVariable(ranges[1], prop);
@@ -68,7 +68,7 @@ namespace AvionicsSystems
             }
 
             bool newState = (newValue > 0.0);
-            
+
             if (newState != currentState)
             {
                 currentState = newState;
@@ -101,7 +101,7 @@ namespace AvionicsSystems
         /// is no longer displayed.</param>
         virtual public void SetPageActive(bool enable)
         {
-
+            variableRegistrar.EnableCallbacks(enable);
         }
 
         /// <summary>

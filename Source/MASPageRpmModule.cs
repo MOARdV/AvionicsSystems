@@ -51,7 +51,8 @@ namespace AvionicsSystems
         private bool coroutineActive;
         private MASFlightComputer comp;
 
-        internal MASPageRpmModule(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth):base(config, prop, comp)
+        internal MASPageRpmModule(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
+            : base(config, prop, comp)
         {
             this.comp = comp;
 
@@ -345,6 +346,7 @@ namespace AvionicsSystems
                     comp.StartCoroutine(QueryModule());
                 }
             }
+            variableRegistrar.EnableCallbacks(enable);
         }
 
         /// <summary>

@@ -71,7 +71,8 @@ namespace AvionicsSystems
             Waypoint
         }
 
-        internal MASPageNavBall(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth):base(config, prop, comp)
+        internal MASPageNavBall(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
+            : base(config, prop, comp)
         {
             this.comp = comp;
 
@@ -559,6 +560,7 @@ namespace AvionicsSystems
         public override void SetPageActive(bool enable)
         {
             navballCamera.enabled = enable;
+            variableRegistrar.EnableCallbacks(enable);
         }
 
         /// <summary>

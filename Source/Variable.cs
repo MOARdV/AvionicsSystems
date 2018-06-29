@@ -56,19 +56,11 @@ namespace AvionicsSystems
         /// <summary>
         /// List of numeric callback subscribers.
         /// </summary>
-        internal event Action<double> numericCallbacks;
+        private event Action<double> numericCallbacks;
         /// <summary>
         /// List of non-numeric callback subscribers.
         /// </summary>
         internal event Action changeCallbacks;
-        /// <summary>
-        /// Set to true if the variable was fetched using GetVariable.  If a variable
-        /// is fetched using this approach, then MAS must update it every fixed update,
-        /// since there's no way to know when it will be accessed.  Currently, this
-        /// issue only applies to the 'range' variables, although maybe it's time to
-        /// retire those, since they're a legacy of RasterPropMonitor.
-        /// </summary>
-        //internal bool gottenVariable;
         /// <summary>
         /// The type of variable (constant, lambda/delegate, Lua)
         /// </summary>
@@ -163,6 +155,38 @@ namespace AvionicsSystems
         /// Evaluate() conditionally updates the variable by calling the evaluator.
         /// </summary>
         internal abstract void Evaluate();
+
+        /// <summary>
+        /// Add a given callback to our callbacks list, provided our value can change.
+        /// </summary>
+        /// <param name="callback"></param>
+        public void RegisterNumericCallback(Action<double> callback)
+        {
+            if (mutable)
+            {
+                bool reevaluate = (numericCallbacks == null);
+
+                numericCallbacks += callback;
+
+                if (reevaluate)
+                {
+                    triggerUpdate = true;
+                    Evaluate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Remove a given callback from our callbacks list, provided our value can change.
+        /// </summary>
+        /// <param name="callback"></param>
+        public void UnregisterNumericCallback(Action<double> callback)
+        {
+            if (mutable)
+            {
+                numericCallbacks -= callback;
+            }
+        }
 
         /// <summary>
         /// Only a Dependent variable uses this method.  When a depedenent variable is created,
@@ -321,7 +345,7 @@ namespace AvionicsSystems
     public class DoubleVariable : Variable
     {
         Func<double> evaluator;
-        double doubleValue;
+        double doubleValue = float.MaxValue;
 
         /// <summary>
         /// Construct a constant-value double.

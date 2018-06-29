@@ -431,73 +431,73 @@ namespace AvionicsSystems
             {
                 case CodeGen.Parser.LuaToken.PLUS:
                     v = new DoubleVariable(operatorExpression.CanonicalName(), () => lhs.AsDouble() + rhs.AsDouble(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
-                    lhs.numericCallbacks += v.TriggerUpdate;
-                    rhs.numericCallbacks += v.TriggerUpdate;
+                    lhs.RegisterNumericCallback(v.TriggerUpdate);
+                    rhs.RegisterNumericCallback(v.TriggerUpdate);
                     break;
                 case CodeGen.Parser.LuaToken.MINUS:
                     v = new DoubleVariable(operatorExpression.CanonicalName(), () => lhs.AsDouble() - rhs.AsDouble(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
-                    lhs.numericCallbacks += v.TriggerUpdate;
-                    rhs.numericCallbacks += v.TriggerUpdate;
+                    lhs.RegisterNumericCallback(v.TriggerUpdate);
+                    rhs.RegisterNumericCallback(v.TriggerUpdate);
                     break;
                 case CodeGen.Parser.LuaToken.MULTIPLY:
                     v = new DoubleVariable(operatorExpression.CanonicalName(), () => lhs.AsDouble() * rhs.AsDouble(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
-                    lhs.numericCallbacks += v.TriggerUpdate;
-                    rhs.numericCallbacks += v.TriggerUpdate;
+                    lhs.RegisterNumericCallback(v.TriggerUpdate);
+                    rhs.RegisterNumericCallback(v.TriggerUpdate);
                     break;
                 case CodeGen.Parser.LuaToken.DIVIDE:
                     v = new DoubleVariable(operatorExpression.CanonicalName(), () => lhs.AsDouble() / rhs.AsDouble(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
-                    lhs.numericCallbacks += v.TriggerUpdate;
-                    rhs.numericCallbacks += v.TriggerUpdate;
+                    lhs.RegisterNumericCallback(v.TriggerUpdate);
+                    rhs.RegisterNumericCallback(v.TriggerUpdate);
                     break;
                 case CodeGen.Parser.LuaToken.MODULO:
                     v = new DoubleVariable(operatorExpression.CanonicalName(), () => lhs.AsDouble() % rhs.AsDouble(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
-                    lhs.numericCallbacks += v.TriggerUpdate;
-                    rhs.numericCallbacks += v.TriggerUpdate;
+                    lhs.RegisterNumericCallback(v.TriggerUpdate);
+                    rhs.RegisterNumericCallback(v.TriggerUpdate);
                     break;
                 case CodeGen.Parser.LuaToken.EXPONENT:
                     v = new DoubleVariable(operatorExpression.CanonicalName(), () => Math.Pow(lhs.AsDouble(), rhs.AsDouble()), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
-                    lhs.numericCallbacks += v.TriggerUpdate;
-                    rhs.numericCallbacks += v.TriggerUpdate;
+                    lhs.RegisterNumericCallback(v.TriggerUpdate);
+                    rhs.RegisterNumericCallback(v.TriggerUpdate);
                     break;
                 case CodeGen.Parser.LuaToken.LESS_THAN:
                     v = new BooleanVariable(operatorExpression.CanonicalName(), () => lhs.AsDouble() < rhs.AsDouble(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
-                    lhs.numericCallbacks += v.TriggerUpdate;
-                    rhs.numericCallbacks += v.TriggerUpdate;
+                    lhs.RegisterNumericCallback(v.TriggerUpdate);
+                    rhs.RegisterNumericCallback(v.TriggerUpdate);
                     break;
                 case CodeGen.Parser.LuaToken.GREATER_THAN:
                     v = new BooleanVariable(operatorExpression.CanonicalName(), () => lhs.AsDouble() > rhs.AsDouble(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
-                    lhs.numericCallbacks += v.TriggerUpdate;
-                    rhs.numericCallbacks += v.TriggerUpdate;
+                    lhs.RegisterNumericCallback(v.TriggerUpdate);
+                    rhs.RegisterNumericCallback(v.TriggerUpdate);
                     break;
                 case CodeGen.Parser.LuaToken.EQUALITY:
                     v = new BooleanVariable(operatorExpression.CanonicalName(), () => lhs.AsDouble() == rhs.AsDouble(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
-                    lhs.numericCallbacks += v.TriggerUpdate;
-                    rhs.numericCallbacks += v.TriggerUpdate;
+                    lhs.RegisterNumericCallback(v.TriggerUpdate);
+                    rhs.RegisterNumericCallback(v.TriggerUpdate);
                     break;
                 case CodeGen.Parser.LuaToken.INEQUALITY:
                     v = new BooleanVariable(operatorExpression.CanonicalName(), () => lhs.AsDouble() != rhs.AsDouble(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
-                    lhs.numericCallbacks += v.TriggerUpdate;
-                    rhs.numericCallbacks += v.TriggerUpdate;
+                    lhs.RegisterNumericCallback(v.TriggerUpdate);
+                    rhs.RegisterNumericCallback(v.TriggerUpdate);
                     break;
                 case CodeGen.Parser.LuaToken.LESS_EQUAL:
                     v = new BooleanVariable(operatorExpression.CanonicalName(), () => lhs.AsDouble() <= rhs.AsDouble(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
-                    lhs.numericCallbacks += v.TriggerUpdate;
-                    rhs.numericCallbacks += v.TriggerUpdate;
+                    lhs.RegisterNumericCallback(v.TriggerUpdate);
+                    rhs.RegisterNumericCallback(v.TriggerUpdate);
                     break;
                 case CodeGen.Parser.LuaToken.GREATER_EQUAL:
                     v = new BooleanVariable(operatorExpression.CanonicalName(), () => lhs.AsDouble() >= rhs.AsDouble(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
-                    lhs.numericCallbacks += v.TriggerUpdate;
-                    rhs.numericCallbacks += v.TriggerUpdate;
+                    lhs.RegisterNumericCallback(v.TriggerUpdate);
+                    rhs.RegisterNumericCallback(v.TriggerUpdate);
                     break;
                 case CodeGen.Parser.LuaToken.AND:
                     v = new BooleanVariable(operatorExpression.CanonicalName(), () => lhs.AsBool() && rhs.AsBool(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
-                    lhs.numericCallbacks += v.TriggerUpdate;
-                    rhs.numericCallbacks += v.TriggerUpdate;
+                    lhs.RegisterNumericCallback(v.TriggerUpdate);
+                    rhs.RegisterNumericCallback(v.TriggerUpdate);
                     break;
                 case CodeGen.Parser.LuaToken.OR:
                     v = new BooleanVariable(operatorExpression.CanonicalName(), () => lhs.AsBool() || rhs.AsBool(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
-                    lhs.numericCallbacks += v.TriggerUpdate;
-                    rhs.numericCallbacks += v.TriggerUpdate;
+                    lhs.RegisterNumericCallback(v.TriggerUpdate);
+                    rhs.RegisterNumericCallback(v.TriggerUpdate);
                     break;
                 default:
 #if PLENTIFUL_LOGGING
@@ -531,7 +531,7 @@ namespace AvionicsSystems
                     if (v != null)
                     {
                         Variable newVar = new DoubleVariable(prefixExpression.CanonicalName(), () => -v.AsDouble(), true, true, Variable.VariableType.Dependent);
-                        v.numericCallbacks += newVar.TriggerUpdate;
+                        v.RegisterNumericCallback(newVar.TriggerUpdate);
                         return newVar;
                     }
                 }
@@ -542,7 +542,7 @@ namespace AvionicsSystems
                 if (v != null)
                 {
                     Variable newVar = new BooleanVariable(prefixExpression.CanonicalName(), () => !v.AsBool(), true, true, Variable.VariableType.Dependent);
-                    v.numericCallbacks += newVar.TriggerUpdate;
+                    v.RegisterNumericCallback(newVar.TriggerUpdate);
                     return newVar;
                 }
 
@@ -632,7 +632,7 @@ namespace AvionicsSystems
 
                 if (dependent)
                 {
-                    parms[0].numericCallbacks += newVar.TriggerUpdate;
+                    parms[0].RegisterNumericCallback(newVar.TriggerUpdate);
                 }
                 return newVar;
             }
@@ -646,6 +646,7 @@ namespace AvionicsSystems
                         dependent = true;
                     }
                 }
+
                 Variable newVar;
                 if (methodReturn == typeof(double))
                 {
@@ -657,9 +658,16 @@ namespace AvionicsSystems
                     Func<object, string, object> dm = DynamicMethodFactory.CreateDynFunc<object, string, object>(method);
                     newVar = new GenericVariable(canonical, () => dm(tableInstance, parms[0].AsString()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
                 }
-                if (persistent && dependent)
+                if (dependent)
                 {
-                    RegisterPersistentNotice(parms[0].name, newVar.TriggerUpdate);
+                    if (persistent)
+                    {
+                        RegisterPersistentNotice(parms[0].name, newVar.TriggerUpdate);
+                    }
+                    else
+                    {
+                        parms[0].RegisterNumericCallback(newVar.TriggerUpdate);
+                    }
                 }
                 return newVar;
             }
@@ -678,7 +686,7 @@ namespace AvionicsSystems
                 }
                 if (dependent)
                 {
-                    parms[0].numericCallbacks += newVar.TriggerUpdate;
+                    parms[0].RegisterNumericCallback(newVar.TriggerUpdate);
                 }
                 return newVar;
             }
@@ -733,8 +741,8 @@ namespace AvionicsSystems
                 }
                 if (dependent)
                 {
-                    parms[0].numericCallbacks += newVar.TriggerUpdate;
-                    parms[1].numericCallbacks += newVar.TriggerUpdate;
+                    parms[0].RegisterNumericCallback(newVar.TriggerUpdate);
+                    parms[1].RegisterNumericCallback(newVar.TriggerUpdate);
                 }
                 return newVar;
             }
@@ -748,8 +756,8 @@ namespace AvionicsSystems
                 Variable newVar = new GenericVariable(canonical, () => dm(tableInstance, parms[0].AsBool(), parms[1].AsDouble()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
                 if (dependent)
                 {
-                    parms[0].numericCallbacks += newVar.TriggerUpdate;
-                    parms[1].numericCallbacks += newVar.TriggerUpdate;
+                    parms[0].RegisterNumericCallback(newVar.TriggerUpdate);
+                    parms[1].RegisterNumericCallback(newVar.TriggerUpdate);
                 }
                 return newVar;
             }
@@ -763,8 +771,8 @@ namespace AvionicsSystems
                 Variable newVar = new GenericVariable(canonical, () => dm(tableInstance, parms[0].AsDouble(), parms[1].AsBool()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
                 if (dependent)
                 {
-                    parms[0].numericCallbacks += newVar.TriggerUpdate;
-                    parms[1].numericCallbacks += newVar.TriggerUpdate;
+                    parms[0].RegisterNumericCallback(newVar.TriggerUpdate);
+                    parms[1].RegisterNumericCallback(newVar.TriggerUpdate);
                 }
                 return newVar;
             }
@@ -812,9 +820,9 @@ namespace AvionicsSystems
 
                 if (dependent)
                 {
-                    parms[0].numericCallbacks += newVar.TriggerUpdate;
-                    parms[1].numericCallbacks += newVar.TriggerUpdate;
-                    parms[2].numericCallbacks += newVar.TriggerUpdate;
+                    parms[0].RegisterNumericCallback(newVar.TriggerUpdate);
+                    parms[1].RegisterNumericCallback(newVar.TriggerUpdate);
+                    parms[2].RegisterNumericCallback(newVar.TriggerUpdate);
                 }
 
                 return newVar;
@@ -960,10 +968,6 @@ namespace AvionicsSystems
                         // Create the array here, so it's not a temporary allocation every time this variable is
                         // evaluated.
                         object[] paramList = new object[numArgs];
-                        if (dependent)
-                        {
-                            Utility.LogMessage(this, "Dependent variable");
-                        }
 
                         Variable newVar;
                         if (method.ReturnType == typeof(double))
@@ -1001,7 +1005,7 @@ namespace AvionicsSystems
                         {
                             for (int i = 0; i < numArgs; ++i)
                             {
-                                parms[i].numericCallbacks += newVar.TriggerUpdate;
+                                parms[i].RegisterNumericCallback(newVar.TriggerUpdate);
                             }
                         }
                         return newVar;

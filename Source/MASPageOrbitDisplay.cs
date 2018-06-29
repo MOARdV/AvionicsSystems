@@ -1434,6 +1434,7 @@ namespace AvionicsSystems
         public override void SetPageActive(bool enable)
         {
             orbitCamera.enabled = enable;
+            variableRegistrar.EnableCallbacks(enable);
         }
 
         /// <summary>

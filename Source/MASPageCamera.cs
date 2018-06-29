@@ -309,6 +309,7 @@ namespace AvionicsSystems
                     activeCamera.renderCallback -= ReadCamera;
                 }
             }
+            variableRegistrar.EnableCallbacks(enable);
         }
 
         /// <summary>
