@@ -55,9 +55,8 @@ namespace AvionicsSystems
         [KSPField]
         public float maxAngle = 180.0f;
 
-        private Variable range1, range2;
+        private VariableRegistrar variableRegistrar;
         private bool currentState = false;
-        private bool rangeMode = false;
 
         private Quaternion lastOrientation;
 
@@ -69,28 +68,13 @@ namespace AvionicsSystems
             MASFlightComputer comp = MASFlightComputer.Instance(internalProp.part);
             if (comp == null)
             {
-                throw new ArgumentNullException("Unable to find ASFlightComputer in part - please check part configs");
+                throw new ArgumentNullException("Unable to find MASFlightComputer in part - please check part configs");
             }
+            variableRegistrar = new VariableRegistrar(comp, null);
 
             lastOrientation = navBall.rotation;
 
-            if (!string.IsNullOrEmpty(range))
-            {
-                string[] ranges = Utility.SplitVariableList(range);
-                if (ranges.Length != 2)
-                {
-                    throw new ArgumentException("Incorrect number of values in 'range' in MASNavBall " + name);
-                }
-                range1 = comp.GetVariable(ranges[0], null);
-                range2 = comp.GetVariable(ranges[1], null);
-                rangeMode = true;
-            }
-            else
-            {
-                rangeMode = false;
-            }
-
-            comp.RegisterNumericVariable(variable, null, VariableCallback);
+            variableRegistrar.RegisterNumericVariable(variable, (double newValue) => currentState = (newValue > 0.0));
         }
 
         /// <summary>
@@ -103,8 +87,7 @@ namespace AvionicsSystems
                 // I've seen this get destroyed when the game was exiting, so
                 // there was an instance floating around somewhere for some
                 // reason.  So try/catch to suppress exceptions.
-                MASFlightComputer comp = MASFlightComputer.Instance(internalProp.part);
-                comp.UnregisterNumericVariable(variable, null, VariableCallback);
+                variableRegistrar.ReleaseResources();
             }
             catch { }
         }
@@ -133,22 +116,6 @@ namespace AvionicsSystems
                 {
                     lastOrientation = post;
                 }
-            }
-        }
-
-        /// <summary>
-        /// Handle a changed value
-        /// </summary>
-        /// <param name="newValue"></param>
-        private void VariableCallback(double newValue)
-        {
-            if (rangeMode)
-            {
-                currentState = newValue.Between(range1.AsDouble(), range2.AsDouble());
-            }
-            else
-            {
-                currentState = (newValue > 0.0);
             }
         }
     }
