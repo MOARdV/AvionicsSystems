@@ -47,17 +47,17 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Register a numeric variable callback.
+        /// Register a variable-changed callback.
         /// </summary>
         /// <param name="name">The name of the variable.</param>
         /// <param name="action">The action to trigger.</param>
         /// <param name="initializeNow">Trigger the callback before this method returns (okay for normal use,
         /// may be a problem if the Variable that's returned needs to be initialized first.</param>
         /// <returns>The Variable created (or null if it failed for some reason).</returns>
-        internal Variable RegisterNumericVariable(string name, Action<double> action, bool initializeNow = true)
+        internal Variable RegisterVariableChangeCallback(string name, Action<double> action, bool initializeNow = true)
         {
             name = name.Trim();
-            Variable v = comp.RegisterNumericVariable(name, internalProp, action, initializeNow);
+            Variable v = comp.RegisterVariableChangeCallback(name, internalProp, action, initializeNow);
             if (v != null)
             {
                 variableAction.Add(action);
@@ -75,7 +75,7 @@ namespace AvionicsSystems
         {
             if (isEnabled == enable)
             {
-                Utility.LogMessage(this, "EnableCallbacks({0}) - I think I'm already in that mode", enable);
+                Utility.LogMessage(this, "EnableCallbacks({0}) - I think I'm already in that mode (this is not a bug).", enable);
             }
             isEnabled = enable;
 

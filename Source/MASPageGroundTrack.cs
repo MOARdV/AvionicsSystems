@@ -147,7 +147,7 @@ namespace AvionicsSystems
                         throw new ArgumentException("vesselColor does not contain 3 or 4 values in GROUND_TRACK " + name);
                     }
 
-                    variableRegistrar.RegisterNumericVariable(vesselColors[0], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(vesselColors[0], (double newValue) =>
                     {
                         vesselColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer[0].startColor = vesselColor;
@@ -155,7 +155,7 @@ namespace AvionicsSystems
                         lineRenderer[1].startColor = vesselColor;
                         lineRenderer[1].endColor = vesselColor;
                     });
-                    variableRegistrar.RegisterNumericVariable(vesselColors[1], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(vesselColors[1], (double newValue) =>
                     {
                         vesselColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer[0].startColor = vesselColor;
@@ -163,7 +163,7 @@ namespace AvionicsSystems
                         lineRenderer[1].startColor = vesselColor;
                         lineRenderer[1].endColor = vesselColor;
                     });
-                    variableRegistrar.RegisterNumericVariable(vesselColors[2], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(vesselColors[2], (double newValue) =>
                     {
                         vesselColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer[0].startColor = vesselColor;
@@ -174,7 +174,7 @@ namespace AvionicsSystems
 
                     if (vesselColors.Length == 4)
                     {
-                        variableRegistrar.RegisterNumericVariable(vesselColors[3], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(vesselColors[3], (double newValue) =>
                         {
                             vesselColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             lineRenderer[0].startColor = vesselColor;
@@ -214,7 +214,7 @@ namespace AvionicsSystems
                         throw new ArgumentException("maneuverColor does not contain 3 or 4 values in GROUND_TRACK " + name);
                     }
 
-                    variableRegistrar.RegisterNumericVariable(maneuverColors[0], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(maneuverColors[0], (double newValue) =>
                     {
                         maneuverColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer[4].startColor = maneuverColor;
@@ -222,7 +222,7 @@ namespace AvionicsSystems
                         lineRenderer[5].startColor = maneuverColor;
                         lineRenderer[5].endColor = maneuverColor;
                     });
-                    variableRegistrar.RegisterNumericVariable(maneuverColors[1], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(maneuverColors[1], (double newValue) =>
                     {
                         maneuverColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer[4].startColor = maneuverColor;
@@ -230,7 +230,7 @@ namespace AvionicsSystems
                         lineRenderer[5].startColor = maneuverColor;
                         lineRenderer[5].endColor = maneuverColor;
                     });
-                    variableRegistrar.RegisterNumericVariable(maneuverColors[2], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(maneuverColors[2], (double newValue) =>
                     {
                         maneuverColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer[4].startColor = maneuverColor;
@@ -241,7 +241,7 @@ namespace AvionicsSystems
 
                     if (maneuverColors.Length == 4)
                     {
-                        variableRegistrar.RegisterNumericVariable(maneuverColors[3], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(maneuverColors[3], (double newValue) =>
                         {
                             maneuverColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             lineRenderer[4].startColor = maneuverColor;
@@ -281,7 +281,7 @@ namespace AvionicsSystems
                         throw new ArgumentException("targetColor does not contain 3 or 4 values in GROUND_TRACK " + name);
                     }
 
-                    variableRegistrar.RegisterNumericVariable(targetColors[0], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(targetColors[0], (double newValue) =>
                     {
                         targetColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer[2].startColor = targetColor;
@@ -289,7 +289,7 @@ namespace AvionicsSystems
                         lineRenderer[3].startColor = targetColor;
                         lineRenderer[3].endColor = targetColor;
                     });
-                    variableRegistrar.RegisterNumericVariable(targetColors[1], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(targetColors[1], (double newValue) =>
                     {
                         targetColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer[2].startColor = targetColor;
@@ -297,7 +297,7 @@ namespace AvionicsSystems
                         lineRenderer[3].startColor = targetColor;
                         lineRenderer[3].endColor = targetColor;
                     });
-                    variableRegistrar.RegisterNumericVariable(targetColors[2], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(targetColors[2], (double newValue) =>
                     {
                         targetColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer[2].startColor = targetColor;
@@ -308,7 +308,7 @@ namespace AvionicsSystems
 
                     if (targetColors.Length == 4)
                     {
-                        variableRegistrar.RegisterNumericVariable(targetColors[3], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(targetColors[3], (double newValue) =>
                         {
                             targetColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             lineRenderer[2].startColor = targetColor;
@@ -336,7 +336,7 @@ namespace AvionicsSystems
             }
             else
             {
-                variableRegistrar.RegisterNumericVariable(startLongitudeString, (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(startLongitudeString, (double newValue) =>
                 {
                     float longitude = (float)Utility.NormalizeLongitude(newValue);
                     if (!Mathf.Approximately(longitude, startLongitude))
@@ -352,7 +352,7 @@ namespace AvionicsSystems
             {
                 // Disable the mesh if we're in variable mode
                 SetAllActive(false);
-                variableRegistrar.RegisterNumericVariable(variableName, (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(variableName, (double newValue) =>
                 {
                     if (EvaluateVariable(newValue))
                     {

@@ -104,7 +104,7 @@ namespace AvionicsSystems
             yield return MASConfig.waitForFixedUpdate;
 
             this.transform.localScale = startScale;
-            variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
+            variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
 
             yield return null;
         }

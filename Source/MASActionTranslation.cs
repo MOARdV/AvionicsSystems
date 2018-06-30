@@ -112,7 +112,7 @@ namespace AvionicsSystems
             }
             else
             {
-                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
+                variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
             }
         }
 

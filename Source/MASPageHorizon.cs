@@ -203,13 +203,13 @@ namespace AvionicsSystems
             imageMaterial.SetVector("_ClipCoords", clipCoords);
             RenderPage(false);
 
-            variableRegistrar.RegisterNumericVariable(pitchName, PitchCallback);
-            variableRegistrar.RegisterNumericVariable(rollName, RollCallback);
+            variableRegistrar.RegisterVariableChangeCallback(pitchName, PitchCallback);
+            variableRegistrar.RegisterVariableChangeCallback(rollName, RollCallback);
             if (!string.IsNullOrEmpty(variableName))
             {
                 // Disable the mesh if we're in variable mode
                 imageObject.SetActive(false);
-                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
+                variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
             }
             else
             {

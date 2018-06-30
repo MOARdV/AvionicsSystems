@@ -116,13 +116,13 @@ namespace AvionicsSystems
                     throw new ArgumentException("Invalid number of values for 'size' in IMAGE " + name);
                 }
 
-                variableRegistrar.RegisterNumericVariable(sizes[0], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(sizes[0], (double newValue) =>
                 {
                     size.x = (float)newValue;
                     UpdateVertices();
                 });
 
-                variableRegistrar.RegisterNumericVariable(sizes[1], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(sizes[1], (double newValue) =>
                 {
                     size.y = (float)newValue;
                     UpdateVertices();
@@ -148,13 +148,13 @@ namespace AvionicsSystems
                     throw new ArgumentException("Invalid number of values for 'position' in IMAGE " + name);
                 }
 
-                variableRegistrar.RegisterNumericVariable(pos[0], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(pos[0], (double newValue) =>
                 {
                     position.x = (float)newValue;
                     imageObject.transform.position = imageOrigin + new Vector3(position.x + rotationOffset.x + size.x * 0.5f, -(position.y + rotationOffset.y + size.y * 0.5f), 0.0f);
                 });
 
-                variableRegistrar.RegisterNumericVariable(pos[1], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(pos[1], (double newValue) =>
                 {
                     position.y = (float)newValue;
                     imageObject.transform.position = imageOrigin + new Vector3(position.x + rotationOffset.x + size.x * 0.5f, -(position.y + rotationOffset.y + size.y * 0.5f), 0.0f);
@@ -211,19 +211,19 @@ namespace AvionicsSystems
                         throw new ArgumentException("'passiveColor' does not contain 3 or 4 values in IMAGE " + name);
                     }
 
-                    variableRegistrar.RegisterNumericVariable(startColors[0], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(startColors[0], (double newValue) =>
                     {
                         passiveColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         UpdateColor();
                     });
 
-                    variableRegistrar.RegisterNumericVariable(startColors[1], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(startColors[1], (double newValue) =>
                     {
                         passiveColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         UpdateColor();
                     });
 
-                    variableRegistrar.RegisterNumericVariable(startColors[2], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(startColors[2], (double newValue) =>
                     {
                         passiveColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         UpdateColor();
@@ -231,7 +231,7 @@ namespace AvionicsSystems
 
                     if (startColors.Length == 4)
                     {
-                        variableRegistrar.RegisterNumericVariable(startColors[3], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(startColors[3], (double newValue) =>
                         {
                             passiveColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             UpdateColor();
@@ -269,7 +269,7 @@ namespace AvionicsSystems
                     bool colorBlend = false;
                     if (config.TryGetValue("colorBlend", ref colorBlend) && colorBlend == true)
                     {
-                        variableRegistrar.RegisterNumericVariable(colorVariableName, (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(colorVariableName, (double newValue) =>
                         {
                             float newBlend = Mathf.InverseLerp((float)colorRange1.AsDouble(), (float)colorRange2.AsDouble(), (float)newValue);
 
@@ -282,7 +282,7 @@ namespace AvionicsSystems
                     }
                     else
                     {
-                        variableRegistrar.RegisterNumericVariable(colorVariableName, (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(colorVariableName, (double newValue) =>
                         {
                             float newBlend = (newValue.Between(colorRange1.AsDouble(), colorRange2.AsDouble())) ? 1.0f : 0.0f;
                             if (newBlend != currentBlend)
@@ -295,7 +295,7 @@ namespace AvionicsSystems
                 }
                 else
                 {
-                    variableRegistrar.RegisterNumericVariable(colorVariableName, (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(colorVariableName, (double newValue) =>
                         {
                             float newBlend = (newValue > 0.0) ? 1.0f : 0.0f;
                             if (newBlend != currentBlend)
@@ -319,19 +319,19 @@ namespace AvionicsSystems
                         throw new ArgumentException("'activeColor' does not contain 3 or 4 values in IMAGE " + name);
                     }
 
-                    variableRegistrar.RegisterNumericVariable(activeColors[0], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(activeColors[0], (double newValue) =>
                     {
                         activeColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         UpdateColor();
                     });
 
-                    variableRegistrar.RegisterNumericVariable(activeColors[1], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(activeColors[1], (double newValue) =>
                     {
                         activeColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         UpdateColor();
                     });
 
-                    variableRegistrar.RegisterNumericVariable(activeColors[2], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(activeColors[2], (double newValue) =>
                     {
                         activeColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         UpdateColor();
@@ -339,7 +339,7 @@ namespace AvionicsSystems
 
                     if (activeColors.Length == 4)
                     {
-                        variableRegistrar.RegisterNumericVariable(activeColors[3], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(activeColors[3], (double newValue) =>
                         {
                             activeColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             UpdateColor();
@@ -360,7 +360,7 @@ namespace AvionicsSystems
                     throw new ArgumentException("'tiling' does not contain 2 values in IMAGE " + name);
                 }
 
-                variableRegistrar.RegisterNumericVariable(uvTile[0], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(uvTile[0], (double newValue) =>
                 {
                     float rescale = Mathf.Max((float)newValue, 0.0f);
                     if (!Mathf.Approximately(rescale, uvScale.x))
@@ -370,7 +370,7 @@ namespace AvionicsSystems
                     }
                 });
 
-                variableRegistrar.RegisterNumericVariable(uvTile[1], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(uvTile[1], (double newValue) =>
                 {
                     float rescale = Mathf.Max((float)newValue, 0.0f);
                     if (!Mathf.Approximately(rescale, uvScale.y))
@@ -390,14 +390,14 @@ namespace AvionicsSystems
                     throw new ArgumentException("'uvShift' does not contain 2 values in IMAGE " + name);
                 }
 
-                variableRegistrar.RegisterNumericVariable(uvShifting[0], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(uvShifting[0], (double newValue) =>
                 {
                     float reshift = (float)newValue;
 
                     uvShift.x = reshift;
                     imageMaterial.SetTextureOffset("_MainTex", uvShift);
                 });
-                variableRegistrar.RegisterNumericVariable(uvShifting[1], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(uvShifting[1], (double newValue) =>
                 {
                     float reshift = (float)newValue;
 
@@ -410,7 +410,7 @@ namespace AvionicsSystems
             {
                 // Disable the mesh if we're in variable mode
                 imageObject.SetActive(false);
-                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
+                variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
             }
             else
             {
@@ -419,7 +419,7 @@ namespace AvionicsSystems
 
             if (!string.IsNullOrEmpty(rotationVariableName))
             {
-                variableRegistrar.RegisterNumericVariable(rotationVariableName, RotationCallback);
+                variableRegistrar.RegisterVariableChangeCallback(rotationVariableName, RotationCallback);
             }
         }
 

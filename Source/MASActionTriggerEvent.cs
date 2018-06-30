@@ -82,7 +82,7 @@ namespace AvionicsSystems
             }
 
             this.comp = comp;
-            comp.RegisterNumericVariable(variableName, prop, VariableCallback);
+            comp.RegisterVariableChangeCallback(variableName, prop, VariableCallback);
         }
 
         /// <summary>

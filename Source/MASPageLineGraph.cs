@@ -156,21 +156,21 @@ namespace AvionicsSystems
                         throw new ArgumentException("borderColor does not contain 3 or 4 values in LINE_GRAPH " + name);
                     }
 
-                    variableRegistrar.RegisterNumericVariable(startColors[0], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(startColors[0], (double newValue) =>
                     {
                         borderColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         borderRenderer.startColor = borderColor;
                         borderRenderer.endColor = borderColor;
                     });
 
-                    variableRegistrar.RegisterNumericVariable(startColors[1], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(startColors[1], (double newValue) =>
                     {
                         borderColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         borderRenderer.startColor = borderColor;
                         borderRenderer.endColor = borderColor;
                     });
 
-                    variableRegistrar.RegisterNumericVariable(startColors[2], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(startColors[2], (double newValue) =>
                     {
                         borderColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         borderRenderer.startColor = borderColor;
@@ -179,7 +179,7 @@ namespace AvionicsSystems
 
                     if (startColors.Length == 4)
                     {
-                        variableRegistrar.RegisterNumericVariable(startColors[3], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(startColors[3], (double newValue) =>
                         {
                             borderColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             borderRenderer.startColor = borderColor;
@@ -241,21 +241,21 @@ namespace AvionicsSystems
                         throw new ArgumentException("sourceColor does not contain 3 or 4 values in LINE_GRAPH " + name);
                     }
 
-                    variableRegistrar.RegisterNumericVariable(sourceColors[0], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(sourceColors[0], (double newValue) =>
                     {
                         sourceColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.startColor = sourceColor;
                         lineRenderer.endColor = sourceColor;
                     });
 
-                    variableRegistrar.RegisterNumericVariable(sourceColors[1], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(sourceColors[1], (double newValue) =>
                     {
                         sourceColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.startColor = sourceColor;
                         lineRenderer.endColor = sourceColor;
                     });
 
-                    variableRegistrar.RegisterNumericVariable(sourceColors[2], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(sourceColors[2], (double newValue) =>
                     {
                         sourceColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.startColor = sourceColor;
@@ -264,7 +264,7 @@ namespace AvionicsSystems
 
                     if (sourceColors.Length == 4)
                     {
-                        variableRegistrar.RegisterNumericVariable(sourceColors[3], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(sourceColors[3], (double newValue) =>
                         {
                             sourceColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             lineRenderer.startColor = sourceColor;
@@ -286,7 +286,7 @@ namespace AvionicsSystems
                     borderObject.SetActive(false);
                 }
                 graphObject.SetActive(false);
-                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
+                variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
             }
             else
             {

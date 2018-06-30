@@ -100,8 +100,8 @@ namespace AvionicsSystems
                 {
                     throw new ArgumentException("Incorrect number of values in 'range' in ROTATION " + name);
                 }
-                variableRegistrar.RegisterNumericVariable(ranges[0], (double newValue) => range1 = (float)newValue);
-                variableRegistrar.RegisterNumericVariable(ranges[1], (double newValue) => range2 = (float)newValue);
+                variableRegistrar.RegisterVariableChangeCallback(ranges[0], (double newValue) => range1 = (float)newValue);
+                variableRegistrar.RegisterVariableChangeCallback(ranges[1], (double newValue) => range2 = (float)newValue);
                 rangeMode = true;
 
                 blend = false;
@@ -197,7 +197,7 @@ namespace AvionicsSystems
             }
             else
             {
-                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
+                variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
             }
         }
 

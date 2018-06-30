@@ -187,21 +187,21 @@ namespace AvionicsSystems
                         throw new ArgumentException("borderColor does not contain 3 or 4 values in VERTICAL_BAR " + name);
                     }
 
-                    variableRegistrar.RegisterNumericVariable(startColors[0], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(startColors[0], (double newValue) =>
                     {
                         borderColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.startColor = borderColor;
                         lineRenderer.endColor = borderColor;
                     });
 
-                    variableRegistrar.RegisterNumericVariable(startColors[1], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(startColors[1], (double newValue) =>
                     {
                         borderColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.startColor = borderColor;
                         lineRenderer.endColor = borderColor;
                     });
 
-                    variableRegistrar.RegisterNumericVariable(startColors[2], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(startColors[2], (double newValue) =>
                     {
                         borderColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         lineRenderer.startColor = borderColor;
@@ -210,7 +210,7 @@ namespace AvionicsSystems
 
                     if (startColors.Length == 4)
                     {
-                        variableRegistrar.RegisterNumericVariable(startColors[3], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(startColors[3], (double newValue) =>
                         {
                             borderColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             lineRenderer.startColor = borderColor;
@@ -252,14 +252,14 @@ namespace AvionicsSystems
 
                 if (borderWidth > 0.0f)
                 {
-                    variableRegistrar.RegisterNumericVariable(pos[0], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(pos[0], (double newValue) =>
                     {
                         position.x = (float)newValue;
                         borderObject.transform.position = imageOrigin + new Vector3(position.x, -(position.y + size.y), 0.0f);
                         imageObject.transform.position = imageOrigin + new Vector3(position.x, -position.y, 0.0f);
                     });
 
-                    variableRegistrar.RegisterNumericVariable(pos[1], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(pos[1], (double newValue) =>
                     {
                         position.y = (float)newValue;
                         borderObject.transform.position = imageOrigin + new Vector3(position.x, -(position.y + size.y), 0.0f);
@@ -268,13 +268,13 @@ namespace AvionicsSystems
                 }
                 else
                 {
-                    variableRegistrar.RegisterNumericVariable(pos[0], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(pos[0], (double newValue) =>
                     {
                         position.x = (float)newValue;
                         imageObject.transform.position = imageOrigin + new Vector3(position.x, -position.y, 0.0f);
                     });
 
-                    variableRegistrar.RegisterNumericVariable(pos[1], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(pos[1], (double newValue) =>
                     {
                         position.y = (float)newValue;
                         imageObject.transform.position = imageOrigin + new Vector3(position.x, -position.y, 0.0f);
@@ -330,19 +330,19 @@ namespace AvionicsSystems
                         throw new ArgumentException("sourceColor does not contain 3 or 4 values in VERTICAL_BAR " + name);
                     }
 
-                    variableRegistrar.RegisterNumericVariable(startColors[0], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(startColors[0], (double newValue) =>
                     {
                         sourceColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         imageMaterial.SetColor(colorField, sourceColor);
                     });
 
-                    variableRegistrar.RegisterNumericVariable(startColors[1], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(startColors[1], (double newValue) =>
                     {
                         sourceColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         imageMaterial.SetColor(colorField, sourceColor);
                     });
 
-                    variableRegistrar.RegisterNumericVariable(startColors[2], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(startColors[2], (double newValue) =>
                     {
                         sourceColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         imageMaterial.SetColor(colorField, sourceColor);
@@ -350,7 +350,7 @@ namespace AvionicsSystems
 
                     if (startColors.Length == 4)
                     {
-                        variableRegistrar.RegisterNumericVariable(startColors[3], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(startColors[3], (double newValue) =>
                         {
                             sourceColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             imageMaterial.SetColor(colorField, sourceColor);
@@ -359,7 +359,7 @@ namespace AvionicsSystems
                 }
             }
 
-            variableRegistrar.RegisterNumericVariable(sourceName, SourceCallback);
+            variableRegistrar.RegisterVariableChangeCallback(sourceName, SourceCallback);
             if (!string.IsNullOrEmpty(variableName))
             {
                 // Disable the mesh if we're in variable mode
@@ -368,7 +368,7 @@ namespace AvionicsSystems
                 {
                     borderObject.SetActive(false);
                 }
-                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
+                variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
             }
             else
             {

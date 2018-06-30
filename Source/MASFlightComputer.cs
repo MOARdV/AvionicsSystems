@@ -296,12 +296,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Register an object to receive on-changed callback notification for
-        /// a variable
+        /// Register to receive on-changed callback notification for
+        /// a variable.
         /// </summary>
-        /// <param name="variableName"></param>
-        /// <param name="callback"></param>
-        internal Variable RegisterNumericVariable(string variableName, InternalProp prop, Action<double> callback, bool initializeNow = true)
+        /// <param name="variableName">Un-massaged name of the variable.</param>
+        /// <param name="prop">The prop associated with this variable.</param>
+        /// <param name="callback">The callback to invoke when this variable changes.</param>
+        /// <param name="initializeNow">Should the callback be invoked immediately?</param>
+        /// <returns>The variable created, or null.</returns>
+        internal Variable RegisterVariableChangeCallback(string variableName, InternalProp prop, Action<double> callback, bool initializeNow = true)
         {
             Variable v = null;
             try
@@ -1049,7 +1052,7 @@ namespace AvionicsSystems
 
                 if (!string.IsNullOrEmpty(powerOnVariable))
                 {
-                    RegisterNumericVariable(powerOnVariable, null, (double newValue) => powerOnValid = (newValue > 0.0));
+                    RegisterVariableChangeCallback(powerOnVariable, null, (double newValue) => powerOnValid = (newValue > 0.0));
                 }
 
                 // All the things are initialized ... Let's see if there's a startupScript

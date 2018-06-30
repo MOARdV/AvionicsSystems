@@ -147,8 +147,8 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Incorrect number of entries in 'upperLeftCorner' in VIEWPORT " + name);
             }
-            variableRegistrar.RegisterNumericVariable(cornerVars[0], UpdateLeft);
-            variableRegistrar.RegisterNumericVariable(cornerVars[1], UpdateTop);
+            variableRegistrar.RegisterVariableChangeCallback(cornerVars[0], UpdateLeft);
+            variableRegistrar.RegisterVariableChangeCallback(cornerVars[1], UpdateTop);
 
             string lowerRightCornerName = string.Empty;
             if (!config.TryGetValue("lowerRightCorner", ref lowerRightCornerName))
@@ -160,8 +160,8 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Incorrect number of entries in 'lowerRightCorner' in VIEWPORT " + name);
             }
-            variableRegistrar.RegisterNumericVariable(cornerVars[0], UpdateRight);
-            variableRegistrar.RegisterNumericVariable(cornerVars[1], UpdateBottom);
+            variableRegistrar.RegisterVariableChangeCallback(cornerVars[0], UpdateRight);
+            variableRegistrar.RegisterVariableChangeCallback(cornerVars[1], UpdateBottom);
 
             string colorString = string.Empty;
             if (config.TryGetValue("color", ref colorString))
@@ -172,19 +172,19 @@ namespace AvionicsSystems
                     throw new ArgumentException("color does not contain 3 or 4 values in VIEWPORT " + name);
                 }
 
-                variableRegistrar.RegisterNumericVariable(startColors[0], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(startColors[0], (double newValue) =>
                 {
                     materialColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                     imageMaterial.color = materialColor;
                 });
 
-                variableRegistrar.RegisterNumericVariable(startColors[1], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(startColors[1], (double newValue) =>
                 {
                     materialColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                     imageMaterial.color = materialColor;
                 });
 
-                variableRegistrar.RegisterNumericVariable(startColors[2], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(startColors[2], (double newValue) =>
                 {
                     materialColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                     imageMaterial.color = materialColor;
@@ -192,7 +192,7 @@ namespace AvionicsSystems
 
                 if (startColors.Length == 4)
                 {
-                    variableRegistrar.RegisterNumericVariable(startColors[3], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(startColors[3], (double newValue) =>
                     {
                         materialColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         imageMaterial.color = materialColor;
@@ -205,7 +205,7 @@ namespace AvionicsSystems
             {
                 // Disable the mesh if we're in variable mode
                 imageObject.SetActive(false);
-                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
+                variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
             }
             else
             {

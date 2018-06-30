@@ -157,12 +157,12 @@ namespace AvionicsSystems
             meshRenderer.material = imageMaterial;
             RenderPage(false);
 
-            variableRegistrar.RegisterNumericVariable(inputName, InputCallback);
+            variableRegistrar.RegisterVariableChangeCallback(inputName, InputCallback);
             if (!string.IsNullOrEmpty(variableName))
             {
                 // Disable the mesh if we're in variable mode
                 imageObject.SetActive(false);
-                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
+                variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
             }
             else
             {

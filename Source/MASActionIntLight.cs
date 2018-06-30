@@ -94,19 +94,19 @@ namespace AvionicsSystems
                         throw new ArgumentException("'lightColor' does not contain 3 or 4 values in INT_LIGHT " + name);
                     }
 
-                    variableRegistrar.RegisterNumericVariable(colors[0], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(colors[0], (double newValue) =>
                     {
                         lightColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         UpdateColor();
                     });
 
-                    variableRegistrar.RegisterNumericVariable(colors[1], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(colors[1], (double newValue) =>
                     {
                         lightColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         UpdateColor();
                     });
 
-                    variableRegistrar.RegisterNumericVariable(colors[2], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(colors[2], (double newValue) =>
                     {
                         lightColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         UpdateColor();
@@ -114,7 +114,7 @@ namespace AvionicsSystems
 
                     if (colors.Length == 4)
                     {
-                        variableRegistrar.RegisterNumericVariable(colors[3], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(colors[3], (double newValue) =>
                         {
                             lightColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             UpdateColor();
@@ -126,7 +126,7 @@ namespace AvionicsSystems
             string intensityString = string.Empty;
             if (config.TryGetValue("intensity", ref intensityString))
             {
-                variableRegistrar.RegisterNumericVariable(intensityString, (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(intensityString, (double newValue) =>
                 {
                     float intensity = Mathf.Clamp((float)newValue, 0.0f, 8.0f);
                     for (int i = controlledLights.Length - 1; i >= 0; --i)
@@ -142,7 +142,7 @@ namespace AvionicsSystems
                 controlledLights[i].enabled = currentState;
             }
 
-            variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
+            variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
         }
 
         /// <summary>

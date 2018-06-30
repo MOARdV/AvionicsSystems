@@ -104,13 +104,13 @@ namespace AvionicsSystems
                     throw new ArgumentException("vertex " + (i + 1).ToString() + " does not contain two values in POLYGON " + name);
                 }
 
-                variableRegistrar.RegisterNumericVariable(vtx[0], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(vtx[0], (double newValue) =>
                 {
                     vertices[index].x = (float)newValue;
                     retriangulate = true;
                 });
 
-                variableRegistrar.RegisterNumericVariable(vtx[1], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(vtx[1], (double newValue) =>
                 {
                     // Invert the value, since we stipulate +y is down on the monitor.
                     vertices[index].y = -(float)newValue;
@@ -141,14 +141,14 @@ namespace AvionicsSystems
             string rotationVariableName = string.Empty;
             if (config.TryGetValue("rotation", ref rotationVariableName))
             {
-                variableRegistrar.RegisterNumericVariable(rotationVariableName, RotationCallback);
+                variableRegistrar.RegisterVariableChangeCallback(rotationVariableName, RotationCallback);
             }
 
             if (!string.IsNullOrEmpty(variableName))
             {
                 // Disable the mesh if we're in variable mode
                 polygonOrigin.SetActive(false);
-                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
+                variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
             }
             else
             {
@@ -170,19 +170,19 @@ namespace AvionicsSystems
                     throw new ArgumentException("color does not contain 3 or 4 values in POLYGON " + name);
                 }
 
-                variableRegistrar.RegisterNumericVariable(colors[0], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(colors[0], (double newValue) =>
                 {
                     color.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                     polygonMaterial.color = color;
                 });
 
-                variableRegistrar.RegisterNumericVariable(colors[1], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(colors[1], (double newValue) =>
                 {
                     color.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                     polygonMaterial.color = color;
                 });
 
-                variableRegistrar.RegisterNumericVariable(colors[2], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(colors[2], (double newValue) =>
                 {
                     color.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                     polygonMaterial.color = color;
@@ -190,7 +190,7 @@ namespace AvionicsSystems
 
                 if (colors.Length == 4)
                 {
-                    variableRegistrar.RegisterNumericVariable(colors[3], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(colors[3], (double newValue) =>
                     {
                         color.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         polygonMaterial.color = color;

@@ -157,20 +157,20 @@ namespace AvionicsSystems
 
             GameEvents.OnCameraChange.Add(OnCameraChange);
 
-            variableRegistrar.RegisterNumericVariable(pitchVariableName, (double newPitch) =>
+            variableRegistrar.RegisterVariableChangeCallback(pitchVariableName, (double newPitch) =>
             {
                 pitch = (float)newPitch;
                 audioSource.pitch = pitch;
             });
-            variableRegistrar.RegisterNumericVariable(volumeVariableName, (double newVolume) =>
+            variableRegistrar.RegisterVariableChangeCallback(volumeVariableName, (double newVolume) =>
             {
                 volume = Mathf.Clamp01((float)newVolume);
                 audioSource.volume = GameSettings.SHIP_VOLUME * volume;
             });
-            variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
+            variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
             if (!string.IsNullOrEmpty(soundVariableName))
             {
-                soundVariable = variableRegistrar.RegisterNumericVariable(soundVariableName, SoundClipCallback, false);
+                soundVariable = variableRegistrar.RegisterVariableChangeCallback(soundVariableName, SoundClipCallback, false);
                 // Initialize the audio.
                 SoundClipCallback(0.0);
             }

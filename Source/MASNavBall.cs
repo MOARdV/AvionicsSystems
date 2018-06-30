@@ -74,7 +74,7 @@ namespace AvionicsSystems
 
             lastOrientation = navBall.rotation;
 
-            variableRegistrar.RegisterNumericVariable(variable, (double newValue) => currentState = (newValue > 0.0));
+            variableRegistrar.RegisterVariableChangeCallback(variable, (double newValue) => currentState = (newValue > 0.0));
         }
 
         /// <summary>

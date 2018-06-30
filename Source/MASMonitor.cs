@@ -256,7 +256,7 @@ namespace AvionicsSystems
                     if (!string.IsNullOrEmpty(monitorID))
                     {
                         string variableName = "fc.GetPersistent(\"" + monitorID.Trim() + "\")";
-                        pageSelector = variableRegistrar.RegisterNumericVariable(variableName, PageChanged, false);
+                        pageSelector = variableRegistrar.RegisterVariableChangeCallback(variableName, PageChanged, false);
                         // See if we have a saved page to restore.
                         if (!string.IsNullOrEmpty(pageSelector.AsString()) && page.ContainsKey(pageSelector.AsString()))
                         {

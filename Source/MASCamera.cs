@@ -168,7 +168,7 @@ namespace AvionicsSystems
             for (int i = 0; i < propertyValue.Length; ++i)
             {
                 int id = propertyId[i];
-                variableRegistrar.RegisterNumericVariable(propertyValue[i], (double newValue) => postProcShader.SetFloat(id, (float)newValue));
+                variableRegistrar.RegisterVariableChangeCallback(propertyValue[i], (double newValue) => postProcShader.SetFloat(id, (float)newValue));
             }
         }
     }

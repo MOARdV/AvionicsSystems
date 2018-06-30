@@ -335,7 +335,7 @@ namespace AvionicsSystems
                 imageObject.SetActive(false);
                 currentState = false;
                 //vesselOrigin.SetActive(false);
-                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
+                variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
             }
             else
             {
@@ -389,19 +389,19 @@ namespace AvionicsSystems
                             throw new ArgumentException("vesselStartColor does not contain 3 or 4 values in ORBIT_DISPLAY " + name);
                         }
 
-                        variableRegistrar.RegisterNumericVariable(vesselColors[0], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(vesselColors[0], (double newValue) =>
                         {
                             vesselStartColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             vesselRenderer.startColor = vesselStartColor;
                             vesselRenderer.endColor = vesselStartColor;
                         });
-                        variableRegistrar.RegisterNumericVariable(vesselColors[1], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(vesselColors[1], (double newValue) =>
                         {
                             vesselStartColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             vesselRenderer.startColor = vesselStartColor;
                             vesselRenderer.endColor = vesselStartColor;
                         });
-                        variableRegistrar.RegisterNumericVariable(vesselColors[2], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(vesselColors[2], (double newValue) =>
                         {
                             vesselStartColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             vesselRenderer.startColor = vesselStartColor;
@@ -410,7 +410,7 @@ namespace AvionicsSystems
 
                         if (vesselColors.Length == 4)
                         {
-                            variableRegistrar.RegisterNumericVariable(vesselColors[3], (double newValue) =>
+                            variableRegistrar.RegisterVariableChangeCallback(vesselColors[3], (double newValue) =>
                             {
                                 vesselStartColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                                 vesselRenderer.startColor = vesselStartColor;
@@ -435,17 +435,17 @@ namespace AvionicsSystems
                             throw new ArgumentException("vesselStartColor does not contain 3 or 4 values in ORBIT_DISPLAY " + name);
                         }
 
-                        variableRegistrar.RegisterNumericVariable(vesselColors[0], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(vesselColors[0], (double newValue) =>
                         {
                             vesselStartColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             vesselRenderer.startColor = vesselStartColor;
                         });
-                        variableRegistrar.RegisterNumericVariable(vesselColors[1], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(vesselColors[1], (double newValue) =>
                         {
                             vesselStartColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             vesselRenderer.startColor = vesselStartColor;
                         });
-                        variableRegistrar.RegisterNumericVariable(vesselColors[2], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(vesselColors[2], (double newValue) =>
                         {
                             vesselStartColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             vesselRenderer.startColor = vesselStartColor;
@@ -453,7 +453,7 @@ namespace AvionicsSystems
 
                         if (vesselColors.Length == 4)
                         {
-                            variableRegistrar.RegisterNumericVariable(vesselColors[3], (double newValue) =>
+                            variableRegistrar.RegisterVariableChangeCallback(vesselColors[3], (double newValue) =>
                             {
                                 vesselStartColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                                 vesselRenderer.startColor = vesselStartColor;
@@ -474,17 +474,17 @@ namespace AvionicsSystems
                             throw new ArgumentException("vesselEndColor does not contain 3 or 4 values in ORBIT_DISPLAY " + name);
                         }
 
-                        variableRegistrar.RegisterNumericVariable(vesselColors[0], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(vesselColors[0], (double newValue) =>
                         {
                             vesselEndColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             vesselRenderer.endColor = vesselEndColor;
                         });
-                        variableRegistrar.RegisterNumericVariable(vesselColors[1], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(vesselColors[1], (double newValue) =>
                         {
                             vesselEndColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             vesselRenderer.endColor = vesselEndColor;
                         });
-                        variableRegistrar.RegisterNumericVariable(vesselColors[2], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(vesselColors[2], (double newValue) =>
                         {
                             vesselEndColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             vesselRenderer.endColor = vesselEndColor;
@@ -492,7 +492,7 @@ namespace AvionicsSystems
 
                         if (vesselColors.Length == 4)
                         {
-                            variableRegistrar.RegisterNumericVariable(vesselColors[3], (double newValue) =>
+                            variableRegistrar.RegisterVariableChangeCallback(vesselColors[3], (double newValue) =>
                             {
                                 vesselEndColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                                 vesselRenderer.endColor = vesselEndColor;
@@ -536,19 +536,19 @@ namespace AvionicsSystems
                             throw new ArgumentException("targetStartColor does not contain 3 or 4 values in ORBIT_DISPLAY " + name);
                         }
 
-                        variableRegistrar.RegisterNumericVariable(targetColors[0], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(targetColors[0], (double newValue) =>
                         {
                             targetStartColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             targetRenderer.startColor = targetStartColor;
                             targetRenderer.endColor = targetStartColor;
                         });
-                        variableRegistrar.RegisterNumericVariable(targetColors[1], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(targetColors[1], (double newValue) =>
                         {
                             targetStartColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             targetRenderer.startColor = targetStartColor;
                             targetRenderer.endColor = targetStartColor;
                         });
-                        variableRegistrar.RegisterNumericVariable(targetColors[2], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(targetColors[2], (double newValue) =>
                         {
                             targetStartColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             targetRenderer.startColor = targetStartColor;
@@ -557,7 +557,7 @@ namespace AvionicsSystems
 
                         if (targetColors.Length == 4)
                         {
-                            variableRegistrar.RegisterNumericVariable(targetColors[3], (double newValue) =>
+                            variableRegistrar.RegisterVariableChangeCallback(targetColors[3], (double newValue) =>
                             {
                                 targetStartColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                                 targetRenderer.startColor = targetStartColor;
@@ -582,17 +582,17 @@ namespace AvionicsSystems
                             throw new ArgumentException("targetStartColor does not contain 3 or 4 values in ORBIT_DISPLAY " + name);
                         }
 
-                        variableRegistrar.RegisterNumericVariable(targetColors[0], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(targetColors[0], (double newValue) =>
                         {
                             targetStartColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             targetRenderer.startColor = targetStartColor;
                         });
-                        variableRegistrar.RegisterNumericVariable(targetColors[1], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(targetColors[1], (double newValue) =>
                         {
                             targetStartColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             targetRenderer.startColor = targetStartColor;
                         });
-                        variableRegistrar.RegisterNumericVariable(targetColors[2], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(targetColors[2], (double newValue) =>
                         {
                             targetStartColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             targetRenderer.startColor = targetStartColor;
@@ -600,7 +600,7 @@ namespace AvionicsSystems
 
                         if (targetColors.Length == 4)
                         {
-                            variableRegistrar.RegisterNumericVariable(targetColors[3], (double newValue) =>
+                            variableRegistrar.RegisterVariableChangeCallback(targetColors[3], (double newValue) =>
                             {
                                 targetStartColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                                 targetRenderer.startColor = targetStartColor;
@@ -621,17 +621,17 @@ namespace AvionicsSystems
                             throw new ArgumentException("targetEndColor does not contain 3 or 4 values in ORBIT_DISPLAY " + name);
                         }
 
-                        variableRegistrar.RegisterNumericVariable(vesselColors[0], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(vesselColors[0], (double newValue) =>
                         {
                             targetEndColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             targetRenderer.endColor = targetEndColor;
                         });
-                        variableRegistrar.RegisterNumericVariable(vesselColors[1], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(vesselColors[1], (double newValue) =>
                         {
                             targetEndColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             targetRenderer.endColor = targetEndColor;
                         });
-                        variableRegistrar.RegisterNumericVariable(vesselColors[2], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(vesselColors[2], (double newValue) =>
                         {
                             targetEndColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             targetRenderer.endColor = targetEndColor;
@@ -639,7 +639,7 @@ namespace AvionicsSystems
 
                         if (vesselColors.Length == 4)
                         {
-                            variableRegistrar.RegisterNumericVariable(vesselColors[3], (double newValue) =>
+                            variableRegistrar.RegisterVariableChangeCallback(vesselColors[3], (double newValue) =>
                             {
                                 targetEndColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                                 targetRenderer.endColor = targetEndColor;
@@ -683,19 +683,19 @@ namespace AvionicsSystems
                             throw new ArgumentException("maneuverStartColor does not contain 3 or 4 values in ORBIT_DISPLAY " + name);
                         }
 
-                        variableRegistrar.RegisterNumericVariable(maneuverColors[0], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(maneuverColors[0], (double newValue) =>
                         {
                             maneuverStartColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             maneuverRenderer.startColor = maneuverStartColor;
                             maneuverRenderer.endColor = maneuverStartColor;
                         });
-                        variableRegistrar.RegisterNumericVariable(maneuverColors[1], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(maneuverColors[1], (double newValue) =>
                         {
                             maneuverStartColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             maneuverRenderer.startColor = maneuverStartColor;
                             maneuverRenderer.endColor = maneuverStartColor;
                         });
-                        variableRegistrar.RegisterNumericVariable(maneuverColors[2], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(maneuverColors[2], (double newValue) =>
                         {
                             maneuverStartColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             maneuverRenderer.startColor = maneuverStartColor;
@@ -704,7 +704,7 @@ namespace AvionicsSystems
 
                         if (maneuverColors.Length == 4)
                         {
-                            variableRegistrar.RegisterNumericVariable(maneuverColors[3], (double newValue) =>
+                            variableRegistrar.RegisterVariableChangeCallback(maneuverColors[3], (double newValue) =>
                             {
                                 maneuverStartColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                                 maneuverRenderer.startColor = maneuverStartColor;
@@ -729,17 +729,17 @@ namespace AvionicsSystems
                             throw new ArgumentException("maneuverStartColor does not contain 3 or 4 values in ORBIT_DISPLAY " + name);
                         }
 
-                        variableRegistrar.RegisterNumericVariable(targetColors[0], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(targetColors[0], (double newValue) =>
                         {
                             maneuverStartColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             maneuverRenderer.startColor = maneuverStartColor;
                         });
-                        variableRegistrar.RegisterNumericVariable(targetColors[1], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(targetColors[1], (double newValue) =>
                         {
                             maneuverStartColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             maneuverRenderer.startColor = maneuverStartColor;
                         });
-                        variableRegistrar.RegisterNumericVariable(targetColors[2], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(targetColors[2], (double newValue) =>
                         {
                             maneuverStartColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             maneuverRenderer.startColor = maneuverStartColor;
@@ -747,7 +747,7 @@ namespace AvionicsSystems
 
                         if (targetColors.Length == 4)
                         {
-                            variableRegistrar.RegisterNumericVariable(targetColors[3], (double newValue) =>
+                            variableRegistrar.RegisterVariableChangeCallback(targetColors[3], (double newValue) =>
                             {
                                 maneuverStartColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                                 maneuverRenderer.startColor = maneuverStartColor;
@@ -768,17 +768,17 @@ namespace AvionicsSystems
                             throw new ArgumentException("maneuverEndColor does not contain 3 or 4 values in ORBIT_DISPLAY " + name);
                         }
 
-                        variableRegistrar.RegisterNumericVariable(vesselColors[0], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(vesselColors[0], (double newValue) =>
                         {
                             maneuverEndColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             maneuverRenderer.endColor = maneuverEndColor;
                         });
-                        variableRegistrar.RegisterNumericVariable(vesselColors[1], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(vesselColors[1], (double newValue) =>
                         {
                             maneuverEndColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             maneuverRenderer.endColor = maneuverEndColor;
                         });
-                        variableRegistrar.RegisterNumericVariable(vesselColors[2], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(vesselColors[2], (double newValue) =>
                         {
                             maneuverEndColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             maneuverRenderer.endColor = maneuverEndColor;
@@ -786,7 +786,7 @@ namespace AvionicsSystems
 
                         if (vesselColors.Length == 4)
                         {
-                            variableRegistrar.RegisterNumericVariable(vesselColors[3], (double newValue) =>
+                            variableRegistrar.RegisterVariableChangeCallback(vesselColors[3], (double newValue) =>
                             {
                                 maneuverEndColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                                 maneuverRenderer.endColor = maneuverEndColor;
@@ -826,19 +826,19 @@ namespace AvionicsSystems
                         throw new ArgumentException("bodyColor does not contain 3 or 4 values in ORBIT_DISPLAY " + name);
                     }
 
-                    variableRegistrar.RegisterNumericVariable(bodyColors[0], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(bodyColors[0], (double newValue) =>
                     {
                         bodyColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         bodyRenderer.startColor = bodyColor;
                         bodyRenderer.endColor = bodyColor;
                     });
-                    variableRegistrar.RegisterNumericVariable(bodyColors[1], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(bodyColors[1], (double newValue) =>
                     {
                         bodyColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         bodyRenderer.startColor = bodyColor;
                         bodyRenderer.endColor = bodyColor;
                     });
-                    variableRegistrar.RegisterNumericVariable(bodyColors[2], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(bodyColors[2], (double newValue) =>
                     {
                         bodyColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         bodyRenderer.startColor = bodyColor;
@@ -847,7 +847,7 @@ namespace AvionicsSystems
 
                     if (bodyColors.Length == 4)
                     {
-                        variableRegistrar.RegisterNumericVariable(bodyColors[3], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(bodyColors[3], (double newValue) =>
                         {
                             bodyColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             bodyRenderer.startColor = bodyColor;
@@ -884,19 +884,19 @@ namespace AvionicsSystems
                         throw new ArgumentException("atmoColor  does not contain 3 or 4 values in ORBIT_DISPLAY " + name);
                     }
 
-                    variableRegistrar.RegisterNumericVariable(atmoColors[0], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(atmoColors[0], (double newValue) =>
                     {
                         atmoColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         atmoRenderer.startColor = atmoColor;
                         atmoRenderer.endColor = atmoColor;
                     });
-                    variableRegistrar.RegisterNumericVariable(atmoColors[1], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(atmoColors[1], (double newValue) =>
                     {
                         atmoColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         atmoRenderer.startColor = atmoColor;
                         atmoRenderer.endColor = atmoColor;
                     });
-                    variableRegistrar.RegisterNumericVariable(atmoColors[2], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(atmoColors[2], (double newValue) =>
                     {
                         atmoColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         atmoRenderer.startColor = atmoColor;
@@ -905,7 +905,7 @@ namespace AvionicsSystems
 
                     if (atmoColors.Length == 4)
                     {
-                        variableRegistrar.RegisterNumericVariable(atmoColors[3], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(atmoColors[3], (double newValue) =>
                         {
                             atmoColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             atmoRenderer.startColor = atmoColor;

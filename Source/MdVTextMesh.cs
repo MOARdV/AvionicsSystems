@@ -298,7 +298,7 @@ namespace AvionicsSystems
                             {
                                 try
                                 {
-                                    tr.variable[var] = variableRegistrar.RegisterNumericVariable(variables[var], tr.callback);
+                                    tr.variable[var] = variableRegistrar.RegisterVariableChangeCallback(variables[var], tr.callback);
                                 }
                                 catch (Exception e)
                                 {
@@ -363,7 +363,7 @@ namespace AvionicsSystems
                 tr.callback = (double dontCare) => { invalidated = true; tr.rowInvalidated = true; };
                 for (int var = 0; var < tr.variable.Length; ++var)
                 {
-                    tr.variable[var] = variableRegistrar.RegisterNumericVariable(variables[var], tr.callback);
+                    tr.variable[var] = variableRegistrar.RegisterVariableChangeCallback(variables[var], tr.callback);
                 }
                 tr.rowInvalidated = true;
                 tr.EvaluateVariables();

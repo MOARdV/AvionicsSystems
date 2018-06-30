@@ -131,7 +131,7 @@ namespace AvionicsSystems
                 currentState = false;
                 // Disable the mesh if we're in variable mode
                 imageObject.SetActive(false);
-                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
+                variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
             }
             else
             {
@@ -146,7 +146,7 @@ namespace AvionicsSystems
             cameraTexture.DiscardContents();
             ApplyMissingCamera();
 
-            cameraSelector = variableRegistrar.RegisterNumericVariable(cameraName, CameraSelectCallback, false);
+            cameraSelector = variableRegistrar.RegisterVariableChangeCallback(cameraName, CameraSelectCallback, false);
             CameraSelectCallback(0.0);
         }
 

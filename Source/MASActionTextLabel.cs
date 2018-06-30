@@ -140,7 +140,7 @@ namespace AvionicsSystems
                         throw new ArgumentException("passiveColor does not contain 3 or 4 values in TEXT_LABEL " + name);
                     }
 
-                    variableRegistrar.RegisterNumericVariable(startColors[0], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(startColors[0], (double newValue) =>
                     {
                         passiveColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         if (blend)
@@ -153,7 +153,7 @@ namespace AvionicsSystems
                         }
                     });
 
-                    variableRegistrar.RegisterNumericVariable(startColors[1], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(startColors[1], (double newValue) =>
                     {
                         passiveColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         if (blend)
@@ -166,7 +166,7 @@ namespace AvionicsSystems
                         }
                     });
 
-                    variableRegistrar.RegisterNumericVariable(startColors[2], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(startColors[2], (double newValue) =>
                     {
                         passiveColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         if (blend)
@@ -181,7 +181,7 @@ namespace AvionicsSystems
 
                     if (startColors.Length == 4)
                     {
-                        variableRegistrar.RegisterNumericVariable(startColors[3], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(startColors[3], (double newValue) =>
                         {
                             passiveColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             if (blend)
@@ -216,7 +216,7 @@ namespace AvionicsSystems
                         throw new ArgumentException("activeColor does not contain 3 or 4 values in TEXT_LABEL " + name);
                     }
 
-                    variableRegistrar.RegisterNumericVariable(startColors[0], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(startColors[0], (double newValue) =>
                     {
                         activeColor.r = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         if (blend)
@@ -229,7 +229,7 @@ namespace AvionicsSystems
                         }
                     });
 
-                    variableRegistrar.RegisterNumericVariable(startColors[1], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(startColors[1], (double newValue) =>
                     {
                         activeColor.g = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         if (blend)
@@ -242,7 +242,7 @@ namespace AvionicsSystems
                         }
                     });
 
-                    variableRegistrar.RegisterNumericVariable(startColors[2], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(startColors[2], (double newValue) =>
                     {
                         activeColor.b = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                         if (blend)
@@ -257,7 +257,7 @@ namespace AvionicsSystems
 
                     if (startColors.Length == 4)
                     {
-                        variableRegistrar.RegisterNumericVariable(startColors[3], (double newValue) =>
+                        variableRegistrar.RegisterVariableChangeCallback(startColors[3], (double newValue) =>
                         {
                             activeColor.a = Mathf.Clamp01((float)newValue * (1.0f / 255.0f));
                             if (blend)
@@ -429,7 +429,7 @@ namespace AvionicsSystems
 
             if (!string.IsNullOrEmpty(variableName))
             {
-                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
+                variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
             }
         }
 

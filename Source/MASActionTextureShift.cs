@@ -91,13 +91,13 @@ namespace AvionicsSystems
                     throw new ArgumentException("Incorrect number of values in 'startUV' in TEXTURE_SHIFT " + name);
                 }
 
-                variableRegistrar.RegisterNumericVariable(uvs[0], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(uvs[0], (double newValue) =>
                 {
                     startUV.x = (float)newValue;
                     UpdateUVs();
                 });
 
-                variableRegistrar.RegisterNumericVariable(uvs[1], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(uvs[1], (double newValue) =>
                 {
                     startUV.y = (float)newValue;
                     UpdateUVs();
@@ -124,13 +124,13 @@ namespace AvionicsSystems
                         throw new ArgumentException("Incorrect number of values in 'endUV' in TEXTURE_SHIFT " + name);
                     }
 
-                    variableRegistrar.RegisterNumericVariable(uvs[0], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(uvs[0], (double newValue) =>
                     {
                         endUV.x = (float)newValue;
                         UpdateUVs();
                     });
 
-                    variableRegistrar.RegisterNumericVariable(uvs[1], (double newValue) =>
+                    variableRegistrar.RegisterVariableChangeCallback(uvs[1], (double newValue) =>
                     {
                         endUV.y = (float)newValue;
                         UpdateUVs();
@@ -140,7 +140,7 @@ namespace AvionicsSystems
 
             if (!string.IsNullOrEmpty(variableName))
             {
-                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
+                variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
             }
         }
 

@@ -148,13 +148,13 @@ namespace AvionicsSystems
                     throw new ArgumentException("position does not contain 2 values in ROLLING_DIGIT " + name);
                 }
 
-                variableRegistrar.RegisterNumericVariable(positions[0], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(positions[0], (double newValue) =>
                 {
                     position.x = (float)newValue * fontScale.x;
                     meshObject.transform.position = imageOrigin + new Vector3(position.x, -position.y, 0.0f);
                 });
 
-                variableRegistrar.RegisterNumericVariable(positions[1], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(positions[1], (double newValue) =>
                 {
                     position.y = (float)newValue * fontScale.y;
                     meshObject.transform.position = imageOrigin + new Vector3(position.x, -position.y, 0.0f);
@@ -233,7 +233,7 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("'value' missing in ROLLING_DIGIT " + name);
             }
-            variableRegistrar.RegisterNumericVariable(valueString, ValueCallback);
+            variableRegistrar.RegisterVariableChangeCallback(valueString, ValueCallback);
 
             RenderPage(false);
 
@@ -241,7 +241,7 @@ namespace AvionicsSystems
             {
                 // Disable the mesh if we're in variable mode
                 meshObject.SetActive(false);
-                variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
+                variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
             }
             else
             {

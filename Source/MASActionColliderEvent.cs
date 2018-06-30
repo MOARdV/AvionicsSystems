@@ -183,7 +183,7 @@ namespace AvionicsSystems
                 variableName = variableName.Trim();
 
                 buttonObject.colliderEnabled = false;
-                comp.RegisterNumericVariable(variableName, internalProp, VariableCallback);
+                comp.RegisterVariableChangeCallback(variableName, internalProp, VariableCallback);
             }
 
             if (clip != null)

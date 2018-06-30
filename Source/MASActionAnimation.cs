@@ -84,7 +84,7 @@ namespace AvionicsSystems
                 rateLimited = true;
             }
 
-            variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
+            variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
         }
 
         /// <summary>

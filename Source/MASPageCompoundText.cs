@@ -107,13 +107,13 @@ namespace AvionicsSystems
                     throw new ArgumentException("position does not contain 2 values in COMPOUND_TEXT " + name);
                 }
 
-                variableRegistrar.RegisterNumericVariable(positions[0], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(positions[0], (double newValue) =>
                 {
                     position.x = (float)newValue * monitor.fontSize.x;
                     rootObject.transform.position = textOrigin + new Vector3(position.x, -position.y, 0.0f);
                 });
 
-                variableRegistrar.RegisterNumericVariable(positions[1], (double newValue) =>
+                variableRegistrar.RegisterVariableChangeCallback(positions[1], (double newValue) =>
                 {
                     position.y = (float)newValue * monitor.fontSize.y;
                     rootObject.transform.position = textOrigin + new Vector3(position.x, -position.y, 0.0f);
@@ -174,7 +174,7 @@ namespace AvionicsSystems
                     {
                         cpt.textObject.SetActive(false);
                     }
-                    variableRegistrar.RegisterNumericVariable(variableName, (double newValue) => VariableCallback(newValue, cpt));
+                    variableRegistrar.RegisterVariableChangeCallback(variableName, (double newValue) => VariableCallback(newValue, cpt));
                 }
                 else
                 {
@@ -195,7 +195,7 @@ namespace AvionicsSystems
             {
                 rootObject.SetActive(false);
 
-                variableRegistrar.RegisterNumericVariable(masterVariableName, VariableCallback);
+                variableRegistrar.RegisterVariableChangeCallback(masterVariableName, VariableCallback);
             }
             else
             {
