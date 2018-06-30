@@ -106,7 +106,6 @@ namespace AvionicsSystems
             }
         }
 
-        private MASFlightComputer comp;
         private Font font;
         private MeshRenderer meshRenderer;
         private MeshFilter meshFilter;
@@ -122,7 +121,7 @@ namespace AvionicsSystems
         private bool invalidated;
         private bool colorInvalidated;
         private bool dynamic;
-        private InternalProp internalProp;
+        private VariableRegistrar variableRegistrar;
         private bool configured = false;
 
         // To avoid piles of garbage creation, keep the local arrays here so
@@ -228,9 +227,10 @@ namespace AvionicsSystems
         /// <param name="comp"></param>
         public void SetText(string text, bool immutable, bool preserveWhitespace, MASFlightComputer comp, InternalProp internalProp)
         {
+            variableRegistrar = new VariableRegistrar(comp, internalProp);
+
             configured = false;
             // Do some up-front processing:
-            this.internalProp = internalProp;
 
             // If there's no text, disable this object.
             if (string.IsNullOrEmpty(text))
@@ -271,8 +271,6 @@ namespace AvionicsSystems
                 }
                 else
                 {
-                    this.comp = comp;
-
                     // preprocessing - split into rows
                     string[] textRows = text.Split(Utility.LineSeparator, StringSplitOptions.None);
                     textRow = new TextRow[textRows.Length];
@@ -295,12 +293,12 @@ namespace AvionicsSystems
                             string[] variables = rowText[1].Split(';');
                             tr.variable = new Variable[variables.Length];
                             tr.evals = new object[variables.Length];
-                            tr.callback = () => { invalidated = true; tr.rowInvalidated = true; };
+                            tr.callback = (double dontCare) => { invalidated = true; tr.rowInvalidated = true; };
                             for (int var = 0; var < tr.variable.Length; ++var)
                             {
                                 try
                                 {
-                                    tr.variable[var] = comp.RegisterOnVariableChange(variables[var], internalProp, tr.callback);
+                                    tr.variable[var] = variableRegistrar.RegisterNumericVariable(variables[var], tr.callback);
                                 }
                                 catch (Exception e)
                                 {
@@ -362,9 +360,10 @@ namespace AvionicsSystems
                 tr.formatString = staticText[0];
                 tr.variable = new Variable[variables.Length];
                 tr.evals = new object[variables.Length];
+                tr.callback = (double dontCare) => { invalidated = true; tr.rowInvalidated = true; };
                 for (int var = 0; var < tr.variable.Length; ++var)
                 {
-                    tr.variable[var] = comp.GetVariable(variables[var], internalProp);
+                    tr.variable[var] = variableRegistrar.RegisterNumericVariable(variables[var], tr.callback);
                 }
                 tr.rowInvalidated = true;
                 tr.EvaluateVariables();
@@ -399,16 +398,13 @@ namespace AvionicsSystems
                 {
                     for (int var = 0; var < textRow[i].variable.Length; ++var)
                     {
-                        comp.UnregisterOnVariableChange(textRow[i].variable[var].name, internalProp, textRow[i].callback);
                         textRow[i].variable[var] = null;
                     }
                     textRow[i].variable = null;
                     textRow[i].callback = null;
                 }
             }
-
-            internalProp = null;
-            comp = null;
+            variableRegistrar.ReleaseResources();
 
             Destroy(meshFilter);
             meshFilter = null;
@@ -1614,13 +1610,13 @@ namespace AvionicsSystems
             internal string formattedData;
             internal Variable[] variable;
             internal object[] evals;
-            internal Action callback;
+            internal Action<double> callback;
             internal int textLength;
             internal bool rowInvalidated;
 
             internal void EvaluateVariables()
             {
-                if (rowInvalidated) // TODO: Use callbacks to set rowInvalidated
+                if (rowInvalidated)
                 {
                     if (variable == null || variable.Length == 0)
                     {
