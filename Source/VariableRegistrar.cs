@@ -51,11 +51,13 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="name">The name of the variable.</param>
         /// <param name="action">The action to trigger.</param>
+        /// <param name="initializeNow">Trigger the callback before this method returns (okay for normal use,
+        /// may be a problem if the Variable that's returned needs to be initialized first.</param>
         /// <returns>The Variable created (or null if it failed for some reason).</returns>
-        internal Variable RegisterNumericVariable(string name, Action<double> action)
+        internal Variable RegisterNumericVariable(string name, Action<double> action, bool initializeNow = true)
         {
             name = name.Trim();
-            Variable v = comp.RegisterNumericVariable(name, internalProp, action);
+            Variable v = comp.RegisterNumericVariable(name, internalProp, action, initializeNow);
             if (v != null)
             {
                 variableAction.Add(action);

@@ -301,7 +301,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="variableName"></param>
         /// <param name="callback"></param>
-        internal Variable RegisterNumericVariable(string variableName, InternalProp prop, Action<double> callback)
+        internal Variable RegisterNumericVariable(string variableName, InternalProp prop, Action<double> callback, bool initializeNow = true)
         {
             Variable v = null;
             try
@@ -310,7 +310,10 @@ namespace AvionicsSystems
 
                 v.RegisterNumericCallback(callback);
 
-                callback(v.AsDouble());
+                if (initializeNow)
+                {
+                    callback(v.AsDouble());
+                }
             }
             catch (Exception e)
             {
