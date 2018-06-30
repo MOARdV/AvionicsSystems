@@ -146,8 +146,8 @@ namespace AvionicsSystems
             cameraTexture.DiscardContents();
             ApplyMissingCamera();
 
-            cameraSelector = comp.RegisterOnVariableChange(cameraName, prop, CameraSelectCallback);
-            CameraSelectCallback();
+            cameraSelector = variableRegistrar.RegisterNumericVariable(cameraName, CameraSelectCallback, false);
+            CameraSelectCallback(0.0);
         }
 
         /// <summary>
@@ -200,7 +200,7 @@ namespace AvionicsSystems
             {
                 yield return MASConfig.waitForFixedUpdate;
 
-                CameraSelectCallback();
+                CameraSelectCallback(0.0);
             }
 
             coroutineActive = false;
@@ -209,7 +209,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Callback used to select active cameras
         /// </summary>
-        private void CameraSelectCallback()
+        private void CameraSelectCallback(double dontCare)
         {
             try
             {
@@ -338,11 +338,6 @@ namespace AvionicsSystems
             imageMaterial = null;
 
             variableRegistrar.ReleaseResources();
-
-            if (!string.IsNullOrEmpty(cameraSelector.name))
-            {
-                comp.UnregisterOnVariableChange(cameraSelector.name, internalProp, CameraSelectCallback);
-            }
 
             //if (renderFrames > 0)
             //{
