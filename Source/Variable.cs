@@ -58,10 +58,6 @@ namespace AvionicsSystems
         /// </summary>
         private event Action<double> numericCallbacks;
         /// <summary>
-        /// List of non-numeric callback subscribers.
-        /// </summary>
-        internal event Action changeCallbacks;
-        /// <summary>
         /// The type of variable (constant, lambda/delegate, Lua)
         /// </summary>
         internal readonly VariableType variableType = VariableType.Unknown;
@@ -208,13 +204,6 @@ namespace AvionicsSystems
             }
 
         }
-        internal protected void TriggerGenericCallbacks()
-        {
-            if (changeCallbacks != null)
-            {
-                changeCallbacks.Invoke();
-            }
-        }
     }
 
     /// <summary>
@@ -332,10 +321,8 @@ namespace AvionicsSystems
             if (newValue != boolValue)
             {
                 TriggerNumericCallbacks(newValue ? 1.0 : 0.0);
+                boolValue = newValue;
             }
-            boolValue = newValue;
-
-            TriggerGenericCallbacks();
         }
     }
 
@@ -458,10 +445,8 @@ namespace AvionicsSystems
             if (Math.Abs(newValue - doubleValue) > Mathf.Epsilon)
             {
                 TriggerNumericCallbacks(newValue);
+                doubleValue = newValue;
             }
-            doubleValue = newValue;
-
-            TriggerGenericCallbacks();
         }
     }
 
@@ -652,8 +637,8 @@ namespace AvionicsSystems
                     stringValue = value as string;
                     doubleValue = 0.0;
                     valueType = EvaluationType.String;
-                    // Note - this is primarily for Dependent variables who
-                    // don't care about safeValue.
+                    // Since strings never change doubleValue, we force them
+                    // to trigger callbacks here.
                     TriggerNumericCallbacks(0.0);
                 }
                 else if (value is bool)
@@ -683,8 +668,6 @@ namespace AvionicsSystems
                 {
                     TriggerNumericCallbacks(doubleValue);
                 }
-
-                TriggerGenericCallbacks();
             }
         }
 
@@ -802,8 +785,6 @@ namespace AvionicsSystems
             // Note - this is primarily for Dependent variables who
             // don't care about safeValue.
             TriggerNumericCallbacks(0.0);
-
-            TriggerGenericCallbacks();
         }
     }
 }

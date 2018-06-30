@@ -324,38 +324,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Register a callback to notify the recipient that the variable has changed.
-        /// </summary>
-        /// <param name="variableName"></param>
-        /// <param name="callback"></param>
-        /// <returns></returns>
-        internal Variable RegisterOnVariableChange(string variableName, InternalProp prop, Action callback)
-        {
-            Variable v = GetVariable(variableName, prop);
-
-            if (v.mutable)
-            {
-                v.changeCallbacks += callback;
-            }
-
-            return v;
-        }
-
-        /// <summary>
-        /// Unregister an on-change callback.
-        /// </summary>
-        /// <param name="variableName"></param>
-        /// <param name="callback"></param>
-        internal void UnregisterOnVariableChange(string variableName, InternalProp prop, Action callback)
-        {
-            variableName = ConditionVariableName(variableName, prop);
-            if (canonicalVariableName.ContainsKey(variableName))
-            {
-                variables[canonicalVariableName[variableName]].changeCallbacks -= callback;
-            }
-        }
-
-        /// <summary>
         /// Register a monitor so it will receive softkey events.  If the monitor's name
         /// already exists, this is a no-op.
         /// </summary>
