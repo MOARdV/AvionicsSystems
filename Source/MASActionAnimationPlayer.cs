@@ -35,8 +35,6 @@ namespace AvionicsSystems
         private string animationName = string.Empty;
         private Animation animation;
         private AnimationState animationState;
-        private Variable range1, range2;
-        private readonly bool rangeMode = false;
         private bool playedOnce = false;
         private bool currentState = false;
 
@@ -74,23 +72,6 @@ namespace AvionicsSystems
             }
             variableName = variableName.Trim();
 
-            string range = string.Empty;
-            if (config.TryGetValue("range", ref range))
-            {
-                string[] ranges = Utility.SplitVariableList(range);
-                if (ranges.Length != 2)
-                {
-                    throw new ArgumentException("Incorrect number of values in 'range' in ANIMATION_PLAYER " + name);
-                }
-                range1 = comp.GetVariable(ranges[0], prop);
-                range2 = comp.GetVariable(ranges[1], prop);
-                rangeMode = true;
-            }
-            else
-            {
-                rangeMode = false;
-            }
-
             variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
         }
 
@@ -102,11 +83,6 @@ namespace AvionicsSystems
         {
             if (playedOnce)
             {
-                if (rangeMode)
-                {
-                    newValue = (newValue.Between(range1.AsDouble(), range2.AsDouble())) ? 1.0 : 0.0;
-                }
-
                 bool newState = (newValue > 0.0);
 
                 if (newState != currentState)
@@ -127,11 +103,6 @@ namespace AvionicsSystems
             }
             else
             {
-                if (rangeMode)
-                {
-                    newValue = (newValue.Between(range1.AsDouble(), range2.AsDouble())) ? 1.0 : 0.0;
-                }
-
                 if (newValue > 0.0)
                 {
                     animationState.speed = float.MaxValue;

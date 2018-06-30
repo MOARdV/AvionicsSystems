@@ -40,13 +40,12 @@ namespace AvionicsSystems
         private Vector3 startScale = Vector3.zero;
         private Vector3 endScale = Vector3.zero;
         private Transform transform;
-        private Variable range1, range2;
         private readonly bool blend;
-        private readonly bool rangeMode;
         private bool currentState = false;
         private float currentBlend = 0.0f;
 
-        internal MASActionModelScale(ConfigNode config, InternalProp prop, MASFlightComputer comp):base(config, prop, comp)
+        internal MASActionModelScale(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+            : base(config, prop, comp)
         {
             string transform = string.Empty;
             if (!config.TryGetValue("transform", ref transform))
@@ -85,26 +84,8 @@ namespace AvionicsSystems
                 endScale = endScale + initialScale;
             }
 
-            string range = string.Empty;
-            if (config.TryGetValue("range", ref range))
-            {
-                string[] ranges = Utility.SplitVariableList(range);
-                if (ranges.Length != 2)
-                {
-                    throw new ArgumentException("Incorrect number of values in 'range' in TEXTURE_SHIFT " + name);
-                }
-                range1 = comp.GetVariable(ranges[0], prop);
-                range2 = comp.GetVariable(ranges[1], prop);
-                rangeMode = true;
-
-                blend = false;
-                config.TryGetValue("blend", ref blend);
-            }
-            else
-            {
-                blend = false;
-                rangeMode = false;
-            }
+            blend = false;
+            config.TryGetValue("blend", ref blend);
 
             comp.StartCoroutine(DelayedRegistration(variableName));
         }
@@ -136,7 +117,7 @@ namespace AvionicsSystems
         {
             if (blend)
             {
-                float newBlend = Mathf.InverseLerp((float)range1.AsDouble(), (float)range2.AsDouble(), (float)newValue);
+                float newBlend = Mathf.Clamp01((float)newValue);
 
                 if (!Mathf.Approximately(newBlend, currentBlend))
                 {
@@ -148,11 +129,6 @@ namespace AvionicsSystems
             }
             else
             {
-                if (rangeMode)
-                {
-                    newValue = (newValue.Between(range1.AsDouble(), range2.AsDouble())) ? 1.0 : 0.0;
-                }
-
                 bool newState = (newValue > 0.0);
 
                 if (newState != currentState)

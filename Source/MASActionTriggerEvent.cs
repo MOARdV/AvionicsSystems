@@ -38,38 +38,20 @@ namespace AvionicsSystems
     class MASActionTriggerEvent : IMASSubComponent
     {
         private string variableName;
-        private Variable range1, range2;
-        private readonly bool rangeMode;
         private bool currentState = false;
         private bool autoRepeat = false;
         MASFlightComputer comp;
         Action triggerEvent;
         Action exitEvent = null;
 
-        internal MASActionTriggerEvent(ConfigNode config, InternalProp prop, MASFlightComputer comp):base(config, prop, comp)
+        internal MASActionTriggerEvent(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+            : base(config, prop, comp)
         {
             if (!config.TryGetValue("variable", ref variableName) || string.IsNullOrEmpty(variableName))
             {
                 throw new ArgumentException("Invalid or missing 'variable' in TRIGGER_EVENT " + name);
             }
             variableName = variableName.Trim();
-
-            string range = string.Empty;
-            if (config.TryGetValue("range", ref range))
-            {
-                string[] ranges = Utility.SplitVariableList(range);
-                if (ranges.Length != 2)
-                {
-                    throw new ArgumentException("Incorrect number of values in 'range' in TRIGGER_EVENT " + name);
-                }
-                range1 = comp.GetVariable(ranges[0], prop);
-                range2 = comp.GetVariable(ranges[1], prop);
-                rangeMode = true;
-            }
-            else
-            {
-                rangeMode = false;
-            }
 
             if (!bool.TryParse("autoRepeat", out autoRepeat))
             {
@@ -86,7 +68,7 @@ namespace AvionicsSystems
             triggerEvent = comp.GetAction(triggerEventName, prop);
             if (triggerEvent == null)
             {
-                throw new ArgumentException("Unable to create event '"+triggerEventName+"' in TRIGGER_EVENT " + name);
+                throw new ArgumentException("Unable to create event '" + triggerEventName + "' in TRIGGER_EVENT " + name);
             }
 
             triggerEventName = string.Empty;
@@ -109,11 +91,6 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void VariableCallback(double newValue)
         {
-            if (rangeMode)
-            {
-                newValue = (newValue.Between(range1.AsDouble(), range2.AsDouble())) ? 1.0 : 0.0;
-            }
-
             bool newState = (newValue > 0.0);
 
             if (newState != currentState)
@@ -129,7 +106,7 @@ namespace AvionicsSystems
                         comp.StartCoroutine(RepeatEvent());
                     }
                 }
-                else if(exitEvent != null)
+                else if (exitEvent != null)
                 {
                     exitEvent();
                 }
@@ -158,8 +135,6 @@ namespace AvionicsSystems
         public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
             this.comp = null;
-            range1 = null;
-            range2 = null;
         }
     }
 }

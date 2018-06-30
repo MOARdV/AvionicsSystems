@@ -34,9 +34,7 @@ namespace AvionicsSystems
     {
         private Material[] localMaterial = new Material[0];
         private readonly int colorIndex;
-        private Variable range1, range2;
         private readonly bool blend;
-        private readonly bool rangeMode;
         private readonly bool useFlash;
         private bool flashOn = true;
         private bool currentState = false;
@@ -87,39 +85,14 @@ namespace AvionicsSystems
                 variableName = variableName.Trim();
             }
 
-            string range = string.Empty;
-            if (config.TryGetValue("range", ref range))
+            blend = false;
+            config.TryGetValue("blend", ref blend);
+
+            if (blend == false && config.TryGetValue("flashRate", ref flashRate) && flashRate > 0.0f)
             {
-                string[] ranges = Utility.SplitVariableList(range);
-                if (ranges.Length != 2)
-                {
-                    throw new ArgumentException("Incorrect number of values in 'range' in COLOR_SHIFT " + name);
-                }
-                range1 = comp.GetVariable(ranges[0], prop);
-                range2 = comp.GetVariable(ranges[1], prop);
-                rangeMode = true;
-
-                blend = false;
-                config.TryGetValue("blend", ref blend);
-
-                if (blend == false && config.TryGetValue("flashRate", ref flashRate) && flashRate > 0.0f)
-                {
-                    useFlash = true;
-                    comp.RegisterFlashCallback(flashRate, FlashToggle);
-                }
+                useFlash = true;
+                comp.RegisterFlashCallback(flashRate, FlashToggle);
             }
-            else
-            {
-                blend = false;
-                rangeMode = false;
-
-                if (config.TryGetValue("flashRate", ref flashRate) && flashRate > 0.0f)
-                {
-                    useFlash = true;
-                    comp.RegisterFlashCallback(flashRate, FlashToggle);
-                }
-            }
-
 
             Color32 namedColor;
             if (comp.TryGetNamedColor(passiveColorStr, out namedColor))
@@ -191,7 +164,7 @@ namespace AvionicsSystems
             }
 
             // Final validations
-            if (rangeMode || useFlash || !string.IsNullOrEmpty(variableName))
+            if (blend || useFlash || !string.IsNullOrEmpty(variableName))
             {
                 string activeColorStr = string.Empty;
                 if (string.IsNullOrEmpty(variableName))
@@ -317,7 +290,7 @@ namespace AvionicsSystems
         {
             if (blend)
             {
-                float newBlend = Mathf.InverseLerp((float)range1.AsDouble(), (float)range2.AsDouble(), (float)newValue);
+                float newBlend = Mathf.Clamp01((float)newValue);
 
                 if (!Mathf.Approximately(newBlend, currentBlend))
                 {
@@ -327,11 +300,6 @@ namespace AvionicsSystems
             }
             else
             {
-                if (rangeMode)
-                {
-                    newValue = (newValue.Between(range1.AsDouble(), range2.AsDouble())) ? 1.0 : 0.0;
-                }
-
                 bool newState = (newValue > 0.0);
 
                 if (newState != currentState)

@@ -38,8 +38,6 @@ namespace AvionicsSystems
     class MASActionColliderEvent : IMASSubComponent
     {
         private ButtonObject buttonObject;
-        private Variable range1, range2;
-        private bool rangeMode = false;
 
         /// <summary>
         /// Self-contained monobehaviour to provide button click and release
@@ -184,23 +182,6 @@ namespace AvionicsSystems
             {
                 variableName = variableName.Trim();
 
-                string range = string.Empty;
-                if (config.TryGetValue("range", ref range))
-                {
-                    string[] ranges = Utility.SplitVariableList(range);
-                    if (ranges.Length != 2)
-                    {
-                        throw new ArgumentException("Incorrect number of values in 'range' in COLLIDER_EVENT " + name);
-                    }
-                    range1 = comp.GetVariable(ranges[0], internalProp);
-                    range2 = comp.GetVariable(ranges[1], internalProp);
-                    rangeMode = true;
-                }
-                else
-                {
-                    rangeMode = false;
-                }
-
                 buttonObject.colliderEnabled = false;
                 comp.RegisterNumericVariable(variableName, internalProp, VariableCallback);
             }
@@ -238,11 +219,6 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void VariableCallback(double newValue)
         {
-            if (rangeMode)
-            {
-                newValue = (newValue.Between(range1.AsDouble(), range2.AsDouble())) ? 1.0 : 0.0;
-            }
-
             bool newState = (newValue > 0.0);
 
             if (newState != buttonObject.colliderEnabled)

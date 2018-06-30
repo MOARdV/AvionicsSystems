@@ -32,11 +32,9 @@ namespace AvionicsSystems
 {
     class MASActionTextLabel : IMASSubComponent
     {
-        private Variable range1, range2;
         private Color passiveColor = XKCDColors.White;
         private Color activeColor = XKCDColors.White;
         private readonly bool blend;
-        private readonly bool rangeMode;
         private bool currentState = false;
         private bool flashOn = true;
         private float currentBlend = 0.0f;
@@ -403,50 +401,18 @@ namespace AvionicsSystems
                 throw new ArgumentException("Invalid or missing 'activeColor' in TEXT_LABEL " + name);
             }
 
-            string range = string.Empty;
-            if (config.TryGetValue("range", ref range))
+            config.TryGetValue("blend", ref blend);
+
+            if (emissiveMode == EmissiveMode.flash)
             {
-                string[] ranges = Utility.SplitVariableList(range);
-                if (ranges.Length != 2)
+                if (blend == false && config.TryGetValue("flashRate", ref flashRate) && flashRate > 0.0f)
                 {
-                    throw new ArgumentException("Incorrect number of values in 'range' in TEXT_LABEL " + name);
+                    this.comp = comp;
+                    comp.RegisterFlashCallback(flashRate, FlashToggle);
                 }
-                range1 = comp.GetVariable(ranges[0], prop);
-                range2 = comp.GetVariable(ranges[1], prop);
-                rangeMode = true;
-
-                blend = false;
-                config.TryGetValue("blend", ref blend);
-
-                if (emissiveMode == EmissiveMode.flash)
+                else
                 {
-                    if (blend == false && config.TryGetValue("flashRate", ref flashRate) && flashRate > 0.0f)
-                    {
-                        this.comp = comp;
-                        comp.RegisterFlashCallback(flashRate, FlashToggle);
-                    }
-                    else
-                    {
-                        emissiveMode = EmissiveMode.active;
-                    }
-                }
-            }
-            else
-            {
-                blend = false;
-                rangeMode = false;
-
-                if (emissiveMode == EmissiveMode.flash)
-                {
-                    if (config.TryGetValue("flashRate", ref flashRate) && flashRate > 0.0f)
-                    {
-                        this.comp = comp;
-                        comp.RegisterFlashCallback(flashRate, FlashToggle);
-                    }
-                    else
-                    {
-                        emissiveMode = EmissiveMode.active;
-                    }
+                    emissiveMode = EmissiveMode.active;
                 }
             }
 
@@ -503,8 +469,7 @@ namespace AvionicsSystems
         {
             if (blend)
             {
-                float newBlend = Mathf.InverseLerp((float)range1.AsDouble(), (float)range2.AsDouble(), (float)newValue);
-
+                float newBlend = Mathf.Clamp01((float)newValue);
                 if (!Mathf.Approximately(newBlend, currentBlend))
                 {
                     currentBlend = newBlend;
@@ -514,11 +479,6 @@ namespace AvionicsSystems
             }
             else
             {
-                if (rangeMode)
-                {
-                    newValue = (newValue.Between(range1.AsDouble(), range2.AsDouble())) ? 1.0 : 0.0;
-                }
-
                 bool newState = (newValue > 0.0);
 
                 if (newState != currentState)
@@ -579,7 +539,7 @@ namespace AvionicsSystems
         /// </summary>
         public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
-            variableRegistrar.ReleaseResources(); ;
+            variableRegistrar.ReleaseResources();
 
             this.comp = null;
         }

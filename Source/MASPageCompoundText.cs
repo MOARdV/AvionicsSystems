@@ -147,24 +147,6 @@ namespace AvionicsSystems
                     variableName.Trim();
                 }
 
-                string range = string.Empty;
-                if (textNode.TryGetValue("range", ref range))
-                {
-                    string[] ranges = Utility.SplitVariableList(range);
-                    if (ranges.Length != 2)
-                    {
-                        throw new ArgumentException("Incorrect number of values in 'range' in COMPOUND_TEXT " + name + " node " + cpt.name);
-                    }
-                    cpt.range1 = comp.GetVariable(ranges[0], prop);
-                    cpt.range2 = comp.GetVariable(ranges[1], prop);
-
-                    cpt.rangeMode = true;
-                }
-                else
-                {
-                    cpt.rangeMode = false;
-                }
-
                 string text = string.Empty;
                 if (textNode.TryGetValue("text", ref text))
                 {
@@ -272,11 +254,6 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void VariableCallback(double newValue, CompoundPageText cpt)
         {
-            if (cpt.rangeMode)
-            {
-                newValue = (newValue.Between(cpt.range1.AsDouble(), cpt.range2.AsDouble())) ? 1.0 : 0.0;
-            }
-
             bool newState = (newValue > 0.0);
 
             if (newState != cpt.currentState)
@@ -330,8 +307,6 @@ namespace AvionicsSystems
             internal string name;
             internal GameObject textObject;
             internal MdVTextMesh textMesh;
-            internal Variable range1, range2;
-            internal bool rangeMode;
             internal bool currentState;
         };
     }

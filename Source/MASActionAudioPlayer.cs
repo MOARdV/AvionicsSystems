@@ -34,10 +34,8 @@ namespace AvionicsSystems
         private string soundVariableName = string.Empty;
         private float pitch = 1.0f;
         private float volume = 1.0f;
-        private Variable range1, range2;
         private Variable soundVariable;
         private AudioSource audioSource;
-        private readonly bool rangeMode = false;
         private readonly bool mustPlayOnce = false;
         private bool hasAudioClip = false;
         private bool currentState = false;
@@ -155,23 +153,6 @@ namespace AvionicsSystems
             }
             variableName = variableName.Trim();
 
-            string range = string.Empty;
-            if (config.TryGetValue("range", ref range))
-            {
-                string[] ranges = Utility.SplitVariableList(range);
-                if (ranges.Length != 2)
-                {
-                    throw new ArgumentException("Incorrect number of values in 'range' in AUDIO_PLAYER " + name);
-                }
-                range1 = comp.GetVariable(ranges[0], prop);
-                range2 = comp.GetVariable(ranges[1], prop);
-                rangeMode = true;
-            }
-            else
-            {
-                rangeMode = false;
-            }
-
             audioSource.mute = (CameraManager.Instance.currentCameraMode != CameraManager.CameraMode.IVA);
 
             GameEvents.OnCameraChange.Add(OnCameraChange);
@@ -278,11 +259,6 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void VariableCallback(double newValue)
         {
-            if (rangeMode)
-            {
-                newValue = (newValue.Between(range1.AsDouble(), range2.AsDouble())) ? 1.0 : 0.0;
-            }
-
             bool newState = (newValue > 0.0);
 
             if (newState != currentState)

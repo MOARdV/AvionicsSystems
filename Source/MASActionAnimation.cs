@@ -41,7 +41,6 @@ namespace AvionicsSystems
         private MASFlightComputer comp;
         private Animation animation;
         private AnimationState animationState;
-        private Variable range1, range2;
         private readonly bool rateLimited = false;
         private readonly float speed = 0.0f;
         private float currentBlend = -0.01f;
@@ -80,25 +79,9 @@ namespace AvionicsSystems
             }
             variableName = variableName.Trim();
 
-            string range = string.Empty;
-            if (config.TryGetValue("range", ref range))
+            if (config.TryGetValue("speed", ref speed) && speed > 0.0f)
             {
-                string[] ranges = Utility.SplitVariableList(range);
-                if (ranges.Length != 2)
-                {
-                    throw new ArgumentException("Incorrect number of values in 'range' in ANIMATION " + name);
-                }
-                range1 = comp.GetVariable(ranges[0], prop);
-                range2 = comp.GetVariable(ranges[1], prop);
-
-                if (config.TryGetValue("speed", ref speed) && speed > 0.0f)
-                {
-                    rateLimited = true;
-                }
-            }
-            else
-            {
-                throw new ArgumentException("Invalid or missing 'range' in ANIMATION " + name);
+                rateLimited = true;
             }
 
             variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
@@ -110,7 +93,7 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void VariableCallback(double newValue)
         {
-            float newBlend = Mathf.InverseLerp((float)range1.AsDouble(), (float)range2.AsDouble(), (float)newValue);
+            float newBlend = Mathf.Clamp01((float)newValue);
 
             if (!Mathf.Approximately(currentBlend, newBlend))
             {

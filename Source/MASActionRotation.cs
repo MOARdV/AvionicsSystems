@@ -36,7 +36,6 @@ namespace AvionicsSystems
     /// </summary>
     class MASActionRotation : IMASSubComponent
     {
-        private Variable range1, range2;
         // Beginning and ending rotation points for all rotations
         private Quaternion startRotation, endRotation;
         // midpoint rotation for 180* < rotation < 360*, and midpoint1
@@ -58,8 +57,11 @@ namespace AvionicsSystems
         private bool currentState = false;
         private float currentBlend = 0.0f;
         private float goalBlend = 0.0f;
+        private float range1 = 0.0f;
+        private float range2 = 0.0f;
 
-        internal MASActionRotation(ConfigNode config, InternalProp prop, MASFlightComputer comp):base(config, prop, comp)
+        internal MASActionRotation(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+            : base(config, prop, comp)
         {
             string transform = string.Empty;
             if (!config.TryGetValue("transform", ref transform))
@@ -98,8 +100,8 @@ namespace AvionicsSystems
                 {
                     throw new ArgumentException("Incorrect number of values in 'range' in ROTATION " + name);
                 }
-                range1 = comp.GetVariable(ranges[0], prop);
-                range2 = comp.GetVariable(ranges[1], prop);
+                variableRegistrar.RegisterNumericVariable(ranges[0], (double newValue) => range1 = (float)newValue);
+                variableRegistrar.RegisterNumericVariable(ranges[1], (double newValue) => range2 = (float)newValue);
                 rangeMode = true;
 
                 blend = false;
@@ -303,8 +305,8 @@ namespace AvionicsSystems
 
                 if (modulo)
                 {
-                    float lowValue = (float)range1.AsDouble();
-                    float highValue = (float)range2.AsDouble();
+                    float lowValue = range1;
+                    float highValue = range2;
                     if (highValue < lowValue)
                     {
                         float tmp = lowValue;
@@ -323,7 +325,7 @@ namespace AvionicsSystems
                 }
                 else
                 {
-                    newBlend = Mathf.InverseLerp((float)range1.AsDouble(), (float)range2.AsDouble(), (float)newValue);
+                    newBlend = Mathf.InverseLerp(range1, range2, (float)newValue);
                 }
 
                 if (!Mathf.Approximately(newBlend, currentBlend))
@@ -344,7 +346,7 @@ namespace AvionicsSystems
             {
                 if (rangeMode)
                 {
-                    newValue = (newValue.Between(range1.AsDouble(), range2.AsDouble())) ? 1.0 : 0.0;
+                    newValue = (newValue.Between(range1, range2)) ? 1.0 : 0.0;
                 }
 
                 bool newState = (newValue > 0.0);

@@ -40,9 +40,7 @@ namespace AvionicsSystems
         private Vector2[] baseUV;
         private Vector2 startUV;
         private Vector2 endUV;
-        private Variable range1, range2;
         private readonly bool blend;
-        private readonly bool rangeMode;
         private bool currentState = false;
         private float currentBlend = 0.0f;
         private string[] layer;
@@ -65,28 +63,7 @@ namespace AvionicsSystems
                 variableName = variableName.Trim();
             }
 
-            string range = string.Empty;
-            if (config.TryGetValue("range", ref range))
-            {
-                string[] ranges = Utility.SplitVariableList(range);
-                if (ranges.Length != 2)
-                {
-                    throw new ArgumentException("Incorrect number of values in 'range' in TEXTURE_SHIFT " + name);
-                }
-                range1 = comp.GetVariable(ranges[0], prop);
-                range2 = comp.GetVariable(ranges[1], prop);
-                rangeMode = true;
-
-                blend = false;
-                config.TryGetValue("blend", ref blend);
-
-                // TODO: Support rate-limited changes
-            }
-            else
-            {
-                blend = false;
-                rangeMode = false;
-            }
+            config.TryGetValue("blend", ref blend);
 
             Transform t = prop.FindModelTransform(transform);
             Renderer r = t.GetComponent<Renderer>();
@@ -128,7 +105,7 @@ namespace AvionicsSystems
             }
 
             // Final validations
-            if (rangeMode || !string.IsNullOrEmpty(variableName))
+            if (!string.IsNullOrEmpty(variableName))
             {
                 string endUVstring = string.Empty;
                 if (string.IsNullOrEmpty(variableName))
@@ -205,8 +182,7 @@ namespace AvionicsSystems
         {
             if (blend)
             {
-                float newBlend = Mathf.InverseLerp((float)range1.AsDouble(), (float)range2.AsDouble(), (float)newValue);
-
+                float newBlend = Mathf.Clamp01((float)newValue);
                 if (!Mathf.Approximately(newBlend, currentBlend))
                 {
                     currentBlend = newBlend;
@@ -216,11 +192,6 @@ namespace AvionicsSystems
             }
             else
             {
-                if (rangeMode)
-                {
-                    newValue = (newValue.Between(range1.AsDouble(), range2.AsDouble())) ? 1.0 : 0.0;
-                }
-
                 bool newState = (newValue > 0.0);
 
                 if (newState != currentState)
@@ -237,7 +208,7 @@ namespace AvionicsSystems
         /// </summary>
         public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
-            variableRegistrar.ReleaseResources(); ;
+            variableRegistrar.ReleaseResources();
 
             UnityEngine.Object.Destroy(localMaterial);
         }

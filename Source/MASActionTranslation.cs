@@ -32,12 +32,10 @@ namespace AvionicsSystems
 {
     class MASActionTranslation : IMASSubComponent
     {
-        private Variable range1, range2;
         private Vector3 startTranslation, endTranslation;
         private MASFlightComputer comp;
         private Transform transform;
         private readonly bool blend;
-        private readonly bool rangeMode;
         private readonly bool rateLimited;
         private readonly float speed;
         private bool coroutineActive = false;
@@ -74,40 +72,20 @@ namespace AvionicsSystems
                 endTranslation = Vector3.zero;
             }
 
-            string range = string.Empty;
-            if (config.TryGetValue("range", ref range))
+            config.TryGetValue("blend", ref blend);
+            if (blend)
             {
-                string[] ranges = Utility.SplitVariableList(range);
-                if (ranges.Length != 2)
+                float speed = 0.0f;
+                if (config.TryGetValue("speed", ref speed) && speed > 0.0f)
                 {
-                    throw new ArgumentException("Incorrect number of values in 'range' in TRANSLATION " + name);
+                    this.comp = comp;
+                    this.rateLimited = true;
+                    this.speed = speed;
                 }
-                range1 = comp.GetVariable(ranges[0], prop);
-                range2 = comp.GetVariable(ranges[1], prop);
-                rangeMode = true;
-
-                blend = false;
-                config.TryGetValue("blend", ref blend);
-
-                if (blend)
-                {
-                    float speed = 0.0f;
-                    if (config.TryGetValue("speed", ref speed) && speed > 0.0f)
-                    {
-                        this.comp = comp;
-                        this.rateLimited = true;
-                        this.speed = speed;
-                    }
-                }
-            }
-            else
-            {
-                blend = false;
-                rangeMode = false;
             }
 
             // Final validations
-            if (rangeMode || hasTranslationEnd)
+            if (blend || hasTranslationEnd)
             {
                 if (string.IsNullOrEmpty(variableName))
                 {
@@ -176,9 +154,7 @@ namespace AvionicsSystems
         {
             if (blend)
             {
-                float newBlend;
-
-                newBlend = Mathf.InverseLerp((float)range1.AsDouble(), (float)range2.AsDouble(), (float)newValue);
+                float newBlend = Mathf.Clamp01((float)newValue);
 
                 if (!Mathf.Approximately(newBlend, currentBlend))
                 {
@@ -197,10 +173,6 @@ namespace AvionicsSystems
             }
             else
             {
-                if (rangeMode)
-                {
-                    newValue = (newValue.Between(range1.AsDouble(), range2.AsDouble())) ? 1.0 : 0.0;
-                }
 
                 bool newState = (newValue > 0.0);
 
