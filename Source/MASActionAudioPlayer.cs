@@ -31,7 +31,6 @@ namespace AvionicsSystems
 {
     internal class MASActionAudioPlayer : IMASSubComponent
     {
-        private string soundVariableName = string.Empty;
         private float pitch = 1.0f;
         private float volume = 1.0f;
         private Variable soundVariable;
@@ -66,6 +65,7 @@ namespace AvionicsSystems
             }
 
             string sound = string.Empty;
+            string soundVariableName = string.Empty;
             if (!config.TryGetValue("sound", ref sound) || string.IsNullOrEmpty(sound))
             {
                 if (!config.TryGetValue("variableSound", ref soundVariableName) || string.IsNullOrEmpty(soundVariableName))
@@ -157,14 +157,22 @@ namespace AvionicsSystems
 
             GameEvents.OnCameraChange.Add(OnCameraChange);
 
-            variableRegistrar.RegisterNumericVariable(pitchVariableName, PitchCallback);
-            variableRegistrar.RegisterNumericVariable(volumeVariableName, VolumeCallback);
+            variableRegistrar.RegisterNumericVariable(pitchVariableName, (double newPitch) =>
+            {
+                pitch = (float)newPitch;
+                audioSource.pitch = pitch;
+            });
+            variableRegistrar.RegisterNumericVariable(volumeVariableName, (double newVolume) =>
+            {
+                volume = Mathf.Clamp01((float)newVolume);
+                audioSource.volume = GameSettings.SHIP_VOLUME * volume;
+            });
             variableRegistrar.RegisterNumericVariable(variableName, VariableCallback);
             if (!string.IsNullOrEmpty(soundVariableName))
             {
-                soundVariable = comp.RegisterOnVariableChange(soundVariableName, prop, SoundClipCallback);
+                soundVariable = variableRegistrar.RegisterNumericVariable(soundVariableName, SoundClipCallback, false);
                 // Initialize the audio.
-                SoundClipCallback();
+                SoundClipCallback(0.0);
             }
         }
 
@@ -180,7 +188,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Callback that allows changing the audio clip attached to this player.
         /// </summary>
-        private void SoundClipCallback()
+        private void SoundClipCallback(double dontCare)
         {
             audioSource.Stop();
 
@@ -196,26 +204,6 @@ namespace AvionicsSystems
                 hasAudioClip = true;
                 PlayAudio();
             }
-        }
-
-        /// <summary>
-        /// Callback to change audio playback volume.
-        /// </summary>
-        /// <param name="newVolume"></param>
-        private void VolumeCallback(double newVolume)
-        {
-            volume = Mathf.Clamp01((float)newVolume);
-            audioSource.volume = GameSettings.SHIP_VOLUME * volume;
-        }
-
-        /// <summary>
-        /// Callback to change audio playback pitch.
-        /// </summary>
-        /// <param name="newPitch"></param>
-        private void PitchCallback(double newPitch)
-        {
-            pitch = (float)newPitch;
-            audioSource.pitch = pitch;
         }
 
         /// <summary>
@@ -280,11 +268,6 @@ namespace AvionicsSystems
             GameEvents.OnCameraChange.Remove(OnCameraChange);
 
             variableRegistrar.ReleaseResources();
-
-            if (!string.IsNullOrEmpty(soundVariableName))
-            {
-                comp.UnregisterOnVariableChange(soundVariableName, prop, SoundClipCallback);
-            }
 
             audioSource.Stop();
             audioSource.clip = null;
