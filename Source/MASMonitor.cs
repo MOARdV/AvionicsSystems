@@ -72,6 +72,7 @@ namespace AvionicsSystems
         private MASPage currentPage;
         internal Font defaultFont;
         internal FontStyle defaultStyle = FontStyle.Normal;
+        private VariableRegistrar variableRegistrar;
 
         private bool initialized = false;
 
@@ -120,6 +121,7 @@ namespace AvionicsSystems
                 try
                 {
                     MASFlightComputer comp = MASFlightComputer.Instance(internalProp.part);
+                    variableRegistrar = new VariableRegistrar(comp, internalProp);
 
                     if (string.IsNullOrEmpty(screenTransform))
                     {
@@ -254,7 +256,7 @@ namespace AvionicsSystems
                     if (!string.IsNullOrEmpty(monitorID))
                     {
                         string variableName = "fc.GetPersistent(\"" + monitorID.Trim() + "\")";
-                        pageSelector = comp.RegisterOnVariableChange(variableName, internalProp, PageChanged);
+                        pageSelector = variableRegistrar.RegisterNumericVariable(variableName, PageChanged, false);
                         // See if we have a saved page to restore.
                         if (!string.IsNullOrEmpty(pageSelector.AsString()) && page.ContainsKey(pageSelector.AsString()))
                         {
@@ -312,12 +314,8 @@ namespace AvionicsSystems
 
             if (initialized)
             {
+                variableRegistrar.ReleaseResources();
                 MASFlightComputer comp = MASFlightComputer.Instance(internalProp.part);
-
-                if (pageSelector != null)
-                {
-                    comp.UnregisterOnVariableChange(pageSelector.name, internalProp, PageChanged);
-                }
 
                 foreach (var value in page.Values)
                 {
@@ -385,7 +383,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Callback fired when our variable changes.
         /// </summary>
-        private void PageChanged()
+        private void PageChanged(double dontCare)
         {
             try
             {
