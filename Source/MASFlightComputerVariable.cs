@@ -203,7 +203,7 @@ namespace AvionicsSystems
         /// <param name="variableName"></param>
         /// <param name="prop"></param>
         /// <returns></returns>
-        internal Variable GetVariable(string variableName, InternalProp prop)
+        private Variable GetVariable(string variableName, InternalProp prop)
         {
             variableName = ConditionVariableName(variableName, prop);
             if (variableName.Length < 1)
@@ -330,7 +330,6 @@ namespace AvionicsSystems
 #if PLENTIFUL_LOGGING
                     Utility.LogErrorMessage(this, "!! GenerateVariable(): Unhandled expression type {0}", expression.GetType());
 #endif
-                    //v = new GenericVariable(canonical, script);
                     break;
             }
 
@@ -389,6 +388,7 @@ namespace AvionicsSystems
             }
             else
             {
+                Utility.LogWarning(this, "Encountered unhandled NameExpression {0}", nameExpression.getName());
                 return null;
             }
         }
@@ -500,9 +500,7 @@ namespace AvionicsSystems
                     rhs.RegisterNumericCallback(v.TriggerUpdate);
                     break;
                 default:
-#if PLENTIFUL_LOGGING
-                    Utility.LogErrorMessage(this, "!!! GenerateOperatorVariable(): unsupported operator {0}", operatorExpression.Operator());
-#endif
+                    Utility.LogWarning(this, "Encountered unhandled OperatorExpression operator {0}", operatorExpression.Operator());
                     break;
             }
             return v;
@@ -974,6 +972,19 @@ namespace AvionicsSystems
                         {
                             DynamicMethodDelegate<double> dm = DynamicMethodFactory.CreateFunc<double>(method);
                             newVar = new DoubleVariable(canonical, () =>
+                            {
+                                for (int i = 0; i < numArgs; ++i)
+                                {
+                                    paramList[i] = parms[i].AsObject();
+                                }
+                                return dm(tableInstance, paramList);
+                            }
+                                , cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
+                        }
+                        else if (method.ReturnType == typeof(string))
+                        {
+                            DynamicMethodDelegate<string> dm = DynamicMethodFactory.CreateFunc<string>(method);
+                            newVar = new StringVariable(canonical, () =>
                             {
                                 for (int i = 0; i < numArgs; ++i)
                                 {
