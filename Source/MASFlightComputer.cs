@@ -639,7 +639,7 @@ namespace AvionicsSystems
                     {
                         try
                         {
-                            nativeVariables[i].Evaluate();
+                            nativeVariables[i].Evaluate(true);
                         }
                         catch (Exception e)
                         {
@@ -680,7 +680,7 @@ namespace AvionicsSystems
                     {
                         try
                         {
-                            luaVariables[i].Evaluate();
+                            luaVariables[i].Evaluate(true);
                         }
                         catch (Exception e)
                         {
@@ -698,7 +698,7 @@ namespace AvionicsSystems
                     {
                         try
                         {
-                            dependentVariables[i].Evaluate();
+                            dependentVariables[i].Evaluate(true);
                         }
                         catch (Exception e)
                         {

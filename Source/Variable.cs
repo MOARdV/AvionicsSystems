@@ -47,7 +47,14 @@ namespace AvionicsSystems
         /// <summary>
         /// Whether the variable can change (otherwise it is a constant)
         /// </summary>
-        public readonly bool mutable;
+        public bool mutable
+        {
+            get
+            {
+                return variableType != VariableType.Constant;
+            }
+        }
+
         /// <summary>
         /// Can the results be cached, or must they be evaluated each time
         /// it is called?
@@ -103,15 +110,13 @@ namespace AvionicsSystems
         /// <summary>
         /// Initialize the readonly values.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="cacheable"></param>
-        /// <param name="mutable"></param>
-        /// <param name="variableType"></param>
-        public Variable(string name, bool cacheable, bool mutable, VariableType variableType)
+        /// <param name="name">Canonical name of the variable</param>
+        /// <param name="cacheable">Whether the variable may be cached.</param>
+        /// <param name="variableType">Type of variable.</param>
+        public Variable(string name, bool cacheable, VariableType variableType)
         {
             this.name = name;
 
-            this.mutable = mutable;
             this.cacheable = cacheable;
             this.variableType = variableType;
         }
@@ -150,7 +155,9 @@ namespace AvionicsSystems
         /// <summary>
         /// Evaluate() conditionally updates the variable by calling the evaluator.
         /// </summary>
-        internal abstract void Evaluate();
+        /// <param name="invokeCallbacks">Whether numeric callbacks should be triggered after evaluation.
+        /// This value is set to false in the accessor function of non-cacheable variables.</param>
+        internal abstract void Evaluate(bool invokeCallbacks);
 
         /// <summary>
         /// Add a given callback to our callbacks list, provided our value can change.
@@ -167,7 +174,7 @@ namespace AvionicsSystems
                 if (reevaluate)
                 {
                     triggerUpdate = true;
-                    Evaluate();
+                    Evaluate(true);
                 }
             }
         }
@@ -196,13 +203,16 @@ namespace AvionicsSystems
             triggerUpdate = true;
         }
 
+        /// <summary>
+        /// Invoke any registered callbacks.
+        /// </summary>
+        /// <param name="value"></param>
         internal protected void TriggerNumericCallbacks(double value)
         {
             if (numericCallbacks != null)
             {
                 numericCallbacks.Invoke(value);
             }
-
         }
     }
 
@@ -219,7 +229,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="constantValue"></param>
         public BooleanVariable(bool constantValue)
-            : base(string.Format("{0}", constantValue), true, false, VariableType.Constant)
+            : base(string.Format("{0}", constantValue), true, VariableType.Constant)
         {
             this.boolValue = constantValue;
         }
@@ -227,15 +237,17 @@ namespace AvionicsSystems
         /// <summary>
         /// Construct a dynamic native evaluator.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="evaluator"></param>
-        /// <param name="cacheable"></param>
+        /// <param name="name">Name (canonical) of the variable.</param>
+        /// <param name="evaluator">The function used to evaluate the variable.</param>
+        /// <param name="cacheable">Whether the variable is cacheable (if false, the variable must be evaluated every time it's called).</param>
+        /// <param name="mutable">Whether the variable will ever change value.</param>
+        /// <param name="variableType">The type of variable.</param>
         public BooleanVariable(string name, Func<bool> evaluator, bool cacheable, bool mutable, VariableType variableType)
-            : base(name, (mutable) ? cacheable : true, mutable, (mutable) ? variableType : VariableType.Constant)
+            : base(name, (mutable) ? cacheable : true, (mutable) ? variableType : VariableType.Constant)
         {
             this.evaluator = evaluator;
 
-            Evaluate();
+            Evaluate(false);
         }
 
         /// <summary>
@@ -246,7 +258,7 @@ namespace AvionicsSystems
         {
             if (!cacheable)
             {
-                Evaluate();
+                Evaluate(false);
             }
             return boolValue;
         }
@@ -259,7 +271,7 @@ namespace AvionicsSystems
         {
             if (!cacheable)
             {
-                Evaluate();
+                Evaluate(false);
             }
             return boolValue;
         }
@@ -272,7 +284,7 @@ namespace AvionicsSystems
         {
             if (!cacheable)
             {
-                Evaluate();
+                Evaluate(false);
             }
             return DynValue.NewBoolean(boolValue);
         }
@@ -286,7 +298,7 @@ namespace AvionicsSystems
         {
             if (!cacheable)
             {
-                Evaluate();
+                Evaluate(false);
             }
             return (boolValue) ? 1.0 : 0.0;
         }
@@ -299,7 +311,7 @@ namespace AvionicsSystems
         {
             if (!cacheable)
             {
-                Evaluate();
+                Evaluate(false);
             }
             return boolValue.ToString();
         }
@@ -307,7 +319,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Evaluate() conditionally updates the variable by calling the evaluator.
         /// </summary>
-        internal override void Evaluate()
+        internal override void Evaluate(bool invokeCallbacks)
         {
             if (variableType == VariableType.Dependent && triggerUpdate == false)
             {
@@ -320,7 +332,10 @@ namespace AvionicsSystems
 
             if (newValue != boolValue)
             {
-                TriggerNumericCallbacks(newValue ? 1.0 : 0.0);
+                if (invokeCallbacks)
+                {
+                    TriggerNumericCallbacks(newValue ? 1.0 : 0.0);
+                }
                 boolValue = newValue;
             }
         }
@@ -339,7 +354,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="constantValue"></param>
         public DoubleVariable(double constantValue)
-            : base(string.Format("{0:R}", constantValue), true, false, VariableType.Constant)
+            : base(string.Format("{0:R}", constantValue), true, VariableType.Constant)
         {
             this.doubleValue = constantValue;
         }
@@ -347,15 +362,17 @@ namespace AvionicsSystems
         /// <summary>
         /// Construct a dynamic native evaluator.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="evaluator"></param>
-        /// <param name="cacheable"></param>
+        /// <param name="name">Name (canonical) of the variable.</param>
+        /// <param name="evaluator">The function used to evaluate the variable.</param>
+        /// <param name="cacheable">Whether the variable is cacheable (if false, the variable must be evaluated every time it's called).</param>
+        /// <param name="mutable">Whether the variable will ever change value.</param>
+        /// <param name="variableType">The type of variable.</param>
         public DoubleVariable(string name, Func<double> evaluator, bool cacheable, bool mutable, VariableType variableType)
-            : base(name, (mutable) ? cacheable : true, mutable, (mutable) ? variableType : VariableType.Constant)
+            : base(name, (mutable) ? cacheable : true, (mutable) ? variableType : VariableType.Constant)
         {
             this.evaluator = evaluator;
 
-            Evaluate();
+            Evaluate(false);
         }
 
         /// <summary>
@@ -366,7 +383,7 @@ namespace AvionicsSystems
         {
             if (!cacheable)
             {
-                Evaluate();
+                Evaluate(false);
             }
             return doubleValue;
         }
@@ -379,7 +396,7 @@ namespace AvionicsSystems
         {
             if (!cacheable)
             {
-                Evaluate();
+                Evaluate(false);
             }
             return (doubleValue != 0.0);
         }
@@ -392,7 +409,7 @@ namespace AvionicsSystems
         {
             if (!cacheable)
             {
-                Evaluate();
+                Evaluate(false);
             }
             return DynValue.NewNumber(doubleValue);
         }
@@ -406,7 +423,7 @@ namespace AvionicsSystems
         {
             if (!cacheable)
             {
-                Evaluate();
+                Evaluate(false);
             }
             return doubleValue;
         }
@@ -419,7 +436,7 @@ namespace AvionicsSystems
         {
             if (!cacheable)
             {
-                Evaluate();
+                Evaluate(false);
             }
             return string.Format("{0:R}", doubleValue);
         }
@@ -427,7 +444,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Evaluate() conditionally updates the variable by calling the evaluator.
         /// </summary>
-        internal override void Evaluate()
+        internal override void Evaluate(bool invokeCallbacks)
         {
             if (variableType == VariableType.Dependent && triggerUpdate == false)
             {
@@ -444,7 +461,10 @@ namespace AvionicsSystems
             // double precision and compare the delta to the Mathf.Epsilon.
             if (Math.Abs(newValue - doubleValue) > Mathf.Epsilon)
             {
-                TriggerNumericCallbacks(newValue);
+                if (invokeCallbacks)
+                {
+                    TriggerNumericCallbacks(newValue);
+                }
                 doubleValue = newValue;
             }
         }
@@ -495,15 +515,17 @@ namespace AvionicsSystems
         /// <summary>
         /// Construct a dynamic native evaluator.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="evaluator"></param>
-        /// <param name="cacheable"></param>
+        /// <param name="name">Name (canonical) of the variable.</param>
+        /// <param name="evaluator">The function used to evaluate the variable.</param>
+        /// <param name="cacheable">Whether the variable is cacheable (if false, the variable must be evaluated every time it's called).</param>
+        /// <param name="mutable">Whether the variable will ever change value.</param>
+        /// <param name="variableType">The type of variable.</param>
         public GenericVariable(string name, Func<object> evaluator, bool cacheable, bool mutable, VariableType variableType)
-            : base(name, (mutable) ? cacheable : true, mutable, (mutable) ? variableType : VariableType.Constant)
+            : base(name, (mutable) ? cacheable : true, (mutable) ? variableType : VariableType.Constant)
         {
             this.evaluator = evaluator;
 
-            ProcessObject();
+            ProcessObject(false);
 
             if (!mutable)
             {
@@ -533,8 +555,7 @@ namespace AvionicsSystems
         {
             if (!cacheable)
             {
-                // Only permitted for native objects
-                ProcessObject();
+                ProcessObject(false);
             }
             return rawObject;
         }
@@ -547,8 +568,7 @@ namespace AvionicsSystems
         {
             if (!cacheable)
             {
-                // Only permitted for native objects
-                ProcessObject();
+                ProcessObject(false);
             }
             return (doubleValue != 0.0);
         }
@@ -589,8 +609,7 @@ namespace AvionicsSystems
         {
             if (!cacheable)
             {
-                // Only permitted for native objects
-                ProcessObject();
+                ProcessObject(false);
             }
             return doubleValue;
         }
@@ -603,8 +622,7 @@ namespace AvionicsSystems
         {
             if (!cacheable)
             {
-                // Only permitted for native objects
-                ProcessObject();
+                ProcessObject(false);
             }
             return stringValue;
         }
@@ -613,8 +631,7 @@ namespace AvionicsSystems
         /// Process and classify the raw object that comes from the native
         /// evaluator.
         /// </summary>
-        /// <param name="value"></param>
-        private void ProcessObject()
+        private void ProcessObject(bool invokeCallbacks)
         {
             object value = evaluator();
             if (rawObject == null || !value.Equals(rawObject))
@@ -639,7 +656,10 @@ namespace AvionicsSystems
                     valueType = EvaluationType.String;
                     // Since strings never change doubleValue, we force them
                     // to trigger callbacks here.
-                    TriggerNumericCallbacks(0.0);
+                    if (invokeCallbacks)
+                    {
+                        TriggerNumericCallbacks(0.0);
+                    }
                 }
                 else if (value is bool)
                 {
@@ -671,7 +691,7 @@ namespace AvionicsSystems
             }
         }
 
-        internal override void Evaluate()
+        internal override void Evaluate(bool invokeCallbacks)
         {
             if (variableType == VariableType.Dependent && triggerUpdate == false)
             {
@@ -680,7 +700,7 @@ namespace AvionicsSystems
 
             triggerUpdate = false;
 
-            ProcessObject();
+            ProcessObject(invokeCallbacks);
         }
     }
 
@@ -693,7 +713,7 @@ namespace AvionicsSystems
         string stringValue;
 
         public StringVariable(string stringValue)
-            : base(stringValue, true, false, VariableType.Constant)
+            : base(stringValue, true, VariableType.Constant)
         {
             this.stringValue = stringValue;
         }
@@ -701,15 +721,17 @@ namespace AvionicsSystems
         /// <summary>
         /// Construct a dynamic native evaluator.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="evaluator"></param>
-        /// <param name="cacheable"></param>
+        /// <param name="name">Name (canonical) of the variable.</param>
+        /// <param name="evaluator">The function used to evaluate the variable.</param>
+        /// <param name="cacheable">Whether the variable is cacheable (if false, the variable must be evaluated every time it's called).</param>
+        /// <param name="mutable">Whether the variable will ever change value.</param>
+        /// <param name="variableType">The type of variable.</param>
         public StringVariable(string name, Func<string> evaluator, bool cacheable, bool mutable, VariableType variableType)
-            : base(name, (mutable) ? cacheable : true, mutable, (mutable) ? variableType : VariableType.Constant)
+            : base(name, (mutable) ? cacheable : true, (mutable) ? variableType : VariableType.Constant)
         {
             this.evaluator = evaluator;
 
-            Evaluate();
+            Evaluate(false);
         }
 
         /// <summary>
@@ -720,7 +742,7 @@ namespace AvionicsSystems
         {
             if (!cacheable)
             {
-                Evaluate();
+                Evaluate(false);
             }
             return stringValue;
         }
@@ -761,7 +783,7 @@ namespace AvionicsSystems
         {
             if (!cacheable)
             {
-                Evaluate();
+                Evaluate(false);
             }
             return stringValue;
         }
@@ -769,7 +791,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Evaluate() conditionally updates the variable by calling the evaluator.
         /// </summary>
-        internal override void Evaluate()
+        internal override void Evaluate(bool invokeCallbacks)
         {
             if (variableType == VariableType.Dependent && triggerUpdate == false)
             {
@@ -782,9 +804,12 @@ namespace AvionicsSystems
 
             stringValue = newValue;
 
-            // Note - this is primarily for Dependent variables who
-            // don't care about safeValue.
-            TriggerNumericCallbacks(0.0);
+            if (invokeCallbacks)
+            {
+                // Note - this is primarily for Dependent variables who
+                // don't care about safeValue.
+                TriggerNumericCallbacks(0.0);
+            }
         }
     }
 }
