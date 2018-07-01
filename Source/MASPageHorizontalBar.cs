@@ -39,7 +39,7 @@ namespace AvionicsSystems
         private Material borderMaterial;
         private LineRenderer lineRenderer;
         private MeshRenderer meshRenderer;
-        private readonly Variable sourceRange1, sourceRange2;
+        private float sourceRange1, sourceRange2;
         private float lastValue = -1.0f;
         private float barWidth;
         private Vector3[] vertices = new Vector3[4];
@@ -99,8 +99,8 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Incorrect number of values in 'sourceRange' in HORIZONTAL_BAR " + name);
             }
-            sourceRange1 = comp.GetVariable(ranges[0], prop);
-            sourceRange2 = comp.GetVariable(ranges[1], prop);
+            variableRegistrar.RegisterVariableChangeCallback(ranges[0], (double newValue) => sourceRange1 = (float)newValue);
+            variableRegistrar.RegisterVariableChangeCallback(ranges[1], (double newValue) => sourceRange2 = (float)newValue);
 
             string anchorName = string.Empty;
             if (config.TryGetValue("anchor", ref anchorName))
@@ -387,7 +387,7 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void SourceCallback(double newValue)
         {
-            float iLerp = Mathf.InverseLerp((float)sourceRange1.AsDouble(), (float)sourceRange2.AsDouble(), (float)newValue);
+            float iLerp = Mathf.InverseLerp(sourceRange1, sourceRange2, (float)newValue);
             if (!Mathf.Approximately(lastValue, iLerp))
             {
                 // Recompute x positions and uvs

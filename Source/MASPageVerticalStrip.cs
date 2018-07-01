@@ -36,8 +36,8 @@ namespace AvionicsSystems
         private MeshRenderer meshRenderer;
         private readonly float textureOffset;
         private readonly float texelWidth;
-        private readonly Variable inputRange1, inputRange2;
-        private readonly Variable displayRange1, displayRange2;
+        private float inputRange1, inputRange2;
+        private float displayRange1, displayRange2;
 
         internal MASPageVerticalStrip(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
             : base(config, prop, comp)
@@ -88,8 +88,8 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Incorrect number of values in 'inputRange' in VERTICAL_STRIP " + name);
             }
-            inputRange1 = comp.GetVariable(ranges[0], prop);
-            inputRange2 = comp.GetVariable(ranges[1], prop);
+            variableRegistrar.RegisterVariableChangeCallback(ranges[0], (double newValue) => inputRange1 = (float)newValue);
+            variableRegistrar.RegisterVariableChangeCallback(ranges[1], (double newValue) => inputRange2 = (float)newValue);
 
             string displayRange = string.Empty;
             if (!config.TryGetValue("displayRange", ref displayRange))
@@ -101,8 +101,8 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Incorrect number of values in 'displayRange' in VERTICAL_STRIP " + name);
             }
-            displayRange1 = comp.GetVariable(ranges[0], prop);
-            displayRange2 = comp.GetVariable(ranges[1], prop);
+            variableRegistrar.RegisterVariableChangeCallback(ranges[0], (double newValue) => displayRange1 = (float)newValue);
+            variableRegistrar.RegisterVariableChangeCallback(ranges[1], (double newValue) => displayRange2 = (float)newValue);
 
             float displayHeight = 0.0f;
             if (!config.TryGetValue("displayHeight", ref displayHeight))
@@ -177,8 +177,8 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void InputCallback(double newValue)
         {
-            float iLerp = Mathf.InverseLerp((float)inputRange1.AsDouble(), (float)inputRange2.AsDouble(), (float)newValue);
-            float newCenter = Mathf.Lerp((float)displayRange1.AsDouble() * texelWidth, (float)displayRange2.AsDouble() * texelWidth, iLerp);
+            float iLerp = Mathf.InverseLerp(inputRange1, inputRange2, (float)newValue);
+            float newCenter = Mathf.Lerp(displayRange1 * texelWidth, displayRange2 * texelWidth, iLerp);
             // Since we invert the vertical coordinates to place y=0 at the top, we need to flip the offset here,
             // too.
             imageMaterial.mainTextureOffset = new Vector2(0.0f, 1.0f - (newCenter + textureOffset));

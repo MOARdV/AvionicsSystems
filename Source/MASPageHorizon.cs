@@ -36,10 +36,10 @@ namespace AvionicsSystems
         private MeshRenderer meshRenderer;
         private readonly float textureOffset;
         private readonly Vector2 texelSize;
-        private readonly Variable pitchRange1, pitchRange2;
-        private readonly Variable displayPitchRange1, displayPitchRange2;
-        private readonly Variable rollRange1, rollRange2;
-        private readonly Variable displayRollRange1, displayRollRange2;
+        private float pitchRange1, pitchRange2;
+        private float displayPitchRange1, displayPitchRange2;
+        private float rollRange1, rollRange2;
+        private float displayRollRange1, displayRollRange2;
         private float lastRoll = 0.0f;
         private float oldPitchCenter = -1.0f;
 
@@ -88,8 +88,9 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Incorrect number of values in 'pitchRange' in HORIZON " + name);
             }
-            pitchRange1 = comp.GetVariable(ranges[0], prop);
-            pitchRange2 = comp.GetVariable(ranges[1], prop);
+            variableRegistrar.RegisterVariableChangeCallback(ranges[0], (double newValue) => pitchRange1 = (float)newValue);
+            variableRegistrar.RegisterVariableChangeCallback(ranges[1], (double newValue) => pitchRange2 = (float)newValue);
+
             string displayPitchRange = string.Empty;
             if (!config.TryGetValue("displayPitchRange", ref displayPitchRange))
             {
@@ -100,8 +101,8 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Incorrect number of values in 'displayPitchRange' in HORIZON " + name);
             }
-            displayPitchRange1 = comp.GetVariable(ranges[0], prop);
-            displayPitchRange2 = comp.GetVariable(ranges[1], prop);
+            variableRegistrar.RegisterVariableChangeCallback(ranges[0], (double newValue) => displayPitchRange1 = (float)newValue);
+            variableRegistrar.RegisterVariableChangeCallback(ranges[1], (double newValue) => displayPitchRange2 = (float)newValue);
 
             if (!config.TryGetValue("roll", ref rollName))
             {
@@ -118,8 +119,9 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Incorrect number of values in 'rollRange' in HORIZON " + name);
             }
-            rollRange1 = comp.GetVariable(ranges[0], prop);
-            rollRange2 = comp.GetVariable(ranges[1], prop);
+            variableRegistrar.RegisterVariableChangeCallback(ranges[0], (double newValue) => rollRange1 = (float)newValue);
+            variableRegistrar.RegisterVariableChangeCallback(ranges[1], (double newValue) => rollRange2 = (float)newValue);
+
             string displayRollRange = string.Empty;
             if (!config.TryGetValue("displayRollRange", ref displayRollRange))
             {
@@ -130,8 +132,8 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Incorrect number of values in 'displayRollRange' in HORIZON " + name);
             }
-            displayRollRange1 = comp.GetVariable(ranges[0], prop);
-            displayRollRange2 = comp.GetVariable(ranges[1], prop);
+            variableRegistrar.RegisterVariableChangeCallback(ranges[0], (double newValue) => displayRollRange1 = (float)newValue);
+            variableRegistrar.RegisterVariableChangeCallback(ranges[1], (double newValue) => displayRollRange2 = (float)newValue);
 
             texelSize = mainTexture.texelSize;
 
@@ -223,8 +225,8 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void RollCallback(double newValue)
         {
-            float iLerp = Mathf.InverseLerp((float)rollRange1.AsDouble(), (float)rollRange2.AsDouble(), (float)newValue);
-            float newRoll = Mathf.Lerp((float)displayRollRange1.AsDouble(), (float)displayRollRange2.AsDouble(), iLerp);
+            float iLerp = Mathf.InverseLerp(rollRange1, rollRange2, (float)newValue);
+            float newRoll = Mathf.Lerp(displayRollRange1, displayRollRange2, iLerp);
 
             if (!Mathf.Approximately(newRoll, lastRoll))
             {
@@ -240,8 +242,8 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void PitchCallback(double newValue)
         {
-            float iLerp = Mathf.InverseLerp((float)pitchRange1.AsDouble(), (float)pitchRange2.AsDouble(), (float)newValue);
-            float newCenter = Mathf.Lerp((float)displayPitchRange1.AsDouble() * texelSize.y, (float)displayPitchRange2.AsDouble() * texelSize.y, iLerp);
+            float iLerp = Mathf.InverseLerp(pitchRange1, pitchRange2, (float)newValue);
+            float newCenter = Mathf.Lerp(displayPitchRange1 * texelSize.y, displayPitchRange2 * texelSize.y, iLerp);
 
             if (!Mathf.Approximately(newCenter, oldPitchCenter))
             {

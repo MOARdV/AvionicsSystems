@@ -45,8 +45,8 @@ namespace AvionicsSystems
         private Color sourceColor = Color.white;
         private readonly float verticalSpan;
         private readonly float sampleRate;
-        private readonly Variable sourceValue;
-        private readonly Variable sourceRange1, sourceRange2;
+        private float sourceValue;
+        private float sourceRange1, sourceRange2;
 
         private int currentSample;
         private int maxSamples;
@@ -80,7 +80,7 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Unable to find 'source' in LINE_GRAPH " + name);
             }
-            sourceValue = comp.GetVariable(sourceName, prop);
+            variableRegistrar.RegisterVariableChangeCallback(sourceName, (double newValue) => sourceValue = (float)newValue);
 
             string sourceRange = string.Empty;
             if (!config.TryGetValue("sourceRange", ref sourceRange))
@@ -92,8 +92,8 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Incorrect number of values in 'sourceRange' in LINE_GRAPH " + name);
             }
-            sourceRange1 = comp.GetVariable(ranges[0], prop);
-            sourceRange2 = comp.GetVariable(ranges[1], prop);
+            variableRegistrar.RegisterVariableChangeCallback(ranges[0], (double newValue) => sourceRange1 = (float)newValue);
+            variableRegistrar.RegisterVariableChangeCallback(ranges[1], (double newValue) => sourceRange2 = (float)newValue);
 
             float borderWidth = 0.0f;
             if (!config.TryGetValue("borderWidth", ref borderWidth))
@@ -310,7 +310,7 @@ namespace AvionicsSystems
             waitToSample = new WaitForSeconds(sampleRate);
             while (lineRenderer != null)
             {
-                float newSample = verticalSpan * Mathf.InverseLerp((float)sourceRange1.AsDouble(), (float)sourceRange2.AsDouble(), (float)sourceValue.AsDouble());
+                float newSample = verticalSpan * Mathf.InverseLerp(sourceRange1, sourceRange2, sourceValue);
                 newSample = Mathf.Round(newSample);
 
                 if (currentSample < maxSamples)

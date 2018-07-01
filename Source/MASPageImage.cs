@@ -40,7 +40,7 @@ namespace AvionicsSystems
         private MeshRenderer meshRenderer;
         private Color passiveColor = Color.white, activeColor = Color.white;
         private float currentBlend;
-        private Variable colorRange1, colorRange2;
+        private float colorRange1, colorRange2;
         private readonly int colorField = Shader.PropertyToID("_Color");
         private Vector2 uvScale = Vector2.one;
         private Vector2 uvShift = Vector2.zero;
@@ -263,15 +263,15 @@ namespace AvionicsSystems
                         throw new ArgumentException("Expected 2 values for 'colorRange' in IMAGE " + name);
                     }
 
-                    colorRange1 = comp.GetVariable(colorRanges[0], prop);
-                    colorRange2 = comp.GetVariable(colorRanges[1], prop);
+                    variableRegistrar.RegisterVariableChangeCallback(colorRanges[0], (double newValue) => colorRange1 = (float)newValue);
+                    variableRegistrar.RegisterVariableChangeCallback(colorRanges[1], (double newValue) => colorRange2 = (float)newValue);
 
                     bool colorBlend = false;
                     if (config.TryGetValue("colorBlend", ref colorBlend) && colorBlend == true)
                     {
                         variableRegistrar.RegisterVariableChangeCallback(colorVariableName, (double newValue) =>
                         {
-                            float newBlend = Mathf.InverseLerp((float)colorRange1.AsDouble(), (float)colorRange2.AsDouble(), (float)newValue);
+                            float newBlend = Mathf.InverseLerp(colorRange1, colorRange2, (float)newValue);
 
                             if (!Mathf.Approximately(newBlend, currentBlend))
                             {
@@ -284,7 +284,7 @@ namespace AvionicsSystems
                     {
                         variableRegistrar.RegisterVariableChangeCallback(colorVariableName, (double newValue) =>
                         {
-                            float newBlend = (newValue.Between(colorRange1.AsDouble(), colorRange2.AsDouble())) ? 1.0f : 0.0f;
+                            float newBlend = (newValue.Between(colorRange1, colorRange2)) ? 1.0f : 0.0f;
                             if (newBlend != currentBlend)
                             {
                                 currentBlend = newBlend;
