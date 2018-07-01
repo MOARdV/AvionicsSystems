@@ -1033,7 +1033,6 @@ namespace AvionicsSystems
             else
             {
                 // I think only a Lua script will hit here.
-                Variable v = null;
 
                 // If the function is a Name (as opposed to the dot operator above), we assume
                 // that it's supposed to be a Lua script.  We attempt to fetch the global
@@ -1047,25 +1046,60 @@ namespace AvionicsSystems
 
                         if (closure.Type == DataType.Function)
                         {
+                            Variable luaVariable;
                             if (parms.Length == 0)
                             {
-                                return new GenericVariable(canonical, () =>
+                                DynValue returnValue = script.Call(closure);
+                                if (returnValue.Type == DataType.Number)
                                 {
-                                    return script.Call(closure).ToObject();
-                                }, true, true, Variable.VariableType.LuaScript);
+                                    luaVariable = new DoubleVariable(canonical, () =>
+                                    {
+                                        return script.Call(closure).Number;
+                                    }, true, true, Variable.VariableType.LuaScript);
+                                }
+                                else
+                                {
+                                    luaVariable = new GenericVariable(canonical, () =>
+                                    {
+                                        return script.Call(closure).ToObject();
+                                    }, true, true, Variable.VariableType.LuaScript);
+                                }
                             }
                             else
                             {
                                 DynValue[] callParams = new DynValue[parms.Length];
-                                return new GenericVariable(canonical, () =>
+                                // Do an early call to determine the return type.
+                                for (int i = 0; i < parms.Length; ++i)
                                 {
-                                    for (int i = 0; i < parms.Length; ++i)
+                                    callParams[i] = parms[i].AsDynValue();
+                                }
+                                DynValue returnValue = script.Call(closure, callParams);
+
+                                if (returnValue.Type == DataType.Number)
+                                {
+                                    luaVariable = new DoubleVariable(canonical, () =>
                                     {
-                                        callParams[i] = parms[i].AsDynValue();
-                                    }
-                                    return script.Call(closure, callParams).ToObject();
-                                }, true, true, Variable.VariableType.LuaScript);
+                                        for (int i = 0; i < parms.Length; ++i)
+                                        {
+                                            callParams[i] = parms[i].AsDynValue();
+                                        }
+                                        return script.Call(closure, callParams).Number;
+                                    }, true, true, Variable.VariableType.LuaScript);
+                                }
+                                else
+                                {
+                                    luaVariable = new GenericVariable(canonical, () =>
+                                    {
+                                        for (int i = 0; i < parms.Length; ++i)
+                                        {
+                                            callParams[i] = parms[i].AsDynValue();
+                                        }
+                                        return script.Call(closure, callParams).ToObject();
+                                    }, true, true, Variable.VariableType.LuaScript);
+                                }
                             }
+
+                            return luaVariable;
                         }
                     }
                     catch
@@ -1080,13 +1114,11 @@ namespace AvionicsSystems
                 // to the DotOperator path, and that may allow a more efficient evaluation, since
                 // I'd be able to call the method inside the table directly.
                 DynValue luaEvaluator = script.LoadString("return " + name);
-                v = new GenericVariable(canonical, () => script.Call(luaEvaluator).ToObject(), true, true, Variable.VariableType.LuaScript);
+                Variable v = new GenericVariable(canonical, () => script.Call(luaEvaluator).ToObject(), true, true, Variable.VariableType.LuaScript);
 
                 Utility.LogMessage(this, "Did not evaluate {0} - fell back to script evaluation.", canonical);
                 return v;
             }
-
-            //return null;
         }
 
         /// <summary>

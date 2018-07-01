@@ -479,7 +479,7 @@ namespace AvionicsSystems
         /// Classifier to identify the type of variable this represents, so AsDynValue can evaluate
         /// at call-time the correct DynValue to return for mutable variables.
         /// </summary>
-        private enum EvaluationType
+        public enum EvaluationType
         {
             Boolean,
             Double,
@@ -510,7 +510,7 @@ namespace AvionicsSystems
         /// <summary>
         /// The value type of the variable, for dynamic value conversion to DynValue.
         /// </summary>
-        private EvaluationType valueType = EvaluationType.Nil;
+        public EvaluationType valueType { private set; get; }
 
         /// <summary>
         /// Construct a dynamic native evaluator.
@@ -524,6 +524,7 @@ namespace AvionicsSystems
             : base(name, (mutable) ? cacheable : true, (mutable) ? variableType : VariableType.Constant)
         {
             this.evaluator = evaluator;
+            this.valueType = EvaluationType.Nil;
 
             ProcessObject(false);
 
