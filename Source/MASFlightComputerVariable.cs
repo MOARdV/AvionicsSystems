@@ -132,6 +132,7 @@ namespace AvionicsSystems
         {
             int numParams = parameters.Length;
             MethodInfo[] methods = type.GetMethods();
+            bool mismatch = false;
             for (int i = methods.Length - 1; i >= 0; --i)
             {
                 if (methods[i].Name == methodName)
@@ -146,19 +147,12 @@ namespace AvionicsSystems
                         else
                         {
                             bool match = true;
+                            mismatch = true;
                             for (int index = 0; index < numParams; ++index)
                             {
                                 if (!(methodParams[index].ParameterType == typeof(object) || parameters[index] == typeof(object) || methodParams[index].ParameterType == parameters[index]))
                                 {
                                     match = false;
-                                    Utility.LogError(this, "Processing {0}.{1}(): Did not find a match for parameter {2} (expecting {3}, but got {4}).",
-                                        tableName, methodName,
-                                        index + 1,
-                                        methodParams[index].ParameterType, parameters[index]);
-                                    throw new ArgumentException(string.Format("Parameter type mismatch in {0}.{1}(): Did not find a match for parameter {2} (expecting {3}, but got {4}).",
-                                        tableName, methodName,
-                                        index + 1,
-                                        methodParams[index].ParameterType, parameters[index]));
                                 }
                             }
 
@@ -169,6 +163,13 @@ namespace AvionicsSystems
                         }
                     }
                 }
+            }
+
+            if (mismatch)
+            {
+                // If we found the right method name, but the parameters were incompatible, we generate an error
+                // here and hope falling back to Lua scripts will resolve it.
+                Utility.LogError(this, "Searching for {0}.{1}(): Found a matching name, but not the right parameter types", tableName, methodName);
             }
 
             return null;

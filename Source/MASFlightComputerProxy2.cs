@@ -976,25 +976,22 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="value">A numeric value or a boolean</param>
         /// <returns>`value` if the conditions above are not met.</returns>
-        public double Conditioned(object value)
+        public double Conditioned(double value)
         {
-            double state = 0.0;
-            if (value is bool)
+            if (fc.isPowered && UnityEngine.Random.value > fc.disruptionChance)
             {
-                state = ((bool)value) ? 1.0 : 0.0;
-            }
-            else if (value is double)
-            {
-                state = (double)value;
+                return value;
             }
             else
             {
-                Utility.LogWarning(this, "fc.Conditioned no-op: {0}", value.GetType());
+                return 0.0;
             }
-
-            if (fc.isPowered && UnityEngine.Random.value > fc.disruptionChance)
+        }
+        public double Conditioned(bool value)
+        {
+            if (value && fc.isPowered && UnityEngine.Random.value > fc.disruptionChance)
             {
-                return state;
+                return 1.0;
             }
             else
             {
