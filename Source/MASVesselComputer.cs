@@ -268,14 +268,12 @@ namespace AvionicsSystems
             InitResourceData();
 
             UpdateReferenceTransform(vessel.ReferenceTransform);
+            vesselCrewed = (vessel.GetCrewCount() > 0);
+            vesselActive = ActiveVessel(vessel);
             if (vesselCrewed)
             {
                 RefreshData();
             }
-
-            vesselCrewed = (vessel.GetCrewCount() > 0);
-
-            vesselActive = ActiveVessel(vessel);
 
             PilotInitialize();
 

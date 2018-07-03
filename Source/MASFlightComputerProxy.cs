@@ -2906,7 +2906,14 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double CurrentTWR()
         {
-            return vc.currentThrust / (vessel.totalMass * vc.surfaceAccelerationFromGravity);
+            if (vc.currentThrust > 0.0f)
+            {
+                return vc.currentThrust / (vessel.totalMass * vc.surfaceAccelerationFromGravity);
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
@@ -3077,7 +3084,15 @@ namespace AvionicsSystems
         /// <returns>Thrust-to-weight ratio, between 0 and 1.</returns>
         public double MaxTWR(bool useThrottleLimits)
         {
-            return ((useThrottleLimits) ? vc.currentLimitedMaxThrust : vc.currentMaxThrust) / (vessel.totalMass * vc.surfaceAccelerationFromGravity);
+            double thrust = ((useThrottleLimits) ? vc.currentLimitedMaxThrust : vc.currentMaxThrust);
+            if (thrust > 0.0)
+            {
+                return ((useThrottleLimits) ? vc.currentLimitedMaxThrust : vc.currentMaxThrust) / (vessel.totalMass * vc.surfaceAccelerationFromGravity);
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
