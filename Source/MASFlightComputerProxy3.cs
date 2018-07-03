@@ -935,7 +935,8 @@ namespace AvionicsSystems
                 {
                     vc.resourceConverterList.Insert(prevIdx + 1, rc);
                 }
-
+                // Force rescanning the resource converter list now that we've added something new.
+                vc.modulesInvalidated = true;
                 return 1.0;
             }
             else
@@ -3044,7 +3045,7 @@ namespace AvionicsSystems
             return vessel.missionTime;
         }
 
-        [MASProxy(Dependent=true)]
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Given a standard time in seconds, return the minutes of the hour (a
         /// number from 0 to 60).  Fractions of a minute are retained and negative

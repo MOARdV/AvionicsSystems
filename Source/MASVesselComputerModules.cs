@@ -34,7 +34,7 @@ namespace AvionicsSystems
     {
         // Tracks per-module data.
 
-        private bool modulesInvalidated = true;
+        internal bool modulesInvalidated = true;
 
         #region Action Groups
         //---Action Groups
