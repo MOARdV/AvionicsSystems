@@ -1002,6 +1002,7 @@ namespace AvionicsSystems
             }
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Provides a custom SI formatter with more control than the basic SIP format.
         /// 
