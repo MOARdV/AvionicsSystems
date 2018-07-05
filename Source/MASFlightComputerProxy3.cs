@@ -2789,6 +2789,35 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the maximum temperature of the current hottest part.
+        /// </summary>
+        /// <param name="useKelvin">When true, returns the temperature in units of Kelvin; when false, Celsius is used.</param>
+        /// <returns>The current hottest part's maximum temperature, in degrees Celsius or Kelvin.</returns>
+        public double HottestPartMaxTemperature(bool useKelvin)
+        {
+            return vc.hottestPartMax + ((useKelvin) ? 0.0 : KelvinToCelsius);
+        }
+
+        /// <summary>
+        /// Returns the direction of temperature change of the hottest part.
+        /// </summary>
+        /// <returns>-1 if the temperature is cooling, +1 if it is increasing, +0 if it is stable.</returns>
+        public double HottestPartSign()
+        {
+            return vc.hottestPartSign;
+        }
+
+        /// <summary>
+        /// Returns the hottest part on the vessel (the part closest to its thermal limit).
+        /// </summary>
+        /// <param name="useKelvin">When true, returns the temperature in units of Kelvin; when false, Celsius is used.</param>
+        /// <returns>The current hottest part's temperature, in degrees Celsius or Kelvin.</returns>
+        public double HottestPartTemperature(bool useKelvin)
+        {
+            return vc.hottestPart + ((useKelvin) ? 0.0 : KelvinToCelsius);
+        }
+
+        /// <summary>
         /// Returns the maximum interior temperature of the current IVA pod.
         /// </summary>
         /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>

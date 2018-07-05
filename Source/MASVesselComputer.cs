@@ -138,6 +138,71 @@ namespace AvionicsSystems
             ProcessResourceData();
         }
 
+        private void UpdateThermals()
+        {
+            double difference = float.MaxValue;
+
+            double currentHottest = 0.0;
+            for (int partIdx = vessel.parts.Count - 1; partIdx >= 0; --partIdx)
+            {
+                Part part =  vessel.parts[partIdx];
+                double maxTemp = part.maxTemp;
+                double currentTemp = part.temperature;
+                if (maxTemp - currentTemp < difference)
+                {
+                    _hottestPartMax = maxTemp;
+                    currentHottest = currentTemp;
+                    difference = maxTemp - currentTemp;
+                }
+                maxTemp = part.skinMaxTemp;
+                currentTemp = part.skinTemperature;
+                if (maxTemp - currentTemp < difference)
+                {
+                    _hottestPartMax = maxTemp;
+                    currentHottest = currentTemp;
+                    difference = maxTemp - currentTemp;
+                }
+            }
+            _hottestPartSign = Math.Sign(_hottestPart - currentHottest);
+            _hottestPart = currentHottest;
+        }
+        private double _hottestPart;
+        private double _hottestPartMax;
+        private float _hottestPartSign;
+        internal double hottestPart
+        {
+            get
+            {
+                if (_hottestPartMax == -1.0)
+                {
+                    UpdateThermals();
+                }
+                return _hottestPart;
+            }
+        }
+        internal double hottestPartSign
+        {
+            get
+            {
+                if (_hottestPartMax == -1.0)
+                {
+                    UpdateThermals();
+                }
+                return _hottestPartSign;
+            }
+        }
+        internal double hottestPartMax
+        {
+            get
+            {
+                if (_hottestPartMax == -1.0)
+                {
+                    UpdateThermals();
+                }
+                return _hottestPartMax;
+            }
+        }
+
         #region Monobehaviour
         /// <summary>
         /// Update per-Vessel fields.
@@ -152,6 +217,7 @@ namespace AvionicsSystems
                 // TODO: Can I make tese two update by callback?
                 mainBody = vessel.mainBody;
                 orbit = vessel.orbit;
+                _hottestPartMax = -1.0;
 
                 universalTime = Planetarium.GetUniversalTime();
 
@@ -1225,6 +1291,7 @@ namespace AvionicsSystems
         {
             if (what.host.id == vesselId)
             {
+                Utility.LogMessage(this, "onVesselSOIChanged: to {0}", what.to.bodyName);
                 mainBody = what.to;
             }
         }
