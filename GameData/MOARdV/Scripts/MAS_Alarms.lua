@@ -28,3 +28,17 @@ function MAS_GearDownCaution()
 	
 	return 0
 end
+
+function MAS_OverheatWarning()
+	if fc.HottestPartMaxTemperature(false) - fc.HottestPartTemperature(false) < 250 then
+		return 1
+	end
+	return 0
+end
+
+function MAS_OverheatAlarm()
+	if fc.HottestPartMaxTemperature(false) - fc.HottestPartTemperature(false) < 100 then
+		return 1
+	end
+	return 0
+end
