@@ -49,7 +49,6 @@ namespace AvionicsSystems
     internal class MASINavigation
     {
         private Vessel vessel;
-        private CelestialBody body;
         private double bodyRadius;
         private MASFlightComputer fc;
 
@@ -59,23 +58,20 @@ namespace AvionicsSystems
         public MASINavigation(Vessel vessel, MASFlightComputer fc)
         {
             this.vessel = vessel;
-            this.body = vessel.mainBody;
-            this.bodyRadius = this.body.Radius;
+            this.bodyRadius = this.vessel.mainBody.Radius;
             this.fc = fc;
         }
 
         ~MASINavigation()
         {
             vessel = null;
-            body = null;
         }
 
         [MoonSharpHidden]
         internal void Update()
         {
             // Probably oughtn't need to poll this
-            body = vessel.mainBody;
-            bodyRadius = body.Radius;
+            bodyRadius = vessel.mainBody.Radius;
 
             // Be nice if this could be done more efficiently.
             activeWaypoint = -1;
@@ -105,8 +101,7 @@ namespace AvionicsSystems
         internal void UpdateVessel(Vessel vessel)
         {
             this.vessel = vessel;
-            this.body = vessel.mainBody;
-            this.bodyRadius = this.body.Radius;
+            this.bodyRadius = this.vessel.mainBody.Radius;
         }
 
         /// <summary>
@@ -252,7 +247,7 @@ namespace AvionicsSystems
             Vector3d targetNormal = QuaternionD.AngleAxis(longitude2, Vector3d.down) * QuaternionD.AngleAxis(latitude2, Vector3d.forward) * Vector3d.right;
             double targetAngularDistance = Vector3d.Angle(vesselNormal, targetNormal) * Utility.Deg2Rad;
 
-            return Math.Asin(Math.Sin(targetAngularDistance) * Math.Sin((targetBearing - bearing1) * Utility.Deg2Rad)) * vessel.mainBody.Radius;
+            return Math.Asin(Math.Sin(targetAngularDistance) * Math.Sin((targetBearing - bearing1) * Utility.Deg2Rad)) * bodyRadius;
         }
 
         /// <summary>
@@ -270,7 +265,7 @@ namespace AvionicsSystems
             Vector3d targetNormal = QuaternionD.AngleAxis(longitude, Vector3d.down) * QuaternionD.AngleAxis(latitude, Vector3d.forward) * Vector3d.right;
             double targetAngularDistance = Vector3d.Angle(vesselNormal, targetNormal) * Utility.Deg2Rad;
 
-            return Math.Asin(Math.Sin(targetAngularDistance) * Math.Sin((targetBearing - fc.vc.heading) * Utility.Deg2Rad)) * vessel.mainBody.Radius;
+            return Math.Asin(Math.Sin(targetAngularDistance) * Math.Sin((targetBearing - fc.vc.heading) * Utility.Deg2Rad)) * bodyRadius;
         }
 
         /// <summary>
@@ -547,6 +542,45 @@ namespace AvionicsSystems
             return GroundDistanceFromVessel(latitude, longitude);
         }
 
+        /// <summary>
+        /// Returns the terrain height (distance above or below the datum / sea-level) at the
+        /// specified distance and bearing from the current vessel.  This method is an optimized
+        /// way of doing the following, without recomputing most of the same values twice in the
+        /// nav.Destination methods, and paying the cost of looking up the current body in TerrainHeight.
+        /// 
+        /// ```
+        /// local lat = nav.DestinationLatitudeFromVessel(range, bearing)
+        /// local lon = nav.DestinationLongitudeFromVessel(range, bearing)
+        /// 
+        /// return fc.BodyTerrainHeight(-1, lat, lon)
+        /// ```
+        /// </summary>
+        /// <param name="range">Distance to travel along the bearing, in meters.</param>
+        /// <param name="bearing">Bearing in degrees to travel.</param>
+        /// <returns>Terrain height relative to the datum (sea-level) in meters.</returns>
+        public double TerrainHeight(double range, double bearing)
+        {
+            double phi1 = vessel.latitude * Utility.Deg2Rad;
+            double lambda1 = Utility.NormalizeLongitude(vessel.longitude) * Utility.Deg2Rad;
+            double theta = bearing * Utility.Deg2Rad;
+            double delta = range / bodyRadius;
+
+            double phi2 = Math.Asin(Math.Sin(phi1) * Math.Cos(delta) + Math.Cos(phi1) * Math.Sin(delta) * Math.Cos(theta));
+            double lambda2 = lambda1 + Math.Atan2(Math.Sin(theta) * Math.Sin(delta) * Math.Cos(phi1), Math.Cos(delta) - Math.Sin(phi1) * Math.Sin(phi2));
+
+            double destLatitude = phi2 * Utility.Rad2Deg;
+            double destLongitude = Utility.NormalizeLongitude(lambda2 * Utility.Rad2Deg);
+
+            CelestialBody cb = vessel.mainBody;
+            if (cb.pqsController != null)
+            {
+                return cb.pqsController.GetSurfaceHeight(QuaternionD.AngleAxis(destLongitude, Vector3d.down) * QuaternionD.AngleAxis(destLatitude, Vector3d.forward) * Vector3d.right) - bodyRadius;
+            }
+            else
+            {
+                return cb.TerrainAltitude(destLatitude, destLongitude, true);
+            }
+        }
         #endregion
 
         /// <summary>
