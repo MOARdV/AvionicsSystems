@@ -520,26 +520,6 @@ function MAS_Mfd2_Flight_HomeSoftkey(propId, panel6Mode)
 
 end
 
-local terrainDistance =
-{
-}
-------------------------------------------------------------------------------
---
-function MAS_Mfd2_Flight_TerrainHeight(distanceIndex)
-	
-	if (distanceIndex == 1) then
-		local hdg = fc.Heading()
-		local altitude = fc.Altitude()
-		
-		for i=1, 16 do
-			local lat = nav.DestinationLatitudeFromVessel(250 * i, hdg)
-			local lon = nav.DestinationLongitudeFromVessel(250 * i, hdg)
-			terrainDistance[i] = altitude - math.max(0, fc.BodyTerrainHeight(-1, lat, lon))
-		end
-	end
-	
-	return terrainDistance[distanceIndex]
-end
 
 ------------------------------------------------------------------------------
 -- Flight Instrumentation page configuration
