@@ -795,7 +795,8 @@ namespace AvionicsSystems
                 parentVesselId = vessel.id;
 
                 // TODO: Review the CoreModule settings - are they tight enough?
-                script = new Script(CoreModules.Preset_HardSandbox);
+                // Add the LoadMethods to allow dynamic script compilation.
+                script = new Script(CoreModules.Preset_HardSandbox | CoreModules.LoadMethods);
 
                 UserData.DefaultAccessMode = InteropAccessMode.Preoptimized;
 
