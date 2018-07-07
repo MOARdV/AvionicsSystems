@@ -52,6 +52,10 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Missing 'maxLines' in COMPOUND_TEXT " + name);
             }
+            if (maxLines < 1)
+            {
+                throw new ArgumentException("'maxLines' must be greater than zero in COMPOUND_TEXT " + name);
+            }
 
             string localFonts = string.Empty;
             if (!config.TryGetValue("font", ref localFonts))
@@ -298,7 +302,7 @@ namespace AvionicsSystems
             UnityEngine.GameObject.Destroy(rootObject);
             rootObject = null;
 
-            variableRegistrar.ReleaseResources(); ;
+            variableRegistrar.ReleaseResources();
             textElements = null;
         }
 
