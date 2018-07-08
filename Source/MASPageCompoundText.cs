@@ -222,7 +222,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Check to see if the RPM module has updated its text.
+        /// Update the relevant enabled/disabled texts.
         /// </summary>
         /// <returns></returns>
         private IEnumerator TextMethodUpdate()
