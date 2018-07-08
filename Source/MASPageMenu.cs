@@ -32,7 +32,10 @@ namespace AvionicsSystems
     internal class MASPageMenu : IMASMonitorComponent
     {
         private GameObject rootObject;
-        private MenuItem[] menuItems;
+        private MenuItem[] menuItems = new MenuItem[0];
+        // We don't relay on menuItems, since a dynamic menu may change sizes.
+        private int numMenuItems;
+        private ConfigNode dynamicMenuTemplate;
 
         private Vector3 textOrigin = Vector3.zero;
         private Vector2 position = Vector2.zero;
@@ -41,8 +44,16 @@ namespace AvionicsSystems
         private int topLine;
         private readonly int maxLines;
         private readonly int upSoftkey, downSoftkey, enterSoftkey, homeSoftkey, endSoftkey;
+        private readonly string cursorPersistentName;
+
+        private readonly FontStyle style;
+        private readonly Vector2 fontSize;
+        private readonly Color32 defaultColor;
+        private Font font;
 
         private Action softkeyUpAction, softkeyDownAction, softkeyHomeAction, softkeyEndAction;
+        private MASFlightComputer comp;
+        private InternalProp prop;
 
         private int cursorPosition;
         private GameObject cursorObject;
@@ -53,6 +64,9 @@ namespace AvionicsSystems
         internal MASPageMenu(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
             : base(config, prop, comp)
         {
+            this.prop = prop;
+            this.comp = comp;
+
             if (!config.TryGetValue("maxLines", ref maxLines))
             {
                 maxLines = int.MaxValue;
@@ -68,7 +82,6 @@ namespace AvionicsSystems
                 itemPositionShift = 0;
             }
 
-            string cursorPersistentName = string.Empty;
             if (!config.TryGetValue("cursorPersistentName", ref cursorPersistentName))
             {
                 throw new ArgumentException("Missing 'cursorPersistentName' in MENU " + name);
@@ -87,7 +100,7 @@ namespace AvionicsSystems
             }
 
             string styleStr = string.Empty;
-            FontStyle style = FontStyle.Normal;
+            style = FontStyle.Normal;
             if (config.TryGetValue("style", ref styleStr))
             {
                 style = MdVTextMesh.FontStyle(styleStr);
@@ -97,7 +110,7 @@ namespace AvionicsSystems
                 style = monitor.defaultStyle;
             }
 
-            Vector2 fontSize = Vector2.zero;
+            fontSize = Vector2.zero;
             if (!config.TryGetValue("fontSize", ref fontSize) || fontSize.x < 0.0f || fontSize.y < 0.0f)
             {
                 fontSize = monitor.fontSize;
@@ -105,6 +118,8 @@ namespace AvionicsSystems
 
             charAdvance = fontSize.x * itemPositionShift;
             lineAdvance = fontSize.y;
+
+            defaultColor = monitor.textColor_;
 
             Color32 cursorColor;
             string cursorColorStr = string.Empty;
@@ -150,7 +165,6 @@ namespace AvionicsSystems
                 });
             }
 
-            Font font;
             if (string.IsNullOrEmpty(localFonts))
             {
                 font = monitor.defaultFont;
@@ -178,13 +192,16 @@ namespace AvionicsSystems
             // text, immutable, preserveWhitespace, comp, prop
             cursorText.SetText(cursorPrompt, false, true, comp, prop);
 
+            string itemCountStr = string.Empty;
+            config.TryGetValue("itemCount", ref itemCountStr);
+
             List<MenuItem> itemNodes = new List<MenuItem>();
             ConfigNode[] menuItemConfigNodes = config.GetNodes("ITEM");
             foreach (ConfigNode itemNode in menuItemConfigNodes)
             {
                 try
                 {
-                    MenuItem cpt = new MenuItem(itemNode, rootObject, font, fontSize, style, monitor.textColor_, comp, prop, variableRegistrar, itemNodes.Count);
+                    MenuItem cpt = new MenuItem(itemNode, rootObject, font, fontSize, style, defaultColor, comp, prop, variableRegistrar, itemNodes.Count);
                     itemNodes.Add(cpt);
                 }
                 catch (Exception e)
@@ -198,13 +215,30 @@ namespace AvionicsSystems
                 throw new ArgumentException("No valid ITEM nodes in MENU " + name);
             }
             menuItems = itemNodes.ToArray();
-            maxLines = Math.Min(maxLines, menuItems.Length);
+            if (string.IsNullOrEmpty(itemCountStr))
+            {
+                numMenuItems = menuItems.Length;
+
+                softkeyUpAction = comp.GetAction(string.Format("fc.AddPersistentWrapped(\"{0}\", -1, 0, {1})", cursorPersistentName, numMenuItems), prop);
+                softkeyDownAction = comp.GetAction(string.Format("fc.AddPersistentWrapped(\"{0}\", 1, 0, {1})", cursorPersistentName, numMenuItems), prop);
+                softkeyEndAction = comp.GetAction(string.Format("fc.SetPersistent(\"{0}\", {1})", cursorPersistentName, numMenuItems - 1), prop);
+            }
+            else if (itemNodes.Count > 1)
+            {
+                throw new ArgumentException("Only one valid ITEM node may be used in dynamic MENU " + name);
+            }
+            else
+            {
+                dynamicMenuTemplate = menuItemConfigNodes[0].CreateCopy();
+            }
 
             variableRegistrar.RegisterVariableChangeCallback(string.Format("fc.GetPersistentAsNumber(\"{0}\")", cursorPersistentName), CursorMovedCallback);
-            softkeyUpAction = comp.GetAction(string.Format("fc.AddPersistentWrapped(\"{0}\", -1, 0, {1})", cursorPersistentName, menuItems.Length), prop);
-            softkeyDownAction = comp.GetAction(string.Format("fc.AddPersistentWrapped(\"{0}\", 1, 0, {1})", cursorPersistentName, menuItems.Length), prop);
             softkeyHomeAction = comp.GetAction(string.Format("fc.SetPersistent(\"{0}\", 0)", cursorPersistentName), prop);
-            softkeyEndAction = comp.GetAction(string.Format("fc.SetPersistent(\"{0}\", {1})", cursorPersistentName, menuItems.Length - 1), prop);
+
+            if (!string.IsNullOrEmpty(itemCountStr))
+            {
+                variableRegistrar.RegisterVariableChangeCallback(itemCountStr, MenuCountCallback);
+            }
 
             string masterVariableName = string.Empty;
             if (config.TryGetValue("variable", ref masterVariableName))
@@ -215,6 +249,7 @@ namespace AvionicsSystems
             }
             else
             {
+                currentState = true;
                 rootObject.SetActive(true);
             }
 
@@ -239,11 +274,42 @@ namespace AvionicsSystems
         /// <param name="newValue"></param>
         private void CursorMovedCallback(double newValue)
         {
-            int newPosition = Mathf.Clamp((int)newValue, 0, menuItems.Length - 1);
+            int newPosition = Mathf.Clamp((int)newValue, 0, numMenuItems - 1);
             if (newPosition != cursorPosition)
             {
                 updateMenu = true;
                 cursorPosition = newPosition;
+            }
+        }
+
+        /// <summary>
+        /// Callback for when the menu count changes.
+        /// </summary>
+        /// <param name="newValue"></param>
+        private void MenuCountCallback(double newValue)
+        {
+            int newCount = Mathf.Max((int)newValue, 0);
+            if (newCount != numMenuItems)
+            {
+                if (newCount > menuItems.Length)
+                {
+                    // Expand the menu.
+                    List<MenuItem> newMenu = new List<MenuItem>(menuItems);
+                    for (int i = menuItems.Length; i < newCount; ++i)
+                    {
+                        MenuItem cpt = new MenuItem(dynamicMenuTemplate, rootObject, font, fontSize, style, defaultColor, comp, prop, variableRegistrar, i);
+                        newMenu.Add(cpt);
+                    }
+                    menuItems = newMenu.ToArray();
+                }
+                numMenuItems = newCount;
+                cursorPosition = Mathf.Min(cursorPosition, numMenuItems);
+
+                softkeyUpAction = comp.GetAction(string.Format("fc.AddPersistentWrapped(\"{0}\", -1, 0, {1})", cursorPersistentName, numMenuItems), prop);
+                softkeyDownAction = comp.GetAction(string.Format("fc.AddPersistentWrapped(\"{0}\", 1, 0, {1})", cursorPersistentName, numMenuItems), prop);
+                softkeyEndAction = comp.GetAction(string.Format("fc.SetPersistent(\"{0}\", {1})", cursorPersistentName, numMenuItems - 1), prop);
+
+                updateMenu = true;
             }
         }
 
@@ -259,28 +325,29 @@ namespace AvionicsSystems
 
             if (enable)
             {
+                int numLines = Math.Min(maxLines, menuItems.Length);
                 if (updateMenu)
                 {
                     if (cursorPosition < topLine)
                     {
                         topLine = cursorPosition;
                     }
-                    else if(cursorPosition >= topLine + maxLines)
+                    else if (cursorPosition >= topLine + numLines)
                     {
-                        topLine = 1 + cursorPosition - maxLines;
+                        topLine = 1 + cursorPosition - numLines;
                     }
                     updateMenu = false;
                     // Update positions.
                     cursorObject.transform.position = (textOrigin + new Vector3(position.x, -(position.y + lineAdvance * (cursorPosition - topLine)), 0.0f));
-                    
+
                     Vector3 rowPosition = (textOrigin + new Vector3(position.x + charAdvance, -position.y, 0.0f));
-                    for (int i = 0; i < maxLines; ++i)
+                    for (int i = 0; i < numLines; ++i)
                     {
                         menuItems[i + topLine].UpdatePosition(rowPosition);
                         rowPosition.y -= lineAdvance;
                     }
                 }
-                for (int i = 0; i < maxLines; ++i)
+                for (int i = 0; i < numLines; ++i)
                 {
                     menuItems[i + topLine].RenderPage(enable);
                 }
@@ -301,6 +368,12 @@ namespace AvionicsSystems
         /// <returns>true if the component handled the key, false otherwise.</returns>
         public override bool HandleSoftkey(int keyId)
         {
+            if (!currentState)
+            {
+                // Early return: disabled.
+                return false;
+            }
+
             if (keyId == upSoftkey)
             {
                 softkeyUpAction();
@@ -340,6 +413,9 @@ namespace AvionicsSystems
         /// </summary>
         public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
+            this.prop = null;
+            this.comp = null;
+
             UnityEngine.GameObject.Destroy(rootObject);
             rootObject = null;
 
@@ -419,6 +495,7 @@ namespace AvionicsSystems
                 activeText.material.SetFloat(Shader.PropertyToID("_EmissiveFactor"), 1.0f);
                 activeText.fontStyle = style;
                 activeText.SetText(activeTextStr, false, true, comp, prop);
+                activeText.SetRenderEnabled(false);
 
                 string passiveColorStr = string.Empty;
                 if (!itemNode.TryGetValue("passiveColor", ref passiveColorStr) || string.IsNullOrEmpty(passiveColorStr))
@@ -453,6 +530,7 @@ namespace AvionicsSystems
                     passiveText.material.SetFloat(Shader.PropertyToID("_EmissiveFactor"), 1.0f);
                     passiveText.fontStyle = style;
                     passiveText.SetText(passiveTextStr, false, true, comp, prop);
+                    passiveText.SetRenderEnabled(false);
                 }
 
                 string activeVariableStr = string.Empty;
@@ -506,8 +584,9 @@ namespace AvionicsSystems
                     disabledText.material.SetFloat(Shader.PropertyToID("_EmissiveFactor"), 1.0f);
                     disabledText.fontStyle = style;
                     disabledText.SetText(disabledTextStr, false, true, comp, prop);
+                    disabledText.SetRenderEnabled(false);
                 }
-                else 
+                else
                 {
                     enabled = true;
                     usesDisabled = false;
