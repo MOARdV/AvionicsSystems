@@ -62,6 +62,8 @@ namespace AvionicsSystems
                     return new MASPageLineGraph(config, prop, comp, monitor, pageRoot, depth);
                 case "LINE_STRING":
                     return new MASPageLineString(config, prop, comp, monitor, pageRoot, depth);
+                case "MENU":
+                    return new MASPageMenu(config, prop, comp, monitor, pageRoot, depth);
                 case "NAVBALL":
                     return new MASPageNavBall(config, prop, comp, monitor, pageRoot, depth);
                 case "ORBIT_DISPLAY":
