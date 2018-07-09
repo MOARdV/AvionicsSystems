@@ -889,11 +889,11 @@
 				<text>TARGET$$$MOON</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
-				<variable>fc.Conditioned(fc.BodyNumMoons(-1) > 0)</variable>
+				<variable>fc.Conditioned(fc.BodyMoonCount(fc.CurrentBodyIndex()) > 0)</variable>
 				<text>NEXT</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="2">
-				<variable>fc.Conditioned(fc.BodyNumMoons(-1) > 0)</variable>
+				<variable>fc.Conditioned(fc.BodyMoonCount(fc.CurrentBodyIndex()) > 0)</variable>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
