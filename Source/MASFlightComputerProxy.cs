@@ -193,18 +193,7 @@ namespace AvionicsSystems
             if (id is double)
             {
                 int idx = (int)(double)id;
-                if (idx == -1)
-                {
-                    cb = vessel.mainBody;
-                }
-                else if (idx == -2)
-                {
-                    if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
-                    {
-                        cb = vc.activeTarget as CelestialBody;
-                    }
-                }
-                else if (idx >= 0 && idx < FlightGlobals.Bodies.Count)
+                if (idx >= 0 && idx < FlightGlobals.Bodies.Count)
                 {
                     cb = FlightGlobals.Bodies[idx];
                 }
@@ -935,16 +924,10 @@ namespace AvionicsSystems
         /// it (eg, `fc.BodyMass("Jool")`).  However, since strings are
         /// slightly slower than numbers for lookups, these methods will
         /// accept numbers.  The number for a world can be fetched using
-        /// `fc.BodyIndex`, or one of two special values may be used:
-        /// 
-        /// * -1: Return information about the body the vessel is currently
-        /// orbiting.
-        /// * -2: Return information about the body currently being targeted.
-        /// 
-        /// Obviously, if no body is being targted, no data will be returned
-        /// when -2 is used.
+        /// `fc.BodyIndex()`, `fc.CurrentBodyIndex()`, or `fc.TargetBodyIndex()`.
         /// </summary>
         #region Body
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the surface area of the selected body.
         /// </summary>
@@ -957,6 +940,7 @@ namespace AvionicsSystems
             return (cb == null) ? 0.0 : cb.SurfaceArea;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the altitude of the top of the selected body's
         /// atmosphere.  If the body does not have an atmosphere, or
@@ -977,6 +961,7 @@ namespace AvionicsSystems
             return atmoTop;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the name of the biome at the given location on the selected body.
         /// </summary>
@@ -1003,6 +988,7 @@ namespace AvionicsSystems
             return string.Empty;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the escape velocity of the body.
         /// </summary>
@@ -1021,6 +1007,7 @@ namespace AvionicsSystems
             return escapeVelocity;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the acceleration from gravity as the surface
         /// for the selected body.
@@ -1034,6 +1021,7 @@ namespace AvionicsSystems
             return (cb != null) ? cb.GeeASL : 0.0;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the standard gravitational parameter of the body.
         /// </summary>
@@ -1046,6 +1034,7 @@ namespace AvionicsSystems
             return (cb != null) ? cb.gravParameter : 0.0;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Indicates if the selected body has an atmosphere.
         /// </summary>
@@ -1059,6 +1048,7 @@ namespace AvionicsSystems
             return (atmo) ? 1.0 : 0.0;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Indicates if the selected body's atmosphere has oxygen.
         /// </summary>
@@ -1073,6 +1063,7 @@ namespace AvionicsSystems
             return (oxy) ? 1.0 : 0.0;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the numeric identifier for the named body.  If the name is invalid
         /// (no such body exists), returns -1.  May also use the index, which is useful
@@ -1099,6 +1090,7 @@ namespace AvionicsSystems
             return (double)FlightGlobals.Bodies.FindIndex(x => x.bodyName == bodyName);
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns 1 if the selected body is "Home" (Kerbin in un-modded KSP).
         /// </summary>
@@ -1117,6 +1109,7 @@ namespace AvionicsSystems
             }
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns 0 if the selected body orbits the star; returns 1 if the
         /// body is a moon of another body.
@@ -1136,6 +1129,7 @@ namespace AvionicsSystems
             }
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the mass of the requested body.
         /// </summary>
@@ -1148,23 +1142,50 @@ namespace AvionicsSystems
             return (cb != null) ? cb.Mass : 0.0;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
-        /// Returns the number of natural satellites (moons) orbiting the selected body.
+        /// Returns the number of worlds orbiting the selected body.  If the body
+        /// is a planet, this is the number of moons.  If the body is the Sun, this
+        /// number is the number of planets.
         /// </summary>
         /// <param name="id">The name or index of the body of interest.</param>
-        /// <returns>The number of moons, or 0.</returns>
+        /// <returns>The number of moons, or 0 if an invalid value was provided.</returns>
         public double BodyMoonCount(object id)
         {
             CelestialBody cb = SelectBody(id);
-            double numBodies = 0.0;
             if (cb != null && cb.orbitingBodies != null)
             {
-                numBodies = cb.orbitingBodies.Count;
+                return cb.orbitingBodies.Count;
             }
-
-            return numBodies;
+            else
+            {
+                return 0.0;
+            }
         }
 
+        [MASProxy(Dependent = true)]
+        /// <summary>
+        /// Returns the numeric ID of the moon selected by moonIndex that orbits the body
+        /// selected by 'id'.  If 'id' is the Sun, moonIndex selects the planet.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <param name="moonIndex">The index of the moon to select, between 0 and 'fc.BodyMoonCount(id)' - 1.</param>
+        /// <returns>Returns an index 0 or greater, or -1 for an invalid combination of 'id' and 'moonIndex'.</returns>
+        public double BodyMoonId(object id, double moonIndex)
+        {
+            int moonIdx = (int)moonIndex;
+            CelestialBody cb = SelectBody(id);
+            if (cb!=null && cb.orbitingBodies != null && moonIdx >=0 && moonIdx < cb.orbitingBodies.Count)
+            {
+                return (double)FlightGlobals.Bodies.FindIndex(x => x.bodyName == cb.orbitingBodies[moonIdx].bodyName);
+            }
+            else
+            {
+                return -1.0;
+            }
+        }
+
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the name of the requested body.  While this method can be used
         /// with a name for its parameter, that is kind of pointless.
@@ -1177,19 +1198,7 @@ namespace AvionicsSystems
             return (cb != null) ? cb.bodyName : string.Empty;
         }
 
-        /// <summary>
-        /// Returns the number of worlds orbiting the selected body.  If the body
-        /// is a planet, this is the number of moons.  If the body is the Sun, this
-        /// number is the number of planets.
-        /// </summary>
-        /// <param name="id">The name or index of the body of interest.</param>
-        /// <returns>The number of moons, or 0 if an invalid value was provided.</returns>
-        public double BodyNumMoons(object id)
-        {
-            CelestialBody cb = SelectBody(id);
-            return (cb != null) ? cb.orbitingBodies.Count : 0.0;
-        }
-
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the radius of the selected body.
         /// </summary>
@@ -1202,6 +1211,7 @@ namespace AvionicsSystems
             return (cb != null) ? cb.Radius : 0.0;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the index of the parent of the selected body.  Returns 0 (the Sun)
         /// on an invalid id.
@@ -1224,6 +1234,7 @@ namespace AvionicsSystems
             }
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the rotation period of the body.  If the body does not
         /// rotate, 0 is returned.
@@ -1237,6 +1248,7 @@ namespace AvionicsSystems
             return (cb != null && cb.rotates) ? cb.rotationPeriod : 0.0;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the radius of the body's Sphere of Influence.
         /// </summary>
@@ -1275,6 +1287,7 @@ namespace AvionicsSystems
             return 0.0;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the temperature of the body at sea level.
         /// </summary>
@@ -1299,6 +1312,7 @@ namespace AvionicsSystems
             return temperature;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the semi-major axis of a synchronous orbit with the selected body.
         /// When a vessel's SMA matches the sync orbit SMA, a craft is in a synchronous
@@ -1326,6 +1340,7 @@ namespace AvionicsSystems
             return syncOrbit;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the speed of a synchronous orbit.  Provided an orbit is
         /// perfectly circular, an orbit that has this velocity will be
@@ -1357,6 +1372,7 @@ namespace AvionicsSystems
             return syncOrbitPeriod;
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the terrain height at a given latitude and longitude relative to the
         /// planet's datum (sea level or equivalent).  Height in meters.
@@ -1385,6 +1401,7 @@ namespace AvionicsSystems
             }
         }
 
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns an estimate of the terrain slope at a given latitude and longitude.
         /// If the location is beneath the ocean, it provides the slope of the ocean floor.
@@ -1454,6 +1471,16 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the index of the body currently being orbited, for use as an input for other body query functions..
+        /// </summary>
+        /// <returns>The index of the current body, used as the 'id' parameter in other body query functions.</returns>
+        public double CurrentBodyIndex()
+        {
+            string bodyName = vc.mainBody.bodyName;
+            return (double)FlightGlobals.Bodies.FindIndex(x => x.bodyName == bodyName);
+        }
+
+        /// <summary>
         /// Set the vessel's target to the selected body.
         /// </summary>
         /// <param name="id">The name or index of the body of interest.</param>
@@ -1472,6 +1499,22 @@ namespace AvionicsSystems
                 return 0.0;
             }
         }
+
+        /// <summary>
+        /// Returns the body index of the current target, provided the target is a celestial body.
+        /// If there is no target, or the current target is not a body, returns -1.
+        /// </summary>
+        /// <returns>The index of the targeted body, or -1.</returns>
+        public double BodyTargetIndex()
+        {
+            if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
+            {
+                string bodyName =(vc.activeTarget as CelestialBody).bodyName;
+                return (double)FlightGlobals.Bodies.FindIndex(x => x.bodyName == bodyName);
+            }
+            return -1.0;
+        }
+
         #endregion
 
         /// <summary>
