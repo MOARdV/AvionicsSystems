@@ -118,6 +118,12 @@ namespace AvionicsSystems
             }
             int leadingDigitExponent;
             leadingDigitExponent = (int)Math.Floor(Math.Log10(Math.Abs(value)));
+            if (leadingDigitExponent / 3 >= siPrefixes.Length)
+            {
+                // If the number is too big to handle, treat it as zero.  Note that float infinity
+                // makes it past the tests above.
+                return DoSIFormatLessThan1(0.0, length, minDecimal, delimiter, forceSign, showPrefix);
+            }
 
             // How many characters need to be set aside?
             int reservedCharacters = (minDecimal > 0) ? (1 + minDecimal) : 0;
@@ -134,7 +140,7 @@ namespace AvionicsSystems
             int freeCharacters = length - reservedCharacters;
 
             // Nearest SI exponent to the value.
-            int siExponent = Math.Min((int)Math.Floor(leadingDigitExponent / 3.0), siPrefixes.Length - 1) * 3;
+            int siExponent = Math.Min(leadingDigitExponent / 3, siPrefixes.Length - 1) * 3;
 
             int digits = leadingDigitExponent - siExponent;
             double scaledInputValue = Math.Round(value / Math.Pow(10.0, siExponent), minDecimal);
