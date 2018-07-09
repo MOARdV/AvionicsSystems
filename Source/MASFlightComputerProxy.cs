@@ -988,6 +988,16 @@ namespace AvionicsSystems
             return string.Empty;
         }
 
+        [MASProxy(Immutable = true)]
+        /// <summary>
+        /// The number of Celestial Bodies in the database.
+        /// </summary>
+        /// <returns></returns>
+        public double BodyCount()
+        {
+            return FlightGlobals.Bodies.Count;
+        }
+
         [MASProxy(Dependent = true)]
         /// <summary>
         /// Returns the escape velocity of the body.
@@ -1175,7 +1185,7 @@ namespace AvionicsSystems
         {
             int moonIdx = (int)moonIndex;
             CelestialBody cb = SelectBody(id);
-            if (cb!=null && cb.orbitingBodies != null && moonIdx >=0 && moonIdx < cb.orbitingBodies.Count)
+            if (cb != null && cb.orbitingBodies != null && moonIdx >= 0 && moonIdx < cb.orbitingBodies.Count)
             {
                 return (double)FlightGlobals.Bodies.FindIndex(x => x.bodyName == cb.orbitingBodies[moonIdx].bodyName);
             }
@@ -1509,7 +1519,7 @@ namespace AvionicsSystems
         {
             if (vc.targetType == MASVesselComputer.TargetType.CelestialBody)
             {
-                string bodyName =(vc.activeTarget as CelestialBody).bodyName;
+                string bodyName = (vc.activeTarget as CelestialBody).bodyName;
                 return (double)FlightGlobals.Bodies.FindIndex(x => x.bodyName == bodyName);
             }
             return -1.0;
