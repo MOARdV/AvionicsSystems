@@ -269,7 +269,8 @@ namespace AvionicsSystems
                         v = new GenericVariable(result.canonicalName, () => script.Call(luaEvaluator).ToObject(), true, true, Variable.VariableType.LuaScript);
 
                         ++luaVariableCount;
-                        Utility.LogMessage(this, "luaVariableCount increased in GetVariable -- this may be buggy -- for {0}", result.canonicalName);
+                        Utility.LogWarning(this, "Generated out-of-band Lua variable for {0}", result.canonicalName);
+                        Utility.LogWarning(this, "This could be an incorrect variable name, or something that could be optimized.");
                     }
                     if (!variables.ContainsKey(result.canonicalName))
                     {
@@ -367,7 +368,7 @@ namespace AvionicsSystems
             if (v == null)
             {
                 Utility.LogWarning(this, "CAUTION: Failed to generate variable for {0} - check its name?", canonical);
-                Utility.LogMessage(this, "Additional info: expression was type {0}", expression.GetType());
+                Utility.LogWarning(this, "Additional info: expression was type {0}", expression.GetType());
             }
             return v;
         }
@@ -768,6 +769,26 @@ namespace AvionicsSystems
                 }
                 Func<object, double, bool, object> dm = DynamicMethodFactory.CreateFunc<object, double, bool, object>(method);
                 Variable newVar = new GenericVariable(canonical, () => dm(tableInstance, parms[0].AsDouble(), parms[1].AsBool()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
+                if (dependent)
+                {
+                    parms[0].RegisterNumericCallback(newVar.TriggerUpdate);
+                    parms[1].RegisterNumericCallback(newVar.TriggerUpdate);
+                }
+                return newVar;
+            }
+            else if (methodParams[0].ParameterType == typeof(object) && methodParams[1].ParameterType == typeof(double))
+            {
+                Variable newVar;
+                if (methodReturn == typeof(double))
+                {
+                    Func<object, object, double, double> dm = DynamicMethodFactory.CreateFunc<object, object, double, double>(method);
+                    newVar = new DoubleVariable(canonical, () => dm(tableInstance, parms[0].AsObject(), parms[1].AsDouble()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
+                }
+                else
+                {
+                    Func<object, object, double, object> dm = DynamicMethodFactory.CreateFunc<object, object, double, object>(method);
+                    newVar = new GenericVariable(canonical, () => dm(tableInstance, parms[0].AsObject(), parms[1].AsDouble()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
+                }
                 if (dependent)
                 {
                     parms[0].RegisterNumericCallback(newVar.TriggerUpdate);
