@@ -397,6 +397,8 @@ namespace AvionicsSystems
         internal ModuleEngines[] moduleEngines = new ModuleEngines[0];
         private List<MultiModeEngine> multiModeEngineList = new List<MultiModeEngine>();
         internal MultiModeEngine[] multiModeEngines = new MultiModeEngine[0];
+        private List<MASIdEngineGroup> engineGroupList = new List<MASIdEngineGroup>();
+        internal MASIdEngineGroup[] engineGroup = new MASIdEngineGroup[0];
         internal PartModule moduleGraviticEngine = null;
         private float[] invMaxISP = new float[0];
         internal float currentThrust; // current net thrust, kN
@@ -1379,6 +1381,14 @@ namespace AvionicsSystems
                         {
                             multiModeEngineList.Add(module as MultiModeEngine);
                         }
+                        else if(module is MASIdEngineGroup)
+                        {
+                            var group = module as MASIdEngineGroup;
+                            if (group.partId != 0 && group.engine != null)
+                            {
+                                engineGroupList.Add(group);
+                            }
+                        }
 
                         foreach (BaseAction ba in module.Actions)
                         {
@@ -1429,6 +1439,7 @@ namespace AvionicsSystems
             TransferModules<ModuleCargoBay>(cargoBayList, ref moduleCargoBay);
             TransferModules<ModuleDeployableAntenna>(antennaList, ref moduleAntenna);
             TransferModules<ModuleDeployableRadiator>(deployableRadiatorList, ref moduleDeployableRadiator);
+            TransferModules<MASIdEngineGroup>(engineGroupList, ref engineGroup);
             TransferModules<MASIdEngine>(idEnginesList, ref moduleIdEngines);
             TransferModules<ModuleGenerator>(generatorList, ref moduleGenerator);
             TransferModules<float>(generatorOutputList, ref generatorOutput);

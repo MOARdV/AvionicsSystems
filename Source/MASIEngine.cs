@@ -22,6 +22,8 @@
  * DEALINGS IN THE SOFTWARE.
  * 
  ****************************************************************************/
+using KSP.UI.Screens;
+using System.Collections.Generic;
 
 namespace AvionicsSystems
 {
@@ -39,6 +41,8 @@ namespace AvionicsSystems
     /// </mdDoc>
     internal class MASIEngine
     {
+        private List<int> uniqueIds = new List<int>();
+
         internal MASVesselComputer vc;
 
         /// <summary>
@@ -437,6 +441,168 @@ namespace AvionicsSystems
                 return (vc.moduleIdEngines[index].SetPropellerRPM((float)newPosition)) ? 1.0 : 0.0;
             }
             return 0.0;
+        }
+        #endregion
+
+        /// <summary>
+        /// The Engine Group Management category allows engines grouped together using MASIdEngineGroup to be
+        /// toggled on or off separately from the main engine control interface, or be queried if they are
+        /// on or off.
+        /// 
+        /// The functions that accept a 'groupId' parameter may be provided an integer in the range of 1-31 to
+        /// affect only the engines in that group.  The parameter may also be 0, which will affect all engines
+        /// that have a MASIdEngineGroup part module.
+        /// </summary>
+        #region Engine Group Management
+        
+        /// <summary>
+        /// Returns 1 if the selected groupId has at least one member.
+        /// </summary>
+        /// <param name="groupId">A number from 1 to 31 (inclusive) to select a specific group, or 0 to select all groups.</param>
+        /// <returns>0 if there are no engines belonging to the group, 1 if there is.</returns>
+        public double EngineGroupValid(double groupId)
+        {
+            int id = (int)groupId;
+            if (id == 0)
+            {
+                return (vc.engineGroup.Length > 0) ? 1.0 : 0.0;
+            }
+            else
+            {
+                for (int i = 0; i < vc.engineGroup.Length; ++i)
+                {
+                    if (vc.engineGroup[i].partId == id)
+                    {
+                        return 1.0;
+                    }
+                }
+            }
+            
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if any engine in the specified groupId is active.  If no engine is active,
+        /// or if there are no engines in the specified groupId, returns 0.
+        /// </summary>
+        /// <param name="groupId">A number from 1 to 31 (inclusive) to select a specific group, or 0 to select all groups.</param>
+        /// <returns>1 if any selected engine is active, 0 otherwise.</returns>
+        public double GetEngineGroupActive(double groupId)
+        {
+            int id = (int)groupId;
+            if (id == 0)
+            {
+                for (int i=0; i<vc.engineGroup.Length; ++i)
+                {
+                    ModuleEngines me = vc.engineGroup[i].engine;
+                    if (me.EngineIgnited && me.isEnabled && me.isOperational)
+                    {
+                        return 1.0;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < vc.engineGroup.Length; ++i)
+                {
+                    if (vc.engineGroup[i].partId == id)
+                    {
+                        ModuleEngines me = vc.engineGroup[i].engine;
+                        if (me.EngineIgnited && me.isEnabled && me.isOperational)
+                        {
+                            return 1.0;
+                        }
+                    }
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the number of unique engine group IDs found on the vessel.
+        /// </summary>
+        /// <returns></returns>
+        public double GetEngineGroupCount()
+        {
+            uniqueIds.Clear();
+            for(int i=0; i<vc.engineGroup.Length; ++i)
+            {
+                if (!uniqueIds.Contains(vc.engineGroup[i].partId))
+                {
+                    uniqueIds.Add(vc.engineGroup[i].partId);
+                }
+            }
+
+            return uniqueIds.Count;
+        }
+
+        /// <summary>
+        /// Toggles all of the engines in the selected group that can be toggled
+        /// (activates them if they're deactivated, shuts them off if they're active).
+        /// </summary>
+        /// <param name="groupId">A number from 1 to 31 (inclusive) to select a specific group, or 0 to select all groups.</param>
+        /// <returns>1 if any engines were toggled, 0 otherwise.</returns>
+        public double ToggleEngineGroup(double groupId)
+        {
+            int id = (int)groupId;
+            bool newState = (GetEngineGroupActive(groupId) == 0.0);
+            double anyChanged = 0.0;
+            if (id == 0)
+            {
+                for (int i = 0; i < vc.engineGroup.Length; ++i)
+                {
+                    ModuleEngines me = vc.engineGroup[i].engine;
+                    Part thatPart = me.part;
+
+                    if (thatPart.inverseStage == StageManager.CurrentStage || !newState)
+                    {
+                        if (me.EngineIgnited != newState)
+                        {
+                            if (newState && me.allowRestart)
+                            {
+                                me.Activate();
+                                anyChanged = 1.0;
+                            }
+                            else if (me.allowShutdown)
+                            {
+                                me.Shutdown();
+                                anyChanged = 1.0;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < vc.engineGroup.Length; ++i)
+                {
+                    if (vc.engineGroup[i].partId == id)
+                    {
+                        ModuleEngines me = vc.engineGroup[i].engine;
+                        Part thatPart = me.part;
+
+                        if (thatPart.inverseStage == StageManager.CurrentStage || !newState)
+                        {
+                            if (me.EngineIgnited != newState)
+                            {
+                                if (newState && me.allowRestart)
+                                {
+                                    me.Activate();
+                                    anyChanged = 1.0;
+                                }
+                                else if (me.allowShutdown)
+                                {
+                                    me.Shutdown();
+                                    anyChanged = 1.0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return anyChanged;
         }
         #endregion
 

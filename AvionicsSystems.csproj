@@ -77,6 +77,7 @@
     <Compile Include="Source\MASCamera.cs" />
     <Compile Include="Source\MASCameraMount.cs" />
     <Compile Include="Source\MASComponent.cs" />
+    <Compile Include="Source\MASIdEngineGroup.cs" />
     <Compile Include="Source\MASIKerbalEngineer.cs" />
     <Compile Include="Source\MASPageCompoundText.cs" />
     <Compile Include="Source\MASConfig.cs" />
