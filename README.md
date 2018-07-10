@@ -21,7 +21,6 @@ components and their licenses.
 
 This mod includes version checking using [MiniAVC](https://forum.kerbalspaceprogram.com/index.php?/topic/173126-141-ksp-avc-add-on-version-checker-plugin-120-miniavc/). If you opt-in, it will use the
 internet to check whether there is a new version available. Data is only read from the internet and no personal information is sent.
-For a more comprehensive version checking experience, please download the [KSP-AVC Plugin](https://forum.kerbalspaceprogram.com/index.php?/topic/172842-141-dev-thread-ksp-avc-add-on-version-checker-plugin-miniavc-ksp-avc/).
 
 ## Where are the IVAs?
 
