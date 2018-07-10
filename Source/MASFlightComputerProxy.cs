@@ -3084,6 +3084,24 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns 1 if any multi-mode engine is in secondary mode, 0 if no engines are,
+        /// or there are no multi-mode engines.
+        /// </summary>
+        /// <returns></returns>
+        public double GetMultiModeEngineMode()
+        {
+            for (int i=vc.multiModeEngines.Length; i>=0; --i)
+            {
+                if(vc.multiModeEngines[i].runningPrimary == false)
+                {
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the current main throttle setting, from 0.0 to 1.0.
         /// </summary>
         /// <returns></returns>
@@ -3230,6 +3248,19 @@ namespace AvionicsSystems
             }
 
             return (newState) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Toggles the mode for any multi-mode engines.
+        /// </summary>
+        /// <returns>1 if any engines were toggled, 0 if no multi-mode engines are installed.</returns>
+        public double ToggleMultiModeEngineMode()
+        {
+            for (int i = vc.multiModeEngines.Length; i >= 0; --i)
+            {
+                vc.multiModeEngines[i].ToggleMode();
+            }
+            return (vc.multiModeEngines.Length > 0) ? 1.0 : 0.0;
         }
         #endregion
 
