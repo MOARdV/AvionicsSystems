@@ -47,11 +47,16 @@ namespace AvionicsSystems
         {
             internal MASActionColliderEvent parent;
             internal Action onClick;
+            internal Action<double> onDragX;
+            internal Action<double> onDragY;
             internal Action onRelease;
             internal AudioSource audioSource;
             private bool buttonState = false;
             internal bool autoRepeat = false;
             internal bool colliderEnabled = true;
+            internal bool drag = false;
+            internal Vector2 lastDragPosition;
+            internal float normalizationScalar;
             internal float repeatRate = float.MaxValue;
             private float repeatCounter;
 
@@ -60,20 +65,54 @@ namespace AvionicsSystems
             /// </summary>
             public void OnMouseDown()
             {
-                if (colliderEnabled && onClick != null)
+                if (colliderEnabled)
                 {
-                    onClick();
-
-                    if (audioSource != null && buttonState == false)
+                    if (onClick != null)
                     {
-                        audioSource.Play();
+                        onClick();
+
+                        if (audioSource != null && buttonState == false)
+                        {
+                            audioSource.Play();
+                        }
+
+                        if (autoRepeat)
+                        {
+                            buttonState = true;
+                            repeatCounter = 0.0f;
+                            StartCoroutine(AutoRepeat());
+                        }
                     }
-
-                    if (autoRepeat)
+                    if (drag)
                     {
-                        buttonState = true;
-                        repeatCounter = 0.0f;
-                        StartCoroutine(AutoRepeat());
+                        lastDragPosition = new Vector2(Input.mousePosition.x * normalizationScalar, Input.mousePosition.y * normalizationScalar);
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Mouse movement handler.  If we have a drag event handler, let's handle it.
+            /// </summary>
+            public void OnMouseDrag()
+            {
+                if (colliderEnabled && drag)
+                {
+                    Vector2 newDragPosition = new Vector2(Input.mousePosition.x * normalizationScalar, Input.mousePosition.y * normalizationScalar);
+
+                    bool updated = false;
+                    if (onDragX != null && !Mathf.Approximately(newDragPosition.x, lastDragPosition.x))
+                    {
+                        onDragX(Mathf.Clamp(newDragPosition.x - lastDragPosition.x, -1.0f, 1.0f));
+                        updated = true;
+                    }
+                    if (onDragY != null && !Mathf.Approximately(newDragPosition.y, lastDragPosition.y))
+                    {
+                        onDragY(Mathf.Clamp(newDragPosition.y - lastDragPosition.y, -1.0f, 1.0f));
+                        updated = true;
+                    }
+                    if (updated)
+                    {
+                        lastDragPosition = newDragPosition;
                     }
                 }
             }
@@ -120,12 +159,14 @@ namespace AvionicsSystems
                 throw new ArgumentException("Missing 'collider' in COLLIDER_EVENT " + name);
             }
 
-            string clickEvent = string.Empty, releaseEvent = string.Empty;
+            string clickEvent = string.Empty, releaseEvent = string.Empty, dragEventX = string.Empty, dragEventY = string.Empty;
             config.TryGetValue("onClick", ref clickEvent);
             config.TryGetValue("onRelease", ref releaseEvent);
-            if (string.IsNullOrEmpty(clickEvent) && string.IsNullOrEmpty(releaseEvent))
+            config.TryGetValue("onDragX", ref dragEventX);
+            config.TryGetValue("onDragY", ref dragEventY);
+            if (string.IsNullOrEmpty(clickEvent) && string.IsNullOrEmpty(releaseEvent) && string.IsNullOrEmpty(dragEventX) && string.IsNullOrEmpty(dragEventY))
             {
-                throw new ArgumentException("Neither 'onClick' nor 'onRelease' found in COLLIDER_EVENT " + name);
+                throw new ArgumentException("None of 'onClick', 'onRelease', 'onDragX', nor 'onDragY' found in COLLIDER_EVENT " + name);
             }
 
             Transform tr = internalProp.FindModelTransform(collider.Trim());
@@ -210,6 +251,42 @@ namespace AvionicsSystems
             if (!string.IsNullOrEmpty(releaseEvent))
             {
                 buttonObject.onRelease = comp.GetAction(releaseEvent, internalProp);
+            }
+            if (!string.IsNullOrEmpty(dragEventX))
+            {
+                buttonObject.onDragX = comp.GetDragAction(dragEventX, name, internalProp);
+                if (buttonObject.onDragX != null)
+                {
+                    buttonObject.drag = true;
+                    float dragSensitivity = 1.0f;
+                    if (!config.TryGetValue("dragSensitivity", ref dragSensitivity))
+                    {
+                        dragSensitivity = 1.0f;
+                    }
+                    buttonObject.normalizationScalar = 0.01f * dragSensitivity;
+                }
+                else
+                {
+                    throw new ArgumentException("Unable to create 'onDragX' event for COLLIDER_EVENT " + name);
+                }
+            }
+            if (!string.IsNullOrEmpty(dragEventY))
+            {
+                buttonObject.onDragY = comp.GetDragAction(dragEventY, name, internalProp);
+                if (buttonObject.onDragY != null)
+                {
+                    buttonObject.drag = true;
+                    float dragSensitivity = 1.0f;
+                    if (!config.TryGetValue("dragSensitivity", ref dragSensitivity))
+                    {
+                        dragSensitivity = 1.0f;
+                    }
+                    buttonObject.normalizationScalar = 0.01f * dragSensitivity;
+                }
+                else
+                {
+                    throw new ArgumentException("Unable to create 'onDragY' event for COLLIDER_EVENT " + name);
+                }
             }
         }
 

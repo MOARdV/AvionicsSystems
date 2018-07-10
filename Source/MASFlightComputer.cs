@@ -27,6 +27,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using UnityEngine;
 
 namespace AvionicsSystems
@@ -471,6 +472,43 @@ namespace AvionicsSystems
                 {
                     return null;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Creates a Lua function that uses 'actionName' as its body, then generates an Action that takes
+        /// a double for its parameter that is used to call the newly-created function.
+        /// </summary>
+        /// <param name="actionName"></param>
+        /// <param name="componentName"></param>
+        /// <param name="prop"></param>
+        /// <returns></returns>
+        internal Action<double> GetDragAction(string actionName, string componentName, InternalProp prop)
+        {
+            string preppedActionName = actionName.Replace("%DRAG%", "dragDelta");
+            string propName = ConditionVariableName(string.Format("%AUTOID%_{0}", componentName), prop);
+            propName = propName.Replace('-', '_').Replace(' ', '_');
+
+            StringBuilder sb = StringBuilderCache.Acquire();
+            sb.AppendFormat("function {0}_drag(dragDelta)", propName).AppendLine().AppendFormat("  {0}", preppedActionName).AppendLine().AppendLine("end");
+            preppedActionName = ConditionVariableName(sb.ToStringAndRelease(), prop);
+
+            // Compile the script.
+            script.DoString(preppedActionName);
+            // Get the function.
+            DynValue closure = script.Globals.Get(string.Format("{0}_drag", propName));
+            if (closure.Type == DataType.Function)
+            {
+                return (double newValue) =>
+                  {
+                      DynValue parm = DynValue.NewNumber(newValue);
+                      DynValue result = script.Call(closure, parm);
+                  };
+            }
+            else
+            {
+                Utility.LogError(this, "Failed to compile \"{0}\" into a Lua function", actionName);
+                return null;
             }
         }
 
