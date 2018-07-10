@@ -65,7 +65,7 @@ namespace AvionicsSystems
         public void IdMinus()
         {
             partId--;
-            if (partId <= 0)
+            if (partId < 0)
             {
                 partId = maxIds - 1;
             }
