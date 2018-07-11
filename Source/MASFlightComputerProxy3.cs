@@ -1182,12 +1182,6 @@ namespace AvionicsSystems
             return GetSASSpeedMode();
         }
 
-        /// <summary>
-        /// Internal method to set SAS mode and update the UI.
-        /// TODO: Radial Out / Radial In may be backwards (either in the display,
-        /// or in the enums).
-        /// </summary>
-        /// <param name="mode">Mode to set</param>
         private void TrySetSASMode(VesselAutopilot.AutopilotMode mode)
         {
             if (vessel.Autopilot.CanSetMode(mode))
