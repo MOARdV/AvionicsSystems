@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016 - 2017 MOARdV
+ * Copyright (c) 2016-2018 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -121,6 +121,10 @@ namespace AvionicsSystems
                 try
                 {
                     MASFlightComputer comp = MASFlightComputer.Instance(internalProp.part);
+                    if (comp == null)
+                    {
+                        throw new ArgumentNullException("Failed to find MASFlightComputer initializing MASMonitor");
+                    }
                     variableRegistrar = new VariableRegistrar(comp, internalProp);
 
                     if (string.IsNullOrEmpty(screenTransform))
@@ -176,6 +180,10 @@ namespace AvionicsSystems
                     screenSpace.SetActive(true);
 
                     screen = new RenderTexture(screenWidth, screenHeight, 24, RenderTextureFormat.ARGB32);
+                    if (screen == null)
+                    {
+                        throw new ArgumentNullException("Failed to find create " + screenWidth + " x " + screenHeight + " render texture initializing MASMonitor");
+                    }
                     if (!screen.IsCreated())
                     {
                         screen.Create();
@@ -201,7 +209,12 @@ namespace AvionicsSystems
                     screenCamera.clearFlags = CameraClearFlags.SolidColor;
                     screenCamera.targetTexture = screen;
 
-                    Material screenMat = internalProp.FindModelTransform(screenTransform).GetComponent<Renderer>().material;
+                    Transform screenTransformLoc = internalProp.FindModelTransform(screenTransform);
+                    if (screenTransformLoc == null)
+                    {
+                        throw new ArgumentNullException("Failed to find screenTransform \"" + screenTransform + "\" initializing MASMonitor");
+                    }
+                    Material screenMat = screenTransformLoc.GetComponent<Renderer>().material;
                     string[] layers = layer.Split();
                     for (int i = layers.Length - 1; i >= 0; --i)
                     {
