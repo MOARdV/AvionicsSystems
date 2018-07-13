@@ -184,7 +184,10 @@ namespace AvionicsSystems
             float characterScalar;
             if (this.dynamic)
             {
-                characterScalar = fontDimensions.y / (float)font.lineHeight;
+                // lineHeight isn't always valid, apparently.  The Digital-7 fonts
+                // included in MAS have a lineHeight 17, even though the ascent is
+                // 23.  So, add this little hack to try to handle that case.
+                characterScalar = fontDimensions.y / (float)Math.Max(font.lineHeight, font.fontSize);
                 this.fontSize = font.fontSize;
             }
             else
@@ -540,6 +543,8 @@ namespace AvionicsSystems
             bool italic = false;
             // Picked an arbitrary value for non-dynamic ascent.
             int ascent = (dynamic) ? font.ascent : (int)(0.8125f * fixedLineSpacing);
+            // Smallest value of minY to avoid descenders overlapping the next line of text.
+            int minimumY = ascent - (int)((float)fixedLineSpacing / characterScalar);
             //size = something.
 
             // Determine text length
@@ -891,10 +896,10 @@ namespace AvionicsSystems
                                 // This also affects wide characters in variable-advance fonts.
                                 if ((int)(charInfo.advance * characterScalar) > fixedAdvance)
                                 {
-                                    minX = 0.0f;
-                                    // don't need to multiply by character size, since fixedAdvance accounts for
-                                    // that.
-                                    maxX = fixedAdvance * widthScaling;
+                                    // Proportion the character to its advance
+                                    float scaledCharacter = fixedAdvance / (float)charInfo.advance;
+                                    minX = Mathf.Max(0.0f, charInfo.minX * scaledCharacter) * widthScaling;
+                                    maxX = Mathf.Min(fixedAdvance, charInfo.maxX * scaledCharacter) * widthScaling;
                                 }
                                 else if ((int)(charInfo.advance * characterScalar) < fixedAdvance)
                                 {
@@ -915,19 +920,10 @@ namespace AvionicsSystems
 
                                 float minY;
                                 float maxY;
+
                                 // Excessively tall characters need tweaked to fit
                                 maxY = Math.Min(charInfo.maxY, ascent) * characterScalar;
-
-                                if ((ascent - charInfo.minY) * characterScalar > fixedLineSpacing)
-                                {
-                                    // Push the bottom of the character upwards so it's not
-                                    // hanging over the next line.
-                                    minY = ascent * characterScalar - fixedLineSpacing;
-                                }
-                                else
-                                {
-                                    minY = charInfo.minY * characterScalar;
-                                }
+                                minY = Math.Max(charInfo.minY, minimumY) * characterScalar;
 
                                 minY += yPos + yOffset;
                                 maxY += yPos + yOffset;
