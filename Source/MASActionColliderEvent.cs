@@ -55,6 +55,9 @@ namespace AvionicsSystems
             internal bool autoRepeat = false;
             internal bool colliderEnabled = true;
             internal bool drag = false;
+            internal bool singleAxisDrag = false;
+            internal bool dragX = true;
+            internal bool dragY = true;
             internal Vector2 lastDragPosition;
             internal float normalizationScalar;
             internal float repeatRate = float.MaxValue;
@@ -85,6 +88,8 @@ namespace AvionicsSystems
                     }
                     if (drag)
                     {
+                        dragX = true;
+                        dragY = true;
                         lastDragPosition = new Vector2(Input.mousePosition.x * normalizationScalar, Input.mousePosition.y * normalizationScalar);
                     }
                 }
@@ -99,13 +104,25 @@ namespace AvionicsSystems
                 {
                     Vector2 newDragPosition = new Vector2(Input.mousePosition.x * normalizationScalar, Input.mousePosition.y * normalizationScalar);
 
+                    if (singleAxisDrag && dragX && dragY && (!Mathf.Approximately(newDragPosition.x, lastDragPosition.x) || !Mathf.Approximately(newDragPosition.y, lastDragPosition.y)))
+                    {
+                        if (Mathf.Abs(newDragPosition.x - lastDragPosition.x) >= Mathf.Abs(newDragPosition.y - lastDragPosition.y))
+                        {
+                            dragY = false;
+                        }
+                        else
+                        {
+                            dragX = false;
+                        }
+                    }
+
                     bool updated = false;
-                    if (onDragX != null && !Mathf.Approximately(newDragPosition.x, lastDragPosition.x))
+                    if (dragX && onDragX != null && !Mathf.Approximately(newDragPosition.x, lastDragPosition.x))
                     {
                         onDragX(Mathf.Clamp(newDragPosition.x - lastDragPosition.x, -1.0f, 1.0f));
                         updated = true;
                     }
-                    if (onDragY != null && !Mathf.Approximately(newDragPosition.y, lastDragPosition.y))
+                    if (dragY && onDragY != null && !Mathf.Approximately(newDragPosition.y, lastDragPosition.y))
                     {
                         onDragY(Mathf.Clamp(newDragPosition.y - lastDragPosition.y, -1.0f, 1.0f));
                         updated = true;
@@ -287,6 +304,10 @@ namespace AvionicsSystems
                 {
                     throw new ArgumentException("Unable to create 'onDragY' event for COLLIDER_EVENT " + name);
                 }
+            }
+            if (buttonObject.onDragX != null && buttonObject.onDragY != null)
+            {
+                config.TryGetValue("singleAxisDrag", ref buttonObject.singleAxisDrag);
             }
         }
 
