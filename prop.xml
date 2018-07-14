@@ -6260,9 +6260,25 @@
 				<animation>SwitchTumbleAnim</animation>
 				<animationSpeed>1.0</animationSpeed>
 			</ANIMATION_PLAYER>
-			<TEXT_LABEL>
+			<TEXT_LABEL id="0">
 				<name>Panel Legend</name>
 				<transform>TextPlateTopObj</transform>
+				<fontSize>6</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.02526, 0.000</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Panel Legend</name>
+				<transform>TextBottomObj</transform>
 				<fontSize>6</fontSize>
 				<lineSpacing>0.9</lineSpacing>
 				<font>Liberation Sans</font>
@@ -6301,7 +6317,10 @@
 			<ANIMATION_PLAYER id="1">
 				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
 			</ANIMATION_PLAYER>
-			<TEXT_LABEL>
+			<TEXT_LABEL id="0">
+				<text>STAGE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
 				<text>STAGE</text>
 			</TEXT_LABEL>
 		</prop>
@@ -6320,8 +6339,29 @@
 			<ANIMATION_PLAYER id="1">
 				<variable>fc.GetEnginesEnabled()</variable>
 			</ANIMATION_PLAYER>
-			<TEXT_LABEL>
+			<TEXT_LABEL id="0">
 				<text>ENGINE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ENGINE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_toggle_Recover</name>
+			<style>Covered Toggle Switch</style>
+			<COLLIDER_EVENT id="0" delete="true" />
+			<ANIMATION_PLAYER id="0">
+				<variable>fc.VesselRecoverable()</variable>
+			</ANIMATION_PLAYER>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.RecoverVessel()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="1" delete="true" />
+			<TEXT_LABEL id="0">
+				<text>RECOVER</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>RECOVER</text>
 			</TEXT_LABEL>
 		</prop>
 		<!-- The abort switch -->
@@ -7467,7 +7507,7 @@
 			<TEXT_LABEL>
 				<name>Label</name>
 				<transform>ButtonNameTextObj</transform>
-				<fontSize>2.55</fontSize>
+				<fontSize>2.50</fontSize>
 				<lineSpacing>1.0</lineSpacing>
 				<font>Liberation Sans</font>
 				<style>Bold</style>
@@ -7490,7 +7530,7 @@
 				<variable>fc.GetSASMode() == 0</variable>
 			</TRANSLATION>
 			<ANIMATION>
-				<variable>0.333 * (fc.Select(fc.GetSASMode() == 0, 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 0), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
 			</ANIMATION>
 			<TEXT_LABEL>
 				<text>STAB$$$ASSIST</text>
@@ -7507,7 +7547,7 @@
 				<variable>fc.GetSASMode() == 9</variable>
 			</TRANSLATION>
 			<ANIMATION>
-				<variable>0.333 * (fc.Select(fc.GetSASMode() == 9, 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 9), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
 			</ANIMATION>
 			<TEXT_LABEL>
 				<text>MNVR</text>
@@ -7524,7 +7564,7 @@
 				<variable>fc.GetSASMode() == 1</variable>
 			</TRANSLATION>
 			<ANIMATION>
-				<variable>0.333 * (fc.Select(fc.GetSASMode() == 1, 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 1), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
 			</ANIMATION>
 			<TEXT_LABEL>
 				<text>PRO$$$GRADE</text>
@@ -7541,7 +7581,7 @@
 				<variable>fc.GetSASMode() == 2</variable>
 			</TRANSLATION>
 			<ANIMATION>
-				<variable>0.333 * (fc.Select(fc.GetSASMode() == 2, 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 2), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
 			</ANIMATION>
 			<TEXT_LABEL>
 				<text>RETRO$$$GRADE</text>
@@ -7558,7 +7598,7 @@
 				<variable>fc.GetSASMode() == 3</variable>
 			</TRANSLATION>
 			<ANIMATION>
-				<variable>0.333 * (fc.Select(fc.GetSASMode() == 3, 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 3), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
 			</ANIMATION>
 			<TEXT_LABEL>
 				<text>NORMAL</text>
@@ -7575,7 +7615,7 @@
 				<variable>fc.GetSASMode() == 4</variable>
 			</TRANSLATION>
 			<ANIMATION>
-				<variable>0.333 * (fc.Select(fc.GetSASMode() == 4, 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 4), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
 			</ANIMATION>
 			<TEXT_LABEL>
 				<text>ANTI$$$NORMAL</text>
@@ -7592,7 +7632,7 @@
 				<variable>fc.GetSASMode() == 6</variable>
 			</TRANSLATION>
 			<ANIMATION>
-				<variable>0.333 * (fc.Select(fc.GetSASMode() == 6, 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 6), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
 			</ANIMATION>
 			<TEXT_LABEL>
 				<text>RADIAL$$$OUT</text>
@@ -7609,7 +7649,7 @@
 				<variable>fc.GetSASMode() == 5</variable>
 			</TRANSLATION>
 			<ANIMATION>
-				<variable>0.333 * (fc.Select(fc.GetSASMode() == 5, 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 5), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
 			</ANIMATION>
 			<TEXT_LABEL>
 				<text>RADIAL$$$IN</text>
@@ -7626,7 +7666,7 @@
 				<variable>fc.GetSASMode() == 7</variable>
 			</TRANSLATION>
 			<ANIMATION>
-				<variable>0.333 * (fc.Select(fc.GetSASMode() == 7, 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 7), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
 			</ANIMATION>
 			<TEXT_LABEL>
 				<text>TARGET</text>
@@ -7643,7 +7683,7 @@
 				<variable>fc.GetSASMode() == 8</variable>
 			</TRANSLATION>
 			<ANIMATION>
-				<variable>0.333 * (fc.Select(fc.GetSASMode() == 8, 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 8), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
 			</ANIMATION>
 			<TEXT_LABEL>
 				<text>ANTI$$$TARGET</text>
