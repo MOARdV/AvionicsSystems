@@ -1,6 +1,8 @@
 # AvionicsSystems
 MOARdV's Avionics Systems for Kerbal Space Program - a new generation of IVA enhancement.
 
+![Mk1 Pod](https://imageshack.com/a/img924/4951/yZBboA.jpg)
+
 ## Short Intro
 
 MOARdV's Avionics Systems (MAS) is a replacement for RasterPropMonitor.
