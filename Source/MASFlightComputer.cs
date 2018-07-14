@@ -182,6 +182,11 @@ namespace AvionicsSystems
         private Dictionary<string, MASMonitor> monitors = new Dictionary<string, MASMonitor>();
 
         /// <summary>
+        /// Set to true when any of the throttle keys are pressed.
+        /// </summary>
+        internal bool anyThrottleKeysPressed;
+
+        /// <summary>
         /// Reference to the current vessel computer.
         /// </summary>
         internal MASVesselComputer vc;
@@ -644,6 +649,8 @@ namespace AvionicsSystems
                     parachuteProxy.Update();
                     transferProxy.Update();
                     UpdateRadios();
+
+                    anyThrottleKeysPressed = GameSettings.THROTTLE_CUTOFF.GetKey() || GameSettings.THROTTLE_FULL.GetKey() || GameSettings.THROTTLE_UP.GetKey() || GameSettings.THROTTLE_DOWN.GetKey();
 
                     // Precompute the disruption chances.
                     if (electricChargeIndex == -1)

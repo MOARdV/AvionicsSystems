@@ -1005,22 +1005,15 @@ namespace AvionicsSystems
             }
         }
 
-        [MASProxy(Dependent = true)]
         /// <summary>
-        /// Provides a custom SI formatter with more control than the basic SIP format.
-        /// 
-        /// **NOT IMPLEMENTED:** Custom delimiter.
+        /// Returns 1 if any of the throttle keys (full throttle, cut throttle, throttle up, throttle down)
+        /// were pressed on the keyboard since the last Fixed Update, or if any of those keys are still
+        /// being pressed.
         /// </summary>
-        /// <param name="value">The number to format.</param>
-        /// <param name="totalLength">The total length of the string.</param>
-        /// <param name="minDecimal">The minimum decimal precision of the string.</param>
-        /// <param name="delimiter">A custom delimiter, or an empty string "" to indicate no delimiter</param>
-        /// <param name="forceSign">Require a space for the sign, even if the value is positive</param>
-        /// <param name="showPrefix">Whether the SI prefix should be appended to the string.</param>
-        /// <returns>The formatted string.</returns>
-        public string SIFormatValue(double value, double totalLength, double minDecimal, string delimiter, bool forceSign, bool showPrefix)
+        /// <returns>1 if any throttle keys are being pressed, 0 otherwise.</returns>
+        public double GetThrottleKeyPressed()
         {
-            return DoSIFormat(value, (int)totalLength, (int)minDecimal, delimiter, forceSign, showPrefix);
+            return fc.anyThrottleKeysPressed ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -1655,6 +1648,24 @@ namespace AvionicsSystems
             }
 
             return TimeWarp.CurrentRate;
+        }
+
+        [MASProxy(Dependent = true)]
+        /// <summary>
+        /// Provides a custom SI formatter with more control than the basic SIP format.
+        /// 
+        /// **NOT IMPLEMENTED:** Custom delimiter.
+        /// </summary>
+        /// <param name="value">The number to format.</param>
+        /// <param name="totalLength">The total length of the string.</param>
+        /// <param name="minDecimal">The minimum decimal precision of the string.</param>
+        /// <param name="delimiter">A custom delimiter, or an empty string "" to indicate no delimiter</param>
+        /// <param name="forceSign">Require a space for the sign, even if the value is positive</param>
+        /// <param name="showPrefix">Whether the SI prefix should be appended to the string.</param>
+        /// <returns>The formatted string.</returns>
+        public string SIFormatValue(double value, double totalLength, double minDecimal, string delimiter, bool forceSign, bool showPrefix)
+        {
+            return DoSIFormat(value, (int)totalLength, (int)minDecimal, delimiter, forceSign, showPrefix);
         }
 
         /// <summary>
