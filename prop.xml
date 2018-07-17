@@ -5695,6 +5695,45 @@
 			</TEXTURE_SHIFT>
 		</prop>
 		<prop>
+			<name>MAS_FI_ParachuteArmed</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>ARMED</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(parachute.GetParachuteArmedOrDeployed())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_ParachuteDanger</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>DANGER</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(1 - parachute.DeploymentSafe())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.2</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_ParachuteDeployed</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>DEPLOYED</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(parachute.GetParachuteDeployed())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
 			<name>MAS_FI_RCS</name>
 			<style>Flag Indicator</style>
 			<TEXT_LABEL>
@@ -6964,6 +7003,25 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_tggl_FuelCell_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleFuelCellActive()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetFuelCellActive()</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>FUEL CELL</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>OFF</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_tggl_Gear_T1_G1_S</name>
 			<style>NASA Toggle Switch</style>
 			<COLLIDER_EVENT id="0">
@@ -6982,6 +7040,25 @@
 				<text>RETRACT</text>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_tggl_IMP_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("MAS_IMP_Mode", fc.TogglePersistent("MAS_IMP_On") * fc.GetPersistentAsNumber("MAS_IMP_Mode_Select"))</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_IMP_On")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>IMP</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>OFF</text>
+			</TEXT_LABEL>
+ 		</prop>
 		<prop>
 			<name>MAS_tggl_Light_T1_G1_S</name>
 			<style>NASA Toggle Switch</style>
@@ -7021,6 +7098,25 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_tggl_PrecisionMode_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePrecisionMode()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPrecisionMode()</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>CONTROL</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>PRECISE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>NORMAL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_tggl_RCS_T1_G1_S</name>
 			<style>NASA Toggle Switch</style>
 			<COLLIDER_EVENT id="0">
@@ -7056,6 +7152,25 @@
 			</TEXT_LABEL>
 			<TEXT_LABEL id="2">
 				<text>OFF</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_SolarPanel_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleSolarPanel()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.SolarPanelPosition() > 2</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>SOLAR</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>DEPLOY</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>RETRACT</text>
 			</TEXT_LABEL>
 		</prop>
 	</ToggleSwitch>
@@ -7341,6 +7456,48 @@
 				<lightName>Point light</lightName>
 				<intensity>fc.GetPersistentAsNumber("MAS_Generic_IntLight")</intensity>
 				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Generic_IntLight"))</variable>
+			</INT_LIGHT>
+		</prop>
+		<prop>
+			<name>MAS_swRotary_Mk13CabinLight</name>
+			<style>Rheostat Int Light</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("MAS_Generic_IntLight", 0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("MAS_Generic_IntLight", -0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_Generic_IntLight")</variable>
+			</ROTATION>
+			<TEXT_LABEL>
+				<text>CABIN$$$LIGHT</text>
+			</TEXT_LABEL>
+			<INT_LIGHT>
+				<lightName>light_1</lightName>
+				<intensity>fc.GetPersistentAsNumber("MAS_Generic_IntLight")</intensity>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Generic_IntLight"))</variable>
+			</INT_LIGHT>
+		</prop>
+		<prop>
+			<name>MAS_swRotary_Mk13DockLight</name>
+			<style>Rheostat Int Light</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("MAS_Mk13_TunnelLight", 0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("MAS_Mk13_TunnelLight", -0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_Mk13_TunnelLight")</variable>
+			</ROTATION>
+			<TEXT_LABEL>
+				<text>TUNNEL$$$LIGHT</text>
+			</TEXT_LABEL>
+			<INT_LIGHT>
+				<lightName>light_hatch</lightName>
+				<intensity>fc.GetPersistentAsNumber("MAS_Mk13_TunnelLight")</intensity>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Mk13_TunnelLight"))</variable>
 			</INT_LIGHT>
 		</prop>
 		<prop>

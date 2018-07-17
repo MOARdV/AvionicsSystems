@@ -149,7 +149,7 @@ function dskyIncValue(sourceMode)
 	if dskyModeOrbit(sourceMode) > 0 then
 		return fc.Inclination()
 	elseif dskyModeTarget(sourceMode) > 0 then
-		return fc.TargetInclination()
+		return fc.TargetRelativeInclination()
 	elseif dskyModeManeuver(sourceMode) > 0 then
 		return fc.ManeuverNodeInc()
 	end
@@ -180,11 +180,25 @@ function dskyTimerModePe(sourceMode, timerMode)
 end
 
 function dskyTimerModeAn(sourceMode, timerMode)
-
+	if timerMode == 2 and fc.VesselLanded() < 1 then
+		if sourceMode == 0 then
+			return 1
+		elseif sourceMode == 1 and fc.TargetType() > 0 then
+			return 1
+		end
+	end
+	
 	return 0
 end
 
 function dskyTimerModeDn(sourceMode, timerMode)
+	if timerMode == 3 and fc.VesselLanded() < 1 then
+		if sourceMode == 0 then
+			return 1
+		elseif sourceMode == 1 and fc.TargetType() > 0 then
+			return 1
+		end
+	end
 
 	return 0
 end
@@ -228,15 +242,25 @@ function dskyTime(sourceMode, timerMode)
 	elseif dskyTimerModePe(sourceMode, timerMode) > 0 then
 		return fc.TimeToPe()
 	elseif dskyTimerModeAn(sourceMode, timerMode) > 0 then
-		return 0
+		if sourceMode == 0 then
+			return fc.TimeToANEq()
+		elseif sourceMode == 1 then
+			return fc.TimeToANTarget()
+		end
 	elseif dskyTimerModeDn(sourceMode, timerMode) > 0 then
-		return 1
+		if sourceMode == 0 then
+			return fc.TimeToDNEq()
+		elseif sourceMode == 1 then
+			return fc.TimeToDNTarget()
+		end
 	elseif dskyTimerModeMnvr(sourceMode, timerMode) > 0 then
 		return fc.ManeuverNodeTime()
 	end
 	
 	return 0
 end
+
+-- DELTA-V -------------------------------------------------------------------
 
 -- Returns a deltaV value appropriate to the current mode combination.
 function dskyDeltaV(deltaVMode)
