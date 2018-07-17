@@ -53,7 +53,7 @@ namespace AvionicsSystems
             }
             variableName = variableName.Trim();
 
-            if (!bool.TryParse("autoRepeat", out autoRepeat))
+            if (!config.TryGetValue("autoRepeat", ref autoRepeat))
             {
                 autoRepeat = false;
             }
