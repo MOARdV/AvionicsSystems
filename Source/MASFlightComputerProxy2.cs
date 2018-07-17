@@ -958,7 +958,7 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Applies some "realism" conditions to the variable to cause it to
-        /// return zero under two general conditions:
+        /// return zero under the following conditions:
         /// 
         /// 1) When there is no power available (the config-file-specified
         /// power variable is below 0.0001), or
@@ -967,7 +967,7 @@ namespace AvionicsSystems
         /// in the per-pod config file.  When these limits are exceeded, there
         /// is a chance (also defined in the config file) of the variable being
         /// interrupted.  This chance increases as the g-forces exceed the
-        /// threshold using a square-root curve.
+        /// threshold using a square-root curve, or
         /// 
         /// 3) The optional variable `powerOnVariable` in MASFlightComputer returns
         /// 0 or less.
@@ -1002,6 +1002,42 @@ namespace AvionicsSystems
             else
             {
                 return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Applies some "realism" conditions to the variable to cause it to
+        /// return 'defaultValue' under the following conditions:
+        /// 
+        /// 1) When there is no power available (the config-file-specified
+        /// power variable is below 0.0001), or
+        /// 
+        /// 2) The craft is under high g-loading.  G-loading limits are defined
+        /// in the per-pod config file.  When these limits are exceeded, there
+        /// is a chance (also defined in the config file) of the variable being
+        /// interrupted.  This chance increases as the g-forces exceed the
+        /// threshold using a square-root curve, or
+        /// 
+        /// 3) The optional variable `powerOnVariable` in MASFlightComputer returns
+        /// 0 or less.
+        /// 
+        /// This variant of 'fc.Conditioned()' is intended to be used with ANIMATION or
+        /// other nodes where the 'off' position is not the same as the 0 position.  If the
+        /// off position should be 0, use the single-parameter fc.Conditioned.
+        /// </summary>
+        /// <param name="value">A numeric value or a boolean</param>
+        /// <param name="defaultValue">The value that is returned if the conditions described
+        /// in the summary are not met.</param>
+        /// <returns>`value` if the conditions above are not met.</returns>
+        public double Conditioned(double value, double defaultValue)
+        {
+            if (fc.isPowered && UnityEngine.Random.value > fc.disruptionChance)
+            {
+                return value;
+            }
+            else
+            {
+                return defaultValue;
             }
         }
 
