@@ -2610,7 +2610,7 @@
 			<name>MAS_pb_Xpointer_Mode</name>
 			<style>Two Mode Bordered Captioned Button</style>
 			<COLLIDER_EVENT>
-				<onClick>fc.SetPersistent("%AUTOID%", XPtr_SetMode(fc.AddPersistentWrapped("MAS_Xpointer_Mode", 1, 0, 3)))</onClick>
+				<onClick>fc.SetPersistent("%AUTOID%", fc.AddPersistentWrapped("MAS_Xpointer_Mode", 1, 0, 3))</onClick>
 				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
 			</COLLIDER_EVENT>
 			<ANIMATION_PLAYER>
@@ -5325,7 +5325,7 @@
 			<style>Signal Lamp</style>
 			<COLOR_SHIFT>
 				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
-				<variable>fc.GetPersistentAsNumber("MAS_ARRT_On") and (fc.GetPersistentAsNumber("MAS_ARRT_Enable") &lt; 1)</variable>
+				<variable>fc.GetPersistentAsNumber("MAS_ARRT_On") and not fc.GetPersistentAsNumber("MAS_ARRT_Enable")</variable>
 			</COLOR_SHIFT>
 		</prop>
 		<prop>
@@ -5341,7 +5341,7 @@
 			<style>Signal Lamp</style>
 			<COLOR_SHIFT>
 				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
-				<variable>XPtr_Error()</variable>
+				<variable>fc.GetPersistentAsNumber("MAS_Xpointer_Power") and not fc.GetPersistentAsNumber("MAS_Xpointer_Enable")</variable>
 			</COLOR_SHIFT>
 		</prop>
 	</SignalLamp>
@@ -5637,6 +5637,19 @@
 			</TEXT_LABEL>
 			<MODEL_SCALE>
 				<variable>fc.Conditioned(fc.Docked())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_DockReady</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>DOCKED</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.DockReady())</variable>
 			</MODEL_SCALE>
 			<TEXTURE_SHIFT>
 				<startUV>0.0, 0.4</startUV>
@@ -6165,7 +6178,7 @@
 			<name>MAS_toggle_Xpointer_Power</name>
 			<style>Panel Power Switch</style>
 			<COLLIDER_EVENT>
-				<onClick>XPtr_TogglePower()</onClick>
+				<onClick>fc.TogglePersistent("MAS_Xpointer_Power")</onClick>
 			</COLLIDER_EVENT>
 			<ROTATION>
 				<variable>fc.GetPersistentAsNumber("MAS_Xpointer_Power")</variable>
@@ -7211,6 +7224,25 @@
 				<text>RETRACT</text>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_tggl_XPtrPower_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("MAS_Xpointer_Power")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_Xpointer_Power")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>X-PTR</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>OFF</text>
+			</TEXT_LABEL>
+		</prop>
 	</ToggleSwitch>
 	<!-- Rotary switches (eg, rheostat dimmers, mechanical rotating knobs -->
 	<RotarySwitch folder="switchRotary">
@@ -7396,7 +7428,7 @@
 			<TEXT_LABEL id="0">
 				<name>1 Mark</name>
 				<transform>LeftTextObj</transform>
-				<fontSize>4</fontSize>
+				<fontSize>5</fontSize>
 				<font>Liberation Sans</font>
 				<style>Bold</style>
 				<alignment>Right</alignment>
@@ -7410,7 +7442,7 @@
 			<TEXT_LABEL id="1">
 				<name>2 Mark</name>
 				<transform>CenterTextObj</transform>
-				<fontSize>4</fontSize>
+				<fontSize>5</fontSize>
 				<font>Liberation Sans</font>
 				<style>Bold</style>
 				<alignment>Center</alignment>
@@ -7424,7 +7456,7 @@
 			<TEXT_LABEL id="2">
 				<name>3 Mark</name>
 				<transform>RightTextObj</transform>
-				<fontSize>4</fontSize>
+				<fontSize>5</fontSize>
 				<font>Liberation Sans</font>
 				<style>Bold</style>
 				<alignment>Left</alignment>
@@ -7642,12 +7674,14 @@
 				<range>0, 2</range>
 			</ROTATION>
 			<TEXT_LABEL id="0">
+				<fontSize>4</fontSize>
 				<text>VESSEL</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
-				<text>TARGET</text>
+				<text>TGT</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="2">
+				<fontSize>4</fontSize>
 				<text>LANDING</text>
 			</TEXT_LABEL>
 		</prop>
@@ -7672,6 +7706,52 @@
 			</TEXT_LABEL>
 			<TEXT_LABEL id="2">
 				<text>OBT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_swRotary3_XPtrMode</name>
+			<style>3 pos switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("MAS_Xpointer_Mode", -1, 0, 2)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("MAS_Xpointer_Mode", 1, 0, 2)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_Xpointer_Mode")</variable>
+				<range>2, 0</range>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>VEL</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>DIST</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>GRND</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_swRotary3_XPtrScale</name>
+			<style>3 pos switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>XPtr_NextScale(fc.AddPersistentClamped("MAS_Xpointer_Scale", -1, -1, 1))</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>XPtr_NextScale(fc.AddPersistentClamped("MAS_Xpointer_Scale", 1, -1, 1))</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_Xpointer_Scale")</variable>
+				<range>1, -1</range>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>x 1/10</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>x 1</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>x 10</text>
 			</TEXT_LABEL>
 		</prop>
 	</RotarySwitch>
