@@ -33,29 +33,26 @@ IVAs using MAS will include at least one of alexustas's props packs - [ASET Prop
 [ASET Avionics Pack](http://forum.kerbalspaceprogram.com/index.php?/topic/116479-aset-avionics-pack-v-20-for-the-modders-who-create-iva/) adapted to MAS.
 
 However, since it is important to have *something* to look at before deciding to adopt this mod for IVA
-development, there are two IVAs included in this package.
+development, there are IVAs included in this package:
 
-Included in this distribution is an updated IVA for the MRK DM command pod, part of the [Commonwealth Rockets](https://forum.kerbalspaceprogram.com/index.php?/topic/164365-13-commonwealth-rockets-tea-powered-spaceflight-in-development/) mod.
-The MRK DM(r) 6-Kerbal pod does not currently include MAS props.  It will be updated at a later time, once
-the IVA prop layout has stabilized.
-
-In addition, this distribution includes an updated IVA for the Yarbrough08 Mk. 1-1 A2 Command Pod from [Yarbrough08](http://forum.kerbalspaceprogram.com/index.php?/topic/88604-wip-105-2-kerbal-command-pod-mk-1-1-a2-alpha-04-spacedock/).
+* The stock Mk 1 Command Pod (pictured above), which demonstrates a retro-NASA style stripped-down IVA suitable for suborbital or short orbital flights.
+* The MRK DM command pod, part of the [Commonwealth Rockets](https://forum.kerbalspaceprogram.com/index.php?/topic/164365-13-commonwealth-rockets-tea-powered-spaceflight-in-development/) mod.
+This command pod demonstrates a modern partial-glass cockpit design good for activity around Kerbin and its moons.
+* The Yarbrough Mk. 1-1 A2 Command Pod from [Yarbrough08](http://forum.kerbalspaceprogram.com/index.php?/topic/88604-wip-105-2-kerbal-command-pod-mk-1-1-a2-alpha-04-spacedock/).
+This IVA is deprecated, and it will be removed from a future release.
 Since the original mod has not been updated since KSP 1.0.5, I have included a MM patch in the MOARdV/FlightSystems directory
-called YarbroughMk1-1A2_Update.cfg.  This file updates the command pod to KSP 1.3.1 standards, and it makes a few tweaks
+called YarbroughMk1-1A2_Update.cfg.  This file updates the command pod to KSP 1.3.1+ standards, and it makes a few tweaks
 based on my personal gameplay preferences.  **NOTE:** The career mode values (cost, tech tree placement) are guesses, since
-I never play career mode.  Feedback on whether they're reasonable would be appreciated.
+I never play career mode.
 
-Please understand that the IVAs are under development, and they may be missing some features.
-The MRK command pod is the primary development pod at this time.
-
-You will need to download and install [Module Manager](https://forum.kerbalspaceprogram.com/index.php?/topic/50533-130-module-manager-281-june-29th-2017-with-n-cats-physics/), the Yarbrough08 command pod, and
-ASET Props Pack v1.5 (or later) in order to fly either IVA.
+You will need to download and install [Module Manager](https://forum.kerbalspaceprogram.com/index.php?/topic/50533-130-module-manager-281-june-29th-2017-with-n-cats-physics/),
+ASET Props Pack v1.5 (or later), and ASET Avionics Pack in order to fly these IVAs.
 
 ## Where are the Props?
 
 Converting props to MAS is an easy but repetitive task.  To help out with it, I've created the [Prop Config](https://github.com/MOARdV/AvionicsSystems/wiki/Prop-Config)
 tool to automate a good deal of the process.  The Prop Config tool is released separately from the main MAS distribution - it is not
-included in the main MAS zip.
+included in the main MAS zip.  The Prop Config Tool includes the master prop.xml file used to generate the auto-generated props.
 
 ## What about RPM?
 
