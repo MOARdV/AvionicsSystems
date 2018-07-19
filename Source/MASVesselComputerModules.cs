@@ -1,4 +1,5 @@
 ﻿//#define TIME_REBUILD
+//#define TIME_UPDATES
 /*****************************************************************************
  * The MIT License (MIT)
  * 
@@ -1510,6 +1511,9 @@ namespace AvionicsSystems
             }
         }
 
+#if TIME_UPDATES
+        private Stopwatch updateStopwatch = new Stopwatch();
+#endif
         /// <summary>
         /// Update per-module data after refreshing the module lists, if needed.
         /// </summary>
@@ -1522,6 +1526,10 @@ namespace AvionicsSystems
                 modulesInvalidated = false;
             }
 
+#if TIME_UPDATES
+            updateStopwatch.Reset();
+            updateStopwatch.Start();
+#endif
             bool requestReset = false;
             UpdateAircraftEngines();
             UpdateAntenna();
@@ -1542,6 +1550,12 @@ namespace AvionicsSystems
             {
                 InvalidateModules();
             }
+#if TIME_UPDATES
+            TimeSpan updateTime = updateStopwatch.Elapsed;
+
+            Utility.LogMessage(this, "UpdateModuleData in {0:0.000} ms",
+                ((double)updateTime.Ticks) / ((double)TimeSpan.TicksPerMillisecond));
+#endif
         }
         #endregion
     }
