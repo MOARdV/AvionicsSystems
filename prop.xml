@@ -5646,7 +5646,7 @@
 			<name>MAS_FI_DockReady</name>
 			<style>Flag Indicator</style>
 			<TEXT_LABEL>
-				<text>DOCKED</text>
+				<text>READY</text>
 			</TEXT_LABEL>
 			<MODEL_SCALE>
 				<variable>fc.Conditioned(fc.DockReady())</variable>
@@ -7962,6 +7962,74 @@
 			</ANIMATION>
 			<TEXT_LABEL>
 				<text>ANTI$$$TARGET</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_TargetClear</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ClearTarget()</onClick>
+				<variable>fc.TargetType()</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>not fc.TargetType()</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.Select(fc.TargetType() > 0, 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>CLEAR$$$TGT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_TargetMoon</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TargetNextMoon()</onClick>
+				<variable>fc.BodyMoonCount(fc.CurrentBodyIndex())</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>not fc.BodyMoonCount(fc.CurrentBodyIndex())</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.Select(fc.BodyMoonCount(fc.CurrentBodyIndex()) > 0, 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>NEXT$$$MOON</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_TargetVessel</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TargetNextVessel()</onClick>
+				<variable>fc.TargetVesselCount()</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>not fc.TargetVesselCount()</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.Select(fc.TargetVesselCount() > 0, 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>NEXT$$$VESSEL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_Undock</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.Undock()</onClick>
+				<variable>fc.Docked()</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>not fc.Docked()</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (2 * fc.Docked() + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>UNDOCK</text>
 			</TEXT_LABEL>
 		</prop>
 	</RetroButton>
