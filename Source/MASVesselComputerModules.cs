@@ -1,4 +1,5 @@
-﻿/*****************************************************************************
+﻿//#define TIME_REBUILD
+/*****************************************************************************
  * The MIT License (MIT)
  * 
  * Copyright (c) 2016-2018 MOARdV
@@ -25,6 +26,7 @@
 using KSP.UI.Screens;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using UnityEngine;
 
@@ -809,7 +811,7 @@ namespace AvionicsSystems
         #endregion
 
         #region RCS
-        private List<ModuleRCS> rcsList = new List<ModuleRCS>();
+        private List<ModuleRCS> rcsList = new List<ModuleRCS>(8);
         internal ModuleRCS[] moduleRcs = new ModuleRCS[0];
         internal bool anyRcsDisabled = false;
         internal bool anyRcsFiring = false;
@@ -880,7 +882,7 @@ namespace AvionicsSystems
         #endregion
 
         #region Reaction Wheels
-        private List<ModuleReactionWheel> reactionWheelList = new List<ModuleReactionWheel>();
+        private List<ModuleReactionWheel> reactionWheelList = new List<ModuleReactionWheel>(4);
         internal ModuleReactionWheel[] moduleReactionWheel = new ModuleReactionWheel[0];
         internal float reactionWheelNetTorque = 0.0f;
         internal float reactionWheelPitch = 0.0f;
@@ -1015,6 +1017,12 @@ namespace AvionicsSystems
                 }
             }
         }
+        #endregion
+
+        #region Science
+        private List<ModuleScienceExperiment> scienceExperimentList = new List<ModuleScienceExperiment>();
+        internal ModuleScienceExperiment[] moduleScienceExperiment = new ModuleScienceExperiment[0];
+
         #endregion
 
         #region Thermal Management
@@ -1187,20 +1195,39 @@ namespace AvionicsSystems
             if (sourceList.Count != destArray.Length)
             {
                 destArray = new T[sourceList.Count];
-            }
 
-            for (int i = sourceList.Count - 1; i >= 0; --i)
-            {
-                destArray[i] = sourceList[i];
+                // Assume the list can't change without changing size -
+                // I shouldn't be able to add a module and remove a module
+                // of the same type in a single transaction, right?
+                // For whatever reason, this copy is faster than List.CopyTo()
+                for (int i = sourceList.Count - 1; i >= 0; --i)
+                {
+                    destArray[i] = sourceList[i];
+                }
             }
             sourceList.Clear();
         }
+
+#if TIME_REBUILD
+        private Stopwatch rebuildStopwatch = new Stopwatch();
+#endif
 
         /// <summary>
         /// Iterate over all of everything to update tracked modules.
         /// </summary>
         private void RebuildModules()
         {
+            // Merkur:
+            // LOAD TIME:
+            // [LOG 09:41:38.560] [MASVesselComputer] Scan parts in 0.172 ms, transfer modules in 0.776 ms
+            // STAGING:
+            // [LOG 09:42:11.132] [MASVesselComputer] Scan parts in 0.044 ms, transfer modules in 0.044 ms
+
+#if TIME_REBUILD
+            rebuildStopwatch.Reset();
+            rebuildStopwatch.Start();
+#endif
+
             activeResources.Clear();
             for (int agIndex = hasActionGroup.Length - 1; agIndex >= 0; --agIndex)
             {
@@ -1381,7 +1408,7 @@ namespace AvionicsSystems
                         {
                             multiModeEngineList.Add(module as MultiModeEngine);
                         }
-                        else if(module is MASIdEngineGroup)
+                        else if (module is MASIdEngineGroup)
                         {
                             var group = module as MASIdEngineGroup;
                             if (group.partId != 0 && group.engine != null)
@@ -1406,6 +1433,9 @@ namespace AvionicsSystems
                     activeResources.UnionWith(vessel.parts[partIdx].crossfeedPartSet.GetParts());
                 }
             }
+#if TIME_REBUILD
+            TimeSpan scanTime = rebuildStopwatch.Elapsed;
+#endif
 
             // Rebuild the part set.
             if (partSet == null)
@@ -1464,14 +1494,21 @@ namespace AvionicsSystems
                 TransferModules<ModuleResourceConverter>(resourceConverterList[i].converterList, ref resourceConverterList[i].moduleConverter);
                 TransferModules<float>(resourceConverterList[i].outputRatioList, ref resourceConverterList[i].outputRatio);
             }
-        }
 
-        /// <summary>
-        /// Update per-part data that may change per fixed update.
-        /// </summary>
-        //private void UpdatePartData()
-        //{
-        //}
+#if TIME_REBUILD
+            TimeSpan transferTime = rebuildStopwatch.Elapsed - scanTime;
+
+            Utility.LogMessage(this, "Scan parts in {0:0.000} ms, transfer modules in {1:0.000} ms",
+                ((double)scanTime.Ticks) / ((double)TimeSpan.TicksPerMillisecond),
+                ((double)transferTime.Ticks) / ((double)TimeSpan.TicksPerMillisecond));
+#endif
+
+            if (_referenceTransform != null)
+            {
+                // In case we ejected our docking port...
+                UpdateDockingNode(_referenceTransform.gameObject.GetComponent<Part>());
+            }
+        }
 
         /// <summary>
         /// Update per-module data after refreshing the module lists, if needed.
@@ -1484,11 +1521,6 @@ namespace AvionicsSystems
 
                 modulesInvalidated = false;
             }
-            //else
-            //{
-            //    // We *still* have to iterate over the parts - but just for resource counting.
-            //    UpdatePartData();
-            //}
 
             bool requestReset = false;
             UpdateAircraftEngines();
