@@ -1253,12 +1253,9 @@ namespace AvionicsSystems
                             enginesList.Add(engine);
 
                             // This is something we only need to worry about when rebulding the list.
-                            if (engine.EngineIgnited && engine.isEnabled && engine.isOperational)
+                            if (activeEnginesGimbal == false && engine.EngineIgnited && engine.isOperational && Modules.GetModule<ModuleGimbal>() != null)
                             {
-                                if (vessel.parts[partIdx].FindModuleImplementing<ModuleGimbal>() != null)
-                                {
-                                    activeEnginesGimbal = true;
-                                }
+                                activeEnginesGimbal = true;
                             }
                             // Crazy Mode controllers are a special-case engine.
                             if (MASIVTOL.wbiWBIGraviticEngine_t != null && MASIVTOL.wbiWBIGraviticEngine_t.IsAssignableFrom(module.GetType()))
@@ -1367,10 +1364,7 @@ namespace AvionicsSystems
                         }
                         else if (module is MASThrustReverser)
                         {
-                            if (module.isEnabled)
-                            {
-                                thrustReverserList.Add(module as MASThrustReverser);
-                            }
+                            thrustReverserList.Add(module as MASThrustReverser);
                         }
                         else if (module is MASIdEngine)
                         {
