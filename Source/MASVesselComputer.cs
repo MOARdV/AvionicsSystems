@@ -145,7 +145,7 @@ namespace AvionicsSystems
             double currentHottest = 0.0;
             for (int partIdx = vessel.parts.Count - 1; partIdx >= 0; --partIdx)
             {
-                Part part =  vessel.parts[partIdx];
+                Part part = vessel.parts[partIdx];
                 double maxTemp = part.maxTemp;
                 double currentTemp = part.temperature;
                 if (maxTemp - currentTemp < difference)
@@ -348,7 +348,6 @@ namespace AvionicsSystems
             GameEvents.onVesselChange.Add(onVesselChange);
             GameEvents.onVesselSOIChanged.Add(onVesselSOIChanged);
             GameEvents.onVesselWasModified.Add(onVesselWasModified);
-            GameEvents.onVesselReferenceTransformSwitch.Add(onVesselReferenceTransformSwitch);
         }
 
         /// <summary>
@@ -363,7 +362,6 @@ namespace AvionicsSystems
             GameEvents.onVesselChange.Remove(onVesselChange);
             GameEvents.onVesselSOIChanged.Remove(onVesselSOIChanged);
             GameEvents.onVesselWasModified.Remove(onVesselWasModified);
-            GameEvents.onVesselReferenceTransformSwitch.Remove(onVesselReferenceTransformSwitch);
 
             TeardownResourceData();
 
@@ -1202,51 +1200,36 @@ namespace AvionicsSystems
 
         private void UpdateReferenceTransform(Transform newRefXform)
         {
+            if (_referenceTransform == newRefXform)
+            {
+                return;
+            }
+
             _referenceTransform = newRefXform;
             referenceTransformType = ReferenceType.Unknown;
 
-            // TODO: Can I infer this from newRefXform?  And is it more
-            // efficient to do than this call?
-            // Actually, it seems like GetReferenceTransformPart() hasn't
-            // updated yet!
-            Part referencePart = vessel.GetReferenceTransformPart();
+            Part referencePart = _referenceTransform.gameObject.GetComponent<Part>();
             if (referencePart != null)
             {
-                PartModuleList referenceModules = referencePart.Modules;
-                if (referenceModules != null)
+                if (referencePart.Modules.GetModule<ModuleCommand>() != null)
                 {
-                    for (int i = referenceModules.Count - 1; i >= 0; --i)
+                    referenceTransformType = ReferenceType.RemoteCommand;
+                    if (CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA)
                     {
-                        PartModule rpm = referenceModules[i];
-                        if (rpm is ModuleDockingNode)
+                        Kerbal refKerbal = CameraManager.Instance.IVACameraActiveKerbal;
+                        if (refKerbal != null && refKerbal.InPart == referencePart)
                         {
-                            referenceTransformType = ReferenceType.DockingPort;
-                            break;
-                        }
-                        else if (rpm is ModuleGrappleNode)
-                        {
-                            referenceTransformType = ReferenceType.Claw;
-                            break;
-                        }
-                        else if (rpm is ModuleCommand)
-                        {
-                            referenceTransformType = ReferenceType.RemoteCommand;
-                            break;
+                            referenceTransformType = ReferenceType.Self;
                         }
                     }
                 }
-            }
-
-            if (referenceTransformType == ReferenceType.RemoteCommand)
-            {
-                // See if it's actually the current IVA command pod.
-                if (CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA)
+                else if (referencePart.Modules.GetModule<ModuleDockingNode>() != null)
                 {
-                    Kerbal refKerbal = CameraManager.Instance.IVACameraActiveKerbal;
-                    if (refKerbal != null && refKerbal.InPart == referencePart)
-                    {
-                        referenceTransformType = ReferenceType.Self;
-                    }
+                    referenceTransformType = ReferenceType.DockingPort;
+                }
+                else if (referencePart.Modules.GetModule<ModuleGrappleNode>() != null)
+                {
+                    referenceTransformType = ReferenceType.Claw;
                 }
             }
 
@@ -1264,7 +1247,7 @@ namespace AvionicsSystems
         /// <param name="newMode"></param>
         private void onCameraChange(CameraManager.CameraMode newMode)
         {
-            UpdateReferenceTransform(_referenceTransform);
+            //UpdateReferenceTransform(_referenceTransform);
             vesselActive = ActiveVessel(vessel);
         }
 
@@ -1331,15 +1314,6 @@ namespace AvionicsSystems
                 vesselCrewed = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
                 vesselActive = ActiveVessel(vessel);
             }
-        }
-
-        private void onVesselReferenceTransformSwitch(Transform fromXform, Transform toXform)
-        {
-            UpdateReferenceTransform(toXform);
-            //Utility.LogMessage(this, "onVesselReferenceTransformSwitch from {0} to {1}; fromMatch = {2}", 
-            //    (fromXform == null) ? "(null)" : fromXform.name,
-            //    (toXform == null) ? "(null)" : toXform.name,
-            //    fromXform == referenceTransform);
         }
         #endregion
     }
