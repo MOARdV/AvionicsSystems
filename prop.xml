@@ -5321,11 +5321,43 @@
 			</COLOR_SHIFT>
 		</style>
 		<prop>
+			<name>MAS_SignalLamp_ChattererRx</name>
+			<style>Signal Lamp</style>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<variable>fc.Conditioned(chatterer.Receiving())</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_SignalLamp_ChattererTx</name>
+			<style>Signal Lamp</style>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<variable>fc.Conditioned(chatterer.Transmitting())</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_SignalLamp_CommnetCommunicate</name>
+			<style>Signal Lamp</style>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<variable>fc.Conditioned(fc.CommNetCanCommunicate())</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_SignalLamp_CommnetScience</name>
+			<style>Signal Lamp</style>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<variable>fc.Conditioned(fc.CommNetCanScience())</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
 			<name>MAS_SignalLamp_ARRT_Error</name>
 			<style>Signal Lamp</style>
 			<COLOR_SHIFT>
 				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
-				<variable>fc.GetPersistentAsNumber("MAS_ARRT_On") and not fc.GetPersistentAsNumber("MAS_ARRT_Enable")</variable>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_ARRT_On") and not fc.GetPersistentAsNumber("MAS_ARRT_Enable"))</variable>
 			</COLOR_SHIFT>
 		</prop>
 		<prop>
@@ -5333,7 +5365,7 @@
 			<style>Signal Lamp</style>
 			<COLOR_SHIFT>
 				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
-				<variable>fc.GetPersistentAsNumber("MAS_IMP_On") and not fc.GetPersistentAsNumber("MAS_IMP_Enable")</variable>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_IMP_On") and not fc.GetPersistentAsNumber("MAS_IMP_Enable"))</variable>
 			</COLOR_SHIFT>
 		</prop>
 		<prop>
@@ -5341,7 +5373,7 @@
 			<style>Signal Lamp</style>
 			<COLOR_SHIFT>
 				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
-				<variable>fc.GetPersistentAsNumber("MAS_Xpointer_Power") and not fc.GetPersistentAsNumber("MAS_Xpointer_Enable")</variable>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Xpointer_Power") and not fc.GetPersistentAsNumber("MAS_Xpointer_Enable"))</variable>
 			</COLOR_SHIFT>
 		</prop>
 	</SignalLamp>
@@ -7035,6 +7067,25 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_tggl_Antenna_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleAntenna()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.AntennaPosition() > 2</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>ANTENNA</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>DEPLOY</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>RETRACT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_tggl_Brake_T1_G1_S</name>
 			<style>NASA Toggle Switch</style>
 			<COLLIDER_EVENT id="0">
@@ -7794,6 +7845,24 @@
 				<text>LABEL</text>
 			</TEXT_LABEL>
 		</style>
+		<prop>
+			<name>MAS_RB_ChattererTalk</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", chatterer.StartTalking())</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+				<variable>chatterer.Available()</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.Select(chatterer.Available() and fc.CommNetCanCommunicate(), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>PTT</text>
+			</TEXT_LABEL>
+		</prop>
 		<prop>
 			<name>MAS_RB_SAS_StabAssist</name>
 			<style>Retro Button</style>
