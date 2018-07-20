@@ -1,4 +1,5 @@
-﻿/*****************************************************************************
+﻿//#define MEASURE_FC_FIXEDUPDATE
+/*****************************************************************************
  * The MIT License (MIT)
  * 
  * Copyright (c) 2016-2018 MOARdV
@@ -597,6 +598,9 @@ namespace AvionicsSystems
         #endregion
 
         #region Monobehaviour
+#if MEASURE_FC_FIXEDUPDATE
+        Stopwatch fixedupdateTimer = new Stopwatch();
+#endif
         /// <summary>
         /// Process updates to tracked variables.
         /// </summary>
@@ -606,6 +610,10 @@ namespace AvionicsSystems
             {
                 if (initialized && vc.vesselCrewed && vc.vesselActive)
                 {
+#if MEASURE_FC_FIXEDUPDATE
+                    fixedupdateTimer.Reset();
+                    fixedupdateTimer.Start();
+#endif
                     // Realistically, this block of code won't be triggered very
                     // often.  Once per scene change per pod.
                     if (mutableVariablesChanged)
@@ -649,6 +657,9 @@ namespace AvionicsSystems
                     parachuteProxy.Update();
                     transferProxy.Update();
                     UpdateRadios();
+#if MEASURE_FC_FIXEDUPDATE
+                    TimeSpan updatesTime = fixedupdateTimer.Elapsed;
+#endif
 
                     anyThrottleKeysPressed = GameSettings.THROTTLE_CUTOFF.GetKey() || GameSettings.THROTTLE_FULL.GetKey() || GameSettings.THROTTLE_UP.GetKey() || GameSettings.THROTTLE_DOWN.GetKey();
 
@@ -695,6 +706,9 @@ namespace AvionicsSystems
                     }
                     nativeEvaluationCount += count;
                     nativeStopwatch.Stop();
+#if MEASURE_FC_FIXEDUPDATE
+                    TimeSpan nativeTime = fixedupdateTimer.Elapsed;
+#endif
 
                     luaStopwatch.Start();
                     // Update some Lua variables - user configurable, so lower-
@@ -736,6 +750,9 @@ namespace AvionicsSystems
                     }
                     luaEvaluationCount += count;
                     luaStopwatch.Stop();
+#if MEASURE_FC_FIXEDUPDATE
+                    TimeSpan luaTime = fixedupdateTimer.Elapsed;
+#endif
 
                     dependentStopwatch.Start();
                     count = dependentVariables.Length;
@@ -755,6 +772,23 @@ namespace AvionicsSystems
                     dependentEvaluationCount += count;
                     dependentStopwatch.Stop();
                     ++samplecount;
+#if MEASURE_FC_FIXEDUPDATE
+                    TimeSpan finalTime = fixedupdateTimer.Elapsed;
+                    if (finalTime.Ticks > (TimeSpan.TicksPerMillisecond / 2))
+                    {
+                        double ticksPerMillisecond = (double)TimeSpan.TicksPerMillisecond;
+                        Utility.LogMessage(this, "FixedUpdate proxiestes {0,7:0.000} ms",
+                            ((double)updatesTime.Ticks) / ticksPerMillisecond);
+                        Utility.LogMessage(this, "FixedUpdate native var {0,7:0.000} ms",
+                            ((double)(nativeTime.Ticks - updatesTime.Ticks)) / ticksPerMillisecond);
+                        Utility.LogMessage(this, "FixedUpdate lua var    {0,7:0.000} ms",
+                            ((double)(luaTime.Ticks - nativeTime.Ticks)) / ticksPerMillisecond);
+                        Utility.LogMessage(this, "FixedUpdate dep var    {0,7:0.000} ms",
+                            ((double)(finalTime.Ticks - luaTime.Ticks)) / ticksPerMillisecond);
+                        Utility.LogMessage(this, "FixedUpdate net        {0,7:0.000} ms",
+                            ((double)finalTime.Ticks) / ticksPerMillisecond);
+                    }
+#endif
                 }
                 else if (HighLogic.LoadedSceneIsEditor && EditorLogic.fetch.shipDescriptionField != null)
                 {
