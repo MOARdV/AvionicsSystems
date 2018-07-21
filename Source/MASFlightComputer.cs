@@ -85,6 +85,15 @@ namespace AvionicsSystems
         internal bool powerOnValid = true;
 
         [KSPField]
+        public float maxRot = 80.0f;
+
+        [KSPField]
+        public float minPitch = -80.0f;
+
+        [KSPField]
+        public float maxPitch = 45.0f;
+
+        [KSPField]
         public string startupScript = string.Empty;
 
         /// <summary>
@@ -828,6 +837,8 @@ namespace AvionicsSystems
                 GameEvents.onVesselWasModified.Remove(onVesselChanged);
                 GameEvents.onVesselChange.Remove(onVesselChanged);
                 GameEvents.onVesselCrewWasModified.Remove(onVesselChanged);
+                GameEvents.OnCameraChange.Remove(onCameraChange);
+                GameEvents.OnIVACameraKerbalChange.Remove(OnIVACameraKerbalChange);
 
                 Utility.LogInfo(this, "{3} variables created: {0} constant variables, {1} lambda variables, {2} Lua variables, and {4} dependent variables",
                     constantVariableCount, nativeVariableCount, luaVariableCount, variables.Count, dependentVariableCount);
@@ -1129,6 +1140,8 @@ namespace AvionicsSystems
                 GameEvents.onVesselWasModified.Add(onVesselChanged);
                 GameEvents.onVesselChange.Add(onVesselChanged);
                 GameEvents.onVesselCrewWasModified.Add(onVesselChanged);
+                GameEvents.OnCameraChange.Add(onCameraChange);
+                GameEvents.OnIVACameraKerbalChange.Add(OnIVACameraKerbalChange);
 
                 if (!string.IsNullOrEmpty(powerOnVariable))
                 {
@@ -1313,7 +1326,70 @@ namespace AvionicsSystems
 
         #endregion
 
+        /// <summary>
+        /// Identify the current IVA Kerbal.  If the kerbal is not in the current part,
+        /// return null.
+        /// </summary>
+        /// <returns></returns>
+        private Kerbal FindCurrentKerbal()
+        {
+            Kerbal activeKerbal = CameraManager.Instance.IVACameraActiveKerbal;
+            if (activeKerbal.InPart == part)
+            {
+                return activeKerbal;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         #region GameEvent Callbacks
+        /// <summary>
+        /// Callback when the player changes camera modes.
+        /// </summary>
+        /// <param name="newMode"></param>
+        private void onCameraChange(CameraManager.CameraMode newMode)
+        {
+            // newMode == Flight -> heading to external view.
+            // newMode == Map -> heading to Map view
+            // newMode == IVA -> heading to IVA view.
+            if (newMode == CameraManager.CameraMode.IVA)
+            {
+                Kerbal activeKerbal = FindCurrentKerbal();
+                if (activeKerbal != null)
+                {
+                    InternalCamera.Instance.maxRot = maxRot;
+                    InternalCamera.Instance.minPitch = minPitch;
+                    InternalCamera.Instance.maxPitch = maxPitch;
+                }
+            }
+            else
+            {
+                // Reset to defaults
+                InternalCamera.Instance.maxRot = 80.0f;
+                InternalCamera.Instance.minPitch = -80.0f;
+                InternalCamera.Instance.maxPitch = 45.0f;
+            }
+        }
+
+        /// <summary>
+        /// Callback when the player changes IVA cameras.  Note that the Kerbal passed in
+        /// is *not* the current Kerbal.  It appears to be the *next* Kerbal, I think. So we
+        /// are forced to call FindCurrentKerbal.
+        /// </summary>
+        /// <param name="newKerbal"></param>
+        private void OnIVACameraKerbalChange(Kerbal dontCare)
+        {
+            Kerbal newKerbal = FindCurrentKerbal();
+            if (newKerbal != null)
+            {
+                InternalCamera.Instance.maxRot = maxRot;
+                InternalCamera.Instance.minPitch = minPitch;
+                InternalCamera.Instance.maxPitch = maxPitch;
+            }
+        }
+
         /// <summary>
         /// General-purpose callback to make sure we refresh our data when
         /// something changes.
