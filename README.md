@@ -28,22 +28,19 @@ internet to check whether there is a new version available. Data is only read fr
 
 MAS is intended to be a toolkit for developing IVAs.  I do not intend to include many example
 IVAs like RPM had - good IVAs take a lot of time to create, and I have no plans for stock-derived sample
-props with this mod, so any IVAs included with MAS will have other dependencies.  My expectation is that
-IVAs using MAS will include at least one of alexustas's props packs - [ASET Props Pack](http://forum.kerbalspaceprogram.com/index.php?/topic/116430-aset-props-pack-v14-for-the-modders-who-create-iva/) and/or
-[ASET Avionics Pack](http://forum.kerbalspaceprogram.com/index.php?/topic/116479-aset-avionics-pack-v-20-for-the-modders-who-create-iva/) adapted to MAS.
+props with this mod, so IVAs included with MAS have other dependencies.
+In particular, alexustas's props packs - [ASET Props Pack](http://forum.kerbalspaceprogram.com/index.php?/topic/116430-aset-props-pack-v14-for-the-modders-who-create-iva/) and
+[ASET Avionics Pack](http://forum.kerbalspaceprogram.com/index.php?/topic/116479-aset-avionics-pack-v-20-for-the-modders-who-create-iva/) must be installed
+for the MAS props to appear.
 
-However, since it is important to have *something* to look at before deciding to adopt this mod for IVA
+Since it is important to have *something* to look at before deciding to adopt this mod for IVA
 development, there are IVAs included in this package:
 
 * The stock Mk 1 Command Pod (pictured above), which demonstrates a retro-NASA style stripped-down IVA suitable for suborbital or short orbital flights.
+* The stock Mk 1-3 Command Pod, which includes a more complete retro-NASA IVA for the center seat (with stock props still in place on the rest of the panel).
 * The MRK DM command pod, part of the [Commonwealth Rockets](https://forum.kerbalspaceprogram.com/index.php?/topic/164365-13-commonwealth-rockets-tea-powered-spaceflight-in-development/) mod.
 This command pod demonstrates a modern partial-glass cockpit design good for activity around Kerbin and its moons.
-* The Yarbrough Mk. 1-1 A2 Command Pod from [Yarbrough08](http://forum.kerbalspaceprogram.com/index.php?/topic/88604-wip-105-2-kerbal-command-pod-mk-1-1-a2-alpha-04-spacedock/).
-This IVA is deprecated, and it will be removed from a future release.
-Since the original mod has not been updated since KSP 1.0.5, I have included a MM patch in the MOARdV/FlightSystems directory
-called YarbroughMk1-1A2_Update.cfg.  This file updates the command pod to KSP 1.3.1+ standards, and it makes a few tweaks
-based on my personal gameplay preferences.  **NOTE:** The career mode values (cost, tech tree placement) are guesses, since
-I never play career mode.
+* The Flapjack cockpit in the [Kerbal Flying Saucer](https://forum.kerbalspaceprogram.com/index.php?/topic/173857-14x-pre-release-live-kerbal-flying-saucers-build-flying-saucers-in-ksp/) mod shows a glass cockpit design, including HUD.
 
 You will need to download and install [Module Manager](https://forum.kerbalspaceprogram.com/index.php?/topic/50533-130-module-manager-281-june-29th-2017-with-n-cats-physics/),
 ASET Props Pack v1.5 (or later), and ASET Avionics Pack in order to fly these IVAs.
