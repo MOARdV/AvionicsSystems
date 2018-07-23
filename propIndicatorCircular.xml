@@ -1,0 +1,233 @@
+<PropConfig>
+	<!--
+	This file is a prop configuration template for the Prop Config utility
+	described on the MAS wiki at https://github.com/MOARdV/AvionicsSystems/wiki/Prop-Config
+
+	The tool and this XML file are used to quickly generate multiple props
+	without the tedious effort of copying config files and making small edits
+	while hoping you didn't overlook something.
+
+	Copyright (c) 2018 MOARdV
+
+	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
+	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
+	-->
+
+	<!--
+	IndicatorCircular is a square prop that has a circular gauge around 3/4 of the prop that provides
+	a visual indication of the value.
+	
+	It consists of two text items (the caption, id 0, and the readout, id 1).  The caption is positioned
+	above the readout.  The value proper is sized to display up to 6 digits.  Default colors for the 
+	caption and value are based on the IndicatorCircular_THROTTLE ASET prop (white caption, yellow readout).
+	
+	The caption is left-justified, the value is right-justified.
+	
+	The Power Off feature is set up as always-on (unless there's a power disruption).  It could be changed
+	to have an on-off switch behavior by changing the variable field in TRANSLATION.
+	
+	The 'folder' attribute identifies the directory where the config files will be written.  This folder
+	is relative to the current working directory.
+	-->
+	<IndicatorCircular folder="IndicatorCircular">
+		<!--
+		The 'style' element provides a template for a common look-and-feel for a prop.  For a prop
+		like the IndicatorCircular, it makes it easy to create many props with minimal cut-and-paste.
+		The 'name' attribute is required - while it's not terribly important for this prop, since
+		there really aren't a lot of options for configuring it, it is *very* important when you're
+		working with the modular props (rotary switches, push buttons, and toggle switches).
+		
+		A style as a scope of the element it's in - that is, if there were other prop types listed
+		in this config file, they would not be able to use this 'Standard Circular Indicator'.
+		-->
+		<style name="Standard Circular Indicator">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/IndicatorCircular/IndicatorCircular</model>
+			</MODEL>
+			<ANIMATION>
+				<name>Gauge Animation</name>
+				<animation>IndicatorCircularAnim</animation>
+			</ANIMATION>
+			<TRANSLATION>
+				<name>Power Off Transformation</name>
+				<transform>PowerOFFloc</transform>
+				<startTranslation>0, -0.003, 0</startTranslation>
+				<endTranslation>0, 0, 0</endTranslation>
+				<variable>fc.Conditioned(1)</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<name>Readout Caption</name>
+				<transform>ResourceNameObj</transform>
+				<fontSize>3.5</fontSize>
+				<font>Liberation Sans</font>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>always</emissive>
+				<passiveColor>255, 255, 255, 255</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Readout Value</name>
+				<transform>ResourceAmountObj</transform>
+				<fontSize>5.4</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>always</emissive>
+				<transformOffset>0.030, 0</transformOffset>
+				<passiveColor>255, 246, 0, 255</passiveColor>
+			</TEXT_LABEL>
+		</style>
+		<!--
+		Individual props are created like this:
+		-->
+		<prop>
+			<!--
+			The 'name' element is the name of the prop as it will appear in Unity.  It is also the
+			name of the file that is created (with '.cfg' automatically added to the end).  Spaces
+			should not be used in the name.
+			-->
+			<name>MAS_IndicatorCircular_Throttle</name>
+			<!--
+			The style that should be used as a template is listed here.  Only a 'style' from the
+			same top-level element can be used.
+			-->
+			<style>Standard Circular Indicator</style>
+			<!--
+			Overrides for the template are listed here.  Typically, the override is going to be something
+			that makes the prop unique from other props of the same style.  For instance, the 'variable' for
+			the animation player below.
+			
+			If a particular element is unsed only once in a prop, you do not need to include an 'id' attribute.
+			For the TEXT_LABELs below, since there are two of them defined in the style, we must include the
+			ids - otherwise, both would modify id=0.
+			-->
+			<ANIMATION>
+				<!-- 
+				The data source that controls the animation.  This variable must fall in the
+				range of 0 to 1 (negative values won't show anything; values larger than 1 will
+				fill the gauge).  For variables that do not report 0-1 values, there are several
+				ways to convert the value to 0-1.  For instance, to track progress through the
+				atmosphere, use fc.SafeDivide(fc.Altitude(), fc.AtmosphereTop()) (use safe divide,
+				in case the current world has no atmo.  You can also use fc.Remap(), or simple maths.
+				-->
+				<variable>fc.GetThrottle()</variable>
+			</ANIMATION>
+			<!--
+			There is no TRANSLATION node in the prop, since we do not need to override the default behaviors.
+			-->
+			<TEXT_LABEL id="0">
+				<text>Throttle:</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<!--
+				Data readout.  Note we use $#$ instead of $&$, since '&' is a reserved character in
+				XML.  We could also use $&amp;$.  Similarly, we use standard C# string format tokens
+				{ and } in the text, instead of <= and =>, since < and > are also reserved.
+				-->
+				<text>{0,6:P0} $#$ fc.GetThrottle()</text>
+			</TEXT_LABEL>
+		</prop>
+		<!-- And an example without all of the explanations, to show how compact a prop definition could be -->
+		<prop>
+			<name>MAS_IndicatorCircular_Charge</name>
+			<style>Standard Circular Indicator</style>
+			<ANIMATION>
+				<variable>fc.PowerPercent()</variable>
+			</ANIMATION>
+			<TEXT_LABEL id="0">
+				<text>Power:</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0,6:0} $#$ fc.PowerCurrent()</text>
+			</TEXT_LABEL>
+		</prop>
+		<!--
+		This particular prop has a second way to operate it.  Instead of using the animation, it can use
+		texture UV shifting and color changes to control the appearance.
+		
+		A 'style' may be placed anywhere in the parent element - before the props, mixed with the props,
+		whatever.
+		-->
+		<style name="Advanced Circular Indicator">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/IndicatorCircular/IndicatorCircular</model>
+			</MODEL>
+			<!--
+			Keep in mind that using the scaling here causes the gauge to 'grow' counter-clockwise,
+			the opposite direction of the default pre-colored scales.
+			-->
+			<TEXTURE_SHIFT>
+				<name>Scale animation</name>
+				<transform>CircularIndScale</transform>
+				<startUV>0, 0</startUV>
+				<endUV>-0.5, 0</endUV>
+				<blend>true</blend>
+			</TEXTURE_SHIFT>
+			<!-- Invert the U scale of the circular border, since the gauge fills in reverse. -->
+			<TEXTURE_SCALE>
+				<name>Scale border</name>
+				<transform>CircularIndScaleBorder</transform>
+				<startUV>-1, 1</startUV>
+			</TEXTURE_SCALE>
+			<COLOR_SHIFT>
+				<name>Scale color</name>
+				<transform>CircularIndScale</transform>
+				<colorName>_Color</colorName>
+			</COLOR_SHIFT>
+			<TRANSLATION>
+				<name>Power Off Transformation</name>
+				<transform>PowerOFFloc</transform>
+				<startTranslation>0, -0.003, 0</startTranslation>
+				<endTranslation>0, 0, 0</endTranslation>
+				<variable>fc.Conditioned(1)</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<name>Readout Caption</name>
+				<transform>ResourceNameObj</transform>
+				<fontSize>3.5</fontSize>
+				<font>Liberation Sans</font>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>always</emissive>
+				<passiveColor>255, 255, 255, 255</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Readout Value</name>
+				<transform>ResourceAmountObj</transform>
+				<fontSize>5.4</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>always</emissive>
+				<transformOffset>0.030, 0</transformOffset>
+				<passiveColor>255, 246, 0, 255</passiveColor>
+			</TEXT_LABEL>
+		</style>
+		<prop>
+			<name>MAS_IndicatorCircular_GForce</name>
+			<style>Advanced Circular Indicator</style>
+			<TEXTURE_SHIFT>
+				<!-- Gauge is scaled to cover 0G to 12G -->
+				<variable>fc.GForce() / 12</variable>
+			</TEXTURE_SHIFT>
+			<!-- 
+			Color shift is in threshold / boolean mode.  If Gs are below 9, passiveColor is used.
+			If it's above 9, activeColor is used.  We could also add <blend>true</blend> and change the
+			variable to fc.GForce() / 9, which would blend from green for 0G to yellow for 9G and above.
+			-->
+			<COLOR_SHIFT>
+				<variable>fc.GForce() &gt; 9</variable>
+				<passiveColor>0, 255, 0, 255</passiveColor>
+				<activeColor>255, 255, 0, 255</activeColor>
+			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>G Force:</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0,6:0.00} $#$ fc.GForce()</text>
+			</TEXT_LABEL>
+		</prop>
+	</IndicatorCircular>
+</PropConfig>
