@@ -71,6 +71,7 @@
     <Compile Include="Source\MASActionModelScale.cs" />
     <Compile Include="Source\MASActionRotation.cs" />
     <Compile Include="Source\MASActionTextLabel.cs" />
+    <Compile Include="Source\MASActionTextureScale.cs" />
     <Compile Include="Source\MASActionTextureShift.cs" />
     <Compile Include="Source\MASActionTranslation.cs" />
     <Compile Include="Source\MASActionTriggerEvent.cs" />

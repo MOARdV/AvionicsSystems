@@ -71,6 +71,8 @@ namespace AvionicsSystems
                     return new MASActionRotation(config, prop, comp);
                 case "TEXT_LABEL":
                     return new MASActionTextLabel(config, prop, comp);
+                case "TEXTURE_SCALE":
+                    return new MASActionTextureScale(config, prop, comp);
                 case "TEXTURE_SHIFT":
                     return new MASActionTextureShift(config, prop, comp);
                 case "TRANSLATION":
