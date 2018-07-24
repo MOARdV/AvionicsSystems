@@ -155,6 +155,10 @@ The [InconsolataGo](http://www.levien.com/type/myfonts/) font is included per th
 
 The [Liberation Sans](https://pagure.io/liberation-fonts) font is included per the terms of the [Open Font License](https://opensource.org/licenses/OFL-1.1).
 
+---
+
+The [Press Start K](https://www.1001fonts.com/press-start-font.html) font is included per the terms of the license described in
+GameData/MOARdV/AvionicsSystems/PluginData/PressStart-license
 
 ---
 
