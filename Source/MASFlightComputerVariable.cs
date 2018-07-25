@@ -96,6 +96,8 @@ namespace AvionicsSystems
 
         private Dictionary<string, MASRegisteredTable> registeredTables = new Dictionary<string, MASRegisteredTable>();
 
+        private static List<string> dependentLuaMethods = new List<string>();
+
         /// <summary>
         /// Given a table (object) name, a method name, and an array of
         /// parameters, use reflection to find the object and Method that
@@ -1063,7 +1065,7 @@ namespace AvionicsSystems
 
                         if (closure.Type == DataType.Function)
                         {
-                            return MakeLuaVariable(canonical, parms, closure);
+                            return MakeLuaVariable(canonical, parms, closure, Variable.VariableType.LuaScript);
                         }
                     }
                     catch
@@ -1088,7 +1090,7 @@ namespace AvionicsSystems
         /// <param name="parms"></param>
         /// <param name="closure"></param>
         /// <returns></returns>
-        private Variable MakeLuaVariable(string canonical, Variable[] parms, DynValue closure)
+        private Variable MakeLuaVariable(string canonical, Variable[] parms, DynValue closure, Variable.VariableType luaVariableType)
         {
             Variable luaVariable = null;
             if (parms.Length == 0)
@@ -1099,21 +1101,21 @@ namespace AvionicsSystems
                     luaVariable = new DoubleVariable(canonical, () =>
                     {
                         return script.Call(closure).Number;
-                    }, true, true, Variable.VariableType.LuaScript);
+                    }, true, true, luaVariableType);
                 }
                 else if (returnValue.Type == DataType.String)
                 {
                     luaVariable = new StringVariable(canonical, () =>
                     {
                         return script.Call(closure).String;
-                    }, true, true, Variable.VariableType.LuaScript);
+                    }, true, true, luaVariableType);
                 }
                 else
                 {
                     luaVariable = new GenericVariable(canonical, () =>
                     {
                         return script.Call(closure).ToObject();
-                    }, true, true, Variable.VariableType.LuaScript);
+                    }, true, true, luaVariableType);
                 }
             }
             else
@@ -1135,7 +1137,7 @@ namespace AvionicsSystems
                             callParams[i] = parms[i].AsDynValue();
                         }
                         return script.Call(closure, callParams).Number;
-                    }, true, true, Variable.VariableType.LuaScript);
+                    }, true, true, luaVariableType);
                 }
                 else if (returnValue.Type == DataType.String)
                 {
@@ -1146,7 +1148,7 @@ namespace AvionicsSystems
                             callParams[i] = parms[i].AsDynValue();
                         }
                         return script.Call(closure, callParams).String;
-                    }, true, true, Variable.VariableType.LuaScript);
+                    }, true, true, luaVariableType);
                 }
                 else
                 {
@@ -1157,7 +1159,7 @@ namespace AvionicsSystems
                             callParams[i] = parms[i].AsDynValue();
                         }
                         return script.Call(closure, callParams).ToObject();
-                    }, true, true, Variable.VariableType.LuaScript);
+                    }, true, true, luaVariableType);
                 }
             }
             return luaVariable;
@@ -1184,7 +1186,16 @@ namespace AvionicsSystems
 
                     if (methodEntry.Type == DataType.Function || methodEntry.Type == DataType.ClrFunction)
                     {
-                        Variable v = MakeLuaVariable(dotOperatorExpression.CanonicalName(), parameters, methodEntry);
+                        Variable.VariableType fnType;
+                        if (dependentLuaMethods.BinarySearch(string.Format("{0}.{1}", tableName.getName(), methodName.getName())) >= 0)
+                        {
+                            fnType = Variable.VariableType.Dependent;
+                        }
+                        else
+                        {
+                            fnType = Variable.VariableType.LuaScript;
+                        }
+                        Variable v = MakeLuaVariable(dotOperatorExpression.CanonicalName(), parameters, methodEntry, fnType);
                         if (v != null)
                         {
                             return v;

@@ -866,6 +866,47 @@ namespace AvionicsSystems
         {
             if (HighLogic.LoadedSceneIsFlight)
             {
+                if (dependentLuaMethods.Count == 0)
+                {
+                    // Maybe a bit kludgy -- I want to list the Lua table methods that I know
+                    // are dependent variables, so they can be treated as such instead of polled
+                    // every FixedUpdate.  But I want a fast search, so I use a List, sort it,
+                    // and BSearch it.
+                    dependentLuaMethods.Add("math.abs");
+                    dependentLuaMethods.Add("math.acos");
+                    dependentLuaMethods.Add("math.asin");
+                    dependentLuaMethods.Add("math.atan");
+                    dependentLuaMethods.Add("math.atan2");
+                    dependentLuaMethods.Add("math.ceil");
+                    dependentLuaMethods.Add("math.cos");
+                    dependentLuaMethods.Add("math.cosh");
+                    dependentLuaMethods.Add("math.deg");
+                    dependentLuaMethods.Add("math.exp");
+                    dependentLuaMethods.Add("math.floor");
+                    dependentLuaMethods.Add("math.fmod");
+                    dependentLuaMethods.Add("math.frexp");
+                    dependentLuaMethods.Add("math.ldexp");
+                    dependentLuaMethods.Add("math.log");
+                    dependentLuaMethods.Add("math.log10");
+                    dependentLuaMethods.Add("math.max");
+                    dependentLuaMethods.Add("math.min");
+                    dependentLuaMethods.Add("math.modf");
+                    dependentLuaMethods.Add("math.pow");
+                    dependentLuaMethods.Add("math.rad");
+                    dependentLuaMethods.Add("math.sin");
+                    dependentLuaMethods.Add("math.sinh");
+                    dependentLuaMethods.Add("math.sqrt");
+                    dependentLuaMethods.Add("math.tan");
+                    dependentLuaMethods.Add("math.tanh");
+                    dependentLuaMethods.Add("string.format");
+                    dependentLuaMethods.Add("string.len");
+                    dependentLuaMethods.Add("string.lower");
+                    dependentLuaMethods.Add("string.rep");
+                    dependentLuaMethods.Add("string.reverse");
+                    dependentLuaMethods.Add("string.upper");
+
+                    dependentLuaMethods.Sort();
+                }
                 Vessel vessel = this.vessel;
 
                 if (string.IsNullOrEmpty(flightComputerId))
