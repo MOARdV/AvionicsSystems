@@ -1507,7 +1507,8 @@ namespace AvionicsSystems
         /// </summary>
         #region Staging
         /// <summary>
-        /// Returns the current stage.
+        /// Returns the current stage.  Before launch or after undocking, this number may
+        /// be larger than the total number of stages on the vessel.
         /// </summary>
         /// <returns>A whole number 0 or larger.</returns>
         public double CurrentStage()
@@ -1564,6 +1565,26 @@ namespace AvionicsSystems
         public double StageReady()
         {
             return (StageManager.CanSeparate && InputLockManager.IsUnlocked(ControlTypes.STAGING)) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// The staging manager sets the 'current stage' to 1 greater than the number of stages
+        /// on the vessel when a new vessel spawns (either at the launch pad, or after undocking).
+        /// Doing so allows the vessel to sit on the launch pad without the last stage firing.
+        /// 
+        /// However, since the same thing happens after undocking, it is possible that the vessel's
+        /// staging system is off-by-one, meaning that an engine on the last stage won't be available
+        /// without staging, first.
+        /// 
+        /// This function returns 1 if the staging manager Current Stage is the same as the vessel's
+        /// Last Stage, meaning that `fc.CurrentStage()` shows a valid stage on the vessel.  It returns
+        /// 0 prior to launch, or immediately after undocking, when the current stage is larger than the
+        /// number of stages on the vessel.
+        /// </summary>
+        /// <returns>1 if CurrentStage refers to a stage on the vessel, 0 if it does not.</returns>
+        public double StageValid()
+        {
+            return (StageManager.CurrentStage > StageManager.LastStage) ? 0.0 : 1.0;
         }
 
         /// <summary>
