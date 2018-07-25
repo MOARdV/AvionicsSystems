@@ -1101,6 +1101,13 @@ namespace AvionicsSystems
                         return script.Call(closure).Number;
                     }, true, true, Variable.VariableType.LuaScript);
                 }
+                else if (returnValue.Type == DataType.String)
+                {
+                    luaVariable = new StringVariable(canonical, () =>
+                    {
+                        return script.Call(closure).String;
+                    }, true, true, Variable.VariableType.LuaScript);
+                }
                 else
                 {
                     luaVariable = new GenericVariable(canonical, () =>
@@ -1128,6 +1135,17 @@ namespace AvionicsSystems
                             callParams[i] = parms[i].AsDynValue();
                         }
                         return script.Call(closure, callParams).Number;
+                    }, true, true, Variable.VariableType.LuaScript);
+                }
+                else if (returnValue.Type == DataType.String)
+                {
+                    luaVariable = new StringVariable(canonical, () =>
+                    {
+                        for (int i = 0; i < parms.Length; ++i)
+                        {
+                            callParams[i] = parms[i].AsDynValue();
+                        }
+                        return script.Call(closure, callParams).String;
                     }, true, true, Variable.VariableType.LuaScript);
                 }
                 else
