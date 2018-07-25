@@ -1044,13 +1044,8 @@ namespace AvionicsSystems
                         return newVar;
                     }
                 }
-#if PLENTIFUL_LOGGING
-                else
-                {
-                    Utility.LogMessage(this, "!!! GenerateCallVariable(): Did not find method for {0}", canonical);
-                }
-#endif
-                return null;
+
+                return TryEvaluateLuaTable(callExpression.Function() as CodeGen.DotOperatorExpression, parms);
             }
             else
             {
@@ -1068,60 +1063,7 @@ namespace AvionicsSystems
 
                         if (closure.Type == DataType.Function)
                         {
-                            Variable luaVariable;
-                            if (parms.Length == 0)
-                            {
-                                DynValue returnValue = script.Call(closure);
-                                if (returnValue.Type == DataType.Number)
-                                {
-                                    luaVariable = new DoubleVariable(canonical, () =>
-                                    {
-                                        return script.Call(closure).Number;
-                                    }, true, true, Variable.VariableType.LuaScript);
-                                }
-                                else
-                                {
-                                    luaVariable = new GenericVariable(canonical, () =>
-                                    {
-                                        return script.Call(closure).ToObject();
-                                    }, true, true, Variable.VariableType.LuaScript);
-                                }
-                            }
-                            else
-                            {
-                                DynValue[] callParams = new DynValue[parms.Length];
-                                // Do an early call to determine the return type.
-                                for (int i = 0; i < parms.Length; ++i)
-                                {
-                                    callParams[i] = parms[i].AsDynValue();
-                                }
-                                DynValue returnValue = script.Call(closure, callParams);
-
-                                if (returnValue.Type == DataType.Number)
-                                {
-                                    luaVariable = new DoubleVariable(canonical, () =>
-                                    {
-                                        for (int i = 0; i < parms.Length; ++i)
-                                        {
-                                            callParams[i] = parms[i].AsDynValue();
-                                        }
-                                        return script.Call(closure, callParams).Number;
-                                    }, true, true, Variable.VariableType.LuaScript);
-                                }
-                                else
-                                {
-                                    luaVariable = new GenericVariable(canonical, () =>
-                                    {
-                                        for (int i = 0; i < parms.Length; ++i)
-                                        {
-                                            callParams[i] = parms[i].AsDynValue();
-                                        }
-                                        return script.Call(closure, callParams).ToObject();
-                                    }, true, true, Variable.VariableType.LuaScript);
-                                }
-                            }
-
-                            return luaVariable;
+                            return MakeLuaVariable(canonical, parms, closure);
                         }
                     }
                     catch
@@ -1131,10 +1073,6 @@ namespace AvionicsSystems
                 }
 
                 // Fall back to evaluating the text as a Lua snippet every FixedUpdate.
-                // NOTE: It's possible that Lua stdlib methods (eg, math.sin) are used.  Right now,
-                // I fall back to here to evaluate them.  I suppose I could add Lua table evaluation
-                // to the DotOperator path, and that may allow a more efficient evaluation, since
-                // I'd be able to call the method inside the table directly.
                 DynValue luaEvaluator = script.LoadString("return " + name);
                 Variable v = new GenericVariable(canonical, () => script.Call(luaEvaluator).ToObject(), true, true, Variable.VariableType.LuaScript);
 
@@ -1144,8 +1082,121 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Create a lambda to wrap a DynValue closure (function).
+        /// </summary>
+        /// <param name="canonical"></param>
+        /// <param name="parms"></param>
+        /// <param name="closure"></param>
+        /// <returns></returns>
+        private Variable MakeLuaVariable(string canonical, Variable[] parms, DynValue closure)
+        {
+            Variable luaVariable = null;
+            if (parms.Length == 0)
+            {
+                DynValue returnValue = script.Call(closure);
+                if (returnValue.Type == DataType.Number)
+                {
+                    luaVariable = new DoubleVariable(canonical, () =>
+                    {
+                        return script.Call(closure).Number;
+                    }, true, true, Variable.VariableType.LuaScript);
+                }
+                else
+                {
+                    luaVariable = new GenericVariable(canonical, () =>
+                    {
+                        return script.Call(closure).ToObject();
+                    }, true, true, Variable.VariableType.LuaScript);
+                }
+            }
+            else
+            {
+                DynValue[] callParams = new DynValue[parms.Length];
+                // Do an early call to determine the return type.
+                for (int i = 0; i < parms.Length; ++i)
+                {
+                    callParams[i] = parms[i].AsDynValue();
+                }
+                DynValue returnValue = script.Call(closure, callParams);
+
+                if (returnValue.Type == DataType.Number)
+                {
+                    luaVariable = new DoubleVariable(canonical, () =>
+                    {
+                        for (int i = 0; i < parms.Length; ++i)
+                        {
+                            callParams[i] = parms[i].AsDynValue();
+                        }
+                        return script.Call(closure, callParams).Number;
+                    }, true, true, Variable.VariableType.LuaScript);
+                }
+                else
+                {
+                    luaVariable = new GenericVariable(canonical, () =>
+                    {
+                        for (int i = 0; i < parms.Length; ++i)
+                        {
+                            callParams[i] = parms[i].AsDynValue();
+                        }
+                        return script.Call(closure, callParams).ToObject();
+                    }, true, true, Variable.VariableType.LuaScript);
+                }
+            }
+            return luaVariable;
+        }
+
+        /// <summary>
+        /// Attempt to evaluate a dot expression as a Lua table.function pair
+        /// </summary>
+        /// <param name="dotOperatorExpression">The dot operator we are evaluating.</param>
+        /// <param name="parameters">The parameter list</param>
+        /// <returns>A Variable on success, null otherwise.</returns>
+        private Variable TryEvaluateLuaTable(CodeGen.DotOperatorExpression dotOperatorExpression, Variable[] parameters)
+        {
+            try
+            {
+                CodeGen.NameExpression tableName = dotOperatorExpression.TableName() as CodeGen.NameExpression;
+                CodeGen.NameExpression methodName = dotOperatorExpression.MethodName() as CodeGen.NameExpression;
+
+                DynValue tableEntry = script.Globals.Get(tableName.getName());
+                if (tableEntry.Type == DataType.Table)
+                {
+                    Table table = tableEntry.Table;
+                    DynValue methodEntry = table.Get(methodName.getName());
+
+                    if (methodEntry.Type == DataType.Function || methodEntry.Type == DataType.ClrFunction)
+                    {
+                        Variable v = MakeLuaVariable(dotOperatorExpression.CanonicalName(), parameters, methodEntry);
+                        if (v != null)
+                        {
+                            return v;
+                        }
+                        else
+                        {
+                            Utility.LogWarning(this, "Did not create {0}.{1} Lua variable", tableName.getName(), methodName.getName());
+                        }
+                    }
+                    else
+                    {
+                        Utility.LogWarning(this, "Found Lua table \"{0}\", but no method \"{1}\".", tableName.getName(), methodName.getName());
+                    }
+                }
+                else
+                {
+                    Utility.LogWarning(this, "No table named \"{0}\" is registered in the variables map, and it is not a Lua global table.  Something may need updated.", tableName.getName());
+                }
+            }
+            catch
+            {
+                Utility.LogError(this, "TryEvaluateLuaTable threw an exception - falling back");
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Dot Operator evaluation for the case of a table.method pair - does not handle
-        /// convention Lua tables.  It's only for the case of a reflected object.method,
+        /// conventional Lua tables.  It's only for the case of a reflected object.method,
         /// such as fc.Pitch().
         /// </summary>
         /// <param name="dotOperatorExpression"></param>
@@ -1165,10 +1216,6 @@ namespace AvionicsSystems
                 if (registeredTables.ContainsKey(tableName.getName()))
                 {
                     GetMASIMethod(tableName.getName(), methodName.getName(), parameters, out tableInstance, out method);
-                }
-                else
-                {
-                    Utility.LogWarning(this, "No table named \"{0}\" is registered in the variables map.  Something may need updated.", tableName.getName());
                 }
             }
         }
