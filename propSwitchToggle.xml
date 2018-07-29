@@ -1,0 +1,1250 @@
+<PropConfig>
+	<!--
+	This file is a prop configuration template for the Prop Config utility
+	described on the MAS wiki at https://github.com/MOARdV/AvionicsSystems/wiki/Prop-Config
+
+	The tool and this XML file are used to quickly generate multiple props
+	without the tedious effort of copying config files and making small edits
+	while hoping you didn't overlook something.
+
+	Copyright (c) 2018 MOARdV
+
+	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
+	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
+	-->
+
+	<!-- Toggle switches (many, many styles) -->
+	<ToggleSwitch folder="Switch_Toggle_Modular">
+		<!-- Toggle switch with Lunar Module-style illuminated cap. Used to power panel subsystems -->
+		<style name="Panel Power Switch">
+			<MODEL id="0">
+				<comment>Base</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglBase</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<comment>Basic toggle</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglLever_Type_5</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+				<texture>Tggl_Cap_Diffuse,ASET/ASET_Props/Control/Switch_Toggle_Modular/models/Tggl_Cap_White</texture>
+			</MODEL>
+			<MODEL id="2">
+				<comment>Square glow border</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglBase_Bcklt_12</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="3">
+				<comment>Simple Collider</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglCollider_SNGL</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Collider</name>
+				<collider>SwitchCollider</collider>
+				<sound>ASET/ASET_Props/Sounds/RPB01</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<name>Lever Movement</name>
+				<transform>SwitchGrp</transform>
+				<startRotation>30,0,0</startRotation>
+				<endRotation>-30,0,0</endRotation>
+				<blend>true</blend>
+				<cycleRate>1</cycleRate>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<name>Top Label</name>
+				<transform>TextTopObj</transform>
+				<fontSize>6.1</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.026,-0.015</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>ON</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>Border</name>
+				<transform>GlowBorder, switchCapObj</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS.toggle_ARRT_Power</name>
+			<style>Panel Power Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MAS_ARRT_On")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_ARRT_On")</variable>
+			</ROTATION>
+		</prop>
+		<prop>
+			<name>MAS.toggle_Clock_Power-T5M-B13-S</name>
+			<style>Panel Power Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MAS_Clock_On")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_Clock_On")</variable>
+			</ROTATION>
+		</prop>
+		<prop>
+			<name>MAS.toggle_FDAI1_Power-T5M-B13-S</name>
+			<style>Panel Power Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fdaiTogglePower(1)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_Power")</variable>
+			</ROTATION>
+		</prop>
+		<prop>
+			<name>MAS.toggle_FDAI2_Power</name>
+			<style>Panel Power Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fdaiTogglePower(2)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI2_Power")</variable>
+			</ROTATION>
+		</prop>
+		<prop>
+			<name>MAS.toggle_FuelMonitor_Power</name>
+			<style>Panel Power Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MAS_FuelMonitor_Power")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_FuelMonitor_Power")</variable>
+			</ROTATION>
+		</prop>
+		<prop>
+			<name>MAS_toggle_IMP_Power</name>
+			<style>Panel Power Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MAS_IMP_On")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_IMP_On")</variable>
+			</ROTATION>
+ 		</prop>
+		<prop>
+			<!-- This is identical to MAS_toggle_IMP_Power, just a different name -->
+			<name>MAS.toggle_IMP_Power-T5M-B13-S</name>
+			<style>Panel Power Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MAS_IMP_On")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_IMP_On")</variable>
+			</ROTATION>
+		</prop>
+		<prop>
+			<name>MAS.toggle_MJComp_Power-T5M-B13-S</name>
+			<style>Panel Power Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MAS_MJComp_On")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_MJComp_On")</variable>
+			</ROTATION>
+		</prop>
+		<prop>
+			<name>MAS_toggle_Xpointer_Power</name>
+			<style>Panel Power Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MAS_Xpointer_Power")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_Xpointer_Power")</variable>
+			</ROTATION>
+		</prop>
+		<!-- Toggle switch using the Type 2 animated switch -->
+		<style name="Type 2 Anim Switch">
+			<MODEL id="0">
+				<comment>Base</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglBase</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<comment>Basic toggle</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglLever_Type_2_ANIM</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="2">
+				<comment>Lever guard</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglGuard_Type_2</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="3">
+				<comment>Square glow border</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglBase_Bcklt_2</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="4">
+				<comment>Simple Collider</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglCollider_SNGL</model>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<name>Collider</name>
+				<collider>SwitchCollider</collider>
+				<sound>ASET/ASET_Props/Sounds/RPB01</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<name>Switch animation</name>
+				<animation>SwitchTumbleAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<name>Top Label</name>
+				<transform>TextTopObj</transform>
+				<fontSize>6.1</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.026,-0.015</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Border</name>
+				<transform>GlowBorder</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_toggle_FDAI1_Power_T2_G2_B2_S</name>
+			<style>Type 2 Anim Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fdaiTogglePower(1)</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL>
+				<text>FDAI</text>
+			</TEXT_LABEL>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_Power")</variable>
+			</ANIMATION_PLAYER>
+		</prop>
+		<!-- Covered toggle switch (single-collider switch) -->
+		<style name="Covered Toggle Switch">
+			<MODEL id="0">
+				<comment>Base</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglBase</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<comment>Basic toggle</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglLever_Type_1_ANIM</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="2">
+				<comment>Switch guard</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglGuard_Type_3</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="3">
+				<comment>Switch cover</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglCover_Type2</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+				<texture>Tggl_COVER_Diffuse,ASET/ASET_Props/Control/Switch_Toggle_Modular/models/Tggl_COVER_Red</texture>
+			</MODEL>
+			<MODEL id="4">
+				<comment>Simple Collider</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglCollider_SNGL</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Cover Collider</name>
+				<comment>Cover Action</comment>
+				<collider>CoverCollider</collider>
+				<onClick>fc.TogglePersistent("%AUTOID%-cover")</onClick>
+				<sound>ASET/ASET_Props/Sounds/OpenSwitchCover</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="0">
+				<name>Cover animation</name>
+				<animation>TgglCover_ANIM</animation>
+				<animationSpeed>1.0</animationSpeed>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%-cover")</variable>
+			</ANIMATION_PLAYER>
+			<COLLIDER_EVENT id="1">
+				<comment>Switch Action</comment>
+				<name>Switch Collider</name>
+				<collider>SwitchCollider</collider>
+				<sound>ASET/ASET_Props/Sounds/RPB01</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="1">
+				<name>Switch animation</name>
+				<animation>SwitchTumbleAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<name>Panel Legend</name>
+				<transform>TextPlateTopObj</transform>
+				<fontSize>6</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.02526, 0.000</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Panel Legend</name>
+				<transform>TextBottomObj</transform>
+				<fontSize>6</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.02526, 0.000</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Switch mark</name>
+				<transform>TumblerMarkObj</transform>
+				<activeColor>COLOR_ASET_SWITCHER_MARK_POSITIVECOLOR</activeColor>
+				<passiveColor>0,0,0,255</passiveColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_toggle_Stage</name>
+			<style>Covered Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleStageLocked()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="0">
+				<variable>1 - fc.GetStageLocked()</variable>
+			</ANIMATION_PLAYER>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.SetPersistent("%AUTOID%", fc.Stage() + 1)</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="1">
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>STAGE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>STAGE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_toggle_Engine</name>
+			<style>Covered Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("%AUTOID%-cover")</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="0">
+				<variable>fc.GetPersistentAsNumber("%AUTOID%-cover")</variable>
+			</ANIMATION_PLAYER>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.ToggleEnginesEnabled()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="1">
+				<variable>fc.GetEnginesEnabled()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>ENGINE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ENGINE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_toggle_Recover</name>
+			<style>Covered Toggle Switch</style>
+			<COLLIDER_EVENT id="0" delete="true" />
+			<ANIMATION_PLAYER id="0">
+				<variable>fc.VesselRecoverable()</variable>
+			</ANIMATION_PLAYER>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.RecoverVessel()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="1" delete="true" />
+			<TEXT_LABEL id="0">
+				<text>RECOVER</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>RECOVER</text>
+			</TEXT_LABEL>
+		</prop>
+		<!-- The abort switch -->
+		<style name="Abort Switch">
+			<MODEL id="0">
+				<comment>Base</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglBase</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<comment>Basic toggle</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglLever_Type_1_ANIM</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="2">
+				<comment>Switch guard</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglGuard_Type_3</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="5">
+				<comment>Base backlight</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglBase_Bcklt_15</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="3">
+				<comment>Switch cover</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglCover_Type2</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+				<texture>Tggl_COVER_Diffuse,ASET/ASET_Props/Control/Switch_Toggle_Modular/models/Tggl_COVER_Diffuse</texture>
+			</MODEL>
+			<MODEL id="4">
+				<comment>Simple Collider</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglCollider_SNGL</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Cover Collider</name>
+				<comment>Cover Action</comment>
+				<collider>CoverCollider</collider>
+				<onClick>fc.TogglePersistent("%AUTOID%-cover")</onClick>
+				<sound>ASET/ASET_Props/Sounds/OpenSwitchCover</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="0">
+				<name>Cover animation</name>
+				<animation>TgglCover_ANIM</animation>
+				<animationSpeed>1.0</animationSpeed>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%-cover")</variable>
+			</ANIMATION_PLAYER>
+			<COLLIDER_EVENT id="1">
+				<comment>Switch Action</comment>
+				<name>Switch Collider</name>
+				<collider>SwitchCollider</collider>
+				<onClick>fc.SetPersistent("%AUTOID%", fc.Abort())</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+				<sound>ASET/ASET_Props/Sounds/RPB01</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="1">
+				<name>Switch animation</name>
+				<animation>SwitchTumbleAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<name>Panel Legend</name>
+				<transform>TextTopObj</transform>
+				<fontSize>6</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.026, -0.008</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>ABORT</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>Border</name>
+				<transform>GlowBorder</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Switch mark</name>
+				<transform>TumblerMarkObj</transform>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+				<passiveColor>0,0,0,255</passiveColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_toggle_Abort</name>
+			<style>Abort Switch</style>
+		</prop>
+		<!-- Toggle switch that is normally-open in the center, able to be moved to either the top or bottom to trigger effects -->
+		<style name="Single Pole Center Off">
+			<MODEL id="0">
+				<comment>Base</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglBase</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<comment>Basic toggle</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglLever_Type_1</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="2">
+				<comment>Guard</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglGuard_Type_1</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="3">
+				<comment>Square glow border</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglBase_Bcklt_2</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="4">
+				<comment>Double Collider</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglCollider_DBL</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Collider</name>
+				<collider>SwitchColliderUP</collider>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+				<sound>ASET/ASET_Props/Sounds/RPB01</sound>
+				<volume>1</volume>
+				<autoRepeat>0.1</autoRepeat>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<name>Collider</name>
+				<collider>SwitchColliderDOWN</collider>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+				<sound>ASET/ASET_Props/Sounds/RPB01</sound>
+				<volume>1</volume>
+				<autoRepeat>0.1</autoRepeat>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<name>Lever Movement</name>
+				<transform>SwitchGrp</transform>
+				<startRotation>30,0,0</startRotation>
+				<endRotation>-30,0,0</endRotation>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+				<range>-0.05, 0.05</range>
+				<blend>true</blend>
+				<cycleRate>0.5</cycleRate>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<name>Top Label</name>
+				<transform>TextTopObj</transform>
+				<fontSize>6.1</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.026,-0.015</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Border</name>
+				<transform>GlowBorder, TumblerMarkObj</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_toggle_ThrottleLimitValue</name>
+			<style>Single Pole Center Off</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.SetThrottleLimit(fc.GetThrottleLimit() + fc.SetPersistent("%AUTOID%", 0.05))</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.SetThrottleLimit(fc.GetThrottleLimit() + fc.SetPersistent("%AUTOID%", -0.05))</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>INC</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Bottom Label</name>
+				<transform>TextBottomObj</transform>
+				<fontSize>6.1</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>UpperCenter</anchor>
+				<transformOffset>0.026, 0.013</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>DEC</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_toggle_GimbalLimitValue</name>
+			<style>Single Pole Center Off</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.SetGimbalLimit(fc.GetGimbalLimit() + fc.SetPersistent("%AUTOID%", 0.05))</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.SetGimbalLimit(fc.GetGimbalLimit() + fc.SetPersistent("%AUTOID%", -0.05))</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>INC</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Bottom Label</name>
+				<transform>TextBottomObj</transform>
+				<fontSize>6.1</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>UpperCenter</anchor>
+				<transformOffset>0.026, 0.013</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>DEC</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_toggle_InstBacklight_Dimmer</name>
+			<style>Single Pole Center Off</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("Backlight", fc.SetPersistent("%AUTOID%", 0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("Backlight", fc.SetPersistent("%AUTOID%", -0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>INST.$$$BACKLIGHT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_toggle_LeftCabin_Dimmer</name>
+			<style>Single Pole Center Off</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("LeftCabin_Light", fc.SetPersistent("%AUTOID%", 0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("LeftCabin_Light", fc.SetPersistent("%AUTOID%", -0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>LEFT CABIN$$$LAMP</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_toggle_RightCabin_Dimmer</name>
+			<style>Single Pole Center Off</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("RightCabin_Light", fc.SetPersistent("%AUTOID%", 0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("RightCabin_Light", fc.SetPersistent("%AUTOID%", -0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>RIGHT CABIN$$$LAMP</text>
+			</TEXT_LABEL>
+		</prop>
+		<!-- NASA-styled toggle switch with side guards and single collider - T1-G1-S -->
+		<style name="NASA Toggle Switch">
+			<MODEL id="0">
+				<comment>Base</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglBase</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<comment>Apollo toggle</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglLever_Type_1</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="2">
+				<comment>Full Guard</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglGuard_Type_1</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="3">
+				<comment>Single Collider</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglCollider_SNGL</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Collider</name>
+				<collider>SwitchCollider</collider>
+				<sound>ASET/ASET_Props/Sounds/RPB01</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<name>Lever Movement</name>
+				<transform>SwitchGrp</transform>
+				<startRotation>30,0,0</startRotation>
+				<endRotation>-30,0,0</endRotation>
+				<range>0, 1</range>
+				<blend>true</blend>
+				<cycleRate>1</cycleRate>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<name>Top Label</name>
+				<transform>TextTopObj</transform>
+				<fontSize>6.1</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.02526,-0.015</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>CAPTION</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Plate Top Label</name>
+				<transform>TextPlateTopObj</transform>
+				<fontSize>5.5</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.01947,-0.012</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>TOP</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>Plate Bottom Label</name>
+				<transform>TextPlateBottomObj</transform>
+				<fontSize>5.5</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>UpperCenter</anchor>
+				<transformOffset>0.01947, 0.005</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>BOTTOM</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>Switch Mark Glow</name>
+				<transform>TumblerMarkObj</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_tggl_AG1_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleActionGroup(1)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetActionGroup(1)</variable>
+			</ROTATION>
+			<TEXT_LABEL id="1">
+				<text>AG 1</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="0" delete="true" />
+			<TEXT_LABEL id="2" delete="true" />
+		</prop>
+		<prop>
+			<name>MAS_tggl_AG2_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleActionGroup(2)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetActionGroup(2)</variable>
+			</ROTATION>
+			<TEXT_LABEL id="1">
+				<text>AG 2</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="0" delete="true" />
+			<TEXT_LABEL id="2" delete="true" />
+		</prop>
+		<prop>
+			<name>MAS_tggl_AG3_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleActionGroup(3)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetActionGroup(3)</variable>
+			</ROTATION>
+			<TEXT_LABEL id="1">
+				<text>AG 3</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="0" delete="true" />
+			<TEXT_LABEL id="2" delete="true" />
+		</prop>
+		<prop>
+			<name>MAS_tggl_AG4_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleActionGroup(4)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetActionGroup(4)</variable>
+			</ROTATION>
+			<TEXT_LABEL id="1">
+				<text>AG 4</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="0" delete="true" />
+			<TEXT_LABEL id="2" delete="true" />
+		</prop>
+		<prop>
+			<name>MAS_tggl_AG5_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleActionGroup(5)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetActionGroup(5)</variable>
+			</ROTATION>
+			<TEXT_LABEL id="1">
+				<text>AG 5</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="0" delete="true" />
+			<TEXT_LABEL id="2" delete="true" />
+		</prop>
+		<prop>
+			<name>MAS_tggl_AG6_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleActionGroup(6)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetActionGroup(6)</variable>
+			</ROTATION>
+			<TEXT_LABEL id="1">
+				<text>AG 6</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="0" delete="true" />
+			<TEXT_LABEL id="2" delete="true" />
+		</prop>
+		<prop>
+			<name>MAS_tggl_AG7_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleActionGroup(7)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetActionGroup(7)</variable>
+			</ROTATION>
+			<TEXT_LABEL id="1">
+				<text>AG 7</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="0" delete="true" />
+			<TEXT_LABEL id="2" delete="true" />
+		</prop>
+		<prop>
+			<name>MAS_tggl_AG8_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleActionGroup(8)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetActionGroup(8)</variable>
+			</ROTATION>
+			<TEXT_LABEL id="1">
+				<text>AG 8</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="0" delete="true" />
+			<TEXT_LABEL id="2" delete="true" />
+		</prop>
+		<prop>
+			<name>MAS_tggl_AG9_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleActionGroup(9)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetActionGroup(9)</variable>
+			</ROTATION>
+			<TEXT_LABEL id="1">
+				<text>AG 9</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="0" delete="true" />
+			<TEXT_LABEL id="2" delete="true" />
+		</prop>
+		<prop>
+			<name>MAS_tggl_AG0_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleActionGroup(0)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetActionGroup(0)</variable>
+			</ROTATION>
+			<TEXT_LABEL id="1">
+				<text>AG 0</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="0" delete="true" />
+			<TEXT_LABEL id="2" delete="true" />
+		</prop>
+		<prop>
+			<name>MAS_tggl_ARRTPower_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("MAS_ARRT_On")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_ARRT_On")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>ARRT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>OFF</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_ARRTMode_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("MAS_ARRT_Mode")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_ARRT_Mode")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>MODE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>RANGE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>ALT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_FDAI1Power_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fdaiTogglePower(1)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_Power")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>FDAI</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>OFF</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_FDAI1ErrScale_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fdaiNextErrorWrapped(1)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_Error")</variable>
+				<range>0, 2</range>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>ERR</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>x 12</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>x 1</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_FDAI1RateScale_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fdaiNextRateWrapped(1)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_Rate")</variable>
+				<range>0, 2</range>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>RATE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>x 1/12</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>x 1</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_Antenna_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleAntenna()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.AntennaPosition() > 2</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>ANTENNA</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>DEPLOY</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>RETRACT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_Brake_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleBrakes()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetBrakes()</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>BRAKES</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>OFF</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_FuelCell_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleFuelCellActive()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetFuelCellActive()</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>FUEL CELL</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>OFF</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_Gear_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleGear()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetGear()</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>GEAR</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>DEPLOY</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>RETRACT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_IMP_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MAS_IMP_On")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_IMP_On")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>IMP</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>OFF</text>
+			</TEXT_LABEL>
+ 		</prop>
+		<prop>
+			<name>MAS_tggl_Light_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleLights()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetLights()</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>EXT.$$$LIGHTS</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>OFF</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_ParachuteArm_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>parachute.ToggleParachuteArmed()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>parachute.GetParachuteArmedOrDeployed()</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>PARACHUTE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ARM</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>STBY</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_PrecisionMode_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePrecisionMode()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPrecisionMode()</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>CONTROL</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>PRECISE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>NORMAL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_RCS_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleRCS()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetRCS()</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>RCS</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>OFF</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_SAS_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleSAS()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetSAS()</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>SAS</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>OFF</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_SolarPanel_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleSolarPanel()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.SolarPanelPosition() > 2</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>SOLAR</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>DEPLOY</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>RETRACT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_XPtrPower_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("MAS_Xpointer_Power")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_Xpointer_Power")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>X-PTR</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>OFF</text>
+			</TEXT_LABEL>
+		</prop>
+	</ToggleSwitch>
+</PropConfig>

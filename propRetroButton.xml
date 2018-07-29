@@ -1,0 +1,343 @@
+<PropConfig>
+	<!--
+	This file is a prop configuration template for the Prop Config utility
+	described on the MAS wiki at https://github.com/MOARdV/AvionicsSystems/wiki/Prop-Config
+
+	The tool and this XML file are used to quickly generate multiple props
+	without the tedious effort of copying config files and making small edits
+	while hoping you didn't overlook something.
+
+	Copyright (c) 2018 MOARdV
+
+	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
+	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
+	-->
+	<RetroButton folder="RetroButton">
+		<!-- NASA / Retro-style push button with label -->
+		<style name="Retro Button">
+			<MODEL>
+				<model>ASET/ASET_Props/Control/RetroButton/RetroButton</model>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<name>Collider</name>
+				<collider>ButtonTopObj</collider>
+				<sound>ASET/ASET_Props/Sounds/buttonbeep</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<name>Button press translation</name>
+				<transform>ButtonGrp</transform>
+				<startTranslation>0, 0, 0</startTranslation>
+				<endTranslation>0, -0.0025, 0</endTranslation>
+				<blend>true</blend>
+				<speed>8.0</speed>
+			</TRANSLATION>
+			<ANIMATION>
+				<name>Button lighting</name>
+				<animation>RetroButtonLightAnim</animation>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<name>Label</name>
+				<transform>ButtonNameTextObj</transform>
+				<fontSize>2.50</fontSize>
+				<lineSpacing>1.0</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<transformOffset>0.0077, -0.0045</transformOffset>
+				<emissive>never</emissive>
+				<passiveColor>COLOR_MOARdV_BlackPrintedText</passiveColor>
+				<text>LABEL</text>
+			</TEXT_LABEL>
+		</style>
+		<prop>
+			<name>MAS_RB_ChattererTalk</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", chatterer.StartTalking())</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+				<variable>chatterer.Available()</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.Select(chatterer.Available() and fc.CommNetCanCommunicate(), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>PTT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_Dummy_BusA</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.GetPersistentAsNumber("%AUTOID%") * 2 + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>MAIN$$$BUS A</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_Dummy_BusB</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.GetPersistentAsNumber("%AUTOID%") * 2 + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>MAIN$$$BUS B</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_SAS_StabAssist</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(0)</onClick>
+				<variable>fc.GetSAS()</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>fc.GetSASMode() == 0</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 0), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>STAB$$$ASSIST</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_SAS_ManeuverNode</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(9)</onClick>
+				<variable>fc.GetSAS()</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>fc.GetSASMode() == 9</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 9), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>MNVR</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_SAS_Prograde</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(1)</onClick>
+				<variable>fc.GetSAS()</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>fc.GetSASMode() == 1</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 1), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>PRO$$$GRADE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_SAS_Retrograde</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(2)</onClick>
+				<variable>fc.GetSAS()</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>fc.GetSASMode() == 2</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 2), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>RETRO$$$GRADE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_SAS_Normal</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(3)</onClick>
+				<variable>fc.GetSAS()</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>fc.GetSASMode() == 3</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 3), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>NORMAL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_SAS_AntiNormal</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(4)</onClick>
+				<variable>fc.GetSAS()</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>fc.GetSASMode() == 4</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 4), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>ANTI$$$NORMAL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_SAS_RadialOut</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(6)</onClick>
+				<variable>fc.GetSAS()</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>fc.GetSASMode() == 6</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 6), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>RADIAL$$$OUT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_SAS_RadialIn</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(5)</onClick>
+				<variable>fc.GetSAS()</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>fc.GetSASMode() == 5</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 5), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>RADIAL$$$IN</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_SAS_Target</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(7)</onClick>
+				<variable>fc.GetSAS()</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>fc.GetSASMode() == 7</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 7), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>TARGET</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_SAS_AntiTarget</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(8)</onClick>
+				<variable>fc.GetSAS()</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>fc.GetSASMode() == 8</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.Select(fc.GetSAS() and (fc.GetSASMode() == 8), 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>ANTI$$$TARGET</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_TargetClear</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ClearTarget()</onClick>
+				<variable>fc.TargetType()</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>not fc.TargetType()</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.Select(fc.TargetType() > 0, 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>CLEAR$$$TGT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_TargetMoon</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TargetNextMoon()</onClick>
+				<variable>fc.BodyMoonCount(fc.CurrentBodyIndex())</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>not fc.BodyMoonCount(fc.CurrentBodyIndex())</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.Select(fc.BodyMoonCount(fc.CurrentBodyIndex()) > 0, 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>NEXT$$$MOON</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_TargetVessel</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TargetNextVessel()</onClick>
+				<variable>fc.TargetVesselCount()</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>not fc.TargetVesselCount()</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.Select(fc.TargetVesselCount() > 0, 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>NEXT$$$VESSEL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_RB_Undock</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.Undock()</onClick>
+				<variable>fc.Docked()</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>not fc.Docked()</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (2 * fc.Docked() + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>UNDOCK</text>
+			</TEXT_LABEL>
+		</prop>
+	</RetroButton>
+</PropConfig>

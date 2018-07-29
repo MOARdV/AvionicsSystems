@@ -1,0 +1,199 @@
+<PropConfig>
+	<!--
+	This file is a prop configuration template for the Prop Config utility
+	described on the MAS wiki at https://github.com/MOARdV/AvionicsSystems/wiki/Prop-Config
+
+	The tool and this XML file are used to quickly generate multiple props
+	without the tedious effort of copying config files and making small edits
+	while hoping you didn't overlook something.
+
+	Copyright (c) 2018 MOARdV
+
+	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
+	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
+	-->
+	<BigBag folder="BigBag">
+		<style name="Big Bag">
+			<MODEL>
+				<model>ASET/ASET_Props/Misc/BigBag/BigBag</model>
+			</MODEL>
+			<TEXTURE_SHIFT id="0">
+				<name>Label 1</name>
+				<transform>BigBagPlateObj</transform>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<name>Label 1</name>
+				<transform>BigBagPlate2Obj</transform>
+			</TEXTURE_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_BigBag_Beverages</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.5, 0.375</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.5, 0.375</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_BigBag_Food01</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_BigBag_Food02</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0.125</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0, 0.125</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_BigBag_Food03</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0.250</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0, 0.250</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_BigBag_Food04</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0.375</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0, 0.375</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_BigBag_Food13</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0.625</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0, 0.625</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_BigBag_MedKit</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.875</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.75, 0.875</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_BigBag_Science01</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.625</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.75, 0.625</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_BigBag_Snacks</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.125</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.50, 0.125</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_BigBag_SpareParts</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.750</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.50, 0.750</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_BigBag_Supplies</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.875</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.50, 0.875</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_BigBag_Utensils</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.250</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.50, 0.250</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_BigBag_Vitamins</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.50, 0</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+	</BigBag>
+	<MediumBag folder="MediumBag">
+		<style name="Medium Bag">
+			<MODEL>
+				<model>ASET/ASET_Props/Misc/MediumBag/MediumBag</model>
+			</MODEL>
+			<TEXTURE_SHIFT>
+				<name>Label</name>
+				<transform>MediumBagLableObj1</transform>
+			</TEXTURE_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_MediumBag_FirstAid</name>
+			<style>Medium Bag</style>
+			<TEXTURE_SHIFT>
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_MediumBag_PersonalStuff</name>
+			<style>Medium Bag</style>
+			<TEXTURE_SHIFT>
+				<startUV>0, 0.5</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_MediumBag_Supplies</name>
+			<style>Medium Bag</style>
+			<TEXTURE_SHIFT>
+				<startUV>0, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_MediumBag_SurvivalGear</name>
+			<style>Medium Bag</style>
+			<TEXTURE_SHIFT>
+				<startUV>0, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+	</MediumBag>
+</PropConfig>
