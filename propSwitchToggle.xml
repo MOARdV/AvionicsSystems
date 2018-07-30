@@ -781,7 +781,7 @@
 				<variable>fc.GetActionGroup(1)</variable>
 			</ROTATION>
 			<TEXT_LABEL id="1">
-				<text>AG 1</text>
+				<text>{0}$#$fc.ActionGroupMemo(1, false)</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="0" delete="true" />
 			<TEXT_LABEL id="2" delete="true" />
@@ -796,7 +796,7 @@
 				<variable>fc.GetActionGroup(2)</variable>
 			</ROTATION>
 			<TEXT_LABEL id="1">
-				<text>AG 2</text>
+				<text>{0}$#$fc.ActionGroupMemo(2, false)</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="0" delete="true" />
 			<TEXT_LABEL id="2" delete="true" />
@@ -811,7 +811,7 @@
 				<variable>fc.GetActionGroup(3)</variable>
 			</ROTATION>
 			<TEXT_LABEL id="1">
-				<text>AG 3</text>
+				<text>{0}$#$fc.ActionGroupMemo(3, false)</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="0" delete="true" />
 			<TEXT_LABEL id="2" delete="true" />
@@ -826,7 +826,7 @@
 				<variable>fc.GetActionGroup(4)</variable>
 			</ROTATION>
 			<TEXT_LABEL id="1">
-				<text>AG 4</text>
+				<text>{0}$#$fc.ActionGroupMemo(4, false)</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="0" delete="true" />
 			<TEXT_LABEL id="2" delete="true" />
@@ -841,7 +841,7 @@
 				<variable>fc.GetActionGroup(5)</variable>
 			</ROTATION>
 			<TEXT_LABEL id="1">
-				<text>AG 5</text>
+				<text>{0}$#$fc.ActionGroupMemo(5, false)</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="0" delete="true" />
 			<TEXT_LABEL id="2" delete="true" />
@@ -856,7 +856,7 @@
 				<variable>fc.GetActionGroup(6)</variable>
 			</ROTATION>
 			<TEXT_LABEL id="1">
-				<text>AG 6</text>
+				<text>{0}$#$fc.ActionGroupMemo(6, false)</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="0" delete="true" />
 			<TEXT_LABEL id="2" delete="true" />
@@ -871,7 +871,7 @@
 				<variable>fc.GetActionGroup(7)</variable>
 			</ROTATION>
 			<TEXT_LABEL id="1">
-				<text>AG 7</text>
+				<text>{0}$#$fc.ActionGroupMemo(7, false)</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="0" delete="true" />
 			<TEXT_LABEL id="2" delete="true" />
@@ -886,7 +886,7 @@
 				<variable>fc.GetActionGroup(8)</variable>
 			</ROTATION>
 			<TEXT_LABEL id="1">
-				<text>AG 8</text>
+				<text>{0}$#$fc.ActionGroupMemo(8, false)</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="0" delete="true" />
 			<TEXT_LABEL id="2" delete="true" />
@@ -901,7 +901,7 @@
 				<variable>fc.GetActionGroup(9)</variable>
 			</ROTATION>
 			<TEXT_LABEL id="1">
-				<text>AG 9</text>
+				<text>{0}$#$fc.ActionGroupMemo(9, false)</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="0" delete="true" />
 			<TEXT_LABEL id="2" delete="true" />
@@ -916,7 +916,7 @@
 				<variable>fc.GetActionGroup(0)</variable>
 			</ROTATION>
 			<TEXT_LABEL id="1">
-				<text>AG 0</text>
+				<text>{0}$#$fc.ActionGroupMemo(0, false)</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="0" delete="true" />
 			<TEXT_LABEL id="2" delete="true" />
@@ -969,7 +969,26 @@
 				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_Power")</variable>
 			</ROTATION>
 			<TEXT_LABEL id="0">
-				<text>FDAI</text>
+				<text>FDAI 1</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>OFF</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_FDAI2Power_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fdaiTogglePower(2)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI2_Power")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>FDAI 2</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
 				<text>ON</text>
@@ -1006,6 +1025,46 @@
 			</COLLIDER_EVENT>
 			<ROTATION>
 				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_Rate")</variable>
+				<range>0, 2</range>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>RATE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>x 1/12</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>x 1</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_FDAI2ErrScale_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fdaiNextErrorWrapped(2)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI2_Error")</variable>
+				<range>0, 2</range>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>ERR</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>x 12</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>x 1</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_FDAI2RateScale_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fdaiNextRateWrapped(2)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI2_Rate")</variable>
 				<range>0, 2</range>
 			</ROTATION>
 			<TEXT_LABEL id="0">

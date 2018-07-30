@@ -1,0 +1,55 @@
+<PropConfig>
+	<!--
+	This file is a prop configuration template for the Prop Config utility
+	described on the MAS wiki at https://github.com/MOARdV/AvionicsSystems/wiki/Prop-Config
+
+	The tool and this XML file are used to quickly generate multiple props
+	without the tedious effort of copying config files and making small edits
+	while hoping you didn't overlook something.
+
+	Copyright (c) 2018 MOARdV
+
+	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
+	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
+	-->
+
+	<!-- Switch Panels -->
+	<SwitchPanelsLong folder="SwitchPanelsLong">
+		<style name="Switch Panel Long">
+			<MODEL>
+				<model>ASET/ASET_Props/Misc/SwitchPanelsLong/SwitchPanelsLong</model>
+			</MODEL>
+			<COLOR_SHIFT id="0">
+				<name>Border</name>
+				<transform>LongPanelRecessObj</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_SwitchPanelLong_Clear</name>
+			<style>Switch Panel Long</style>
+		</prop>
+	</SwitchPanelsLong>
+	<SwitchPanelsShort folder="SwitchPanelsShort">
+		<style name="Switch Panel Short">
+			<MODEL>
+				<model>ASET/ASET_Props/Misc/SwitchPanelsShort/SwitchPanelsShort</model>
+			</MODEL>
+			<COLOR_SHIFT id="0">
+				<name>Border</name>
+				<transform>ShortPanelRecessObj</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_SwitchPanelShort_Clear</name>
+			<style>Switch Panel Short</style>
+		</prop>
+	</SwitchPanelsShort>
+</PropConfig>

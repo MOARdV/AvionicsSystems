@@ -692,10 +692,10 @@
 				<variable>fc.Conditioned(fc.InverseLerp(fdaiPitchError(2) * (fc.GetPersistentAsNumber("MAS_FDAI2_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")), 12, -12))</variable>
 			</TRANSLATION>
 			<TRANSLATION id="1">
-				<variable>fc.Conditioned(fc.InverseLerp(fdaiYawError(2) * (fc.GetPersistentAsNumber("MAS_FDAI2_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power"), -12, 12))</variable>
+				<variable>fc.Conditioned(fc.InverseLerp(fdaiYawError(2) * (fc.GetPersistentAsNumber("MAS_FDAI2_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")), -12, 12))</variable>
 			</TRANSLATION>
 			<TRANSLATION id="2">
-				<variable>fc.Conditioned(fc.InverseLerp(fdaiRollError(2) * (fc.GetPersistentAsNumber("MAS_FDAI2_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power"), -12, 12))</variable>
+				<variable>fc.Conditioned(fc.InverseLerp(fdaiRollError(2) * (fc.GetPersistentAsNumber("MAS_FDAI2_ErrorScalar") * fc.GetPersistentAsNumber("MAS_FDAI2_Power")), -12, 12))</variable>
 			</TRANSLATION>
 			<ANIMATION_PLAYER id="0">
 				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_ErrorFlag") * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
@@ -1536,7 +1536,49 @@
 		</prop>
 	</RetroWarningLight>
 
-	<!-- Small plates used for labeling groups of controls -->
+	<LabelText folder="LabelText">
+		<style name="Label">
+			<MODEL>
+				<model>ASET/ASET_Props/Misc/LabelText/LabelText</model>
+			</MODEL>
+			<TEXT_LABEL>
+				<name>Name Plate</name>
+				<transform>TextObj</transform>
+				<fontSize>6.1</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<transformOffset>0.048,-0.006</transformOffset>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<emissive>active</emissive>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>Plate Diffuse</name>
+				<transform>SmallLablePlate</transform>
+				<passiveColor>COLOR_ASET_PLATEBKG_DIFFUSE_PASSIVECOLOR</passiveColor>
+				<colorName>_Color</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Plate Emissive</name>
+				<transform>SmallLablePlate</transform>
+				<passiveColor>COLOR_ASET_PLATEBKG_EMISSIVE_PASSIVECOLOR</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_LabelText_IntLights</name>
+			<style>Label</style>
+			<TEXT_LABEL>
+				<text>INT. LIGHT</text>
+			</TEXT_LABEL>
+		</prop>
+	</LabelText>
+
+	<!-- Small plates used for labeling groups of controls.  Dark background with white text -->
 	<SmallPlate folder="SmallLabelPlate">
 		<style name="Small Plate">
 			<MODEL>
@@ -1951,6 +1993,69 @@
 				<lightName>Point light</lightName>
 				<intensity>fc.GetPersistentAsNumber("MAS_Generic_IntLight")</intensity>
 				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Generic_IntLight"))</variable>
+			</INT_LIGHT>
+		</prop>
+		<prop>
+			<name>MAS_swRotary_KP0110_IntLight_Back</name>
+			<style>Rheostat Int Light</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("MAS_KP0110_BackLight", 0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("MAS_KP0110_BackLight", -0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_KP0110_BackLight")</variable>
+			</ROTATION>
+			<TEXT_LABEL>
+				<text>AFT$$$CABIN</text>
+			</TEXT_LABEL>
+			<INT_LIGHT>
+				<lightName>Light_back</lightName>
+				<intensity>fc.GetPersistentAsNumber("MAS_KP0110_BackLight")</intensity>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_KP0110_BackLight"))</variable>
+			</INT_LIGHT>
+		</prop>
+		<prop>
+			<name>MAS_swRotary_KP0110_IntLight_Top</name>
+			<style>Rheostat Int Light</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("MAS_KP0110_TopLight", 0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("MAS_KP0110_TopLight", -0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_KP0110_TopLight")</variable>
+			</ROTATION>
+			<TEXT_LABEL>
+				<text>UPPER$$$CABIN</text>
+			</TEXT_LABEL>
+			<INT_LIGHT>
+				<lightName>Light_top</lightName>
+				<intensity>fc.GetPersistentAsNumber("MAS_KP0110_TopLight")</intensity>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_KP0110_TopLight"))</variable>
+			</INT_LIGHT>
+		</prop>
+		<prop>
+			<name>MAS_swRotary_KP0110_IntLight_Tunnel</name>
+			<style>Rheostat Int Light</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("MAS_KP0110_TunnelLight", 0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("MAS_KP0110_TunnelLight", -0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_KP0110_TunnelLight")</variable>
+			</ROTATION>
+			<TEXT_LABEL>
+				<text>TUNNEL</text>
+			</TEXT_LABEL>
+			<INT_LIGHT>
+				<lightName>Light_tunnel</lightName>
+				<intensity>fc.GetPersistentAsNumber("MAS_KP0110_TunnelLight")</intensity>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_KP0110_TunnelLight"))</variable>
 			</INT_LIGHT>
 		</prop>
 		<prop>
