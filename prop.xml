@@ -1576,6 +1576,13 @@
 				<text>INT. LIGHT</text>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_LabelText_RCS</name>
+			<style>Label</style>
+			<TEXT_LABEL>
+				<text>REACTION CONTROL</text>
+			</TEXT_LABEL>
+		</prop>
 	</LabelText>
 
 	<!-- Small plates used for labeling groups of controls.  Dark background with white text -->

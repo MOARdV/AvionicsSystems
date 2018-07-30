@@ -1249,6 +1249,44 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_tggl_RCS_Rotate_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleRCSRotate()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetRCSRotate()</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>ROTATE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ENABLE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>DISABLE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_tggl_RCS_Translate_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleRCSTranslate()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetRCSTranslate()</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>XLATE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ENABLE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>DISABLE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_tggl_SAS_T1_G1_S</name>
 			<style>NASA Toggle Switch</style>
 			<COLLIDER_EVENT id="0">
