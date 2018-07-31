@@ -1,0 +1,422 @@
+<PropConfig>
+	<!--
+	This file is a prop configuration template for the Prop Config utility
+	described on the MAS wiki at https://github.com/MOARdV/AvionicsSystems/wiki/Prop-Config
+
+	The tool and this XML file are used to quickly generate multiple props
+	without the tedious effort of copying config files and making small edits
+	while hoping you didn't overlook something.
+
+	Copyright (c) 2018 MOARdV
+
+	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
+	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
+	-->
+
+	<!-- Retro (Apollo-era) "flag" indicators -->
+	<FlagIndicator folder="FlagIndicator">
+		<style name="Flag Indicator">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/FlagIndicator/FlagIndicator</model>
+			</MODEL>
+			<COLOR_SHIFT id="0">
+				<name>Nameplate Diffuse color</name>
+				<transform>namePlate</transform>
+				<colorName>_Color</colorName>
+				<passiveColor>COLOR_ASET_PLATEBKG_DIFFUSE_PASSIVECOLOR</passiveColor>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Nameplate Emissive color</name>
+				<transform>namePlate</transform>
+				<colorName>_EmissiveColor</colorName>
+				<passiveColor>COLOR_ASET_PLATEBKG_EMISSIVE_PASSIVECOLOR</passiveColor>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<name>Warning plate Emissive color</name>
+				<transform>WarningPlate</transform>
+				<colorName>_EmissiveColor</colorName>
+				<passiveColor>0, 0, 0, 255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<TEXT_LABEL>
+				<name>Caption</name>
+				<transform>IndicatorNameObj</transform>
+				<fontSize>2.3</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<transformOffset>0.0087, -0.0015</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<comment>Flag trigger</comment>
+				<name>WarningPlate Cover</name>
+				<transform>CoverLoc</transform>
+				<startScale>0, 0, 0</startScale>
+				<endScale>0, 0, -0.9</endScale>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<!-- 
+				startUV: 
+				x=0.0 is default diagonal striped flag, x=-0.2 is a solid-color flag
+				y=0.0 is white, y=0.2 is red, y=0.4 is green, y=0.6 is yellow
+				Use dynamic Y values to change color, and dynamic X values to toggle
+				stripes.
+				-->
+				<comment>startUV: x=0.0 (striped) x=-0.2 (solid), y=0.0 (white), y=0.2 (red), y=0.4 (green), y=0.6 (yellow)</comment>
+				<name>Flag color</name>
+				<transform>WarningPlate</transform>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_FI_AG0</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG0</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(0))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_AG1</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG1</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(1))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_AG2</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG2</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(2))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_AG3</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG3</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(3))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_AG4</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG4</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(4))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_AG5</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG5</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(5))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_AG6</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG6</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(6))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_AG7</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG7</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(7))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_AG8</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG8</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(8))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_AG9</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>AG9</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetActionGroup(9))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_Brakes</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>BRAKE</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetBrakes())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_Docked</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>DOCKED</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.Docked())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_DockReady</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>READY</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.DockReady())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_FDAI1_Error</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<fontSize>1.8</fontSize>
+				<text>ERROR</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI1_ErrorFlag") * fc.GetPersistentAsNumber("MAS_FDAI1_Power"))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.6</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_FDAI2_Error</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<fontSize>1.8</fontSize>
+				<text>ERROR</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_FDAI2_ErrorFlag") * fc.GetPersistentAsNumber("MAS_FDAI2_Power"))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.6</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_Gear</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>GEAR</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetGear())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_Landed</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>CONTACT</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.VesselLanded())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_Lights</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>LIGHT</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetLights())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_ManeuverNode</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>NODE</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.ManeuverNodeExists())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_ParachuteArmed</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>ARMED</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(parachute.GetParachuteArmedOrDeployed())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_ParachuteDanger</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>DANGER</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(1 - parachute.DeploymentSafe())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.2</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_ParachuteDeployed</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>DEPLOYED</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(parachute.GetParachuteDeployed())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_RCS</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>RCS</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetRCS())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_SAS</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>SAS</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetSAS())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_Target</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>TARGET</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.TargetType())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<!-- waypoint -->
+		<prop>
+			<name>MAS_FI_Waypoint</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>WAYPT</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(nav.WaypointActive())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+	</FlagIndicator>
+</PropConfig>

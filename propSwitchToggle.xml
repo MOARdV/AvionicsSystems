@@ -969,7 +969,7 @@
 				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_Power")</variable>
 			</ROTATION>
 			<TEXT_LABEL id="0">
-				<text>FDAI 1</text>
+				<text>POWER</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
 				<text>ON</text>
@@ -988,7 +988,7 @@
 				<variable>fc.GetPersistentAsNumber("MAS_FDAI2_Power")</variable>
 			</ROTATION>
 			<TEXT_LABEL id="0">
-				<text>FDAI 2</text>
+				<text>POWER</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
 				<text>ON</text>
@@ -1192,6 +1192,25 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_tggl_TunnelLight_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("Tunnel_Light")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("Tunnel_Light")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>TUNNEL$$$LIGHT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ON</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>OFF</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_tggl_ParachuteArm_T1_G1_S</name>
 			<style>NASA Toggle Switch</style>
 			<COLLIDER_EVENT id="0">
@@ -1341,6 +1360,101 @@
 			</TEXT_LABEL>
 			<TEXT_LABEL id="2">
 				<text>OFF</text>
+			</TEXT_LABEL>
+		</prop>
+		
+		<style name="NASA Covered Toggle Switch">
+			<MODEL id="0">
+				<comment>Base</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglBase</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<comment>Apollo toggle</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglLever_Type_1</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="4">
+				<comment>Black Cover</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglCover_Type1</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+				<texture>Tggl_COVER_Diffuse,ASET/ASET_Props/Control/Switch_Toggle_Modular/models/Tggl_COVER_Black</texture>
+			</MODEL>
+			<MODEL id="2">
+				<comment>Full Guard</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglGuard_Type_1</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="3">
+				<comment>Single Collider</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglCollider_SNGL</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Collider</name>
+				<collider>SwitchCollider</collider>
+				<sound>ASET/ASET_Props/Sounds/RPB01</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<name>Collider</name>
+				<collider>CoverCollider</collider>
+				<onClick>fc.TogglePersistent("%AUTOID%-cover")</onClick>
+				<sound>ASET/ASET_Props/Sounds/OpenSwitchCover</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="0">
+				<name>Cover animation</name>
+				<animation>TgglCover_ANIM</animation>
+				<animationSpeed>1.0</animationSpeed>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%-cover")</variable>
+			</ANIMATION_PLAYER>
+			<ROTATION>
+				<name>Lever Movement</name>
+				<transform>SwitchGrp</transform>
+				<startRotation>30,0,0</startRotation>
+				<endRotation>-30,0,0</endRotation>
+				<range>0, 1</range>
+				<blend>true</blend>
+				<cycleRate>1</cycleRate>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<name>Top Label</name>
+				<transform>TextTopObj</transform>
+				<fontSize>6.1</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.02526,-0.015</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>CAPTION</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>Switch Mark Glow</name>
+				<transform>TumblerMarkObj</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_tggl_EnableRCS_T1_G1_C1_S</name>
+			<style>NASA Covered Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.EnableAllRCS()</onClick>
+				<variable>fc.AnyRCSDisabled()</variable>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>1 - fc.AnyRCSDisabled()</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>CAPSULE RCS</text>
 			</TEXT_LABEL>
 		</prop>
 	</ToggleSwitch>
