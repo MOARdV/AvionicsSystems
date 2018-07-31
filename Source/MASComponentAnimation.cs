@@ -34,7 +34,7 @@ namespace AvionicsSystems
     /// Provides an action that can control an animation by blending it between its start and end
     /// positions.
     /// </summary>
-    class MASActionAnimation : IMASSubComponent
+    class MASComponentAnimation : IMASSubComponent
     {
         private string variableName = string.Empty;
         private string animationName = string.Empty;
@@ -47,7 +47,7 @@ namespace AvionicsSystems
         private float goalBlend = 0.0f;
         private bool coroutineActive = false;
 
-        internal MASActionAnimation(ConfigNode config, InternalProp prop, MASFlightComputer comp):base(config, prop, comp)
+        internal MASComponentAnimation(ConfigNode config, InternalProp prop, MASFlightComputer comp):base(config, prop, comp)
         {
             this.comp = comp;
 

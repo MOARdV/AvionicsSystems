@@ -35,7 +35,7 @@ namespace AvionicsSystems
     /// particular range (either > 0 for Boolean, or between specified range
     /// values).
     /// </summary>
-    class MASActionTriggerEvent : IMASSubComponent
+    class MASComponentTriggerEvent : IMASSubComponent
     {
         private string variableName;
         private bool currentState = false;
@@ -44,7 +44,7 @@ namespace AvionicsSystems
         Action triggerEvent;
         Action exitEvent = null;
 
-        internal MASActionTriggerEvent(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        internal MASComponentTriggerEvent(ConfigNode config, InternalProp prop, MASFlightComputer comp)
             : base(config, prop, comp)
         {
             if (!config.TryGetValue("variable", ref variableName) || string.IsNullOrEmpty(variableName))

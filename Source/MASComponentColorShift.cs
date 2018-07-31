@@ -30,7 +30,7 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
-    internal class MASActionColorShift : IMASSubComponent
+    internal class MASComponentColorShift : IMASSubComponent
     {
         private Material[] localMaterial = new Material[0];
         private readonly int colorIndex;
@@ -43,7 +43,7 @@ namespace AvionicsSystems
         private Color activeColor = XKCDColors.Black;
         private Color passiveColor;
 
-        internal MASActionColorShift(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        internal MASComponentColorShift(ConfigNode config, InternalProp prop, MASFlightComputer comp)
             : base(config, prop, comp)
         {
             string transform = string.Empty;

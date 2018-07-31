@@ -30,16 +30,16 @@ using UnityEngine;
 namespace AvionicsSystems
 {
     /// <summary>
-    /// The MASActionIntLight component provides a means to interact with
+    /// The MASComponentIntLight component provides a means to interact with
     /// lights in the IVA.
     /// </summary>
-    internal class MASActionIntLight : IMASSubComponent
+    internal class MASComponentIntLight : IMASSubComponent
     {
         private bool currentState;
         private Light[] controlledLights;
         private Color lightColor;
 
-        internal MASActionIntLight(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        internal MASComponentIntLight(ConfigNode config, InternalProp prop, MASFlightComputer comp)
             : base(config, prop, comp)
         {
             string lightName = string.Empty;

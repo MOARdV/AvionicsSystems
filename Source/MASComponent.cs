@@ -52,33 +52,33 @@ namespace AvionicsSystems
             switch (config.name)
             {
                 case "ANIMATION":
-                    return new MASActionAnimation(config, prop, comp);
+                    return new MASComponentAnimation(config, prop, comp);
                 case "ANIMATION_PLAYER":
-                    return new MASActionAnimationPlayer(config, prop, comp);
+                    return new MASComponentAnimationPlayer(config, prop, comp);
                 case "AUDIO_PLAYER":
-                    return new MASActionAudioPlayer(config, prop, comp);
+                    return new MASComponentAudioPlayer(config, prop, comp);
                 case "COLOR_SHIFT":
-                    return new MASActionColorShift(config, prop, comp);
+                    return new MASComponentColorShift(config, prop, comp);
                 case "COLLIDER_EVENT":
-                    return new MASActionColliderEvent(config, prop, comp);
+                    return new MASComponentColliderEvent(config, prop, comp);
                 case "IMAGE":
-                    return new MASActionImage(config, prop, comp);
+                    return new MASComponentImage(config, prop, comp);
                 case "INT_LIGHT":
-                    return new MASActionIntLight(config, prop, comp);
+                    return new MASComponentIntLight(config, prop, comp);
                 case "MODEL_SCALE":
-                    return new MASActionModelScale(config, prop, comp);
+                    return new MASComponentModelScale(config, prop, comp);
                 case "ROTATION":
-                    return new MASActionRotation(config, prop, comp);
+                    return new MASComponentRotation(config, prop, comp);
                 case "TEXT_LABEL":
-                    return new MASActionTextLabel(config, prop, comp);
+                    return new MASComponentTextLabel(config, prop, comp);
                 case "TEXTURE_SCALE":
-                    return new MASActionTextureScale(config, prop, comp);
+                    return new MASComponentTextureScale(config, prop, comp);
                 case "TEXTURE_SHIFT":
-                    return new MASActionTextureShift(config, prop, comp);
+                    return new MASComponentTextureShift(config, prop, comp);
                 case "TRANSLATION":
-                    return new MASActionTranslation(config, prop, comp);
+                    return new MASComponentTranslation(config, prop, comp);
                 case "TRIGGER_EVENT":
-                    return new MASActionTriggerEvent(config, prop, comp);
+                    return new MASComponentTriggerEvent(config, prop, comp);
                 default:
                     Utility.LogError(config, "Unrecognized MASComponent child node {0} found", config.name);
                     return null;

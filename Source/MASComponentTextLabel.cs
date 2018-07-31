@@ -30,7 +30,7 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
-    class MASActionTextLabel : IMASSubComponent
+    class MASComponentTextLabel : IMASSubComponent
     {
         private Color passiveColor = XKCDColors.White;
         private Color activeColor = XKCDColors.White;
@@ -53,7 +53,7 @@ namespace AvionicsSystems
             flash
         };
 
-        internal MASActionTextLabel(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        internal MASComponentTextLabel(ConfigNode config, InternalProp prop, MASFlightComputer comp)
             : base(config, prop, comp)
         {
             string transform = string.Empty;

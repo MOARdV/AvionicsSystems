@@ -30,9 +30,9 @@ using UnityEngine;
 namespace AvionicsSystems
 {
     /// <summary>
-    /// MASActionTextureScale can be used to change the scaling used on textures.
+    /// MASComponentTextureScale can be used to change the scaling used on textures.
     /// </summary>
-    internal class MASActionTextureScale : IMASSubComponent
+    internal class MASComponentTextureScale : IMASSubComponent
     {
         private Material localMaterial = null;
         private Vector2 startUV;
@@ -42,7 +42,7 @@ namespace AvionicsSystems
         private float currentBlend = 0.0f;
         private string[] layer;
 
-        internal MASActionTextureScale(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        internal MASComponentTextureScale(ConfigNode config, InternalProp prop, MASFlightComputer comp)
             : base(config, prop, comp)
         {
             string transform = string.Empty;

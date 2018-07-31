@@ -35,7 +35,7 @@ namespace AvionicsSystems
     /// of the two endpoints are added to the model's initial localScale, so
     /// a value of 0,0,0 will use the original scale untouched.
     /// </summary>
-    class MASActionModelScale : IMASSubComponent
+    class MASComponentModelScale : IMASSubComponent
     {
         private Vector3 startScale = Vector3.zero;
         private Vector3 endScale = Vector3.zero;
@@ -44,7 +44,7 @@ namespace AvionicsSystems
         private bool currentState = false;
         private float currentBlend = 0.0f;
 
-        internal MASActionModelScale(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        internal MASComponentModelScale(ConfigNode config, InternalProp prop, MASFlightComputer comp)
             : base(config, prop, comp)
         {
             string transform = string.Empty;

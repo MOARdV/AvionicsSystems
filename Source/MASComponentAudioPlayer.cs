@@ -29,7 +29,7 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
-    internal class MASActionAudioPlayer : IMASSubComponent
+    internal class MASComponentAudioPlayer : IMASSubComponent
     {
         private float pitch = 1.0f;
         private float volume = 1.0f;
@@ -48,7 +48,7 @@ namespace AvionicsSystems
             LOOP
         };
 
-        internal MASActionAudioPlayer(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        internal MASComponentAudioPlayer(ConfigNode config, InternalProp prop, MASFlightComputer comp)
             : base(config, prop, comp)
         {
             string variableName = string.Empty;

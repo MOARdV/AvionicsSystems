@@ -29,7 +29,7 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
-    internal class MASActionAnimationPlayer : IMASSubComponent
+    internal class MASComponentAnimationPlayer : IMASSubComponent
     {
         private float animationSpeed = 1.0f;
         private string animationName = string.Empty;
@@ -39,7 +39,7 @@ namespace AvionicsSystems
         private bool currentState = false;
 
         // TODO: Support 'reverse'?
-        internal MASActionAnimationPlayer(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        internal MASComponentAnimationPlayer(ConfigNode config, InternalProp prop, MASFlightComputer comp)
             : base(config, prop, comp)
         {
             bool exterior = false;

@@ -30,7 +30,7 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
-    class MASActionTranslation : IMASSubComponent
+    class MASComponentTranslation : IMASSubComponent
     {
         private Vector3 startTranslation, endTranslation;
         private MASFlightComputer comp;
@@ -43,7 +43,7 @@ namespace AvionicsSystems
         private float currentBlend = 0.0f;
         private float goalBlend = 0.0f;
 
-        internal MASActionTranslation(ConfigNode config, InternalProp prop, MASFlightComputer comp):base(config, prop, comp)
+        internal MASComponentTranslation(ConfigNode config, InternalProp prop, MASFlightComputer comp):base(config, prop, comp)
         {
             string transform = string.Empty;
             if (!config.TryGetValue("transform", ref transform))

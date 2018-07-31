@@ -31,10 +31,10 @@ using UnityEngine;
 namespace AvionicsSystems
 {
     /// <summary>
-    /// MASActionRotation rotates part of a prop around a specified axis given
+    /// MASComponentRotation rotates part of a prop around a specified axis given
     /// in Euler angles.
     /// </summary>
-    class MASActionRotation : IMASSubComponent
+    class MASComponentRotation : IMASSubComponent
     {
         // Beginning and ending rotation points for all rotations
         private Quaternion startRotation, endRotation;
@@ -60,7 +60,7 @@ namespace AvionicsSystems
         private float range1 = 0.0f;
         private float range2 = 0.0f;
 
-        internal MASActionRotation(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        internal MASComponentRotation(ConfigNode config, InternalProp prop, MASFlightComputer comp)
             : base(config, prop, comp)
         {
             string transform = string.Empty;

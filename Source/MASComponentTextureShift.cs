@@ -30,11 +30,11 @@ using UnityEngine;
 namespace AvionicsSystems
 {
     /// <summary>
-    /// MASActionTextureShift implements a simple fire-and-forget texture shift
+    /// MASComponentTextureShift implements a simple fire-and-forget texture shift
     /// for a specified transform.  This allows multiple props to use a texture
     /// atlas in some places, reducing the need to make multiple textures.
     /// </summary>
-    internal class MASActionTextureShift : IMASSubComponent
+    internal class MASComponentTextureShift : IMASSubComponent
     {
         private Material localMaterial = null;
         private Vector2[] baseUV;
@@ -45,7 +45,7 @@ namespace AvionicsSystems
         private float currentBlend = 0.0f;
         private string[] layer;
 
-        internal MASActionTextureShift(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        internal MASComponentTextureShift(ConfigNode config, InternalProp prop, MASFlightComputer comp)
             : base(config, prop, comp)
         {
             string transform = string.Empty;

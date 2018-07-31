@@ -35,7 +35,7 @@ namespace AvionicsSystems
     /// auto-repeating the onClick event, and it can
     /// support transient actions using onClick and onRelease.
     /// </summary>
-    class MASActionColliderEvent : IMASSubComponent
+    class MASComponentColliderEvent : IMASSubComponent
     {
         private ButtonObject buttonObject;
 
@@ -45,7 +45,7 @@ namespace AvionicsSystems
         /// </summary>
         internal class ButtonObject : MonoBehaviour
         {
-            internal MASActionColliderEvent parent;
+            internal MASComponentColliderEvent parent;
             internal Action onClick;
             internal Action<double> onDragX;
             internal Action<double> onDragY;
@@ -167,7 +167,7 @@ namespace AvionicsSystems
             }
         }
 
-        internal MASActionColliderEvent(ConfigNode config, InternalProp internalProp, MASFlightComputer comp)
+        internal MASComponentColliderEvent(ConfigNode config, InternalProp internalProp, MASFlightComputer comp)
             : base(config, internalProp, comp)
         {
             string collider = string.Empty;

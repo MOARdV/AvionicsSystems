@@ -29,13 +29,13 @@ using UnityEngine;
 namespace AvionicsSystems
 {
     /// <summary>
-    /// MASActionImage allows the replacement of textures in a prop.  While any texture could be replaced,
+    /// MASComponentImage allows the replacement of textures in a prop.  While any texture could be replaced,
     /// the main intent of the module is to allow the display of mission flags on parts using the
     /// %FLAG% keyword.
     /// </summary>
-    internal class MASActionImage : IMASSubComponent
+    internal class MASComponentImage : IMASSubComponent
     {
-        internal MASActionImage(ConfigNode config, InternalProp prop, MASFlightComputer comp)
+        internal MASComponentImage(ConfigNode config, InternalProp prop, MASFlightComputer comp)
             : base(config, prop, comp)
         {
             string textureName = string.Empty;
