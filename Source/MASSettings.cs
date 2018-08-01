@@ -62,7 +62,7 @@ namespace AvionicsSystems
 
         private void AddAppLauncherButton()
         {
-            if (appLauncherButton == null)
+            if (appLauncherButton == null && MASConfig.HideGui == false)
             {
                 appLauncherButton = InitAppLauncherButton();
             }

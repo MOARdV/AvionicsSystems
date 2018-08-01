@@ -63,6 +63,7 @@ namespace AvionicsSystems
             public float DMEPropagation;
         };
 
+        static internal bool HideGui = false;
         static internal bool VerboseLogging = true;
         static internal string ElectricCharge = "ElectricCharge";
         static internal int LuaUpdatePriority = 1;
@@ -97,6 +98,11 @@ namespace AvionicsSystems
             if (!node.TryGetValue("VerboseLogging", ref VerboseLogging))
             {
                 VerboseLogging = true;
+            }
+
+            if (!node.TryGetValue("HideGui", ref HideGui))
+            {
+                HideGui = false;
             }
 
             if (!node.TryGetValue("ElectricCharge", ref ElectricCharge))
@@ -151,6 +157,7 @@ namespace AvionicsSystems
         /// <param name="node">The node to which we write.</param>
         public override void OnSave(ConfigNode node)
         {
+            node.AddValue("HideGui", HideGui);
             node.AddValue("VerboseLogging", VerboseLogging);
             node.AddValue("ElectricCharge", ElectricCharge);
             node.AddValue("LuaUpdatePriority", LuaUpdatePriority);
