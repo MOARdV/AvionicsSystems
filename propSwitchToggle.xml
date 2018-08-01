@@ -1457,5 +1457,20 @@
 				<text>CAPSULE RCS</text>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_tggl_Undock_T1_G1_C1_S</name>
+			<style>NASA Covered Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.SetPersistent("%AUTOID%", fc.Undock() + 1)</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+				<variable>fc.Docked()</variable>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>DOCK RELEASE</text>
+			</TEXT_LABEL>
+		</prop>
 	</ToggleSwitch>
 </PropConfig>

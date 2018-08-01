@@ -1064,6 +1064,7 @@
 
 	<!-- Retro (Apollo-era) warning indicators -->
 	<RetroWarningLight folder="RetroWarningLight">
+		<!-- Intended to be used at 1.0 scale, longer text -->
 		<style name="Retro Warning Light">
 			<MODEL>
 				<model>ASET/ASET_Props/Instruments/RetroWarningLight/RetroWarningLight</model>
@@ -1155,6 +1156,96 @@
 				<variable>fc.Conditioned(MAS_RWL_MasterCaution())</variable>
 			</TEXTURE_SHIFT>
 		</prop>
+		<!-- Intended to be used at 0.5 scale, shorter text -->
+		<style name="Tablo">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/RetroWarningLight/RetroWarningLight</model>
+			</MODEL>
+			<TEXT_LABEL>
+				<name>Warning Text</name>
+				<transform>WarningTextCenter</transform>
+				<fontSize>5</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>never</emissive>
+				<passiveColor>COLOR_MOARdV_UnlitBlackText</passiveColor>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Lamp</name>
+				<transform>RetroWarningLights</transform>
+				<passiveColor>COLOR_MOARdV_RWL_Off</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<comment>endUV: y = 0.8 = Green; 0.6 = Red; 0.4 = Amber; 0.2 = White</comment>
+				<name>Light shift</name>
+				<transform>RetroWarningLights</transform>
+				<startUV>0.0, 0.0</startUV>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_RWL_DockReady</name>
+			<style>Tablo</style>
+			<TEXT_LABEL>
+				<text>READY</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_RWL_Green</activeColor>
+				<variable>fc.Conditioned(fc.DockReady())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0.0, 0.8</endUV>
+				<variable>fc.Conditioned(fc.DockReady())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_RWL_Docked</name>
+			<style>Tablo</style>
+			<TEXT_LABEL>
+				<text>DOCKED</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_RWL_Green</activeColor>
+				<variable>fc.Conditioned(fc.Docked())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0.0, 0.8</endUV>
+				<variable>fc.Conditioned(fc.Docked())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_RWL_StageLocked</name>
+			<style>Tablo</style>
+			<TEXT_LABEL>
+				<text>LOCKED</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_RWL_Red</activeColor>
+				<variable>fc.Conditioned(fc.GetStageLocked())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0.0, 0.6</endUV>
+				<variable>fc.Conditioned(fc.GetStageLocked())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_RWL_StageReady</name>
+			<style>Tablo</style>
+			<TEXT_LABEL>
+				<text>READY</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_RWL_Green</activeColor>
+				<variable>fc.Conditioned(fc.StageReady())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0.0, 0.8</endUV>
+				<variable>fc.Conditioned(fc.StageReady())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
 	</RetroWarningLight>
 
 	<LabelText folder="LabelText">
@@ -1192,6 +1283,20 @@
 		</style>
 		<!-- ┌─┐ -->
 		<prop>
+			<name>MAS_LabelText_Dock</name>
+			<style>Label</style>
+			<TEXT_LABEL>
+				<text>┌───────────────── DOCK ─────────────────┐</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_LabelText_ExtLights</name>
+			<style>Label</style>
+			<TEXT_LABEL>
+				<text>┌──────────── EXTERIOR LIGHT ────────────┐</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_LabelText_FDAI1</name>
 			<style>Label</style>
 			<TEXT_LABEL>
@@ -1224,6 +1329,13 @@
 			<style>Label</style>
 			<TEXT_LABEL>
 				<text>┌───────── STABILIZATION CONTROL ─────────┐</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_LabelText_Stage</name>
+			<style>Label</style>
+			<TEXT_LABEL>
+				<text>┌── STAGE ──┐</text>
 			</TEXT_LABEL>
 		</prop>
 	</LabelText>
