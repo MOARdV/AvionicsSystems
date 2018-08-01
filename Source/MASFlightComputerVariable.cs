@@ -694,21 +694,27 @@ namespace AvionicsSystems
             }
             else if (methodParams[0].ParameterType == typeof(object))
             {
+                Variable newVar;
                 if (methodReturn == typeof(double))
                 {
                     Func<object, object, double> dm = DynamicMethodFactory.CreateDynFunc<object, object, double>(method);
-                    return new DoubleVariable(canonical, () => dm(tableInstance, parms[0].AsObject()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
+                    newVar = new DoubleVariable(canonical, () => dm(tableInstance, parms[0].AsObject()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
                 }
                 else if (methodReturn == typeof(string))
                 {
                     Func<object, object, string> dm = DynamicMethodFactory.CreateDynFunc<object, object, string>(method);
-                    return new StringVariable(canonical, () => dm(tableInstance, parms[0].AsObject()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
+                    newVar = new StringVariable(canonical, () => dm(tableInstance, parms[0].AsObject()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
                 }
                 else
                 {
                     Func<object, object, object> dm = DynamicMethodFactory.CreateDynFunc<object, object, object>(method);
-                    return new GenericVariable(canonical, () => dm(tableInstance, parms[0].AsObject()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
+                    newVar = new GenericVariable(canonical, () => dm(tableInstance, parms[0].AsObject()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
                 }
+                if (dependent)
+                {
+                    parms[0].RegisterNumericCallback(newVar.TriggerUpdate);
+                }
+                return newVar;
             }
             else
             {
