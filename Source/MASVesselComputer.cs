@@ -56,7 +56,7 @@ namespace AvionicsSystems
             {
                 if (_referenceTransform == null)
                 {
-                    UpdateReferenceTransform(vessel.ReferenceTransform);
+                    UpdateReferenceTransform(vessel.ReferenceTransform, true);
                 }
                 return _referenceTransform;
             }
@@ -224,7 +224,7 @@ namespace AvionicsSystems
                 // GetReferenceTransformPart() seems to be pointing at the
                 // previous part when the callback fires, so I use this hack
                 // to manually recompute it here.
-                UpdateReferenceTransform(vessel.ReferenceTransform);
+                UpdateReferenceTransform(vessel.ReferenceTransform, false);
 
                 // If there was a mouse double-click event, and we think there's
                 // a target, and KSP says there isn't a target, the user likely
@@ -333,7 +333,7 @@ namespace AvionicsSystems
 
             InitResourceData();
 
-            UpdateReferenceTransform(vessel.ReferenceTransform);
+            UpdateReferenceTransform(vessel.ReferenceTransform, true);
             vesselCrewed = (vessel.GetCrewCount() > 0);
             vesselActive = ActiveVessel(vessel);
             if (vesselCrewed)
@@ -1198,9 +1198,9 @@ namespace AvionicsSystems
             aeroDataValid = false;
         }
 
-        private void UpdateReferenceTransform(Transform newRefXform)
+        private void UpdateReferenceTransform(Transform newRefXform, bool forceEvaluate)
         {
-            if (_referenceTransform == newRefXform)
+            if (_referenceTransform == newRefXform && !forceEvaluate)
             {
                 return;
             }
@@ -1247,8 +1247,8 @@ namespace AvionicsSystems
         /// <param name="newMode"></param>
         private void onCameraChange(CameraManager.CameraMode newMode)
         {
-            //UpdateReferenceTransform(_referenceTransform);
             vesselActive = ActiveVessel(vessel);
+            UpdateReferenceTransform(_referenceTransform, vesselActive);
         }
 
         /// <summary>
