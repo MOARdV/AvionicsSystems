@@ -307,11 +307,15 @@ namespace AvionicsSystems
         /// Returns 1 if there is at least one action associated with the action
         /// group.  0 otherwise, or if an invalid action group is specified.
         /// </summary>
-        /// <param name="groupID">A number between 0 and 9 (inclusive).</param>
+        /// <param name="groupID">A number between 0 and 9 (inclusive) for stock action groups, 10 or larger for MAS action groups.</param>
         /// <returns>1 if there are actions for this action group, 0 otherwise.</returns>
         public double ActionGroupHasActions(double groupID)
         {
-            if (groupID < 0.0 || groupID > 9.0)
+            if (groupID >= 10.0)
+            {
+                return (fc.masActionGroup.ContainsKey((int)groupID)) ? 1.0 : 0.0;
+            }
+            else if (groupID < 0.0)
             {
                 return 0.0;
             }
@@ -328,7 +332,7 @@ namespace AvionicsSystems
         /// empty string.  If no memo was specified, the result is "AG0" for action
         /// group 0, "AG1" for action group 1, etc.
         /// </summary>
-        /// <param name="groupID">A number between 0 and 9 (inclusive)</param>
+        /// <param name="groupID">A number between 0 and 9 (inclusive).  Note that MAS action groups do not have an AG Memo.</param>
         /// <returns>The memo for the requested group, or an empty string.</returns>
         public string ActionGroupActiveMemo(double groupID)
         {
@@ -355,7 +359,7 @@ namespace AvionicsSystems
         /// empty string.  If no memo was specified, the result is "AG0" for action
         /// group 0, "AG1" for action group 1, etc.
         /// </summary>
-        /// <param name="groupID">A number between 0 and 9 (inclusive)</param>
+        /// <param name="groupID">A number between 0 and 9 (inclusive).  Note that MAS action groups do not have an AG Memo.</param>
         /// <param name="active">Whether the memo is for the active (true) or inactive (false) setting.</param>
         /// <returns>The memo for the requested group and state, or an empty string.</returns>
         public string ActionGroupMemo(double groupID, bool active)
@@ -377,11 +381,23 @@ namespace AvionicsSystems
         /// <summary>
         /// Get the current state of the specified action group.
         /// </summary>
-        /// <param name="groupID">A number between 0 and 9 (inclusive)</param>
+        /// <param name="groupID">A number between 0 and 9 (inclusive) for stock action groups, 10 or larger for MAS action groups.</param>
         /// <returns>1 if active, 0 if inactive</returns>
         public double GetActionGroup(double groupID)
         {
-            if (groupID < 0.0 || groupID > 9.0)
+            if (groupID >= 10.0)
+            {
+                MASActionGroup actionGroup;
+                if (fc.masActionGroup.TryGetValue((int)groupID, out actionGroup))
+                {
+                    return (actionGroup.GetState()) ? 1.0 : 0.0;
+                }
+                else
+                {
+                    return 0.0;
+                }
+            }
+            else if (groupID < 0.0)
             {
                 return 0.0;
             }
@@ -394,26 +410,53 @@ namespace AvionicsSystems
         /// <summary>
         /// Set the specified action group to the requested state.
         /// </summary>
-        /// <param name="groupID">A number between 0 and 9 (inclusive)</param>
+        /// <param name="groupID">A number between 0 and 9 (inclusive) for stock action groups, 10 or larger for MAS action groups.</param>
         /// <param name="active">true or false to set the state.</param>
-        public void SetActionGroup(double groupID, bool active)
+        /// <returns>1 if the action group ID was valid, 0 otherwise.</returns>
+        public double SetActionGroup(double groupID, bool active)
         {
-            if (groupID >= 0.0 && groupID <= 9.0)
+            if (groupID >= 10.0)
+            {
+                MASActionGroup actionGroup;
+                if (fc.masActionGroup.TryGetValue((int)groupID, out actionGroup))
+                {
+                    actionGroup.SetState(active);
+
+                    return 1.0;
+                }
+            }
+            else if (groupID >= 0.0)
             {
                 vessel.ActionGroups.SetGroup(ags[(int)groupID], active);
+                return 1.0;
             }
+
+            return 0.0;
         }
 
         /// <summary>
-        /// Toggle the action group.
+        /// Toggle the selected action group or MAS action group.
         /// </summary>
-        /// <param name="groupID">A number between 0 and 9 (inclusive)</param>
-        public void ToggleActionGroup(double groupID)
+        /// <param name="groupID">A number between 0 and 9 (inclusive) for stock action groups, 10 or larger for MAS action groups.</param>
+        /// <returns>1 if the action group ID was valid, 0 otherwise.</returns>
+        public double ToggleActionGroup(double groupID)
         {
-            if (groupID >= 0.0 && groupID <= 9.0)
+            if (groupID >= 10.0)
+            {
+                MASActionGroup actionGroup;
+                if (fc.masActionGroup.TryGetValue((int)groupID, out actionGroup))
+                {
+                    actionGroup.Toggle();
+                    return 1.0;
+                }
+            }
+            else if (groupID >= 0.0)
             {
                 vessel.ActionGroups.ToggleGroup(ags[(int)groupID]);
+                return 1.0;
             }
+
+            return 0.0;
         }
         #endregion
 
@@ -3090,9 +3133,9 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double GetMultiModeEngineMode()
         {
-            for (int i=vc.multiModeEngines.Length; i>=0; --i)
+            for (int i = vc.multiModeEngines.Length; i >= 0; --i)
             {
-                if(vc.multiModeEngines[i].runningPrimary == false)
+                if (vc.multiModeEngines[i].runningPrimary == false)
                 {
                     return 1.0;
                 }

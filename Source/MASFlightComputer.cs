@@ -197,6 +197,11 @@ namespace AvionicsSystems
         internal bool anyThrottleKeysPressed;
 
         /// <summary>
+        /// Custom MAS Action Group dictionary.
+        /// </summary>
+        internal Dictionary<int, MASActionGroup> masActionGroup = new Dictionary<int, MASActionGroup>();
+
+        /// <summary>
         /// Reference to the current vessel computer.
         /// </summary>
         internal MASVesselComputer vc;
@@ -907,6 +912,7 @@ namespace AvionicsSystems
 
                     dependentLuaMethods.Sort();
                 }
+
                 Vessel vessel = this.vessel;
 
                 if (string.IsNullOrEmpty(flightComputerId))
@@ -1125,9 +1131,9 @@ namespace AvionicsSystems
                 // already been restored, so check if the persistent already exists,
                 // first.
                 // Also restore named color per-part overrides
+                ConfigNode myNode = Utility.GetPartModuleConfigNode(part, typeof(MASFlightComputer).Name, 0);
                 try
                 {
-                    ConfigNode myNode = Utility.GetPartModuleConfigNode(part, typeof(MASFlightComputer).Name, 0);
                     ConfigNode persistentSeed = myNode.GetNode("PERSISTENT_VARIABLES");
                     if (persistentSeed != null)
                     {
@@ -1161,6 +1167,27 @@ namespace AvionicsSystems
                             string name = "COLOR_" + (colorConfig[defIdx].GetValue("name").Trim());
                             Color32 color = ConfigNode.ParseColor32(colorConfig[defIdx].GetValue("color").Trim());
                             namedColors[name] = color;
+                        }
+                    }
+                }
+                catch
+                {
+
+                }
+                try
+                {
+                    ConfigNode[] actionGroupConfig = myNode.GetNodes("MAS_ACTION_GROUP");
+                    for (int agIdx = 0; agIdx < actionGroupConfig.Length; ++agIdx)
+                    {
+                        MASActionGroup ag = new MASActionGroup(actionGroupConfig[agIdx]);
+                        if (masActionGroup.ContainsKey(ag.actionGroupId))
+                        {
+                            Utility.LogError(this, "Found duplicate MAS_ACTION_GROUP id {0} ... duplicate AG was discarded", ag.actionGroupId);
+                        }
+                        else
+                        {
+                            ag.Rebuild(vessel.Parts);
+                            masActionGroup.Add(ag.actionGroupId, ag);
                         }
                     }
                 }
@@ -1461,6 +1488,12 @@ namespace AvionicsSystems
                 transferProxy.vc = vc;
                 transferProxy.vessel = vessel;
                 vtolProxy.UpdateVessel(vessel, vc);
+
+                List<Part> parts = vessel.parts;
+                foreach (var pair in masActionGroup)
+                {
+                    pair.Value.Rebuild(parts);
+                }
             }
             UpdateLocalCrew();
         }
