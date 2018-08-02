@@ -243,6 +243,61 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Interface class for MASActionGroup control of ModuleRCS.
+        /// </summary>
+        internal class MASActionModuleRCS : MASAction
+        {
+            ModuleRCS rcsModule;
+
+            internal MASActionModuleRCS(ModuleRCS animationModule, ActionType action)
+                : base(action)
+            {
+                this.rcsModule = animationModule;
+            }
+
+            internal override bool GetState()
+            {
+                return rcsModule.rcsEnabled;
+            }
+
+            internal override void Toggle()
+            {
+                if (GetState())
+                {
+                    if (action == ActionType.Toggle || action == ActionType.Deactivate)
+                    {
+                        rcsModule.rcsEnabled = false;
+                    }
+                }
+                else
+                {
+                    if (action == ActionType.Toggle || action == ActionType.Activate)
+                    {
+                        rcsModule.rcsEnabled = true;
+                    }
+                }
+            }
+
+            internal override void SetState(bool newState)
+            {
+                if (newState && !GetState())
+                {
+                    if (action == ActionType.Toggle || action == ActionType.Activate)
+                    {
+                        rcsModule.rcsEnabled = false;
+                    }
+                }
+                else if (!newState && GetState())
+                {
+                    if (action == ActionType.Toggle || action == ActionType.Deactivate)
+                    {
+                        rcsModule.rcsEnabled = true;
+                    }
+                }
+            }
+        }
+
         // MASActionGroup implementation starts here.
         internal readonly string name;
         internal readonly int actionGroupId;
@@ -291,24 +346,52 @@ namespace AvionicsSystems
             int numTemplates = actionTemplate.Length;
             for (int templateIdx = 0; templateIdx < numTemplates; ++templateIdx)
             {
-                List<Part> relevantParts = parts.FindAll(x => x.name == actionTemplate[templateIdx].partName);
+                // This is kind-of lame.  The part name for the root part has " (vesselName)" tacked to the end of it
+                // (ie, "SomePart (Untitled Craft)"), so I can't do a simple string comparison.
+                string templateName = actionTemplate[templateIdx].partName;
+                List<Part> relevantParts = parts.FindAll((Part x) =>
+                {
+                    int idxSpace = x.name.IndexOf(' ');
+                    if (idxSpace > 0)
+                    {
+                        return x.name.Substring(0, idxSpace) == templateName;
+                    }
+                    else
+                    {
+                        return x.name == templateName;
+                    }
+                });
+                //Utility.LogMessage(this, "Found {0} parts of name {1}", relevantParts.Count, actionTemplate[templateIdx].partName);
                 foreach (Part p in relevantParts)
                 {
                     switch (actionTemplate[templateIdx].module)
                     {
+                        case "ModuleAnimateGeneric":
+                            List<ModuleAnimateGeneric> mag = p.FindModulesImplementing<ModuleAnimateGeneric>();
+                            //Utility.LogMessage(this, "Found {0} ModuleAnimateGeneric", mag.Count);
+                            foreach (ModuleAnimateGeneric magx in mag)
+                            {
+                                newAction.Add(new MASActionModuleAnimateGeneric(magx, actionTemplate[templateIdx].action));
+                            }
+                            break;
                         case "ModuleLight":
                             List<ModuleLight> ml = p.FindModulesImplementing<ModuleLight>();
+                            //Utility.LogMessage(this, "Found {0} ModuleLight", ml.Count);
                             foreach (ModuleLight mlx in ml)
                             {
                                 newAction.Add(new MASActionModuleLight(mlx, actionTemplate[templateIdx].action));
                             }
                             break;
-                        case "ModuleAnimateGeneric":
-                            List<ModuleAnimateGeneric> mag = p.FindModulesImplementing<ModuleAnimateGeneric>();
-                            foreach (ModuleAnimateGeneric magx in mag)
+                        case "ModuleRCS":
+                            List<ModuleRCS> mr = p.FindModulesImplementing<ModuleRCS>();
+                            //Utility.LogMessage(this, "Found {0} ModuleRCS", mr.Count);
+                            foreach (ModuleRCS mrx in mr)
                             {
-                                newAction.Add(new MASActionModuleAnimateGeneric(magx, actionTemplate[templateIdx].action));
+                                newAction.Add(new MASActionModuleRCS(mrx, actionTemplate[templateIdx].action));
                             }
+                            break;
+                        default:
+                            Utility.LogWarning(this, "Found unrecognized module \"{0}\" for MAS_ACTION_GROUP {1}", actionTemplate[templateIdx].module, name);
                             break;
                     }
                 }
