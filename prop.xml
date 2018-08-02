@@ -1268,20 +1268,15 @@
 				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
 				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
 			</TEXT_LABEL>
-			<COLOR_SHIFT id="0">
-				<name>Plate Diffuse</name>
-				<transform>SmallLablePlate</transform>
-				<passiveColor>COLOR_ASET_PLATEBKG_DIFFUSE_PASSIVECOLOR</passiveColor>
-				<colorName>_Color</colorName>
-			</COLOR_SHIFT>
-			<COLOR_SHIFT id="1">
-				<name>Plate Emissive</name>
-				<transform>SmallLablePlate</transform>
-				<passiveColor>COLOR_ASET_PLATEBKG_EMISSIVE_PASSIVECOLOR</passiveColor>
-				<colorName>_EmissiveColor</colorName>
-			</COLOR_SHIFT>
 		</style>
 		<!-- ┌─┐ -->
+		<prop>
+			<name>MAS_LabelText_ActionGroup</name>
+			<style>Label</style>
+			<TEXT_LABEL>
+				<text>┌───────────── ACTION GROUP ─────────────┐</text>
+			</TEXT_LABEL>
+		</prop>
 		<prop>
 			<name>MAS_LabelText_Dock</name>
 			<style>Label</style>
@@ -2104,7 +2099,7 @@
 				<blend>true</blend>
 			</COLOR_SHIFT>
 			<TEXTURE_SHIFT id="0">
-				<name>Arrow Color</name>
+				<name>Label Color</name>
 				<transform>LabelObj</transform>
 				<layers>_MainTex _Emissive</layers>
 				<!-- 0,0 = red | 0.2, 0.0 - yellow | 0.4, 0.0 - green | 0.0, 0.1 - white | 0.2, 0.1 - black | 0.4, 0.1 - grey -->
@@ -2222,6 +2217,13 @@
 				<layers>_MainTex _Emissive</layers>
 				<startUV>0.5, 0.6</startUV>
 			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="6">
+				<name>Arrow color</name>
+				<transform>ArrowRightObj</transform>
+				<layers>_MainTex _Emissive</layers>
+				<!-- 0,0 = red | x = 0.2, y = 0.0 - yellow | x = 0.4, y = 0.0 - green | x = 0.0, y = 0.1 - white | x = 0.2, y = 0.1 - black | x = 0.4, y = 0.1 - grey  -->
+				<startUV>0.0, 0.1</startUV>
+			</TEXTURE_SHIFT>
 		</style>
 		<prop>
 			<name>MAS_NASA_Gauge_CommNet_Strength</name>
@@ -2253,6 +2255,32 @@
 			</TEXTURE_SHIFT>
 		</prop>
 		<prop>
+			<name>MAS_NASA_Gauge_LiquidFuel</name>
+			<style>Percentage</style>
+			<ROTATION>
+				<variable>fc.Conditioned(fc.ResourcePercent("LiquidFuel"))</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>FUEL</text>
+			</TEXT_LABEL>
+			<TEXTURE_SHIFT id="1">
+				<startUV>-0.2, -0.1</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_NASA_Gauge_LiquidHydrogen</name>
+			<style>Percentage</style>
+			<ROTATION>
+				<variable>fc.Conditioned(fc.ResourcePercent("LqdHydrogen"))</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>LH2</text>
+			</TEXT_LABEL>
+			<TEXTURE_SHIFT id="1">
+				<startUV>-0.2, -0.1</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
 			<name>MAS_NASA_Gauge_Monopropellant</name>
 			<style>Percentage</style>
 			<ROTATION>
@@ -2260,6 +2288,19 @@
 			</ROTATION>
 			<TEXT_LABEL id="0">
 				<text>RCS</text>
+			</TEXT_LABEL>
+			<TEXTURE_SHIFT id="1">
+				<startUV>-0.2, -0.1</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_NASA_Gauge_Oxidizer</name>
+			<style>Percentage</style>
+			<ROTATION>
+				<variable>fc.Conditioned(fc.ResourcePercent("Oxidizer"))</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>OXIDIZER</text>
 			</TEXT_LABEL>
 			<TEXTURE_SHIFT id="1">
 				<startUV>-0.2, -0.1</startUV>
