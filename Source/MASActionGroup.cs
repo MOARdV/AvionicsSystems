@@ -244,16 +244,115 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Interface class for MASActionGroup control of ModuleDecouple.
+        /// </summary>
+        internal class MASActionModuleDecouple : MASAction
+        {
+            ModuleDecouple decoupleModule;
+
+            internal MASActionModuleDecouple(ModuleDecouple decoupleModule, ActionType action)
+                : base(action)
+            {
+                this.decoupleModule = decoupleModule;
+            }
+
+            internal override bool GetState()
+            {
+                return decoupleModule.isDecoupled;
+            }
+
+            internal override void Toggle()
+            {
+                if (!GetState())
+                {
+                    if (action == ActionType.Toggle || action == ActionType.Activate)
+                    {
+                        decoupleModule.Decouple();
+                    }
+                }
+            }
+
+            internal override void SetState(bool newState)
+            {
+                if (newState && !GetState())
+                {
+                    if (action == ActionType.Toggle || action == ActionType.Activate)
+                    {
+                        decoupleModule.Decouple();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Interface class for MASActionGroup control of ModuleEngines.
+        /// </summary>
+        internal class MASActionModuleEngines : MASAction
+        {
+            ModuleEngines engineModule;
+
+            internal MASActionModuleEngines(ModuleEngines engineModule, ActionType action)
+                : base(action)
+            {
+                this.engineModule = engineModule;
+            }
+
+            internal override bool GetState()
+            {
+                return engineModule.getIgnitionState;
+            }
+
+            internal override void Toggle()
+            {
+                if (GetState())
+                {
+                    if (engineModule.allowShutdown && (action == ActionType.Toggle || action == ActionType.Deactivate))
+                    {
+                        engineModule.Shutdown();
+                    }
+                }
+                else
+                {
+                    if (/*engineModule.allowRestart &&*/ (action == ActionType.Toggle || action == ActionType.Activate))
+                    {
+                        engineModule.Activate();
+                    }
+                }
+            }
+
+            internal override void SetState(bool newState)
+            {
+                Utility.LogMessage(this, "SetState({0})", newState);
+                if (!newState && GetState())
+                {
+                    if (engineModule.allowShutdown && (action == ActionType.Toggle || action == ActionType.Deactivate))
+                    {
+                        Utility.LogMessage(this, "... Shutdown");
+                        engineModule.Shutdown();
+                    }
+                }
+                else if (newState && !GetState())
+                {
+                    if (/*engineModule.allowRestart &&*/ (action == ActionType.Toggle || action == ActionType.Activate))
+                    {
+                        Utility.LogMessage(this, "... Activate");
+                        engineModule.Activate();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Interface class for MASActionGroup control of ModuleRCS.
         /// </summary>
         internal class MASActionModuleRCS : MASAction
         {
             ModuleRCS rcsModule;
 
-            internal MASActionModuleRCS(ModuleRCS animationModule, ActionType action)
+            internal MASActionModuleRCS(ModuleRCS rcsModule, ActionType action)
                 : base(action)
             {
-                this.rcsModule = animationModule;
+                this.rcsModule = rcsModule;
             }
 
             internal override bool GetState()
@@ -281,14 +380,14 @@ namespace AvionicsSystems
 
             internal override void SetState(bool newState)
             {
-                if (newState && !GetState())
+                if (!newState && GetState())
                 {
                     if (action == ActionType.Toggle || action == ActionType.Activate)
                     {
                         rcsModule.rcsEnabled = false;
                     }
                 }
-                else if (!newState && GetState())
+                else if (newState && !GetState())
                 {
                     if (action == ActionType.Toggle || action == ActionType.Deactivate)
                     {
@@ -374,6 +473,22 @@ namespace AvionicsSystems
                                 newAction.Add(new MASActionModuleAnimateGeneric(magx, actionTemplate[templateIdx].action));
                             }
                             break;
+                        case "ModuleDecouple":
+                            List<ModuleDecouple> md = p.FindModulesImplementing<ModuleDecouple>();
+                            //Utility.LogMessage(this, "Found {0} ModuleDecouple", md.Count);
+                            foreach (ModuleDecouple mdx in md)
+                            {
+                                newAction.Add(new MASActionModuleDecouple(mdx, actionTemplate[templateIdx].action));
+                            }
+                            break;
+                        case "ModuleEngines":
+                            List<ModuleEngines> me = p.FindModulesImplementing<ModuleEngines>();
+                            //Utility.LogMessage(this, "Found {0} ModuleEngines", me.Count);
+                            foreach (ModuleEngines mex in me)
+                            {
+                                newAction.Add(new MASActionModuleEngines(mex, actionTemplate[templateIdx].action));
+                            }
+                            break;
                         case "ModuleLight":
                             List<ModuleLight> ml = p.FindModulesImplementing<ModuleLight>();
                             //Utility.LogMessage(this, "Found {0} ModuleLight", ml.Count);
@@ -417,7 +532,8 @@ namespace AvionicsSystems
         {
             if (action.Length > 0)
             {
-                for (int i = action.Length - 1; i >= 0; --i)
+                int count = action.Length;
+                for (int i = 0; i < count; ++i)
                 {
                     action[i].Toggle();
                 }
@@ -432,7 +548,8 @@ namespace AvionicsSystems
         {
             if (action.Length > 0)
             {
-                for (int i = action.Length - 1; i >= 0; --i)
+                int count = action.Length;
+                for (int i = 0; i < count; ++i)
                 {
                     action[i].SetState(newState);
                 }
