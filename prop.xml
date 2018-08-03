@@ -479,7 +479,7 @@
 			</TEXT_LABEL>
 		</prop>
 	</crewManual>
-	
+
 	<!--
 	Flight director / attitude indicator.  Included here
 	because MAS can support an arbitrary number of them, provided you create the
@@ -1270,6 +1270,13 @@
 			</TEXT_LABEL>
 		</style>
 		<!-- ┌─┐ -->
+		<prop>
+			<name>MAS_LabelText_Abort</name>
+			<style>Label</style>
+			<TEXT_LABEL>
+				<text>┌───────────────── ABORT ────────────────┐</text>
+			</TEXT_LABEL>
+		</prop>
 		<prop>
 			<name>MAS_LabelText_ActionGroup</name>
 			<style>Label</style>
@@ -2248,7 +2255,7 @@
 				<variable>fc.Conditioned(fc.PropellantStagePercent())</variable>
 			</ROTATION>
 			<TEXT_LABEL id="0">
-				<text>FUEL</text>
+				<text>STG. PROP.</text>
 			</TEXT_LABEL>
 			<TEXTURE_SHIFT id="1">
 				<startUV>-0.2, -0.1</startUV>
@@ -2284,10 +2291,10 @@
 			<name>MAS_NASA_Gauge_Monopropellant</name>
 			<style>Percentage</style>
 			<ROTATION>
-				<variable>fc.Conditioned(fc.RcsPercent())</variable>
+				<variable>fc.Conditioned(fc.ResourcePercent("MonoPropellant"))</variable>
 			</ROTATION>
 			<TEXT_LABEL id="0">
-				<text>RCS</text>
+				<text>MONOPROP</text>
 			</TEXT_LABEL>
 			<TEXTURE_SHIFT id="1">
 				<startUV>-0.2, -0.1</startUV>
@@ -2319,5 +2326,75 @@
 				<startUV>-0.2, -0.1</startUV>
 			</TEXTURE_SHIFT>
 		</prop>
+		<prop>
+			<name>MAS_NASA_Gauge_RcsFuel</name>
+			<style>Percentage</style>
+			<ROTATION>
+				<variable>fc.Conditioned(fc.RcsPercent())</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>RCS</text>
+			</TEXT_LABEL>
+			<TEXTURE_SHIFT id="1">
+				<startUV>-0.2, -0.1</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
 	</NasaGauge>
+
+	<Talkback folder="ASET_Talkback_Indicator">
+		<style name="TB2">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/ASET_Talkback_Indicator/Talkback_2pos</model>
+			</MODEL>
+			<ANIMATION>
+				<name>TB animation</name>
+				<animation>TB_2POS</animation>
+				<speed>16</speed>
+			</ANIMATION>
+			<COLOR_SHIFT>
+				<name>Talkback Backlight</name>
+				<transform>WarningPlate</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_NASAGAUGESCALE_ACTIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<TEXT_LABEL>
+				<name>Caption</name>
+				<transform>TextTopObj</transform>
+				<fontSize>6.5</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>UpperCenter</anchor>
+				<transformOffset>0, -0.005</transformOffset>
+				<emissive>active</emissive>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+			</TEXT_LABEL>
+			<TEXTURE_SHIFT>
+				<name>Talkback values</name>
+				<transform>WarningPlate</transform>
+				<layers>_MainTex _Emissive</layers>
+				<!-- 0,0 = hash / nothing | -0.5,0 -->
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_TB2_RCS</name>
+			<style>TB2</style>
+			<ANIMATION>
+				<!-- On/Off animation is reversed - 1 is off, 0 is on -->
+				<variable>fc.Conditioned(1 - fc.GetRCS())</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>RCS</text>
+			</TEXT_LABEL>
+			<TEXTURE_SHIFT>
+				<startUV>-0.5, 0</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+	</Talkback>
 </PropConfig>
