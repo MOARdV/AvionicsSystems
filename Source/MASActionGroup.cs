@@ -566,7 +566,6 @@ namespace AvionicsSystems
                                     }
                                     else
                                     {
-                                        Utility.LogMessage(this, "Found {0}.{1}", reflectedAction[0], reflectedAction[1]);
                                         Action<object> theAction = DynamicMethodFactory.CreateAction<object>(mi);
                                         newAction.Add(new MASActionGeneric(mod, theAction, actionTemplate[templateIdx].action));
                                     }
@@ -615,8 +614,7 @@ namespace AvionicsSystems
         {
             if (action.Length > 0)
             {
-                int count = action.Length;
-                for (int i = 0; i < count; ++i)
+                for (int i = 0; i < action.Length; ++i)
                 {
                     action[i].Toggle();
                 }
@@ -631,8 +629,7 @@ namespace AvionicsSystems
         {
             if (action.Length > 0)
             {
-                int count = action.Length;
-                for (int i = 0; i < count; ++i)
+                for (int i = 0; i < action.Length; ++i)
                 {
                     action[i].SetState(newState);
                 }
