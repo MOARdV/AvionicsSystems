@@ -24,6 +24,7 @@
  ****************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -103,6 +104,37 @@ namespace AvionicsSystems
             internal abstract void Toggle();
             internal abstract void SetState(bool newState);
         };
+
+        /// <summary>
+        /// Interface class for MASActionGroup control of ModuleEngines.
+        /// </summary>
+        internal class MASActionGeneric : MASAction
+        {
+            PartModule module;
+            Action<object> trigger;
+
+            internal MASActionGeneric(PartModule module, Action<object> trigger, ActionType action)
+                : base(action)
+            {
+                this.module = module;
+                this.trigger = trigger;
+            }
+
+            internal override bool GetState()
+            {
+                return false;
+            }
+
+            internal override void Toggle()
+            {
+                trigger(module);
+            }
+
+            internal override void SetState(bool newState)
+            {
+                trigger(module);
+            }
+        }
 
         /// <summary>
         /// Interface class for MASActionGroup control of ModuleLight.
@@ -461,53 +493,95 @@ namespace AvionicsSystems
                     }
                 });
                 //Utility.LogMessage(this, "Found {0} parts of name {1}", relevantParts.Count, actionTemplate[templateIdx].partName);
-                foreach (Part p in relevantParts)
+                if (relevantParts.Count > 0)
                 {
-                    switch (actionTemplate[templateIdx].module)
+                    bool warned = false;
+                    string[] reflectedAction = actionTemplate[templateIdx].module.Split('.');
+                    foreach (Part p in relevantParts)
                     {
-                        case "ModuleAnimateGeneric":
-                            List<ModuleAnimateGeneric> mag = p.FindModulesImplementing<ModuleAnimateGeneric>();
-                            //Utility.LogMessage(this, "Found {0} ModuleAnimateGeneric", mag.Count);
-                            foreach (ModuleAnimateGeneric magx in mag)
-                            {
-                                newAction.Add(new MASActionModuleAnimateGeneric(magx, actionTemplate[templateIdx].action));
-                            }
-                            break;
-                        case "ModuleDecouple":
-                            List<ModuleDecouple> md = p.FindModulesImplementing<ModuleDecouple>();
-                            //Utility.LogMessage(this, "Found {0} ModuleDecouple", md.Count);
-                            foreach (ModuleDecouple mdx in md)
-                            {
-                                newAction.Add(new MASActionModuleDecouple(mdx, actionTemplate[templateIdx].action));
-                            }
-                            break;
-                        case "ModuleEngines":
-                            List<ModuleEngines> me = p.FindModulesImplementing<ModuleEngines>();
-                            //Utility.LogMessage(this, "Found {0} ModuleEngines", me.Count);
-                            foreach (ModuleEngines mex in me)
-                            {
-                                newAction.Add(new MASActionModuleEngines(mex, actionTemplate[templateIdx].action));
-                            }
-                            break;
-                        case "ModuleLight":
-                            List<ModuleLight> ml = p.FindModulesImplementing<ModuleLight>();
-                            //Utility.LogMessage(this, "Found {0} ModuleLight", ml.Count);
-                            foreach (ModuleLight mlx in ml)
-                            {
-                                newAction.Add(new MASActionModuleLight(mlx, actionTemplate[templateIdx].action));
-                            }
-                            break;
-                        case "ModuleRCS":
-                            List<ModuleRCS> mr = p.FindModulesImplementing<ModuleRCS>();
-                            //Utility.LogMessage(this, "Found {0} ModuleRCS", mr.Count);
-                            foreach (ModuleRCS mrx in mr)
-                            {
-                                newAction.Add(new MASActionModuleRCS(mrx, actionTemplate[templateIdx].action));
-                            }
-                            break;
-                        default:
-                            Utility.LogWarning(this, "Found unrecognized module \"{0}\" for MAS_ACTION_GROUP {1}", actionTemplate[templateIdx].module, name);
-                            break;
+                        switch (actionTemplate[templateIdx].module)
+                        {
+                            case "ModuleAnimateGeneric":
+                                List<ModuleAnimateGeneric> mag = p.FindModulesImplementing<ModuleAnimateGeneric>();
+                                //Utility.LogMessage(this, "Found {0} ModuleAnimateGeneric", mag.Count);
+                                foreach (ModuleAnimateGeneric magx in mag)
+                                {
+                                    newAction.Add(new MASActionModuleAnimateGeneric(magx, actionTemplate[templateIdx].action));
+                                }
+                                break;
+                            case "ModuleDecouple":
+                                List<ModuleDecouple> md = p.FindModulesImplementing<ModuleDecouple>();
+                                //Utility.LogMessage(this, "Found {0} ModuleDecouple", md.Count);
+                                foreach (ModuleDecouple mdx in md)
+                                {
+                                    newAction.Add(new MASActionModuleDecouple(mdx, actionTemplate[templateIdx].action));
+                                }
+                                break;
+                            case "ModuleEngines":
+                                List<ModuleEngines> me = p.FindModulesImplementing<ModuleEngines>();
+                                //Utility.LogMessage(this, "Found {0} ModuleEngines", me.Count);
+                                foreach (ModuleEngines mex in me)
+                                {
+                                    newAction.Add(new MASActionModuleEngines(mex, actionTemplate[templateIdx].action));
+                                }
+                                break;
+                            case "ModuleLight":
+                                List<ModuleLight> ml = p.FindModulesImplementing<ModuleLight>();
+                                //Utility.LogMessage(this, "Found {0} ModuleLight", ml.Count);
+                                foreach (ModuleLight mlx in ml)
+                                {
+                                    newAction.Add(new MASActionModuleLight(mlx, actionTemplate[templateIdx].action));
+                                }
+                                break;
+                            case "ModuleRCS":
+                                List<ModuleRCS> mr = p.FindModulesImplementing<ModuleRCS>();
+                                //Utility.LogMessage(this, "Found {0} ModuleRCS", mr.Count);
+                                foreach (ModuleRCS mrx in mr)
+                                {
+                                    newAction.Add(new MASActionModuleRCS(mrx, actionTemplate[templateIdx].action));
+                                }
+                                break;
+                            default:
+                                if (reflectedAction.Length != 2)
+                                {
+                                    if (!warned)
+                                    {
+                                        Utility.LogWarning(this, "Found unrecognized module \"{0}\" for MAS_ACTION_GROUP {1}", actionTemplate[templateIdx].module, name);
+                                        warned = true;
+                                    }
+                                }
+                                else if (p.Modules.Contains(reflectedAction[0]))
+                                {
+                                    PartModule mod = p.Modules[reflectedAction[0]];
+                                    Type t = mod.GetType();
+                                    MethodInfo mi = t.GetMethod(reflectedAction[1]);
+                                    if (mi == null || mi.GetParameters().Length > 0)
+                                    {
+                                        if (!warned)
+                                        {
+                                            Utility.LogWarning(this, "Did not find method \"{3}\" with 0 parameters in module \"{0}\" in part \"{2}\" for MAS_ACTION_GROUP {1}",
+                                                reflectedAction[0], name, p.name, reflectedAction[1]);
+                                            warned = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Utility.LogMessage(this, "Found {0}.{1}", reflectedAction[0], reflectedAction[1]);
+                                        Action<object> theAction = DynamicMethodFactory.CreateAction<object>(mi);
+                                        newAction.Add(new MASActionGeneric(mod, theAction, actionTemplate[templateIdx].action));
+                                    }
+                                }
+                                else
+                                {
+                                    if (!warned)
+                                    {
+                                        Utility.LogWarning(this, "Did not find module \"{0}\" in part \"{2}\" for MAS_ACTION_GROUP {1}",
+                                            reflectedAction[0], name, p.name);
+                                        warned = true;
+                                    }
+                                }
+                                break;
+                        }
                     }
                 }
             }
@@ -523,6 +597,15 @@ namespace AvionicsSystems
         internal bool GetState()
         {
             return (action.Length > 0) ? action[0].GetState() : false;
+        }
+
+        /// <summary>
+        /// Returns true if there are any actions attached to this MAS AG.
+        /// </summary>
+        /// <returns></returns>
+        internal bool HasActions()
+        {
+            return (action.Length > 0);
         }
 
         /// <summary>

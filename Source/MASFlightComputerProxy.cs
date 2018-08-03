@@ -313,7 +313,15 @@ namespace AvionicsSystems
         {
             if (groupID >= 10.0)
             {
-                return (fc.masActionGroup.ContainsKey((int)groupID)) ? 1.0 : 0.0;
+                MASActionGroup ag;
+                if (fc.masActionGroup.TryGetValue((int)groupID, out ag))
+                {
+                    return (ag.HasActions()) ? 1.0 : 0.0;
+                }
+                else
+                {
+                    return 0.0;
+                }
             }
             else if (groupID < 0.0)
             {
