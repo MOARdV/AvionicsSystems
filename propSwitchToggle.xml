@@ -1116,6 +1116,25 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_tggl_GimbalLock_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleGimbalLock()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetGimbalsLocked()</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>GIMBAL</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>LOCK</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>FREE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_tggl_FuelCell_T1_G1_S</name>
 			<style>NASA Toggle Switch</style>
 			<COLLIDER_EVENT id="0">
@@ -1681,6 +1700,22 @@
 				<blend>true</blend>
 			</COLOR_SHIFT>
 		</style>
+		<prop>
+			<name>MAS_tggl_EngineEnable_T1_G1_C1_S</name>
+			<style>NASA Red Covered Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleEnginesEnabled()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetEnginesEnabled()</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>ENGINE$$$ARM</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>DISABLE</text>
+			</TEXT_LABEL>
+		</prop>
 		<prop>
 			<name>MAS_tggl_EnableRCS_T1_G1_C1_S</name>
 			<style>NASA Black Covered Toggle Switch</style>

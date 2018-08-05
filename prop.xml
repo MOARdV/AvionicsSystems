@@ -1187,6 +1187,36 @@
 			</TEXTURE_SHIFT>
 		</style>
 		<prop>
+			<name>MAS_RWL_Chatterer_Recv</name>
+			<style>Tablo</style>
+			<TEXT_LABEL>
+				<text>RECV</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_RWL_Green</activeColor>
+				<variable>fc.Conditioned(chatterer.Receiving())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0.0, 0.8</endUV>
+				<variable>fc.Conditioned(chatterer.Receiving())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_RWL_Chatterer_Xmit</name>
+			<style>Tablo</style>
+			<TEXT_LABEL>
+				<text>XMIT</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_RWL_Green</activeColor>
+				<variable>fc.Conditioned(chatterer.Transmitting())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0.0, 0.8</endUV>
+				<variable>fc.Conditioned(chatterer.Transmitting())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
 			<name>MAS_RWL_DockReady</name>
 			<style>Tablo</style>
 			<TEXT_LABEL>
