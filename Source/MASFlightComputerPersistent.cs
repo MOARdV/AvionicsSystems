@@ -336,6 +336,11 @@ namespace AvionicsSystems
         /// <returns></returns>
         internal object SetPersistent(string persistentName, object value)
         {
+            if (value == null)
+            {
+                Utility.LogError(this, "Trying to set {0} to null - check Lua scripts", persistentName);
+                value = "null";
+            }
             persistentVars[persistentName] = value;
             UpdatePersistent(persistentName);
             return value;
