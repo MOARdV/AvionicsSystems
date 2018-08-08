@@ -1,0 +1,469 @@
+<PropConfig>
+	<!--
+	This file is a prop configuration template for the Prop Config utility
+	described on the MAS wiki at https://github.com/MOARdV/AvionicsSystems/wiki/Prop-Config
+
+	The tool and this XML file are used to quickly generate multiple props
+	without the tedious effort of copying config files and making small edits
+	while hoping you didn't overlook something.
+
+	Copyright (c) 2018 MOARdV
+
+	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
+	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
+	-->
+
+	<!--
+	This file specifically contains styles for props that I've defined somewhere, but haven't
+	needed to deploy in the master props file.
+	-->
+
+	<!--
+	Digital display configured as 2, 3, 4, 5, or 12 digit 7-segment LEDs
+	-->
+	<DigitalIndicator_Emissive folder="DigitalIndicator_EmissiveScreen">
+		<style name="Digital Indicator">
+			<!-- 
+			Can replace the model with DigitalIndicator_EmisiiveScreen_3char, DigitalIndicator_EmisiiveScreen_4char, DigitalIndicator_EmisiiveScreen_5char, or DigitalIndicator_EmisiiveScreen_12char 
+			-->
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/DigitalIndicator_EmisiiveScreen_2char</model>
+				<texture>DigitalIndicator_Diffuse,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/DigitalIndicator_Diffuse</texture>
+				<texture>SmallLablePlateDiffuse,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/SmallLablePlateDiffuse</texture>
+				<texture>SmallLablePlateEmissive,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/SmallLablePlateEmissive</texture>
+			</MODEL>
+			<TRANSLATION id="0">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<endTranslation>0,0,0</endTranslation>
+				<startTranslation>0,-0.004,0</startTranslation>
+				<variable>fc.Conditioned(1)</variable>
+			</TRANSLATION>
+			<COLOR_SHIFT id="0">
+				<name>DigitalIndicatorScreenOFFObj</name>
+				<transform>DigitalIndicatorScreenOFFObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_DIFFUSE_PASSIVECOLOR</passiveColor>
+				<colorName>_Color</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>DigitalIndicatorScreenOFFObj</name>
+				<transform>DigitalIndicatorScreenOFFObj</transform>
+				<passiveColor>0,0,0,0</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_DIFFUSE_PASSIVECOLOR</passiveColor>
+				<colorName>_Color</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="3">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_EMISSIVE_PASSIVECOLOR</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<name>DisplayNameTextObj</name>
+				<transform>DisplayNameTextObj</transform>
+				<fontSize>4</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<text>CAPTION</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>DigitIndicatorTextObj</name>
+				<transform>DigitIndicatorTextObj</transform>
+				<fontSize>18</fontSize>
+				<transformOffset>-0.005, -0.001</transformOffset>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>active</emissive>
+				<passiveColor>0,0,0,0</passiveColor>
+				<activeColor>COLOR_ASET_NUMINPUT_DISPLAY_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(1)</variable>
+			</TEXT_LABEL>
+		</style>
+		<prop>
+			<name>MAS_VAP_DigInd_Emissive_5char_Altitude</name>
+			<style>Digital Indicator</style>
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/DigitalIndicator_EmisiiveScreen_5char</model>
+			</MODEL>
+			<TEXT_LABEL id="0">
+				<text>┌── ALTITUDE, KM ──┐</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0,5:00000}$#$fc.Floor(fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input"))</text>
+			</TEXT_LABEL>
+		</prop>
+	</DigitalIndicator_Emissive>
+
+	<!--
+	Numeric input 'dial' (knob).  Uses click-and-drag colliders to set values.
+	-->
+	<NumInputDial folder="NumInputDial_NoButton">
+		<style name="NumInputDial No Button">
+			<MODEL>
+				<model>ASET/ASET_Props/Control/NumInputDial_NoButton/NumInputDial_NoButton</model>
+			</MODEL>
+			<TEXT_LABEL id="0">
+				<name>Top Caption</name>
+				<transform>NameTopTextObj</transform>
+				<fontSize>6</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.0359,-0.015</transformOffset>
+				<emissive>active</emissive>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<text>TOP CAPTION</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Bottom Caption</name>
+				<transform>NameBottomTextObj</transform>
+				<fontSize>6</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>UpperCenter</anchor>
+				<transformOffset>0.0359,0</transformOffset>
+				<emissive>active</emissive>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<text>BOTTOM CAPTION</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>Left Caption</name>
+				<transform>TextLeftObj</transform>
+				<fontSize>6</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Right</alignment>
+				<anchor>MiddleRight</anchor>
+				<transformOffset>0.03592,-0.01</transformOffset>
+				<emissive>active</emissive>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<text>LEFT CAPTION</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<name>Right Caption</name>
+				<transform>TextRightObj</transform>
+				<fontSize>6</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Left</alignment>
+				<anchor>MiddleLeft</anchor>
+				<transformOffset>0,-0.01</transformOffset>
+				<emissive>active</emissive>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<text>RIGHT CAPTION</text>
+			</TEXT_LABEL>
+			<COLLIDER_EVENT id="0">
+				<name>Knob Top</name>
+				<collider>DialColliderPlus</collider>
+				<sound>ASET/ASET_Props/Sounds/NID02</sound>
+				<volume>0.5</volume>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<name>Knob Bottom</name>
+				<collider>DialColliderMinus</collider>
+				<sound>ASET/ASET_Props/Sounds/NID02</sound>
+				<volume>0.5</volume>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<name>Knob rotation</name>
+				<transform>KnobGrp</transform>
+				<variable>0</variable>
+				<startRotation>0, 0, 0</startRotation>
+				<endRotation>0, 0, 360</endRotation>
+				<range>0, 250</range>
+				<modulo>250</modulo>
+				<blend>true</blend>
+				<speed>1</speed>
+				<longPath>true</longPath>
+			</ROTATION>
+			<ANIMATION>
+				<name>Knob cover</name>
+				<comment>0 - clear top, 1 - Arrow, 2 - Course icon, 3 - Dash mark, 4 - Heading icon, 5 - Point mark, 6 - wide arrow</comment>
+				<animation>NID_nb_PictSwitchAnim</animation>
+				<variable>0 / 7</variable>
+			</ANIMATION>
+		</style>
+	</NumInputDial>
+
+	<!--
+	4 mechanical thumbwheels with numeric values, based on a control in the STS.
+	-->
+	<STS_Thumbwheel folder="STS_Thumbwheels_Assembly">
+		<style name="4 digit">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/STS_Thumbwheels_Assembly/STS_Thumbwheels_Assembly_4W</model>
+			</MODEL>
+			<COLOR_SHIFT>
+				<name>Backlight</name>
+				<transform>TW_W1_Drum_Obj, TW_W2_Drum_Obj, TW_W3_Drum_Obj, TW_W4_Drum_Obj</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_MARK_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<name>Lower Caption</name>
+				<transform>TextTopObj2</transform>
+				<fontSize>8</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0, -0.005</transformOffset>
+				<emissive>active</emissive>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<text>LOWER CAPTION</text>
+			</TEXT_LABEL>
+			<ROTATION id="0">
+				<comment>Units</comment>
+				<name>Units</name>
+				<transform>TW_W4_Grp</transform>
+				<variable>0</variable>
+				<startRotation>0, 0, 0</startRotation>
+				<endRotation>-360, 0, 0</endRotation>
+				<range>0, 10</range>
+				<modulo>10</modulo>
+				<blend>true</blend>
+				<speed>1</speed>
+				<longPath>true</longPath>
+			</ROTATION>
+			<COLLIDER_EVENT id="0">
+				<name>Units+</name>
+				<collider>TW_W4_Collider_UP</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<name>Units-</name>
+				<collider>TW_W4_Collider_DOWN</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ROTATION id="1">
+				<comment>Tens</comment>
+				<name>Tens</name>
+				<transform>TW_W3_Grp</transform>
+				<variable>0</variable>
+				<startRotation>0, 0, 0</startRotation>
+				<endRotation>-360, 0, 0</endRotation>
+				<range>0, 10</range>
+				<modulo>10</modulo>
+				<blend>true</blend>
+				<speed>1</speed>
+				<longPath>true</longPath>
+			</ROTATION>
+			<COLLIDER_EVENT id="2">
+				<name>Tens+</name>
+				<collider>TW_W3_Collider_UP</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="3">
+				<name>Tens-</name>
+				<collider>TW_W3_Collider_DOWN</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ROTATION id="2">
+				<comment>Hundreds</comment>
+				<name>Hundreds</name>
+				<transform>TW_W2_Grp</transform>
+				<variable>0</variable>
+				<startRotation>0, 0, 0</startRotation>
+				<endRotation>-360, 0, 0</endRotation>
+				<range>0, 10</range>
+				<modulo>10</modulo>
+				<blend>true</blend>
+				<speed>1</speed>
+				<longPath>true</longPath>
+			</ROTATION>
+			<COLLIDER_EVENT id="4">
+				<name>Hundreds+</name>
+				<collider>TW_W2_Collider_UP</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="5">
+				<name>Hundreds-</name>
+				<collider>TW_W2_Collider_DOWN</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ROTATION id="3">
+				<comment>Thousands</comment>
+				<name>Thousands</name>
+				<transform>TW_W1_Grp</transform>
+				<variable>0</variable>
+				<startRotation>0, 0, 0</startRotation>
+				<endRotation>-360, 0, 0</endRotation>
+				<range>0, 10</range>
+				<modulo>10</modulo>
+				<blend>true</blend>
+				<speed>1</speed>
+				<longPath>true</longPath>
+			</ROTATION>
+			<COLLIDER_EVENT id="6">
+				<name>Thousands+</name>
+				<collider>TW_W1_Collider_UP</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="7">
+				<name>Thousands-</name>
+				<collider>TW_W1_Collider_DOWN</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+		</style>
+	</STS_Thumbwheel>
+	
+	<PushButton folder="Push_Button_Modular">
+		<!-- Looks like a retro button, except with a glow border, upper/lower captions, and a configurable backlight color -->
+		<style name="Backlit Button">
+			<MODEL id="0">
+				<comment>White full cap</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap_White</model>
+				<texture>pb_Full_Cap_Black,ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap_Black</texture>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Collider</model>
+			</MODEL>
+			<MODEL id="2">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Bcklt_2</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<name>Collider</name>
+				<collider>pb_Collider</collider>
+				<sound>ASET/ASET_Props/Sounds/pb_Push02</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<name>Button press animation</name>
+				<animation>pb_PushAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<name>Button Text</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>never</emissive>
+				<passiveColor>COLOR_MOARdV_UnlitBlackText</passiveColor>
+				<text>BUTTN</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Top Caption</name>
+				<transform>PanelTextTop_bklt</transform>
+				<fontSize>6.1</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>CAPTION</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>Bottom Caption</name>
+				<transform>PanelTextBottom_bklt</transform>
+				<fontSize>6.1</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>UpperCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>CAPTION</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>Inactive Button Color</name>
+				<transform>pb_Full_Lens_Obj</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Active Button Color</name>
+				<transform>pb_Full_LensON_Obj</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<!-- Override these -->
+				<activeColor>0,0,0,255</activeColor>
+				<variable>0</variable>
+			</COLOR_SHIFT>
+			<TRANSLATION id="0">
+				<name>pb_Full_LensON_Obj</name>
+				<transform>pb_Full_LensON_Obj</transform>
+				<startTranslation>0,0,0</startTranslation>
+				<endTranslation>0,0.0003,0</endTranslation>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<name>pb_Full_Lens_Obj</name>
+				<transform>pb_Full_Lens_Obj</transform>
+				<startTranslation>0,0,0</startTranslation>
+				<endTranslation>0,-0.0003,0</endTranslation>
+			</TRANSLATION>
+			<TEXTURE_SHIFT>
+				<name>Button Glow</name>
+				<transform>pb_Full_Lens_Obj</transform>
+				<startUV>0, -0.5</startUV>
+				<endUV>0, 0</endUV>
+				<layers>_Emissive</layers>
+				<variable>fc.Conditioned(1)</variable>
+			</TEXTURE_SHIFT>
+			<COLOR_SHIFT id="2">
+				<name>Border</name>
+				<transform>GlowBorder</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+		</style>
+	</PushButton>
+</PropConfig>
