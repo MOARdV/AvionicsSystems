@@ -1014,6 +1014,8 @@ namespace AvionicsSystems
                 rc.id = 0;
                 rc.outputResource = MASConfig.ElectricCharge;
                 vc.resourceConverterList.Add(rc);
+                // The resourceConverterList changes - trigger a rebuild
+                vc.modulesInvalidated = true;
 
                 if (!MASPersistent.PersistentsLoaded)
                 {
