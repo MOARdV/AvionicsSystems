@@ -1116,6 +1116,25 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_tggl_ElecOutput_Scale_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("MAS_ElecOutput_Scale")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_ElecOutput_Scale")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>ELEC$$$SCALE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>x 10</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>x 1</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_tggl_GimbalLock_T1_G1_S</name>
 			<style>NASA Toggle Switch</style>
 			<COLLIDER_EVENT id="0">

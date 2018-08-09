@@ -4441,7 +4441,7 @@
 				<animation>pb_PushAnim</animation>
 				<animationSpeed>1.0</animationSpeed>
 			</ANIMATION_PLAYER>
-			<TEXT_LABEL id="0">
+			<TEXT_LABEL>
 				<name>Button Text</name>
 				<transform>Legend_Center</transform>
 				<fontSize>3.9</fontSize>
@@ -4454,40 +4454,17 @@
 				<passiveColor>COLOR_MOARdV_UnlitBlackText</passiveColor>
 				<text>BUTTN</text>
 			</TEXT_LABEL>
-			<COLOR_SHIFT id="0">
-				<name>Inactive Button Color</name>
+			<COLOR_SHIFT>
+				<name>Button Color</name>
 				<transform>pb_Full_Lens_Obj</transform>
 				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
 				<passiveColor>0,0,0,255</passiveColor>
-				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<!-- Color is complex for these buttons.  The unselected illuminated color is 206,227,246, ASET_SWITCHER_NAME_POSITIVECOLOR but the "on"
+					color is 255, 255, 0.  Forunately, almost all of the variables on these buttons use the same compound evaluator, so it's
+					not computationally expensive to handle a change. -->
+				<activeColor>206, 227, 246, 255</activeColor>
 				<blend>true</blend>
 			</COLOR_SHIFT>
-			<COLOR_SHIFT id="1">
-				<name>Active Button Color</name>
-				<transform>pb_Full_LensON_Obj</transform>
-				<passiveColor>0,0,0,255</passiveColor>
-				<activeColor>255, 255, 0, 255</activeColor>
-			</COLOR_SHIFT>
-			<TRANSLATION id="0">
-				<name>pb_Full_LensON_Obj</name>
-				<transform>pb_Full_LensON_Obj</transform>
-				<startTranslation>0,0,0</startTranslation>
-				<endTranslation>0,0.0003,0</endTranslation>
-			</TRANSLATION>
-			<TRANSLATION id="1">
-				<name>pb_Full_Lens_Obj</name>
-				<transform>pb_Full_Lens_Obj</transform>
-				<startTranslation>0,0,0</startTranslation>
-				<endTranslation>0,-0.0003,0</endTranslation>
-			</TRANSLATION>
-			<TEXTURE_SHIFT>
-				<name>Button Glow</name>
-				<transform>pb_Full_Lens_Obj</transform>
-				<startUV>0, -0.5</startUV>
-				<endUV>0, 0</endUV>
-				<layers>_Emissive</layers>
-				<variable>fc.Conditioned(1)</variable>
-			</TEXTURE_SHIFT>
 		</style>
 		<prop>
 			<name>MAS_pb_SAS_AntiNormal_2</name>
@@ -4502,15 +4479,13 @@
 			<TEXT_LABEL>
 				<text>ANTI$$$NRML</text>
 			</TEXT_LABEL>
-			<COLOR_SHIFT id="1">
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + ((fc.GetSASMode() == 4) and fc.GetSAS()))</variable>
+				<!-- Color is complex for these buttons.  The unselected illuminated color is 206,227,246, ASET_SWITCHER_NAME_POSITIVECOLOR but the "on"
+					color is 255, 255, 0. -->
+				<activeColor>206 + 49 * ((fc.GetSASMode() == 4) and fc.GetSAS()), 227 + 28 * ((fc.GetSASMode() == 4) and fc.GetSAS()), 246 * (1 - ((fc.GetSASMode() == 4) and fc.GetSAS())), 255</activeColor>
 				<variable>fc.Conditioned((fc.GetSASMode() == 4) and fc.GetSAS())</variable>
 			</COLOR_SHIFT>
-			<TRANSLATION id="0">
-				<variable>fc.Conditioned((fc.GetSASMode() == 4) and fc.GetSAS())</variable>
-			</TRANSLATION>
-			<TRANSLATION id="1">
-				<variable>fc.Conditioned((fc.GetSASMode() == 4) and fc.GetSAS())</variable>
-			</TRANSLATION>
 		</prop>
 		<prop>
 			<name>MAS_pb_SAS_AntiTarget_2</name>
@@ -4522,18 +4497,13 @@
 			<ANIMATION_PLAYER>
 				<variable>fc.GetSASMode() == 8</variable>
 			</ANIMATION_PLAYER>
-			<TEXT_LABEL id="0">
+			<TEXT_LABEL>
 				<text>ANTI$$$TARGET</text>
 			</TEXT_LABEL>
-			<COLOR_SHIFT id="1">
-				<variable>fc.Conditioned((fc.GetSASMode() == 8) and fc.GetSAS())</variable>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + ((fc.GetSASMode() == 8) and fc.GetSAS()))</variable>
+				<activeColor>206 + 49 * ((fc.GetSASMode() == 8) and fc.GetSAS()), 227 + 28 * ((fc.GetSASMode() == 8) and fc.GetSAS()), 246 * (1 - ((fc.GetSASMode() == 8) and fc.GetSAS())), 255</activeColor>
 			</COLOR_SHIFT>
-			<TRANSLATION id="0">
-				<variable>fc.Conditioned((fc.GetSASMode() == 8) and fc.GetSAS())</variable>
-			</TRANSLATION>
-			<TRANSLATION id="1">
-				<variable>fc.Conditioned((fc.GetSASMode() == 8) and fc.GetSAS())</variable>
-			</TRANSLATION>
 		</prop>
 		<prop>
 			<name>MAS_pb_SAS_ManeuverNode_2</name>
@@ -4545,18 +4515,13 @@
 			<ANIMATION_PLAYER>
 				<variable>fc.GetSASMode() == 9</variable>
 			</ANIMATION_PLAYER>
-			<TEXT_LABEL id="0">
+			<TEXT_LABEL>
 				<text>MNVR$$$NODE</text>
 			</TEXT_LABEL>
-			<COLOR_SHIFT id="1">
-				<variable>fc.Conditioned((fc.GetSASMode() == 9) and fc.GetSAS())</variable>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + ((fc.GetSASMode() == 9) and fc.GetSAS()))</variable>
+				<activeColor>206 + 49 * ((fc.GetSASMode() == 9) and fc.GetSAS()), 227 + 28 * ((fc.GetSASMode() == 9) and fc.GetSAS()), 246 * (1 - ((fc.GetSASMode() == 9) and fc.GetSAS())), 255</activeColor>
 			</COLOR_SHIFT>
-			<TRANSLATION id="0">
-				<variable>fc.Conditioned((fc.GetSASMode() == 9) and fc.GetSAS())</variable>
-			</TRANSLATION>
-			<TRANSLATION id="1">
-				<variable>fc.Conditioned((fc.GetSASMode() == 9) and fc.GetSAS())</variable>
-			</TRANSLATION>
 		</prop>
 		<prop>
 			<name>MAS_pb_SAS_Normal_2</name>
@@ -4568,18 +4533,13 @@
 			<ANIMATION_PLAYER>
 				<variable>fc.GetSASMode() == 3</variable>
 			</ANIMATION_PLAYER>
-			<TEXT_LABEL id="0">
+			<TEXT_LABEL>
 				<text>NRML</text>
 			</TEXT_LABEL>
-			<COLOR_SHIFT id="1">
-				<variable>fc.Conditioned((fc.GetSASMode() == 3) and fc.GetSAS())</variable>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + ((fc.GetSASMode() == 3) and fc.GetSAS()))</variable>
+				<activeColor>206 + 49 * ((fc.GetSASMode() == 3) and fc.GetSAS()), 227 + 28 * ((fc.GetSASMode() == 3) and fc.GetSAS()), 246 * (1 - ((fc.GetSASMode() == 3) and fc.GetSAS())), 255</activeColor>
 			</COLOR_SHIFT>
-			<TRANSLATION id="0">
-				<variable>fc.Conditioned((fc.GetSASMode() == 3) and fc.GetSAS())</variable>
-			</TRANSLATION>
-			<TRANSLATION id="1">
-				<variable>fc.Conditioned((fc.GetSASMode() == 3) and fc.GetSAS())</variable>
-			</TRANSLATION>
 		</prop>
 		<prop>
 			<name>MAS_pb_SAS_Prograde_2</name>
@@ -4591,18 +4551,13 @@
 			<ANIMATION_PLAYER>
 				<variable>fc.GetSASMode() == 1</variable>
 			</ANIMATION_PLAYER>
-			<TEXT_LABEL id="0">
+			<TEXT_LABEL>
 				<text>PRO$$$GRADE</text>
 			</TEXT_LABEL>
-			<COLOR_SHIFT id="1">
-				<variable>fc.Conditioned((fc.GetSASMode() == 1) and fc.GetSAS())</variable>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + ((fc.GetSASMode() == 1) and fc.GetSAS()))</variable>
+				<activeColor>206 + 49 * ((fc.GetSASMode() == 1) and fc.GetSAS()), 227 + 28 * ((fc.GetSASMode() == 1) and fc.GetSAS()), 246 * (1 - ((fc.GetSASMode() == 1) and fc.GetSAS())), 255</activeColor>
 			</COLOR_SHIFT>
-			<TRANSLATION id="0">
-				<variable>fc.Conditioned((fc.GetSASMode() == 1) and fc.GetSAS())</variable>
-			</TRANSLATION>
-			<TRANSLATION id="1">
-				<variable>fc.Conditioned((fc.GetSASMode() == 1) and fc.GetSAS())</variable>
-			</TRANSLATION>
 		</prop>
 		<prop>
 			<name>MAS_pb_SAS_RadialIn_2</name>
@@ -4614,18 +4569,13 @@
 			<ANIMATION_PLAYER>
 				<variable>fc.GetSASMode() == 5</variable>
 			</ANIMATION_PLAYER>
-			<TEXT_LABEL id="0">
+			<TEXT_LABEL>
 				<text>RADIAL$$$IN</text>
 			</TEXT_LABEL>
-			<COLOR_SHIFT id="1">
-				<variable>fc.Conditioned((fc.GetSASMode() == 5) and fc.GetSAS())</variable>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + ((fc.GetSASMode() == 5) and fc.GetSAS()))</variable>
+				<activeColor>206 + 49 * ((fc.GetSASMode() == 5) and fc.GetSAS()), 227 + 28 * ((fc.GetSASMode() == 5) and fc.GetSAS()), 246 * (1 - ((fc.GetSASMode() == 5) and fc.GetSAS())), 255</activeColor>
 			</COLOR_SHIFT>
-			<TRANSLATION id="0">
-				<variable>fc.Conditioned((fc.GetSASMode() == 5) and fc.GetSAS())</variable>
-			</TRANSLATION>
-			<TRANSLATION id="1">
-				<variable>fc.Conditioned((fc.GetSASMode() == 5) and fc.GetSAS())</variable>
-			</TRANSLATION>
 		</prop>
 		<prop>
 			<name>MAS_pb_SAS_RadialOut_2</name>
@@ -4637,18 +4587,13 @@
 			<ANIMATION_PLAYER>
 				<variable>fc.GetSASMode() == 6</variable>
 			</ANIMATION_PLAYER>
-			<TEXT_LABEL id="0">
+			<TEXT_LABEL>
 				<text>RADIAL$$$OUT</text>
 			</TEXT_LABEL>
-			<COLOR_SHIFT id="1">
-				<variable>fc.Conditioned((fc.GetSASMode() == 6) and fc.GetSAS())</variable>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + ((fc.GetSASMode() == 6) and fc.GetSAS()))</variable>
+				<activeColor>206 + 49 * ((fc.GetSASMode() == 6) and fc.GetSAS()), 227 + 28 * ((fc.GetSASMode() == 6) and fc.GetSAS()), 246 * (1 - ((fc.GetSASMode() == 6) and fc.GetSAS())), 255</activeColor>
 			</COLOR_SHIFT>
-			<TRANSLATION id="0">
-				<variable>fc.Conditioned((fc.GetSASMode() == 6) and fc.GetSAS())</variable>
-			</TRANSLATION>
-			<TRANSLATION id="1">
-				<variable>fc.Conditioned((fc.GetSASMode() == 6) and fc.GetSAS())</variable>
-			</TRANSLATION>
 		</prop>
 		<prop>
 			<name>MAS_pb_SAS_Retrograde_2</name>
@@ -4660,18 +4605,13 @@
 			<ANIMATION_PLAYER>
 				<variable>fc.GetSASMode() == 2</variable>
 			</ANIMATION_PLAYER>
-			<TEXT_LABEL id="0">
+			<TEXT_LABEL>
 				<text>RETRO$$$GRADE</text>
 			</TEXT_LABEL>
-			<COLOR_SHIFT id="1">
-				<variable>fc.Conditioned((fc.GetSASMode() == 2) and fc.GetSAS())</variable>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + ((fc.GetSASMode() == 2) and fc.GetSAS()))</variable>
+				<activeColor>206 + 49 * ((fc.GetSASMode() == 2) and fc.GetSAS()), 227 + 28 * ((fc.GetSASMode() == 2) and fc.GetSAS()), 246 * (1 - ((fc.GetSASMode() == 2) and fc.GetSAS())), 255</activeColor>
 			</COLOR_SHIFT>
-			<TRANSLATION id="0">
-				<variable>fc.Conditioned((fc.GetSASMode() == 2) and fc.GetSAS())</variable>
-			</TRANSLATION>
-			<TRANSLATION id="1">
-				<variable>fc.Conditioned((fc.GetSASMode() == 2) and fc.GetSAS())</variable>
-			</TRANSLATION>
 		</prop>
 		<prop>
 			<name>MAS_pb_SAS_StabilityAssist_2</name>
@@ -4683,18 +4623,13 @@
 			<ANIMATION_PLAYER>
 				<variable>fc.GetSASMode() == 0</variable>
 			</ANIMATION_PLAYER>
-			<TEXT_LABEL id="0">
+			<TEXT_LABEL>
 				<text>STAB$$$ASSIST</text>
 			</TEXT_LABEL>
-			<COLOR_SHIFT id="1">
-				<variable>fc.Conditioned((fc.GetSASMode() == 0) and fc.GetSAS())</variable>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + ((fc.GetSASMode() == 0) and fc.GetSAS()))</variable>
+				<activeColor>206 + 49 * ((fc.GetSASMode() == 0) and fc.GetSAS()), 227 + 28 * ((fc.GetSASMode() == 0) and fc.GetSAS()), 246 * (1 - ((fc.GetSASMode() == 0) and fc.GetSAS())), 255</activeColor>
 			</COLOR_SHIFT>
-			<TRANSLATION id="0">
-				<variable>fc.Conditioned((fc.GetSASMode() == 0) and fc.GetSAS())</variable>
-			</TRANSLATION>
-			<TRANSLATION id="1">
-				<variable>fc.Conditioned((fc.GetSASMode() == 0) and fc.GetSAS())</variable>
-			</TRANSLATION>
 		</prop>
 		<prop>
 			<name>MAS_pb_SAS_Target_2</name>
@@ -4706,18 +4641,13 @@
 			<ANIMATION_PLAYER>
 				<variable>fc.GetSASMode() == 7</variable>
 			</ANIMATION_PLAYER>
-			<TEXT_LABEL id="0">
+			<TEXT_LABEL>
 				<text>TARGET</text>
 			</TEXT_LABEL>
-			<COLOR_SHIFT id="1">
-				<variable>fc.Conditioned((fc.GetSASMode() == 7) and fc.GetSAS())</variable>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + ((fc.GetSASMode() == 7) and fc.GetSAS()))</variable>
+				<activeColor>206 + 49 * ((fc.GetSASMode() == 7) and fc.GetSAS()), 227 + 28 * ((fc.GetSASMode() == 7) and fc.GetSAS()), 246 * (1 - ((fc.GetSASMode() == 7) and fc.GetSAS())), 255</activeColor>
 			</COLOR_SHIFT>
-			<TRANSLATION id="0">
-				<variable>fc.Conditioned((fc.GetSASMode() == 7) and fc.GetSAS())</variable>
-			</TRANSLATION>
-			<TRANSLATION id="1">
-				<variable>fc.Conditioned((fc.GetSASMode() == 7) and fc.GetSAS())</variable>
-			</TRANSLATION>
 		</prop>
 	</PushButton>
 </PropConfig>

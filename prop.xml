@@ -2371,6 +2371,41 @@
 		</prop>
 	</NasaGauge>
 
+	<ElecOutput folder="NASA_Elec_Output">
+		<style name="ElecOutput">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/NASA_Elec_Output/NASA_Elec_Output</model>
+			</MODEL>
+			<ANIMATION>
+				<name>hand animation</name>
+				<animation>NASA_Elec_Output_Anim</animation>
+				<speed>1</speed>
+			</ANIMATION>
+			<COLOR_SHIFT>
+				<name>Scale Backlight</name>
+				<transform>ScaleObj</transform>
+				<passiveColor>COLOR_ASET_NASAGAUGESCALE_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_NASAGAUGESCALE_ACTIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_NASA_Elec_Output</name>
+			<style>ElecOutput</style>
+			<ANIMATION>
+				<variable>fc.Select(fc.GetPersistentAsNumber("MAS_ElecOutput_Scale") > 0, 0.25, 0.025) *  fc.PowerDelta()</variable>
+			</ANIMATION>
+		</prop>
+		<prop>
+			<name>MAS_NASA_FuelCell_Output</name>
+			<style>ElecOutput</style>
+			<ANIMATION>
+				<variable>fc.Select(fc.GetPersistentAsNumber("MAS_ElecOutput_Scale") > 0, 0.25, 0.025) * fc.FuelCellOutput()</variable>
+			</ANIMATION>
+		</prop>
+	</ElecOutput>
+	
 	<Talkback folder="ASET_Talkback_Indicator">
 		<style name="TB2">
 			<MODEL>
