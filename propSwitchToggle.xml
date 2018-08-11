@@ -1753,6 +1753,23 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_tggl_RecoverVessel_T1_G1_C1_S</name>
+			<style>NASA Black Covered Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.RecoverVessel()</onClick>
+				<variable>fc.VesselRecoverable()</variable>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>0</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>RECOVER$$$VESSEL</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>RECOVER</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_tggl_Undock_T1_G1_C1_S</name>
 			<style>NASA Red Covered Toggle Switch</style>
 			<COLLIDER_EVENT id="0">
