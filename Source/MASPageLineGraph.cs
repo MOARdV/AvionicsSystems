@@ -376,7 +376,7 @@ namespace AvionicsSystems
             UnityEngine.Object.Destroy(borderObject);
             borderObject = null;
 
-            variableRegistrar.ReleaseResources(); ;
+            variableRegistrar.ReleaseResources();
         }
     }
 }

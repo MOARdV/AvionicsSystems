@@ -481,7 +481,7 @@ namespace AvionicsSystems
             UnityEngine.Object.Destroy(lineOrigin);
             lineOrigin = null;
 
-            variableRegistrar.ReleaseResources(); ;
+            variableRegistrar.ReleaseResources();
         }
     }
 }

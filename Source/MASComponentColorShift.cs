@@ -331,7 +331,7 @@ namespace AvionicsSystems
         /// </summary>
         public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
-            variableRegistrar.ReleaseResources(); ;
+            variableRegistrar.ReleaseResources();
 
             if (useFlash)
             {

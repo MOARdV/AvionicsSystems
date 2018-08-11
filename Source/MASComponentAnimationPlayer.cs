@@ -126,6 +126,7 @@ namespace AvionicsSystems
         /// </summary>
         public override void ReleaseResources(MASFlightComputer comp, InternalProp prop)
         {
+            variableRegistrar.ReleaseResources();
             animationState = null;
             animation = null;
         }

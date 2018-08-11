@@ -37,16 +37,17 @@ namespace AvionicsSystems
     /// </summary>
     class MASComponentTriggerEvent : IMASSubComponent
     {
-        private string variableName;
         private bool currentState = false;
         private bool autoRepeat = false;
         MASFlightComputer comp;
         Action triggerEvent;
         Action exitEvent = null;
+        Variable callbackVariable;
 
         internal MASComponentTriggerEvent(ConfigNode config, InternalProp prop, MASFlightComputer comp)
             : base(config, prop, comp)
         {
+            string variableName = string.Empty;
             if (!config.TryGetValue("variable", ref variableName) || string.IsNullOrEmpty(variableName))
             {
                 throw new ArgumentException("Invalid or missing 'variable' in TRIGGER_EVENT " + name);
@@ -82,7 +83,7 @@ namespace AvionicsSystems
             }
 
             this.comp = comp;
-            comp.RegisterVariableChangeCallback(variableName, prop, VariableCallback);
+            callbackVariable = comp.RegisterVariableChangeCallback(variableName, prop, VariableCallback);
         }
 
         /// <summary>
@@ -134,6 +135,7 @@ namespace AvionicsSystems
         /// </summary>
         public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
+            callbackVariable.UnregisterNumericCallback(VariableCallback);
             this.comp = null;
         }
     }
