@@ -35,6 +35,7 @@ namespace AvionicsSystems
     {
         private GameObject imageObject;
         private Material imageMaterial;
+        private Material monitorMaterial;
         private MeshRenderer meshRenderer;
         private RenderTexture cameraTexture;
         private Texture missingCameraTexture;
@@ -45,6 +46,10 @@ namespace AvionicsSystems
         private bool coroutineActive;
         private Stopwatch renderStopwatch = new Stopwatch();
         private long renderFrames = 0;
+
+        private int rentexWidth, rentexHeight;
+        private string[] propertyValue = new string[0];
+        private int[] propertyId = new int[0];
 
         internal MASPageCamera(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
             : base(config, prop, comp)
@@ -64,7 +69,9 @@ namespace AvionicsSystems
             }
             float aspectRatio = size.x / size.y;
 
-            cameraTexture = new RenderTexture(((int)size.x) >> MASConfig.CameraTextureScale, ((int)size.y) >> MASConfig.CameraTextureScale, 24, RenderTextureFormat.ARGB32);
+            rentexWidth = ((int)size.x) >> MASConfig.CameraTextureScale;
+            rentexHeight = ((int)size.y) >> MASConfig.CameraTextureScale;
+            cameraTexture = new RenderTexture(rentexWidth, rentexHeight, 24, RenderTextureFormat.ARGB32);
 
             string cameraName = string.Empty;
             if (config.TryGetValue("camera", ref cameraName))
@@ -120,6 +127,57 @@ namespace AvionicsSystems
             mesh.RecalculateBounds();
             mesh.UploadMeshData(true);
             meshFilter.mesh = mesh;
+
+            string shader = string.Empty;
+            if (config.TryGetValue("shader", ref shader))
+            {
+                Shader ppShader;
+                if (MASLoader.shaders.TryGetValue(shader, out ppShader))
+                {
+                    monitorMaterial = new Material(ppShader);
+                }
+            }
+            if (monitorMaterial != null)
+            {
+                string textureName = string.Empty;
+                if (config.TryGetValue("texture", ref textureName))
+                {
+                    Texture auxTexture = GameDatabase.Instance.GetTexture(textureName, false);
+                    if (auxTexture == null)
+                    {
+                        throw new ArgumentException("Unable to find 'texture' " + textureName + " for CAMERA " + name);
+                    }
+                    monitorMaterial.SetTexture("_AuxTex", auxTexture);
+                }
+
+                string concatProperties = string.Empty;
+                if (config.TryGetValue("properties", ref concatProperties))
+                {
+                    string[] propertiesList = concatProperties.Split(';');
+                    int listLength = propertiesList.Length;
+                    if (listLength > 0)
+                    {
+                        propertyId = new int[listLength];
+                        propertyValue = new string[listLength];
+
+                        for (int i = 0; i < listLength; ++i)
+                        {
+                            string[] pair = propertiesList[i].Split(':');
+                            if (pair.Length != 2)
+                            {
+                                throw new ArgumentOutOfRangeException("Incorrect number of parameters for property: requires 2, found " + pair.Length + " in property " + propertiesList[i] + " for CAMERA " + name);
+                            }
+                            propertyId[i] = Shader.PropertyToID(pair[0].Trim());
+                            propertyValue[i] = pair[1].Trim();
+                        }
+                        for (int i = 0; i < propertyValue.Length; ++i)
+                        {
+                            int id = propertyId[i];
+                            variableRegistrar.RegisterVariableChangeCallback(propertyValue[i], (double newValue) => monitorMaterial.SetFloat(id, (float)newValue));
+                        }
+                    }
+                }
+            }
 
             imageMaterial = new Material(MASLoader.shaders["MOARdV/Monitor"]);
             imageMaterial.mainTexture = cameraTexture;
@@ -254,7 +312,8 @@ namespace AvionicsSystems
         /// <summary>
         /// Callback to process the rentex sent by the camera.
         /// </summary>
-        /// <param name="rentex"></param>
+        /// <param name="rentex">The source texture.</param>
+        /// <param name="postProcShader">The post-processing shader applied by the current camera's active mode.</param>
         private void ReadCamera(RenderTexture rentex, Material postProcShader)
         {
             if (rentex == null)
@@ -265,13 +324,30 @@ namespace AvionicsSystems
 
             cameraTexture.DiscardContents();
             renderStopwatch.Start();
-            if (postProcShader == null)
+            if (monitorMaterial == null)
             {
-                Graphics.Blit(rentex, cameraTexture);
+                if (postProcShader == null)
+                {
+                    Graphics.Blit(rentex, cameraTexture);
+                }
+                else
+                {
+                    Graphics.Blit(rentex, cameraTexture, postProcShader);
+                }
             }
             else
             {
-                Graphics.Blit(rentex, cameraTexture, postProcShader);
+                if (postProcShader == null)
+                {
+                    Graphics.Blit(rentex, cameraTexture, monitorMaterial);
+                }
+                else
+                {
+                    RenderTexture tmp = RenderTexture.GetTemporary(rentexWidth, rentexHeight, 24);
+                    Graphics.Blit(rentex, tmp, postProcShader);
+                    Graphics.Blit(tmp, cameraTexture, monitorMaterial);
+                    tmp.Release();
+                }
             }
             renderStopwatch.Stop();
             ++renderFrames;
