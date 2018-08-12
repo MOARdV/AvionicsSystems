@@ -75,6 +75,15 @@ namespace AvionicsSystems
         /// </summary>
         #region KER Simulation
 
+        [MASProxy (Immutable=true)]
+        /// <summary>
+        /// Returns 1 if Kerbal Engineer Redux is installed and available.
+        /// </summary>
+        public double Available()
+        {
+            return (keFound) ? 1.0 : 0.0;
+        }
+
         /// <summary>
         /// Returns the total delta-V available to the vessel, in m/s.
         /// </summary>
