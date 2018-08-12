@@ -1287,6 +1287,25 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_tggl_Radar_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ToggleRadar()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.RadarActive()</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>RADAR</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ACTIVE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>STBY</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_tggl_RCS_T1_G1_S</name>
 			<style>NASA Toggle Switch</style>
 			<COLLIDER_EVENT id="0">

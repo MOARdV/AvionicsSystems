@@ -4467,6 +4467,67 @@
 			</COLOR_SHIFT>
 		</style>
 		<prop>
+			<name>MAS_pb_ChattererTalk</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", chatterer.StartTalking())</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+				<variable>chatterer.Available()</variable>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<text>PTT</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + (fc.GetPersistentAsNumber("%AUTOID%")))</variable>
+				<!-- Color is complex for these buttons.  The unselected illuminated color is 206,227,246, ASET_SWITCHER_NAME_POSITIVECOLOR but the "on"
+					color is 255, 255, 0. -->
+				<activeColor>206 + 49 * (fc.GetPersistentAsNumber("%AUTOID%")), 227 + 28 * (fc.GetPersistentAsNumber("%AUTOID%")), 246 * (1 - (fc.GetPersistentAsNumber("%AUTOID%"))), 255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_pb_rb_ClearNode</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", fc.ClearManeuverNode())</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<text>CLEAR$$$MNVR</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + (fc.ManeuverNodeExists()))</variable>
+				<!-- Color is complex for these buttons.  The unselected illuminated color is 206,227,246, ASET_SWITCHER_NAME_POSITIVECOLOR but the "on"
+					color is 255, 255, 0. -->
+				<activeColor>206 + 49 * (fc.ManeuverNodeExists()), 227 + 28 * (fc.ManeuverNodeExists()), 246 * (1 - (fc.ManeuverNodeExists())), 255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_pb_rb_ClearTarget</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", fc.ClearTarget())</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<text>CLEAR$$$MNVR</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + (fc.TargetType() &gt; 0))</variable>
+				<!-- Color is complex for these buttons.  The unselected illuminated color is 206,227,246, ASET_SWITCHER_NAME_POSITIVECOLOR but the "on"
+					color is 255, 255, 0. -->
+				<activeColor>206 + 49 * (fc.TargetType() &gt; 0), 227 + 28 * (fc.TargetType() &gt; 0), 246 * (1 - (fc.TargetType() &gt; 0)), 255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
 			<name>MAS_pb_SAS_AntiNormal_2</name>
 			<style>Retro Button</style>
 			<COLLIDER_EVENT>
@@ -4484,7 +4545,6 @@
 				<!-- Color is complex for these buttons.  The unselected illuminated color is 206,227,246, ASET_SWITCHER_NAME_POSITIVECOLOR but the "on"
 					color is 255, 255, 0. -->
 				<activeColor>206 + 49 * ((fc.GetSASMode() == 4) and fc.GetSAS()), 227 + 28 * ((fc.GetSASMode() == 4) and fc.GetSAS()), 246 * (1 - ((fc.GetSASMode() == 4) and fc.GetSAS())), 255</activeColor>
-				<variable>fc.Conditioned((fc.GetSASMode() == 4) and fc.GetSAS())</variable>
 			</COLOR_SHIFT>
 		</prop>
 		<prop>

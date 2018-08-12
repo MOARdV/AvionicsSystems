@@ -221,6 +221,19 @@
 			</TEXTURE_SHIFT>
 		</prop>
 		<prop>
+			<name>MAS_FI_Contact</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>CONTACT</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.VesselLanded())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
 			<name>MAS_FI_Docked</name>
 			<style>Flag Indicator</style>
 			<TEXT_LABEL>
