@@ -208,6 +208,20 @@
 			</TEXTURE_SHIFT>
 		</prop>
 		<prop>
+			<name>MAS_FI_ARRTError</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>ARRT ERR</text>
+				<fontSize>2</fontSize>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_ARRT_On") and not fc.GetPersistentAsNumber("MAS_ARRT_Enable"))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.6</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
 			<name>MAS_FI_Brakes</name>
 			<style>Flag Indicator</style>
 			<TEXT_LABEL>
@@ -429,6 +443,20 @@
 			</MODEL_SCALE>
 			<TEXTURE_SHIFT>
 				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_FI_XPtrError</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>X-PTR ERR</text>
+				<fontSize>2</fontSize>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Xpointer_Power") and not fc.GetPersistentAsNumber("MAS_Xpointer_Enable"))</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.6</startUV>
 			</TEXTURE_SHIFT>
 		</prop>
 	</FlagIndicator>
