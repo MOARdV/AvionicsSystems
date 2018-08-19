@@ -307,7 +307,7 @@ namespace AvionicsSystems
 
                 softkeyUpAction = comp.GetAction(string.Format("fc.AddPersistentWrapped(\"{0}\", -1, 0, {1})", cursorPersistentName, numMenuItems), prop);
                 softkeyDownAction = comp.GetAction(string.Format("fc.AddPersistentWrapped(\"{0}\", 1, 0, {1})", cursorPersistentName, numMenuItems), prop);
-                softkeyEndAction = comp.GetAction(string.Format("fc.SetPersistent(\"{0}\", {1})", cursorPersistentName, numMenuItems - 1), prop);
+                softkeyEndAction = comp.GetAction(string.Format("fc.SetPersistent(\"{0}\", {1})", cursorPersistentName, Mathf.Max(0, numMenuItems - 1)), prop);
 
                 updateMenu = true;
             }
@@ -325,10 +325,15 @@ namespace AvionicsSystems
 
             if (enable)
             {
-                int numLines = Math.Min(maxLines, menuItems.Length);
+                int numLines = Math.Min(maxLines, numMenuItems);
                 if (updateMenu)
                 {
-                    if (cursorPosition < topLine)
+                    if (numLines == 0)
+                    {
+                        cursorPosition = 0; 
+                        topLine = 0;
+                    }
+                    else if (cursorPosition < topLine)
                     {
                         topLine = cursorPosition;
                     }
