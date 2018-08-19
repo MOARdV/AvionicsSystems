@@ -28,6 +28,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -257,6 +258,9 @@ namespace AvionicsSystems
         long nativeEvaluationCount = 0;
         long luaEvaluationCount = 0;
         long dependentEvaluationCount = 0;
+
+        private static bool dpaiChecked = false;
+        private static Func<object, string> GetDpaiName = null;
 
         #region Internal Interface
         /// <summary>
@@ -547,6 +551,20 @@ namespace AvionicsSystems
             }
 
             return null;
+        }
+
+        internal string GetDockingPortName(Part dockingNodePart)
+        {
+            if (GetDpaiName == null)
+            {
+                return dockingNodePart.partInfo.title;
+            }
+            else
+            {
+                PartModule namedDockModule = dockingNodePart.Modules["ModuleDockingNodeNamed"];
+
+                return (namedDockModule != null) ? GetDpaiName(namedDockModule) : dockingNodePart.partInfo.title;
+            }
         }
         #endregion
 
@@ -911,6 +929,19 @@ namespace AvionicsSystems
                     dependentLuaMethods.Add("string.upper");
 
                     dependentLuaMethods.Sort();
+                }
+
+                if (dpaiChecked == false)
+                {
+                    dpaiChecked = true;
+
+                    Type dpaiMDNNType = Utility.GetExportedType("ModuleDockingNodeNamed", "NavyFish.ModuleDockingNodeNamed");
+                    if (dpaiMDNNType != null)
+                    {
+                        Utility.LogMessage(this, "Found DPAI");
+                        FieldInfo portName = dpaiMDNNType.GetField("portName", BindingFlags.Instance | BindingFlags.Public);
+                        GetDpaiName = DynamicMethodFactory.CreateGetField<object, string>(portName);
+                    }
                 }
 
                 Vessel vessel = this.vessel;
