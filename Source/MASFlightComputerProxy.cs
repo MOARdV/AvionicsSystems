@@ -2902,6 +2902,30 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the index of the docking port currently tracked by the vessel.
+        /// 
+        /// If no port is being tracked, returns -1.
+        /// </summary>
+        /// <returns>For a valid docking port, a number between 0 and 'fc.TargetDockCount()' - 1.  Otherwise, -1.</returns>
+        public double GetTargetDockIndex()
+        {
+            if (vc.targetType == MASVesselComputer.TargetType.DockingPort)
+            {
+                if (vc.targetDockingPorts.Length == 1)
+                {
+                    // The only docking port.
+                    return 0.0;
+                }
+
+                ModuleDockingNode activeNode = vc.activeTarget as ModuleDockingNode;
+
+                return Array.FindIndex(vc.targetDockingPorts, x => x == activeNode);
+            }
+
+            return -1.0;
+        }
+
+        /// <summary>
         /// Set the primary docking port to be the reference transform.
         /// </summary>
         public void SetDockToReference()
@@ -2918,6 +2942,108 @@ namespace AvionicsSystems
         public void SetPodToReference()
         {
             vessel.SetReferenceTransform(fc.part);
+        }
+
+        /// <summary>
+        /// Targets the docking port on the target vessel identified by 'idx'.
+        /// 
+        /// Note that KSP only allows targeting docking ports within a certain range (typically
+        /// 200 meters).
+        /// </summary>
+        /// <param name="idx">A value between 0 and `fc.TargetDockCount()` - 1.</param>
+        /// <returns>1 the dock could be targeted, 0 otherwise.</returns>
+        public double SetTargetDock(double idx)
+        {
+            int index = (int)idx;
+            if (index < 0 || index >= vc.targetDockingPorts.Length)
+            {
+                return 0.0;
+            }
+
+            FlightGlobals.fetch.SetVesselTarget(vc.targetDockingPorts[index]);
+
+            return 1.0;
+        }
+
+        /// <summary>
+        /// Returns the number of available docking ports found on the target vessel when the following
+        /// conditions are met:
+        /// 
+        /// 1) There are docking ports on the target vessel compatible with the designated
+        /// docking port on the current vessel.  The designated docking port is either the
+        /// only docking port on the current vessel, or it is one of the docking ports selected
+        /// arbitrarily.
+        /// 
+        /// 2) There are no docking ports on the current vessel.  In this case, all docking
+        /// ports on the target vessel are counted.
+        /// 
+        /// Note that if the target is unloaded, this method will return 0.  If the target is
+        /// not a vessel, it also returns 0.
+        /// 
+        /// This function is identical to `fc.TargetAvailableDockingPorts()`.
+        /// </summary>
+        /// <returns>Number of available compatible docking ports, or total available docking ports, or 0.</returns>
+        public double TargetDockCount()
+        {
+            return vc.targetDockingPorts.Length;
+        }
+
+        /// <summary>
+        /// Returns the name of the target dock selected by 'idx'.  If the Docking Port Alignment
+        /// Indicator mod is installed, the name given to the dock from that mod is returned.  Otherwise,
+        /// only the part's name is returned.
+        /// </summary>
+        /// <returns>The name of the selected dock, or an empty string.</returns>
+        public string TargetDockName(double idx)
+        {
+            int index = (int)idx;
+            if (index >= 0 && idx < vc.targetDockingPorts.Length)
+            {
+                return fc.GetDockingPortName(vc.targetDockingPorts[index].part);
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Targets the next valid docking port on the target vessel.
+        /// 
+        /// Note that KSP only allows targeting docking ports within a certain range (typically
+        /// 200 meters).
+        /// </summary>
+        /// <returns>1 if a dock could be targeted, 0 otherwise.</returns>
+        public double TargetNextDock()
+        {
+            if (vc.targetDockingPorts.Length == 0)
+            {
+                return 0.0;
+            }
+            else if (vc.targetType == MASVesselComputer.TargetType.Vessel)
+            {
+                FlightGlobals.fetch.SetVesselTarget(vc.targetDockingPorts[0]);
+                return 1.0;
+            }
+            else if (vc.targetType == MASVesselComputer.TargetType.DockingPort)
+            {
+                if (vc.targetDockingPorts.Length == 1)
+                {
+                    // We're already targeting the only docking port.
+                    return 1.0;
+                }
+
+                ModuleDockingNode activeNode = vc.activeTarget as ModuleDockingNode;
+                int currentIndex = Array.FindIndex(vc.targetDockingPorts, x => x == activeNode);
+                if (currentIndex == -1)
+                {
+                    FlightGlobals.fetch.SetVesselTarget(vc.targetDockingPorts[0]);
+                }
+                else
+                {
+                    FlightGlobals.fetch.SetVesselTarget(vc.targetDockingPorts[(currentIndex + 1) % vc.targetDockingPorts.Length]);
+                }
+                return 1.0;
+            }
+            return 0.0;
         }
 
         /// <summary>
