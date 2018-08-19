@@ -43,7 +43,7 @@
 			<TEXT_LABEL>
 				<name>Caption</name>
 				<transform>IndicatorNameObj</transform>
-				<fontSize>2.3</fontSize>
+				<fontSize>2</fontSize>
 				<lineSpacing>0.9</lineSpacing>
 				<font>Liberation Sans</font>
 				<style>Bold</style>
@@ -212,7 +212,6 @@
 			<style>Flag Indicator</style>
 			<TEXT_LABEL>
 				<text>ARRT ERR</text>
-				<fontSize>2</fontSize>
 			</TEXT_LABEL>
 			<MODEL_SCALE>
 				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_ARRT_On") and not fc.GetPersistentAsNumber("MAS_ARRT_Enable"))</variable>
@@ -450,7 +449,6 @@
 			<style>Flag Indicator</style>
 			<TEXT_LABEL>
 				<text>X-PTR ERR</text>
-				<fontSize>2</fontSize>
 			</TEXT_LABEL>
 			<MODEL_SCALE>
 				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Xpointer_Power") and not fc.GetPersistentAsNumber("MAS_Xpointer_Enable"))</variable>

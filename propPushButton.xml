@@ -4518,7 +4518,7 @@
 				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
 			</ANIMATION_PLAYER>
 			<TEXT_LABEL>
-				<text>CLEAR$$$MNVR</text>
+				<text>CLEAR$$$TGT</text>
 			</TEXT_LABEL>
 			<COLOR_SHIFT>
 				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + (fc.TargetType() &gt; 0))</variable>
