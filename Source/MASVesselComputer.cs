@@ -926,6 +926,7 @@ namespace AvionicsSystems
         internal TargetType targetType = TargetType.None;
         internal string targetName = string.Empty;
         internal Transform targetDockingTransform; // Docking node transform - valid only for docking port targets.
+        internal ModuleDockingNode[] targetDockingPorts = new ModuleDockingNode[0];
         internal Orbit targetOrbit;
         internal double targetClosestUT
         {
@@ -1016,7 +1017,57 @@ namespace AvionicsSystems
                 return targetCmpSpeed;
             }
         }
-        void UpdateTarget()
+        private void UpdateTargetDockingPorts()
+        {
+            Vessel targetVessel = (targetType == TargetType.Vessel) ? (activeTarget as Vessel) : (activeTarget as ModuleDockingNode).vessel;
+            if (!targetVessel.packed && targetVessel.loaded)
+            {
+                List<ModuleDockingNode> potentialDocks = targetVessel.FindPartModulesImplementing<ModuleDockingNode>();
+                List<ModuleDockingNode> validDocks = new List<ModuleDockingNode>();
+
+                if (dockingNode != null)
+                {
+                    for (int i = potentialDocks.Count - 1; i >= 0; --i)
+                    {
+                        ModuleDockingNode otherDock = potentialDocks[i];
+                        // Only lock on to an available dock of the same type that is either ungendered or the opposite gender.
+                        if (otherDock.state == "Ready" && (string.IsNullOrEmpty(dockingNode.nodeType) || dockingNode.nodeType == otherDock.nodeType) && (dockingNode.gendered == false || dockingNode.genderFemale != otherDock.genderFemale))
+                        {
+                            validDocks.Add(otherDock);
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = potentialDocks.Count - 1; i >= 0; --i)
+                    {
+                        ModuleDockingNode otherDock = potentialDocks[i];
+                        // Only lock on to an available dock of the same type that is either ungendered or the opposite gender.
+                        if (otherDock.state == "Ready")
+                        {
+                            validDocks.Add(otherDock);
+                        }
+                    }
+                }
+                if (targetDockingPorts.Length != validDocks.Count)
+                {
+                    targetDockingPorts = validDocks.ToArray();
+                }
+                else
+                {
+                    for (int i = targetDockingPorts.Length - 1; i >= 0; --i)
+                    {
+                        targetDockingPorts[i] = validDocks[i];
+                    }
+                }
+            }
+
+            else if ((targetVessel.packed || !targetVessel.loaded) && targetDockingPorts.Length > 0)
+            {
+                targetDockingPorts = new ModuleDockingNode[0];
+            }
+        }
+        private void UpdateTarget()
         {
             activeTarget = FlightGlobals.fetch.VesselTarget;
             if (activeTarget != null)
@@ -1051,6 +1102,11 @@ namespace AvionicsSystems
                     targetType = TargetType.None;
                 }
 
+                if (targetType == TargetType.Vessel || targetType == TargetType.DockingPort)
+                {
+                    UpdateTargetDockingPorts();
+                }
+
                 targetName = activeTarget.GetName();
                 targetOrbit = activeTarget.GetOrbit();
             }
@@ -1064,7 +1120,10 @@ namespace AvionicsSystems
                 targetDockingTransform = null;
                 targetName = string.Empty;
                 targetOrbit = null;
-
+                if (targetDockingPorts.Length > 0)
+                {
+                    targetDockingPorts = new ModuleDockingNode[0];
+                }
             }
             approachSolver.ResetComputation();
         }
