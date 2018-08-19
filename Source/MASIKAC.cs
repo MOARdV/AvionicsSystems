@@ -108,6 +108,11 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// The functions for interacting with the Kerbal Alarm Clock are listed in this category.
+        /// </summary>
+        #region Kerbal Alarm
+
+        /// <summary>
         /// Returns the number of future alarms scheduled for this vessel.
         /// Alarms that are in the past, or for other vessels, are not
         /// counted.  If Kerbal Alarm Clock is not installed, this value
@@ -213,6 +218,7 @@ namespace AvionicsSystems
                 return 0.0;
             }
         }
+        #endregion
 
         #region Reflection Configuration
         static MASIKAC()
