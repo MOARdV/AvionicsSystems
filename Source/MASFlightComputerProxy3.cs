@@ -1425,12 +1425,28 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the magnitude g-forces currently affecting the craft, in gees.
+        /// Returns the magnitude of g-forces currently affecting the craft, in gees.
         /// </summary>
         /// <returns>Current instantaneous force in Gs.</returns>
         public double GForce()
         {
             return vessel.geeForce_immediate;
+        }
+
+        /// <summary>
+        /// Returns the magnitude of g-forces perpendicular to the front of the craft
+        /// aligned with the normal seating configuration of the crew.  For aircraft and
+        /// most spacecraft, positive values indicates forces towards the feet of the crew,
+        /// while negative values indicate forces towards the heads of the crew.
+        /// 
+        /// Excessive positive values could cause blackouts, while excessive negative values
+        /// may cause redouts.
+        /// </summary>
+        /// <returns>The number of Gs towards the head or feet of the crew.</returns>
+        public double GForceVertical()
+        {
+            // acceleration is in m/s.
+            return -Vector3d.Dot(vessel.acceleration, vc.top) / Utility.StandardG;
         }
 
         /// <summary>
