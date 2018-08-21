@@ -1204,6 +1204,13 @@ namespace AvionicsSystems
                         Variable v = MakeLuaVariable(dotOperatorExpression.CanonicalName(), parameters, methodEntry, fnType);
                         if (v != null)
                         {
+                            if (fnType == Variable.VariableType.Dependent)
+                            {
+                                for (int i = 0; i < parameters.Length; ++i)
+                                {
+                                    parameters[i].RegisterNumericCallback(v.TriggerUpdate);
+                                }
+                            }
                             return v;
                         }
                         else
