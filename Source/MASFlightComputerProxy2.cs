@@ -3004,6 +3004,50 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Sets the fuel cells on or off per the 'active' parameter.  Fuel cells that can
+        /// not be manually controlled are not changed.
+        /// </summary>
+        /// <returns>1 if fuel cells are now active, 0 if they're off or they could not be toggled.</returns>
+        public double SetFuelCellActive(bool active)
+        {
+            return SetResourceConverterActive(0.0, active);
+        }
+
+        /// <summary>
+        /// Deploys / undeploys solar panels.
+        /// </summary>
+        /// <param name="deploy">'true' to extend solar panels, 'false' to retract them (when possible).</param>
+        /// <returns>1 if at least one panel is moving; 0 otherwise.</returns>
+        public double SetSolarPanelDeploy(bool deploy)
+        {
+            bool anyMoving = false;
+            if (vc.solarPanelsDeployable && deploy)
+            {
+                for (int i = vc.moduleSolarPanel.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleSolarPanel[i].useAnimation && vc.moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.RETRACTED)
+                    {
+                        vc.moduleSolarPanel[i].Extend();
+                        anyMoving = true;
+                    }
+                }
+            }
+            else if (vc.solarPanelsRetractable && !deploy)
+            {
+                for (int i = vc.moduleSolarPanel.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleSolarPanel[i].useAnimation && vc.moduleSolarPanel[i].retractable && vc.moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.EXTENDED)
+                    {
+                        vc.moduleSolarPanel[i].Retract();
+                        anyMoving = true;
+                    }
+                }
+            }
+
+            return (anyMoving) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Returns the number of solar panels on the vessel.
         /// </summary>
         /// <returns>The number of solar panel modules on the vessel.</returns>
@@ -3094,7 +3138,7 @@ namespace AvionicsSystems
         /// <returns>1 if fuel cells are now active, 0 if they're off or they could not be toggled.</returns>
         public double ToggleFuelCellActive()
         {
-            return ToggleResourceConverterActive(0.0);
+            return SetResourceConverterActive(0.0, GetFuelCellActive() < 1.0);
         }
 
         /// <summary>
@@ -3189,7 +3233,14 @@ namespace AvionicsSystems
         /// <returns>1 if any radar is switched on; 0 otherwise.</returns>
         public double RadarActive()
         {
-            return (vc.radarActive) ? 1.0 : 0.0;
+            for (int i = vc.moduleRadar.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleRadar[i].radarEnabled)
+                {
+                    return 1.0;
+                }
+            }
+            return 0.0;
         }
 
         /// <summary>
@@ -3202,15 +3253,33 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Activate or deactivate docking radars.
+        /// </summary>
+        /// <param name="active">'true' to enable docking radars, false otherwise.</param>
+        /// <returns>1 if radars are now active, 0 otherwise.</returns>
+        public double SetRadarActive(bool active)
+        {
+            for (int i = vc.moduleRadar.Length - 1; i >= 0; --i)
+            {
+                vc.moduleRadar[i].radarEnabled = active;
+            }
+
+            return (active) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Toggle any installed radar from active to inactive.
         /// </summary>
-        public void ToggleRadar()
+        /// <returns>1 if radars are now active, 0 otherwise.</returns>
+        public double ToggleRadar()
         {
-            bool state = !vc.radarActive;
+            bool state = (vc.moduleRadar.Length > 0) ? !vc.moduleRadar[0].radarEnabled : false;
             for (int i = vc.moduleRadar.Length - 1; i >= 0; --i)
             {
                 vc.moduleRadar[i].radarEnabled = state;
             }
+
+            return (state) ? 1.0 : 0.0;
         }
         #endregion
 
@@ -3568,6 +3637,28 @@ namespace AvionicsSystems
         public double ReactionWheelYaw()
         {
             return vc.reactionWheelYaw;
+        }
+
+        /// <summary>
+        /// Enable or disable reaction wheels.
+        /// </summary>
+        /// <param name="active">If true, reaction wheels are activated.  If false, they are deactivated.</param>
+        /// <returns>1 if any reaction wheels are installed, otherwise 0.</returns>
+        public double SetReactionWheelActive(bool active)
+        {
+            for (int i = vc.moduleReactionWheel.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleReactionWheel[i].wheelState == ModuleReactionWheel.WheelState.Active && active == false)
+                {
+                    vc.moduleReactionWheel[i].OnToggle();
+                }
+                else if (vc.moduleReactionWheel[i].wheelState == ModuleReactionWheel.WheelState.Disabled && active == true)
+                {
+                    vc.moduleReactionWheel[i].OnToggle();
+                }
+            }
+
+            return (vc.moduleReactionWheel.Length > 0) ? 1.0 : 0.0;
         }
 
         /// <summary>

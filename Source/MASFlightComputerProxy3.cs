@@ -844,6 +844,42 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Sets the resource converter group selected by `id` on or off.
+        /// </summary>
+        /// <param name="id">The id number of the resource converter group to query.  Must be an integer 0 or larger.</param>
+        /// <returns>1 if resource converters are now active, 0 if they're off or they could not be toggled.</returns>
+        public double SetResourceConverterActive(double id, bool newState)
+        {
+            int idNum = (int)id;
+
+            var rc = vc.resourceConverterList.Find(x => x.id == idNum);
+            if (rc != null)
+            {
+                bool state = rc.converterActive;
+                bool anyChanged = false;
+                for (int i = rc.moduleConverter.Length - 1; i >= 0; --i)
+                {
+                    if (!rc.moduleConverter[i].AlwaysActive && state != newState)
+                    {
+                        anyChanged = true;
+                        if (newState)
+                        {
+                            rc.moduleConverter[i].StartResourceConverter();
+                        }
+                        else
+                        {
+                            rc.moduleConverter[i].StopResourceConverter();
+                        }
+                    }
+                }
+
+                return (state && anyChanged) ? 1.0 : 0.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Toggles the resource converter group selected by `id` on or off.
         /// </summary>
         /// <param name="id">The id number of the resource converter group to query.  Must be an integer 0 or larger.</param>
@@ -1064,6 +1100,30 @@ namespace AvionicsSystems
         public double SASHasActions()
         {
             return (vc.GroupHasActions(KSPActionGroup.SAS)) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Activates or deactivates precision control mode.
+        /// </summary>
+        /// <param name="state">'true' to enable precision control, 'false' to disable it.</param>
+        /// <returns>1 if precision mode is now on, 0 if it is now off.</returns>
+        public double SetPrecisionMode(bool state)
+        {
+            if (state != FlightInputHandler.fetch.precisionMode)
+            {
+                FlightInputHandler.fetch.precisionMode = state;
+
+                var gauges = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.LinearControlGauges>();
+                if (gauges != null)
+                {
+                    for (int i = gauges.inputGaugeImages.Count - 1; i >= 0; --i)
+                    {
+                        gauges.inputGaugeImages[i].color = (state) ? XKCDColors.BrightCyan : XKCDColors.Orange;
+                    }
+                }
+            }
+
+            return (state) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -2950,6 +3010,39 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Deploys deployable radiators, or retracts retractable radiators.
+        /// </summary>
+        /// <param name="deploy">'true' to deploy radiators, 'false' to undeploy radiators.</param>
+        /// <returns>1 if any radiators are now deploying or retracting.</returns>
+        public double SetRadiator(bool deploy)
+        {
+            if (vc.radiatorDeployable && deploy)
+            {
+                for (int i = vc.moduleDeployableRadiator.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleDeployableRadiator[i].useAnimation && vc.moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.RETRACTED)
+                    {
+                        vc.moduleDeployableRadiator[i].Extend();
+                    }
+                }
+                return 1.0;
+            }
+            else if (vc.radiatorRetractable && !deploy)
+            {
+                for (int i = vc.moduleDeployableRadiator.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleDeployableRadiator[i].useAnimation && vc.moduleDeployableRadiator[i].retractable && vc.moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.EXTENDED)
+                    {
+                        vc.moduleDeployableRadiator[i].Retract();
+                    }
+                }
+                return 1.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the skin temperature of the current IVA pod.
         /// </summary>
         /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
@@ -2969,7 +3062,8 @@ namespace AvionicsSystems
         /// <summary>
         /// Deploys deployable radiators, or retracts retractable radiators.
         /// </summary>
-        public void ToggleRadiator()
+        /// <returns>1 if any deployable radiators are installed.  0 otherwise.</returns>
+        public double ToggleRadiator()
         {
             if (vc.radiatorDeployable)
             {
@@ -2991,6 +3085,8 @@ namespace AvionicsSystems
                     }
                 }
             }
+
+            return (vc.moduleDeployableRadiator.Length > 0) ? 1.0 : 0.0;
         }
         #endregion
 

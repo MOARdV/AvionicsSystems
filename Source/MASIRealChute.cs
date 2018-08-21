@@ -212,7 +212,58 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Toggles the armed state of any RealChute parachutes.
+        /// Arms or disarms parachutes for auto-deployment.
+        /// </summary>
+        /// <param name="arm">If 'true', parachutes will auto-deploy when their criteria are met.  If 'false',
+        /// auto-deployment is disabled.</param>
+        /// <returns>1 if parachutes are armed, 0 otherwise</returns>
+        public double SetParachuteArmed(bool arm)
+        {
+            bool updated = false;
+
+            if (anyArmed && !arm)
+            {
+                for (int i = disarmParachute.Length - 1; i >= 0; --i)
+                {
+                    disarmParachute[i]();
+                    updated = true;
+                }
+                for (int i = vc.moduleParachute.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleParachute[i].deploymentState == ModuleParachute.deploymentStates.ACTIVE)
+                    {
+                        vc.moduleParachute[i].Disarm();
+                        updated = true;
+                    }
+                }
+            }
+            else if (!anyArmed && arm)
+            {
+                updated = (armParachute.Length > 0);
+                for (int i = armParachute.Length - 1; i >= 0; --i)
+                {
+                    armParachute[i]();
+                    updated = true;
+                }
+                for (int i = vc.moduleParachute.Length - 1; i >= 0; --i)
+                {
+                    // If the stock 'chute is stowed, and it is configured as
+                    // automateSafeDeploy == 0 (deploy when safe), tell it to deploy.
+                    // It won't deploy until it's safe, so it's similar to RealChute's
+                    // armed state.
+                    if (vc.moduleParachute[i].deploymentState == ModuleParachute.deploymentStates.STOWED && vc.moduleParachute[i].automateSafeDeploy == 0)
+                    {
+                        vc.moduleParachute[i].Deploy();
+                        updated = true;
+                    }
+                }
+            }
+
+            return (updated) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Toggles the armed state of any RealChute or stock parachutes.
         /// </summary>
         /// <returns>1 if parachutes are armed, 0 otherwise</returns>
         public double ToggleParachuteArmed()

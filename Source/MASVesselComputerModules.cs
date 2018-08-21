@@ -545,9 +545,8 @@ namespace AvionicsSystems
 
             return requestReset;
         }
-        internal bool ToggleEnginesEnabled()
+        internal bool SetEnginesEnabled(bool newState)
         {
-            bool newState = !anyEnginesEnabled;
             for (int i = moduleEngines.Length - 1; i >= 0; --i)
             {
                 Part thatPart = moduleEngines[i].part;
@@ -800,15 +799,6 @@ namespace AvionicsSystems
         #region Radar
         private List<MASRadar> radarList = new List<MASRadar>();
         internal MASRadar[] moduleRadar = new MASRadar[0];
-        internal bool radarActive;
-        private void UpdateRadars()
-        {
-            radarActive = false;
-            for (int i = moduleRadar.Length - 1; i >= 0; --i)
-            {
-                radarActive |= moduleRadar[i].radarEnabled;
-            }
-        }
         #endregion
 
         #region RCS
@@ -1534,7 +1524,6 @@ namespace AvionicsSystems
             UpdateGimbals();
             UpdatePower();
             UpdateProceduralFairing();
-            UpdateRadars();
             UpdateRadiators();
             UpdateRcs();
             UpdateReactionWheels();

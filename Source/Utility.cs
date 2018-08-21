@@ -697,6 +697,29 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Helper function to determine the state of a ModuleAnimateGeneric.
+        /// </summary>
+        /// <param name="mag"></param>
+        /// <returns></returns>
+        internal static bool Extended(this ModuleAnimateGeneric mag)
+        {
+            Animation animation = mag.GetAnimation();
+            AnimationState animationState = animation[mag.animationName];
+            if (animationState != null && mag.IsMoving())
+            {
+                return (animationState.normalizedSpeed > 0.0f);
+            }
+            else if (mag.Progress > 0.5f)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Computes Stagnation Pressure using gamma (ratio of specific heats)
         /// and Mach number.
         /// Per https://en.wikipedia.org/wiki/Stagnation_pressure

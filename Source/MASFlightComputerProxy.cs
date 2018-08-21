@@ -67,6 +67,7 @@ namespace AvionicsSystems
     /// </mdDoc>
     internal partial class MASFlightComputerProxy
     {
+
         private static readonly MASVesselComputer.ReferenceAttitude[] referenceAttitudes =
         {
             MASVesselComputer.ReferenceAttitude.REF_INERTIAL,
@@ -1977,6 +1978,24 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Extends or retracts a deployable camera.  Has
+        /// no effect on non-deployable cameras.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <param name="deploy">true to deploy the camera, false to retract it.</param>
+        /// <returns>1 if the camera deploys / undeploys, 0 otherwise.</returns>
+        public double SetCameraDeployment(double index, bool deploy)
+        {
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length && vc.moduleCamera[i].IsDeployed() != deploy)
+            {
+                return vc.moduleCamera[i].ToggleDeployment() ? 1.0 : 0.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the id number of the currently-active mode on the MASCamera selected by `index`.
         /// </summary>
         /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
@@ -2050,7 +2069,7 @@ namespace AvionicsSystems
         /// no effect on non-deployable cameras.
         /// </summary>
         /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
-        /// <returns></returns>
+        /// <returns>1 if the camera deploys / undeploys, 0 otherwise.</returns>
         public double ToggleCameraDeployment(double index)
         {
             int i = (int)index;
@@ -2097,6 +2116,33 @@ namespace AvionicsSystems
         public double CargoBayPosition()
         {
             return vc.cargoBayPosition;
+        }
+
+        /// <summary>
+        /// Open or close cargo bays.
+        /// Will not affect any cargo bays that are already in motion.
+        /// </summary>
+        /// <returns>1 if at least one cargo bay is now opening or closing, 0 otherwise.</returns>
+        public double SetCargoBay(bool open)
+        {
+            bool anyMoved = false;
+
+            for (int i = vc.moduleCargoBay.Length - 1; i >= 0; --i)
+            {
+                ModuleCargoBay me = vc.moduleCargoBay[i];
+                PartModule deployer = me.part.Modules[me.DeployModuleIndex];
+                if (deployer is ModuleAnimateGeneric)
+                {
+                    ModuleAnimateGeneric mag = deployer as ModuleAnimateGeneric;
+                    if (mag.CanMove && open != mag.Extended())
+                    {
+                        mag.Toggle();
+                        anyMoved = true;
+                    }
+                }
+            }
+
+            return (anyMoved) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -2352,6 +2398,41 @@ namespace AvionicsSystems
         public double CommNetSignalStrength()
         {
             return vessel.connection.SignalStrength;
+        }
+
+        /// <summary>
+        /// Deploys antennae (when 'deployed' is true) or undeploys antennae (when 'deployed' is false).
+        /// </summary>
+        /// <param name="deploy">Whether the function should deploy the antennae or undeploy them.</param>
+        /// <returns>1 if any antenna changes, 0 if all are already in the specified state.</returns>
+        public double SetAntenna(bool deploy)
+        {
+            bool anyMoved = false;
+
+            if (deploy)
+            {
+                for (int i = vc.moduleAntenna.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleAntenna[i].useAnimation && vc.moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.RETRACTED)
+                    {
+                        vc.moduleAntenna[i].Extend();
+                        anyMoved = true;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = vc.moduleAntenna.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleAntenna[i].useAnimation && vc.moduleAntenna[i].retractable && vc.moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.EXTENDED)
+                    {
+                        vc.moduleAntenna[i].Retract();
+                        anyMoved = true;
+                    }
+                }
+            }
+
+            return (anyMoved) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -3038,7 +3119,7 @@ namespace AvionicsSystems
                 {
                     roll += 360.0f;
                 }
-                
+
                 float rollError = roll % snapOffset;
                 if (rollError > (snapOffset * 0.5f))
                 {
@@ -3407,6 +3488,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Turns on/off engines for the current stage.
+        /// </summary>
+        /// <returns>1 if engines are now enabled, 0 if they are disabled.</returns>
+        public double SetEnginesEnabled(bool enable)
+        {
+            return (vc.SetEnginesEnabled(enable)) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Change the gimbal limit for active gimbals.  Values less than 0 or greater than 1 are
         /// clamped to that range.
         /// </summary>
@@ -3426,6 +3516,45 @@ namespace AvionicsSystems
             }
 
             return (updated) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Locks or unlocks engine gimbals for the current stage.
+        /// </summary>
+        /// <returns>1 if any gimbals changed, 0 if none changed.</returns>
+        public double SetGimbalLock(bool locked)
+        {
+            bool changed = false;
+            for (int i = vc.moduleGimbals.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleGimbals[i].gimbalActive && vc.moduleGimbals[i].gimbalLock != locked)
+                {
+                    changed = true;
+                    vc.moduleGimbals[i].gimbalLock = locked;
+                }
+            }
+
+            return (changed) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Selects the primary or secondary mode for multi-mode engines.
+        /// </summary>
+        /// <param name="runPrimary">Selects the primary mode when true, the secondary mode when false.</param>
+        /// <returns>1 if any engines were toggled, 0 if no multi-mode engines are installed.</returns>
+        public double SetMultiModeEngineMode(bool runPrimary)
+        {
+            bool anyChanged = false;
+            for (int i = vc.multiModeEngines.Length; i >= 0; --i)
+            {
+                if (vc.multiModeEngines[i].runningPrimary != runPrimary)
+                {
+                    vc.multiModeEngines[i].ToggleMode();
+                    anyChanged = true;
+                }
+            }
+
+            return (anyChanged) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -3469,7 +3598,7 @@ namespace AvionicsSystems
         /// <returns>1 if engines are now enabled, 0 if they are disabled.</returns>
         public double ToggleEnginesEnabled()
         {
-            return (vc.ToggleEnginesEnabled()) ? 1.0 : 0.0;
+            return (vc.SetEnginesEnabled(!vc.anyEnginesEnabled)) ? 1.0 : 0.0;
         }
 
         /// <summary>
