@@ -2191,7 +2191,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Return roll relative to the surface. [-180, 180]
+        /// Returns roll relative to the surface, in degrees. [-180, 180]
         /// </summary>
         /// <returns></returns>
         public double Roll()
@@ -2200,10 +2200,11 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the roll angle between the vessel's reference transform and a targeted docking port.
-        /// If the target is not a docking port, returns 0;
+        /// Returns the roll angle in degrees between the vessel's reference transform and a targeted docking port.
+        /// If the target is not a docking port, returns 0.  Some docks have alignment requirements.  To
+        /// determine whether these docks are suitably aligned for docking, use `fc.TargetDockError()`.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The relative roll between the vessel and the currently-targeted docking port, or 0.</returns>
         public double RollDockingAlignment()
         {
             if (vc.targetType == MASVesselComputer.TargetType.DockingPort && vc.targetDockingTransform != null)

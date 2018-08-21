@@ -2989,6 +2989,69 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the angle in degrees that the vessel must roll in order to align with the
+        /// currently-targeted docking port.
+        /// 
+        /// If no dock is targeted, there are no alignment requirements, or a compatible docking port
+        /// is not the reference part, this function returns 0.
+        /// </summary>
+        /// <returns>The roll required to align docking ports, or 0.</returns>
+        public double TargetDockError()
+        {
+            if (vc.dockingNode != null && vc.dockingNode.part.transform == vc.referenceTransform && vc.targetType == MASVesselComputer.TargetType.DockingPort && vc.targetDockingTransform != null)
+            {
+                ModuleDockingNode activeNode = vc.activeTarget as ModuleDockingNode;
+                // TODO: If either is false, does that disable snapRotation?  Or do both need to be false?
+                if (vc.dockingNode.snapRotation == false && activeNode.snapRotation == false)
+                {
+                    return 0.0;
+                }
+
+                float snapOffset;
+                if (vc.dockingNode.snapRotation)
+                {
+                    if (activeNode.snapRotation)
+                    {
+                        snapOffset = Mathf.Min(activeNode.snapOffset, vc.dockingNode.snapOffset);
+                    }
+                    else
+                    {
+                        snapOffset = vc.dockingNode.snapOffset;
+                    }
+                }
+                else
+                {
+                    snapOffset = activeNode.snapOffset;
+                }
+
+                Vector3 projectedVector = Vector3.ProjectOnPlane(vc.targetDockingTransform.up, vc.referenceTransform.up);
+                projectedVector.Normalize();
+
+                float dotLateral = Vector3.Dot(projectedVector, vc.referenceTransform.right);
+                float dotLongitudinal = Vector3.Dot(projectedVector, vc.referenceTransform.forward);
+
+                // Taking arc tangent of x/y lets us treat the front of the vessel
+                // as the 0 degree location.
+                float roll = Mathf.Atan2(dotLateral, dotLongitudinal) * Mathf.Rad2Deg;
+                // Normalize it
+                if (roll < 0.0f)
+                {
+                    roll += 360.0f;
+                }
+                
+                float rollError = roll % snapOffset;
+                if (rollError > (snapOffset * 0.5f))
+                {
+                    rollError -= snapOffset;
+                }
+
+                return rollError;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the name of the target dock selected by 'idx'.  If the Docking Port Alignment
         /// Indicator mod is installed, the name given to the dock from that mod is returned.  Otherwise,
         /// only the part's name is returned.
