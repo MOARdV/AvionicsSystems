@@ -674,7 +674,7 @@ namespace AvionicsSystems
 
             double headingChange = Utility.NormalizeLongitude(surfaceAttitude.y - lastHeading);
             lastHeading = surfaceAttitude.y;
-            headingRate = headingChange / TimeWarp.fixedDeltaTime;
+            headingRate = 0.875 * headingRate + 0.125 * headingChange / TimeWarp.fixedDeltaTime;
 
             up = vessel.upAxis;
             prograde = vessel.obt_velocity.normalized;
