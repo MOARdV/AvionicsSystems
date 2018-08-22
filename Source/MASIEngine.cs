@@ -24,6 +24,7 @@
  ****************************************************************************/
 using KSP.UI.Screens;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace AvionicsSystems
 {
@@ -454,7 +455,105 @@ namespace AvionicsSystems
         /// that have a MASIdEngineGroup part module.
         /// </summary>
         #region Engine Group Management
-        
+
+        /// <summary>
+        /// Returns the current fuel flow in grams/second for the selected group.
+        /// </summary>
+        /// <param name="groupId">A number from 1 to 31 (inclusive) to select a specific group, or 0 to select all groups.</param>
+        /// <returns>Current fuel flow in g/s.</returns>
+        public double CurrentFuelFlow(double groupId)
+        {
+            float fuelFlow = 0.0f;
+            int id = (int)groupId;
+
+            if (id == 0)
+            {
+                for (int i = 0; i < vc.engineGroup.Length; ++i)
+                {
+                    ModuleEngines me = vc.engineGroup[i].engine;
+
+                    if (me.EngineIgnited)
+                    {
+                        float realIsp = me.realIsp;
+
+                        if (realIsp > 0.0f)
+                        {
+                            // Compute specific fuel consumption and
+                            // multiply by thrust to get grams/sec fuel flow
+                            float specificFuelConsumption = 101972.0f / realIsp;
+                            fuelFlow += specificFuelConsumption * me.finalThrust;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < vc.engineGroup.Length; ++i)
+                {
+                    if (vc.engineGroup[i].partId == id)
+                    {
+                        ModuleEngines me = vc.engineGroup[i].engine;
+
+                        if (me.EngineIgnited)
+                        {
+                            float realIsp = me.realIsp;
+
+                            if (realIsp > 0.0f)
+                            {
+                                // Compute specific fuel consumption and
+                                // multiply by thrust to get grams/sec fuel flow
+                                float specificFuelConsumption = 101972.0f / realIsp;
+                                fuelFlow += specificFuelConsumption * me.finalThrust;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return fuelFlow;
+        }
+
+        /// <summary>
+        /// Returns the current thrust in kiloNewtons for the selected group.
+        /// </summary>
+        /// <param name="groupId">A number from 1 to 31 (inclusive) to select a specific group, or 0 to select all groups.</param>
+        /// <returns>Current thrust in kN.</returns>
+        public double CurrentThrustkN(double groupId)
+        {
+            float thrust = 0.0f;
+            int id = (int)groupId;
+
+            if (id == 0)
+            {
+                for (int i = 0; i < vc.engineGroup.Length; ++i)
+                {
+                    ModuleEngines me = vc.engineGroup[i].engine;
+
+                    if (me.EngineIgnited)
+                    {
+                        thrust += me.finalThrust;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < vc.engineGroup.Length; ++i)
+                {
+                    if (vc.engineGroup[i].partId == id)
+                    {
+                        ModuleEngines me = vc.engineGroup[i].engine;
+
+                        if (me.EngineIgnited)
+                        {
+                            thrust += me.finalThrust;
+                        }
+                    }
+                }
+            }
+
+            return thrust;
+        }
+
         /// <summary>
         /// Returns 1 if the selected groupId has at least one member.
         /// </summary>
@@ -477,7 +576,7 @@ namespace AvionicsSystems
                     }
                 }
             }
-            
+
             return 0.0;
         }
 
@@ -492,7 +591,7 @@ namespace AvionicsSystems
             int id = (int)groupId;
             if (id == 0)
             {
-                for (int i=0; i<vc.engineGroup.Length; ++i)
+                for (int i = 0; i < vc.engineGroup.Length; ++i)
                 {
                     ModuleEngines me = vc.engineGroup[i].engine;
                     if (me.EngineIgnited && me.isEnabled && me.isOperational)
@@ -526,7 +625,7 @@ namespace AvionicsSystems
         public double GetEngineGroupCount()
         {
             uniqueIds.Clear();
-            for(int i=0; i<vc.engineGroup.Length; ++i)
+            for (int i = 0; i < vc.engineGroup.Length; ++i)
             {
                 if (!uniqueIds.Contains(vc.engineGroup[i].partId))
                 {
@@ -538,12 +637,213 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the average of the throttle limit for the selected engine group,
+        /// ranging from 0 (no thrust) to 1 (maximum thrust).
+        /// </summary>
+        /// <param name="groupId">A number from 1 to 31 (inclusive) to select a specific group, or 0 to select all groups.</param>
+        /// <returns>A number from 0 (no thrust or no engines) to 1 (maximum thrust).</returns>
+        public double GetThrottleLimit(double groupId)
+        {
+            float limit = 0.0f;
+            float count = 0.0f;
+
+            int id = (int)groupId;
+            if (id == 0)
+            {
+                for (int i = 0; i < vc.engineGroup.Length; ++i)
+                {
+                    ModuleEngines me = vc.engineGroup[i].engine;
+
+                    if (me.EngineIgnited)
+                    {
+                        limit += me.thrustPercentage;
+                        // We use 100 because thrustPercentage is in the range [0, 100].  So, using
+                        // 100 here gives us a free conversion to [0, 1].
+                        count += 100.0f;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < vc.engineGroup.Length; ++i)
+                {
+                    if (vc.engineGroup[i].partId == id)
+                    {
+                        ModuleEngines me = vc.engineGroup[i].engine;
+
+                        if (me.EngineIgnited)
+                        {
+                            limit += me.thrustPercentage;
+                            count += 100.0f;
+                        }
+                    }
+                }
+            }
+
+            return (count > 0.0f) ? (limit / count) : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the maximum thrust in kiloNewtons for the selected group.
+        /// </summary>
+        /// <param name="groupId">A number from 1 to 31 (inclusive) to select a specific group, or 0 to select all groups.</param>
+        /// <returns>Max thrust in kN.</returns>
+        public double MaxThrustkN(double groupId)
+        {
+            float thrust = 0.0f;
+            int id = (int)groupId;
+
+            if (id == 0)
+            {
+                for (int i = 0; i < vc.engineGroup.Length; ++i)
+                {
+                    ModuleEngines me = vc.engineGroup[i].engine;
+
+                    if (me.EngineIgnited)
+                    {
+                        thrust += me.GetMaxThrust();
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < vc.engineGroup.Length; ++i)
+                {
+                    if (vc.engineGroup[i].partId == id)
+                    {
+                        ModuleEngines me = vc.engineGroup[i].engine;
+
+                        if (me.EngineIgnited)
+                        {
+                            thrust += me.GetMaxThrust();
+                        }
+                    }
+                }
+            }
+
+            return thrust;
+        }
+
+        /// <summary>
+        /// Toggles all of the engines in the selected group that can be toggled
+        /// (activates them if they're deactivated, shuts them off if they're active).
+        /// </summary>
+        /// <param name="groupId">A number from 1 to 31 (inclusive) to select a specific group, or 0 to select all groups.</param>
+        /// <param name="newState">When true, activates engines in the group.  When false, deactivates them.</param>
+        /// <returns>1 if any engines were toggled, 0 otherwise.</returns>
+        public double SetEnginesEnabled(double groupId, bool newState)
+        {
+            int id = (int)groupId;
+            double anyChanged = 0.0;
+            if (id == 0)
+            {
+                for (int i = 0; i < vc.engineGroup.Length; ++i)
+                {
+                    ModuleEngines me = vc.engineGroup[i].engine;
+                    Part thatPart = me.part;
+
+                    if (thatPart.inverseStage == StageManager.CurrentStage || !newState)
+                    {
+                        if (me.EngineIgnited != newState)
+                        {
+                            if (newState && me.allowRestart)
+                            {
+                                me.Activate();
+                                anyChanged = 1.0;
+                            }
+                            else if (me.allowShutdown)
+                            {
+                                me.Shutdown();
+                                anyChanged = 1.0;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < vc.engineGroup.Length; ++i)
+                {
+                    if (vc.engineGroup[i].partId == id)
+                    {
+                        ModuleEngines me = vc.engineGroup[i].engine;
+                        Part thatPart = me.part;
+
+                        if (thatPart.inverseStage == StageManager.CurrentStage || !newState)
+                        {
+                            if (me.EngineIgnited != newState)
+                            {
+                                if (newState && me.allowRestart)
+                                {
+                                    me.Activate();
+                                    anyChanged = 1.0;
+                                }
+                                else if (me.allowShutdown)
+                                {
+                                    me.Shutdown();
+                                    anyChanged = 1.0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return anyChanged;
+        }
+
+        /// <summary>
+        /// Set the throttle limit for all of the engines in the selected group.  May be set to any value between 0 and 1.  Values outside
+        /// that range are clamped to [0, 1].
+        /// </summary>
+        /// <param name="groupId">A number from 1 to 31 (inclusive) to select a specific group, or 0 to select all groups.</param>
+        /// <param name="newLimit">The new throttle limit, between 0 and 1 (inclusive).</param>
+        /// <returns>1 if the throttle limit was updated, 0 otherwise.</returns>
+        public double SetThrottleLimit(double groupId, double newLimit)
+        {
+            float limit = Mathf.Clamp01((float)newLimit) * 100.0f;
+
+            int id = (int)groupId;
+            if (id == 0)
+            {
+                for (int i = 0; i < vc.engineGroup.Length; ++i)
+                {
+                    ModuleEngines me = vc.engineGroup[i].engine;
+
+                    if (me.EngineIgnited)
+                    {
+                        me.thrustPercentage = limit;
+                    }
+                }
+
+                return (vc.engineGroup.Length > 0) ? 1.0 : 0.0;
+            }
+            else
+            {
+                bool updated = false;
+                for (int i = 0; i < vc.engineGroup.Length; ++i)
+                {
+                    if (vc.engineGroup[i].partId == id)
+                    {
+                        ModuleEngines me = vc.engineGroup[i].engine;
+
+                        if (me.EngineIgnited)
+                        {
+                            me.thrustPercentage = limit;
+                        }
+                    }
+                }
+                return (updated) ? 1.0 : 0.0;
+            }
+        }
+
+        /// <summary>
         /// Toggles all of the engines in the selected group that can be toggled
         /// (activates them if they're deactivated, shuts them off if they're active).
         /// </summary>
         /// <param name="groupId">A number from 1 to 31 (inclusive) to select a specific group, or 0 to select all groups.</param>
         /// <returns>1 if any engines were toggled, 0 otherwise.</returns>
-        public double ToggleEngineGroup(double groupId)
+        public double ToggleEnginesEnabled(double groupId)
         {
             int id = (int)groupId;
             bool newState = (GetEngineGroupActive(groupId) == 0.0);
