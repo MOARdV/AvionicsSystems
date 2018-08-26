@@ -48,7 +48,8 @@ namespace AvionicsSystems
         private static readonly FieldInfo AbsoluteVectorLon;
 
         //--- Methods found in ComputerModule
-        private static readonly Func<object, bool> ModuleEnabled;
+        private static readonly Func<object, bool> GetModuleEnabled;
+        private static readonly Action<object, bool> SetModuleEnabled;
         private static readonly FieldInfo ModuleUsers;
         private static readonly FieldInfo Target;
 
@@ -80,6 +81,8 @@ namespace AvionicsSystems
         private static readonly Func<object, object> GetAPVerticalRoll;
         private static readonly Action<object, bool> SetForceRoll;
         private static readonly Action<object, double> SetLaunchInclination;
+        private static readonly Func<object, int> GetAscentPathIdx;
+        private static readonly Action<object, object> SetAscentPath;
 
         //--- Methods found in ModuleAscentGuidance
         private static readonly Func<object, object> GetInclinationAG;
@@ -143,6 +146,9 @@ namespace AvionicsSystems
         object masterMechJeb;
         object ascentAutopilot;
         object ascentGuidance;
+        object ascentProfileClassic;
+        object ascentProfileGT;
+        object ascentProfilePEG;
         object landingAutopilot;
         object landingGuidance;
         object landingPrediction;
@@ -233,7 +239,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double AutopilotActive()
         {
-            if (mjAvailable && (ModuleEnabled(ascentAutopilot) || ModuleEnabled(landingAutopilot) || ModuleEnabled(nodeExecutor) || ModuleEnabled(rendezvousAutopilot)))
+            if (mjAvailable && (GetModuleEnabled(ascentAutopilot) || GetModuleEnabled(landingAutopilot) || GetModuleEnabled(nodeExecutor) || GetModuleEnabled(rendezvousAutopilot)))
             {
                 return 1.0;
             }
@@ -259,7 +265,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double ComputerActive()
         {
-            if (mjAvailable && (saTarget != SATarget.OFF || ModuleEnabled(ascentAutopilot) || ModuleEnabled(landingAutopilot) || ModuleEnabled(nodeExecutor) || ModuleEnabled(rendezvousAutopilot)))
+            if (mjAvailable && (saTarget != SATarget.OFF || GetModuleEnabled(ascentAutopilot) || GetModuleEnabled(landingAutopilot) || GetModuleEnabled(nodeExecutor) || GetModuleEnabled(rendezvousAutopilot)))
             {
                 return 1.0;
             }
@@ -283,22 +289,22 @@ namespace AvionicsSystems
                     Engage(smartAss, true);
                 }
 
-                if (ModuleEnabled(ascentAutopilot))
+                if (GetModuleEnabled(ascentAutopilot))
                 {
                     RemoveUser(ModuleUsers.GetValue(ascentAutopilot), ascentGuidance);
                 }
 
-                if (ModuleEnabled(landingAutopilot))
+                if (GetModuleEnabled(landingAutopilot))
                 {
                     StopLanding(landingAutopilot);
                 }
 
-                if (ModuleEnabled(nodeExecutor))
+                if (GetModuleEnabled(nodeExecutor))
                 {
                     AbortNode(nodeExecutor);
                 }
 
-                if (ModuleEnabled(rendezvousAutopilot))
+                if (GetModuleEnabled(rendezvousAutopilot))
                 {
                     RemoveUser(ModuleUsers.GetValue(rendezvousAutopilot), rendezvousAutopilotWindow);
                 }
@@ -318,7 +324,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double AscentAutopilotActive()
         {
-            if (mjAvailable && ModuleEnabled(ascentAutopilot))
+            if (mjAvailable && GetModuleEnabled(ascentAutopilot))
             {
                 return 1.0;
             }
@@ -500,13 +506,42 @@ namespace AvionicsSystems
                     Utility.LogWarning(this, "ascentAutopilot's ModuleUsers is null");
                 }
 
-                if (ModuleEnabled(ascentAutopilot))
+                if (GetModuleEnabled(ascentAutopilot))
                 {
-                    RemoveUser(users, ascentGuidance);
+                    object o = RemoveUser(users, ascentGuidance);
                 }
                 else
                 {
-                    AddUser(users, ascentGuidance);
+                    // The Ascent Autopilot / Ascent Guidance modules were refactored to add
+                    // new ascent profiles.  Unfortunately, when that was done, one component
+                    // of the AP setup was done in the Ascent Guidance (GUI) module, so if the
+                    // GUI was never instantiated, the AP profile module was null.  This switch
+                    // statement implements that behavior (documented at https://github.com/MuMech/MechJeb2/blob/dev/MechJeb2/MechJebModuleAscentGuidance.cs#L26-L80 )
+                    int profileIndex = GetAscentPathIdx(ascentAutopilot);
+                    switch (profileIndex)
+                    {
+                        case 1:
+                            SetModuleEnabled(ascentProfileClassic, false);
+                            SetModuleEnabled(ascentProfileGT, true);
+                            SetModuleEnabled(ascentProfilePEG, false);
+                            SetAscentPath(ascentAutopilot, ascentProfileGT);
+                            break;
+                        case 2:
+                            SetModuleEnabled(ascentProfileClassic, false);
+                            SetModuleEnabled(ascentProfileGT, false);
+                            SetModuleEnabled(ascentProfilePEG, true);
+                            SetAscentPath(ascentAutopilot, ascentProfilePEG);
+                            break;
+                        // case 0: fall through
+                        default:
+                            SetModuleEnabled(ascentProfileClassic, true);
+                            SetModuleEnabled(ascentProfileGT, false);
+                            SetModuleEnabled(ascentProfilePEG, false);
+                            SetAscentPath(ascentAutopilot, ascentProfileClassic);
+                            break;
+                    }
+                    SetModuleEnabled(ascentAutopilot, true);
+                    object o = AddUser(users, ascentGuidance);
                     return 1.0;
                 }
             }
@@ -542,7 +577,7 @@ namespace AvionicsSystems
         /// <returns>1 if the landing autopilot is active, 0 otherwise</returns>
         public double LandingAutopilotActive()
         {
-            if (mjAvailable && ModuleEnabled(landingAutopilot))
+            if (mjAvailable && GetModuleEnabled(landingAutopilot))
             {
                 return 1.0;
             }
@@ -647,7 +682,7 @@ namespace AvionicsSystems
         {
             if (mjAvailable)
             {
-                if (ModuleEnabled(landingAutopilot))
+                if (GetModuleEnabled(landingAutopilot))
                 {
                     StopLanding(landingAutopilot);
                 }
@@ -680,7 +715,7 @@ namespace AvionicsSystems
             {
                 object users = ModuleUsers.GetValue(landingPrediction);
 
-                if (ModuleEnabled(landingPrediction))
+                if (GetModuleEnabled(landingPrediction))
                 {
                     RemoveUser(users, landingGuidance);
                 }
@@ -786,7 +821,7 @@ namespace AvionicsSystems
         /// <returns>1 if the node exeuctor is enabled; 0 otherwise.</returns>
         public double ManeuverNodeExecutorActive()
         {
-            if (mjAvailable && ModuleEnabled(nodeExecutor))
+            if (mjAvailable && GetModuleEnabled(nodeExecutor))
             {
                 return 1.0;
             }
@@ -867,7 +902,7 @@ namespace AvionicsSystems
         {
             if (mjAvailable)
             {
-                if (ModuleEnabled(nodeExecutor))
+                if (GetModuleEnabled(nodeExecutor))
                 {
                     AbortNode(nodeExecutor);
                 }
@@ -917,7 +952,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double RendezvousAutopilotActive()
         {
-            if (mjAvailable && ModuleEnabled(rendezvousAutopilot))
+            if (mjAvailable && GetModuleEnabled(rendezvousAutopilot))
             {
                 return 1.0;
             }
@@ -936,7 +971,7 @@ namespace AvionicsSystems
             if (mjAvailable)
             {
                 object users = ModuleUsers.GetValue(rendezvousAutopilot);
-                if (ModuleEnabled(rendezvousAutopilot))
+                if (GetModuleEnabled(rendezvousAutopilot))
                 {
                     RemoveUser(users, rendezvousAutopilotWindow);
                 }
@@ -1107,7 +1142,7 @@ namespace AvionicsSystems
                 object activeSATarget = saTarget_t.GetValue(smartAss);
                 saTarget = saTargetMap[(int)activeSATarget];
 
-                landingPredictionEnabled = ModuleEnabled(landingPrediction);
+                landingPredictionEnabled = GetModuleEnabled(landingPrediction);
 
                 bool landingPredictionRead = false;
                 if (landingPredictionEnabled)
@@ -1221,6 +1256,24 @@ namespace AvionicsSystems
                         if (ascentAutopilot == null)
                         {
                             throw new Exception("MASIMechJeb: Failed to get Ascent Autopilot MJ module");
+                        }
+
+                        ascentProfileClassic = GetComputerModule(masterMechJeb, "MechJebModuleAscentClassic");
+                        if (ascentProfileClassic == null)
+                        {
+                            throw new Exception("MASIMechJeb: Failed to get Classic Ascent Profile MJ module");
+                        }
+
+                        ascentProfileGT = GetComputerModule(masterMechJeb, "MechJebModuleAscentGT");
+                        if (ascentProfileGT == null)
+                        {
+                            throw new Exception("MASIMechJeb: Failed to get GT Ascent Profile MJ module");
+                        }
+
+                        ascentProfilePEG = GetComputerModule(masterMechJeb, "MechJebModuleAscentPEG");
+                        if (ascentProfilePEG == null)
+                        {
+                            throw new Exception("MASIMechJeb: Failed to get PEG Ascent Profile MJ module");
                         }
 
                         ascentGuidance = GetComputerModule(masterMechJeb, "MechJebModuleAscentGuidance");
@@ -1393,16 +1446,19 @@ namespace AvionicsSystems
 
                 //--- ComputerModule
                 PropertyInfo mjModuleEnabledProperty = mjComputerModule_t.GetProperty("enabled", BindingFlags.Instance | BindingFlags.Public);
-                MethodInfo mjModuleEnabled = null;
+                MethodInfo mjGetModuleEnabled = null;
+                MethodInfo mjSetModuleEnabled = null;
                 if (mjModuleEnabledProperty != null)
                 {
-                    mjModuleEnabled = mjModuleEnabledProperty.GetGetMethod();
+                    mjGetModuleEnabled = mjModuleEnabledProperty.GetGetMethod();
+                    mjSetModuleEnabled = mjModuleEnabledProperty.GetSetMethod();
                 }
-                if (mjModuleEnabled == null)
+                if (mjGetModuleEnabled == null || mjSetModuleEnabled == null)
                 {
                     return;
                 }
-                ModuleEnabled = DynamicMethodFactory.CreateFunc<object, bool>(mjModuleEnabled);
+                GetModuleEnabled = DynamicMethodFactory.CreateFunc<object, bool>(mjGetModuleEnabled);
+                SetModuleEnabled = DynamicMethodFactory.CreateAction<object, bool>(mjSetModuleEnabled);
                 ModuleUsers = mjComputerModule_t.GetField("users", BindingFlags.Instance | BindingFlags.Public);
                 if (ModuleUsers == null)
                 {
@@ -1461,6 +1517,20 @@ namespace AvionicsSystems
                 }
                 GetLaunchInclination = DynamicMethodFactory.CreateGetField<object, double>(desiredOrbitInclination_t);
                 SetLaunchInclination = DynamicMethodFactory.CreateSetField<object, double>(desiredOrbitInclination_t);
+
+                FieldInfo ascentPathIdx_t = mjModuleAscentAP_t.GetField("ascentPathIdx");
+                if (ascentPathIdx_t == null)
+                {
+                    return;
+                }
+                GetAscentPathIdx = DynamicMethodFactory.CreateGetField<object, int>(ascentPathIdx_t);
+
+                FieldInfo ascentPath_t = mjModuleAscentAP_t.GetField("ascentPath");
+                if (ascentPath_t == null)
+                {
+                    return;
+                }
+                SetAscentPath = DynamicMethodFactory.CreateSetField<object, object>(ascentPath_t);
 
                 //--- ModuleAscentGuidance
                 FieldInfo desiredOrbitInclinationAG_t = mjModuleAscentGuid_t.GetField("desiredInclination");
