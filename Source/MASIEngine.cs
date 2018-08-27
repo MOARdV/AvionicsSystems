@@ -941,10 +941,43 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Sets the state of thrust reversers.  Only affects thrust reversers that are not actively moving.
+        /// </summary>
+        /// <param name="active">If true, deploy the thrust reversers.  If false, stow the thrust reversers.</param>
+        /// <returns>1 if any thrust reversers changed; 0 otherwise.</returns>
+        public double SetThrustReverser(bool active)
+        {
+            bool anyChanged = false;
+            int numReverserers = vc.moduleThrustReverser.Length;
+            if (active)
+            {
+                for (int i = 0; i < numReverserers; ++i)
+                {
+                    if (vc.moduleThrustReverser[i].Position() < 0.005f)
+                    {
+                        vc.moduleThrustReverser[i].ToggleReverser();
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < numReverserers; ++i)
+                {
+                    if (vc.moduleThrustReverser[i].Position() > 0.995f)
+                    {
+                        vc.moduleThrustReverser[i].ToggleReverser();
+                    }
+                }
+            }
+
+            return (anyChanged) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Toggles installed thrust reversers (deploys them if they are not deployed,
         /// retracts them if they are deployed).
         /// </summary>
-        /// <returns>1 if reversers were toggle, 0 if there are no thrust reversers.</returns>
+        /// <returns>1 if reversers were toggled, 0 if there are no thrust reversers.</returns>
         public double ToggleThrustReverser()
         {
             int numReverserers = vc.moduleThrustReverser.Length;
