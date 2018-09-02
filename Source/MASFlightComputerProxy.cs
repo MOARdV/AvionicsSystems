@@ -2943,13 +2943,28 @@ namespace AvionicsSystems
         /// </summary>
         #region Docking
         /// <summary>
-        /// Return 1 if the dock is attached to something (either in-flight
-        /// docking or attached in the VAB); return 0 otherwise.
+        /// Return 1 if the dock is attached to something (this includes parts that
+        /// are not compatible to the docking port, such as boost protective covers or
+        /// launch escape systems that are attached in the VAB).
+        /// 
+        /// To determine if the dock is connected to a compatible docking port, use fc.Docked().
+        /// </summary>
+        /// <returns></returns>
+        public double DockConnected()
+        {
+            return (vc.dockingNodeState == MASVesselComputer.DockingNodeState.DOCKED || vc.dockingNodeState == MASVesselComputer.DockingNodeState.PREATTACHED) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Return 1 if the dock is attached to a compatible dock; return 0 otherwise.
+        /// 
+        /// Note that this function will return 0 if the compatible dock was connected in the
+        /// VAB.  fc.Docked() only detects docking events that take place during Flight.
         /// </summary>
         /// <returns></returns>
         public double Docked()
         {
-            return (vc.dockingNodeState == MASVesselComputer.DockingNodeState.DOCKED || vc.dockingNodeState == MASVesselComputer.DockingNodeState.PREATTACHED) ? 1.0 : 0.0;
+            return (vc.dockingNodeState == MASVesselComputer.DockingNodeState.DOCKED) ? 1.0 : 0.0;
         }
 
         /// <summary>
