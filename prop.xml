@@ -945,6 +945,14 @@
 			</COLOR_SHIFT>
 		</prop>
 		<prop>
+			<name>MAS_SignalLamp_Docked</name>
+			<style>Signal Lamp</style>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<variable>fc.Conditioned(fc.Docked())</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
 			<name>MAS_SignalLamp_Flying</name>
 			<style>Signal Lamp</style>
 			<COLOR_SHIFT>
@@ -958,6 +966,14 @@
 			<COLOR_SHIFT>
 				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
 				<variable>fc.Conditioned(fc.VesselLanded())</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_SignalLamp_NotDocked</name>
+			<style>Signal Lamp</style>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_IndicatorLampRed</activeColor>
+				<variable>fc.Conditioned(1 - fc.Docked())</variable>
 			</COLOR_SHIFT>
 		</prop>
 		<prop>
@@ -2262,6 +2278,22 @@
 				<startUV>0.0, 0.1</startUV>
 			</TEXTURE_SHIFT>
 		</style>
+		<prop>
+			<name>MAS_NASA_Gauge_Ablator</name>
+			<style>Percentage</style>
+			<ROTATION>
+				<variable>fc.Conditioned(fc.ResourcePercent("Ablator"))</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>ABLATOR</text>
+			</TEXT_LABEL>
+			<TEXTURE_SHIFT id="1">
+				<startUV>-0.2, -0.1</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="2">
+				<startUV>0, -0.1</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
 		<prop>
 			<name>MAS_NASA_Gauge_CommNet_Strength</name>
 			<style>Percentage</style>
