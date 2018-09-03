@@ -1,0 +1,813 @@
+<PropConfig>
+	<!--
+	This file is a prop configuration template for the Prop Config utility
+	described on the MAS wiki at https://github.com/MOARdV/AvionicsSystems/wiki/Prop-Config
+
+	The tool and this XML file are used to quickly generate multiple props
+	without the tedious effort of copying config files and making small edits
+	while hoping you didn't overlook something.
+
+	Copyright (c) 2018 MOARdV
+
+	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
+	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
+	
+	propAutopilit.xml contains a collection of props intended for use as an autopilot management
+	system that interacts with both the MAS autopilot / maneuver planner and the MechJeb autopilot /
+	maneuver planner.
+	-->
+
+	<DigitalIndicator_Emissive folder="MAS_VAP">
+		<style name="Digital Indicator">
+			<!-- 
+			Can replace the model with DigitalIndicator_EmisiiveScreen_3char, DigitalIndicator_EmisiiveScreen_4char, DigitalIndicator_EmisiiveScreen_5char, or DigitalIndicator_EmisiiveScreen_12char 
+			-->
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/DigitalIndicator_EmisiiveScreen_2char</model>
+				<texture>DigitalIndicator_Diffuse,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/DigitalIndicator_Diffuse</texture>
+				<texture>SmallLablePlateDiffuse,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/SmallLablePlateDiffuse</texture>
+				<texture>SmallLablePlateEmissive,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/SmallLablePlateEmissive</texture>
+			</MODEL>
+			<TRANSLATION id="0">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<endTranslation>0,0,0</endTranslation>
+				<startTranslation>0,-0.004,0</startTranslation>
+				<variable>fc.Conditioned(1)</variable>
+			</TRANSLATION>
+			<COLOR_SHIFT id="0">
+				<name>DigitalIndicatorScreenOFFObj</name>
+				<transform>DigitalIndicatorScreenOFFObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_DIFFUSE_PASSIVECOLOR</passiveColor>
+				<colorName>_Color</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>DigitalIndicatorScreenOFFObj</name>
+				<transform>DigitalIndicatorScreenOFFObj</transform>
+				<passiveColor>0,0,0,0</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_DIFFUSE_PASSIVECOLOR</passiveColor>
+				<colorName>_Color</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="3">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_EMISSIVE_PASSIVECOLOR</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<name>DisplayNameTextObj</name>
+				<transform>DisplayNameTextObj</transform>
+				<fontSize>4</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<text>CAPTION</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>DigitIndicatorTextObj</name>
+				<transform>DigitIndicatorTextObj</transform>
+				<fontSize>18</fontSize>
+				<transformOffset>-0.005, -0.001</transformOffset>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>active</emissive>
+				<passiveColor>0,0,0,0</passiveColor>
+				<activeColor>COLOR_ASET_NUMINPUT_DISPLAY_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(1)</variable>
+			</TEXT_LABEL>
+		</style>
+		<prop>
+			<name>MAS_VAP_DigInd_Emissive_5char_Altitude</name>
+			<style>Digital Indicator</style>
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/DigitalIndicator_EmisiiveScreen_5char</model>
+			</MODEL>
+			<TEXT_LABEL id="0">
+				<text>┌── ALTITUDE, KM ──┐</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0,5:00000}$#$fc.Floor(fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input"))</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_VAP_DigInd_Emissive_4char_Inclination</name>
+			<style>Digital Indicator</style>
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/DigitalIndicator_EmisiiveScreen_4char</model>
+			</MODEL>
+			<TEXT_LABEL id="0">
+				<text>┌─ INCLINATION ° ─┐</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0,4:+000;-000}$#$fc.Floor(fc.GetPersistentAsNumber("MAS_VAP_Inclination_Input"))</text>
+			</TEXT_LABEL>
+		</prop>
+	</DigitalIndicator_Emissive>
+	
+	<NumInputDial folder="MAS_VAP">
+		<style name="NumInputDial No Button">
+			<MODEL>
+				<model>ASET/ASET_Props/Control/NumInputDial_NoButton/NumInputDial_NoButton</model>
+			</MODEL>
+			<TEXT_LABEL id="0">
+				<name>Top Caption</name>
+				<transform>NameTopTextObj</transform>
+				<fontSize>7</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.0359,-0.015</transformOffset>
+				<emissive>active</emissive>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<text>TOP CAPTION</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Bottom Caption</name>
+				<transform>NameBottomTextObj</transform>
+				<fontSize>7</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>UpperCenter</anchor>
+				<transformOffset>0.0359,0</transformOffset>
+				<emissive>active</emissive>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<text>BOTTOM CAPTION</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>Left Caption</name>
+				<transform>TextLeftObj</transform>
+				<fontSize>7</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Right</alignment>
+				<anchor>MiddleRight</anchor>
+				<transformOffset>0.03592,-0.01</transformOffset>
+				<emissive>active</emissive>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<text>LEFT CAPTION</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<name>Right Caption</name>
+				<transform>TextRightObj</transform>
+				<fontSize>7</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Left</alignment>
+				<anchor>MiddleLeft</anchor>
+				<transformOffset>0,-0.01</transformOffset>
+				<emissive>active</emissive>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<text>RIGHT CAPTION</text>
+			</TEXT_LABEL>
+			<COLLIDER_EVENT id="0">
+				<name>Knob Top</name>
+				<collider>DialColliderPlus</collider>
+				<sound>ASET/ASET_Props/Sounds/NID02</sound>
+				<volume>0.5</volume>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<name>Knob Bottom</name>
+				<collider>DialColliderMinus</collider>
+				<sound>ASET/ASET_Props/Sounds/NID02</sound>
+				<volume>0.5</volume>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT>
+				<name>Knob lighting</name>
+				<transform>Dash_pict, HDG_pict, Arrow_pict, Course_pict, Dash_pict, Point_pict, WideArrow_pict</transform>
+				<passiveColor>0, 0, 0, 255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_MARK_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<ROTATION>
+				<name>Knob rotation</name>
+				<transform>KnobGrp</transform>
+				<variable>0</variable>
+				<startRotation>0, 0, 0</startRotation>
+				<endRotation>0, 0, 360</endRotation>
+				<range>0, 250</range>
+				<modulo>250</modulo>
+				<blend>true</blend>
+				<speed>1</speed>
+				<longPath>true</longPath>
+			</ROTATION>
+			<ANIMATION>
+				<name>Knob cover</name>
+				<comment>0 - clear top, 1 - Arrow, 2 - Course icon, 3 - Dash mark, 4 - Heading icon, 5 - Point mark, 6 - wide arrow</comment>
+				<animation>NID_nb_PictSwitchAnim</animation>
+				<variable>0 / 7</variable>
+			</ANIMATION>
+		</style>
+		<prop>
+			<name>MAS_VAP_NID_Altitude</name>
+			<style>NumInputDial No Button</style>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input") % 250</variable>
+			</ROTATION>
+			<COLLIDER_EVENT id="0">
+				<onDragX>fc.AddPersistentWrapped("MAS_VAP_Altitiude_Input", 10 * %DRAG%, 0, 100000)</onDragX>
+				<onDragY>fc.AddPersistentWrapped("MAS_VAP_Altitiude_Input", 1000 * %DRAG%, 0, 100000)</onDragY>
+				<dragSensitivity>5</dragSensitivity>
+				<singleAxisDrag>true</singleAxisDrag>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onDragX>fc.AddPersistentWrapped("MAS_VAP_Altitiude_Input", -10 * %DRAG%, 0, 100000)</onDragX>
+				<onDragY>fc.AddPersistentWrapped("MAS_VAP_Altitiude_Input", -1000 * %DRAG%, 0, 100000)</onDragY>
+				<dragSensitivity>5</dragSensitivity>
+				<singleAxisDrag>true</singleAxisDrag>
+			</COLLIDER_EVENT>
+			<ANIMATION>
+				<variable>0 / 7</variable>
+			</ANIMATION>
+			<TEXT_LABEL id="0">
+				<text>+</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>-</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<text>ALT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2" delete="true" />
+		</prop>
+		<prop>
+			<name>MAS_VAP_NID_Inclination</name>
+			<style>NumInputDial No Button</style>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_VAP_Inclination_Input")</variable>
+				<range>-360, 360</range>
+				<modulo>360</modulo>
+			</ROTATION>
+			<COLLIDER_EVENT id="0">
+				<onDragX>fc.AddPersistentWrapped("MAS_VAP_Inclination_Input", 8 * %DRAG%, -180, 180)</onDragX>
+				<dragSensitivity>5</dragSensitivity>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onDragX>fc.AddPersistentWrapped("MAS_VAP_Inclination_Input", -8 * %DRAG%, -180, 180)</onDragX>
+				<dragSensitivity>5</dragSensitivity>
+			</COLLIDER_EVENT>
+			<ANIMATION>
+				<variable>1 / 7</variable>
+			</ANIMATION>
+			<TEXT_LABEL id="0">
+				<text>+</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>-</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<text>INC</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2" delete="true" />
+		</prop>
+	</NumInputDial>
+	
+	<PushButton folder="MAS_VAP">
+		<style name="Retro Button">
+			<MODEL id="0">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap_White</model>
+				<texture>pb_Full_Cap_Black,ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap_Black</texture>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Collider</model>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<name>Collider</name>
+				<collider>pb_Collider</collider>
+				<sound>ASET/ASET_Props/Sounds/pb_Push02</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<name>Button press animation</name>
+				<animation>pb_PushAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<name>Button Text</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.85</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>never</emissive>
+				<passiveColor>COLOR_MOARdV_UnlitBlackText</passiveColor>
+				<text>BUTTN</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Button Color</name>
+				<transform>pb_Full_Lens_Obj</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<!-- Color is complex for these buttons.  The unselected illuminated color is 206,227,246, ASET_SWITCHER_NAME_POSITIVECOLOR but the "on"
+					color is 255, 255, 0.  Forunately, almost all of the variables on these buttons use the same compound evaluator, so it's
+					not computationally expensive to handle a change. -->
+				<activeColor>206, 227, 246, 255</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_VAP_pb_AscentSeq</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>ToggleAscentAutopilot(fc.GetPersistentAsNumber("MAS_VAP_CompSelect"), mechjeb.AscentAutopilotActive(), 0, 1000 * fc.Floor(fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input")), fc.Floor(fc.GetPersistentAsNumber("MAS_VAP_Inclination_Input")))</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>mechjeb.AscentAutopilotActive()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<text>ASCENT$$$SEQ</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + (mechjeb.AscentAutopilotActive()))</variable>
+				<activeColor>206 + 49 * (mechjeb.AscentAutopilotActive()), 227 + 28 * (mechjeb.AscentAutopilotActive()), 246 * (1 - (mechjeb.AscentAutopilotActive())), 255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_VAP_pb_ManeuverSeq</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>ToggleManeuverAutopilot(fc.GetPersistentAsNumber("MAS_VAP_CompSelect"), mechjeb.ManeuverNodeExecutorActive(), fc.GetManeuverPilotActive(), fc.ManeuverNodeExists())</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>mechjeb.ManeuverNodeExecutorActive() or fc.GetManeuverPilotActive()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<text>MNVR$$$SEQ</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + (mechjeb.ManeuverNodeExecutorActive() or fc.GetManeuverPilotActive()))</variable>
+				<activeColor>206 + 49 * (mechjeb.ManeuverNodeExecutorActive() or fc.GetManeuverPilotActive()), 227 + 28 * (mechjeb.ManeuverNodeExecutorActive() or fc.GetManeuverPilotActive()), 246 * (1 - (mechjeb.ManeuverNodeExecutorActive() or fc.GetManeuverPilotActive())), 255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_VAP_pb_ChangeAp</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", ChangeAp(fc.GetPersistentAsNumber("MAS_VAP_CompSelect"), 1000 * fc.Floor(fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input")), fc.Periapsis()))</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<text>CHANGE$$$AP</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + (fc.GetPersistentAsNumber("%AUTOID%")))</variable>
+				<activeColor>206 + 49 * (fc.GetPersistentAsNumber("%AUTOID%")), 227 + 28 * (fc.GetPersistentAsNumber("%AUTOID%")), 246 * (1 - (fc.GetPersistentAsNumber("%AUTOID%"))), 255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_VAP_pb_ChangePe</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", ChangePe(fc.GetPersistentAsNumber("MAS_VAP_CompSelect"), 1000 * fc.Floor(fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input")), fc.Apoapsis()))</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<text>CHANGE$$$PE</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + (fc.GetPersistentAsNumber("%AUTOID%")))</variable>
+				<activeColor>206 + 49 * (fc.GetPersistentAsNumber("%AUTOID%")), 227 + 28 * (fc.GetPersistentAsNumber("%AUTOID%")), 246 * (1 - (fc.GetPersistentAsNumber("%AUTOID%"))), 255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_VAP_pb_HohmannXfer</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", 1)</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<text>PLOT$$$XFER</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + (fc.GetPersistentAsNumber("%AUTOID%")))</variable>
+				<activeColor>206 + 49 * (fc.GetPersistentAsNumber("%AUTOID%")), 227 + 28 * (fc.GetPersistentAsNumber("%AUTOID%")), 246 * (1 - (fc.GetPersistentAsNumber("%AUTOID%"))), 255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_VAP_pb_MatchVelocity</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", 1)</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<text>MATCH$$$VEL</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + (fc.GetPersistentAsNumber("%AUTOID%")))</variable>
+				<activeColor>206 + 49 * (fc.GetPersistentAsNumber("%AUTOID%")), 227 + 28 * (fc.GetPersistentAsNumber("%AUTOID%")), 246 * (1 - (fc.GetPersistentAsNumber("%AUTOID%"))), 255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+	</PushButton>
+	
+	<SignalLamp folder="MAS_VAP">
+		<style name="Signal Lamp">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/ASET_SignalLamp/ASET_SignalLamp</model>
+			</MODEL>
+			<MODEL_SCALE id="0">
+				<name>Lamp Off</name>
+				<transform>LampOFFObj</transform>
+				<startScale>0, 0, 0</startScale>
+				<endScale>-1, -1, -1</endScale>
+				<variable>fc.Conditioned(1)</variable>
+			</MODEL_SCALE>
+			<MODEL_SCALE id="1">
+				<name>Lamp On</name>
+				<transform>LampObj</transform>
+				<startScale>-1,-1,-1</startScale>
+				<endScale>0, 0, 0</endScale>
+				<variable>fc.Conditioned(1)</variable>
+			</MODEL_SCALE>
+			<COLOR_SHIFT>
+				<name>Lamp Color</name>
+				<transform>LampObj</transform>
+				<passiveColor>COLOR_MOARdV_IndicatorLampOff</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_VAP_SignalLamp_AscSeqValid</name>
+			<style>Signal Lamp</style>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_VAP_CompSelect") and mechjeb.Available())</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_VAP_SignalLamp_MnvrSeqValid</name>
+			<style>Signal Lamp</style>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<variable>fc.Conditioned(fc.ManeuverNodeExists() and (mechjeb.Available() or (fc.GetPersistentAsNumber("MAS_VAP_CompSelect") == 0)))</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_VAP_SignalLamp_ChangeApValid</name>
+			<style>Signal Lamp</style>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<variable>fc.Conditioned((1000 * fc.Floor(fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input")) &gt; fc.Periapsis()) and (mechjeb.Available() or (fc.GetPersistentAsNumber("MAS_VAP_CompSelect") == 0)))</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_VAP_SignalLamp_ChangePeValid</name>
+			<style>Signal Lamp</style>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<variable>fc.Conditioned((1000 * fc.Floor(fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input")) &lt; fc.Apoapsis()) and (mechjeb.Available() or (fc.GetPersistentAsNumber("MAS_VAP_CompSelect") == 0)))</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_VAP_SignalLamp_HohmannXferValid</name>
+			<style>Signal Lamp</style>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<variable>fc.Conditioned((fc.TargetType() > 0) and (mechjeb.Available() or (fc.GetPersistentAsNumber("MAS_VAP_CompSelect") == 0)))</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_VAP_SignalLamp_MatchVelValid</name>
+			<style>Signal Lamp</style>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<variable>fc.Conditioned((fc.TargetType() > 0) and (mechjeb.Available() or (fc.GetPersistentAsNumber("MAS_VAP_CompSelect") == 0)))</variable>
+			</COLOR_SHIFT>
+		</prop>
+	</SignalLamp>
+	
+	<ToggleSwitch folder="MAS_VAP">
+		<style name="NASA Toggle Switch">
+			<MODEL id="0">
+				<comment>Base</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglBase</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<comment>Apollo toggle</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglLever_Type_1</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="2">
+				<comment>Full Guard</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglGuard_Type_1</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="3">
+				<comment>Single Collider</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglCollider_SNGL</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Collider</name>
+				<collider>SwitchCollider</collider>
+				<sound>ASET/ASET_Props/Sounds/RPB01</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<name>Lever Movement</name>
+				<transform>SwitchGrp</transform>
+				<startRotation>30,0,0</startRotation>
+				<endRotation>-30,0,0</endRotation>
+				<range>0, 1</range>
+				<blend>true</blend>
+				<cycleRate>1</cycleRate>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<name>Top Label</name>
+				<transform>TextTopObj</transform>
+				<fontSize>6.1</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.02526,-0.015</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>CAPTION</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Plate Top Label</name>
+				<transform>TextPlateTopObj</transform>
+				<fontSize>5.5</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.01947,-0.012</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>TOP</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>Plate Bottom Label</name>
+				<transform>TextPlateBottomObj</transform>
+				<fontSize>5.5</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>UpperCenter</anchor>
+				<transformOffset>0.01947, 0.005</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>BOTTOM</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>Switch Mark Glow</name>
+				<transform>TumblerMarkObj</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_VAP_tggl_CompSelect_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("MAS_VAP_CompSelect")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_VAP_CompSelect")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>COMPUTER$$$SELECT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>MECHJEB</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>MAS</text>
+			</TEXT_LABEL>
+		</prop>
+	</ToggleSwitch>
+
+	<STS_Thumbwheel folder="MAS_VAP">
+		<style name="4 digit">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/STS_Thumbwheels_Assembly/STS_Thumbwheels_Assembly_4W</model>
+			</MODEL>
+			<COLOR_SHIFT>
+				<name>Backlight</name>
+				<transform>TW_W1_Drum_Obj, TW_W2_Drum_Obj, TW_W3_Drum_Obj, TW_W4_Drum_Obj</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_MARK_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<name>Lower Caption</name>
+				<transform>TextTopObj2</transform>
+				<fontSize>8</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0, -0.005</transformOffset>
+				<emissive>active</emissive>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<text>LOWER CAPTION</text>
+			</TEXT_LABEL>
+			<ROTATION id="0">
+				<comment>Units</comment>
+				<name>Units</name>
+				<transform>TW_W4_Grp</transform>
+				<variable>0</variable>
+				<startRotation>0, 0, 0</startRotation>
+				<endRotation>-360, 0, 0</endRotation>
+				<range>0, 10</range>
+				<modulo>10</modulo>
+				<blend>true</blend>
+				<speed>1</speed>
+				<longPath>true</longPath>
+			</ROTATION>
+			<COLLIDER_EVENT id="0">
+				<name>Units+</name>
+				<collider>TW_W4_Collider_UP</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<name>Units-</name>
+				<collider>TW_W4_Collider_DOWN</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ROTATION id="1">
+				<comment>Tens</comment>
+				<name>Tens</name>
+				<transform>TW_W3_Grp</transform>
+				<variable>0</variable>
+				<startRotation>0, 0, 0</startRotation>
+				<endRotation>-360, 0, 0</endRotation>
+				<range>0, 10</range>
+				<modulo>10</modulo>
+				<blend>true</blend>
+				<speed>1</speed>
+				<longPath>true</longPath>
+			</ROTATION>
+			<COLLIDER_EVENT id="2">
+				<name>Tens+</name>
+				<collider>TW_W3_Collider_UP</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="3">
+				<name>Tens-</name>
+				<collider>TW_W3_Collider_DOWN</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ROTATION id="2">
+				<comment>Hundreds</comment>
+				<name>Hundreds</name>
+				<transform>TW_W2_Grp</transform>
+				<variable>0</variable>
+				<startRotation>0, 0, 0</startRotation>
+				<endRotation>-360, 0, 0</endRotation>
+				<range>0, 10</range>
+				<modulo>10</modulo>
+				<blend>true</blend>
+				<speed>1</speed>
+				<longPath>true</longPath>
+			</ROTATION>
+			<COLLIDER_EVENT id="4">
+				<name>Hundreds+</name>
+				<collider>TW_W2_Collider_UP</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="5">
+				<name>Hundreds-</name>
+				<collider>TW_W2_Collider_DOWN</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ROTATION id="3">
+				<comment>Thousands</comment>
+				<name>Thousands</name>
+				<transform>TW_W1_Grp</transform>
+				<variable>0</variable>
+				<startRotation>0, 0, 0</startRotation>
+				<endRotation>-360, 0, 0</endRotation>
+				<range>0, 10</range>
+				<modulo>10</modulo>
+				<blend>true</blend>
+				<speed>1</speed>
+				<longPath>true</longPath>
+			</ROTATION>
+			<COLLIDER_EVENT id="6">
+				<name>Thousands+</name>
+				<collider>TW_W1_Collider_UP</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="7">
+				<name>Thousands-</name>
+				<collider>TW_W1_Collider_DOWN</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+		</style>
+		<prop>
+			<name>MAS_VAP_STS_TW_Altitude</name>
+			<style>4 digit</style>
+			<TEXT_LABEL>
+				<text>┌── ALTITUDE, KM ──┐</text>
+			</TEXT_LABEL>
+			<ROTATION id="0">
+				<variable>fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_U")</variable>
+			</ROTATION>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.SetPersistent("MAS_VAP_Altitiude_Input", fc.AddPersistentWrapped("MAS_VAP_Altitiude_Input_U", 1, 0, 10) + fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_T") * 10 + fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_H") * 100 + fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_Th") * 1000)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.SetPersistent("MAS_VAP_Altitiude_Input", fc.AddPersistentWrapped("MAS_VAP_Altitiude_Input_U", -1, 0, 10) + fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_T") * 10 + fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_H") * 100 + fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_Th") * 1000)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION id="1">
+				<variable>fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_T")</variable>
+			</ROTATION>
+			<COLLIDER_EVENT id="2">
+				<onClick>fc.SetPersistent("MAS_VAP_Altitiude_Input", fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_U") + fc.AddPersistentWrapped("MAS_VAP_Altitiude_Input_T", 1, 0, 10) * 10 + fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_H") * 100 + fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_Th") * 1000)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="3">
+				<onClick>fc.SetPersistent("MAS_VAP_Altitiude_Input", fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_U") + fc.AddPersistentWrapped("MAS_VAP_Altitiude_Input_T", -1, 0, 10) * 10 + fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_H") * 100 + fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_Th") * 1000)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION id="2">
+				<variable>fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_H")</variable>
+			</ROTATION>
+			<COLLIDER_EVENT id="4">
+				<onClick>fc.SetPersistent("MAS_VAP_Altitiude_Input", fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_U") + fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_T") * 10 + fc.AddPersistentWrapped("MAS_VAP_Altitiude_Input_H", 1, 0, 10) * 100 + fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_Th") * 1000)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="5">
+				<onClick>fc.SetPersistent("MAS_VAP_Altitiude_Input", fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_U") + fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_T") * 10 + fc.AddPersistentWrapped("MAS_VAP_Altitiude_Input_H", -1, 0, 10) * 100 + fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_Th") * 1000)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION id="3">
+				<variable>fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_Th")</variable>
+			</ROTATION>
+			<COLLIDER_EVENT id="6">
+				<onClick>fc.SetPersistent("MAS_VAP_Altitiude_Input", fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_U") + fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_T") * 10 + fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_H") * 100 + fc.AddPersistentWrapped("MAS_VAP_Altitiude_Input_Th", 1, 0, 10) * 1000)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="7">
+				<onClick>fc.SetPersistent("MAS_VAP_Altitiude_Input", fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_U") + fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_T") * 10 + fc.GetPersistentAsNumber("MAS_VAP_Altitiude_Input_H") * 100 + fc.AddPersistentWrapped("MAS_VAP_Altitiude_Input_Th", -1, 0, 10) * 1000)</onClick>
+			</COLLIDER_EVENT>
+		</prop>
+	</STS_Thumbwheel>
+</PropConfig>

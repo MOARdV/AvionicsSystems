@@ -1,0 +1,685 @@
+<PropConfig>
+	<!--
+	This file is a prop configuration template for the Prop Config utility
+	described on the MAS wiki at https://github.com/MOARdV/AvionicsSystems/wiki/Prop-Config
+
+	The tool and this XML file are used to quickly generate multiple props
+	without the tedious effort of copying config files and making small edits
+	while hoping you didn't overlook something.
+
+	Copyright (c) 2018 MOARdV
+
+	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
+	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
+	
+	propTimer.xml contains a collection of interrelated props used to behave as an event
+	timer / alarm.
+	-->
+
+	<DigitalIndicator_Emissive folder="MAS_Timer">
+		<style name="Digital Indicator">
+			<!-- 
+			Can replace the model with DigitalIndicator_EmisiiveScreen_3char, DigitalIndicator_EmisiiveScreen_4char, DigitalIndicator_EmisiiveScreen_5char, or DigitalIndicator_EmisiiveScreen_12char 
+			-->
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/DigitalIndicator_EmisiiveScreen_12char</model>
+				<texture>DigitalIndicator_Diffuse,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/DigitalIndicator_Diffuse</texture>
+				<texture>SmallLablePlateDiffuse,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/SmallLablePlateDiffuse</texture>
+				<texture>SmallLablePlateEmissive,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/SmallLablePlateEmissive</texture>
+			</MODEL>
+			<TRANSLATION id="0">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<endTranslation>0,0,0</endTranslation>
+				<startTranslation>0,-0.004,0</startTranslation>
+				<variable>fc.Conditioned(1)</variable>
+			</TRANSLATION>
+			<COLOR_SHIFT id="0">
+				<name>DigitalIndicatorScreenOFFObj</name>
+				<transform>DigitalIndicatorScreenOFFObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_DIFFUSE_PASSIVECOLOR</passiveColor>
+				<colorName>_Color</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>DigitalIndicatorScreenOFFObj</name>
+				<transform>DigitalIndicatorScreenOFFObj</transform>
+				<passiveColor>0,0,0,0</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_DIFFUSE_PASSIVECOLOR</passiveColor>
+				<colorName>_Color</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="3">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_EMISSIVE_PASSIVECOLOR</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<name>DisplayNameTextObj</name>
+				<transform>DisplayNameTextObj</transform>
+				<fontSize>8</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<text>CAPTION</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>DigitIndicatorTextObj</name>
+				<transform>DigitIndicatorTextObj</transform>
+				<fontSize>18</fontSize>
+				<transformOffset>-0.005, -0.001</transformOffset>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>active</emissive>
+				<passiveColor>0,0,0,0</passiveColor>
+				<activeColor>COLOR_ASET_NUMINPUT_DISPLAY_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(1)</variable>
+			</TEXT_LABEL>
+		</style>
+		<prop>
+			<name>MAS_Timer_DigInd_Emissive_12char_Timer</name>
+			<style>Digital Indicator</style>
+			<TEXT_LABEL id="0">
+				<text>┌────── TIMER ──────┐</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0,12:METHHH:mm:ss}$#$fc.Select(fc.GetPersistentAsNumber("MAS_Timer_AlarmMode") > 0, 3600 * fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Hours") + 60 * fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Minutes") + fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Seconds"), fc.Max(0, fc.GetPersistentAsNumber("MAS_Timer_AlarmTime") - fc.UT()))</text>
+			</TEXT_LABEL>
+		</prop>
+	</DigitalIndicator_Emissive>
+	
+	<PushButton folder="MAS_Timer">
+		<style name="Retro Button">
+			<MODEL id="0">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap_White</model>
+				<texture>pb_Full_Cap_Black,ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap_Black</texture>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Collider</model>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<name>Collider</name>
+				<collider>pb_Collider</collider>
+				<sound>ASET/ASET_Props/Sounds/pb_Push02</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<name>Button press animation</name>
+				<animation>pb_PushAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<name>Button Text</name>
+				<transform>Legend_Center</transform>
+				<fontSize>3.85</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>never</emissive>
+				<passiveColor>COLOR_MOARdV_UnlitBlackText</passiveColor>
+				<text>BUTTN</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Button Color</name>
+				<transform>pb_Full_Lens_Obj</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<!-- Color is complex for these buttons.  The unselected illuminated color is 206,227,246, ASET_SWITCHER_NAME_POSITIVECOLOR but the "on"
+					color is 255, 255, 0.  Forunately, almost all of the variables on these buttons use the same compound evaluator, so it's
+					not computationally expensive to handle a change. -->
+				<activeColor>206, 227, 246, 255</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_Timer_pb_rb_ResetAlarm</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", 1 + fc.SetPersistent("MAS_Timer_AlarmTime", fc.SetPersistent("MAS_Timer_AlarmTime_Hours", fc.SetPersistent("MAS_Timer_AlarmTime_Minutes", fc.SetPersistent("MAS_Timer_AlarmTime_Seconds", 0)))))</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<text>RESET$$$ALARM</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + ((fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Hours") + fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Minutes") + fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Seconds")) > 0))</variable>
+				<activeColor>206 + 49 * ((fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Hours") + fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Minutes") + fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Seconds")) > 0), 227 + 28 * ((fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Hours") + fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Minutes") + fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Seconds")) > 0), 246 * (1 - ((fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Hours") + fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Minutes") + fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Seconds")) > 0)), 255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Timer_pb_rb_SetAlarm</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", fc.SetPersistent("MAS_Timer_AlarmTime", fc.UT() + 3600 * fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Hours") + 60 * fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Minutes") + fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Seconds")))</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<text>MANUAL$$$ALARM</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + ((fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Hours") + fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Minutes") + fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Seconds")) > 0))</variable>
+				<activeColor>206 + 49 * ((fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Hours") + fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Minutes") + fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Seconds")) > 0), 227 + 28 * ((fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Hours") + fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Minutes") + fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Seconds")) > 0), 246 * (1 - ((fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Hours") + fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Minutes") + fc.GetPersistentAsNumber("MAS_Timer_AlarmTime_Seconds")) > 0)), 255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Timer_pb_rb_AlarmNextAp</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", fc.SetPersistent("MAS_Timer_AlarmTime", fc.UT() + fc.TimeToAp()))</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+				<variable>fc.VesselFlying()</variable>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<text>NEXT$$$AP</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + (fc.VesselFlying()))</variable>
+				<activeColor>206 + 49 * (fc.VesselFlying()), 227 + 28 * (fc.VesselFlying()), 246 * (1 - (fc.VesselFlying())), 255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Timer_pb_rb_AlarmNextPe</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", fc.SetPersistent("MAS_Timer_AlarmTime", fc.UT() + fc.TimeToPe()))</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+				<variable>fc.VesselFlying()</variable>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<text>NEXT$$$PE</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + (fc.VesselFlying()))</variable>
+				<activeColor>206 + 49 * (fc.VesselFlying()), 227 + 28 * (fc.VesselFlying()), 246 * (1 - (fc.VesselFlying())), 255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Timer_pb_rb_AlarmNextMnvr</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", fc.SetPersistent("MAS_Timer_AlarmTime", fc.UT() + fc.ManeuverNodeTime()))</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+				<variable>fc.ManeuverNodeExists()</variable>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<text>NEXT$$$MNVR</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + (fc.ManeuverNodeExists()))</variable>
+				<activeColor>206 + 49 * (fc.ManeuverNodeExists()), 227 + 28 * (fc.ManeuverNodeExists()), 246 * (1 - (fc.ManeuverNodeExists())), 255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Timer_pb_rb_AlarmClosest</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", fc.SetPersistent("MAS_Timer_AlarmTime", fc.UT() + fc.TargetClosestApproachTime()))</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+				<variable>fc.TargetType()</variable>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<text>CLOSEST$$$APPR</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + (fc.TargetType() > 0))</variable>
+				<activeColor>206 + 49 * (fc.TargetType() > 0), 227 + 28 * (fc.TargetType() > 0), 246 * (1 - (fc.TargetType() > 0)), 255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Timer_pb_rb_AlarmKAC</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetPersistent("%AUTOID%", fc.SetPersistent("MAS_Timer_AlarmTime", fc.UT() + kac.TimeToAlarm()))</onClick>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+				<variable>kac.TimeToAlarm()</variable>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL>
+				<text>KAC$$$ALARM</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + (kac.TimeToAlarm() > 0))</variable>
+				<activeColor>206 + 49 * (kac.TimeToAlarm() > 0), 227 + 28 * (kac.TimeToAlarm() > 0), 246 * (1 - (kac.TimeToAlarm() > 0)), 255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+	</PushButton>
+	
+	<ToggleSwitch folder="MAS_Timer">
+		<style name="NASA Toggle Switch">
+			<MODEL id="0">
+				<comment>Base</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglBase</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<comment>Apollo toggle</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglLever_Type_1</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="2">
+				<comment>Full Guard</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglGuard_Type_1</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="3">
+				<comment>Single Collider</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglCollider_SNGL</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Collider</name>
+				<collider>SwitchCollider</collider>
+				<sound>ASET/ASET_Props/Sounds/RPB01</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<name>Lever Movement</name>
+				<transform>SwitchGrp</transform>
+				<startRotation>30,0,0</startRotation>
+				<endRotation>-30,0,0</endRotation>
+				<range>0, 1</range>
+				<blend>true</blend>
+				<cycleRate>1</cycleRate>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<name>Top Label</name>
+				<transform>TextTopObj</transform>
+				<fontSize>6.1</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.02526,-0.015</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>CAPTION</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Plate Top Label</name>
+				<transform>TextPlateTopObj</transform>
+				<fontSize>5.5</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.01947,-0.012</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>TOP</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>Plate Bottom Label</name>
+				<transform>TextPlateBottomObj</transform>
+				<fontSize>5.5</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>UpperCenter</anchor>
+				<transformOffset>0.01947, 0.005</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>BOTTOM</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>Switch Mark Glow</name>
+				<transform>TumblerMarkObj</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_Timer_tggl_ModeSelect_T1_G1_S</name>
+			<style>NASA Toggle Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MAS_Timer_AlarmMode")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_Timer_AlarmMode")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>MODE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>SET</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>TIMER</text>
+			</TEXT_LABEL>
+		</prop>
+		<style name="NASA Dbl Toggle Switch">
+			<MODEL id="0">
+				<comment>Base</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglBase</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<comment>Apollo toggle</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglLever_Type_1</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="2">
+				<comment>Full Guard</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglGuard_Type_1</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="3">
+				<comment>Double Collider</comment>
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglCollider_DBL</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Collider</name>
+				<collider>SwitchColliderUP</collider>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+				<sound>ASET/ASET_Props/Sounds/RPB01</sound>
+				<volume>1</volume>
+				<autoRepeat>0.25</autoRepeat>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<name>Collider</name>
+				<collider>SwitchColliderDOWN</collider>
+				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
+				<sound>ASET/ASET_Props/Sounds/RPB01</sound>
+				<volume>1</volume>
+				<autoRepeat>0.25</autoRepeat>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<name>Lever Movement</name>
+				<transform>SwitchGrp</transform>
+				<startRotation>30,0,0</startRotation>
+				<endRotation>-30,0,0</endRotation>
+				<range>-1, 1</range>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+				<blend>true</blend>
+				<cycleRate>1</cycleRate>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<name>Top Label</name>
+				<transform>TextTopObj</transform>
+				<fontSize>6.1</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.02526,-0.015</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>CAPTION</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Plate Top Label</name>
+				<transform>TextPlateTopObj</transform>
+				<fontSize>5.5</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.01947,-0.012</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>TOP</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>Plate Bottom Label</name>
+				<transform>TextPlateBottomObj</transform>
+				<fontSize>5.5</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>UpperCenter</anchor>
+				<transformOffset>0.01947, 0.005</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>BOTTOM</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>Switch Mark Glow</name>
+				<transform>TumblerMarkObj</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_Timer_tggl_SelectSeconds_T1_G1_D</name>
+			<style>NASA Dbl Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.SetPersistent("%AUTOID%", 1 + fc.AddPersistentWrapped("MAS_Timer_AlarmTime_Seconds", 10, 0, 60))</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.SetPersistent("%AUTOID%", -(1 + fc.AddPersistentWrapped("MAS_Timer_AlarmTime_Seconds", 1, 0, 60)))</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>SECONDS</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>TENS</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>UNITS</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_Timer_tggl_SelectMinutes_T1_G1_D</name>
+			<style>NASA Dbl Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.SetPersistent("%AUTOID%", 1 + fc.AddPersistentWrapped("MAS_Timer_AlarmTime_Minutes", 10, 0, 60))</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.SetPersistent("%AUTOID%", -(1 + fc.AddPersistentWrapped("MAS_Timer_AlarmTime_Minutes", 1, 0, 60)))</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>MINUTES</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>TENS</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>UNITS</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_Timer_tggl_SelectHours_T1_G1_D</name>
+			<style>NASA Dbl Toggle Switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.SetPersistent("%AUTOID%", 1 + fc.AddPersistentWrapped("MAS_Timer_AlarmTime_Hours", 10, 0, 360))</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.SetPersistent("%AUTOID%", -(1 + fc.AddPersistentWrapped("MAS_Timer_AlarmTime_Hours", 1, 0, 360)))</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>HOURS</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>TENS</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>UNITS</text>
+			</TEXT_LABEL>
+		</prop>
+	</ToggleSwitch>
+	
+	<SignalLamp folder="MAS_Timer">
+		<style name="Signal Lamp">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/ASET_SignalLamp/ASET_SignalLamp</model>
+			</MODEL>
+			<MODEL_SCALE id="0">
+				<name>Lamp Off</name>
+				<transform>LampOFFObj</transform>
+				<startScale>0, 0, 0</startScale>
+				<endScale>-1, -1, -1</endScale>
+				<variable>fc.Conditioned(1)</variable>
+			</MODEL_SCALE>
+			<MODEL_SCALE id="1">
+				<name>Lamp On</name>
+				<transform>LampObj</transform>
+				<startScale>-1,-1,-1</startScale>
+				<endScale>0, 0, 0</endScale>
+				<variable>fc.Conditioned(1)</variable>
+			</MODEL_SCALE>
+			<COLOR_SHIFT>
+				<name>Lamp Color</name>
+				<transform>LampObj</transform>
+				<passiveColor>COLOR_MOARdV_IndicatorLampOff</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_Timer_SignalLamp_Timer_1min</name>
+			<style>Signal Lamp</style>
+			<COLOR_SHIFT>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<variable>fc.Conditioned(((fc.GetPersistentAsNumber("MAS_Timer_AlarmTime") - fc.UT()) > 0 and (fc.GetPersistentAsNumber("MAS_Timer_AlarmTime") - fc.UT()) &lt; 60) and (((fc.GetPersistentAsNumber("MAS_Timer_AlarmTime") - fc.UT()) > 15) or (fc.PeriodStep(1) > 0)))</variable>
+			</COLOR_SHIFT>
+			<AUDIO_PLAYER>
+				<sound>ASET/ASET_Props/Sounds/AlarmBeep01</sound>
+				<trigger>BOTH</trigger>
+				<variable>(fc.GetPersistentAsNumber("MAS_Timer_AlarmTime") - fc.UT()) > 0 and (fc.GetPersistentAsNumber("MAS_Timer_AlarmTime") - fc.UT()) &lt; 15</variable>
+			</AUDIO_PLAYER>
+		</prop>
+	</SignalLamp>
+
+	<FlagIndicator folder="MAS_Timer">
+		<style name="Flag Indicator">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/FlagIndicator/FlagIndicator</model>
+			</MODEL>
+			<COLOR_SHIFT id="0">
+				<name>Nameplate Diffuse color</name>
+				<transform>namePlate</transform>
+				<colorName>_Color</colorName>
+				<passiveColor>COLOR_ASET_PLATEBKG_DIFFUSE_PASSIVECOLOR</passiveColor>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Nameplate Emissive color</name>
+				<transform>namePlate</transform>
+				<colorName>_EmissiveColor</colorName>
+				<passiveColor>COLOR_ASET_PLATEBKG_EMISSIVE_PASSIVECOLOR</passiveColor>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<name>Warning plate Emissive color</name>
+				<transform>WarningPlate</transform>
+				<colorName>_EmissiveColor</colorName>
+				<passiveColor>0, 0, 0, 255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<TEXT_LABEL>
+				<name>Caption</name>
+				<transform>IndicatorNameObj</transform>
+				<fontSize>2</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<transformOffset>0.0087, -0.0015</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<comment>Flag trigger</comment>
+				<name>WarningPlate Cover</name>
+				<transform>CoverLoc</transform>
+				<startScale>0, 0, 0</startScale>
+				<endScale>0, 0, -0.9</endScale>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<!-- 
+				startUV: 
+				x=0.0 is default diagonal striped flag, x=-0.2 is a solid-color flag
+				y=0.0 is white, y=0.2 is red, y=0.4 is green, y=0.6 is yellow
+				Use dynamic Y values to change color, and dynamic X values to toggle
+				stripes.
+				-->
+				<comment>startUV: x=0.0 (striped) x=-0.2 (solid), y=0.0 (white), y=0.2 (red), y=0.4 (green), y=0.6 (yellow)</comment>
+				<name>Flag color</name>
+				<transform>WarningPlate</transform>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_Timer_FI_Active</name>
+			<style>Flag Indicator</style>
+			<TEXT_LABEL>
+				<text>TIMER</text>
+			</TEXT_LABEL>
+			<MODEL_SCALE>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Timer_AlarmTime") > fc.UT())</variable>
+			</MODEL_SCALE>
+			<TEXTURE_SHIFT>
+				<startUV>0.0, 0.4</startUV>
+			</TEXTURE_SHIFT>
+			<AUDIO_PLAYER>
+				<sound>ASET/ASET_Props/Sounds/ABORT</sound>
+				<trigger>ON</trigger>
+				<variable>(fc.GetPersistentAsNumber("MAS_Timer_AlarmTime") - fc.UT()) > 0 and (fc.GetPersistentAsNumber("MAS_Timer_AlarmTime") - fc.UT()) &lt; 60</variable>
+			</AUDIO_PLAYER>
+		</prop>
+	</FlagIndicator>
+</PropConfig>
