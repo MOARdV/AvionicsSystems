@@ -251,8 +251,8 @@ namespace AvionicsSystems
                 // Resources check
                 if (resourceAmount > 0.0f)
                 {
-                    float requested = resourceAmount * TimeWarp.fixedDeltaTime;
-                    float supplied = part.RequestResource(resourceId, requested);
+                    double requested = resourceAmount * TimeWarp.fixedDeltaTime;
+                    double supplied = part.RequestResource(resourceId, requested);
                     if (supplied < requested * 0.5f)
                     {
                         status = RadarStatus.NO_POWER;
