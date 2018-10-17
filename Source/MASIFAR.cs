@@ -1,4 +1,5 @@
-﻿/*****************************************************************************
+﻿#define UNSUPPORT_FAR
+/*****************************************************************************
  * The MIT License (MIT)
  * 
  * Copyright (c) 2016-2018 MOARdV
@@ -38,6 +39,10 @@ namespace AvionicsSystems
     /// <LuaName>far</LuaName>
     /// <mdDoc>
     /// MASIFAR is the AvionicsSystems interface with Ferram Aerospace Research (FAR).
+    /// 
+    /// **NOTE:** As of KSP 1.5.0 / MAS v0.90.0, FAR is not supported.  Until an official
+    /// FAR release is made available so that MAS can verify its interface with FAR,
+    /// the MASIFAR module will always behave like FAR is not installed.
     /// </mdDoc>
     internal class MASIFAR
     {
@@ -384,6 +389,7 @@ namespace AvionicsSystems
         static MASIFAR()
         {
             farFound = false;
+#if !UNSUPPORT_FAR
             Type farAPI_t = Utility.GetExportedType("FerramAerospaceResearch", "FerramAerospaceResearch.FARAPI");
             if (farAPI_t != null)
             {
@@ -558,6 +564,7 @@ namespace AvionicsSystems
 
                 farFound = true;
             }
+#endif
         }
         #endregion
     }
