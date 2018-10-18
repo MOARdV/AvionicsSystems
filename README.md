@@ -1,7 +1,7 @@
 # AvionicsSystems
 MOARdV's Avionics Systems for Kerbal Space Program - a new generation of IVA enhancement.
 
-![Mk1 Pod](https://imageshack.com/a/img924/4951/yZBboA.jpg)
+![Mk1 Pod](https://imageshack.com/a/img924/694/3B7eyD.jpg)
 
 ## Short Intro
 
@@ -9,6 +9,10 @@ MOARdV's Avionics Systems (MAS) is a replacement for RasterPropMonitor.
 The goal is to provide a more powerful and more performant design without sacrificing
 features that are available in RPM.  A longer-winded explanation is available in the
 wiki's [Introduction](https://github.com/MOARdV/AvionicsSystems/wiki/Introduction).
+
+**NOTE:** MAS is a separate mod from RPM.  It is not a drop-in replacement.  IVAs created for RasterPropMonitor must
+use RPM.  They will not magically work with MAS.  MAS uses different props, and it has different requirements than
+RPM.
 
 MAS is under intermittent development (basically, when I feel like it and I have time).
 
@@ -28,7 +32,7 @@ internet to check whether there is a new version available. Data is only read fr
 
 MAS is intended to be a toolkit for developing IVAs.  I do not intend to include many example
 IVAs like RPM had - good IVAs take a lot of time to create, and I have no plans for stock-derived sample
-props with this mod, so IVAs included with MAS have other dependencies.
+props with this mod.  IVAs included with MAS have other dependencies.
 In particular, alexustas's props packs - [ASET Props Pack](http://forum.kerbalspaceprogram.com/index.php?/topic/116430-aset-props-pack-v14-for-the-modders-who-create-iva/) and
 [ASET Avionics Pack](http://forum.kerbalspaceprogram.com/index.php?/topic/116479-aset-avionics-pack-v-20-for-the-modders-who-create-iva/) must be installed
 for the MAS props to appear.
@@ -36,7 +40,8 @@ for the MAS props to appear.
 Since it is important to have *something* to look at before deciding to adopt this mod for IVA
 development, there are IVAs included in this package:
 
-* The stock Mk 1 Command Pod (pictured above), which demonstrates a retro-NASA style stripped-down IVA suitable for suborbital or short orbital flights.
+* The stock Mk 1 v2 Command Pod (pictured above), which demonstrates a retro-NASA style stripped-down IVA suitable for suborbital or short orbital flights.
+* The original Mk 1 Command Pod IVA is still included, since the original pod and IVA are still available (as of KSP 1.5.0).
 * The stock Mk 1-3 Command Pod, which includes a more complete retro-NASA IVA for the center seat (with stock props still in place on the rest of the panel).
 * The MRK DM command pod, part of the [Commonwealth Rockets](https://forum.kerbalspaceprogram.com/index.php?/topic/164365-13-commonwealth-rockets-tea-powered-spaceflight-in-development/) mod.
 This command pod demonstrates a modern partial-glass cockpit design good for activity around Kerbin and its moons.
@@ -48,18 +53,13 @@ ASET Props Pack v1.5 (or later), and ASET Avionics Pack in order to fly these IV
 ## Where are the Props?
 
 Converting props to MAS is an easy but repetitive task.  To help out with it, I've created the [Prop Config](https://github.com/MOARdV/AvionicsSystems/wiki/Prop-Config)
-tool to automate a good deal of the process.  The Prop Config tool is released separately from the main MAS distribution - it is not
-included in the main MAS zip.  The Prop Config Tool includes the master prop.xml file used to generate the auto-generated props.
+tool to automate a good deal of the process.  The Prop Config tool is released separately from the main MAS distribution.
+The Prop Config Tool includes the master XML files used to generate most of the props.
 
-## What about RPM?
+## What about RasterPropMonitor?
 
-RasterPropMonitor is in maintenance mode.  I will update RPM so that it is compatible with future KSP releases,
-but I do not plan to continue developing features for the mod.  It is far too
-complex for me to test it adequately by myself in a reasonable time while working on another,
-substantially similar mod.  As long as RPM is still
-in wide use, I will strive to keep it working, but I can not guarantee much beyond that.
-
-IVAs designed for RPM will still work with RPM.  Props packs designed for RPM will still work with RPM.
+My development on RasterPropMonitor has stopped.  I have announced that it is available if another modder wants to
+pick it up, since I have done nothing with the mod since KSP 1.4.0 came out.
 
 ## Other questions?
 
