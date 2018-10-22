@@ -1130,9 +1130,11 @@ namespace AvionicsSystems
         /// Set the SAS state to on or off per the parameter.
         /// </summary>
         /// <param name="active"></param>
-        public void SetSAS(bool active)
+        /// <returns>1 if the SAS action group is on, 0 otherwise.</returns>
+        public double SetSAS(bool active)
         {
             vessel.ActionGroups.SetGroup(KSPActionGroup.SAS, active);
+            return (active) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -1242,6 +1244,7 @@ namespace AvionicsSystems
             return GetSASSpeedMode();
         }
 
+        [MoonSharpHidden]
         private void TrySetSASMode(VesselAutopilot.AutopilotMode mode)
         {
             if (vessel.Autopilot.CanSetMode(mode))
@@ -1605,15 +1608,18 @@ namespace AvionicsSystems
         /// Sets stage locking to the specified setting (true or false).
         /// </summary>
         /// <param name="locked">`true` to lock staging, `false` to unlock staging.</param>
-        public void SetStageLocked(bool locked)
+        /// <returns>1 if staging is locked, 0 otherwise.</returns>
+        public double SetStageLocked(bool locked)
         {
             if (locked)
             {
                 InputLockManager.SetControlLock(ControlTypes.STAGING, "manualStageLock");
+                return 1.0;
             }
             else
             {
                 InputLockManager.RemoveControlLock("manualStageLock");
+                return 0.0;
             }
         }
 

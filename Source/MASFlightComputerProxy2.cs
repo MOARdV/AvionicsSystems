@@ -3441,9 +3441,11 @@ namespace AvionicsSystems
         /// Set the state of RCS.
         /// </summary>
         /// <param name="active">`true` to enable RCS, `false` to disable RCS.</param>
-        public void SetRCS(bool active)
+        /// <returns>1 if the RCS group is enabled, 0 otherwise.</returns>
+        public double SetRCS(bool active)
         {
             vessel.ActionGroups.SetGroup(KSPActionGroup.RCS, active);
+            return (active) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -3483,22 +3485,27 @@ namespace AvionicsSystems
         /// Set the maximum thrust limit of the RCS thrusters.
         /// </summary>
         /// <param name="limit">A value between 0 (no thrust) and 1 (full thrust).</param>
-        public void SetRCSThrustLimit(double limit)
+        /// <returns>The RCS thrust limit, clamped to [0, 1].</returns>
+        public double SetRCSThrustLimit(double limit)
         {
-            float flimit = Math.Max(0.0f, Math.Min(1.0f, (float)limit)) * 100.0f;
+            float clampedLimit = Mathf.Clamp01((float)limit);
+            float flimit = clampedLimit * 100.0f;
 
             for (int i = vc.moduleRcs.Length - 1; i >= 0; --i)
             {
                 vc.moduleRcs[i].thrustPercentage = flimit;
             }
+            return clampedLimit;
         }
 
         /// <summary>
         /// Toggle RCS off-to-on or vice versa.
         /// </summary>
-        public void ToggleRCS()
+        /// <returns>1 if the RCS group is enabled, 0 otherwise.</returns>
+        public double ToggleRCS()
         {
             vessel.ActionGroups.ToggleGroup(KSPActionGroup.RCS);
+            return (vessel.ActionGroups[KSPActionGroup.RCS]) ? 1.0 : 0.0;
         }
 
         /// <summary>

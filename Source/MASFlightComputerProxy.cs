@@ -1595,27 +1595,31 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the current state of the Brakes action group
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if the brake action group is active, 0 otherwise.</returns>
         public double GetBrakes()
         {
             return (vessel.ActionGroups[KSPActionGroup.Brakes]) ? 1.0 : 0.0;
         }
 
         /// <summary>
-        /// Set the brakes to the specified state.
+        /// Set the brake action group to the specified state.
         /// </summary>
-        /// <param name="active"></param>
-        public void SetBrakes(bool active)
+        /// <param name="active">Sets the state of the brakes</param>
+        /// <returns>1 if the brake action group is active, 0 otherwise.</returns>
+        public double SetBrakes(bool active)
         {
             vessel.ActionGroups.SetGroup(KSPActionGroup.Brakes, active);
+            return (active) ? 1.0 : 0.0;
         }
 
         /// <summary>
-        /// Toggle the state of the brakes.
+        /// Toggle the state of the brake action group.
         /// </summary>
-        public void ToggleBrakes()
+        /// <returns>1 if the brake action group is active, 0 otherwise.</returns>
+        public double ToggleBrakes()
         {
             vessel.ActionGroups.ToggleGroup(KSPActionGroup.Brakes);
+            return (vessel.ActionGroups[KSPActionGroup.Brakes]) ? 1.0 : 0.0;
         }
         #endregion
 
@@ -3024,20 +3028,28 @@ namespace AvionicsSystems
         /// <summary>
         /// Set the primary docking port to be the reference transform.
         /// </summary>
-        public void SetDockToReference()
+        /// <returns>1 if the reference was changed, 0 otherwise.</returns>
+        public double SetDockToReference()
         {
             if (vc.dockingNode != null)
             {
                 vessel.SetReferenceTransform(vc.dockingNode.part);
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
             }
         }
 
         /// <summary>
         /// Set the current IVA pod to be the reference transform.
         /// </summary>
-        public void SetPodToReference()
+        /// <returns>1 if the reference was changed.</returns>
+        public double SetPodToReference()
         {
             vessel.SetReferenceTransform(fc.part);
+            return 1.0;
         }
 
         /// <summary>
@@ -3876,7 +3888,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns 1 if the Lights action group is active.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if the lights action group is active, 0 otherwise.</returns>
         public double GetLights()
         {
             return (vessel.ActionGroups[KSPActionGroup.Light]) ? 1.0 : 0.0;
@@ -3886,17 +3898,21 @@ namespace AvionicsSystems
         /// Set the state of the lights action group.
         /// </summary>
         /// <param name="active"></param>
-        public void SetLights(bool active)
+        /// <returns>1 if the lights action group is active, 0 otherwise.</returns>
+        public double SetLights(bool active)
         {
             vessel.ActionGroups.SetGroup(KSPActionGroup.Light, active);
+            return (active) ? 1.0 : 0.0;
         }
 
         /// <summary>
         /// Toggle the lights action group.
         /// </summary>
-        public void ToggleLights()
+        /// <returns>1 if the lights action group is active, 0 otherwise.</returns>
+        public double ToggleLights()
         {
             vessel.ActionGroups.ToggleGroup(KSPActionGroup.Light);
+            return (vessel.ActionGroups[KSPActionGroup.Light]) ? 1.0 : 0.0;
         }
         #endregion
     }
