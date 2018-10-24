@@ -92,6 +92,11 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Brakes
+        private List<ModuleWheels.ModuleWheelBrakes> brakesList = new List<ModuleWheels.ModuleWheelBrakes>();
+        internal ModuleWheels.ModuleWheelBrakes[] moduleBrakes = new ModuleWheels.ModuleWheelBrakes[0];
+        #endregion
+
         #region Cameras
         private List<MASCamera> cameraList = new List<MASCamera>(4);
         internal MASCamera[] moduleCamera = new MASCamera[0];
@@ -1401,6 +1406,10 @@ namespace AvionicsSystems
                                 engineGroupList.Add(group);
                             }
                         }
+                        else if (module is ModuleWheels.ModuleWheelBrakes)
+                        {
+                            brakesList.Add(module as ModuleWheels.ModuleWheelBrakes);
+                        }
 
                         foreach (BaseAction ba in module.Actions)
                         {
@@ -1473,6 +1482,7 @@ namespace AvionicsSystems
             TransferModules<ModuleWheels.ModuleWheelDamage>(wheelDamageList, ref moduleWheelDamage);
             TransferModules<ModuleWheels.ModuleWheelDeployment>(wheelDeploymentList, ref moduleWheelDeployment);
             TransferModules<ModuleWheelBase>(wheelBaseList, ref moduleWheelBase);
+            TransferModules<ModuleWheels.ModuleWheelBrakes>(brakesList, ref moduleBrakes);
 
             for (int i = resourceConverterList.Count - 1; i >= 0; --i)
             {

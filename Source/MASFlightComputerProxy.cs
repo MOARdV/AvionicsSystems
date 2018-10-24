@@ -1593,12 +1593,60 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the average brake force setting of all wheel brakes installed on the vessel.
+        /// </summary>
+        /// <returns>The brake force as a percentage of maximum, in the range of [0, 2].</returns>
+        public double GetBrakeForce()
+        {
+            int numBrakes = vc.moduleBrakes.Length;
+            if (numBrakes > 0)
+            {
+                float netBrakeForce = 0.0f;
+                for (int i = 0; i < numBrakes; ++i)
+                {
+                    netBrakeForce += vc.moduleBrakes[i].brakeTweakable;
+                }
+                return netBrakeForce / (float)(100 * numBrakes);
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Returns the current state of the Brakes action group
         /// </summary>
         /// <returns>1 if the brake action group is active, 0 otherwise.</returns>
         public double GetBrakes()
         {
             return (vessel.ActionGroups[KSPActionGroup.Brakes]) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Sets the brake force setting of all wheel brakes installed on the vessel.
+        /// </summary>
+        /// <param name="force">The new brake force setting, in the range of 0 to 2.</param>
+        /// <returns>The brake force as a percentage of maximum, in the range of [0, 2].</returns>
+        public double SetBrakeForce(double force)
+        {
+            int numBrakes = vc.moduleBrakes.Length;
+            if (numBrakes > 0)
+            {
+                float clampedForce = Mathf.Clamp((float)force, 0.0f, 2.0f);
+                float newForce = clampedForce * 100.0f;
+
+                for (int i = 0; i < numBrakes; ++i)
+                {
+                    vc.moduleBrakes[i].brakeTweakable = newForce;
+                }
+
+                return clampedForce;
+            }
+            else
+            {
+                return 0.0;
+            }
         }
 
         /// <summary>
