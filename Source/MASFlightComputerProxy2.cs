@@ -1546,7 +1546,7 @@ namespace AvionicsSystems
         /// <returns>1 if the craft can be recovered (although it is also recovered immediately), 0 otherwise.</returns>
         public double RecoverVessel()
         {
-            if (vessel.IsRecoverable)
+            if (VesselRecoverable() > 0.0)
             {
                 GameEvents.OnVesselRecoveryRequested.Fire(vessel);
                 return 1.0;
@@ -1710,7 +1710,14 @@ namespace AvionicsSystems
         /// <returns>1 if the craft can be recovered, 0 otherwise.</returns>
         public double VesselRecoverable()
         {
-            return (vessel.IsRecoverable) ? 1.0 : 0.0;
+            if (vessel.IsRecoverable)
+            {
+                // the K.R.A.S.H. mod disables the recovery button, so we shouldn't allow recovery if we are in a simulation
+                AltimeterSliderButtons sliderButtons = (AltimeterSliderButtons)GameObject.FindObjectOfType(typeof(AltimeterSliderButtons));
+                return sliderButtons.vesselRecoveryButton.enabled ? 1.0 : 0.0;
+            }
+
+            return 0.0;
         }
 
         /// <summary>
