@@ -1548,7 +1548,8 @@ namespace AvionicsSystems
         {
             if (VesselRecoverable() > 0.0)
             {
-                GameEvents.OnVesselRecoveryRequested.Fire(vessel);
+                AltimeterSliderButtons sliderButtons = (AltimeterSliderButtons)GameObject.FindObjectOfType(typeof(AltimeterSliderButtons));
+                sliderButtons.vesselRecoveryButton.onClick.Invoke();
                 return 1.0;
             }
             else
