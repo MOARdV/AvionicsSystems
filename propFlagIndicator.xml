@@ -317,7 +317,7 @@
 			<name>MAS_FI_Landed</name>
 			<style>Flag Indicator</style>
 			<TEXT_LABEL>
-				<text>CONTACT</text>
+				<text>LANDED</text>
 			</TEXT_LABEL>
 			<MODEL_SCALE>
 				<variable>fc.Conditioned(fc.VesselLanded())</variable>
