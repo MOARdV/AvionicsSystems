@@ -48,6 +48,7 @@ namespace AvionicsSystems
     {
         internal static readonly bool farFound;
 
+#if !UNSUPPORT_FAR
         private static readonly Func<Vessel, double> VesselAoA;
         private static readonly Func<Vessel, double> VesselCoeffBallistic;
         private static readonly Func<Vessel, double> VesselCoeffLift;
@@ -68,11 +69,14 @@ namespace AvionicsSystems
         private static readonly Func<object, object> GetInfoParameters;
         private static readonly Func<object, double> GetDragForce;
         private static readonly Func<object, double> GetLiftForce;
+#endif
 
         internal Vessel vessel;
 
+#if !UNSUPPORT_FAR
         private int flapSetting;
         private bool spoilerSetting;
+#endif
 
         [MoonSharpHidden]
         public MASIFAR(Vessel vessel)
@@ -87,6 +91,7 @@ namespace AvionicsSystems
 
         private static object GetVesselFlightInfo(Vessel v)
         {
+#if !UNSUPPORT_FAR
             if (farFound)
             {
                 object flightGUI = VesselFlightInfo(v);
@@ -95,18 +100,20 @@ namespace AvionicsSystems
                     return GetInfoParameters(flightGUI);
                 }
             }
-
+#endif
             return null;
         }
 
         [MoonSharpHidden]
         internal void Update()
         {
+#if !UNSUPPORT_FAR
             if (farFound)
             {
                 flapSetting = VesselFlapSetting(vessel);
                 spoilerSetting = VesselSpoilerSetting(vessel);
             }
+#endif
         }
 
         /// <summary>
@@ -115,11 +122,13 @@ namespace AvionicsSystems
         /// <returns>Angle of attack in degrees.</returns>
         public double AngleOfAttack()
         {
+#if !UNSUPPORT_FAR
             if (farFound)
             {
                 return VesselAoA(vessel);
             }
             else
+#endif
             {
                 return 0.0;
             }
@@ -142,11 +151,13 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double CoeffBallistic()
         {
+#if !UNSUPPORT_FAR
             if (farFound)
             {
                 return VesselCoeffBallistic(vessel);
             }
             else
+#endif
             {
                 return 0.0;
             }
@@ -158,11 +169,13 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double CoeffDrag()
         {
+#if !UNSUPPORT_FAR
             if (farFound)
             {
                 return VesselCoeffDrag(vessel);
             }
             else
+#endif
             {
                 return 0.0;
             }
@@ -174,11 +187,13 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double CoeffLift()
         {
+#if !UNSUPPORT_FAR
             if (farFound)
             {
                 return VesselCoeffLift(vessel);
             }
             else
+#endif
             {
                 return 0.0;
             }
@@ -190,11 +205,13 @@ namespace AvionicsSystems
         /// <returns>1 if flap settings were decreased, 0 otherwise.</returns>
         public double DecreaseFlapSetting()
         {
+#if !UNSUPPORT_FAR
             if (farFound && flapSetting > 0)
             {
                 VesselDecreaseFlapDeflection(vessel);
                 return 1.0;
             }
+#endif
             return 0.0;
         }
 
@@ -204,12 +221,13 @@ namespace AvionicsSystems
         /// <returns>Drag force in kN.</returns>
         public double DragForce()
         {
+#if !UNSUPPORT_FAR
             object flightInfo = GetVesselFlightInfo(vessel);
             if (flightInfo != null)
             {
                 return GetDragForce(flightInfo);
             }
-
+#endif
             return 0.0;
         }
 
@@ -219,11 +237,13 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double DynamicPressure()
         {
+#if !UNSUPPORT_FAR
             if (farFound)
             {
                 return VesselDynPress(vessel);
             }
             else
+#endif
             {
                 return 0.0;
             }
@@ -235,11 +255,13 @@ namespace AvionicsSystems
         /// <returns>0 (no flaps) through 3 (maximum flaps).</returns>
         public double GetFlapSetting()
         {
+#if !UNSUPPORT_FAR
             if (farFound)
             {
                 return Math.Max(flapSetting, 0);
             }
             else
+#endif
             {
                 return 0.0;
             }
@@ -251,11 +273,13 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double GetSpoilerSetting()
         {
+#if !UNSUPPORT_FAR
             if (farFound)
             {
                 return (spoilerSetting) ? 1.0 : 0.0;
             }
             else
+#endif
             {
                 return 0.0;
             }
@@ -267,11 +291,13 @@ namespace AvionicsSystems
         /// <returns>1 if flap settings were increased, 0 otherwise.</returns>
         public double IncreaseFlapSetting()
         {
+#if !UNSUPPORT_FAR
             if (farFound && flapSetting < 3)
             {
                 VesselIncreaseFlapDeflection(vessel);
                 return 1.0;
             }
+#endif
             return 0.0;
         }
 
@@ -281,12 +307,13 @@ namespace AvionicsSystems
         /// <returns>Lift force in kN.</returns>
         public double LiftForce()
         {
+#if !UNSUPPORT_FAR
             object flightInfo = GetVesselFlightInfo(vessel);
             if (flightInfo != null)
             {
                 return GetLiftForce(flightInfo);
             }
-
+#endif
             return 0.0;
         }
 
@@ -296,11 +323,13 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double RefArea()
         {
+#if !UNSUPPORT_FAR
             if (farFound)
             {
                 return VesselRefArea(vessel);
             }
             else
+#endif
             {
                 return 0.0;
             }
@@ -313,11 +342,13 @@ namespace AvionicsSystems
         /// <returns>1 if the spoiler state changed, 0 otherwise.</returns>
         public double SetSpoilers(bool newState)
         {
+#if !UNSUPPORT_FAR
             if (farFound && newState != spoilerSetting)
             {
                 VesselSetSpoilers(vessel, newState);
                 return 1.0;
             }
+#endif
             return 0.0;
         }
 
@@ -327,11 +358,13 @@ namespace AvionicsSystems
         /// <returns>Sideslip in degrees.</returns>
         public double Sideslip()
         {
+#if !UNSUPPORT_FAR
             if (farFound)
             {
                 return VesselSideSlip(vessel);
             }
             else
+#endif
             {
                 return 0.0;
             }
@@ -343,11 +376,13 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double SpecFuelConsumption()
         {
+#if !UNSUPPORT_FAR
             if (farFound)
             {
                 return VesselSpecFuelConsumption(vessel);
             }
             else
+#endif
             {
                 return 0.0;
             }
@@ -359,11 +394,13 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double StallFraction()
         {
+#if !UNSUPPORT_FAR
             if (farFound)
             {
                 return VesselStallFrac(vessel);
             }
             else
+#endif
             {
                 return 0.0;
             }
@@ -375,11 +412,13 @@ namespace AvionicsSystems
         /// <returns>Terminal velocity in m/s.</returns>
         public double TerminalVelocity()
         {
+#if !UNSUPPORT_FAR
             if (farFound)
             {
                 return VesselTerminalVelocity(vessel);
             }
             else
+#endif
             {
                 return 0.0;
             }
