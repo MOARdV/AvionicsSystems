@@ -3366,9 +3366,10 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// If MechJeb is installed, returns the total delta-V remaining for the vessel.
+        /// Returns the total delta-V remaining for the vessel based on its current
+        /// altitude.
         /// 
-        /// Otherwise, 0 is returned.
+        /// If Kerbal Engineer or MechJeb is installed, those mods are used for the computation.
         /// </summary>
         /// <seealso>MechJeb, Kerbal Engineer Redux</seealso>
         /// <returns>Remaining delta-V in m/s.</returns>
@@ -3384,7 +3385,15 @@ namespace AvionicsSystems
             }
             else
             {
-                return 0.0;
+                VesselDeltaV vdV = vessel.VesselDeltaV;
+                if (vdV.IsReady)
+                {
+                    return vdV.TotalDeltaVActual;
+                }
+                else
+                {
+                    return 0.0;
+                }
             }
         }
 
