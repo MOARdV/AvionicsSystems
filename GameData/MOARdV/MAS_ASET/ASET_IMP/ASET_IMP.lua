@@ -14,9 +14,9 @@ function IMP_Validate(impEnable, impMode)
 	
 	if impMode == 0 then
 		newEnable = true
-	elseif impMode == 1 and fc.TargetLatLonValid() > 0 and fc.TargetSameSoI() > 0 then
+	elseif impMode == -1 and fc.TargetLatLonValid() > 0 and fc.TargetSameSoI() > 0 then
 		newEnable = true
-	elseif impMode == 2 and (fc.LandingPredictorActive() > 0)then
+	elseif impMode == 1 and (fc.LandingPredictorActive() > 0)then
 		newEnable = true
 	else
 		newEnable = false
@@ -38,7 +38,7 @@ function IMP_Latitude(impMode)
 	if impMode == 0 then
 		-- Vessel
 		latitude = fc.Latitude()
-	elseif impMode == 1 then
+	elseif impMode == -1 then
 		-- Target
 		latitude = fc.TargetLatitude()
 	else
@@ -56,7 +56,7 @@ function IMP_Longitude(impMode)
 	if impMode == 0 then
 		-- Vessel
 		longitude = fc.Longitude()
-	elseif impMode == 1 then
+	elseif impMode == -1 then
 		-- Target
 		longitude = fc.TargetLongitude()
 	else

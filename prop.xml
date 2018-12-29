@@ -2025,21 +2025,21 @@
 			<name>MAS.swRotary3_IMPModeSelect</name>
 			<style>3 pos switch</style>
 			<COLLIDER_EVENT id="0">
-				<onClick>fc.AddPersistentClamped("MAS_IMP_Mode", 1, 0, 2)</onClick>
+				<onClick>fc.AddPersistentClamped("MAS_IMP_Mode", 1, -1, 1)</onClick>
 			</COLLIDER_EVENT>
 			<COLLIDER_EVENT id="1">
-				<onClick>fc.AddPersistentClamped("MAS_IMP_Mode", -1, 0, 2)</onClick>
+				<onClick>fc.AddPersistentClamped("MAS_IMP_Mode", -1, -1, 1)</onClick>
 			</COLLIDER_EVENT>
 			<ROTATION>
 				<variable>fc.GetPersistentAsNumber("MAS_IMP_Mode")</variable>
-				<range>0, 2</range>
+				<range>-1, 1</range>
 			</ROTATION>
 			<TEXT_LABEL id="0">
-				<fontSize>4</fontSize>
-				<text>VESSEL</text>
+				<text>TGT</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
-				<text>TGT</text>
+				<fontSize>4</fontSize>
+				<text>VESSEL</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="2">
 				<fontSize>4</fontSize>
