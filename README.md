@@ -61,6 +61,10 @@ The Prop Config Tool includes the master XML files used to generate most of the 
 My development on RasterPropMonitor has stopped.  I have announced that it is available if another modder wants to
 pick it up, since I have done nothing with the mod since KSP 1.4.0 came out.
 
+## How do I Build MAS?
+
+The [Building MAS](https://github.com/MOARdV/AvionicsSystems/blob/master/BuildingMAS.md) document provides links to required components and steps to build MAS for yourself.
+
 ## Other questions?
 
 Look at the [FAQ](https://github.com/MOARdV/AvionicsSystems/wiki/FAQ) on the wiki.  I may have already come up with an answer.  If not, please ask.
