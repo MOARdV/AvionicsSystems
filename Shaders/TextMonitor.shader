@@ -1,4 +1,6 @@
-﻿// MOARdV/TextMonitor
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+// MOARdV/TextMonitor
 //
 // Pre-multiplied alpha shader for rendering Font or other alpha-channel
 // only textured images on a MASMonitor object.
@@ -86,7 +88,7 @@ Shader "MOARdV/TextMonitor"
 			{
 				v2f_fontshader dataOut;
 
-				float4 transformedVtx = mul(UNITY_MATRIX_MVP, v.vertex);
+				float4 transformedVtx = UnityObjectToClipPos(v.vertex);
 				dataOut.vertex = transformedVtx;
 				dataOut.normalizedVertex.xy = transformedVtx.xy / transformedVtx.w;
 				dataOut.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
