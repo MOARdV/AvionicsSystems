@@ -10,8 +10,7 @@ MAS is built using Microsoft Visual Studio Express 2013.  Other versions of MSVS
 but that is outside the scope of this document.
 
 For Lua interpretation, MAS uses the [MoonSharp](https://github.com/xanathar/moonsharp) Lua interpreter.  MAS currently uses the
-pre-built version 1.8.0.0 (a newer version, 2.0.0.0, is available, but I haven't tried integrating it).  MoonSharp is *required* for
-MAS to compile.
+pre-built version 2.0.0.0.  MoonSharp is *required* for MAS to compile.
 
 The MAS solution includes three projects:
 
