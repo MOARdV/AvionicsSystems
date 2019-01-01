@@ -271,6 +271,7 @@ Assets/Fonts/*.ttf
 # Unity
 Library/
 ProjectSettings/
+Temp/
 log.txt
 AvionicsSystems.sln
 Assembly-CSharp-Editor.csproj
