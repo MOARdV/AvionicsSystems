@@ -38,14 +38,12 @@ TTF files must be copied to the Assets/Fonts directory.
 Once the TTF files are installed, you will need to run Unity at least once to configure the asset bundles.  The following convention
 should be followed:
 
-All fonts in the Fonts directory should be assigned the asset bundle name "mas-font" (without the quotation marks, of course).
+All fonts in the Fonts directory should be assigned the asset bundle name `mas-font`.
 The key is that they have the "-font" suffix on the asset bundle name, since that is how the asset builder script recognizes
 the assets as part of the fonts asset bundle.  While adding each font to the asset bundle, change the Font Size to 32 (the default is 16).
 
-All shaders in the Shaders directory should be assigned the asset bundle name "mas".
-
-**WARNING:** There is a setting that needs tweaked to generate GLCore shaders for Windows.  I forgot
-where that setting is, so the current process will *not* generate shaders for Windows in GLCore.
+All shaders in the Shaders directory should be assigned the asset bundle name `mas`.  As long as the shaders are marked to
+build for all platforms, there should be no additional settings that need changed.
 
 ### MAS Props
 
@@ -80,7 +78,7 @@ In both cases, the asset bundles are written to Assets/AssetBundles.  You will n
 ### MAS Props
 
 Once you've built the PropConfig tool, you can build the prop config files.  One way to do this is to set up a batch
-file in the AvionicsSystems repo root with the following command-line:
+file in the AvionicsSystems repo root with the following commands:
 
 ```
 cd GameData\MOARdV\MAS_ASET
