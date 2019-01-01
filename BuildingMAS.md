@@ -24,15 +24,28 @@ invoked by the DLL build process to automate updating the MD files used on the w
 
 MAS Asset Bundles require the use of Unity.  MAS currently uses Unity 2017.1.3p1 to build asset bundles.
 
-All MAS shaders are included in the Shaders directory.
+All MAS shaders are included in the Assets/Shaders directory.
 
-The following fonts are used by MAS, but are not included in the GitHub repo.  They must be downloaded separately:
+The following fonts are used by MAS, but are not included in the GitHub repo.  They must be downloaded separately.  The
+TTF files must be copied to the Assets/Fonts directory.
 
 * The [Digital-7](http://www.fontspace.com/style-7/digital-7) font by Sizenko Alexander [Style-7](http://www.styleseven.com)
 * The [InconsolataGo](http://www.levien.com/type/myfonts/) font
 * The [Liberation Sans](https://pagure.io/liberation-fonts) font
 * The [Press Start K](https://www.1001fonts.com/press-start-font.html) font
 * The [Repetition Scrolling](http://www.1001fonts.com/repetition-scrolling-font.html) font by Tepid Monkey Fonts
+
+Once the TTF files are installed, you will need to run Unity at least once to configure the asset bundles.  The following convention
+should be followed:
+
+All fonts in the Fonts directory should be assigned the asset bundle name "mas-font" (without the quotation marks, of course).
+The key is that they have the "-font" suffix on the asset bundle name, since that is how the asset builder script recognizes
+the assets as part of the fonts asset bundle.  While adding each font to the asset bundle, change the Font Size to 32 (the default is 16).
+
+All shaders in the Shaders directory should be assigned the asset bundle name "mas".
+
+**WARNING:** There is a setting that needs tweaked to generate GLCore shaders for Windows.  I forgot
+where that setting is, so the current process will *not* generate shaders for Windows in GLCore.
 
 ### MAS Props
 
@@ -49,18 +62,36 @@ update any markdown documentation that needs refreshed.  These steps are all par
 
 ### MAS Asset Bundles
 
-**TODO:** Automation of Asset Bundle building.
+MAS Asset Bundles can be generated in one of two ways: Interactively and batch.
 
-MAS Asset Bundles are currently a manual build step.  I plan to use Unity batch building to automate this process.  Once the batch process
-is working, this document and the GitHub repo will be updated to include it.  Until then, I recommend using the asset bundles shipped with
-MAS.
+For interactive builds, launch Unity and load the AvionicsSystems project.  Under the Assets menu is "Build AssetBundles".
+Selecting this menu item will generate the asset bundles for you.
 
-The Unity editor extension used to generate the asset bundles is included in the AssetBundle directory (AssetBundleCompiler.cs).  You
-will need to associate the shaders and fonts with their appropriate asset bundle by hand until the automated process is implemented.
+For batch builds, you will need to use a command line such as
+
+```
+"C:\Program Files\Unity\Editor\Unity.exe" -quit -projectPath { path-to-AvionicsSystems } -batchmode -executeMethod AssetBundleCompiler.BuildBundles
+```
+
+Replace `{ path-to-AvionicsSystems }` with the full patch to the root of the Avionics Systems repo, such as `D:\GitHub\AvionicsSystems`.
+
+In both cases, the asset bundles are written to Assets/AssetBundles.  You will need to copy them to GameData/MOARdV/AvionicsSystems for distribution.
 
 ### MAS Props
 
-Once you've built
-the PropConfig tool, you can use the batch file `makeProps.bat` in the root of the MAS repo to build/update props.  Note that
-this tool unconditionally overwrites existing config files, so if you are making manual edits of any prop config files, they will
-be stomped on.
+Once you've built the PropConfig tool, you can build the prop config files.  One way to do this is to set up a batch
+file in the AvionicsSystems repo root with the following command-line:
+
+```
+cd GameData\MOARdV\MAS_ASET
+..\..\..\PropConfig.exe ..\..\..\prop.xml ..\..\..\propBags.xml ..\..\..\propFlagIndicator.xml ..\..\..\propIndicatorCircular.xml ..\..\..\propPushButton.xml ..\..\..\propRetroButton.xml ..\..\..\propSwitchPanels.xml ..\..\..\propSwitchToggle.xml
+cd ..\Props
+..\..\..\PropConfig.exe ..\..\..\propAutopilot.xml ..\..\..\propTimer.xml
+cd ..\..\..
+```
+
+This script assumes PropConfig.exe is in the root of the repo, next to the XML files.  It changes directories to place the
+outputs in the right place.
+
+Note that this tool unconditionally overwrites existing config files, so if you are making manual edits of any prop
+config files, they will be stomped on.
