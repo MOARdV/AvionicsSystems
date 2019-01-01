@@ -468,7 +468,7 @@ namespace AvionicsSystems
                     platform = "osx";
                     break;
                 case RuntimePlatform.WindowsPlayer:
-                    platform = "windows";
+                    platform = (SystemInfo.graphicsDeviceVersion.StartsWith ("OpenGL")) ? "linux" : "windows";
                     break;
                 default:
                     Utility.LogError(this, "Unsupported/unexpected platform {0}", Application.platform);
