@@ -261,5 +261,18 @@ GameData/MOARdV/AvionicsSystems/MoonSharp.Interpreter.dll
 *.pdn
 *.assetbundle
 PropConfig.exe
+makeAssetBundle.bat
 makeProps.bat
 GameData/MOARdV/AvionicsSystems/MiniAVC.dll
+
+# Need to download/install these separately
+Assets/Fonts/*.ttf
+
+# Unity
+Library/
+ProjectSettings/
+log.txt
+AvionicsSystems.sln
+Assembly-CSharp-Editor.csproj
+*.manifest
+Assets/AssetBundles/AssetBundles
