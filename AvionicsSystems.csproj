@@ -158,15 +158,6 @@
     <Content Include="Documents\RPM-VariableList.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\ColorNoiseCamera.shader" />
-    <None Include="Shaders\Monitor.shader" />
-    <None Include="Shaders\MonochromeCamera.shader" />
-    <None Include="Shaders\MonochromeNoiseCamera.shader" />
-    <None Include="Shaders\PassThroughCamera.shader" />
-    <None Include="Shaders\TextMesh.shader" />
-    <None Include="Shaders\TextMonitor.shader" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Examples\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
