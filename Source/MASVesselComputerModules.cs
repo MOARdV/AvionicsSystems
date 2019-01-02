@@ -663,7 +663,7 @@ namespace AvionicsSystems
             {
                 netSolarOutput += moduleSolarPanel[i].flowRate;
                 solarPanelsEfficiency += moduleSolarPanel[i].flowRate / moduleSolarPanel[i].chargeRate;
-                
+
                 if (moduleSolarPanel[i].useAnimation)
                 {
                     solarPanelsRetractable |= (moduleSolarPanel[i].retractable && moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.EXTENDED);
@@ -933,7 +933,7 @@ namespace AvionicsSystems
         internal bool radiatorDeployable;
         internal bool radiatorRetractable;
         internal bool radiatorMoving;
-        internal int radiatorPosition;
+        internal bool radiatorDamaged;
         internal float hottestAblator;
         internal float hottestAblatorMax;
         internal float hottestAblatorSign = 0.0f;
@@ -944,7 +944,7 @@ namespace AvionicsSystems
             radiatorDeployable = false;
             radiatorRetractable = false;
             radiatorMoving = false;
-            radiatorPosition = -1;
+            radiatorDamaged = false;
             maxEnergyTransfer = 0.0;
             currentEnergyTransfer = 0.0;
 
@@ -1008,51 +1008,13 @@ namespace AvionicsSystems
 
             for (int i = moduleDeployableRadiator.Length - 1; i >= 0; --i)
             {
-                radiatorRetractable |= (moduleDeployableRadiator[i].useAnimation && moduleDeployableRadiator[i].retractable && moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.EXTENDED);
-                radiatorDeployable |= (moduleDeployableRadiator[i].useAnimation && moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.RETRACTED);
-                radiatorMoving |= (moduleDeployableRadiator[i].useAnimation && (moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.RETRACTING || moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.EXTENDING));
-                /* ModuleDeployablePart.DeployState = 
-                        RETRACTED = 0,
-                        EXTENDED = 1,
-                        RETRACTING = 2,
-                        EXTENDING = 3,
-                        BROKEN = 4,
-                 * REMAP TO:
-                 * BROKEN = 0
-                 * RETRACTED = 1
-                 * RETRACTING = 2
-                 * EXTENDING = 3
-                 * EXTENDED = 4
-                 */
-                if (radiatorPosition < 1)
+                if (moduleDeployableRadiator[i].useAnimation)
                 {
-                    if (moduleDeployableRadiator[i].useAnimation)
-                    {
-                        switch (moduleDeployableRadiator[i].deployState)
-                        {
-                            case ModuleDeployablePart.DeployState.BROKEN:
-                                radiatorPosition = 0;
-                                break;
-                            case ModuleDeployablePart.DeployState.RETRACTED:
-                                radiatorPosition = 1;
-                                break;
-                            case ModuleDeployablePart.DeployState.RETRACTING:
-                                radiatorPosition = 2;
-                                break;
-                            case ModuleDeployablePart.DeployState.EXTENDING:
-                                radiatorPosition = 3;
-                                break;
-                            case ModuleDeployablePart.DeployState.EXTENDED:
-                                radiatorPosition = 4;
-                                break;
-                        }
-                    }
+                    radiatorRetractable |= (moduleDeployableRadiator[i].retractable && moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.EXTENDED);
+                    radiatorDeployable |= (moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.RETRACTED);
+                    radiatorMoving |= (moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.RETRACTING || moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.EXTENDING);
+                    radiatorDamaged |= (moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.BROKEN);
                 }
-            }
-            // If there are no radiators, or no deployable radiators, set it to RETRACTED
-            if (radiatorPosition < 0)
-            {
-                radiatorPosition = 1;
             }
         }
         #endregion

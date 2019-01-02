@@ -2952,12 +2952,12 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if the deployable radiators are damaged.
+        /// Returns 1 if any deployable radiators are damaged.
         /// </summary>
         /// <returns></returns>
         public double RadiatorDamaged()
         {
-            return (vc.radiatorPosition == 0) ? 1.0 : 0.0;
+            return (vc.radiatorDamaged) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -2992,21 +2992,38 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns a number representing deployable radiator position:
+        /// Returns a number representing the average position of undamaged deployable radiators.
         /// 
-        /// * 0 = Broken
-        /// * 1 = Retracted
-        /// * 2 = Retracting
-        /// * 3 = Extending
-        /// * 4 = Extended
+        /// * 0 - No radiators, no undamaged radiators, or all undamaged radiators are retracted.
+        /// * 1 - All deployable radiators extended.
         /// 
-        /// If there are multiple radiators, the first non-broken radiator's state
-        /// is reported; if all radiators are broken, the state will be 0.
+        /// If the radiators are moving, a number between 0 and 1 is returned.
         /// </summary>
-        /// <returns>Radiator Position (a number between 0 and 4); 1 if no radiators are installed.</returns>
+        /// <returns>A number between 0 and 1 as described in the summary.</returns>
         public double RadiatorPosition()
         {
-            return vc.radiatorPosition;
+            float numRadiators = 0.0f;
+            float lerpPosition = 0.0f;
+            for (int i = vc.moduleDeployableRadiator.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleDeployableRadiator[i].useAnimation && vc.moduleDeployableRadiator[i].deployState != ModuleDeployablePart.DeployState.BROKEN)
+                {
+                    numRadiators += 1.0f;
+
+                    lerpPosition += vc.moduleDeployableRadiator[i].GetScalar;
+                }
+            }
+
+            if (numRadiators > 1.0f)
+            {
+                return lerpPosition / numRadiators;
+            }
+            else if (numRadiators == 1.0f)
+            {
+                return lerpPosition;
+            }
+
+            return 0.0;
         }
 
         /// <summary>
