@@ -2157,17 +2157,61 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Provides the status of cargo bay doors.
-        /// 
-        /// * 0 - No cargo bays on the vessel.
-        /// * 1 - At least one cargo bay is closed.
-        /// * 2 - At least cargo bay is moving (opening or closing).
-        /// * 3 - All cargo bays are open.
+        /// Returns 1 if any cargo bay doors are opening or closing.
         /// </summary>
-        /// <returns>0, 1, 2, or 3.</returns>
+        /// <returns>1 if a cargo bay is opening or closing, 0 otherwise (or if there are no cargo bays).</returns>
+        public double CargoBayMoving()
+        {
+            return (vc.cargoBayMoving) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns a number representing the average position of cargo bay doors.
+        /// 
+        /// * 0 - No cargo bays, or all cargo bays are closed.
+        /// * 1 - All cargo bays open.
+        /// 
+        /// If the cargo bays are moving, a number between 0 and 1 is returned.
+        /// </summary>
+        /// <returns>A number between 0 and 1 as described in the summary.</returns>
         public double CargoBayPosition()
         {
-            return vc.cargoBayPosition;
+            float numCargoBays = 0.0f;
+            float lerpPosition = 0.0f;
+            for (int i = vc.moduleCargoBay.Length - 1; i >= 0; --i)
+            {
+                ModuleCargoBay me = vc.moduleCargoBay[i];
+                PartModule deployer = me.part.Modules[me.DeployModuleIndex];
+                /*if (deployer is ModuleServiceModule)
+                {
+                    ModuleServiceModule msm = deployer as ModuleServiceModule;
+                    if (msm.IsDeployed)
+                    {
+                        cargoBayDeployed = true;
+                    }
+                    else
+                    {
+                        cargoBayRetracted = true;
+                    }
+                }
+                else*/
+                if (deployer is ModuleAnimateGeneric)
+                {
+                    ModuleAnimateGeneric mag = deployer as ModuleAnimateGeneric;
+                    lerpPosition += Mathf.InverseLerp(me.closedPosition, Mathf.Abs(1.0f - me.closedPosition), mag.animTime);
+                }
+            }
+
+            if (numCargoBays > 1.0f)
+            {
+                return lerpPosition / numCargoBays;
+            }
+            else if (numCargoBays == 1.0f)
+            {
+                return lerpPosition;
+            }
+
+            return 0.0;
         }
 
         /// <summary>
@@ -2274,7 +2318,7 @@ namespace AvionicsSystems
         /// 
         /// If the antennae are moving, a number between 0 and 1 is returned.
         /// </summary>
-        /// <returns>An number between 0 and 1 as described in the summary.</returns>
+        /// <returns>A number between 0 and 1 as described in the summary.</returns>
         public double AntennaPosition()
         {
             float numAntenna = 0.0f;

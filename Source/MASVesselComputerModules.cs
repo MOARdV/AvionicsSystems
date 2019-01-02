@@ -159,18 +159,12 @@ namespace AvionicsSystems
         #endregion
 
         #region Cargo Bay
-        private List<ModuleCargoBay> cargoBayList = new List<ModuleCargoBay>(8);
+        private List<ModuleCargoBay> cargoBayList = new List<ModuleCargoBay>(2);
         internal ModuleCargoBay[] moduleCargoBay = new ModuleCargoBay[0];
-        internal int cargoBayPosition;
+        internal bool cargoBayMoving;
         void UpdateCargoBay()
         {
-            bool cargoBayMoving = false;
-            bool cargoBayRetracted = false;
-            bool cargoBayDeployed = false;
-            /// * 0 - No cargo bay.
-            /// * 1 - cargo bay closed.
-            /// * 2 - cargo bay moving (retracting or extending).
-            /// * 3 - cargo bay open.
+            cargoBayMoving = false;
 
             for (int i = moduleCargoBay.Length - 1; i >= 0; --i)
             {
@@ -192,36 +186,17 @@ namespace AvionicsSystems
                 if (deployer is ModuleAnimateGeneric)
                 {
                     ModuleAnimateGeneric mag = deployer as ModuleAnimateGeneric;
-                    if (Mathf.Approximately(me.closedPosition, mag.animTime))
+                    if (Mathf.Approximately(me.closedPosition, mag.animTime) || Mathf.Approximately(Mathf.Abs(1.0f - me.closedPosition), mag.animTime))
                     {
-                        cargoBayRetracted = true;
-                    }
-                    else if (Mathf.Approximately(Mathf.Abs(1.0f - me.closedPosition), mag.animTime))
-                    {
-                        cargoBayDeployed = true;
+                        // TODO: Think of the better way to implement this computation.
+                        // No-op.
                     }
                     else
                     {
                         cargoBayMoving = true;
+                        return;
                     }
                 }
-            }
-
-            if (cargoBayMoving)
-            {
-                cargoBayPosition = 2;
-            }
-            else if (cargoBayRetracted)
-            {
-                cargoBayPosition = 1;
-            }
-            else if (cargoBayDeployed)
-            {
-                cargoBayPosition = 3;
-            }
-            else
-            {
-                cargoBayPosition = 0;
             }
         }
         #endregion
