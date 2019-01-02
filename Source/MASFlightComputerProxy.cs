@@ -2299,7 +2299,7 @@ namespace AvionicsSystems
         /// <returns>1 if the vessel can communicate, 0 otherwise.</returns>
         public double CommNetCanCommunicate()
         {
-            return vessel.connection.CanComm ? 1.0 : 0.0;
+            return (vessel.connection.CanComm && vessel.connection.Signal != CommNet.SignalStrength.None) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -2308,7 +2308,7 @@ namespace AvionicsSystems
         /// <returns>1 if the vessel can transmit science, 0 otherwise.</returns>
         public double CommNetCanScience()
         {
-            return vessel.connection.CanScience ? 1.0 : 0.0;
+            return (vessel.connection.CanScience && vessel.connection.Signal != CommNet.SignalStrength.None) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -2317,7 +2317,7 @@ namespace AvionicsSystems
         /// <returns>1 if the vessel is connected, 0 otherwise.</returns>
         public double CommNetConnected()
         {
-            return vessel.connection.IsConnected ? 1.0 : 0.0;
+            return (vessel.connection.IsConnected && vessel.connection.Signal != CommNet.SignalStrength.None) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -2326,7 +2326,7 @@ namespace AvionicsSystems
         /// <returns>1 if the vessel can talk to home, 0 otherwise.</returns>
         public double CommNetConnectedHome()
         {
-            return vessel.connection.IsConnectedHome ? 1.0 : 0.0;
+            return (vessel.connection.IsConnectedHome && vessel.connection.Signal != CommNet.SignalStrength.None) ? 1.0 : 0.0;
         }
 
         /// <summary>
