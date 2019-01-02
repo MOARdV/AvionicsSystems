@@ -10,7 +10,7 @@ MAS is built using Microsoft Visual Studio Express 2013.  Other versions of MSVS
 but that is outside the scope of this document.
 
 For Lua interpretation, MAS uses the [MoonSharp](https://github.com/xanathar/moonsharp) Lua interpreter.  MAS currently uses the
-pre-built version 2.0.0.0.  MoonSharp is *required* for MAS to compile.
+pre-built version 2.0.0.0.  MoonSharp is *required* for MAS to compile.  MoonSharp.Interpreter.dll must be placed in GameData/MOARdV/AvionicsSystems.
 
 The MAS solution includes three projects:
 
@@ -47,6 +47,10 @@ build for all platforms, there should be no additional settings that need change
 ### MAS Props
 
 PropConfig.exe reads one or more XML files and converts the contents into KSP-compatible prop config files.
+
+### MiniAVC.dll
+
+MAS currently ships with MiniAVC.dll in GameData/MOARdV/AvionicsSystems.  Note that this is not strictly required.
 
 ## Building
 
@@ -88,7 +92,19 @@ cd ..\..\..
 ```
 
 This script assumes PropConfig.exe is in the root of the repo, next to the XML files.  It changes directories to place the
-outputs in the right place.
+outputs in the GameData directory so that they're immediately available for deployment.
 
 Note that this tool unconditionally overwrites existing config files, so if you are making manual edits of any prop
 config files, they will be stomped on.
+
+## Release
+
+Once the DLL is build (in Release), and the updated asset bundles are copied, MAS is ready to bundle for release.  This
+is currently a manual step entailing creating two ZIP files.
+
+The first ZIP file is the gameplay release that contains the entire GameData directory plus LICENSE.md and README.md.  This
+ZIP file is named `AvionicsSystems-{ver}.zip`, where {ver} is Major.Minor.Patch version (eg, `0.90.0`).
+
+The second ZIP file is the prop configuration tool release.  This file contains PropConfig.exe, LICENSE.md, README.md, and all of the
+prop XML files in the root of the repo.  This bundle allows people to update and regenerate the automated prop config files.  This ZIP
+file is named `PropConfig-{ver}.zip` using the same convention as above.
