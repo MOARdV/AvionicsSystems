@@ -620,7 +620,7 @@ namespace AvionicsSystems
         internal float solarPanelsEfficiency;
         internal bool solarPanelsRetractable;
         internal bool solarPanelsMoving;
-        internal int solarPanelPosition;
+        internal bool solarPanelsDamaged;
         internal float netAlternatorOutput;
         internal float netGeneratorOutput;
         internal float netSolarOutput;
@@ -636,8 +636,7 @@ namespace AvionicsSystems
             solarPanelsDeployable = false;
             solarPanelsRetractable = false;
             solarPanelsMoving = false;
-
-            solarPanelPosition = -1;
+            solarPanelsDamaged = false;
 
             for (int i = moduleGenerator.Length - 1; i >= 0; --i)
             {
@@ -664,55 +663,18 @@ namespace AvionicsSystems
             {
                 netSolarOutput += moduleSolarPanel[i].flowRate;
                 solarPanelsEfficiency += moduleSolarPanel[i].flowRate / moduleSolarPanel[i].chargeRate;
-                solarPanelsRetractable |= (moduleSolarPanel[i].useAnimation && moduleSolarPanel[i].retractable && moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.EXTENDED);
-                solarPanelsDeployable |= (moduleSolarPanel[i].useAnimation && moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.RETRACTED);
-                solarPanelsMoving |= (moduleSolarPanel[i].useAnimation && (moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.RETRACTING || moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.EXTENDING));
-                /* ModuleDeployablePart.DeployState = 
-                        RETRACTED = 0,
-                        EXTENDED = 1,
-                        RETRACTING = 2,
-                        EXTENDING = 3,
-                        BROKEN = 4,
-                 * REMAP TO:
-                 * BROKEN = 0
-                 * RETRACTED = 1
-                 * RETRACTING = 2
-                 * EXTENDING = 3
-                 * EXTENDED = 4
-                 */
-                if (solarPanelPosition < 1)
+                
+                if (moduleSolarPanel[i].useAnimation)
                 {
-                    if (moduleSolarPanel[i].useAnimation)
-                    {
-                        switch (moduleSolarPanel[i].deployState)
-                        {
-                            case ModuleDeployablePart.DeployState.BROKEN:
-                                solarPanelPosition = 0;
-                                break;
-                            case ModuleDeployablePart.DeployState.RETRACTED:
-                                solarPanelPosition = 1;
-                                break;
-                            case ModuleDeployablePart.DeployState.RETRACTING:
-                                solarPanelPosition = 2;
-                                break;
-                            case ModuleDeployablePart.DeployState.EXTENDING:
-                                solarPanelPosition = 3;
-                                break;
-                            case ModuleDeployablePart.DeployState.EXTENDED:
-                                solarPanelPosition = 4;
-                                break;
-                        }
-                    }
+                    solarPanelsRetractable |= (moduleSolarPanel[i].retractable && moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.EXTENDED);
+                    solarPanelsDeployable |= (moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.RETRACTED);
+                    solarPanelsMoving |= ((moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.RETRACTING || moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.EXTENDING));
+                    solarPanelsDamaged |= (moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.BROKEN);
                 }
             }
             if (solarPanelsEfficiency > 0.0f)
             {
                 solarPanelsEfficiency /= (float)moduleSolarPanel.Length;
-            }
-            // If there are no panels, or no deployable panels, set it to RETRACTED
-            if (solarPanelPosition < 0)
-            {
-                solarPanelPosition = 1;
             }
         }
         #endregion

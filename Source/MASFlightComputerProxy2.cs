@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -3057,12 +3057,12 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if all solar panels are damaged.
+        /// Returns 1 if any solar panels are damaged.
         /// </summary>
         /// <returns>1 is all solar panels are damaged; 0 otherwise.</returns>
         public double SolarPanelDamaged()
         {
-            return (vc.solarPanelPosition == 0) ? 1.0 : 0.0;
+            return (vc.solarPanelsDamaged) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -3105,21 +3105,39 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns a number representing deployable solar panel position:
+        /// Returns a number representing the average position of undamaged deployable solar panels.
         /// 
-        /// * 0 = Broken
-        /// * 1 = Retracted
-        /// * 2 = Retracting
-        /// * 3 = Extending
-        /// * 4 = Extended
+        /// * 0 - No solar panels, no undamaged solar panels, or all undamaged solar panels are retracted.
+        /// * 1 - All deployable solar panels extended.
         /// 
-        /// If there are multiple panels, the first non-broken panel's state
-        /// is reported; if all panels are broken, the state will be 0.
+        /// If the solar panels are moving, a number between 0 and 1 is returned.  Note that unretractable
+        /// panels will always return 1 once they have deployed.
         /// </summary>
-        /// <returns>Panel Position (a number between 0 and 4); 1 if no panels are installed.</returns>
+        /// <returns>Panel Position (a number between 0 and 1).</returns>
         public double SolarPanelPosition()
         {
-            return vc.solarPanelPosition;
+            float numPanels = 0.0f;
+            float lerpPosition = 0.0f;
+            for (int i = vc.moduleSolarPanel.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleSolarPanel[i].useAnimation && vc.moduleSolarPanel[i].deployState != ModuleDeployablePart.DeployState.BROKEN)
+                {
+                    numPanels += 1.0f;
+
+                    lerpPosition += vc.moduleSolarPanel[i].GetScalar;
+                }
+            }
+
+            if (numPanels > 1.0f)
+            {
+                return lerpPosition / numPanels;
+            }
+            else if (numPanels == 1.0f)
+            {
+                return lerpPosition;
+            }
+
+            return 0.0;
         }
 
         /// <summary>
