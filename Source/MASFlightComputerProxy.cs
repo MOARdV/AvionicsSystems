@@ -2240,12 +2240,12 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if all antennae are damaged.
+        /// Returns 1 if any antennae are damaged.
         /// </summary>
         /// <returns>1 if all antennae are damaged; 0 otherwise.</returns>
         public double AntennaDamaged()
         {
-            return (vc.antennaPosition == 0) ? 1.0 : 0.0;
+            return (vc.antennaDamaged) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -2267,21 +2267,38 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns a number representing deployable antenna position:
+        /// Returns a number representing the average position of undamaged deployable antennae.
         /// 
-        /// * 0 = Broken
-        /// * 1 = Retracted
-        /// * 2 = Retracting
-        /// * 3 = Extending
-        /// * 4 = Extended
+        /// * 0 - No antennae, no undamaged antennae, or all undamaged antennae are retracted.
+        /// * 1 - All deployable antennae extended.
         /// 
-        /// If there are multiple antennae, the first non-broken antenna's state
-        /// is reported; if all antennae are broken, the state will be 0.
+        /// If the antennae are moving, a number between 0 and 1 is returned.
         /// </summary>
-        /// <returns>Antenna Position (a number between 0 and 4); 1 if no antennae are installed.</returns>
+        /// <returns>An number between 0 and 1 as described in the summary.</returns>
         public double AntennaPosition()
         {
-            return vc.antennaPosition;
+            float numAntenna = 0.0f;
+            float lerpPosition = 0.0f;
+            for (int i = vc.moduleAntenna.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleAntenna[i].useAnimation && vc.moduleAntenna[i].deployState != ModuleDeployablePart.DeployState.BROKEN)
+                {
+                    numAntenna += 1.0f;
+
+                    lerpPosition += vc.moduleAntenna[i].GetScalar;
+                }
+            }
+
+            if (numAntenna > 1.0f)
+            {
+                return lerpPosition / numAntenna;
+            }
+            else if(numAntenna == 1.0f)
+            {
+                return lerpPosition;
+            }
+
+            return 0.0;
         }
 
         /// <summary>
@@ -3853,9 +3870,13 @@ namespace AvionicsSystems
                 }
             }
 
-            if (numWheels > 0.0f)
+            if (numWheels > 1.0f)
             {
                 return lerpPosition / numWheels;
+            }
+            else if(numWheels == 1.0f)
+            {
+                return lerpPosition;
             }
 
             return 0.0;

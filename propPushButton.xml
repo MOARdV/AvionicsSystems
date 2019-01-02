@@ -7,7 +7,7 @@
 	without the tedious effort of copying config files and making small edits
 	while hoping you didn't overlook something.
 
-	Copyright (c) 2018 MOARdV
+	Copyright (c) 2018-2019 MOARdV
 
 	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
 	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
@@ -1248,18 +1248,18 @@
 				<text>ANTENNA$$$DEPLOY</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
-				<variable>fc.Conditioned((fc.AntennaPosition() == 1) * fc.AntennaCount())</variable>
+				<variable>fc.Conditioned((fc.AntennaPosition() &lt; 0.05) * fc.AntennaCount())</variable>
 				<text>IN</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="2">
-				<variable>fc.Conditioned((fc.AntennaPosition() == 1) * fc.AntennaCount())</variable>
+				<variable>fc.Conditioned((fc.AntennaPosition() &lt; 0.05) * fc.AntennaCount())</variable>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="3">
-				<variable>fc.Conditioned(fc.AntennaPosition() == 4)</variable>
+				<variable>fc.Conditioned(fc.AntennaPosition() &gt; 0.95)</variable>
 				<text>OUT</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="4">
-				<variable>fc.Conditioned(fc.AntennaPosition() == 4)</variable>
+				<variable>fc.Conditioned(fc.AntennaPosition() &gt; 0.95)</variable>
 			</TEXT_LABEL>
 		</prop>
 		<prop>

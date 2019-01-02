@@ -3,7 +3,7 @@
 /*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -232,63 +232,24 @@ namespace AvionicsSystems
         internal bool antennaDeployable;
         internal bool antennaRetractable;
         internal bool antennaMoving;
-        internal int antennaPosition;
+        internal bool antennaDamaged;
         private void UpdateAntenna()
         {
             // TODO: What about detecting if dynamic pressure is low enough to deploy antennae?
             antennaDeployable = false;
             antennaRetractable = false;
             antennaMoving = false;
-
-            antennaPosition = -1;
+            antennaDamaged = false;
 
             for (int i = moduleAntenna.Length - 1; i >= 0; --i)
             {
-                antennaRetractable |= (moduleAntenna[i].useAnimation && moduleAntenna[i].retractable && moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.EXTENDED);
-                antennaDeployable |= (moduleAntenna[i].useAnimation && moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.RETRACTED);
-                antennaMoving |= (moduleAntenna[i].useAnimation && (moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.RETRACTING || moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.EXTENDING));
-                /* ModuleDeployablePart.DeployState = 
-                        RETRACTED = 0,
-                        EXTENDED = 1,
-                        RETRACTING = 2,
-                        EXTENDING = 3,
-                        BROKEN = 4,
-                 * REMAP TO:
-                 * BROKEN = 0
-                 * RETRACTED = 1
-                 * RETRACTING = 2
-                 * EXTENDING = 3
-                 * EXTENDED = 4
-                 */
-                if (antennaPosition < 1)
+                if (moduleAntenna[i].useAnimation)
                 {
-                    if (moduleAntenna[i].useAnimation)
-                    {
-                        switch (moduleAntenna[i].deployState)
-                        {
-                            case ModuleDeployablePart.DeployState.BROKEN:
-                                antennaPosition = 0;
-                                break;
-                            case ModuleDeployablePart.DeployState.RETRACTED:
-                                antennaPosition = 1;
-                                break;
-                            case ModuleDeployablePart.DeployState.RETRACTING:
-                                antennaPosition = 2;
-                                break;
-                            case ModuleDeployablePart.DeployState.EXTENDING:
-                                antennaPosition = 3;
-                                break;
-                            case ModuleDeployablePart.DeployState.EXTENDED:
-                                antennaPosition = 4;
-                                break;
-                        }
-                    }
+                    antennaRetractable |= (moduleAntenna[i].retractable && moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.EXTENDED);
+                    antennaDeployable |= (moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.RETRACTED);
+                    antennaMoving |= ((moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.RETRACTING || moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.EXTENDING));
+                    antennaDamaged |= (moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.BROKEN);
                 }
-            }
-            // If there are no antennae, or no deployable antennae, set it to RETRACTED
-            if (antennaPosition < 0)
-            {
-                antennaPosition = 1;
             }
         }
 

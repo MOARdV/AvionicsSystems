@@ -7,7 +7,7 @@
 	without the tedious effort of copying config files and making small edits
 	while hoping you didn't overlook something.
 
-	Copyright (c) 2018 MOARdV
+	Copyright (c) 2018-2019 MOARdV
 
 	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
 	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
@@ -1084,7 +1084,7 @@
 				<onClick>fc.ToggleAntenna()</onClick>
 			</COLLIDER_EVENT>
 			<ROTATION>
-				<variable>fc.AntennaPosition() > 2</variable>
+				<variable>fc.AntennaPosition() > 0.5</variable>
 			</ROTATION>
 			<TEXT_LABEL id="0">
 				<text>ANTENNA</text>
