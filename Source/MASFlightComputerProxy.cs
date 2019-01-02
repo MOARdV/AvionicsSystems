@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -3831,50 +3831,33 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns a number representing the position of deployable landing gear or wheels, as follows:
+        /// Returns a number representing the average position of undamaged deployable landing gear or wheels.
         /// 
-        /// * 0 - No deployable gear.
-        /// * 1 - Gear retracted.
-        /// * 2 - Gear moving (retracting or extending).
-        /// * 3 - Gear extended.
+        /// * 0 - No deployable gear, no undamaged gear, or all undamaged gear are retracted.
+        /// * 1 - All deployable gear extended.
         /// 
-        /// Note that due to limitations in the wheel deployment module, determining which direction gear
-        /// are moving is difficult.
+        /// If the gear are moving, a number between 0 and 1 is returned.
         /// </summary>
-        /// <returns>An integer between 0 and 3 as described in the summary.</returns>
+        /// <returns>An number between 0 and 1 as described in the summary.</returns>
         public double GearPosition()
         {
-            bool anyRetracted = false;
-            bool anyExtended = false;
-            bool anyMoving = false;
+            float numWheels = 0.0f;
+            float lerpPosition = 0.0f;
             for (int i = vc.moduleWheelDeployment.Length - 1; i >= 0; --i)
             {
-                if (Mathf.Approximately(vc.moduleWheelDeployment[i].position, vc.moduleWheelDeployment[i].retractedPosition))
+                if (!vc.moduleWheelDamage[i].isDamaged)
                 {
-                    anyRetracted = true;
-                }
-                else if (Mathf.Approximately(vc.moduleWheelDeployment[i].position, vc.moduleWheelDeployment[i].deployedPosition))
-                {
-                    anyExtended = true;
-                }
-                else
-                {
-                    anyMoving = true;
+                    numWheels += 1.0f;
+
+                    lerpPosition += Mathf.InverseLerp(vc.moduleWheelDeployment[i].retractedPosition, vc.moduleWheelDeployment[i].deployedPosition, vc.moduleWheelDeployment[i].position);
                 }
             }
 
-            if (anyMoving)
+            if (numWheels > 0.0f)
             {
-                return 2.0;
+                return lerpPosition / numWheels;
             }
-            if (anyExtended)
-            {
-                return 3.0;
-            }
-            if (anyRetracted)
-            {
-                return 1.0;
-            }
+
             return 0.0;
         }
 
