@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2017-2018 MOARdV
+ * Copyright (c) 2017-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -727,6 +727,9 @@ namespace AvionicsSystems
         /// <summary>
         /// Toggles all of the engines in the selected group that can be toggled
         /// (activates them if they're deactivated, shuts them off if they're active).
+        /// 
+        /// Note that, unlike the core `fc` version of this method, it is possible
+        /// to activate engines that are not in the current stage using this method.
         /// </summary>
         /// <param name="groupId">A number from 1 to 31 (inclusive) to select a specific group, or 0 to select all groups.</param>
         /// <param name="newState">When true, activates engines in the group.  When false, deactivates them.</param>
@@ -769,7 +772,7 @@ namespace AvionicsSystems
                         ModuleEngines me = vc.engineGroup[i].engine;
                         Part thatPart = me.part;
 
-                        if (thatPart.inverseStage == StageManager.CurrentStage || !newState)
+                        if (!newState)
                         {
                             if (me.EngineIgnited != newState)
                             {
@@ -840,6 +843,9 @@ namespace AvionicsSystems
         /// <summary>
         /// Toggles all of the engines in the selected group that can be toggled
         /// (activates them if they're deactivated, shuts them off if they're active).
+        /// 
+        /// Note that, unlike the core `fc` version of this method, it is possible
+        /// to activate engines that are not in the current stage using this method.
         /// </summary>
         /// <param name="groupId">A number from 1 to 31 (inclusive) to select a specific group, or 0 to select all groups.</param>
         /// <returns>1 if any engines were toggled, 0 otherwise.</returns>
@@ -882,7 +888,7 @@ namespace AvionicsSystems
                         ModuleEngines me = vc.engineGroup[i].engine;
                         Part thatPart = me.part;
 
-                        if (thatPart.inverseStage == StageManager.CurrentStage || !newState)
+                        if (!newState)
                         {
                             if (me.EngineIgnited != newState)
                             {
