@@ -1784,18 +1784,18 @@
 				<text>RADIATOR$$$DEPLOY</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
-				<variable>fc.Conditioned((fc.RadiatorPosition() == 1) * fc.RadiatorDeployable())</variable>
+				<variable>fc.Conditioned((fc.RadiatorPosition() &lt; 0.05) * fc.RadiatorDeployable())</variable>
 				<text>IN</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="2">
-				<variable>fc.Conditioned((fc.RadiatorPosition() == 1) * fc.RadiatorDeployable())</variable>
+				<variable>fc.Conditioned((fc.RadiatorPosition() &lt; 0.05) * fc.RadiatorDeployable())</variable>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="3">
-				<variable>fc.Conditioned(fc.RadiatorPosition() == 4)</variable>
+				<variable>fc.Conditioned(fc.RadiatorPosition() &gt; 0.95)</variable>
 				<text>OUT</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="4">
-				<variable>fc.Conditioned(fc.RadiatorPosition() == 4)</variable>
+				<variable>fc.Conditioned(fc.RadiatorPosition() &gt; 0.95)</variable>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
@@ -1947,18 +1947,18 @@
 				<text>SOLAR$$$PANEL</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
-				<variable>fc.Conditioned((fc.SolarPanelPosition() == 1) * fc.SolarPanelCount())</variable>
+				<variable>fc.Conditioned((fc.SolarPanelPosition() &lt; 0.05) * fc.SolarPanelCount())</variable>
 				<text>IN</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="2">
-				<variable>fc.Conditioned((fc.SolarPanelPosition() == 1) * fc.SolarPanelCount())</variable>
+				<variable>fc.Conditioned((fc.SolarPanelPosition() &lt; 0.05) * fc.SolarPanelCount())</variable>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="3">
-				<variable>fc.Conditioned(fc.SolarPanelPosition() == 4)</variable>
+				<variable>fc.Conditioned(fc.SolarPanelPosition() &gt; 0.95)</variable>
 				<text>OUT</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="4">
-				<variable>fc.Conditioned(fc.SolarPanelPosition() == 4)</variable>
+				<variable>fc.Conditioned(fc.SolarPanelPosition() &gt; 0.95)</variable>
 			</TEXT_LABEL>
 		</prop>
 		<prop>

@@ -1388,7 +1388,7 @@
 				<onClick>fc.ToggleSolarPanel()</onClick>
 			</COLLIDER_EVENT>
 			<ROTATION>
-				<variable>fc.SolarPanelPosition() > 2</variable>
+				<variable>fc.SolarPanelPosition() > 0.5</variable>
 			</ROTATION>
 			<TEXT_LABEL id="0">
 				<text>SOLAR</text>
