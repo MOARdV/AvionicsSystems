@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -3514,7 +3514,7 @@ namespace AvionicsSystems
         /// Returns `trueValue` when `condition` is true, otherwise returns `falseValue`.
         /// 
         /// `trueValue` and `falseValue` may be numbers or strings.  They do not *have* to
-        /// both be numbers or both be strings.
+        /// be the same type.
         /// 
         /// `condition` must be a boolean value.  For example, `fc.GetActionGroup(0)` returns
         /// a number.  To make it a boolean, you would need to use `fc.GetActionGroup(0) == 1`.
@@ -3522,7 +3522,7 @@ namespace AvionicsSystems
         /// <param name="condition">The condition that selects the value.</param>
         /// <param name="trueValue">The value returned when `condition` is true.</param>
         /// <param name="falseValue">The value returned when `condition` is false.</param>
-        /// <returns></returns>
+        /// <returns>One of `trueValue` or `falseValue`.</returns>
         public object Select(bool condition, object trueValue, object falseValue)
         {
             if (condition)
@@ -3532,6 +3532,41 @@ namespace AvionicsSystems
             else
             {
                 return falseValue;
+            }
+        }
+
+        [MASProxy(Dependent = true)]
+        /// <summary>
+        /// Select one of three values, depending on the value of `condition`.
+        /// 
+        /// If `condition` is less than zero, `negativeValue` is returned.  If `condition` is
+        /// exactly zero, `zeroValue` is returned.  If `condition` is positive, `positiveValue`
+        /// is returned.
+        /// 
+        /// `negativeValue`, `zeroValue`, and `positiveValue` may be numbers or strings.  They do not *have* to
+        /// be all numbers or all strings.
+        /// 
+        /// Remember that numeric precision may may it difficult for equations to return exactly
+        /// zero.
+        /// </summary>
+        /// <param name="condition">A numeric value that selects the response.</param>
+        /// <param name="negativeValue">The value returned when `condition` is less than zero.</param>
+        /// <param name="zeroValue">The value returned when `condition` is exactly zero.</param>
+        /// <param name="positiveValue">The value returned when `condition` is greater than zero.</param>
+        /// <returns>One of `negativeValue`, `zeroValue`, or `positiveValue`.</returns>
+        public object Select(double condition, object negativeValue, object zeroValue, object positiveValue)
+        {
+            if (condition < 0.0)
+            {
+                return negativeValue;
+            }
+            else if (condition > 1.0)
+            {
+                return positiveValue;
+            }
+            else
+            {
+                return zeroValue;
             }
         }
 
