@@ -2713,6 +2713,64 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Ejects ... or sends ... the selected Kerbal to EVA.
+        /// 
+        /// If `seatNumber` is a negative value, the Kerbal who is currently viewing the
+        /// control will go on EVA.  If `seatNumber` is between 0 and `fc.NumberSeats()`,
+        /// and the seat is currently occupied, the selected Kerbal goes on EVA.
+        /// 
+        /// In all cases, the camera shifts to EVA view if a Kerbal is successfully expelled
+        /// from the command pod.
+        /// </summary>
+        /// <param name="seatNumber">A negative number, or a number in the range [0, fc.NumberSeats()-1].</param>
+        /// <returns>1 if a Kerbal is ejected, 0 if no Kerbal was ejected.</returns>
+        public double CrewEva(double seatNumber)
+        {
+            int requestedSeatIdx = (int)seatNumber;
+            Kerbal selectedKerbal = null;
+            // Figure out who's trying to leave.
+            if (seatNumber < 0.0)
+            {
+                selectedKerbal = fc.FindCurrentKerbal();
+            }
+            else if (requestedSeatIdx < fc.localCrew.Length)
+            {
+                if (fc.localCrew[requestedSeatIdx] != null)
+                {
+                    selectedKerbal = fc.localCrew[requestedSeatIdx].KerbalRef;
+                }
+            }
+
+            // Figure out if he/she *can* leave.
+            if (selectedKerbal != null)
+            {
+                float acLevel = ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.AstronautComplex);
+                bool evaUnlocked = GameVariables.Instance.UnlockedEVA(acLevel);
+                bool evaPossible = GameVariables.Instance.EVAIsPossible(evaUnlocked, vessel);
+                if (evaPossible && HighLogic.CurrentGame.Parameters.Flight.CanEVA && selectedKerbal.protoCrewMember.type != ProtoCrewMember.KerbalType.Tourist)
+                {
+                    // No-op
+                }
+                else
+                {
+                    selectedKerbal = null;
+                }
+            }
+
+            // Kick him/her out of the pod.
+            if (selectedKerbal != null)
+            {
+                FlightEVA.SpawnEVA(selectedKerbal);
+                CameraManager.Instance.SetCameraFlight();
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Returns the number of experience points for the selected crew member.
         /// </summary>
         /// <param name="seatNumber">The index of the seat to check.  Indices start at 0.</param>
@@ -2849,7 +2907,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the number of seats in the current IVA pod.
         /// </summary>
-        /// <returns>The selected number of seats (1 or more).</returns>
+        /// <returns>The number of seats in the current IVA (1 or more).</returns>
         public double NumberSeats()
         {
             return fc.localCrew.Length;
