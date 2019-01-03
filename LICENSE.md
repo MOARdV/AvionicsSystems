@@ -3,7 +3,7 @@
 The source code, shaders, accompanying tools, and compiled binary (DLL)
 for Avionics Systems are covered by the MIT License:
 
-Copyright (c) 2016 - 2018 MOARdV
+Copyright (c) 2016-2019 MOARdV
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,7 @@ SOFTWARE.
 
 Documentation for MOARdV's Avionics Systems is
 
-Copyright (c) 2016 - 2018 MOARdV.  All Rights Reserved.
+Copyright (c) 2016-2019 MOARdV.  All Rights Reserved.
 
 You may distribute unaltered versions of the documentation, either with this
 plugin or separately, but please do not distrubute altered versions of this documentation.
@@ -57,12 +57,6 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
----
-
-MAS previously included a modified version of the KP0110 IVA originally created by Ledenko and released into the public domain.
-
-http://forum.kerbalspaceprogram.com/index.php?/topic/74147-k-p0110-apollo-like-crew-module-now-with-source-files-included/
 
 ---
 
