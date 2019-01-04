@@ -913,6 +913,93 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
+        /// The Air Intakes region allows management of air intakes aboard the vessel.  Air intakes
+        /// are defined as a part containing a ModuleResourceIntakes with a `resourceName` of `IntakeAir`.
+        /// </summary>
+        #region Air Intakes
+
+        /// <summary>
+        /// Returns the number of air intakes on the vessel.
+        /// </summary>
+        /// <returns>The number of intakes.</returns>
+        public double GetAirIntakesCount()
+        {
+            return vc.moduleAirIntake.Length;
+        }
+
+        /// <summary>
+        /// Returns 1 if any air intake is open.  Returns 0 otherwise.
+        /// </summary>
+        /// <returns>1 if an intake is open.</returns>
+        public double GetAirIntakesOpen()
+        {
+            for (int i = vc.moduleAirIntake.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleAirIntake[i].intakeEnabled)
+                {
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Sets the state of all air intakes aboard the vessel per the `open` parameter.
+        /// </summary>
+        /// <param name="open">If true, intakes will be opened.  If false, intakes will be closed.</param>
+        /// <returns>1 if any intakes changed, 0 if all intakes were already set to the requested position.</returns>
+        public double SetAirIntakesOpen(bool open)
+        {
+            bool anyChanged = false;
+            for (int i = vc.moduleAirIntake.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleAirIntake[i].intakeEnabled != open)
+                {
+                    anyChanged = true;
+                    if (open)
+                    {
+                        vc.moduleAirIntake[i].Deactivate();
+                    }
+                    else
+                    {
+                        vc.moduleAirIntake[i].Activate();
+                    }
+
+                }
+            }
+
+            return (anyChanged) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Toggles air intakes (opens them if they are closed, closes them if they are open).
+        /// </summary>
+        /// <returns>1 if any intakes were toggled, 0 if none were.</returns>
+        public double ToggleAirIntakes()
+        {
+            if (vc.moduleAirIntake.Length > 0)
+            {
+                for (int i = vc.moduleAirIntake.Length - 1; i >= 0; --i)
+                {
+                    if (vc.moduleAirIntake[i].intakeEnabled)
+                    {
+                        vc.moduleAirIntake[i].Deactivate();
+                    }
+                    else
+                    {
+                        vc.moduleAirIntake[i].Activate();
+                    }
+                }
+
+                return 1.0;
+            }
+
+            return 0.0;
+        }
+        #endregion
+
+        /// <summary>
         /// The Thrust Reverser section controls thrust reversers attached to engines.
         /// </summary>
         #region Thrust Reverser

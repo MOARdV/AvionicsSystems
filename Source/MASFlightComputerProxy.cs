@@ -2337,7 +2337,7 @@ namespace AvionicsSystems
             {
                 return lerpPosition / numAntenna;
             }
-            else if(numAntenna == 1.0f)
+            else if (numAntenna == 1.0f)
             {
                 return lerpPosition;
             }
@@ -3976,7 +3976,7 @@ namespace AvionicsSystems
             {
                 return lerpPosition / numWheels;
             }
-            else if(numWheels == 1.0f)
+            else if (numWheels == 1.0f)
             {
                 return lerpPosition;
             }

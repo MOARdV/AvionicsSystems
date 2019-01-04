@@ -1582,7 +1582,8 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Controls for staging a vessel, and controlling the stage lock, and information
-        /// related to both staging and stage locks are all in the Staging category.
+        /// related to both staging and stage locks are all in the Staging category.  Launch
+        /// clamp info is also grouped under Staging.
         /// </summary>
         #region Staging
         /// <summary>
@@ -1596,12 +1597,35 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the number of launch clamps currently attached to the vessel.
+        /// </summary>
+        /// <returns>A whole number 0 or larger.</returns>
+        public double GetLaunchClampCount()
+        {
+            return vc.moduleLaunchClamp.Length;
+        }
+
+        /// <summary>
         /// Returns 1 if staging is locked, 0 otherwise.
         /// </summary>
         /// <returns>1 if staging is locked, 0 if staging is unlocked.</returns>
         public double GetStageLocked()
         {
             return (InputLockManager.IsLocked(ControlTypes.STAGING)) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Release all launch clamps holding the vessel.
+        /// </summary>
+        /// <returns>1 if any launch clamps released, 0 otherwise.</returns>
+        public double ReleaseLaunchClamps()
+        {
+            for (int i = vc.moduleLaunchClamp.Length - 1; i >= 0; --i)
+            {
+                vc.moduleLaunchClamp[i].Release();
+            }
+
+            return (vc.moduleLaunchClamp.Length > 0) ? 1.0 : 0.0;
         }
 
         /// <summary>

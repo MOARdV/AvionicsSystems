@@ -84,12 +84,10 @@ namespace AvionicsSystems
         #endregion
 
         #region Aircraft Engines
-        private List<MASThrustReverser> thrustReverserList = new List<MASThrustReverser>(4);
+        private List<MASThrustReverser> thrustReverserList = new List<MASThrustReverser>();
         internal MASThrustReverser[] moduleThrustReverser = new MASThrustReverser[0];
-        private void UpdateAircraftEngines()
-        {
-
-        }
+        private List<ModuleResourceIntake> airIntakeList = new List<ModuleResourceIntake>();
+        internal ModuleResourceIntake[] moduleAirIntake = new ModuleResourceIntake[0];
         #endregion
 
         #region Brakes
@@ -530,6 +528,11 @@ namespace AvionicsSystems
 
             return anyUpdated;
         }
+        #endregion
+
+        #region Launch Clamp
+        private List<LaunchClamp> launchClampList = new List<LaunchClamp>();
+        internal LaunchClamp[] moduleLaunchClamp = new LaunchClamp[0];
         #endregion
 
         #region Gimbal
@@ -1270,6 +1273,18 @@ namespace AvionicsSystems
                         {
                             brakesList.Add(module as ModuleWheels.ModuleWheelBrakes);
                         }
+                        else if(module is ModuleResourceIntake)
+                        {
+                            ModuleResourceIntake mri = module as ModuleResourceIntake;
+                            if (mri.resourceName == "IntakeAir")
+                            {
+                                airIntakeList.Add(mri);
+                            }
+                        }
+                        else if(module is LaunchClamp)
+                        {
+                            launchClampList.Add(module as LaunchClamp);
+                        }
 
                         foreach (BaseAction ba in module.Actions)
                         {
@@ -1335,6 +1350,7 @@ namespace AvionicsSystems
             TransferModules<ModuleRCS>(rcsList, ref moduleRcs);
             TransferModules<PartModule>(realchuteList, ref moduleRealChute);
             TransferModules<ModuleReactionWheel>(reactionWheelList, ref moduleReactionWheel);
+            TransferModules<ModuleResourceIntake>(airIntakeList, ref moduleAirIntake);
             TransferModules<ModuleDeployableSolarPanel>(solarPanelList, ref moduleSolarPanel);
             TransferModules<MASCamera>(cameraList, ref moduleCamera);
             TransferModules<ModuleProceduralFairing>(proceduralFairingList, ref moduleProceduralFairing);
@@ -1385,7 +1401,6 @@ namespace AvionicsSystems
             updateStopwatch.Start();
 #endif
             bool requestReset = false;
-            UpdateAircraftEngines();
             UpdateAntenna();
             UpdateCamera();
             UpdateCargoBay();
