@@ -272,6 +272,23 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_RB_NodeClear</name>
+			<style>Retro Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ClearManeuverNode()</onClick>
+				<variable>fc.ManeuverNodeExists()</variable>
+			</COLLIDER_EVENT>
+			<TRANSLATION>
+				<variable>not fc.ManeuverNodeExists()</variable>
+			</TRANSLATION>
+			<ANIMATION>
+				<variable>0.333 * (fc.Select(fc.ManeuverNodeExists() > 0, 2, 0) + fc.GetPersistentAsNumber("Backlight"))</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>CLEAR$$$NODE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_RB_TargetClear</name>
 			<style>Retro Button</style>
 			<COLLIDER_EVENT>
