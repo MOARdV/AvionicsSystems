@@ -3005,14 +3005,13 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if at least one radiator on the vessel is deploying or
-        /// retracting.
+        /// Returns -1 if a deployable radiator is retracting, +1 if a deployable radiator is extending, or 0 if
+        /// no deployable radiators are moving.
         /// </summary>
-        /// <returns>1 if a deployable radiator is moving, or 0 if none are moving.
-        /// </returns>
+        /// <returns>-1, 0, or +1.</returns>
         public double RadiatorMoving()
         {
-            return (vc.radiatorMoving) ? 1.0 : 0.0;
+            return vc.radiatorMoving;
         }
 
         /// <summary>

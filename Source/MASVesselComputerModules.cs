@@ -159,42 +159,53 @@ namespace AvionicsSystems
         #region Cargo Bay
         private List<ModuleCargoBay> cargoBayList = new List<ModuleCargoBay>(2);
         internal ModuleCargoBay[] moduleCargoBay = new ModuleCargoBay[0];
-        internal bool cargoBayMoving;
+        internal float cargoBayDirection = 0.0f;
+        internal float cargoBayPosition = 0.0f;
         void UpdateCargoBay()
         {
-            cargoBayMoving = false;
-
-            for (int i = moduleCargoBay.Length - 1; i >= 0; --i)
+            if (moduleCargoBay.Length > 0)
             {
-                ModuleCargoBay me = moduleCargoBay[i];
-                PartModule deployer = me.part.Modules[me.DeployModuleIndex];
-                /*if (deployer is ModuleServiceModule)
+                float newPosition = 0.0f;
+                float numBays = 0.0f;
+                for (int i = moduleCargoBay.Length - 1; i >= 0; --i)
                 {
-                    ModuleServiceModule msm = deployer as ModuleServiceModule;
-                    if (msm.IsDeployed)
+                    ModuleCargoBay me = moduleCargoBay[i];
+                    PartModule deployer = me.part.Modules[me.DeployModuleIndex];
+                    /*if (deployer is ModuleServiceModule)
                     {
-                        cargoBayDeployed = true;
+                        ModuleServiceModule msm = deployer as ModuleServiceModule;
+                        if (msm.IsDeployed)
+                        {
+                            cargoBayDeployed = true;
+                        }
+                        else
+                        {
+                            cargoBayRetracted = true;
+                        }
                     }
-                    else
+                    else*/
+                    if (deployer is ModuleAnimateGeneric)
                     {
-                        cargoBayRetracted = true;
+                        ModuleAnimateGeneric mag = deployer as ModuleAnimateGeneric;
+                        newPosition += Mathf.InverseLerp(me.closedPosition, Mathf.Abs(1.0f - me.closedPosition), mag.animTime);
                     }
                 }
-                else*/
-                if (deployer is ModuleAnimateGeneric)
+
+                if (numBays > 1.0f)
                 {
-                    ModuleAnimateGeneric mag = deployer as ModuleAnimateGeneric;
-                    if (Mathf.Approximately(me.closedPosition, mag.animTime) || Mathf.Approximately(Mathf.Abs(1.0f - me.closedPosition), mag.animTime))
-                    {
-                        // TODO: Think of the better way to implement this computation.
-                        // No-op.
-                    }
-                    else
-                    {
-                        cargoBayMoving = true;
-                        return;
-                    }
+                    newPosition /= numBays;
                 }
+
+                cargoBayDirection = newPosition - cargoBayPosition;
+                if (cargoBayDirection < 0.0f)
+                {
+                    cargoBayDirection = -1.0f;
+                }
+                else if (cargoBayDirection > 0.0f)
+                {
+                    cargoBayDirection = 1.0f;
+                }
+                cargoBayPosition = newPosition;
             }
         }
         #endregion
@@ -204,14 +215,14 @@ namespace AvionicsSystems
         internal ModuleDeployableAntenna[] moduleAntenna = new ModuleDeployableAntenna[0];
         internal bool antennaDeployable;
         internal bool antennaRetractable;
-        internal bool antennaMoving;
+        internal int antennaMoving;
         internal bool antennaDamaged;
         private void UpdateAntenna()
         {
             // TODO: What about detecting if dynamic pressure is low enough to deploy antennae?
             antennaDeployable = false;
             antennaRetractable = false;
-            antennaMoving = false;
+            antennaMoving = 0;
             antennaDamaged = false;
 
             for (int i = moduleAntenna.Length - 1; i >= 0; --i)
@@ -220,7 +231,14 @@ namespace AvionicsSystems
                 {
                     antennaRetractable |= (moduleAntenna[i].retractable && moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.EXTENDED);
                     antennaDeployable |= (moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.RETRACTED);
-                    antennaMoving |= ((moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.RETRACTING || moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.EXTENDING));
+                    if (moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.RETRACTING)
+                    {
+                        antennaMoving = -1;
+                    }
+                    else if (moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.EXTENDING)
+                    {
+                        antennaMoving = 1;
+                    }
                     antennaDamaged |= (moduleAntenna[i].deployState == ModuleDeployablePart.DeployState.BROKEN);
                 }
             }
@@ -622,7 +640,7 @@ namespace AvionicsSystems
         internal bool solarPanelsDeployable;
         internal float solarPanelsEfficiency;
         internal bool solarPanelsRetractable;
-        internal bool solarPanelsMoving;
+        internal int solarPanelsMoving;
         internal bool solarPanelsDamaged;
         internal float netAlternatorOutput;
         internal float netGeneratorOutput;
@@ -638,7 +656,7 @@ namespace AvionicsSystems
             generatorActive = false;
             solarPanelsDeployable = false;
             solarPanelsRetractable = false;
-            solarPanelsMoving = false;
+            solarPanelsMoving = 0;
             solarPanelsDamaged = false;
 
             for (int i = moduleGenerator.Length - 1; i >= 0; --i)
@@ -671,7 +689,14 @@ namespace AvionicsSystems
                 {
                     solarPanelsRetractable |= (moduleSolarPanel[i].retractable && moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.EXTENDED);
                     solarPanelsDeployable |= (moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.RETRACTED);
-                    solarPanelsMoving |= ((moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.RETRACTING || moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.EXTENDING));
+                    if (moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.RETRACTING)
+                    {
+                        solarPanelsMoving = -1;
+                    }
+                    else if (moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.EXTENDING)
+                    {
+                        solarPanelsMoving = 1;
+                    }
                     solarPanelsDamaged |= (moduleSolarPanel[i].deployState == ModuleDeployablePart.DeployState.BROKEN);
                 }
             }
@@ -935,7 +960,7 @@ namespace AvionicsSystems
         internal bool radiatorInactive;
         internal bool radiatorDeployable;
         internal bool radiatorRetractable;
-        internal bool radiatorMoving;
+        internal int radiatorMoving;
         internal bool radiatorDamaged;
         internal float hottestAblator;
         internal float hottestAblatorMax;
@@ -946,7 +971,7 @@ namespace AvionicsSystems
             radiatorInactive = false;
             radiatorDeployable = false;
             radiatorRetractable = false;
-            radiatorMoving = false;
+            radiatorMoving = 0;
             radiatorDamaged = false;
             maxEnergyTransfer = 0.0;
             currentEnergyTransfer = 0.0;
@@ -1015,7 +1040,14 @@ namespace AvionicsSystems
                 {
                     radiatorRetractable |= (moduleDeployableRadiator[i].retractable && moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.EXTENDED);
                     radiatorDeployable |= (moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.RETRACTED);
-                    radiatorMoving |= (moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.RETRACTING || moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.EXTENDING);
+                    if (moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.RETRACTING)
+                    {
+                        radiatorMoving = -1;
+                    }
+                    else if (moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.EXTENDING)
+                    {
+                        radiatorMoving = 1;
+                    }
                     radiatorDamaged |= (moduleDeployableRadiator[i].deployState == ModuleDeployablePart.DeployState.BROKEN);
                 }
             }
@@ -1029,6 +1061,41 @@ namespace AvionicsSystems
         internal ModuleWheels.ModuleWheelDeployment[] moduleWheelDeployment = new ModuleWheels.ModuleWheelDeployment[0];
         private List<ModuleWheelBase> wheelBaseList = new List<ModuleWheelBase>();
         internal ModuleWheelBase[] moduleWheelBase = new ModuleWheelBase[0];
+        internal float wheelPosition = 0.0f;
+        internal float wheelDirection = 0.0f;
+        private void UpdateGear()
+        {
+            if (moduleWheelDeployment.Length > 0)
+            {
+                float newPosition = 0.0f;
+                float numWheels = 0.0f;
+                for (int i = moduleWheelDeployment.Length - 1; i >= 0; --i)
+                {
+                    if (!moduleWheelDamage[i].isDamaged)
+                    {
+                        numWheels += 1.0f;
+
+                        newPosition += Mathf.InverseLerp(moduleWheelDeployment[i].retractedPosition, moduleWheelDeployment[i].deployedPosition, moduleWheelDeployment[i].position);
+                    }
+                }
+
+                if (numWheels > 1.0f)
+                {
+                    newPosition /= numWheels;
+                }
+
+                wheelDirection = newPosition - wheelPosition;
+                if (wheelDirection < 0.0f)
+                {
+                    wheelDirection = -1.0f;
+                }
+                else if (wheelDirection > 0.0f)
+                {
+                    wheelDirection = 1.0f;
+                }
+                wheelPosition = newPosition;
+            }
+        }
         #endregion
 
         #region Modules Management
@@ -1273,7 +1340,7 @@ namespace AvionicsSystems
                         {
                             brakesList.Add(module as ModuleWheels.ModuleWheelBrakes);
                         }
-                        else if(module is ModuleResourceIntake)
+                        else if (module is ModuleResourceIntake)
                         {
                             ModuleResourceIntake mri = module as ModuleResourceIntake;
                             if (mri.resourceName == "IntakeAir")
@@ -1281,7 +1348,7 @@ namespace AvionicsSystems
                                 airIntakeList.Add(mri);
                             }
                         }
-                        else if(module is LaunchClamp)
+                        else if (module is LaunchClamp)
                         {
                             launchClampList.Add(module as LaunchClamp);
                         }
@@ -1410,6 +1477,7 @@ namespace AvionicsSystems
             UpdatePower();
             UpdateProceduralFairing();
             UpdateRadiators();
+            UpdateGear();
             UpdateRcs();
             UpdateReactionWheels();
             UpdateResourceConverter();

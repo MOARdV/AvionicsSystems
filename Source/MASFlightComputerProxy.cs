@@ -2157,12 +2157,13 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if any cargo bay doors are opening or closing.
+        /// Returns -1 if any cargo bay doors are closing, +1 if any are opening, or
+        /// 0 if none are moving.
         /// </summary>
-        /// <returns>1 if a cargo bay is opening or closing, 0 otherwise (or if there are no cargo bays).</returns>
+        /// <returns>-1, 0, or +1.</returns>
         public double CargoBayMoving()
         {
-            return (vc.cargoBayMoving) ? 1.0 : 0.0;
+            return vc.cargoBayDirection;
         }
 
         /// <summary>
@@ -2176,42 +2177,7 @@ namespace AvionicsSystems
         /// <returns>A number between 0 and 1 as described in the summary.</returns>
         public double CargoBayPosition()
         {
-            float numCargoBays = 0.0f;
-            float lerpPosition = 0.0f;
-            for (int i = vc.moduleCargoBay.Length - 1; i >= 0; --i)
-            {
-                ModuleCargoBay me = vc.moduleCargoBay[i];
-                PartModule deployer = me.part.Modules[me.DeployModuleIndex];
-                /*if (deployer is ModuleServiceModule)
-                {
-                    ModuleServiceModule msm = deployer as ModuleServiceModule;
-                    if (msm.IsDeployed)
-                    {
-                        cargoBayDeployed = true;
-                    }
-                    else
-                    {
-                        cargoBayRetracted = true;
-                    }
-                }
-                else*/
-                if (deployer is ModuleAnimateGeneric)
-                {
-                    ModuleAnimateGeneric mag = deployer as ModuleAnimateGeneric;
-                    lerpPosition += Mathf.InverseLerp(me.closedPosition, Mathf.Abs(1.0f - me.closedPosition), mag.animTime);
-                }
-            }
-
-            if (numCargoBays > 1.0f)
-            {
-                return lerpPosition / numCargoBays;
-            }
-            else if (numCargoBays == 1.0f)
-            {
-                return lerpPosition;
-            }
-
-            return 0.0;
+            return vc.cargoBayPosition;
         }
 
         /// <summary>
@@ -2302,12 +2268,13 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if at least one antenna is moving.
+        /// Returns -1 if an antenna is retracting, +1 if an antenna is extending, or 0 if no
+        /// antennas are moving.
         /// </summary>
-        /// <returns>1 if any antenna is moving (deploying or retracting).</returns>
+        /// <returns>-1, 0, or +1.</returns>
         public double AntennaMoving()
         {
-            return (vc.antennaMoving) ? 1.0 : 0.0;
+            return vc.antennaMoving;
         }
 
         /// <summary>
@@ -3931,22 +3898,13 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if any deployable landing gear or wheels are moving; otherwise
-        /// returns 0.
+        /// Returns -1 if any deployable landing gear or wheels are retracting,
+        /// +1 if they are extending. Otherwise returns 0.
         /// </summary>
-        /// <returns>1 if any landing gear are moving, 0 otherwise.</returns>
+        /// <returns>-1, 0, or +1.</returns>
         public double GearMoving()
         {
-            for (int i = vc.moduleWheelDeployment.Length - 1; i >= 0; --i)
-            {
-                if (!(Mathf.Approximately(vc.moduleWheelDeployment[i].position, vc.moduleWheelDeployment[i].retractedPosition) ||
-                    Mathf.Approximately(vc.moduleWheelDeployment[i].position, vc.moduleWheelDeployment[i].deployedPosition)))
-                {
-                    return 1.0;
-                }
-            }
-
-            return 0.0;
+            return vc.wheelDirection;
         }
 
         /// <summary>
@@ -3960,28 +3918,7 @@ namespace AvionicsSystems
         /// <returns>An number between 0 and 1 as described in the summary.</returns>
         public double GearPosition()
         {
-            float numWheels = 0.0f;
-            float lerpPosition = 0.0f;
-            for (int i = vc.moduleWheelDeployment.Length - 1; i >= 0; --i)
-            {
-                if (!vc.moduleWheelDamage[i].isDamaged)
-                {
-                    numWheels += 1.0f;
-
-                    lerpPosition += Mathf.InverseLerp(vc.moduleWheelDeployment[i].retractedPosition, vc.moduleWheelDeployment[i].deployedPosition, vc.moduleWheelDeployment[i].position);
-                }
-            }
-
-            if (numWheels > 1.0f)
-            {
-                return lerpPosition / numWheels;
-            }
-            else if (numWheels == 1.0f)
-            {
-                return lerpPosition;
-            }
-
-            return 0.0;
+            return vc.wheelPosition;
         }
 
         /// <summary>

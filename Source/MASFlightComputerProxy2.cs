@@ -3087,12 +3087,13 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if at least one solar panel is moving.
+        /// Returns -1 if a solar panel is retracting, +1 if a solar panel is extending, or 0
+        /// if no solar panels are moving.
         /// </summary>
-        /// <returns>1 if any solar panels are moving (deploying or retracting).</returns>
+        /// <returns>-1, 0, or +1.</returns>
         public double SolarPanelMoving()
         {
-            return (vc.solarPanelsMoving) ? 1.0 : 0.0;
+            return vc.solarPanelsMoving;
         }
 
         /// <summary>
