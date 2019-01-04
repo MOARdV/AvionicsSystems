@@ -1,8 +1,8 @@
-﻿#define UNSUPPORT_FAR
+﻿//#define UNSUPPORT_FAR
 /*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -39,10 +39,6 @@ namespace AvionicsSystems
     /// <LuaName>far</LuaName>
     /// <mdDoc>
     /// MASIFAR is the AvionicsSystems interface with Ferram Aerospace Research (FAR).
-    /// 
-    /// **NOTE:** As of KSP 1.5.0 / MAS v0.90.0, FAR is not supported.  Until an official
-    /// FAR release is made available so that MAS can verify its interface with FAR,
-    /// the MASIFAR module will always behave like FAR is not installed.
     /// </mdDoc>
     internal class MASIFAR
     {
@@ -438,7 +434,12 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Failed to find 'VesselBallisticCoeff' in FAR");
                     return;
                 }
-                VesselCoeffBallistic = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), coeffBallistic_t);
+                VesselCoeffBallistic = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), coeffBallistic_t, false);
+                if (VesselCoeffBallistic == null)
+                {
+                    Utility.LogStaticError("Failed to configure 'VesselBallisticCoeff' in FAR");
+                    return;
+                }
 
                 MethodInfo coeffDrag_t = farAPI_t.GetMethod("VesselDragCoeff", BindingFlags.Static | BindingFlags.Public);
                 if (coeffDrag_t == null)
@@ -446,7 +447,12 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Failed to find 'VesselDragCoeff' in FAR");
                     return;
                 }
-                VesselCoeffDrag = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), coeffDrag_t);
+                VesselCoeffDrag = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), coeffDrag_t, false);
+                if (VesselCoeffDrag == null)
+                {
+                    Utility.LogStaticError("Failed to configure 'VesselCoeffDrag' in FAR");
+                    return;
+                }
 
                 MethodInfo coeffLift_t = farAPI_t.GetMethod("VesselLiftCoeff", BindingFlags.Static | BindingFlags.Public);
                 if (coeffLift_t == null)
@@ -454,7 +460,12 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Failed to find 'VesselLiftCoeff' in FAR");
                     return;
                 }
-                VesselCoeffLift = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), coeffLift_t);
+                VesselCoeffLift = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), coeffLift_t, false);
+                if (VesselCoeffLift == null)
+                {
+                    Utility.LogStaticError("Failed to configure 'VesselCoeffLift' in FAR");
+                    return;
+                }
 
                 MethodInfo aoA_t = farAPI_t.GetMethod("VesselAoA", BindingFlags.Static | BindingFlags.Public);
                 if (aoA_t == null)
@@ -462,7 +473,12 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Failed to find 'VesselAoA' in FAR");
                     return;
                 }
-                VesselAoA = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), aoA_t);
+                VesselAoA = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), aoA_t, false);
+                if (VesselAoA == null)
+                {
+                    Utility.LogStaticError("Failed to configure 'VesselAoA' in FAR");
+                    return;
+                }
 
                 MethodInfo dynPress_t = farAPI_t.GetMethod("VesselDynPres", BindingFlags.Static | BindingFlags.Public);
                 if (dynPress_t == null)
@@ -470,7 +486,12 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Failed to find 'VesselDynPres' in FAR");
                     return;
                 }
-                VesselDynPress = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), dynPress_t);
+                VesselDynPress = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), dynPress_t, false);
+                if (VesselDynPress == null)
+                {
+                    Utility.LogStaticError("Failed to configure 'VesselDynPress' in FAR");
+                    return;
+                }
 
                 MethodInfo refArea_t = farAPI_t.GetMethod("VesselRefArea", BindingFlags.Static | BindingFlags.Public);
                 if (refArea_t == null)
@@ -478,7 +499,12 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Failed to find 'VesselRefArea' in FAR");
                     return;
                 }
-                VesselRefArea = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), refArea_t);
+                VesselRefArea = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), refArea_t, false);
+                if (VesselRefArea == null)
+                {
+                    Utility.LogStaticError("Failed to configure 'VesselRefArea' in FAR");
+                    return;
+                }
 
                 MethodInfo stallFrac_t = farAPI_t.GetMethod("VesselStallFrac", BindingFlags.Static | BindingFlags.Public);
                 if (stallFrac_t == null)
@@ -486,7 +512,12 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Failed to find 'VesselStallFrac' in FAR");
                     return;
                 }
-                VesselStallFrac = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), stallFrac_t);
+                VesselStallFrac = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), stallFrac_t, false);
+                if (VesselStallFrac == null)
+                {
+                    Utility.LogStaticError("Failed to configure 'VesselStallFrac' in FAR");
+                    return;
+                }
 
                 MethodInfo termVel_t = farAPI_t.GetMethod("VesselTermVelEst", BindingFlags.Static | BindingFlags.Public);
                 if (termVel_t == null)
@@ -494,7 +525,12 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Failed to find 'VesselTermVelEst' in FAR");
                     return;
                 }
-                VesselTerminalVelocity = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), termVel_t);
+                VesselTerminalVelocity = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), termVel_t, false);
+                if (VesselTerminalVelocity == null)
+                {
+                    Utility.LogStaticError("Failed to configure 'VesselTerminalVelocity' in FAR");
+                    return;
+                }
 
                 MethodInfo flapSetting_t = farAPI_t.GetMethod("VesselFlapSetting", BindingFlags.Static | BindingFlags.Public);
                 if (flapSetting_t == null)
@@ -502,7 +538,12 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Failed to find 'VesselFlapSetting' in FAR");
                     return;
                 }
-                VesselFlapSetting = (Func<Vessel, int>)Delegate.CreateDelegate(typeof(Func<Vessel, int>), flapSetting_t);
+                VesselFlapSetting = (Func<Vessel, int>)Delegate.CreateDelegate(typeof(Func<Vessel, int>), flapSetting_t, false);
+                if (VesselFlapSetting == null)
+                {
+                    Utility.LogStaticError("Failed to configure 'VesselFlapSetting' in FAR");
+                    return;
+                }
 
                 MethodInfo decreaseFlapSetting_t = farAPI_t.GetMethod("VesselDecreaseFlapDeflection", BindingFlags.Static | BindingFlags.Public);
                 if (decreaseFlapSetting_t == null)
@@ -510,7 +551,12 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Failed to find 'VesselDecreaseFlapDeflection' in FAR");
                     return;
                 }
-                VesselDecreaseFlapDeflection = (Action<Vessel>)Delegate.CreateDelegate(typeof(Action<Vessel>), decreaseFlapSetting_t);
+                VesselDecreaseFlapDeflection = (Action<Vessel>)Delegate.CreateDelegate(typeof(Action<Vessel>), decreaseFlapSetting_t, false);
+                if (VesselDecreaseFlapDeflection == null)
+                {
+                    Utility.LogStaticError("Failed to configure 'VesselDecreaseFlapDeflection' in FAR");
+                    return;
+                }
 
                 MethodInfo increaseFlapSetting_t = farAPI_t.GetMethod("VesselIncreaseFlapDeflection", BindingFlags.Static | BindingFlags.Public);
                 if (increaseFlapSetting_t == null)
@@ -518,7 +564,12 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Failed to find 'VesselIncreaseFlapDeflection' in FAR");
                     return;
                 }
-                VesselIncreaseFlapDeflection = (Action<Vessel>)Delegate.CreateDelegate(typeof(Action<Vessel>), increaseFlapSetting_t);
+                VesselIncreaseFlapDeflection = (Action<Vessel>)Delegate.CreateDelegate(typeof(Action<Vessel>), increaseFlapSetting_t, false);
+                if (VesselIncreaseFlapDeflection == null)
+                {
+                    Utility.LogStaticError("Failed to configure 'VesselIncreaseFlapDeflection' in FAR");
+                    return;
+                }
 
                 MethodInfo spoilerSetting_t = farAPI_t.GetMethod("VesselSpoilerSetting", BindingFlags.Static | BindingFlags.Public);
                 if (spoilerSetting_t == null)
@@ -526,7 +577,12 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Failed to find 'VesselSpoilerSetting' in FAR");
                     return;
                 }
-                VesselSpoilerSetting = (Func<Vessel, bool>)Delegate.CreateDelegate(typeof(Func<Vessel, bool>), spoilerSetting_t);
+                VesselSpoilerSetting = (Func<Vessel, bool>)Delegate.CreateDelegate(typeof(Func<Vessel, bool>), spoilerSetting_t, false);
+                if (VesselSpoilerSetting == null)
+                {
+                    Utility.LogStaticError("Failed to configure 'VesselSpoilerSetting' in FAR");
+                    return;
+                }
 
                 MethodInfo setSpoiler_t = farAPI_t.GetMethod("VesselSetSpoilers", BindingFlags.Static | BindingFlags.Public);
                 if (setSpoiler_t == null)
@@ -534,7 +590,12 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Failed to find 'VesselSetSpoilers' in FAR");
                     return;
                 }
-                VesselSetSpoilers = (Action<Vessel, bool>)Delegate.CreateDelegate(typeof(Action<Vessel, bool>), setSpoiler_t);
+                VesselSetSpoilers = (Action<Vessel, bool>)Delegate.CreateDelegate(typeof(Action<Vessel, bool>), setSpoiler_t, false);
+                if (VesselSetSpoilers == null)
+                {
+                    Utility.LogStaticError("Failed to configure 'VesselSetSpoilers' in FAR");
+                    return;
+                }
 
                 MethodInfo sideslip_t = farAPI_t.GetMethod("VesselSideslip", BindingFlags.Static | BindingFlags.Public);
                 if (sideslip_t == null)
@@ -542,7 +603,12 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Failed to find 'VesselSideslip' in FAR");
                     return;
                 }
-                VesselSideSlip = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), sideslip_t);
+                VesselSideSlip = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), sideslip_t, false);
+                if (VesselSideSlip == null)
+                {
+                    Utility.LogStaticError("Failed to configure 'VesselSideSlip' in FAR");
+                    return;
+                }
 
                 MethodInfo specFuelConsumption_t = farAPI_t.GetMethod("VesselTSFC", BindingFlags.Static | BindingFlags.Public);
                 if (specFuelConsumption_t == null)
@@ -550,7 +616,12 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Failed to find 'VesselTSFC' in FAR");
                     return;
                 }
-                VesselSpecFuelConsumption = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), specFuelConsumption_t);
+                VesselSpecFuelConsumption = (Func<Vessel, double>)Delegate.CreateDelegate(typeof(Func<Vessel, double>), specFuelConsumption_t, false);
+                if (VesselSpecFuelConsumption == null)
+                {
+                    Utility.LogStaticError("Failed to configure 'VesselSpecFuelConsumption' in FAR");
+                    return;
+                }
 
                 MethodInfo flightInfo_t = farAPI_t.GetMethod("VesselFlightInfo", BindingFlags.Static | BindingFlags.Public);
                 if (flightInfo_t == null)
@@ -558,7 +629,12 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Failed to find 'VesselFlightInfo' in FAR");
                     return;
                 }
-                VesselFlightInfo = (Func<Vessel, object>)Delegate.CreateDelegate(typeof(Func<Vessel, object>), flightInfo_t);
+                VesselFlightInfo = (Func<Vessel, object>)Delegate.CreateDelegate(typeof(Func<Vessel, object>), flightInfo_t, false);
+                if (VesselFlightInfo == null)
+                {
+                    Utility.LogStaticError("Failed to configure 'VesselFlightInfo' in FAR");
+                    return;
+                }
 
                 Type flightGUI_t = Utility.GetExportedType("FerramAerospaceResearch", "FerramAerospaceResearch.FARGUI.FARFlightGUI.FlightGUI");
                 if (flightGUI_t == null)
@@ -578,7 +654,12 @@ namespace AvionicsSystems
                     Utility.LogStaticError("Failed to find 'InfoParameters' get method in FAR");
                     return;
                 }
-                GetInfoParameters = (Func<object, object>)Delegate.CreateDelegate(typeof(Func<object, object>), getInfo_t);
+                GetInfoParameters = DynamicMethodFactory.CreateFunc<object, object>(getInfo_t);
+                if (GetInfoParameters == null)
+                {
+                    Utility.LogStaticError("Failed to configure 'GetInfoParameters' in FAR");
+                    return;
+                }
 
                 Type FlightInfo_t = Utility.GetExportedType("FerramAerospaceResearch", "FerramAerospaceResearch.FARGUI.FARFlightGUI.VesselFlightInfo");
                 if (FlightInfo_t == null)
