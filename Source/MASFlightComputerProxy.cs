@@ -1947,16 +1947,17 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if the selected camera is moving, 0 otherwise.  Only deployable cameras move.
+        /// Returns -1 if the selected camera is retracting, +1 if it is extending,
+        /// or 0 for any other situation (including non-deployable cameras).
         /// </summary>
         /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
-        /// <returns></returns>
+        /// <returns>-1, 0, or +1.</returns>
         public double GetCameraMoving(double index)
         {
             int i = (int)index;
             if (i >= 0 && i < vc.moduleCamera.Length)
             {
-                return vc.moduleCamera[i].IsMoving() ? 1.0 : 0.0;
+                return vc.moduleCamera[i].IsMoving();
             }
 
             return 0.0;

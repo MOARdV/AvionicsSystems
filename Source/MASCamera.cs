@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2017-2018 MOARdV
+ * Copyright (c) 2017-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -767,9 +767,21 @@ namespace AvionicsSystems
             return (deploymentController != null) ? (deploymentController.deployState == ModuleDeployablePart.DeployState.EXTENDED) : true;
         }
 
-        public bool IsMoving()
+        public int IsMoving()
         {
-            return (deploymentController != null) ? (deploymentController.deployState == ModuleDeployablePart.DeployState.EXTENDING || deploymentController.deployState == ModuleDeployablePart.DeployState.RETRACTING) : false;
+            if (deploymentController != null)
+            {
+                if (deploymentController.deployState == ModuleDeployablePart.DeployState.EXTENDING)
+                {
+                    return 1;
+                }
+                else if (deploymentController.deployState == ModuleDeployablePart.DeployState.RETRACTING)
+                {
+                    return -1;
+                }
+            }
+
+            return 0;
         }
 
         public bool ToggleDeployment()
