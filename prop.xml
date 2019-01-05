@@ -1140,16 +1140,41 @@
 			<TEXT_LABEL>
 				<text>ALARM</text>
 			</TEXT_LABEL>
+			<!-- 
+			Using a bitfield for the master alarm and master caution lamps allows multiple overlapping alarms.
+			With a couple of extra functions in MAS, we can even figure out exactly which alarms are active
+			from this persistent number.  Using the bitfields also means we can have multiple alarm props installed
+			on the vessel, and we don't need to worry about the alarm counts getting out of synch.
+			
+			We could also create a prop to suppress the alarms by setting MAS_MasterAlarm or MAS_MasterCaution to 0.
+			
+			We can use up to 32 unique alarms if we really wanted to.
+			-->
+			<TRIGGER_EVENT id="0">
+				<variable>fc.EngineFlameout()</variable>
+				<event>fc.SetBits("MAS_MasterAlarm", 1)</event>
+				<exitEvent>fc.ClearBits("MAS_MasterAlarm", 1)</exitEvent>
+			</TRIGGER_EVENT>
+			<TRIGGER_EVENT id="1">
+				<variable>fc.SolarPanelDamaged()</variable>
+				<event>fc.SetBits("MAS_MasterAlarm", 2)</event>
+				<exitEvent>fc.ClearBits("MAS_MasterAlarm", 2)</exitEvent>
+			</TRIGGER_EVENT>
+			<TRIGGER_EVENT id="2">
+				<variable>fc.AntennaDamaged()</variable>
+				<event>fc.SetBits("MAS_MasterAlarm", 4)</event>
+				<exitEvent>fc.ClearBits("MAS_MasterAlarm", 4)</exitEvent>
+			</TRIGGER_EVENT>
 			<AUDIO_PLAYER>
-				<variable>fc.Conditioned(MAS_RWL_MasterAlarm())</variable>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MasterAlarm"))</variable>
 			</AUDIO_PLAYER>
 			<COLOR_SHIFT>
 				<activeColor>COLOR_MOARdV_RWL_Red</activeColor>
-				<variable>fc.Conditioned(MAS_RWL_MasterAlarm())</variable>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MasterAlarm"))</variable>
 			</COLOR_SHIFT>
 			<TEXTURE_SHIFT>
 				<endUV>0.0, 0.6</endUV>
-				<variable>fc.Conditioned(MAS_RWL_MasterAlarm())</variable>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MasterAlarm"))</variable>
 			</TEXTURE_SHIFT>
 		</prop>
 		<prop>
@@ -1158,18 +1183,33 @@
 			<TEXT_LABEL>
 				<text>CAUTION</text>
 			</TEXT_LABEL>
+			<TRIGGER_EVENT id="0">
+				<variable>fc.PropellantStageThreshold(0.0, 0.1)</variable>
+				<event>fc.SetBits("MAS_MasterCaution", 1)</event>
+				<exitEvent>fc.ClearBits("MAS_MasterCaution", 1)</exitEvent>
+			</TRIGGER_EVENT>
+			<TRIGGER_EVENT id="1">
+				<variable>fc.PowerThreshold(0.0, 0.1)</variable>
+				<event>fc.SetBits("MAS_MasterCaution", 2)</event>
+				<exitEvent>fc.ClearBits("MAS_MasterCaution", 2)</exitEvent>
+			</TRIGGER_EVENT>
+			<TRIGGER_EVENT id="2">
+				<variable>(parachute.ParachuteCount() &gt; 0) and (fc.AtmosphereDepth() &gt; 0) and (parachute.GetParachuteArmedOrDeployed() &lt; 0) and (fc.MaxImpactSpeed() + fc.VerticalSpeed() &gt; 0)</variable>
+				<event>fc.SetBits("MAS_MasterCaution", 4)</event>
+				<exitEvent>fc.ClearBits("MAS_MasterCaution", 4)</exitEvent>
+			</TRIGGER_EVENT>
 			<AUDIO_PLAYER>
 				<sound>ASET/ASET_Props/Sounds/apollospec</sound>
 				<volume>0.5</volume>
-				<variable>fc.Conditioned(MAS_RWL_MasterCaution())</variable>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MasterCaution"))</variable>
 			</AUDIO_PLAYER>
 			<COLOR_SHIFT>
 				<activeColor>COLOR_MOARdV_RWL_Amber</activeColor>
-				<variable>fc.Conditioned(MAS_RWL_MasterCaution())</variable>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MasterCaution"))</variable>
 			</COLOR_SHIFT>
 			<TEXTURE_SHIFT>
 				<endUV>0.0, 0.4</endUV>
-				<variable>fc.Conditioned(MAS_RWL_MasterCaution())</variable>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_MasterCaution"))</variable>
 			</TEXTURE_SHIFT>
 		</prop>
 		<!-- Intended to be used at 0.5 scale, shorter text -->
