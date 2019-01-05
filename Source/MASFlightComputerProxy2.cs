@@ -641,6 +641,68 @@ namespace AvionicsSystems
 
         [MASProxy(Dependent = true)]
         /// <summary>
+        /// Converts `value1` and `value2` to 32 bit integers and applies a bitwise-AND
+        /// operation.
+        /// </summary>
+        /// <param name="value1">An integer value.</param>
+        /// <param name="value2">An integer value.</param>
+        /// <returns>value1 AND value2</returns>
+        public double BitwiseAnd(double value1, double value2)
+        {
+            int v1 = (int)value1;
+            int v2 = (int)value2;
+
+            return (double)(v1 & v2);
+        }
+
+        [MASProxy(Dependent = true)]
+        /// <summary>
+        /// Converts `value1` and `value2` to 32 bit integers and applies a bitwise-OR
+        /// operation.
+        /// </summary>
+        /// <param name="value1">An integer value.</param>
+        /// <param name="value2">An integer value.</param>
+        /// <returns>value1 OR value2</returns>
+        public double BitwiseOr(double value1, double value2)
+        {
+            int v1 = (int)value1;
+            int v2 = (int)value2;
+
+            return (double)(v1 | v2);
+        }
+
+        [MASProxy(Dependent = true)]
+        /// <summary>
+        /// Converts `value` to a 32 bit value and applies a bitwise-negation
+        /// operation.
+        /// </summary>
+        /// <param name="value">An integer value.</param>
+        /// <returns>~value</returns>
+        public double BitwiseNegate(double value)
+        {
+            int v1 = (int)value;
+
+            return (double)(~v1);
+        }
+
+        [MASProxy(Dependent = true)]
+        /// <summary>
+        /// Converts `value1` and `value2` to 32 bit integers and applies a bitwise-XOR
+        /// operation.
+        /// </summary>
+        /// <param name="value1">An integer value.</param>
+        /// <param name="value2">An integer value.</param>
+        /// <returns>value1 XOR value2</returns>
+        public double BitwiseXor(double value1, double value2)
+        {
+            int v1 = (int)value1;
+            int v2 = (int)value2;
+
+            return (double)(v1 ^ v2);
+        }
+
+        [MASProxy(Dependent = true)]
+        /// <summary>
         /// Rounds a number up to the next integer.
         /// </summary>
         /// <param name="value">The value to round</param>
