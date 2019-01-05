@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -271,6 +271,38 @@ namespace AvionicsSystems
             }
         }
 
+        internal double ClearBits(string persistentName, int bits)
+        {
+            int persistentInt = 0;
+            bits = ~bits;
+
+            object val;
+            if (persistentVars.TryGetValue(persistentName, out val))
+            {
+                if (val is double)
+                {
+                    persistentInt = (int)(double)val;
+                }
+                else
+                {
+                    double result;
+                    if (double.TryParse(val as string, out result))
+                    {
+                        persistentInt = (int)result;
+                    }
+                }
+            }
+
+            int newPersistentInt = persistentInt & bits;
+            if (newPersistentInt != persistentInt)
+            {
+                persistentVars[persistentName] = (double)newPersistentInt;
+                UpdatePersistent(persistentName);
+            }
+
+            return (double)newPersistentInt;
+        }
+
         /// <summary>
         /// Returns the value of the named persistent, or the name if it wasn't
         /// found.
@@ -328,6 +360,37 @@ namespace AvionicsSystems
             return 0.0;
         }
 
+        internal double SetBits(string persistentName, int bits)
+        {
+            int persistentInt = 0;
+
+            object val;
+            if (persistentVars.TryGetValue(persistentName, out val))
+            {
+                if (val is double)
+                {
+                    persistentInt = (int)(double)val;
+                }
+                else
+                {
+                    double result;
+                    if (double.TryParse(val as string, out result))
+                    {
+                        persistentInt = (int)result;
+                    }
+                }
+            }
+
+            int newPersistentInt = persistentInt | bits;
+            if (newPersistentInt != persistentInt)
+            {
+                persistentVars[persistentName] = (double)newPersistentInt;
+                UpdatePersistent(persistentName);
+            }
+
+            return (double)newPersistentInt;
+        }
+
         /// <summary>
         /// Unconditionally set the named persistent to the specified value.
         /// </summary>
@@ -378,7 +441,7 @@ namespace AvionicsSystems
                 return result;
             }
 
-            if(maxRatePerSecond > 0.0)
+            if (maxRatePerSecond > 0.0)
             {
                 double delta = Math.Abs(value - result);
                 delta = Math.Min(delta, maxRatePerSecond * TimeWarp.fixedDeltaTime);
@@ -398,7 +461,7 @@ namespace AvionicsSystems
             }
 
             if (result != value)
-            { 
+            {
                 persistentVars[persistentName] = result;
                 UpdatePersistent(persistentName);
             }

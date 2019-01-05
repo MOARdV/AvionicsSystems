@@ -2680,6 +2680,25 @@ namespace AvionicsSystems
             return fc.AppendPersistent(persistentName, addon, (int)maxLength);
         }
 
+        /// <summary>
+        /// Clears 0 or more bits in the number stored in `persistentName`.
+        /// 
+        /// The value in `persistentName` is converted to a 32 bit integer,
+        /// as is `bits`.  `bits` is converted to its bitwise negation, and
+        /// A bit-wise AND is applied, and the resulting value
+        /// is stored in `persistentName`.
+        /// 
+        /// If `persistentName` does not exist yet, or it is a string that cannot
+        /// be converted to an integer, it is set to 0 before the AND.
+        /// </summary>
+        /// <param name="persistentName">The name of the persistent variable to change.</param>
+        /// <param name="bits">An integer representing the bits to clear.</param>
+        /// <returns>Result of the bit-wise AND.</returns>
+        public double ClearBits(string persistentName, double bits)
+        {
+            return fc.ClearBits(persistentName, (int)bits);
+        }
+
         [MASProxy(Persistent = true)]
         /// <summary>
         /// Return value of the persistent.  Strings are returned as strings,
@@ -2716,6 +2735,24 @@ namespace AvionicsSystems
         public double GetPersistentExists(string persistentName)
         {
             return fc.GetPersistentExists(persistentName) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Sets 0 or more bits in the number stored in `persistentName`.
+        /// 
+        /// The value in `persistentName` is converted to a 32 bit integer,
+        /// as is `bits`.  A bit-wise OR is applied, and the resulting value
+        /// is stored in `persistentName`.
+        /// 
+        /// If `persistentName` does not exist yet, or it is a string that cannot
+        /// be converted to an integer, it is set to 0 before the OR.
+        /// </summary>
+        /// <param name="persistentName">The name of the persistent variable to change.</param>
+        /// <param name="bits">An integer representing the bits to set.</param>
+        /// <returns>Result of the bit-wise OR.</returns>
+        public double SetBits(string persistentName, double bits)
+        {
+            return fc.SetBits(persistentName, (int)bits);
         }
 
         /// <summary>
