@@ -3412,6 +3412,23 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the current thrust output relative to the
+        /// current stage's max rated thrust, from 0.0 to 1.0.
+        /// </summary>
+        /// <returns>Thrust output, ranging from 0 to 1.</returns>
+        public double CurrentRatedThrust()
+        {
+            if (vc.currentThrust > 0.0f)
+            {
+                return vc.currentThrust / vc.maxRatedThrust;
+            }
+            else
+            {
+                return 0.0f;
+            }
+        }
+
+        /// <summary>
         /// Returns the current thrust output, from 0.0 to 1.0.
         /// </summary>
         /// <returns>Thrust output, ranging from 0 to 1.</returns>
@@ -3485,13 +3502,32 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns an estimate of the delta-V remaining for the current stage.
+        /// Returns an estimate of the delta-V remaining for the current stage.  This computation uses
+        /// the current ISP.
         /// </summary>
         /// <returns>Remaining delta-V for this stage in m/s.</returns>
         public double DeltaVStage()
         {
             // mass in tonnes.
             double stagePropellantMass = vc.enginePropellant.currentStage * vc.enginePropellant.density;
+
+            if (stagePropellantMass > 0.0)
+            {
+                return vc.currentIsp * Utility.StandardG * Math.Log(vessel.totalMass / (vessel.totalMass - stagePropellantMass));
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns an estimate of the maximum delta-V for the current stage.  This computation uses
+        /// the current ISP.
+        /// </summary>
+        /// <returns>Maximum delta-V for this stage in m/s.</returns>
+        public double DeltaVStageMax()
+        {
+            // mass in tonnes.
+            double stagePropellantMass = vc.enginePropellant.maxStage * vc.enginePropellant.density;
 
             if (stagePropellantMass > 0.0)
             {
@@ -3628,6 +3664,15 @@ namespace AvionicsSystems
         public double MaxIsp()
         {
             return vc.maxIsp;
+        }
+
+        /// <summary>
+        /// Returns the maximum rated thrust in kN for the active engines.
+        /// </summary>
+        /// <returns>Maximum thrust in kN</returns>
+        public double MaxRatedThrustkN()
+        {
+            return vc.maxRatedThrust;
         }
 
         /// <summary>
