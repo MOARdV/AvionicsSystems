@@ -1352,6 +1352,10 @@ namespace AvionicsSystems
                         {
                             launchClampList.Add(module as LaunchClamp);
                         }
+                        else if (module is ModuleScienceExperiment)
+                        {
+                            scienceExperimentList.Add(module as ModuleScienceExperiment);
+                        }
 
                         foreach (BaseAction ba in module.Actions)
                         {
@@ -1426,6 +1430,8 @@ namespace AvionicsSystems
             TransferModules<ModuleWheels.ModuleWheelDeployment>(wheelDeploymentList, ref moduleWheelDeployment);
             TransferModules<ModuleWheelBase>(wheelBaseList, ref moduleWheelBase);
             TransferModules<ModuleWheels.ModuleWheelBrakes>(brakesList, ref moduleBrakes);
+            TransferModules<ModuleScienceExperiment>(scienceExperimentList, ref moduleScienceExperiment);
+            TransferModules<LaunchClamp>(launchClampList, ref moduleLaunchClamp);
 
             for (int i = resourceConverterList.Count - 1; i >= 0; --i)
             {
