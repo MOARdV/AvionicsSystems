@@ -1343,7 +1343,7 @@ namespace AvionicsSystems
                         else if (module is ModuleResourceIntake)
                         {
                             ModuleResourceIntake mri = module as ModuleResourceIntake;
-                            if (mri.resourceName == "IntakeAir")
+                            if (mri.resourceName == "IntakeAir" || mri.resourceName == "IntakeAtm")
                             {
                                 airIntakeList.Add(mri);
                             }
