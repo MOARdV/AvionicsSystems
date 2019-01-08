@@ -86,8 +86,8 @@ namespace AvionicsSystems
         #region Aircraft Engines
         private List<MASThrustReverser> thrustReverserList = new List<MASThrustReverser>();
         internal MASThrustReverser[] moduleThrustReverser = new MASThrustReverser[0];
-        private List<ModuleResourceIntake> airIntakeList = new List<ModuleResourceIntake>();
-        internal ModuleResourceIntake[] moduleAirIntake = new ModuleResourceIntake[0];
+        private List<ModuleResourceIntake> resourceIntakeList = new List<ModuleResourceIntake>();
+        internal ModuleResourceIntake[] moduleResourceIntake = new ModuleResourceIntake[0];
         #endregion
 
         #region Brakes
@@ -1342,11 +1342,7 @@ namespace AvionicsSystems
                         }
                         else if (module is ModuleResourceIntake)
                         {
-                            ModuleResourceIntake mri = module as ModuleResourceIntake;
-                            if (mri.resourceName == "IntakeAir" || mri.resourceName == "IntakeAtm")
-                            {
-                                airIntakeList.Add(mri);
-                            }
+                            resourceIntakeList.Add(module as ModuleResourceIntake);
                         }
                         else if (module is LaunchClamp)
                         {
@@ -1421,7 +1417,7 @@ namespace AvionicsSystems
             TransferModules<ModuleRCS>(rcsList, ref moduleRcs);
             TransferModules<PartModule>(realchuteList, ref moduleRealChute);
             TransferModules<ModuleReactionWheel>(reactionWheelList, ref moduleReactionWheel);
-            TransferModules<ModuleResourceIntake>(airIntakeList, ref moduleAirIntake);
+            TransferModules<ModuleResourceIntake>(resourceIntakeList, ref moduleResourceIntake);
             TransferModules<ModuleDeployableSolarPanel>(solarPanelList, ref moduleSolarPanel);
             TransferModules<MASCamera>(cameraList, ref moduleCamera);
             TransferModules<ModuleProceduralFairing>(proceduralFairingList, ref moduleProceduralFairing);

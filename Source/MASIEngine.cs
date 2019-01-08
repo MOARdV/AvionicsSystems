@@ -913,29 +913,29 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// The Air Intakes region allows management of air intakes aboard the vessel.  Air intakes
-        /// are defined as a part containing a ModuleResourceIntakes with a `resourceName` of `IntakeAir`.
+        /// The Intakes region allows management of resource intakes aboard the vessel (such as air intakes,
+        /// water scoops, etc).
         /// </summary>
-        #region Air Intakes
+        #region Intakes
 
         /// <summary>
-        /// Returns the number of air intakes on the vessel.
+        /// Returns the number of intakes on the vessel.
         /// </summary>
         /// <returns>The number of intakes.</returns>
-        public double GetAirIntakesCount()
+        public double GetIntakesCount()
         {
-            return vc.moduleAirIntake.Length;
+            return vc.moduleResourceIntake.Length;
         }
 
         /// <summary>
-        /// Returns 1 if any air intake is open.  Returns 0 otherwise.
+        /// Returns 1 if any intake is open.  Returns 0 otherwise.
         /// </summary>
         /// <returns>1 if an intake is open.</returns>
-        public double GetAirIntakesOpen()
+        public double GetIntakesOpen()
         {
-            for (int i = vc.moduleAirIntake.Length - 1; i >= 0; --i)
+            for (int i = vc.moduleResourceIntake.Length - 1; i >= 0; --i)
             {
-                if (vc.moduleAirIntake[i].intakeEnabled)
+                if (vc.moduleResourceIntake[i].intakeEnabled)
                 {
                     return 1.0;
                 }
@@ -945,25 +945,25 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Sets the state of all air intakes aboard the vessel per the `open` parameter.
+        /// Sets the state of all intakes aboard the vessel per the `open` parameter.
         /// </summary>
         /// <param name="open">If true, intakes will be opened.  If false, intakes will be closed.</param>
         /// <returns>1 if any intakes changed, 0 if all intakes were already set to the requested position.</returns>
-        public double SetAirIntakesOpen(bool open)
+        public double SetIntakesOpen(bool open)
         {
             bool anyChanged = false;
-            for (int i = vc.moduleAirIntake.Length - 1; i >= 0; --i)
+            for (int i = vc.moduleResourceIntake.Length - 1; i >= 0; --i)
             {
-                if (vc.moduleAirIntake[i].intakeEnabled != open)
+                if (vc.moduleResourceIntake[i].intakeEnabled != open)
                 {
                     anyChanged = true;
                     if (open)
                     {
-                        vc.moduleAirIntake[i].Deactivate();
+                        vc.moduleResourceIntake[i].Activate();
                     }
                     else
                     {
-                        vc.moduleAirIntake[i].Activate();
+                        vc.moduleResourceIntake[i].Deactivate();
                     }
 
                 }
@@ -973,22 +973,22 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Toggles air intakes (opens them if they are closed, closes them if they are open).
+        /// Toggles intakes (opens them if they are closed, closes them if they are open).
         /// </summary>
         /// <returns>1 if any intakes were toggled, 0 if none were.</returns>
-        public double ToggleAirIntakes()
+        public double ToggleIntakes()
         {
-            if (vc.moduleAirIntake.Length > 0)
+            if (vc.moduleResourceIntake.Length > 0)
             {
-                for (int i = vc.moduleAirIntake.Length - 1; i >= 0; --i)
+                for (int i = vc.moduleResourceIntake.Length - 1; i >= 0; --i)
                 {
-                    if (vc.moduleAirIntake[i].intakeEnabled)
+                    if (vc.moduleResourceIntake[i].intakeEnabled)
                     {
-                        vc.moduleAirIntake[i].Deactivate();
+                        vc.moduleResourceIntake[i].Deactivate();
                     }
                     else
                     {
-                        vc.moduleAirIntake[i].Activate();
+                        vc.moduleResourceIntake[i].Activate();
                     }
                 }
 
