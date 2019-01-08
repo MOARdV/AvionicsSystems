@@ -61,8 +61,9 @@
 				<fontSize>3.5</fontSize>
 				<font>Liberation Sans</font>
 				<alignment>Left</alignment>
-				<anchor>UpperLeft</anchor>
+				<anchor>LowerLeft</anchor>
 				<emissive>always</emissive>
+				<transformOffset>0, -0.008</transformOffset>
 				<passiveColor>255, 255, 255, 255</passiveColor>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
@@ -142,6 +143,58 @@
 				<text>{0,6:0} $#$ fc.PowerCurrent()</text>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_IndicatorCircular_Propellant</name>
+			<style>Standard Circular Indicator</style>
+			<ANIMATION>
+				<variable>fc.PropellantPercent()</variable>
+			</ANIMATION>
+			<TEXT_LABEL id="0">
+				<text>Propellant:</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0,6:0} $#$ fc.PropellantCurrent()</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorCircular_Rcs</name>
+			<style>Standard Circular Indicator</style>
+			<ANIMATION>
+				<variable>fc.RcsPercent()</variable>
+			</ANIMATION>
+			<TEXT_LABEL id="0">
+				<text>RCS Fuel:</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0,6:0} $#$ fc.RcsCurrent()</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorCircular_StageDeltaV</name>
+			<style>Standard Circular Indicator</style>
+			<ANIMATION>
+				<variable>fc.SafeDivide(fc.DeltaVStage(), fc.DeltaVStageMax())</variable>
+			</ANIMATION>
+			<TEXT_LABEL id="0">
+				<text>Stage$$$ΔV, m/s:</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0,6:0.0} $#$ fc.DeltaVStage()</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorCircular_Thrust</name>
+			<style>Standard Circular Indicator</style>
+			<ANIMATION>
+				<variable>fc.CurrentRatedThrust()</variable>
+			</ANIMATION>
+			<TEXT_LABEL id="0">
+				<text>Thrust, kN:</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0,6:0.0} $#$ fc.CurrentThrustkN()</text>
+			</TEXT_LABEL>
+		</prop>
 		<!--
 		This particular prop has a second way to operate it.  Instead of using the animation, it can use
 		texture UV shifting and color changes to control the appearance.
@@ -188,8 +241,9 @@
 				<fontSize>3.5</fontSize>
 				<font>Liberation Sans</font>
 				<alignment>Left</alignment>
-				<anchor>UpperLeft</anchor>
+				<anchor>LowerLeft</anchor>
 				<emissive>always</emissive>
+				<transformOffset>0, -0.008</transformOffset>
 				<passiveColor>255, 255, 255, 255</passiveColor>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
