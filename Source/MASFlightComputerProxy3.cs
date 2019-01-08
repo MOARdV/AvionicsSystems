@@ -3450,7 +3450,7 @@ namespace AvionicsSystems
         /// Returns the current pitch trim.
         /// </summary>
         /// <returns>Current pitch trim, in the range [-1, 1].</returns>
-        double GetPitchTrim()
+        public double GetPitchTrim()
         {
             return FlightInputHandler.state.pitchTrim;
         }
@@ -3459,7 +3459,7 @@ namespace AvionicsSystems
         /// Returns the current roll trim.
         /// </summary>
         /// <returns>Current roll trim, in the range [-1, 1].</returns>
-        double GetRollTrim()
+        public double GetRollTrim()
         {
             return FlightInputHandler.state.rollTrim;
         }
@@ -3468,7 +3468,7 @@ namespace AvionicsSystems
         /// Returns the current yaw trim.
         /// </summary>
         /// <returns>Current yaw trim, in the range [-1, 1].</returns>
-        double GetYawTrim()
+        public double GetYawTrim()
         {
             return FlightInputHandler.state.yawTrim;
         }
@@ -3478,7 +3478,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="pitchTrim">The new pitch trim, in the range [-1, 1]</param>
         /// <returns>Updated pitch trim, in the range [-1, 1].</returns>
-        double SetPitchTrim(double pitchTrim)
+        public double SetPitchTrim(double pitchTrim)
         {
             FlightInputHandler.state.pitchTrim = Mathf.Clamp((float)pitchTrim, -1.0f, 1.0f);
             return FlightInputHandler.state.pitchTrim;
@@ -3489,7 +3489,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="rollTrim">The new roll trim, in the range [-1, 1]</param>
         /// <returns>Updated roll trim, in the range [-1, 1].</returns>
-        double SetRollTrim(double rollTrim)
+        public double SetRollTrim(double rollTrim)
         {
             FlightInputHandler.state.rollTrim = Mathf.Clamp((float)rollTrim, -1.0f, 1.0f);
             return FlightInputHandler.state.rollTrim;
@@ -3500,7 +3500,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="yawTrim">The new yaw trim, in the range [-1, 1]</param>
         /// <returns>Updated yaw trim, in the range [-1, 1].</returns>
-        double SetYawTrim(double yawTrim)
+        public double SetYawTrim(double yawTrim)
         {
             FlightInputHandler.state.yawTrim = Mathf.Clamp((float)yawTrim, -1.0f, 1.0f);
             return FlightInputHandler.state.yawTrim;
@@ -3513,7 +3513,7 @@ namespace AvionicsSystems
         /// <param name="pitchTrim">The new pitch trim, in the range [-1, 1]</param>
         /// <param name="rollTrim">The new roll trim, in the range [-1, 1]</param>
         /// <returns>Always returns 1.</returns>
-        double SetTrim(double yawTrim, double pitchTrim, double rollTrim)
+        public double SetTrim(double yawTrim, double pitchTrim, double rollTrim)
         {
             FlightInputHandler.state.yawTrim = Mathf.Clamp((float)yawTrim, -1.0f, 1.0f);
             FlightInputHandler.state.pitchTrim = Mathf.Clamp((float)pitchTrim, -1.0f, 1.0f);
