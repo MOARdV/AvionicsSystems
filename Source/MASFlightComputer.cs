@@ -207,6 +207,16 @@ namespace AvionicsSystems
         /// </summary>
         internal MASVesselComputer vc;
 
+        /// <summary>
+        /// Reference to the current IVA Kerbal.
+        /// </summary>
+        internal Kerbal currentKerbal;
+
+        /// <summary>
+        /// Is the current Kerbal suffering the effects of GLOC?
+        /// </summary>
+        internal bool currentKerbalBlackedOut;
+
         private int electricChargeIndex = -1;
 
         internal static readonly string vesselIdLabel = "__vesselId";
@@ -704,7 +714,16 @@ namespace AvionicsSystems
                     }
 
                     isPowered = (!requiresPower || vc.ResourceCurrentDirect(electricChargeIndex) > 0.0001) && powerOnValid;
-                    if (vessel.geeForce_immediate > gLimit)
+
+                    currentKerbalBlackedOut = false;
+                    currentKerbal = FindCurrentKerbal();
+                    if (currentKerbal != null && currentKerbal.protoCrewMember.outDueToG)
+                    {
+                        // Always black-out instruments from blackouts.
+                        disruptionChance = 1.1f;
+                        currentKerbalBlackedOut = true;
+                    }
+                    else if (vessel.geeForce_immediate > gLimit)
                     {
                         disruptionChance = baseDisruptionChance * Mathf.Sqrt((float)vessel.geeForce_immediate - gLimit);
                     }
