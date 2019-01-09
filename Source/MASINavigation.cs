@@ -96,7 +96,6 @@ namespace AvionicsSystems
                     }
                     else
                     {
-                        // UNTESTED!
                         LaunchSite site = PSystemSetup.Instance.GetLaunchSite(vessel.launchedFrom);
                         if (site != null && site.IsSetup && site.spawnPoints.Length > 0)
                         {
@@ -110,7 +109,7 @@ namespace AvionicsSystems
                                 launchSite.longitude = longitude;
                                 launchSite.celestialName = site.Body.name;
                                 launchSite.altitude = altitude;
-                                launchSite.name = KSP.Localization.Localizer.GetStringByTag(site.GetName());
+                                launchSite.name = KSP.Localization.Localizer.GetStringByTag(site.launchSiteName);
                                 launchSite.index = 256; // ?
                                 launchSite.navigationId = Guid.NewGuid();
                                 launchSite.id = "vessel"; // seems to be icon name.  May be WPM-specific.
