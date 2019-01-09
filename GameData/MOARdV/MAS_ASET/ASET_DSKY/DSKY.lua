@@ -38,15 +38,21 @@ function dksyError(sourceMode, deltaVMode)
 	return 0
 end
 
--- Returns 1 if the DSKY should be in Maneuver/Rendezvous mode, 2 if it is in Rendezvous mode,
+-- sourceMode values:
+-- 0: Vessel Orbit Data
+-- 1: Target Orbit Data
+-- 2: Rendezvous Data
+-- 3: Maneuver Data
+
+-- Returns 2 if the DSKY should be in Maneuver/Rendezvous mode, 3 if it is in Rendezvous mode,
 -- 0 otherwise.
 function dskyModeSelect(selectedMode)
 
 	if selectedMode == 2 and fc.VesselLanded() < 1 and fc.TargetType() > 0 then
 		if fc.ManeuverNodeExists() > 0 then
-			return 1
-		else
 			return 2
+		else
+			return 3
 		end
 	end
 
@@ -113,6 +119,25 @@ function dskyOrbitValid(sourceMode)
 		return 1
 	elseif dskyModeManeuver(sourceMode) > 0 then
 		return 1
+	else
+		local mode = dskyModeSelect(sourceMode)
+		if mode > 0 then
+			return mode
+		end
+	end
+	
+	return 0
+end
+
+function dskyCaptionsValid(sourceMode)
+	if dskyModeOrbit(sourceMode) > 0 then
+		return 1
+	elseif dskyModeTarget(sourceMode) > 0 then
+		return 1
+	elseif dskyModeManeuver(sourceMode) > 0 then
+		return 1
+	elseif dskyModeManeuverRendezvous(sourceMode) > 0 then
+		return 1
 	end
 	
 	return 0
@@ -126,6 +151,10 @@ function dskyApValue(sourceMode)
 		return fc.TargetApoapsis()
 	elseif dskyModeManeuver(sourceMode) > 0 then
 		return fc.ManeuverNodeAp()
+	elseif dskyModeRendezvous(sourceMode) > 0 then
+		return fc.TargetClosestApproachDistance()
+	elseif dskyModeManeuverRendezvous(sourceMode) > 0 then
+		return fc.ManeuverNodeTargetClosestApproachDistance()
 	end
 	
 	return 0
@@ -139,6 +168,10 @@ function dskyPeValue(sourceMode)
 		return fc.TargetPeriapsis()
 	elseif dskyModeManeuver(sourceMode) > 0 then
 		return fc.ManeuverNodePe()
+	elseif dskyModeRendezvous(sourceMode) > 0 then
+		return fc.TargetClosestApproachSpeed()
+	elseif dskyModeManeuverRendezvous(sourceMode) > 0 then
+		return fc.ManeuverNodeTargetClosestApproachSpeed()
 	end
 	
 	return 0
@@ -152,6 +185,10 @@ function dskyIncValue(sourceMode)
 		return fc.TargetRelativeInclination()
 	elseif dskyModeManeuver(sourceMode) > 0 then
 		return fc.ManeuverNodeInc()
+	elseif dskyModeRendezvous(sourceMode) > 0 then
+		return fc.TargetRelativeInclination()
+	elseif dskyModeManeuverRendezvous(sourceMode) > 0 then
+		return fc.ManeuverNodeRelativeInclination()
 	end
 	
 	return 0
@@ -227,6 +264,8 @@ function dskyTimerValid(sourceMode, timerMode)
 		return 1
 	elseif dskyTimerModeMnvr(sourceMode, timerMode) > 0 then
 		return 1
+	elseif dskyModeRendezvous(sourceMode) > 0 then
+		return 1
 	end
 	
 	return 0
@@ -255,6 +294,8 @@ function dskyTime(sourceMode, timerMode)
 		end
 	elseif dskyTimerModeMnvr(sourceMode, timerMode) > 0 then
 		return fc.ManeuverNodeTime()
+	elseif dskyModeRendezvous(sourceMode) > 0 then
+		return fc.TargetClosestApproachTime()
 	end
 	
 	return 0
