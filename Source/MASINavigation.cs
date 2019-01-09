@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -41,8 +41,7 @@ namespace AvionicsSystems
     /// from the vessel to a particular lat/lon location on the planet, and the
     /// distance between two arbitrary points on a planet.
     /// 
-    /// All methods use the current vessel's
-    /// parent body as the body for calculations.
+    /// All methods use the current vessel's parent body as the body for calculations.
     /// 
     /// Equations adapted from http://www.movable-type.co.uk/scripts/latlong.html.
     /// </mdDoc>
@@ -51,6 +50,9 @@ namespace AvionicsSystems
         private Vessel vessel;
         private double bodyRadius;
         private MASFlightComputer fc;
+        private FinePrint.Waypoint launchSite;
+        private NavWaypoint navWaypoint;
+        private FinePrint.WaypointManager waypointManager;
 
         private int activeWaypoint = -1;
 
@@ -60,6 +62,63 @@ namespace AvionicsSystems
             this.vessel = vessel;
             this.bodyRadius = this.vessel.mainBody.Radius;
             this.fc = fc;
+
+            this.navWaypoint = NavWaypoint.fetch;
+            this.waypointManager = FinePrint.WaypointManager.Instance();
+
+            if (!string.IsNullOrEmpty(vessel.launchedFrom))
+            {
+                bool isFacility;
+                string displayName;
+                if (PSystemSetup.Instance.IsFacilityOrLaunchSite(vessel.launchedFrom, out isFacility, out displayName))
+                {
+                    if (isFacility)
+                    {
+                        PSystemSetup.SpaceCenterFacility ksc = PSystemSetup.Instance.GetSpaceCenterFacility(vessel.launchedFrom);
+                        if (ksc != null && ksc.spawnPoints.Length > 0)
+                        {
+                            var spawnPoint = ksc.spawnPoints[0];
+                            if (spawnPoint.latlonaltSet)
+                            {
+                                double latitude, longitude, altitude;
+                                spawnPoint.GetSpawnPointLatLonAlt(out latitude, out longitude, out altitude);
+                                launchSite = new FinePrint.Waypoint();
+                                launchSite.latitude = latitude;
+                                launchSite.longitude = longitude;
+                                launchSite.celestialName = ksc.hostBody.name;
+                                launchSite.altitude = altitude;
+                                launchSite.name = KSP.Localization.Localizer.GetStringByTag(ksc.facilityDisplayName);
+                                launchSite.index = 256; // ?
+                                launchSite.navigationId = Guid.NewGuid();
+                                launchSite.id = "vessel"; // seems to be icon name.  May be WPM-specific.
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // UNTESTED!
+                        LaunchSite site = PSystemSetup.Instance.GetLaunchSite(vessel.launchedFrom);
+                        if (site != null && site.IsSetup && site.spawnPoints.Length > 0)
+                        {
+                            var spawnPoint = site.spawnPoints[0];
+                            if (spawnPoint.latlonaltSet)
+                            {
+                                double latitude, longitude, altitude;
+                                spawnPoint.GetSpawnPointLatLonAlt(out latitude, out longitude, out altitude);
+                                launchSite = new FinePrint.Waypoint();
+                                launchSite.latitude = latitude;
+                                launchSite.longitude = longitude;
+                                launchSite.celestialName = site.Body.name;
+                                launchSite.altitude = altitude;
+                                launchSite.name = KSP.Localization.Localizer.GetStringByTag(site.GetName());
+                                launchSite.index = 256; // ?
+                                launchSite.navigationId = Guid.NewGuid();
+                                launchSite.id = "vessel"; // seems to be icon name.  May be WPM-specific.
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         ~MASINavigation()
@@ -71,29 +130,23 @@ namespace AvionicsSystems
         internal void Update()
         {
             // Probably oughtn't need to poll this
-            bodyRadius = vessel.mainBody.Radius;
+            bodyRadius = fc.vc.mainBody.Radius;
 
             // Be nice if this could be done more efficiently.
             activeWaypoint = -1;
-            if (NavWaypoint.fetch.IsActive)
-            {
-                double wpLat = NavWaypoint.fetch.Latitude;
-                double wpLon = NavWaypoint.fetch.Longitude;
 
-                FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
-                if (instance != null)
-                {
-                    var waypoints = instance.Waypoints;
+            if (navWaypoint.IsActive)
+            {
+                    var waypoints = waypointManager.Waypoints;
                     int numWP = waypoints.Count;
                     for (int i = 0; i < numWP; ++i)
                     {
-                        if (waypoints[i].latitude == wpLat && waypoints[i].longitude == wpLon)
+                        if (navWaypoint.IsUsing(waypoints[i]))
                         {
                             activeWaypoint = i;
                             break;
                         }
                     }
-                }
             }
         }
 
@@ -889,23 +942,46 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            if (NavWaypoint.fetch.IsActive)
+            if (navWaypoint.IsActive)
             {
-                NavWaypoint.fetch.Clear();
-                NavWaypoint.fetch.Deactivate();
+                navWaypoint.Clear();
+                navWaypoint.Deactivate();
             }
 
-            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
-            if (instance == null)
-            {
-                return 0.0;
-            }
-            var waypoints = instance.Waypoints;
+            var waypoints = waypointManager.Waypoints;
 
             if (index >= 0 && index < waypoints.Count)
             {
-                NavWaypoint.fetch.Setup(waypoints[index]);
-                NavWaypoint.fetch.Activate();
+                navWaypoint.Setup(waypoints[index]);
+                navWaypoint.Activate();
+                return 1.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Sets the waypoint manager to target the vessel's launch site.
+        /// 
+        /// Requires the vessel to be in the sphere of influence of the launch
+        /// site's world.
+        /// </summary>
+        /// <returns>1 if the launch site was selected, 0 if it could not be selected.</returns>
+        public double SetWaypointToLaunchSite()
+        {
+            if (launchSite != null && launchSite.celestialName == vessel.mainBody.name)
+            {
+                if (navWaypoint.IsActive)
+                {
+                    navWaypoint.Clear();
+                    navWaypoint.Deactivate();
+                }
+
+                navWaypoint.Setup(launchSite);
+                navWaypoint.Activate();
+
+                activeWaypoint = -1;
+
                 return 1.0;
             }
 
@@ -918,7 +994,7 @@ namespace AvionicsSystems
         /// <returns>1 if a waypoint is active, 0 otherwise.</returns>
         public double WaypointActive()
         {
-            return (NavWaypoint.fetch.IsActive) ? 1.0 : 0.0;
+            return (navWaypoint.IsActive) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -931,19 +1007,14 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
-            if (instance == null)
-            {
-                return 0.0;
-            }
-            var waypoints = instance.Waypoints;
+            var waypoints = waypointManager.Waypoints;
             if (index >= 0 && index < waypoints.Count)
             {
                 return waypoints[index].altitude;
             }
-            else if (index == -1 && NavWaypoint.fetch.IsActive)
+            else if (index == -1 && navWaypoint.IsActive)
             {
-                return NavWaypoint.fetch.Altitude;
+                return navWaypoint.Altitude;
             }
             else
             {
@@ -960,19 +1031,14 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
-            if (instance == null)
-            {
-                return -1.0;
-            }
-            var waypoints = instance.Waypoints;
+            var waypoints = waypointManager.Waypoints;
             if (index >= 0 && index < waypoints.Count)
             {
                 return BearingFromVessel(waypoints[index].latitude, waypoints[index].longitude);
             }
-            else if (index == -1 && NavWaypoint.fetch.IsActive)
+            else if (index == -1 && navWaypoint.IsActive)
             {
-                return BearingFromVessel(NavWaypoint.fetch.Latitude, NavWaypoint.fetch.Longitude);
+                return BearingFromVessel(navWaypoint.Latitude, navWaypoint.Longitude);
             }
             else
             {
@@ -986,12 +1052,7 @@ namespace AvionicsSystems
         /// <returns>The number of waypoints.</returns>
         public double WaypointCount()
         {
-            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
-            if (instance == null)
-            {
-                return 0.0;
-            }
-            return instance.Waypoints.Count;
+            return waypointManager.Waypoints.Count;
         }
 
         /// <summary>
@@ -1003,19 +1064,14 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
-            if (instance == null)
-            {
-                return -1.0;
-            }
-            var waypoints = instance.Waypoints;
+            var waypoints = waypointManager.Waypoints;
             if (index >= 0 && index < waypoints.Count)
             {
                 return CrossTrackDistanceFromVessel(waypoints[index].latitude, waypoints[index].longitude);
             }
-            else if (index == -1 && NavWaypoint.fetch.IsActive)
+            else if (index == -1 && navWaypoint.IsActive)
             {
-                return CrossTrackDistanceFromVessel(NavWaypoint.fetch.Latitude, NavWaypoint.fetch.Longitude);
+                return CrossTrackDistanceFromVessel(navWaypoint.Latitude, navWaypoint.Longitude);
             }
             else
             {
@@ -1032,19 +1088,16 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
-            if (instance == null)
-            {
-                return -1.0;
-            }
-            var waypoints = instance.Waypoints;
+            var waypoints = waypointManager.Waypoints;
             if (index >= 0 && index < waypoints.Count)
             {
-                return SlantDistanceFromVessel(waypoints[index].latitude, waypoints[index].longitude, waypoints[index].altitude);
+                //return SlantDistanceFromVessel(waypoints[index].latitude, waypoints[index].longitude, waypoints[index].altitude);
+                // accurate enough.
+                return waypointManager.DistanceToVessel(waypoints[index]);
             }
-            else if (index == -1 && NavWaypoint.fetch.IsActive)
+            else if (index == -1 && navWaypoint.IsActive)
             {
-                return SlantDistanceFromVessel(NavWaypoint.fetch.Latitude, NavWaypoint.fetch.Longitude, NavWaypoint.fetch.Altitude);
+                return SlantDistanceFromVessel(navWaypoint.Latitude, navWaypoint.Longitude, navWaypoint.Altitude);
             }
             else
             {
@@ -1062,19 +1115,14 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
-            if (instance == null)
-            {
-                return -1.0;
-            }
-            var waypoints = instance.Waypoints;
+            var waypoints = waypointManager.Waypoints;
             if (index >= 0 && index < waypoints.Count)
             {
                 return GroundDistanceFromVessel(waypoints[index].latitude, waypoints[index].longitude);
             }
-            else if (index == -1 && NavWaypoint.fetch.IsActive)
+            else if (index == -1 && navWaypoint.IsActive)
             {
-                return GroundDistanceFromVessel(NavWaypoint.fetch.Latitude, NavWaypoint.fetch.Longitude);
+                return GroundDistanceFromVessel(navWaypoint.Latitude, navWaypoint.Longitude);
             }
             else
             {
@@ -1092,19 +1140,14 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
-            if (instance == null)
-            {
-                return 0.0;
-            }
-            var waypoints = instance.Waypoints;
+            var waypoints = waypointManager.Waypoints;
             if (index >= 0 && index < waypoints.Count)
             {
                 return waypoints[index].latitude;
             }
-            else if (index == -1 && NavWaypoint.fetch.IsActive)
+            else if (index == -1 && navWaypoint.IsActive)
             {
-                return NavWaypoint.fetch.Latitude;
+                return navWaypoint.Latitude;
             }
             else
             {
@@ -1122,19 +1165,14 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
-            if (instance == null)
-            {
-                return 0.0;
-            }
-            var waypoints = instance.Waypoints;
+            var waypoints = waypointManager.Waypoints;
             if (index >= 0 && index < waypoints.Count)
             {
                 return waypoints[index].longitude;
             }
-            else if (index == -1 && NavWaypoint.fetch.IsActive)
+            else if (index == -1 && navWaypoint.IsActive)
             {
-                return NavWaypoint.fetch.Longitude;
+                return navWaypoint.Longitude;
             }
             else
             {
@@ -1159,15 +1197,14 @@ namespace AvionicsSystems
                 index = activeWaypoint;
             }
 
-            FinePrint.WaypointManager instance = FinePrint.WaypointManager.Instance();
-            if (instance == null)
-            {
-                return string.Empty;
-            }
-            var waypoints = instance.Waypoints;
+            var waypoints = waypointManager.Waypoints;
             if (index >= 0 && index < waypoints.Count)
             {
                 return waypoints[index].name;
+            }
+            else if (index == -1 && navWaypoint.IsActive && navWaypoint.IsUsing(launchSite))
+            {
+                return launchSite.name;
             }
             else
             {
