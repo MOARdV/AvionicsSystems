@@ -214,7 +214,7 @@ namespace AvionicsSystems
             // time ... or is that even worth the extra effort?
             if (vesselCrewed && vesselActive)
             {
-                // TODO: Can I make tese two update by callback?
+                // TODO: Can I make these two update by callback?
                 mainBody = vessel.mainBody;
                 orbit = vessel.orbit;
                 _hottestPartMax = -1.0;
@@ -348,6 +348,8 @@ namespace AvionicsSystems
             GameEvents.onVesselChange.Add(onVesselChange);
             GameEvents.onVesselSOIChanged.Add(onVesselSOIChanged);
             GameEvents.onVesselWasModified.Add(onVesselWasModified);
+
+            // onDominantBodyChange
         }
 
         /// <summary>
