@@ -3584,6 +3584,32 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the normalized (-1 to +1) gimbal deflection of unlocked gimbals along their local
+        /// X axis.
+        /// 
+        /// Note that if two engines are deflected in opposite directions during a roll
+        /// maneuver, this value could be zero.
+        /// </summary>
+        /// <returns>A value in the range [-1, 1].</returns>
+        public double GetGimbalDeflectionX()
+        {
+            return vc.gimbalAxisDeflection.x;
+        }
+
+        /// <summary>
+        /// Returns the normalized (-1 to +1) gimbal deflection of unlocked gimbals along their local
+        /// Y axis.
+        /// 
+        /// Note that if two engines are deflected in opposite directions during a roll
+        /// maneuver, this value could be zero.
+        /// </summary>
+        /// <returns>A value in the range [-1, 1].</returns>
+        public double GetGimbalDeflectionY()
+        {
+            return vc.gimbalAxisDeflection.y;
+        }
+
+        /// <summary>
         /// Returns the currently-configured limit of active gimbals, as set in the right-click part menus.
         /// This value ranges between 0 (no gimbal) and 1 (100% gimbal).
         /// </summary>
@@ -3591,6 +3617,36 @@ namespace AvionicsSystems
         public double GetGimbalLimit()
         {
             return vc.gimbalLimit;
+        }
+
+        /// <summary>
+        /// Returns 1 if any active, unlocked gimbals are configured to provide pitch control.
+        /// Returns 0 otherwise.
+        /// </summary>
+        /// <returns>1 if active gimbals support pitch, 0 otherwise.</returns>
+        public double GetGimbalPitch()
+        {
+            return (vc.anyGimbalsPitch) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if any active, unlocked gimbals are configured to provide roll control.
+        /// Returns 0 otherwise.
+        /// </summary>
+        /// <returns>1 if active gimbals support roll, 0 otherwise.</returns>
+        public double GetGimbalRoll()
+        {
+            return (vc.anyGimbalsRoll) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if any active, unlocked gimbals are configured to provide yaw control.
+        /// Returns 0 otherwise.
+        /// </summary>
+        /// <returns>1 if active gimbals support yaw, 0 otherwise.</returns>
+        public double GetGimbalYaw()
+        {
+            return (vc.anyGimbalsYaw) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -3754,6 +3810,66 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Controls whether active, unlocked gimbals provide pitch control.
+        /// </summary>
+        /// <param name="enable">If true, enables gimbal pitch control.  If false, disables gimbal pitch control.</param>
+        /// <returns>1 if any gimbal pitch control changed, 0 otherwise.</returns>
+        public double SetGimbalPitch(bool enable)
+        {
+            bool changed = false;
+            for (int i = vc.moduleGimbals.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleGimbals[i].gimbalActive && !vc.moduleGimbals[i].gimbalLock && vc.moduleGimbals[i].enablePitch != enable)
+                {
+                    changed = true;
+                    vc.moduleGimbals[i].enablePitch = enable;
+                }
+            }
+
+            return (changed) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Controls whether active, unlocked gimbals provide roll control.
+        /// </summary>
+        /// <param name="enable">If true, enables gimbal roll control.  If false, disables gimbal roll control.</param>
+        /// <returns>1 if any gimbal roll control changed, 0 otherwise.</returns>
+        public double SetGimbalRoll(bool enable)
+        {
+            bool changed = false;
+            for (int i = vc.moduleGimbals.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleGimbals[i].gimbalActive && !vc.moduleGimbals[i].gimbalLock && vc.moduleGimbals[i].enableRoll != enable)
+                {
+                    changed = true;
+                    vc.moduleGimbals[i].enableRoll = enable;
+                }
+            }
+
+            return (changed) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Controls whether active, unlocked gimbals provide yaw control.
+        /// </summary>
+        /// <param name="enable">If true, enables gimbal yaw control.  If false, disables gimbal yaw control.</param>
+        /// <returns>1 if any gimbal yaw control changed, 0 otherwise.</returns>
+        public double SetGimbalYaw(bool enable)
+        {
+            bool changed = false;
+            for (int i = vc.moduleGimbals.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleGimbals[i].gimbalActive && !vc.moduleGimbals[i].gimbalLock && vc.moduleGimbals[i].enableYaw != enable)
+                {
+                    changed = true;
+                    vc.moduleGimbals[i].enableYaw = enable;
+                }
+            }
+
+            return (changed) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Selects the primary or secondary mode for multi-mode engines.
         /// </summary>
         /// <param name="runPrimary">Selects the primary mode when true, the secondary mode when false.</param>
@@ -3833,6 +3949,66 @@ namespace AvionicsSystems
             }
 
             return (newState) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Toggles pitch control for active, unlocked gimbals.
+        /// </summary>
+        /// <returns>1 if any gimbal pitch control changed, 0 otherwise.</returns>
+        public double ToggleGimbalPitch()
+        {
+            bool changed = false;
+            bool enable = !vc.anyGimbalsPitch;
+            for (int i = vc.moduleGimbals.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleGimbals[i].gimbalActive && !vc.moduleGimbals[i].gimbalLock && vc.moduleGimbals[i].enablePitch != enable)
+                {
+                    changed = true;
+                    vc.moduleGimbals[i].enablePitch = enable;
+                }
+            }
+
+            return (changed) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Toggles roll control for active, unlocked gimbals.
+        /// </summary>
+        /// <returns>1 if any gimbal roll control changed, 0 otherwise.</returns>
+        public double ToggleGimbalRoll()
+        {
+            bool changed = false;
+            bool enable = !vc.anyGimbalsRoll;
+            for (int i = vc.moduleGimbals.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleGimbals[i].gimbalActive && !vc.moduleGimbals[i].gimbalLock && vc.moduleGimbals[i].enableRoll != enable)
+                {
+                    changed = true;
+                    vc.moduleGimbals[i].enableRoll = enable;
+                }
+            }
+
+            return (changed) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Toggles yaw control for active, unlocked gimbals.
+        /// </summary>
+        /// <returns>1 if any gimbal yaw control changed, 0 otherwise.</returns>
+        public double ToggleGimbalYaw()
+        {
+            bool changed = false;
+            bool enable = !vc.anyGimbalsYaw;
+            for (int i = vc.moduleGimbals.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleGimbals[i].gimbalActive && !vc.moduleGimbals[i].gimbalLock && vc.moduleGimbals[i].enableYaw != enable)
+                {
+                    changed = true;
+                    vc.moduleGimbals[i].enableYaw = enable;
+                }
+            }
+
+            return (changed) ? 1.0 : 0.0;
         }
 
         /// <summary>

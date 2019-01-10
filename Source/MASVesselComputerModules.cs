@@ -557,9 +557,13 @@ namespace AvionicsSystems
         private List<ModuleGimbal> gimbalsList = new List<ModuleGimbal>(8);
         internal ModuleGimbal[] moduleGimbals = new ModuleGimbal[0];
         internal bool anyGimbalsLocked = false;
+        internal bool anyGimbalsRoll = false;
+        internal bool anyGimbalsPitch = false;
+        internal bool anyGimbalsYaw = false;
         internal bool anyGimbalsActive = false;
         internal bool activeEnginesGimbal = false;
         internal float gimbalDeflection = 0.0f;
+        internal Vector2 gimbalAxisDeflection = Vector2.zero;
         internal float gimbalLimit = 0.0f;
         void UpdateGimbals()
         {
@@ -567,7 +571,11 @@ namespace AvionicsSystems
             gimbalDeflection = 0.0f;
             anyGimbalsLocked = false;
             anyGimbalsActive = false;
-            UnityEngine.Vector2 localDeflection = UnityEngine.Vector2.zero;
+            anyGimbalsRoll = false;
+            anyGimbalsPitch = false;
+            anyGimbalsYaw = false;
+            Vector2 localDeflection = Vector2.zero;
+            gimbalAxisDeflection = Vector2.zero;
             float gimbalCount = 0.0f;
 
             for (int i = moduleGimbals.Length - 1; i >= 0; --i)
@@ -576,46 +584,53 @@ namespace AvionicsSystems
                 {
                     anyGimbalsLocked = true;
                 }
-
-                if (moduleGimbals[i].gimbalActive)
+                else if (moduleGimbals[i].gimbalActive)
                 {
                     anyGimbalsActive = true;
-                    if (!moduleGimbals[i].gimbalLock)
+
+                    anyGimbalsRoll |= moduleGimbals[i].enableRoll;
+                    anyGimbalsPitch |= moduleGimbals[i].enablePitch;
+                    anyGimbalsYaw |= moduleGimbals[i].enableYaw;
+
+                    gimbalCount += 1.0f;
+
+                    gimbalLimit += moduleGimbals[i].gimbalLimiter;
+
+                    localDeflection.x = moduleGimbals[i].actuationLocal.x;
+                    // all gimbal range values are positive scalars.
+                    if (localDeflection.x < 0.0f)
                     {
-                        gimbalCount += 1.0f;
-
-                        gimbalLimit += moduleGimbals[i].gimbalLimiter;
-
-                        localDeflection.x = moduleGimbals[i].actuationLocal.x;
-                        if (localDeflection.x < 0.0f)
-                        {
-                            localDeflection.x /= moduleGimbals[i].gimbalRangeXN;
-                        }
-                        else
-                        {
-                            localDeflection.x /= moduleGimbals[i].gimbalRangeXP;
-                        }
-
-                        localDeflection.y = moduleGimbals[i].actuationLocal.y;
-                        if (localDeflection.y < 0.0f)
-                        {
-                            localDeflection.y /= moduleGimbals[i].gimbalRangeYN;
-                        }
-                        else
-                        {
-                            localDeflection.y /= moduleGimbals[i].gimbalRangeYP;
-                        }
-
-                        gimbalDeflection += localDeflection.magnitude;
+                        localDeflection.x /= moduleGimbals[i].gimbalRangeXN;
                     }
+                    else
+                    {
+                        localDeflection.x /= moduleGimbals[i].gimbalRangeXP;
+                    }
+
+                    localDeflection.y = moduleGimbals[i].actuationLocal.y;
+                    if (localDeflection.y < 0.0f)
+                    {
+                        localDeflection.y /= moduleGimbals[i].gimbalRangeYN;
+                    }
+                    else
+                    {
+                        localDeflection.y /= moduleGimbals[i].gimbalRangeYP;
+                    }
+
+                    gimbalAxisDeflection += localDeflection;
+                    gimbalDeflection += localDeflection.magnitude;
                 }
             }
 
             if (gimbalCount > 0.0f)
             {
-                gimbalDeflection /= gimbalCount;
+                float invGimbalCount = 1.0f / gimbalCount;
+
+                gimbalDeflection *= invGimbalCount;
                 // Must convert from [0, 100] to [0, 1], so multiply by 0.01.
-                gimbalLimit /= (gimbalCount * 100.0f);
+                gimbalLimit *= invGimbalCount * 0.01f;
+                gimbalAxisDeflection.x *= invGimbalCount;
+                gimbalAxisDeflection.y *= invGimbalCount;
             }
         }
         #endregion
