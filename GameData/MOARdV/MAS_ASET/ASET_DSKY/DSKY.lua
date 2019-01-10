@@ -201,7 +201,7 @@ function dskyTimerModeLaunch(sourceMode, timerMode)
 end
 
 function dskyTimerModeAp(sourceMode, timerMode)
-	if timerMode == 0 and fc.VesselLanded() < 1 and dskyModeRendezvous(sourceMode) < 1 then
+	if timerMode == 0 and fc.VesselLanded() < 1 and ((dskyModeRendezvous(sourceMode) + dskyModeManeuverRendezvous(sourceMode)) < 1) then
 		return 1
 	end
 
@@ -209,7 +209,7 @@ function dskyTimerModeAp(sourceMode, timerMode)
 end
 
 function dskyTimerModePe(sourceMode, timerMode)
-	if timerMode == 1 and fc.VesselLanded() < 1 and dskyModeRendezvous(sourceMode) < 1 then
+	if timerMode == 1 and fc.VesselLanded() < 1 and ((dskyModeRendezvous(sourceMode) + dskyModeManeuverRendezvous(sourceMode)) < 1) then
 		return 1
 	end
 
@@ -242,7 +242,7 @@ end
 
 function dskyTimerModeMnvr(sourceMode, timerMode)
 
-	if timerMode == 4 and fc.VesselLanded() < 1 and dskyModeRendezvous(sourceMode) < 1 and fc.ManeuverNodeExists() > 0 then
+	if timerMode == 4 and fc.VesselLanded() < 1 and fc.ManeuverNodeExists() > 0 and ((dskyModeRendezvous(sourceMode) + dskyModeManeuverRendezvous(sourceMode)) < 1) then
 		return 1
 	end
 
@@ -265,6 +265,8 @@ function dskyTimerValid(sourceMode, timerMode)
 	elseif dskyTimerModeMnvr(sourceMode, timerMode) > 0 then
 		return 1
 	elseif dskyModeRendezvous(sourceMode) > 0 then
+		return 1
+	elseif dskyModeManeuverRendezvous(sourceMode) > 0 then
 		return 1
 	end
 	
