@@ -81,6 +81,12 @@ namespace AvionicsSystems
         public bool requiresPower = false;
         internal bool isPowered = true;
 
+        /// <summary>
+        /// How much power does the MASFlightComputer draw on its own?  Ignored if `requiresPower` is false.
+        /// </summary>
+        [KSPField]
+        public float rate = 0.0f;
+
         [KSPField]
         public string powerOnVariable = string.Empty;
         internal bool powerOnValid = true;
@@ -208,6 +214,16 @@ namespace AvionicsSystems
         internal MASVesselComputer vc;
 
         /// <summary>
+        /// Additional EC required by subcomponents via `fc.IncreasePowerDraw(rate)`.  Ignored if requiresPower is false.
+        /// </summary>
+        private float additionalEC = 0.0f;
+
+        /// <summary>
+        /// Resource ID of the electric charge.
+        /// </summary>
+        private int resourceId = -1;
+
+        /// <summary>
         /// Reference to the current IVA Kerbal.
         /// </summary>
         internal Kerbal currentKerbal;
@@ -217,6 +233,9 @@ namespace AvionicsSystems
         /// </summary>
         internal bool currentKerbalBlackedOut;
 
+        /// <summary>
+        /// Direct index to the vessel resource list.
+        /// </summary>
         private int electricChargeIndex = -1;
 
         internal static readonly string vesselIdLabel = "__vesselId";
@@ -576,6 +595,24 @@ namespace AvionicsSystems
                 return (namedDockModule != null) ? GetDpaiName(namedDockModule) : dockingNodePart.partInfo.title;
             }
         }
+
+        internal float GetPowerDraw()
+        {
+            return (requiresPower) ? (additionalEC + rate) : 0.0f;
+        }
+
+        internal float ChangePowerDraw(float amount)
+        {
+            if (requiresPower)
+            {
+                additionalEC = Mathf.Max(0.0f, amount + additionalEC);
+                return additionalEC + rate;
+            }
+            else
+            {
+                return 0.0f;
+            }
+        }
         #endregion
 
         #region Target Tracking
@@ -711,9 +748,29 @@ namespace AvionicsSystems
                         // We have to poll it here because the value may not be initialized
                         // when we're in Start().
                         electricChargeIndex = vc.GetResourceIndex(MASConfig.ElectricCharge);
+                        try
+                        {
+                            PartResourceDefinition def = PartResourceLibrary.Instance.resourceDefinitions[MASConfig.ElectricCharge];
+                            resourceId = def.id;
+                        }
+                        catch
+                        {
+                            Utility.LogError(this, "Unable to resolve resource '{0}', flight computer can not require power.", MASConfig.ElectricCharge);
+                            requiresPower = false;
+                        }
                     }
 
                     isPowered = (!requiresPower || vc.ResourceCurrentDirect(electricChargeIndex) > 0.0001) && powerOnValid;
+
+                    if (requiresPower && (rate + additionalEC) > 0.0f)
+                    {
+                        double requested = (rate + additionalEC) * TimeWarp.fixedDeltaTime;
+                        double supplied = part.RequestResource(resourceId, requested);
+                        if (supplied < requested * 0.5)
+                        {
+                            isPowered = false;
+                        }
+                    }
 
                     currentKerbalBlackedOut = false;
                     currentKerbal = FindCurrentKerbal();
@@ -908,6 +965,9 @@ namespace AvionicsSystems
         {
             if (HighLogic.LoadedSceneIsFlight)
             {
+                additionalEC = 0.0f;
+                rate = Mathf.Max(0.0f, rate);
+
                 if (dependentLuaMethods.Count == 0)
                 {
                     // Maybe a bit kludgy -- I want to list the Lua table methods that I know

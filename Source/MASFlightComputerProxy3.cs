@@ -98,6 +98,36 @@ namespace AvionicsSystems
         /// must match the `name` field of a `RESOURCE_DEFINITION` config node, or 0 will be returned.
         /// </summary>
         #region Resources
+
+        /// <summary>
+        /// Returns the amount of power this MASFlightComputer requires.
+        /// </summary>
+        /// <returns>The current power draw of the flight computer, in EC/sec.</returns>
+        public double GetPowerDraw()
+        {
+            return fc.GetPowerDraw();
+        }
+
+        /// <summary>
+        /// Increase or decrease the amount of power the MASFlightComputer requires.
+        /// 
+        /// This feature can be used to simulate subcomponents of the IVA being switched on
+        /// or off.  The minimum power draw of the MASFlightComputer is defined by its `rate` field
+        /// in the configuration file.  ChangePowerDraw can not be used to reduce the total
+        /// power demand below `rate`.
+        /// 
+        /// **NOTE:** Additional power draw above `rate` is not persistent.  This function is best used by creating
+        /// a TRIGGER_EVENT in the appropriate prop that uses `fc.ChangePowerDraw()` with
+        /// a positive value as the `event`, and `fc.ChangePowerDraw()` with a
+        /// negative values as the `exitEvent`.
+        /// </summary>
+        /// <param name="rateChange">The amount of additional EC/sec required to operate the IVA (positive to increase, negative to decrease).</param>
+        /// <returns>The current power draw of the flight computer, in EC/sec.</returns>
+        public double ChangePowerDraw(double rateChange)
+        {
+            return fc.ChangePowerDraw((float)rateChange);
+        }
+
         /// <summary>
         /// Returns the current level of available power for the designated
         /// "Power" resource; by default, this is ElectricCharge.
