@@ -1181,6 +1181,9 @@ namespace AvionicsSystems
             // Update the lists of modules
             for (int partIdx = vessel.parts.Count - 1; partIdx >= 0; --partIdx)
             {
+                PartResourceList resources = vessel.parts[partIdx].Resources;
+                UpdateResourceList(resources);
+
                 PartModuleList Modules = vessel.parts[partIdx].Modules;
                 for (int moduleIdx = Modules.Count - 1; moduleIdx >= 0; --moduleIdx)
                 {
@@ -1475,6 +1478,8 @@ namespace AvionicsSystems
         {
             if (modulesInvalidated)
             {
+                InitRebuildPartResources();
+
                 RebuildModules();
 
                 modulesInvalidated = false;

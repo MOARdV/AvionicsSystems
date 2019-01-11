@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -100,6 +100,9 @@ namespace AvionicsSystems
 
             internal float currentStage;
             internal float maxStage;
+
+            internal bool resourceLocked;
+            internal List<PartResource> partResources;
         }
 
         #region Resource Data Query
@@ -445,6 +448,38 @@ namespace AvionicsSystems
             return string.Empty;
         }
 
+        internal float LockResource(object resourceId, bool lockResource)
+        {
+            int index = GetResourceIndex(resourceId);
+            if (index >= 0 && index < resources.Length)
+            {
+                List<PartResource> pr = resources[index].partResources;
+                int resourceQty = pr.Count;
+                if (resourceQty > 0)
+                {
+                    for (int i = 0; i < resourceQty; ++i)
+                    {
+                        pr[i].flowState = lockResource;
+                    }
+                        
+                    return 1.0f;
+                }
+            }
+
+            return 0.0f;
+        }
+
+        internal bool ResourceLocked(object resourceId)
+        {
+            int index = GetResourceIndex(resourceId);
+            if (index >= 0 && index < resources.Length)
+            {
+                return resources[index].resourceLocked;
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Returns the name of the Nth active resource, or an empty string if
         /// the resource index is invalid.
@@ -627,6 +662,8 @@ namespace AvionicsSystems
                 resources[index].deltaPerSecond = 0.0f;
                 resources[index].currentStage = 0.0f;
                 resources[index].maxStage = 0.0f;
+                resources[index].resourceLocked = false;
+                resources[index].partResources = new List<PartResource>();
                 ++index;
             }
 
@@ -656,6 +693,33 @@ namespace AvionicsSystems
             rcsPropellant.currentStage = 0.0f;
             rcsPropellant.maxStage = 0.0f;
             // Balance of fields are "don't care".
+        }
+
+        /// <summary>
+        ///  Prepare to re-initialize the PartResource lists.
+        /// </summary>
+        private void InitRebuildPartResources()
+        {
+            for (int i = resources.Length - 1; i >= 0; --i)
+            {
+                resources[i].partResources.Clear();
+            }
+        }
+
+        /// <summary>
+        /// Add the resources to our tracked vessel-wide resource database
+        /// </summary>
+        /// <param name="resourceList">The part resource list to process.</param>
+        private void UpdateResourceList(PartResourceList resourceList)
+        {
+            if (resourceList != null && resourceList.Count > 0)
+            {
+                for (int i = resourceList.Count - 1; i >= 0; --i)
+                {
+                    var pr = resourceList[i];
+                    GetResourceData(pr.info.id).partResources.Add(pr);
+                }
+            }
         }
 
         /// <summary>
@@ -701,6 +765,24 @@ namespace AvionicsSystems
                 if (maxAmount > 0.0)
                 {
                     vesselActiveResource[i] = i;
+                }
+
+                int numPartResources = resources[i].partResources.Count;
+                if (numPartResources > 0)
+                {
+                    resources[i].resourceLocked = false;
+                    for (int rsrcIdx = 0; rsrcIdx < numPartResources; ++rsrcIdx)
+                    {
+                        if (resources[i].partResources[rsrcIdx].flowState == false)
+                        {
+                            resources[i].resourceLocked = true;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    resources[i].resourceLocked = false;
                 }
             }
 

@@ -569,6 +569,17 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns 1 if the selected resource is locked (can not transfer resources) anywhere
+        /// on the vessel.  Returns 0 if the part is unlocked, or if it is not present.
+        /// </summary>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
+        /// <returns></returns>
+        public double ResourceLocked(object resourceId)
+        {
+            return (vc.ResourceLocked(resourceId)) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Returns the current mass of the selected resource in kg.
         /// </summary>
         /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
@@ -745,6 +756,23 @@ namespace AvionicsSystems
             }
 
             return 0.0;
+        }
+
+        /// <summary>
+        /// Controls whether `resourceId` can be consumed.
+        /// 
+        /// When `lockResource` is true, all remaining resources of
+        /// that type on the vessel are locked (unavailable).  When
+        /// `lockResource` is false, resources may be consumed.
+        /// 
+        /// Note that this will toggle *all* resource containers on the vessel.
+        /// </summary>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
+        /// <param name="lockResource">When true, prevents that resource from being consumed.  When false, allows that resource to be consumed.</param>
+        /// <returns>1 if the resource is present on the vessel, 0 otherwise.</returns>
+        public double SetResourceLock(object resourceId, bool lockResource)
+        {
+            return vc.LockResource(resourceId, lockResource);
         }
 
         /// <summary>
