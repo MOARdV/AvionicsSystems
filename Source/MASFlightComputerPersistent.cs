@@ -360,6 +360,20 @@ namespace AvionicsSystems
             return 0.0;
         }
 
+        internal double InitializePersistent(string persistentName, object value)
+        {
+            if (persistentVars.ContainsKey(persistentName))
+            {
+                return 0.0;
+            }
+            else
+            {
+                persistentVars[persistentName] = value;
+                UpdatePersistent(persistentName);
+                return 1.0;
+            }
+        }
+
         internal double SetBits(string persistentName, int bits)
         {
             int persistentInt = 0;

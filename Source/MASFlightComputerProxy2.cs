@@ -2800,6 +2800,29 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Set the persistent value in `persistentName` to `value`, but
+        /// only if the persistent value does not already exist.  If the
+        /// persistent already exists, this function does nothing.
+        /// 
+        /// This function can be used to replace a script construct like
+        /// 
+        /// ```Lua
+        /// if GetPersistentExists("MyPersistent") == 0 then
+        ///   SetPersistent("MyPersistent", 42)
+        /// endif
+        /// ```
+        /// 
+        /// with a single initialization call.
+        /// </summary>
+        /// <param name="persistentName">The name of the persistent variable to initialize.</param>
+        /// <param name="value">The new number or text string to use for this persistent.</param>
+        /// <returns>1 if the persistent value was created, 0 if it already exists.</returns>
+        public double InitializePersistent(string persistentName, object value)
+        {
+            return fc.InitializePersistent(persistentName, value);
+        }
+
+        /// <summary>
         /// Sets 0 or more bits in the number stored in `persistentName`.
         /// 
         /// The value in `persistentName` is converted to a 32 bit integer,
