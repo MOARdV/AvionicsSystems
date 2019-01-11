@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -243,6 +243,11 @@ namespace AvionicsSystems
                 buttonObject.colliderEnabled = false;
                 comp.RegisterVariableChangeCallback(variableName, internalProp, VariableCallback);
             }
+            else
+            {
+                variableEnabled = true;
+            }
+            comp.RegisterVariableChangeCallback("fc.CrewConscious(-1)", internalProp, KerbalCallback);
 
             if (clip != null)
             {
@@ -311,17 +316,34 @@ namespace AvionicsSystems
             }
         }
 
+        private bool variableEnabled = false;
+        private bool kerbalConscious = true;
+
         /// <summary>
         /// Variable callback used to enable the collider.
         /// </summary>
         /// <param name="newValue"></param>
         private void VariableCallback(double newValue)
         {
-            bool newState = (newValue > 0.0);
+            variableEnabled = (newValue > 0.0);
 
-            if (newState != buttonObject.colliderEnabled)
+            if ((variableEnabled && kerbalConscious) != buttonObject.colliderEnabled)
             {
-                buttonObject.colliderEnabled = newState;
+                buttonObject.colliderEnabled = (variableEnabled && kerbalConscious);
+            }
+        }
+
+        /// <summary>
+        /// Variable callback used to handle kerbal blackouts.
+        /// </summary>
+        /// <param name="newValue"></param>
+        private void KerbalCallback(double newValue)
+        {
+            kerbalConscious = (newValue > 0.0);
+
+            if ((variableEnabled && kerbalConscious) != buttonObject.colliderEnabled)
+            {
+                buttonObject.colliderEnabled = (variableEnabled && kerbalConscious);
             }
         }
 

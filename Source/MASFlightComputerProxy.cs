@@ -2735,6 +2735,24 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns 1 if the crew in `seatNumber` has passed out due to G-forces.
+        /// </summary>
+        /// <param name="seatNumber">The index of the seat to check.  Indices start at 0.  Use -1 to check the kerbal in the current seat.</param>
+        /// <returns>1 if the crew member is conscious, 0 if the crew member is unconscious.</returns>
+        public double CrewConscious(double seatNumber)
+        {
+            int seatIdx = (int)seatNumber;
+            if (seatIdx == -1)
+            {
+                return (!fc.currentKerbalBlackedOut) ? 1.0 : 0.0;
+            }
+            else
+            {
+                return (seatIdx >= 0 && seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null && (!fc.localCrew[seatIdx].outDueToG)) ? 1.0 : 0.0;
+            }
+        }
+
+        /// <summary>
         /// Ejects ... or sends ... the selected Kerbal to EVA.
         /// 
         /// If `seatNumber` is a negative value, the Kerbal who is currently viewing the
