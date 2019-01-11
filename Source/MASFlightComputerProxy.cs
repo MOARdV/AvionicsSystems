@@ -2652,6 +2652,60 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
+        /// This category allows the current IVA's control point to be changed, and it provides
+        /// information about the available control points on this part.
+        /// 
+        /// Note that control points must be defined in ModuleCommand.  If the current part
+        /// is not a command pod (no ModuleCommand), then the control point cannot be updated.
+        /// </summary>
+        #region Control Point
+
+        /// <summary>
+        /// Returns the index of the current control point, or 0 if there are no control points.
+        /// </summary>
+        /// <returns>An integer between 0 and `fc.GetNumControlPoints()` - 1.</returns>
+        public double GetCurrentControlPoint()
+        {
+            return fc.GetCurrentControlPoint();
+        }
+
+        /// <summary>
+        /// Get the name for the selected control point.  If there are no control points,
+        /// or an invalid `controlPoint` is specified, returns an empty string.
+        /// 
+        /// If `controlPoint` is -1, the current control point's name is returned.
+        /// </summary>
+        /// <param name="controlPoint">An integer between 0 and `fc.GetNumControlPoints()` - 1, or -1.</param>
+        /// <returns>The name of the control point, or an empty string.</returns>
+        public string GetControlPointName(double controlPoint)
+        {
+            return fc.GetControlPointName((int)controlPoint);
+        }
+
+        /// <summary>
+        /// Returns the number of control points on the current part.  If there is no ModuleCommand on
+        /// the part, returns 0.
+        /// </summary>
+        /// <returns>0, or the number of available control points.</returns>
+        public double GetNumControlPoints()
+        {
+            return fc.GetNumControlPoints();
+        }
+
+        /// <summary>
+        /// Set the control point to the index selected by `newControlPoint`.  If `newControlPoint`
+        /// is not valid, or there is no ModuleCommand, nothing happens.
+        /// </summary>
+        /// <param name="newControlPoint">An integer between 0 and `fc.GetNumControlPoints()` - 1.</param>
+        /// <returns>1 if the control point was updated, 0 otherwise.</returns>
+        public float SetCurrentControlPoint(double newControlPoint)
+        {
+            return fc.SetCurrentControlPoint((int)newControlPoint);
+        }
+
+        #endregion
+
+        /// <summary>
         /// The Crew category provides information about the crew aboard the vessel.
         /// 
         /// `seatNumber` is a 0-based index to select which seat is being queried.  This

@@ -238,6 +238,12 @@ namespace AvionicsSystems
         /// </summary>
         private int electricChargeIndex = -1;
 
+        /// <summary>
+        /// The ModuleCommand on this IVA.
+        /// </summary>
+        private ModuleCommand commandModule = null;
+        private int activeControlPoint = 0;
+
         internal static readonly string vesselIdLabel = "__vesselId";
         internal static readonly string vesselFilterLabel = "__vesselFilter";
 
@@ -613,6 +619,44 @@ namespace AvionicsSystems
                 return 0.0f;
             }
         }
+
+        internal int GetCurrentControlPoint()
+        {
+            return activeControlPoint;
+        }
+
+        internal string GetControlPointName(int controlPoint)
+        {
+            if (controlPoint == -1)
+            {
+                controlPoint = activeControlPoint;
+            }
+
+            if (commandModule != null && controlPoint >= 0 && controlPoint < commandModule.controlPoints.Count)
+            {
+                return commandModule.controlPoints.At(controlPoint).displayName;
+            }
+            return string.Empty;
+        }
+
+        internal int GetNumControlPoints()
+        {
+            if (commandModule != null)
+            {
+                return commandModule.controlPoints.Count;
+            }
+            return 0;
+        }
+
+        internal float SetCurrentControlPoint(int newControlPoint)
+        {
+            if (commandModule != null && newControlPoint >= 0 && newControlPoint < commandModule.controlPoints.Count)
+            {
+                commandModule.SetControlPoint(commandModule.controlPoints.At(newControlPoint).name);
+                return 1.0f;
+            }
+            return 0.0f;
+        }
         #endregion
 
         #region Target Tracking
@@ -938,6 +982,7 @@ namespace AvionicsSystems
                 GameEvents.onVesselCrewWasModified.Remove(onVesselChanged);
                 GameEvents.OnCameraChange.Remove(onCameraChange);
                 GameEvents.OnIVACameraKerbalChange.Remove(OnIVACameraKerbalChange);
+                GameEvents.OnControlPointChanged.Remove(OnControlPointChanged);
 
                 Utility.LogInfo(this, "{3} variables created: {0} constant variables, {1} lambda variables, {2} Lua variables, and {4} dependent variables",
                     constantVariableCount, nativeVariableCount, luaVariableCount, variables.Count, dependentVariableCount);
@@ -967,6 +1012,8 @@ namespace AvionicsSystems
             {
                 additionalEC = 0.0f;
                 rate = Mathf.Max(0.0f, rate);
+                commandModule = part.FindModuleImplementing<ModuleCommand>();
+                UpdateControlPoint(commandModule.ActiveControlPointName);
 
                 if (dependentLuaMethods.Count == 0)
                 {
@@ -1322,6 +1369,7 @@ namespace AvionicsSystems
                 GameEvents.onVesselCrewWasModified.Add(onVesselChanged);
                 GameEvents.OnCameraChange.Add(onCameraChange);
                 GameEvents.OnIVACameraKerbalChange.Add(OnIVACameraKerbalChange);
+                GameEvents.OnControlPointChanged.Add(OnControlPointChanged);
 
                 if (!string.IsNullOrEmpty(powerOnVariable))
                 {
@@ -1373,6 +1421,25 @@ namespace AvionicsSystems
         #endregion
 
         #region Private Methods
+        private void UpdateControlPoint(string cpName)
+        {
+            if (commandModule != null && commandModule.controlPoints.Count > 1)
+            {
+                for (int i = commandModule.controlPoints.Count - 1; i >= 0; --i)
+                {
+                    if (commandModule.controlPoints.At(i).name == cpName)
+                    {
+                        activeControlPoint = i;
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                activeControlPoint = 0;
+            }
+        }
+
         private void UpdateLocalCrew()
         {
             // part.internalModel may be null if the craft is loaded but isn't the active/IVA craft
@@ -1550,6 +1617,17 @@ namespace AvionicsSystems
                 InternalCamera.Instance.maxRot = 80.0f;
                 InternalCamera.Instance.minPitch = -80.0f;
                 InternalCamera.Instance.maxPitch = 45.0f;
+            }
+        }
+
+        /// <summary>
+        /// Callback when the player changes control points.
+        /// </summary>
+        private void OnControlPointChanged(Part who, ControlPoint where)
+        {
+            if (who == part && commandModule != null)
+            {
+                UpdateControlPoint(where.name);
             }
         }
 
