@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -48,13 +48,19 @@ namespace AvionicsSystems
                 throw new ArgumentException("Missing 'lightName' in INT_LIGHT " + name);
             }
 
+            string[] lightTransforms = lightName.Split(',');
+            for (int i = 0; i < lightTransforms.Length; ++i)
+            {
+                lightTransforms[i] = lightTransforms[i].Trim();
+            }
+
             Light[] availableLights = prop.part.internalModel.FindModelComponents<Light>();
             if (availableLights != null && availableLights.Length > 0)
             {
                 List<Light> lights = new List<Light>(availableLights);
                 for (int i = lights.Count - 1; i >= 0; --i)
                 {
-                    if (lights[i].name != lightName)
+                    if (Array.FindIndex(lightTransforms, x => x == lights[i].name) == -1)
                     {
                         lights.RemoveAt(i);
                     }
@@ -67,7 +73,7 @@ namespace AvionicsSystems
 
             if (controlledLights == null)
             {
-                Utility.LogError(this, "No lights named '{0}' found in internalModel '{1}'", lightName, prop.part.internalModel.internalName);
+                Utility.LogError(this, "No named lights for INT_LIGHT {0} found in internalModel '{1}'", name, prop.part.internalModel.internalName);
                 return;
             }
 
