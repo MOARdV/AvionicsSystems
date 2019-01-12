@@ -85,6 +85,10 @@
 	SAS Mode Button:
 	- No border / No Caption / Collider
 	Top and center legend white text.  Bottom legend / bullets green (SEL)
+	
+	Decorated Dbl Collider Dimmer
+	- Border / Caption / double collider
+	Border + captioned, legend text on top and bottom half, double collider.  Substitute for a rheostat type prop
 	-->
 	<PushButton folder="Push_Button_Modular">
 		<style name="Undecorated Black Full Cap">
@@ -1287,6 +1291,33 @@
 			</TEXT_LABEL>
 			<TEXT_LABEL id="4">
 				<variable>fc.Conditioned(fc.BrakesHasActions() * fc.GetBrakes())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_Cabin_NightMode</name>
+			<style>Two Mode Bordered on-off Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MAS_Cabin_NightMode")</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("MAS_Cabin_NightMode")</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>NIGHT$$$MODE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Cabin_NightMode"))</variable>
+				<text>NIGHT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Cabin_NightMode"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<variable>fc.Conditioned(1 - fc.GetPersistentAsNumber("MAS_Cabin_NightMode"))</variable>
+				<text>NORM</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(1 - fc.GetPersistentAsNumber("MAS_Cabin_NightMode"))</variable>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
@@ -4708,6 +4739,151 @@
 				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") + ((fc.GetSASMode() == 7) and fc.GetSAS()))</variable>
 				<activeColor>206 + 49 * ((fc.GetSASMode() == 7) and fc.GetSAS()), 227 + 28 * ((fc.GetSASMode() == 7) and fc.GetSAS()), 246 * (1 - ((fc.GetSASMode() == 7) and fc.GetSAS())), 255</activeColor>
 			</COLOR_SHIFT>
+		</prop>
+		<style name="Decorated Dbl Collider Dimmer">
+			<!--
+			Full Cap / Backlight 5 / split Collider
+			Full black cap, collider, 3/4 border with caption.  Green arrows on upper and
+			lower legends.  Text is standard button white and dimmable; arrows are not dimmable.
+			This button style is used as a substitute for mechanical rheostats.
+			-->
+			<MODEL id="0">
+				<comment>Black full cap</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap</model>
+				<texture>pb_Full_Cap_Black,ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap_Black</texture>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<comment>Glow Border Type 5 - 3/4 wrap around, text on top</comment>
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Bcklt_5</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="2">
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglCollider_DBL</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Collider</name>
+				<collider>SwitchColliderUP</collider>
+				<sound>ASET/ASET_Props/Sounds/pb_Push02</sound>
+				<volume>1</volume>
+				<autoRepeat>0.1</autoRepeat>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<name>Collider</name>
+				<collider>SwitchColliderDOWN</collider>
+				<sound>ASET/ASET_Props/Sounds/pb_Push02</sound>
+				<volume>1</volume>
+				<autoRepeat>0.1</autoRepeat>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<name>Caption</name>
+				<transform>PanelTextTop_bklt</transform>
+				<fontSize>5.8</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Upper Legend</name>
+				<transform>Legend_Upper</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<blend>true</blend>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>Upper Legend Bullets</name>
+				<transform>Legend_Upper</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(1)</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>▲          ▲</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<name>Lower Legend</name>
+				<transform>Legend_Lower</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<blend>true</blend>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<passiveColor>COLOR_MOARdV_UnlitText</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<name>Lower Legend Bullets</name>
+				<transform>Legend_Lower</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(1)</variable>
+				<activeColor>COLOR_MOARdV_IndicatorLampGreen</activeColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<text>▼          ▼</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Border</name>
+				<transform>GlowBorder</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_pb_InstBacklight_Dimmer</name>
+			<style>Decorated Dbl Collider Dimmer</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("Backlight", fc.SetPersistent("%AUTOID%", 0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("Backlight", fc.SetPersistent("%AUTOID%", -0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>INST.$$$PANEL</text>
+				<variable>fc.Conditioned(fc.Max(0.25, fc.GetPersistentAsNumber("Backlight")))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>BRT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") &lt; 1)</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<text>DIM</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="4">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight") &gt; 0)</variable>
+			</TEXT_LABEL>
 		</prop>
 	</PushButton>
 </PropConfig>
