@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2018 MOARdV
+ * Copyright (c) 2018-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -40,6 +40,8 @@ namespace AvionicsSystems
         private Mesh mesh;
         private MeshRenderer meshRenderer;
         private bool retriangulate;
+        private Vector2 position = Vector2.zero;
+        private Vector3 origin = Vector3.zero;
 
         // Only need one.  It's used one-at-a-time.
         static TriPoly triPoly = new TriPoly();
@@ -59,12 +61,6 @@ namespace AvionicsSystems
                 throw new ArgumentException("Insufficient number of 'vertex' entries in POLYGON " + name + " (must have at least 3)");
             }
 
-            Vector2 position = Vector2.zero;
-            if (!config.TryGetValue("position", ref position))
-            {
-                throw new ArgumentException("Unable to find 'position' in POLYGON " + name);
-            }
-
             string variableName = string.Empty;
             if (config.TryGetValue("variable", ref variableName))
             {
@@ -77,6 +73,35 @@ namespace AvionicsSystems
             polygonOrigin.transform.parent = pageRoot;
             polygonOrigin.transform.position = pageRoot.position;
             polygonOrigin.transform.Translate(monitor.screenSize.x * -0.5f + position.x, monitor.screenSize.y * 0.5f - position.y, depth);
+
+            origin = pageRoot.position + new Vector3(monitor.screenSize.x * -0.5f, monitor.screenSize.y * 0.5f, depth);
+
+            string positionString = string.Empty;
+            if (!config.TryGetValue("position", ref positionString))
+            {
+                position = Vector2.zero;
+                throw new ArgumentException("Unable to find 'position' in POLYGON " + name);
+            }
+            else
+            {
+                string[] pos = Utility.SplitVariableList(positionString);
+                if (pos.Length != 2)
+                {
+                    throw new ArgumentException("Invalid number of values for 'position' in POLYGON " + name);
+                }
+
+                variableRegistrar.RegisterVariableChangeCallback(pos[0], (double newValue) =>
+                {
+                    position.x = (float)newValue;
+                    polygonOrigin.transform.position = origin + new Vector3(position.x, -position.y, 0.0f);
+                });
+
+                variableRegistrar.RegisterVariableChangeCallback(pos[1], (double newValue) =>
+                {
+                    position.y = (float)newValue;
+                    polygonOrigin.transform.position = origin + new Vector3(position.x, -position.y, 0.0f);
+                });
+            }
 
             // add renderer stuff
             MeshFilter meshFilter = polygonOrigin.AddComponent<MeshFilter>();
