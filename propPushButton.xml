@@ -4979,5 +4979,142 @@
 				<text>NIGHT</text>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_pb_SH02_B2_Precision</name>
+			<style>SH02</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Toggles Precision mode.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePrecisionMode()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPrecisionMode()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>PRECISION$$$MODE</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.GetPrecisionMode()</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.GetPrecisionMode()</variable>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="1">
+				<text>PREC</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>NORM</text>
+				<variable>1 - fc.GetPrecisionMode()</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SH02_B2_RCS</name>
+			<style>SH02</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Toggles RCS.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleRCS()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetRCS()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>RCS</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.GetRCS()</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.GetRCS()</variable>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="2">
+				<variable>1 - fc.GetRCS()</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SH02_B2_RCS_Rotation</name>
+			<style>SH02</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Toggles enabling RCS for rotation.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleRCSRotate()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetRCSRotate()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>ROTATE</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.GetRCSRotate()</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.GetRCSRotate()</variable>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="1">
+				<text>ENABLE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>1 - fc.GetRCSRotate()</variable>
+				<text>DISABLE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SH02_B2_RCS_Translation</name>
+			<style>SH02</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Toggles enabling RCS for translation.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleRCSTranslate()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetRCSTranslate()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>XLATE</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.GetRCSTranslate()</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.GetRCSTranslate()</variable>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="1">
+				<text>ENABLE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<variable>1 - fc.GetRCSTranslate()</variable>
+				<text>DISABLE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SH02_B2_SAS</name>
+			<style>SH02</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Toggles SAS.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleSAS()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSAS()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>SAS</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.GetSAS()</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.GetSAS()</variable>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="2">
+				<variable>1 - fc.GetSAS()</variable>
+			</TEXT_LABEL>
+		</prop>
 	</PushButton>
 </PropConfig>
