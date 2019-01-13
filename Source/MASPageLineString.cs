@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2017-2018 MOARdV
+ * Copyright (c) 2017-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -43,6 +43,8 @@ namespace AvionicsSystems
         private GameObject lineOrigin;
         private Material lineMaterial;
         private LineRenderer lineRenderer;
+        private Vector2 position = Vector2.zero;
+        private Vector3 layerOrigin = Vector3.zero;
 
         private bool usesTexture;
         private float inverseTextureWidth = 1.0f;
@@ -80,12 +82,6 @@ namespace AvionicsSystems
             }
 
 
-            Vector2 position = Vector2.zero;
-            if (!config.TryGetValue("position", ref position))
-            {
-                throw new ArgumentException("Unable to find 'position' in LINE_STRING " + name);
-            }
-
             string variableName = string.Empty;
             if (config.TryGetValue("variable", ref variableName))
             {
@@ -104,6 +100,36 @@ namespace AvionicsSystems
             lineOrigin.transform.parent = pageRoot;
             lineOrigin.transform.position = pageRoot.position;
             lineOrigin.transform.Translate(monitor.screenSize.x * -0.5f + position.x, monitor.screenSize.y * 0.5f - position.y, depth);
+
+            layerOrigin = pageRoot.position + new Vector3(monitor.screenSize.x * -0.5f, monitor.screenSize.y * 0.5f, depth);
+
+            string positionString = string.Empty;
+            if (!config.TryGetValue("position", ref positionString))
+            {
+                position = Vector2.zero;
+                throw new ArgumentException("Unable to find 'position' in LINE_STRING " + name);
+            }
+            else
+            {
+                string[] pos = Utility.SplitVariableList(positionString);
+                if (pos.Length != 2)
+                {
+                    throw new ArgumentException("Invalid number of values for 'position' in LINE_STRING " + name);
+                }
+
+                variableRegistrar.RegisterVariableChangeCallback(pos[0], (double newValue) =>
+                {
+                    position.x = (float)newValue;
+                    lineOrigin.transform.position = layerOrigin + new Vector3(position.x, -position.y, 0.0f);
+                });
+
+                variableRegistrar.RegisterVariableChangeCallback(pos[1], (double newValue) =>
+                {
+                    position.y = (float)newValue;
+                    lineOrigin.transform.position = layerOrigin + new Vector3(position.x, -position.y, 0.0f);
+                });
+            }
+
             // add renderer stuff
             lineMaterial = new Material(MASLoader.shaders["MOARdV/Monitor"]);
             lineRenderer = lineOrigin.AddComponent<LineRenderer>();
