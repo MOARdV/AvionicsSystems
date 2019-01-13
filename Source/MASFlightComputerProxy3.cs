@@ -1338,6 +1338,77 @@ namespace AvionicsSystems
         }
         #endregion
 
+
+        /// <summary>
+        /// The Science category provides interaction with both science experiments and categories of science.
+        /// 
+        /// **NOTE:** This feature is under development.  It is not feature complete.
+        /// </summary>
+        #region Science
+
+        /// <summary>
+        /// Returns the status of the selected `experimentId`.
+        /// 
+        /// * +1: Experiment has run, results are available.
+        /// *  0: Experiment has not run, or invalid `experimentId`
+        /// * -1: Experiment has run, results have been transmitted. *Not yet implemented*
+        /// </summary>
+        /// <param name="experimentId">An integer between 0 and `fc.ExperimentTotal()` - 1, inclusive.</param>
+        /// <returns>-1, 0, or +1.</returns>
+        public double ExperimentStatus(double experimentId)
+        {
+            int id = (int)experimentId;
+            if (id >= 0 && id < vc.moduleScienceExperiment.Length)
+            {
+                ModuleScienceExperiment mse = vc.moduleScienceExperiment[id];
+
+                if (mse.Deployed)
+                {
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the type of experiment the experiment `experimentId` contains.
+        /// 
+        /// Returns an empty string if `experimentId` is invalid.
+        /// </summary>
+        /// <param name="experimentId">An integer between 0 and `fc.ExperimentTotal()` - 1, inclusive.</param>
+        /// <returns>The name of the experiment type, or an empty string.</returns>
+        public string ExperimentType(double experimentId)
+        {
+            int id = (int)experimentId;
+            if (id >= 0 && id < vc.moduleScienceExperiment.Length)
+            {
+                ModuleScienceExperiment mse = vc.moduleScienceExperiment[id];
+                //Utility.LogMessage(this, "status {2}: dataIsCollectable {0}; Deployed {1}; rerunnable {3}; resettable {4}",
+                //    mse.dataIsCollectable,
+                //    mse.Deployed,
+                //    mse.experiment.experimentTitle,
+                //    mse.rerunnable,
+                //    mse.resettable
+                //    );
+
+                return mse.experiment.experimentTitle;
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Returns the total number of science experiments aboard the vessel.
+        /// </summary>
+        /// <returns>An integer 0 or larger.</returns>
+        public double ExperimentTotal()
+        {
+            return vc.moduleScienceExperiment.Length;
+        }
+
+        #endregion
+
         /// <summary>
         /// Variables related to the vessels speed, velocity, and accelerations are grouped
         /// in this category.
