@@ -136,16 +136,16 @@ namespace AvionicsSystems
 
             if (navWaypoint.IsActive)
             {
-                    var waypoints = waypointManager.Waypoints;
-                    int numWP = waypoints.Count;
-                    for (int i = 0; i < numWP; ++i)
+                var waypoints = waypointManager.Waypoints;
+                int numWP = waypoints.Count;
+                for (int i = 0; i < numWP; ++i)
+                {
+                    if (navWaypoint.IsUsing(waypoints[i]))
                     {
-                        if (navWaypoint.IsUsing(waypoints[i]))
-                        {
-                            activeWaypoint = i;
-                            break;
-                        }
+                        activeWaypoint = i;
+                        break;
                     }
+                }
             }
         }
 
@@ -633,6 +633,58 @@ namespace AvionicsSystems
                 return cb.TerrainAltitude(destLatitude, destLongitude, true);
             }
         }
+        #endregion
+
+        /// <summary>
+        /// The Launch Site category contains information about the vessel's launch site.
+        /// </summary>
+        #region Launch Site
+
+        /// <summary>
+        /// The latitude of the vessel's launch site.
+        /// </summary>
+        /// <returns></returns>
+        [MASProxy(Immutable = true)]
+        public double LaunchSiteLatitude()
+        {
+            if (launchSite != null)
+            {
+                return launchSite.latitude;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// The longitude of the vessel's launch site.
+        /// </summary>
+        /// <returns></returns>
+        [MASProxy(Immutable = true)]
+        public double LaunchSiteLongitude()
+        {
+            if (launchSite != null)
+            {
+                return launchSite.longitude;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// The name of the vessel's launch site.
+        /// </summary>
+        /// <returns></returns>
+        [MASProxy(Immutable = true)]
+        public string LaunchSiteName()
+        {
+            if (launchSite != null)
+            {
+                return launchSite.name;
+            }
+
+            return string.Empty;
+        }
+
         #endregion
 
         /// <summary>
