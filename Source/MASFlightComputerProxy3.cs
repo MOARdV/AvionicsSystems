@@ -601,11 +601,21 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns 1 if the selected resource is locked (can not transfer resources) anywhere
         /// on the vessel.  Returns 0 if the part is unlocked, or if it is not present.
+        /// 
+        /// Use -1 to query if any resource is locked.
         /// </summary>
-        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.  Use -1 to query if any resource is locked.</param>
         /// <returns></returns>
         public double ResourceLocked(object resourceId)
         {
+            if (resourceId is double)
+            {
+                if ((double)resourceId == -1.0)
+                {
+                    return vc.AnyResourceLocked();
+                }
+            }
+
             return (vc.ResourceLocked(resourceId)) ? 1.0 : 0.0;
         }
 
@@ -786,6 +796,15 @@ namespace AvionicsSystems
             }
 
             return 0.0;
+        }
+
+        /// <summary>
+        /// Sets all resources aboard the vessel as available.
+        /// </summary>
+        /// <returns>1 if any resources were unlocked, 0 if all resources were already available.</returns>
+        public double SetAllResourcesUnlocked()
+        {
+            return vc.UnlockAllResources();
         }
 
         /// <summary>

@@ -461,7 +461,7 @@ namespace AvionicsSystems
                     {
                         pr[i].flowState = lockResource;
                     }
-                        
+
                     return 1.0f;
                 }
             }
@@ -478,6 +478,41 @@ namespace AvionicsSystems
             }
 
             return false;
+        }
+
+        internal float UnlockAllResources()
+        {
+            float returnV = 0.0f;
+            for (int rsrcIdx = resources.Length - 1; rsrcIdx >= 0; --rsrcIdx)
+            {
+                if (resources[rsrcIdx].resourceLocked)
+                {
+                    List<PartResource> pr = resources[rsrcIdx].partResources;
+                    for (int i = pr.Count - 1; i >= 0; --i)
+                    {
+                        if (!pr[i].flowState)
+                        {
+                            returnV = 1.0f;
+                            pr[i].flowState = true;
+                        }
+                    }
+                }
+            }
+
+            return returnV;
+        }
+
+        internal float AnyResourceLocked()
+        {
+            for (int i = resources.Length - 1; i >= 0; --i)
+            {
+                if (resources[i].resourceLocked)
+                {
+                    return 1.0f;
+                }
+            }
+
+            return 0.0f;
         }
 
         /// <summary>
