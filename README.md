@@ -43,6 +43,7 @@ development, there are IVAs included in this package:
 * The stock Mk 1 v2 Command Pod (pictured above), which demonstrates a retro-NASA style stripped-down IVA suitable for suborbital or short orbital flights.
 * The original Mk 1 Command Pod IVA is still included, since the original pod and IVA are still available (as of KSP 1.5.0).
 * The stock Mk 1-3 Command Pod, which includes a more complete retro-NASA IVA for the center seat (with stock props still in place on the rest of the panel).
+* The stock Mk1 Lander Can by snakeru, a conversion of the [ASET Mk1 Lander Can](https://forum.kerbalspaceprogram.com/index.php?/topic/156131-mk1-lander-can-iva-replacement-by-aset11/).  Note that if the ASET mod is installed, the MAS version of the IVA is switched off.  You must uninstall the ASET IVA to use the MAS IVA.
 * The MRK DM command pod, part of the [Commonwealth Rockets](https://forum.kerbalspaceprogram.com/index.php?/topic/164365-13-commonwealth-rockets-tea-powered-spaceflight-in-development/) mod.
 This command pod demonstrates a modern partial-glass cockpit design good for activity around Kerbin and its moons.
 * The Flapjack cockpit in the [Kerbal Flying Saucer](https://forum.kerbalspaceprogram.com/index.php?/topic/173857-14x-pre-release-live-kerbal-flying-saucers-build-flying-saucers-in-ksp/) mod shows a glass cockpit design, including HUD.
