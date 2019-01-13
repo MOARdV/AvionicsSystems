@@ -1811,6 +1811,20 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the speed in m/s required to have a circular orbit at the provided altitude.
+        /// </summary>
+        /// <param name="altitude">Altitude in meters</param>
+        /// <returns>The orbital speed in m/s needed for a circular orbit.</returns>
+        public double CircularOrbitSpeed(double altitude)
+        {
+            double GM = vc.mainBody.gravParameter;
+            double rA = altitude + vc.mainBody.Radius;
+            double Vi = Math.Sqrt(GM / rA); // Velocity of a circular orbit at radius A
+
+            return Vi;
+        }
+
+        /// <summary>
         /// Return the eccentricity of the orbit.
         /// </summary>
         /// <returns></returns>
