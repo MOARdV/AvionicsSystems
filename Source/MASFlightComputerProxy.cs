@@ -820,7 +820,16 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if the maneuver autopilot is active, 0 if it is idle.
+        /// Returns 1 if the MAS ascent autopilot is active, 0 if it is idle.
+        /// </summary>
+        /// <returns></returns>
+        public double GetAscentPilotActive()
+        {
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the MAS maneuver autopilot is active, 0 if it is idle.
         /// </summary>
         /// <returns></returns>
         public double GetManeuverPilotActive()
