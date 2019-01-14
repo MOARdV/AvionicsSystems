@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2017-2018 MOARdV
+ * Copyright (c) 2017-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -52,7 +52,6 @@ namespace AvionicsSystems
 
         private readonly int vertexCount;
         private readonly Vector2 size;
-        private bool pageActive = false;
         private bool coroutineEnabled = true;
         private bool updateVessel = false;
         private bool updateTarget = false;
@@ -63,7 +62,8 @@ namespace AvionicsSystems
         private float startLongitudeNormalized;
         private MASFlightComputer comp;
 
-        internal MASPageGroundTrack(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth):base(config, prop, comp)
+        internal MASPageGroundTrack(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
+            : base(config, prop, comp)
         {
             this.comp = comp;
 
@@ -528,7 +528,7 @@ namespace AvionicsSystems
         {
             while (coroutineEnabled)
             {
-                if (currentState && pageActive)
+                if (currentState)
                 {
                     if (updateVessel)
                     {
