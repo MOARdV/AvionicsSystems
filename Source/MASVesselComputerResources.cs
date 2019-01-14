@@ -459,7 +459,7 @@ namespace AvionicsSystems
                 {
                     for (int i = 0; i < resourceQty; ++i)
                     {
-                        pr[i].flowState = lockResource;
+                        pr[i].flowState = !lockResource;
                     }
 
                     return 1.0f;
