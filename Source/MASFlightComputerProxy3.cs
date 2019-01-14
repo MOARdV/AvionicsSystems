@@ -3749,7 +3749,7 @@ namespace AvionicsSystems
             {
                 return negativeValue;
             }
-            else if (condition > 1.0)
+            else if (condition > 0.0)
             {
                 return positiveValue;
             }
