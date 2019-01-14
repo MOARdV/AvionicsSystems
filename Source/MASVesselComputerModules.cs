@@ -957,6 +957,7 @@ namespace AvionicsSystems
         #endregion
 
         #region Science
+        // For a bootstrap to interpreting science values, see https://github.com/KerboKatz/AutomatedScienceSampler/blob/master/source/AutomatedScienceSampler/DefaultActivator.cs
         private List<ModuleScienceExperiment> scienceExperimentList = new List<ModuleScienceExperiment>();
         internal ModuleScienceExperiment[] moduleScienceExperiment = new ModuleScienceExperiment[0];
 

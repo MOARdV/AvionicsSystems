@@ -1345,6 +1345,7 @@ namespace AvionicsSystems
         /// **NOTE:** This feature is under development.  It is not feature complete.
         /// </summary>
         #region Science
+        // For a bootstrap to interpreting science values, see https://github.com/KerboKatz/AutomatedScienceSampler/blob/master/source/AutomatedScienceSampler/DefaultActivator.cs
 
         /// <summary>
         /// Returns the status of the selected `experimentId`.
