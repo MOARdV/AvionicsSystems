@@ -144,6 +144,19 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_IndicatorCircular_GForce</name>
+			<style>Standard Circular Indicator</style>
+			<ANIMATION>
+				<variable>0.25 * (3.95 - fc.GForce())</variable>
+			</ANIMATION>
+			<TEXT_LABEL id="0">
+				<text>G-Force:</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0,6:0.0} $#$ fc.GForce()</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_IndicatorCircular_Propellant</name>
 			<style>Standard Circular Indicator</style>
 			<ANIMATION>
@@ -259,29 +272,5 @@
 				<passiveColor>255, 246, 0, 255</passiveColor>
 			</TEXT_LABEL>
 		</style>
-		<prop>
-			<name>MAS_IndicatorCircular_GForce</name>
-			<style>Advanced Circular Indicator</style>
-			<TEXTURE_SHIFT>
-				<!-- Gauge is scaled to cover 0G to 12G -->
-				<variable>fc.GForce() / 12</variable>
-			</TEXTURE_SHIFT>
-			<!-- 
-			Color shift is in threshold / boolean mode.  If Gs are below 9, passiveColor is used.
-			If it's above 9, activeColor is used.  We could also add <blend>true</blend> and change the
-			variable to fc.GForce() / 9, which would blend from green for 0G to yellow for 9G and above.
-			-->
-			<COLOR_SHIFT>
-				<variable>fc.GForce() &gt; 9</variable>
-				<passiveColor>0, 255, 0, 255</passiveColor>
-				<activeColor>255, 255, 0, 255</activeColor>
-			</COLOR_SHIFT>
-			<TEXT_LABEL id="0">
-				<text>G Force:</text>
-			</TEXT_LABEL>
-			<TEXT_LABEL id="1">
-				<text>{0,6:0.00} $#$ fc.GForce()</text>
-			</TEXT_LABEL>
-		</prop>
 	</IndicatorCircular>
 </PropConfig>
