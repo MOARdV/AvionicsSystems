@@ -9,17 +9,17 @@
 
 ------------------------------------------------------------------------------
 --
-function MAS_kOS_Stby(propId, timerName, currentTime)
+function MAS_kOS_Stby(propId, timerName, currentTime, stbyPage)
 
 	local ut = fc.UT()
 	
 	if currentTime < ut then
 		fc.SetPersistent(timerName, ut + 5)
-		fc.LogMessage("Setting Timer")
+		--fc.LogMessage("Setting Timer")
 	else
-		fc.SetPersistent(propId, "MAS_kOS_Standby")
+		fc.SetPersistent(propId, stbyPage)
 		fc.SetPersistent(timerName, 0)
-		fc.LogMessage("Clearing Timer")
+		--fc.LogMessage("Clearing Timer")
 	end
 	
 end
