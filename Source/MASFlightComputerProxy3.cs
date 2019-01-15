@@ -1598,7 +1598,7 @@ namespace AvionicsSystems
         public double GForceVertical()
         {
             // acceleration is in m/s.
-            return -Vector3d.Dot(vessel.acceleration, vc.top) / Utility.StandardG;
+            return -Vector3d.Dot(vessel.acceleration - vessel.graviticAcceleration, vc.top) / PhysicsGlobals.GravitationalAcceleration;
         }
 
         /// <summary>
