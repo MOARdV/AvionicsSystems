@@ -3594,7 +3594,7 @@ namespace AvionicsSystems
 
             if (stagePropellantMass > 0.0)
             {
-                return vc.currentIsp * Utility.StandardG * Math.Log(vessel.totalMass / (vessel.totalMass - stagePropellantMass));
+                return vc.currentIsp * PhysicsGlobals.GravitationalAcceleration * Math.Log(vessel.totalMass / (vessel.totalMass - stagePropellantMass));
             }
 
             return 0.0;
@@ -3612,7 +3612,7 @@ namespace AvionicsSystems
 
             if (stagePropellantMass > 0.0)
             {
-                return vc.currentIsp * Utility.StandardG * Math.Log(vessel.totalMass / (vessel.totalMass - stagePropellantMass));
+                return vc.currentIsp * PhysicsGlobals.GravitationalAcceleration * Math.Log(vessel.totalMass / (vessel.totalMass - stagePropellantMass));
             }
 
             return 0.0;

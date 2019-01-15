@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -876,7 +876,7 @@ namespace AvionicsSystems
         {
             if (maneuverNodeValid && currentIsp > 0.0 && currentMaxThrust > 0.0)
             {
-                return currentIsp * (1.0f - Math.Exp(-maneuverNodeDeltaV / currentIsp / Utility.StandardG)) / (currentMaxThrust / (vessel.totalMass * Utility.StandardG));
+                return currentIsp * (1.0f - Math.Exp(-maneuverNodeDeltaV / currentIsp / PhysicsGlobals.GravitationalAcceleration)) / (currentMaxThrust / (vessel.totalMass * PhysicsGlobals.GravitationalAcceleration));
             }
             else
             {
@@ -1255,7 +1255,7 @@ namespace AvionicsSystems
         private void UpdateMisc()
         {
             // Convert to m/2^s
-            surfaceAccelerationFromGravity = orbit.referenceBody.GeeASL * Utility.StandardG;
+            surfaceAccelerationFromGravity = orbit.referenceBody.GeeASL * PhysicsGlobals.GravitationalAcceleration;
             aeroDataValid = false;
         }
 

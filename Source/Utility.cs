@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -36,8 +36,6 @@ namespace AvionicsSystems
 
         internal static readonly double Deg2Rad = Math.PI / 180.0;
         internal static readonly double Rad2Deg = 180.0 / Math.PI;
-
-        internal static readonly double StandardG = 9.80665;
 
         internal static readonly string[] NewLine = { Environment.NewLine };
 
