@@ -770,22 +770,18 @@ namespace AvionicsSystems
                     if (vc.engineGroup[i].partId == id)
                     {
                         ModuleEngines me = vc.engineGroup[i].engine;
-                        Part thatPart = me.part;
 
-                        if (!newState)
+                        if (me.EngineIgnited != newState)
                         {
-                            if (me.EngineIgnited != newState)
+                            if (newState && me.allowRestart)
                             {
-                                if (newState && me.allowRestart)
-                                {
-                                    me.Activate();
-                                    anyChanged = 1.0;
-                                }
-                                else if (me.allowShutdown)
-                                {
-                                    me.Shutdown();
-                                    anyChanged = 1.0;
-                                }
+                                me.Activate();
+                                anyChanged = 1.0;
+                            }
+                            else if (me.allowShutdown)
+                            {
+                                me.Shutdown();
+                                anyChanged = 1.0;
                             }
                         }
                     }
