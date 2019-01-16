@@ -961,6 +961,34 @@ namespace AvionicsSystems
         private List<ModuleScienceExperiment> scienceExperimentList = new List<ModuleScienceExperiment>();
         internal ModuleScienceExperiment[] moduleScienceExperiment = new ModuleScienceExperiment[0];
 
+        internal class ScienceType
+        {
+            internal ScienceExperiment type;
+            internal List<ModuleScienceExperiment> experiments = new List<ModuleScienceExperiment>();
+        };
+        private List<ScienceType> scienceTypeList = new List<ScienceType>();
+        internal ScienceType[] scienceType = new ScienceType[0];
+        private void RebuildScienceTypes()
+        {
+            for (int i = moduleScienceExperiment.Length - 1; i >= 0; --i)
+            {
+                int idx = scienceTypeList.FindIndex(x => x.type.id == moduleScienceExperiment[i].experiment.id);
+                if (idx == -1)
+                {
+                    ScienceType st = new ScienceType();
+                    st.type = moduleScienceExperiment[i].experiment;
+                    st.experiments.Add(moduleScienceExperiment[i]);
+                    scienceTypeList.Add(st);
+                }
+                else
+                {
+                    scienceTypeList[idx].experiments.Add(moduleScienceExperiment[i]);
+                }
+            }
+
+            TransferModules<ScienceType>(scienceTypeList, ref scienceType);
+        }
+
         #endregion
 
         #region Thermal Management
@@ -1453,6 +1481,7 @@ namespace AvionicsSystems
                 TransferModules<ModuleResourceConverter>(resourceConverterList[i].converterList, ref resourceConverterList[i].moduleConverter);
                 TransferModules<float>(resourceConverterList[i].outputRatioList, ref resourceConverterList[i].outputRatio);
             }
+            RebuildScienceTypes();
 
 #if TIME_REBUILD
             TimeSpan transferTime = rebuildStopwatch.Elapsed - scanTime;

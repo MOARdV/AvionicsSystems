@@ -1340,7 +1340,10 @@ namespace AvionicsSystems
 
 
         /// <summary>
-        /// The Science category provides interaction with both science experiments and categories of science.
+        /// The Science category provides interaction with both science experiments and categories of science experiments.
+        /// 
+        /// The `Experiment` functions interact with individual experiments on the vessel, such as a Crew Report in the
+        /// Command Pod.  The `ScienceType` functions interact with categories of experiments.
         /// 
         /// **NOTE:** This feature is under development.  It is not feature complete.
         /// </summary>
@@ -1352,7 +1355,7 @@ namespace AvionicsSystems
         /// 
         /// * +1: Experiment has run, results are available.
         /// *  0: Experiment has not run, or invalid `experimentId`
-        /// * -1: Experiment has run, results have been transmitted. *Not yet implemented*
+        /// * -1: Experiment has run, results have been transmitted.
         /// </summary>
         /// <param name="experimentId">An integer between 0 and `fc.ExperimentTotal()` - 1, inclusive.</param>
         /// <returns>-1, 0, or +1.</returns>
@@ -1362,10 +1365,24 @@ namespace AvionicsSystems
             if (id >= 0 && id < vc.moduleScienceExperiment.Length)
             {
                 ModuleScienceExperiment mse = vc.moduleScienceExperiment[id];
+                //Utility.LogMessage(this, "status {2}: dataIsCollectable {0}; Deployed {1}; rerunnable {3}; resettable {4}",
+                //    mse.dataIsCollectable,
+                //    mse.Deployed,
+                //    mse.experiment.experimentTitle,
+                //    mse.rerunnable,
+                //    mse.resettable
+                //    );
 
                 if (mse.Deployed)
                 {
-                    return 1.0;
+                    if (mse.GetData().Length > 0)
+                    {
+                        return 1.0;
+                    }
+                    else
+                    {
+                        return -1.0;
+                    }
                 }
             }
 
@@ -1385,13 +1402,6 @@ namespace AvionicsSystems
             if (id >= 0 && id < vc.moduleScienceExperiment.Length)
             {
                 ModuleScienceExperiment mse = vc.moduleScienceExperiment[id];
-                //Utility.LogMessage(this, "status {2}: dataIsCollectable {0}; Deployed {1}; rerunnable {3}; resettable {4}",
-                //    mse.dataIsCollectable,
-                //    mse.Deployed,
-                //    mse.experiment.experimentTitle,
-                //    mse.rerunnable,
-                //    mse.resettable
-                //    );
 
                 return mse.experiment.experimentTitle;
             }
@@ -1406,6 +1416,33 @@ namespace AvionicsSystems
         public double ExperimentTotal()
         {
             return vc.moduleScienceExperiment.Length;
+        }
+
+        /// <summary>
+        /// Returns the type of experiment recorded as category `scienceTypeId`.
+        /// 
+        /// Returns an empty string if `scienceTypeId` does not refer to a valid category.
+        /// </summary>
+        /// <param name="scienceTypeId">An integer between 0 and `fc.ScienceTypeTotal()` - 1.</param>
+        /// <returns>The name of the experiment type, or an empty string.</returns>
+        public string ScienceType(double scienceTypeId)
+        {
+            int id = (int)scienceTypeId;
+            if (id >= 0 && id < vc.scienceType.Length)
+            {
+                return vc.scienceType[id].type.experimentTitle;
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Returns the total number of categories of science experiments aboard the vessel.
+        /// </summary>
+        /// <returns>An integer 0 or larger.</returns>
+        public double ScienceTypeTotal()
+        {
+            return vc.scienceType.Length;
         }
 
         #endregion
