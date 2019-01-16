@@ -3608,11 +3608,13 @@ namespace AvionicsSystems
         public double DeltaVStageMax()
         {
             // mass in tonnes.
-            double stagePropellantMass = vc.enginePropellant.maxStage * vc.enginePropellant.density;
+            double stagePropellantMass = vc.enginePropellant.currentStage * vc.enginePropellant.density;
 
             if (stagePropellantMass > 0.0)
             {
-                return vc.currentIsp * PhysicsGlobals.GravitationalAcceleration * Math.Log(vessel.totalMass / (vessel.totalMass - stagePropellantMass));
+                double startingMass = vessel.totalMass + (vc.enginePropellant.maxStage - vc.enginePropellant.currentStage) * vc.enginePropellant.density;
+
+                return vc.currentIsp * PhysicsGlobals.GravitationalAcceleration * Math.Log(startingMass / (vessel.totalMass - stagePropellantMass));
             }
 
             return 0.0;
