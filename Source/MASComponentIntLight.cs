@@ -43,28 +43,31 @@ namespace AvionicsSystems
             : base(config, prop, comp)
         {
             string lightName = string.Empty;
-            if (!config.TryGetValue("lightName", ref lightName))
+            string[] lightTransforms = null;
+            if (config.TryGetValue("lightName", ref lightName))
             {
-                throw new ArgumentException("Missing 'lightName' in INT_LIGHT " + name);
-            }
-
-            string[] lightTransforms = lightName.Split(',');
-            for (int i = 0; i < lightTransforms.Length; ++i)
-            {
-                lightTransforms[i] = lightTransforms[i].Trim();
+                lightTransforms = lightName.Split(',');
+                for (int i = 0; i < lightTransforms.Length; ++i)
+                {
+                    lightTransforms[i] = lightTransforms[i].Trim();
+                }
             }
 
             Light[] availableLights = prop.part.internalModel.FindModelComponents<Light>();
             if (availableLights != null && availableLights.Length > 0)
             {
                 List<Light> lights = new List<Light>(availableLights);
-                for (int i = lights.Count - 1; i >= 0; --i)
+                if (lightTransforms != null)
                 {
-                    if (Array.FindIndex(lightTransforms, x => x == lights[i].name) == -1)
+                    for (int i = lights.Count - 1; i >= 0; --i)
                     {
-                        lights.RemoveAt(i);
+                        if (Array.FindIndex(lightTransforms, x => x == lights[i].name) == -1)
+                        {
+                            lights.RemoveAt(i);
+                        }
                     }
                 }
+
                 if (lights.Count > 0)
                 {
                     controlledLights = lights.ToArray();
