@@ -1827,6 +1827,9 @@
 		<prop>
 			<name>MAS_swRotary_GenericIntLight</name>
 			<style>Rheostat Int Light</style>
+			<MODEL id="0">
+				<comment>This rheostat will adjust all lights in the IVA.  For finer control of cabin lighting, use switches that select specific 'lightName' transforms</comment>
+			</MODEL>
 			<COLLIDER_EVENT id="0">
 				<onClick>fc.AddPersistentClamped("MAS_Generic_IntLight", 0.05, 0, 1)</onClick>
 			</COLLIDER_EVENT>
@@ -1840,7 +1843,6 @@
 				<text>CABIN$$$LIGHT</text>
 			</TEXT_LABEL>
 			<INT_LIGHT>
-				<lightName>Point light</lightName>
 				<intensity>fc.GetPersistentAsNumber("MAS_Generic_IntLight")</intensity>
 				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Generic_IntLight"))</variable>
 			</INT_LIGHT>
