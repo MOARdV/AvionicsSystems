@@ -253,7 +253,10 @@ namespace AvionicsSystems
             {
                 int nodeCount = vessel.patchedConicSolver.maneuverNodes.Count;
                 // TODO: what is vessel.patchedConicSolver.flightPlan?  And do I care?
-                vessel.patchedConicSolver.maneuverNodes.Clear();
+                for (int i = nodeCount - 1; i >= 0; --i)
+                {
+                    vessel.patchedConicSolver.RemoveManeuverNode(vessel.patchedConicSolver.maneuverNodes[i]);
+                }
 
                 return (nodeCount > 0) ? 1.0 : 0.0;
             }
