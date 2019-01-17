@@ -1869,6 +1869,27 @@
 			</INT_LIGHT>
 		</prop>
 		<prop>
+			<name>MAS_swRotary_PointLight_IntLight</name>
+			<style>Rheostat Int Light</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("MAS_Generic_IntLight", 0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("MAS_Generic_IntLight", -0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_Generic_IntLight")</variable>
+			</ROTATION>
+			<TEXT_LABEL>
+				<text>CABIN$$$LIGHT</text>
+			</TEXT_LABEL>
+			<INT_LIGHT>
+				<lightName>Point light</lightName>
+				<intensity>fc.GetPersistentAsNumber("MAS_Generic_IntLight")</intensity>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("MAS_Generic_IntLight"))</variable>
+			</INT_LIGHT>
+		</prop>
+		<prop>
 			<name>MAS_swRotary_KP0110_IntLight_Back</name>
 			<style>Rheostat Int Light</style>
 			<COLLIDER_EVENT id="0">
