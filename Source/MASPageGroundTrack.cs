@@ -49,6 +49,8 @@ namespace AvionicsSystems
         private Color vesselColor;
         private Color targetColor;
         private Color maneuverColor;
+        private Vector2 position = Vector2.zero;
+        private Vector3 componentOrigin = Vector3.zero;
 
         private readonly int vertexCount;
         private readonly Vector2 size;
@@ -66,12 +68,6 @@ namespace AvionicsSystems
             : base(config, prop, comp)
         {
             this.comp = comp;
-
-            Vector2 position = Vector2.zero;
-            if (!config.TryGetValue("position", ref position))
-            {
-                throw new ArgumentException("Unable to find 'position' in GROUND_TRACK " + name);
-            }
 
             if (!config.TryGetValue("vertexCount", ref vertexCount))
             {
@@ -102,6 +98,8 @@ namespace AvionicsSystems
                 throw new ArgumentException("Unable to find 'lineWidth' in GROUND_TRACK " + name);
             }
 
+            componentOrigin = pageRoot.position + new Vector3(monitor.screenSize.x * -0.5f, monitor.screenSize.y * 0.5f, depth);
+
             for (int i = 0; i < numObjects; ++i)
             {
                 lineOrigin[i] = new GameObject();
@@ -126,6 +124,33 @@ namespace AvionicsSystems
             lineRenderer[3].SetPositions(targetVertex2);
             lineRenderer[4].SetPositions(maneuverVertex1);
             lineRenderer[5].SetPositions(maneuverVertex2);
+
+            string positionString = string.Empty;
+            if (!config.TryGetValue("position", ref positionString))
+            {
+                position = Vector2.zero;
+                throw new ArgumentException("Unable to find 'position' in GROUND_TRACK " + name);
+            }
+            else
+            {
+                string[] pos = Utility.SplitVariableList(positionString);
+                if (pos.Length != 2)
+                {
+                    throw new ArgumentException("Invalid number of values for 'position' in GROUND_TRACK " + name);
+                }
+
+                variableRegistrar.RegisterVariableChangeCallback(pos[0], (double newValue) =>
+                {
+                    position.x = (float)newValue;
+                    UpdateComponentPositions();
+                });
+
+                variableRegistrar.RegisterVariableChangeCallback(pos[1], (double newValue) =>
+                {
+                    position.y = (float)newValue;
+                    UpdateComponentPositions();
+                });
+            }
 
             string vesselColorString = string.Empty;
             if (config.TryGetValue("vesselColor", ref vesselColorString))
@@ -367,6 +392,17 @@ namespace AvionicsSystems
             }
 
             comp.StartCoroutine(LineUpdateCoroutine());
+        }
+
+        /// <summary>
+        /// Update the positions of the ground track line origins.
+        /// </summary>
+        void UpdateComponentPositions()
+        {
+            for (int i = 0; i < numObjects; ++i)
+            {
+                lineOrigin[i].transform.position = componentOrigin + new Vector3(position.x, -position.y, 0.0f);
+            }
         }
 
         /// <summary>
