@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -38,6 +38,8 @@ namespace AvionicsSystems
         private readonly float texelWidth;
         private float inputRange1, inputRange2;
         private float displayRange1, displayRange2;
+        private Vector2 position = Vector2.zero;
+        private Vector3 componentOrigin = Vector3.zero;
 
         internal MASPageHorizontalStrip(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
             : base(config, prop, comp)
@@ -58,12 +60,6 @@ namespace AvionicsSystems
                 wrapMode = false;
             }
             mainTexture.wrapMode = (wrapMode) ? TextureWrapMode.Repeat : TextureWrapMode.Clamp;
-
-            Vector2 position = Vector2.zero;
-            if (!config.TryGetValue("position", ref position))
-            {
-                throw new ArgumentException("Unable to find 'position' in HORIZONTAL_STRIP " + name);
-            }
 
             Vector2 size = Vector2.zero;
             if (!config.TryGetValue("size", ref size))
@@ -118,6 +114,8 @@ namespace AvionicsSystems
                 variableName = variableName.Trim();
             }
 
+            componentOrigin = pageRoot.position + new Vector3(monitor.screenSize.x * -0.5f, monitor.screenSize.y * 0.5f, depth);
+
             // Set up our display surface.
             imageObject = new GameObject();
             imageObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
@@ -156,6 +154,33 @@ namespace AvionicsSystems
             imageMaterial.mainTextureScale = new Vector2(textureSpan, 1.0f);
             meshRenderer.material = imageMaterial;
             RenderPage(false);
+
+            string positionString = string.Empty;
+            if (!config.TryGetValue("position", ref positionString))
+            {
+                throw new ArgumentException("Unable to find 'position' in HORIZONTAL_STRIP " + name);
+            }
+            else
+            {
+                string[] pos = Utility.SplitVariableList(positionString);
+                if (pos.Length != 2)
+                {
+                    throw new ArgumentException("Invalid number of values for 'position' in HORIZONTAL_STRIP " + name);
+                }
+
+                variableRegistrar.RegisterVariableChangeCallback(pos[0], (double newValue) =>
+                {
+                    position.x = (float)newValue;
+                    imageObject.transform.position = componentOrigin + new Vector3(position.x, -position.y, 0.0f);
+                });
+
+                variableRegistrar.RegisterVariableChangeCallback(pos[1], (double newValue) =>
+                {
+                    position.y = (float)newValue;
+                    imageObject.transform.position = componentOrigin + new Vector3(position.x, -position.y, 0.0f);
+                });
+
+            }
 
             variableRegistrar.RegisterVariableChangeCallback(inputName, InputCallback);
             if (!string.IsNullOrEmpty(variableName))
