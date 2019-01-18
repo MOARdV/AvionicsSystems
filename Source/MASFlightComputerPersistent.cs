@@ -271,6 +271,52 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Treat the persistent as a number, and append the digit specified.
+        /// maxLength indicates the maximum number of characters the number
+        /// will allow when treated as a string.  Anything after that is truncated.
+        /// </summary>
+        /// <param name="persistentName"></param>
+        /// <param name="digit"></param>
+        /// <param name="maxLength"></param>
+        /// <returns></returns>
+        internal double AppendPersistentNumeric(string persistentName, int digit, int maxLength)
+        {
+            object val;
+            if (persistentVars.TryGetValue(persistentName, out val))
+            {
+                double result;
+                if (val is double)
+                {
+                    result = (double)val;
+                }
+                else if (!double.TryParse(val as string, out result))
+                {
+                    result = 0.0;
+                }
+
+                if (result < Math.Pow(10.0, (double)(maxLength - 1)))
+                {
+                    result *= 10.0;
+                    result += (double)digit;
+
+                    persistentVars[persistentName] = result;
+                    UpdatePersistent(persistentName);
+                }
+
+                return result;
+            }
+            else if (digit != 0)
+            {
+                persistentVars[persistentName] = (double)digit;
+                UpdatePersistent(persistentName);
+
+                return (double)digit;
+            }
+
+            return 0.0;
+        }
+
         internal double ClearBits(string persistentName, int bits)
         {
             int persistentInt = 0;

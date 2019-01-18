@@ -2760,6 +2760,36 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Treat the persistent value `persistentName` as a number.  The integer `digit` is
+        /// appended to the end of the number, but only if the resulting string length remains
+        /// less than or equal to `maxLength`.
+        /// 
+        /// This behiavor mimics the effect of typing a number on a calculator or other numeric
+        /// input.  `digit` must be an integer between 0 and 9 (inclusive), or this function
+        /// has no effect.
+        /// 
+        /// This method does not support adding a decimal point.  The conventional `fc.AppendPersistent()`
+        /// must be used for that capability.
+        /// </summary>
+        /// <param name="persistentName">The name of the persistent variable to change.</param>
+        /// <param name="digit">An integer in the range [0, 9].</param>
+        /// <param name="maxLength">The maximum number of digits that `persistentName` may contain.</param>
+        /// <returns>The new value.  If the number was not updated, the old value is returned.</returns>
+        public double AppendPersistentDigit(string persistentName, double digit, double maxLength)
+        {
+            int dig_i = (int)digit;
+            int maxL = (int)maxLength;
+            if (dig_i >= 0 && dig_i <= 9)
+            {
+                return fc.AppendPersistentNumeric(persistentName, dig_i, maxL);
+            }
+            else
+            {
+                return fc.GetPersistentAsNumber(persistentName);
+            }
+        }
+
+        /// <summary>
         /// Clears 0 or more bits in the number stored in `persistentName`.
         /// 
         /// The value in `persistentName` is converted to a 32 bit integer,
