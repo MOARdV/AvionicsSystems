@@ -424,7 +424,7 @@ namespace AvionicsSystems
                 anyEnginesEnabled |= me.allowShutdown && me.getIgnitionState;
                 anyEnginesFlameout |= (me.isActiveAndEnabled && me.flameout);
 
-                if (me.EngineIgnited && me.isEnabled && me.isOperational)
+                if (me.EngineIgnited && me.isEnabled)
                 {
                     throttleLimit += me.thrustPercentage;
                     throttleCount += 1.0f;
