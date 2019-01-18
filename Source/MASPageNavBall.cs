@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -46,6 +46,8 @@ namespace AvionicsSystems
         private Material navballMaterial;
         private MeshRenderer rentexRenderer;
         private Renderer navballRenderer;
+        private Vector2 position = Vector2.zero;
+        private Vector3 componentOrigin = Vector3.zero;
 
         private MASFlightComputer comp;
         private readonly float navballExtents;
@@ -109,12 +111,6 @@ namespace AvionicsSystems
                 throw new ArgumentException("Unable to find 'texture' " + textureName + " for NAVBALL " + name);
             }
 
-            Vector2 position = Vector2.zero;
-            if (!config.TryGetValue("position", ref position))
-            {
-                position = monitor.screenSize * 0.5f;
-            }
-
             Vector2 size = Vector2.zero;
             if (!config.TryGetValue("size", ref size))
             {
@@ -143,6 +139,8 @@ namespace AvionicsSystems
             navballRenTex = new RenderTexture(512, 512, 24, RenderTextureFormat.ARGB32);
             navballRenTex.Create();
             navballRenTex.DiscardContents();
+
+            componentOrigin = pageRoot.position + new Vector3(monitor.screenSize.x * -0.5f, monitor.screenSize.y * 0.5f, depth);
 
             // Set up our display surface.
             imageObject = new GameObject();
@@ -180,6 +178,32 @@ namespace AvionicsSystems
             imageMaterial = new Material(displayShader);
             imageMaterial.mainTexture = navballRenTex;
             rentexRenderer.material = imageMaterial;
+
+            string positionString = string.Empty;
+            if (!config.TryGetValue("position", ref positionString))
+            {
+                throw new ArgumentException("Unable to find 'position' in NAVBALL " + name);
+            }
+            else
+            {
+                string[] pos = Utility.SplitVariableList(positionString);
+                if (pos.Length != 2)
+                {
+                    throw new ArgumentException("Invalid number of values for 'position' in NAVBALL " + name);
+                }
+
+                variableRegistrar.RegisterVariableChangeCallback(pos[0], (double newValue) =>
+                {
+                    position.x = (float)newValue;
+                    imageObject.transform.position = componentOrigin + new Vector3(position.x, -position.y, 0.0f);
+                });
+
+                variableRegistrar.RegisterVariableChangeCallback(pos[1], (double newValue) =>
+                {
+                    position.y = (float)newValue;
+                    imageObject.transform.position = componentOrigin + new Vector3(position.x, -position.y, 0.0f);
+                });
+            }
 
             //cameraObject
             cameraObject = new GameObject();

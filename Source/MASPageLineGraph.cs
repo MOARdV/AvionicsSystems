@@ -47,6 +47,8 @@ namespace AvionicsSystems
         private readonly float sampleRate;
         private float sourceValue;
         private float sourceRange1, sourceRange2;
+        private Vector2 position = Vector2.zero;
+        private Vector3 componentOrigin = Vector3.zero;
 
         private int currentSample;
         private int maxSamples;
@@ -55,12 +57,6 @@ namespace AvionicsSystems
         internal MASPageLineGraph(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
             : base(config, prop, comp)
         {
-            Vector2 position = Vector2.zero;
-            if (!config.TryGetValue("position", ref position))
-            {
-                throw new ArgumentException("Unable to find 'position' in LINE_GRAPH " + name);
-            }
-
             Vector2 size = Vector2.zero;
             if (!config.TryGetValue("size", ref size))
             {
@@ -119,6 +115,8 @@ namespace AvionicsSystems
             {
                 variableName = variableName.Trim();
             }
+
+            componentOrigin = pageRoot.position + new Vector3(monitor.screenSize.x * -0.5f, monitor.screenSize.y * 0.5f, depth);
 
             // Set up our display surface.
             if (borderWidth > 0.0f)
@@ -217,6 +215,40 @@ namespace AvionicsSystems
             lineRenderer.positionCount = maxSamples;
             lineRenderer.loop = false;
             RenderPage(false);
+
+            string positionString = string.Empty;
+            if (!config.TryGetValue("position", ref positionString))
+            {
+                throw new ArgumentException("Unable to find 'position' in LINE_GRAPH " + name);
+            }
+            else
+            {
+                string[] pos = Utility.SplitVariableList(positionString);
+                if (pos.Length != 2)
+                {
+                    throw new ArgumentException("Invalid number of values for 'position' in LINE_GRAPH " + name);
+                }
+
+                variableRegistrar.RegisterVariableChangeCallback(pos[0], (double newValue) =>
+                {
+                    position.x = (float)newValue;
+                    graphObject.transform.position = componentOrigin + new Vector3(position.x, -position.y, 0.0f);
+                    if (borderWidth > 0.0f)
+                    {
+                        borderObject.transform.position = componentOrigin + new Vector3(position.x, -position.y, 0.0f);
+                    }
+                });
+
+                variableRegistrar.RegisterVariableChangeCallback(pos[1], (double newValue) =>
+                {
+                    position.y = (float)newValue;
+                    graphObject.transform.position = componentOrigin + new Vector3(position.x, -position.y, 0.0f);
+                    if (borderWidth > 0.0f)
+                    {
+                        borderObject.transform.position = componentOrigin + new Vector3(position.x, -position.y, 0.0f);
+                    }
+                });
+            }
 
             for (int i = 0; i < maxSamples; ++i)
             {

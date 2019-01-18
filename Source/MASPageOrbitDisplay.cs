@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2018 MOARdV
+ * Copyright (c) 2018-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -36,6 +36,8 @@ namespace AvionicsSystems
         private RenderTexture displayRenTex;
         private Camera orbitCamera;
         private static readonly int orbitLayer = 29;
+        private Vector2 position = Vector2.zero;
+        private Vector3 componentOrigin = Vector3.zero;
 
         // 1/2 width and 1/2 height.
         private Vector2 size;
@@ -103,12 +105,6 @@ namespace AvionicsSystems
         {
             this.comp = comp;
 
-            Vector2 position = Vector2.zero;
-            if (!config.TryGetValue("position", ref position))
-            {
-                throw new ArgumentException("Unable to find 'position' in ORBIT_DISPLAY " + name);
-            }
-
             size = Vector2.zero;
             if (!config.TryGetValue("size", ref size))
             {
@@ -163,6 +159,8 @@ namespace AvionicsSystems
             displayRenTex.Create();
             displayRenTex.DiscardContents();
 
+            componentOrigin = pageRoot.position + new Vector3(monitor.screenSize.x * -0.5f + size.x, monitor.screenSize.y * 0.5f - size.y, depth);
+
             // MASMonitor display object
             imageObject = new GameObject();
             imageObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
@@ -199,6 +197,32 @@ namespace AvionicsSystems
             imageMaterial = new Material(MASLoader.shaders["MOARdV/Monitor"]);
             imageMaterial.mainTexture = displayRenTex;
             rentexRenderer.material = imageMaterial;
+
+            string positionString = string.Empty;
+            if (!config.TryGetValue("position", ref positionString))
+            {
+                throw new ArgumentException("Unable to find 'position' in ORBIT_DISPLAY " + name);
+            }
+            else
+            {
+                string[] pos = Utility.SplitVariableList(positionString);
+                if (pos.Length != 2)
+                {
+                    throw new ArgumentException("Invalid number of values for 'position' in ORBIT_DISPLAY " + name);
+                }
+
+                variableRegistrar.RegisterVariableChangeCallback(pos[0], (double newValue) =>
+                {
+                    position.x = (float)newValue;
+                    imageObject.transform.position = componentOrigin + new Vector3(position.x, -position.y, 0.0f);
+                });
+
+                variableRegistrar.RegisterVariableChangeCallback(pos[1], (double newValue) =>
+                {
+                    position.y = (float)newValue;
+                    imageObject.transform.position = componentOrigin + new Vector3(position.x, -position.y, 0.0f);
+                });
+            }
 
             // cameraObject
             cameraObject = new GameObject();

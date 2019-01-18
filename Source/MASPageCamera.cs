@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2017-2018 MOARdV
+ * Copyright (c) 2017-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -46,6 +46,8 @@ namespace AvionicsSystems
         private bool coroutineActive;
         private Stopwatch renderStopwatch = new Stopwatch();
         private long renderFrames = 0;
+        private Vector2 position = Vector2.zero;
+        private Vector3 componentOrigin = Vector3.zero;
 
         private int rentexWidth, rentexHeight;
         private string[] propertyValue = new string[0];
@@ -55,12 +57,6 @@ namespace AvionicsSystems
             : base(config, prop, comp)
         {
             this.comp = comp;
-
-            Vector2 position = Vector2.zero;
-            if (!config.TryGetValue("position", ref position))
-            {
-                throw new ArgumentException("Unable to find 'position' in CAMERA " + name);
-            }
 
             Vector2 size = Vector2.zero;
             if (!config.TryGetValue("size", ref size))
@@ -95,6 +91,8 @@ namespace AvionicsSystems
                 variableName = variableName.Trim();
             }
 
+            componentOrigin = pageRoot.position + new Vector3(monitor.screenSize.x * -0.5f, monitor.screenSize.y * 0.5f, depth);
+
             imageObject = new GameObject();
             imageObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
             imageObject.layer = pageRoot.gameObject.layer;
@@ -127,6 +125,32 @@ namespace AvionicsSystems
             mesh.RecalculateBounds();
             mesh.UploadMeshData(true);
             meshFilter.mesh = mesh;
+
+            string positionString = string.Empty;
+            if (!config.TryGetValue("position", ref positionString))
+            {
+                throw new ArgumentException("Unable to find 'position' in CAMERA " + name);
+            }
+            else
+            {
+                string[] pos = Utility.SplitVariableList(positionString);
+                if (pos.Length != 2)
+                {
+                    throw new ArgumentException("Invalid number of values for 'position' in CAMERA " + name);
+                }
+
+                variableRegistrar.RegisterVariableChangeCallback(pos[0], (double newValue) =>
+                {
+                    position.x = (float)newValue;
+                    imageObject.transform.position = componentOrigin + new Vector3(position.x, -position.y, 0.0f);
+                });
+
+                variableRegistrar.RegisterVariableChangeCallback(pos[1], (double newValue) =>
+                {
+                    position.y = (float)newValue;
+                    imageObject.transform.position = componentOrigin + new Vector3(position.x, -position.y, 0.0f);
+                });
+            }
 
             string shader = string.Empty;
             if (config.TryGetValue("shader", ref shader))
