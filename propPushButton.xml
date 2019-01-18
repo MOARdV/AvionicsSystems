@@ -4924,7 +4924,7 @@
 				<alignment>Center</alignment>
 				<anchor>MiddleCenter</anchor>
 				<emissive>active</emissive>
-				<passiveColor>COLOR_MOARdV_UnlitBlackText</passiveColor>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
 				<activeColor>COLOR_MOARdV_IndicatorLampAmber</activeColor>
 				<text>OFF</text>
 			</TEXT_LABEL>
@@ -5115,6 +5115,332 @@
 			<TEXT_LABEL id="2">
 				<variable>1 - fc.GetSAS()</variable>
 			</TEXT_LABEL>
+		</prop>
+		
+		<style name="SH02 AG">
+			<!--
+			SH02 in the ModulePushButton_V0.2 documentation.
+			Horizontal split cap, single collider, no border.
+			Top half backlit green, unlit text.
+			Bottom half text glows amber when active.
+			Use for Action Group displays
+			-->
+			<MODEL id="0">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_SplitHorizontal_Cap</model>
+				<texture>pb_Full_Cap_Black,ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap_Black</texture>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Collider</model>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<collider>pb_Collider</collider>
+				<sound>ASET/ASET_Props/Sounds/pb_Push02</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<name>Button press animation</name>
+				<animation>pb_PushAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<name>Upper Legend</name>
+				<transform>Legend_Upper</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>never</emissive>
+				<passiveColor>COLOR_MOARdV_UnlitBlackText</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Lower Legend</name>
+				<transform>Legend_Lower</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<passiveColor>COLOR_MOARdV_PassiveBacklightText</passiveColor>
+				<activeColor>COLOR_MOARdV_IndicatorLampAmber</activeColor>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>Upper Panel</name>
+				<transform>pb_SH_TopLens_obj</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_MOARdV_IndicatorPanelGreen</activeColor>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<name>Upper Panel</name>
+				<transform>pb_SH_TopLens_obj</transform>
+				<startUV>0, 0</startUV>
+				<endUV>0, -0.5</endUV>
+				<layers>_Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_pb_SH02_AG0</name>
+			<style>SH02 AG</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Action Group toggle.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(0)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(0)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>AG 0</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>AG 0</text>
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(0) and not fc.GetActionGroup(0))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(0) and fc.GetActionGroup(0))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(0) and fc.GetActionGroup(0))</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_pb_SH02_AG1</name>
+			<style>SH02 AG</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Action Group toggle.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(1)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(1)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>AG 1</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>AG 1</text>
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(1) and not fc.GetActionGroup(1))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(1) and fc.GetActionGroup(1))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(1) and fc.GetActionGroup(1))</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_pb_SH02_AG2</name>
+			<style>SH02 AG</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Action Group toggle.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(2)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(2)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>AG 2</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>AG 2</text>
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(2) and not fc.GetActionGroup(2))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(2) and fc.GetActionGroup(2))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(2) and fc.GetActionGroup(2))</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_pb_SH02_AG3</name>
+			<style>SH02 AG</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Action Group toggle.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(3)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(3)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>AG 3</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>AG 3</text>
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(3) and not fc.GetActionGroup(3))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(3) and fc.GetActionGroup(3))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(3) and fc.GetActionGroup(3))</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_pb_SH02_AG4</name>
+			<style>SH02 AG</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Action Group toggle.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(4)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(4)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>AG 4</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>AG 4</text>
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(4) and not fc.GetActionGroup(4))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(4) and fc.GetActionGroup(4))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(4) and fc.GetActionGroup(4))</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_pb_SH02_AG5</name>
+			<style>SH02 AG</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Action Group toggle.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(5)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(5)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>AG 5</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>AG 5</text>
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(5) and not fc.GetActionGroup(5))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(5) and fc.GetActionGroup(5))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(5) and fc.GetActionGroup(5))</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_pb_SH02_AG6</name>
+			<style>SH02 AG</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Action Group toggle.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(6)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(6)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>AG 6</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>AG 6</text>
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(6) and not fc.GetActionGroup(6))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(6) and fc.GetActionGroup(6))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(6) and fc.GetActionGroup(6))</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_pb_SH02_AG7</name>
+			<style>SH02 AG</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Action Group toggle.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(7)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(7)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>AG 7</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>AG 7</text>
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(7) and not fc.GetActionGroup(7))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(7) and fc.GetActionGroup(7))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(7) and fc.GetActionGroup(7))</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_pb_SH02_AG8</name>
+			<style>SH02 AG</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Action Group toggle.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(8)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(8)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>AG 8</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>AG 8</text>
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(8) and not fc.GetActionGroup(8))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(8) and fc.GetActionGroup(8))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(8) and fc.GetActionGroup(8))</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_pb_SH02_AG9</name>
+			<style>SH02 AG</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Action Group toggle.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(9)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(9)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>AG 9</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>AG 9</text>
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(9) and not fc.GetActionGroup(9))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(9) and fc.GetActionGroup(9))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(fc.ActionGroupHasActions(9) and fc.GetActionGroup(9))</variable>
+			</TEXTURE_SHIFT>
 		</prop>
 	</PushButton>
 </PropConfig>
