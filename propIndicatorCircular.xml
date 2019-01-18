@@ -160,26 +160,26 @@
 			<name>MAS_IndicatorCircular_GForce</name>
 			<style>Standard Circular Indicator</style>
 			<ANIMATION>
-				<variable>0.25 * (3.95 - fc.GForce())</variable>
+				<variable>0.25 * (4 - fc.GForce()) + 0.01</variable>
 			</ANIMATION>
 			<TEXT_LABEL id="0">
 				<text>G-Force:</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
-				<text>{0,6:0.0} $#$ fc.GForce()</text>
+				<text>{0,6:0.00} $#$ fc.GForce()</text>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
 			<name>MAS_IndicatorCircular_Propellant</name>
 			<style>Standard Circular Indicator</style>
 			<ANIMATION>
-				<variable>fc.PropellantPercent()</variable>
+				<variable>fc.PropellantStagePercent()</variable>
 			</ANIMATION>
 			<TEXT_LABEL id="0">
 				<text>Propellant:</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
-				<text>{0,6:0} $#$ fc.PropellantCurrent()</text>
+				<text>{0,6:0} $#$ fc.PropellantStageCurrent()</text>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
