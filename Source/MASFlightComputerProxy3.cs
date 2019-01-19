@@ -3753,8 +3753,9 @@ namespace AvionicsSystems
         /// `trueValue` and `falseValue` may be numbers or strings.  They do not *have* to
         /// be the same type.
         /// 
-        /// `condition` must be a boolean value.  For example, `fc.GetActionGroup(0)` returns
-        /// a number.  To make it a boolean, you would need to use `fc.GetActionGroup(0) == 1`.
+        /// `condition` may be either a boolean value or a number.  If it a a number, then
+        /// `trueValue` is returned if `condition` is greater than zero.  `falseValue` is
+        /// returned if `condition` is equal to or less than zero.
         /// </summary>
         /// <param name="condition">The condition that selects the value.</param>
         /// <param name="trueValue">The value returned when `condition` is true.</param>
@@ -3763,6 +3764,19 @@ namespace AvionicsSystems
         public object Select(bool condition, object trueValue, object falseValue)
         {
             if (condition)
+            {
+                return trueValue;
+            }
+            else
+            {
+                return falseValue;
+            }
+        }
+
+        [MASProxy(Dependent = true)]
+        public object Select(double condition, object trueValue, object falseValue)
+        {
+            if (condition > 0.0)
             {
                 return trueValue;
             }
