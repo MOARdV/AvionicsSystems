@@ -640,11 +640,11 @@ namespace AvionicsSystems
         /// </summary>
         #region Launch Site
 
+        [MASProxy(Immutable = true)]
         /// <summary>
         /// The latitude of the vessel's launch site.
         /// </summary>
         /// <returns></returns>
-        [MASProxy(Immutable = true)]
         public double LaunchSiteLatitude()
         {
             if (launchSite != null)
@@ -655,11 +655,11 @@ namespace AvionicsSystems
             return 0.0;
         }
 
+        [MASProxy(Immutable = true)]
         /// <summary>
         /// The longitude of the vessel's launch site.
         /// </summary>
         /// <returns></returns>
-        [MASProxy(Immutable = true)]
         public double LaunchSiteLongitude()
         {
             if (launchSite != null)
@@ -670,11 +670,11 @@ namespace AvionicsSystems
             return 0.0;
         }
 
+        [MASProxy(Immutable = true)]
         /// <summary>
         /// The name of the vessel's launch site.
         /// </summary>
         /// <returns></returns>
-        [MASProxy(Immutable = true)]
         public string LaunchSiteName()
         {
             if (launchSite != null)
