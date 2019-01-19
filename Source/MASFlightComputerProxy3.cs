@@ -825,6 +825,17 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Toggles the lock / unlock state of each resource container for `resourceId`.
+        /// Locked resources are unlocked, unlocked resources are locked.
+        /// </summary>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
+        /// <returns>1 if the resource is present on the vessel, 0 otherwise.</returns>
+        public double ToggleResourceLock(object resourceId)
+        {
+            return vc.ToggleResource(resourceId);
+        }
+
+        /// <summary>
         /// Returns 1 when there is at least 0.0001 units of power available
         /// to the craft.  By default, 'power' is the ElectricCharge resource,
         /// but users may change that in the MAS config file.

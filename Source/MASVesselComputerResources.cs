@@ -480,6 +480,27 @@ namespace AvionicsSystems
             return false;
         }
 
+        internal float ToggleResource(object resourceId)
+        {
+            int index = GetResourceIndex(resourceId);
+            if (index >= 0 && index < resources.Length)
+            {
+                List<PartResource> pr = resources[index].partResources;
+                int resourceQty = pr.Count;
+                if (resourceQty > 0)
+                {
+                    for (int i = 0; i < resourceQty; ++i)
+                    {
+                        pr[i].flowState = !pr[i].flowState;
+                    }
+
+                    return 1.0f;
+                }
+            }
+
+            return 0.0f;
+        }
+
         internal float UnlockAllResources()
         {
             float returnV = 0.0f;
