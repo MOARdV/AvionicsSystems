@@ -982,7 +982,7 @@ namespace AvionicsSystems
         [MASProxy(Dependent = true)]
         /// <summary>
         /// Converts the supplied RGB value into a MAS text color tag
-        /// (eg, `fc.HexColor(255, 255, 0)` returns "[#ffff00]").
+        /// (eg, `fc.ColorTag(255, 255, 0)` returns "[#ffff00]").
         /// This value is slightly more efficient if you do not need to
         /// change the alpha channel.
         /// 
@@ -1003,7 +1003,7 @@ namespace AvionicsSystems
         [MASProxy(Dependent = true)]
         /// <summary>
         /// Converts the supplied RGBA value into a MAS text color tag
-        /// (eg, `fc.HexColor(255, 255, 0, 255)` returns "[#ffff00ff]").
+        /// (eg, `fc.ColorTag(255, 255, 0, 255)` returns "[#ffff00ff]").
         /// 
         /// All values are clamped to the range 0 to 255.
         /// </summary>
