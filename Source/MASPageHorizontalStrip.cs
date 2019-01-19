@@ -179,7 +179,6 @@ namespace AvionicsSystems
                     position.y = (float)newValue;
                     imageObject.transform.position = componentOrigin + new Vector3(position.x, -position.y, 0.0f);
                 });
-
             }
 
             variableRegistrar.RegisterVariableChangeCallback(inputName, InputCallback);

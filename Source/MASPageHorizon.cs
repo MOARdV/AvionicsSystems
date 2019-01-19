@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -42,6 +42,8 @@ namespace AvionicsSystems
         private float displayRollRange1, displayRollRange2;
         private float lastRoll = 0.0f;
         private float oldPitchCenter = -1.0f;
+        private Vector2 position = Vector2.zero;
+        private Vector3 componentOrigin = Vector3.zero;
 
         internal MASPageHorizon(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
             : base(config, prop, comp)
@@ -57,12 +59,6 @@ namespace AvionicsSystems
                 throw new ArgumentException("Unable to find 'texture' " + textureName + " for HORIZON " + name);
             }
             mainTexture.wrapMode = TextureWrapMode.Clamp;
-
-            Vector2 position = Vector2.zero;
-            if (!config.TryGetValue("position", ref position))
-            {
-                throw new ArgumentException("Unable to find 'position' in HORIZON " + name);
-            }
 
             Vector2 size = Vector2.zero;
             if (!config.TryGetValue("size", ref size))
@@ -151,6 +147,8 @@ namespace AvionicsSystems
                 variableName = variableName.Trim();
             }
 
+            componentOrigin = pageRoot.position + new Vector3(monitor.screenSize.x * -0.5f, monitor.screenSize.y * 0.5f, depth);
+
             // Set up our display surface.
             imageObject = new GameObject();
             imageObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
@@ -204,6 +202,54 @@ namespace AvionicsSystems
             meshRenderer.material = imageMaterial;
             imageMaterial.SetVector("_ClipCoords", clipCoords);
             RenderPage(false);
+
+            string positionString = string.Empty;
+            if (!config.TryGetValue("position", ref positionString))
+            {
+                throw new ArgumentException("Unable to find 'position' in HORIZON " + name);
+            }
+            else
+            {
+                string[] pos = Utility.SplitVariableList(positionString);
+                if (pos.Length != 2)
+                {
+                    throw new ArgumentException("Invalid number of values for 'position' in HORIZON " + name);
+                }
+
+                variableRegistrar.RegisterVariableChangeCallback(pos[0], (double newValue) =>
+                {
+                    position.x = (float)newValue;
+                    imageObject.transform.position = componentOrigin + new Vector3(position.x, -position.y, 0.0f);
+
+                    Vector4 clipC = new Vector4(
+                position.x - size.x * 0.5f, position.y - size.y * 0.5f,
+                position.x + size.x * 0.5f, position.y + size.y * 0.5f
+                );
+
+                    clipC.x /= monitor.screenSize.x * 0.5f;
+                    clipC.y /= monitor.screenSize.y * 0.5f;
+                    clipC.z /= monitor.screenSize.x * 0.5f;
+                    clipC.w /= monitor.screenSize.y * 0.5f;
+                    imageMaterial.SetVector("_ClipCoords", clipC);
+                });
+
+                variableRegistrar.RegisterVariableChangeCallback(pos[1], (double newValue) =>
+                {
+                    position.y = (float)newValue;
+                    imageObject.transform.position = componentOrigin + new Vector3(position.x, -position.y, 0.0f);
+
+                    Vector4 clipC = new Vector4(
+                position.x - size.x * 0.5f, position.y - size.y * 0.5f,
+                position.x + size.x * 0.5f, position.y + size.y * 0.5f
+                );
+
+                    clipC.x /= monitor.screenSize.x * 0.5f;
+                    clipC.y /= monitor.screenSize.y * 0.5f;
+                    clipC.z /= monitor.screenSize.x * 0.5f;
+                    clipC.w /= monitor.screenSize.y * 0.5f;
+                    imageMaterial.SetVector("_ClipCoords", clipC);
+                });
+            }
 
             variableRegistrar.RegisterVariableChangeCallback(pitchName, PitchCallback);
             variableRegistrar.RegisterVariableChangeCallback(rollName, RollCallback);

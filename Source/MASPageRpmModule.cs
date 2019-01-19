@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2017-2018 MOARdV
+ * Copyright (c) 2017-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -41,6 +41,8 @@ namespace AvionicsSystems
         private Material imageMaterial;
         private RenderTexture displayTexture;
         private RenderTexture renderTexture;
+        private Vector2 position = Vector2.zero;
+        private Vector3 componentOrigin = Vector3.zero;
 
         private object rpmModule;
         private Func<object, RenderTexture, float, object> renderMethod;
@@ -55,12 +57,6 @@ namespace AvionicsSystems
             : base(config, prop, comp)
         {
             this.comp = comp;
-
-            Vector2 position = Vector2.zero;
-            if (!config.TryGetValue("position", ref position))
-            {
-                position = Vector2.zero;
-            }
 
             Vector2 size = Vector2.zero;
             if (!config.TryGetValue("size", ref size))
@@ -167,6 +163,8 @@ namespace AvionicsSystems
                 }
             }
 
+            componentOrigin = pageRoot.position + new Vector3(monitor.screenSize.x * -0.5f + size.x * 0.5f, monitor.screenSize.y * 0.5f - size.y * 0.5f, depth);
+
             // Set up our surface.
             imageObject = new GameObject();
             imageObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
@@ -200,6 +198,30 @@ namespace AvionicsSystems
             mesh.RecalculateBounds();
             mesh.UploadMeshData(true);
             meshFilter.mesh = mesh;
+
+            string positionString = string.Empty;
+            if (!config.TryGetValue("position", ref positionString))
+            {
+                positionString = "0,0";
+            }
+
+            string[] pos = Utility.SplitVariableList(positionString);
+            if (pos.Length != 2)
+            {
+                throw new ArgumentException("Invalid number of values for 'position' in RPM_MODULE " + name);
+            }
+
+            variableRegistrar.RegisterVariableChangeCallback(pos[0], (double newValue) =>
+            {
+                position.x = (float)newValue;
+                imageObject.transform.position = componentOrigin + new Vector3(position.x, -position.y, 0.0f);
+            });
+
+            variableRegistrar.RegisterVariableChangeCallback(pos[1], (double newValue) =>
+            {
+                position.y = (float)newValue;
+                imageObject.transform.position = componentOrigin + new Vector3(position.x, -position.y, 0.0f);
+            });
 
             imageMaterial = new Material(MASLoader.shaders["MOARdV/Monitor"]);
             imageMaterial.mainTexture = displayTexture;
