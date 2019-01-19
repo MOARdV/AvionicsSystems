@@ -73,7 +73,6 @@
     <Compile Include="Source\MASComponentTriggerEvent.cs" />
     <Compile Include="Source\MASIdEngineGroup.cs" />
     <Compile Include="Source\MASIKerbalEngineer.cs" />
-    <Compile Include="Source\MASNavBallRenderer.cs" />
     <Compile Include="Source\MASPageCompoundText.cs" />
     <Compile Include="Source\MASConfig.cs" />
     <Compile Include="Source\MASContextMenu.cs" />
