@@ -30,7 +30,7 @@ Documentation for MOARdV's Avionics Systems is
 Copyright (c) 2016-2019 MOARdV.  All Rights Reserved.
 
 You may distribute unaltered versions of the documentation, either with this
-plugin or separately, but please do not distrubute altered versions of this documentation.
+plugin or separately, but please do not distribute altered versions of this documentation.
 
 ---
 
