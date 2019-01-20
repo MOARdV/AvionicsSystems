@@ -2,7 +2,7 @@
 /*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -906,6 +906,15 @@ namespace AvionicsSystems
                 }
                 Func<object, bool, object, object, object> dm = DynamicMethodFactory.CreateFunc<object, bool, object, object, object>(method);
                 return new GenericVariable(canonical, () => dm(tableInstance, parms[0].AsBool(), parms[1].AsObject(), parms[2].AsObject()), cacheable, mutable, Variable.VariableType.Func);
+            }
+            else if (methodParams[0].ParameterType == typeof(double) && methodParams[1].ParameterType == typeof(object) && methodParams[2].ParameterType == typeof(object))
+            {
+                if (methodReturn != typeof(object))
+                {
+                    Utility.LogWarning(this, "(double, double, double) -> {0} could be optimized for {1}", methodReturn.ToString(), canonical);
+                }
+                Func<object, double, object, object, object> dm = DynamicMethodFactory.CreateFunc<object, double, object, object, object>(method);
+                return new GenericVariable(canonical, () => dm(tableInstance, parms[0].AsDouble(), parms[1].AsObject(), parms[2].AsObject()), cacheable, mutable, Variable.VariableType.Func);
             }
             else
             {
