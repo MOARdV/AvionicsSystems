@@ -1362,6 +1362,78 @@ namespace AvionicsSystems
         // For a bootstrap to interpreting science values, see https://github.com/KerboKatz/AutomatedScienceSampler/blob/master/source/AutomatedScienceSampler/DefaultActivator.cs
 
         /// <summary>
+        /// Returns the name of the biome where the experiment `experimentId` was conducted.
+        ///  
+        /// If `experimentId` does not refer to a valid experiment, or if the selected experiment
+        /// has not been run, or a biome does not apply (such as when in orbit), an empty string is returned.
+        /// </summary>
+        /// <param name="experimentId">An integer between 0 and `fc.ExperimentTotal()` - 1, inclusive.</param>
+        /// <returns>The name of the biome, or an empty string.</returns>
+        public string ExperimentBiome(double experimentId)
+        {
+            int id = (int)experimentId;
+            if (id >= 0 && id < vc.moduleScienceExperiment.Length)
+            {
+                ModuleScienceExperiment mse = vc.moduleScienceExperiment[id];
+                if (mse.Deployed)
+                {
+                    ScienceData[] data = mse.GetData();
+                    if (data.Length > 0)
+                    {
+                        string bodyName;
+                        ExperimentSituations situation;
+                        string biome;
+
+                        ScienceUtil.GetExperimentFieldsFromScienceID(data[0].subjectID, out bodyName, out situation, out biome);
+                        CelestialBody body = SelectBody(bodyName);
+                        if (body != null)
+                        {
+                            return ScienceUtil.GetBiomedisplayName(body, biome);
+                        }
+                    }
+                }
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Returns the name of the situation where the experiment `experimentId` was conducted.
+        ///  
+        /// If `experimentId` does not refer to a valid experiment, or if the selected experiment
+        /// has not been run, or a situaion does not apply, an empty string is returned.
+        /// </summary>
+        /// <param name="experimentId">An integer between 0 and `fc.ExperimentTotal()` - 1, inclusive.</param>
+        /// <returns>The name of the biome, or an empty string.</returns>
+        public string ExperimentSituation(double experimentId)
+        {
+            int id = (int)experimentId;
+            if (id >= 0 && id < vc.moduleScienceExperiment.Length)
+            {
+                ModuleScienceExperiment mse = vc.moduleScienceExperiment[id];
+                if (mse.Deployed)
+                {
+                    ScienceData[] data = mse.GetData();
+                    if (data.Length > 0)
+                    {
+                        string bodyName;
+                        ExperimentSituations situation;
+                        string biome;
+
+                        ScienceUtil.GetExperimentFieldsFromScienceID(data[0].subjectID, out bodyName, out situation, out biome);
+                        CelestialBody body = SelectBody(bodyName);
+                        if (body != null)
+                        {
+                            return situation.displayDescription();
+                        }
+                    }
+                }
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Returns the status of the selected `experimentId`.
         /// 
         /// * +1: Experiment has run, results are available.
@@ -1401,6 +1473,24 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the data transmission scalar for the experiment `experimentId`.
+        /// </summary>
+        /// <param name="experimentId">An integer between 0 and `fc.ExperimentTotal()` - 1, inclusive.</param>
+        /// <returns>The data transmission scalar, or 0 if an invalid `experimentid` is supplied.</returns>
+        public double ExperimentTransmissionScalar(double experimentId)
+        {
+            int id = (int)experimentId;
+            if (id >= 0 && id < vc.moduleScienceExperiment.Length)
+            {
+                ModuleScienceExperiment mse = vc.moduleScienceExperiment[id];
+
+                return mse.xmitDataScalar;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the type of experiment the experiment `experimentId` contains.
         /// 
         /// Returns an empty string if `experimentId` is invalid.
@@ -1427,6 +1517,32 @@ namespace AvionicsSystems
         public double ExperimentTotal()
         {
             return vc.moduleScienceExperiment.Length;
+        }
+
+        /// <summary>
+        /// Run the selected experiment.
+        /// 
+        /// If the experiment has already been run, this function has no effect.
+        /// 
+        /// Note that the science dialog is displayed after running an experiment.
+        /// </summary>
+        /// <param name="experimentId">An integer between 0 and `fc.ExperimentTotal()` - 1, inclusive.</param>
+        /// <returns>1 if the experiment was run, 0 if it was not.</returns>
+        public double RunExperiment(double experimentId)
+        {
+            int id = (int)experimentId;
+            if (id >= 0 && id < vc.moduleScienceExperiment.Length)
+            {
+                ModuleScienceExperiment mse = vc.moduleScienceExperiment[id];
+
+                if (!mse.Deployed)
+                {
+                    mse.DeployExperiment();
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
         }
 
         /// <summary>
