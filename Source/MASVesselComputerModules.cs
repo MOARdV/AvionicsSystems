@@ -83,6 +83,11 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Air Brakes
+        private List<ModuleAeroSurface> airBrakeList = new List<ModuleAeroSurface>();
+        internal ModuleAeroSurface[] moduleAirBrake = new ModuleAeroSurface[0];
+        #endregion
+
         #region Aircraft Engines
         private List<MASThrustReverser> thrustReverserList = new List<MASThrustReverser>();
         internal MASThrustReverser[] moduleThrustReverser = new MASThrustReverser[0];
@@ -1399,6 +1404,10 @@ namespace AvionicsSystems
                         {
                             scienceExperimentList.Add(module as ModuleScienceExperiment);
                         }
+                        else if (module is ModuleAeroSurface)
+                        {
+                            airBrakeList.Add(module as ModuleAeroSurface);
+                        }
 
                         foreach (BaseAction ba in module.Actions)
                         {
@@ -1447,6 +1456,7 @@ namespace AvionicsSystems
                 invMaxISP[i] = 1.0f / maxIsp;
             }
 
+            TransferModules<ModuleAeroSurface>(airBrakeList, ref moduleAirBrake);
             TransferModules<ModuleAlternator>(alternatorList, ref moduleAlternator);
             TransferModules<ModuleAblator>(ablatorList, ref moduleAblator);
             TransferModules<ModuleCargoBay>(cargoBayList, ref moduleCargoBay);

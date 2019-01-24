@@ -1589,7 +1589,7 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// Variables related to a vessel's brakes are in this category.
+        /// Variables related to a vessel's brakes and air brakes are in this category.
         /// </summary>
         #region Brakes
         /// <summary>
@@ -1599,6 +1599,45 @@ namespace AvionicsSystems
         public double BrakesHasActions()
         {
             return (vc.GroupHasActions(KSPActionGroup.Brakes)) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the number of air brakes installed on the vessel.
+        /// 
+        /// Air brakes are defined as parts that have ModuleAeroSurface installed.
+        /// </summary>
+        /// <returns>0 or more.</returns>
+        public double GetAirBrakeCount()
+        {
+            int i = 0;
+            foreach (var bob in vc.moduleAirBrake)
+            {
+                Utility.LogMessage(this, "ab{1}: deploy = {0}",
+                    bob.deploy,
+                    i
+                    );
+            }
+            return vc.moduleAirBrake.Length;
+        }
+
+        /// <summary>
+        /// Returns 1 if any air brakes are deployed.  Returns 0 if no air brakes are deployed.
+        /// 
+        /// A future update *may* return a number between 0 and 1 to report the amount of
+        /// brake deployment.
+        /// </summary>
+        /// <returns>1 for air brakes deployed, 0 for no air brakes deployed, or no air brakes.</returns>
+        public double GetAirBrakes()
+        {
+            for (int i = vc.moduleAirBrake.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleAirBrake[i].deploy)
+                {
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
         }
 
         /// <summary>
@@ -1659,6 +1698,28 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Set the state of the air brakes.
+        /// </summary>
+        /// <returns>1 if air brakes are now deployed, 0 if they are now retracted or if there are no air brakes.</returns>
+        public double SetAirBrakes(bool active)
+        {
+            int numBrakes = vc.moduleAirBrake.Length;
+            if (numBrakes > 0)
+            {
+                for (int i = 0; i < numBrakes; ++i)
+                {
+                    vc.moduleAirBrake[i].deploy = active;
+                }
+
+                return active ? 1.0 : 0.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Set the brake action group to the specified state.
         /// </summary>
         /// <param name="active">Sets the state of the brakes</param>
@@ -1667,6 +1728,26 @@ namespace AvionicsSystems
         {
             vessel.ActionGroups.SetGroup(KSPActionGroup.Brakes, active);
             return (active) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Toggle the state of the air brakes.
+        /// </summary>
+        /// <returns>1 if air brakes are now deployed, 0 if they are now retracted or if there are no air brakes.</returns>
+        public double ToggleAirBrakes()
+        {
+            int numBrakes = vc.moduleAirBrake.Length;
+            bool nowDeployed = false;
+            if (numBrakes > 0)
+            {
+                nowDeployed = !vc.moduleAirBrake[0].deploy;
+                for (int i = 0; i < numBrakes; ++i)
+                {
+                    vc.moduleAirBrake[i].deploy = nowDeployed;
+                }
+            }
+
+            return nowDeployed ? 1.0 : 0.0;
         }
 
         /// <summary>
