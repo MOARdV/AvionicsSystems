@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2018 MOARdV
+ * Copyright (c) 2018-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -61,11 +61,17 @@ namespace AvionicsSystems
 
         private bool updateMenu = true;
 
+        private void NoOp() { }
+
         internal MASPageMenu(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
             : base(config, prop, comp)
         {
             this.prop = prop;
             this.comp = comp;
+            this.softkeyUpAction = NoOp;
+            this.softkeyDownAction = NoOp;
+            this.softkeyHomeAction = NoOp;
+            this.softkeyEndAction = NoOp;
 
             if (!config.TryGetValue("maxLines", ref maxLines))
             {
@@ -214,9 +220,9 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("No valid ITEM nodes in MENU " + name);
             }
-            menuItems = itemNodes.ToArray();
             if (string.IsNullOrEmpty(itemCountStr))
             {
+                menuItems = itemNodes.ToArray();
                 numMenuItems = menuItems.Length;
 
                 softkeyUpAction = comp.GetAction(string.Format("fc.AddPersistentWrapped(\"{0}\", -1, 0, {1})", cursorPersistentName, numMenuItems), prop);
@@ -330,7 +336,7 @@ namespace AvionicsSystems
                 {
                     if (numLines == 0)
                     {
-                        cursorPosition = 0; 
+                        cursorPosition = 0;
                         topLine = 0;
                     }
                     else if (cursorPosition < topLine)
@@ -405,7 +411,10 @@ namespace AvionicsSystems
             }
             else if (keyId == enterSoftkey)
             {
-                menuItems[cursorPosition].TriggerAction();
+                if (cursorPosition < numMenuItems)
+                {
+                    menuItems[cursorPosition].TriggerAction();
+                }
                 updateMenu = true;
                 return true;
             }
