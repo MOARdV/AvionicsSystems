@@ -2263,6 +2263,69 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the geometric angle of the target's position when projected onto the vessel's
+        /// X/Y plane.
+        /// 
+        /// Combined with `fc.TargetAxialDistance()`, this angle can be used to determine where the
+        /// target is relative to the vessel's nose.  The angle and distance can also be used to
+        /// compute `fc.TargetDistanceX()` and `fc.TargetDistanceY()`.
+        /// 
+        /// An angle of 0 indicates the target lies directly along the +X axis.  An angle of
+        /// 90 indicates it lies on the +Y axis.
+        /// </summary>
+        /// <returns>Axial angle in degrees, or 0 if there is no target.</returns>
+        public double TargetAxialAngle()
+        {
+            if (vc.targetType > 0)
+            {
+                double displacementX = Vector3.Dot(vc.targetDisplacement, vc.referenceTransform.right);
+                double displacementY = -Vector3.Dot(vc.targetDisplacement, vc.referenceTransform.forward);
+
+                return Math.Atan2(displacementY, displacementX);
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the axial displacement of the target relative to the nose of the vessel.
+        /// 
+        /// The axial displacement
+        /// indicates how far away the target is from a line extending directly from the front of the vessel
+        /// (or from the current reference part / docking port).
+        /// </summary>
+        /// <returns>Axial displacement in meters, or 0 if there is no target.</returns>
+        public double TargetAxialDistance()
+        {
+            if (vc.targetType > 0)
+            {
+                double displacementX = Vector3.Dot(vc.targetDisplacement, vc.referenceTransform.right);
+                double displacementY = Vector3.Dot(vc.targetDisplacement, vc.referenceTransform.forward);
+
+                return Math.Sqrt(displacementX * displacementX + displacementY * displacementY);
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the relative axial velocity of the target relative to the nose of the vessel.
+        /// </summary>
+        /// <returns>Axial velocity in m/s, or 0 if there is no target.</returns>
+        public double TargetAxialVelocity()
+        {
+            if (vc.targetType > 0)
+            {
+                double velocityX = Vector3.Dot(vc.targetRelativeVelocity, vc.referenceTransform.right);
+                double velocityY = -Vector3.Dot(vc.targetRelativeVelocity, vc.referenceTransform.forward);
+
+                return Math.Sqrt(velocityX * velocityX + velocityY * velocityY);
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the target's apoapsis.
         /// </summary>
         /// <returns>Target's Ap in meters, or 0 if there is no target.</returns>
