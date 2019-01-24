@@ -153,14 +153,7 @@
     <Compile Include="Source\Variable.cs" />
     <Compile Include="Source\VariableRegistrar.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Documents\MOARdV_IVA_Design.txt" />
-    <Content Include="Documents\ReadMe-Documents.txt" />
-    <Content Include="Documents\RPM-VariableList.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Examples\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetPath) "D:\Games\KSP-IVA\GameData\MOARdV\AvionicsSystems"
