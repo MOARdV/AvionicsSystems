@@ -3844,6 +3844,17 @@ namespace AvionicsSystems
 
         [MASProxy(Dependent = true)]
         /// <summary>
+        /// Returns 1 if `condition` is true, 0 if it is false.
+        /// </summary>
+        /// <param name="condition">The condition to test</param>
+        /// <returns>1 if `condition` is true, 0 if it is false.</returns>
+        public double BoolToNumber(bool condition)
+        {
+            return (condition) ? 1.0 : 0.0;
+        }
+
+        [MASProxy(Dependent = true)]
+        /// <summary>
         /// Remaps `value` from the range [`bound1`, `bound2`] to the range
         /// [`map1`, `map2`].
         /// 
