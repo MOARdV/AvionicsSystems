@@ -1957,6 +1957,35 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the angle between the prograde vector of the orbit and the horizon when
+        /// the vessel crosses the specified altitude.  If an invalid altitude is specified,
+        /// returns 0.
+        /// 
+        /// This computation is based on unpowered flight, and it does not account for any effects
+        /// caused by atmospheric lift.  It also does not account for surface-relative motion, so it
+        /// is not a good indicator for impact angle.
+        /// </summary>
+        /// <param name="altitude">The altitude above datum / sea level, in meters, at which the angle will be computed.</param>
+        /// <returns>The flight path angle, in degrees, or 0.</returns>
+        public double FlightPathAngle(double altitude)
+        {
+            if (vc.orbit.ApA >= altitude && vc.orbit.PeA <= altitude && vc.orbit.eccentricity < 1.0)
+            {
+                double timeAtRadius = Utility.NextTimeToRadius(vc.orbit, altitude + vc.orbit.referenceBody.Radius);
+
+                if (timeAtRadius > 0.0)
+                {
+                    Vector3d position, vel;
+                    double whatsThis = vc.orbit.GetOrbitalStateVectorsAtUT(timeAtRadius + vc.universalTime, out position, out vel);
+
+                    return 90.0 - Vector3d.Angle(position, vel);
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Return heading relative to the surface in degrees [0, 360)
         /// </summary>
         /// <returns></returns>
