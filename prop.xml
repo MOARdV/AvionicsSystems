@@ -1860,7 +1860,7 @@
 				<variable>fc.GetPersistentAsNumber("MAS_Generic_SpotLight")</variable>
 			</ROTATION>
 			<TEXT_LABEL>
-				<text>PRIMARY$$$LIGHT</text>
+				<text>SPOT$$$LIGHT</text>
 			</TEXT_LABEL>
 			<INT_LIGHT>
 				<lightName>Spotlight</lightName>
