@@ -1789,6 +1789,26 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the index of the camera (if any) attached to the current reference docking port.
+        /// If the reference transform is not a docking port, or there is no camera on the reference
+        /// docking port, -1 is returned.
+        /// </summary>
+        /// <returns>The index between 0 and `fc.CameraCount()` - 1, or -1 if there is no camera on the current docking port, or a docking port camera is not active.</returns>
+        public double ActiveDockingPortCameraIndex()
+        {
+            if (vc.dockingNode != null && vc.dockingNode.part == vessel.GetReferenceTransformPart())
+            {
+                MASCamera cam = vc.dockingNode.part.FindModuleImplementing<MASCamera>();
+                if (cam != null)
+                {
+                    return 0.0;
+                }
+            }
+
+            return -1.0;
+        }
+
+        /// <summary>
         /// Adjusts the field of view setting on the selected camera.
         /// </summary>
         /// <returns>The new field of view setting, or 0 if an invalid index was supplied.</returns>
