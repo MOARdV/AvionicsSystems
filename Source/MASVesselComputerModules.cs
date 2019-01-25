@@ -324,6 +324,7 @@ namespace AvionicsSystems
 
             this.dockingNode = dockingNode;
         }
+
         private void UpdateDockingNodeState()
         {
             if (dockingNode != null)
@@ -1500,12 +1501,7 @@ namespace AvionicsSystems
                 ((double)scanTime.Ticks) / ((double)TimeSpan.TicksPerMillisecond),
                 ((double)transferTime.Ticks) / ((double)TimeSpan.TicksPerMillisecond));
 #endif
-
-            if (_referenceTransform != null)
-            {
-                // In case we ejected our docking port...
-                UpdateDockingNode(_referenceTransform.gameObject.GetComponent<Part>());
-            }
+            UpdateDockingNode(vessel.GetReferenceTransformPart());
         }
 
 #if TIME_UPDATES

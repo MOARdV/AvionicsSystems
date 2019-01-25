@@ -56,7 +56,7 @@ namespace AvionicsSystems
             {
                 if (_referenceTransform == null)
                 {
-                    UpdateReferenceTransform(vessel.ReferenceTransform, true);
+                    UpdateReferenceTransform(vessel.GetReferenceTransformPart(), true);
                 }
                 return _referenceTransform;
             }
@@ -224,7 +224,7 @@ namespace AvionicsSystems
                 // GetReferenceTransformPart() seems to be pointing at the
                 // previous part when the callback fires, so I use this hack
                 // to manually recompute it here.
-                UpdateReferenceTransform(vessel.ReferenceTransform, false);
+                UpdateReferenceTransform(vessel.GetReferenceTransformPart(), false);
 
                 // If there was a mouse double-click event, and we think there's
                 // a target, and KSP says there isn't a target, the user likely
@@ -333,7 +333,7 @@ namespace AvionicsSystems
 
             InitResourceData();
 
-            UpdateReferenceTransform(vessel.ReferenceTransform, true);
+            UpdateReferenceTransform(vessel.GetReferenceTransformPart(), true);
             vesselCrewed = (vessel.GetCrewCount() > 0);
             vesselActive = ActiveVessel(vessel);
             if (vesselCrewed)
@@ -1259,8 +1259,15 @@ namespace AvionicsSystems
             aeroDataValid = false;
         }
 
-        private void UpdateReferenceTransform(Transform newRefXform, bool forceEvaluate)
+        private void UpdateReferenceTransform(Part referencePart, bool forceEvaluate)
         {
+            if (referencePart == null)
+            {
+                Utility.LogWarning(this, "UpdateReferenceTransform(): referencePart is null?");
+                return;
+            }
+
+            Transform newRefXform = (referencePart == null) ? null : referencePart.GetReferenceTransform();
             if (_referenceTransform == newRefXform && !forceEvaluate)
             {
                 return;
@@ -1269,29 +1276,25 @@ namespace AvionicsSystems
             _referenceTransform = newRefXform;
             referenceTransformType = ReferenceType.Unknown;
 
-            Part referencePart = _referenceTransform.gameObject.GetComponent<Part>();
-            if (referencePart != null)
+            if (referencePart.Modules.GetModule<ModuleCommand>() != null)
             {
-                if (referencePart.Modules.GetModule<ModuleCommand>() != null)
+                referenceTransformType = ReferenceType.RemoteCommand;
+                if (CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA)
                 {
-                    referenceTransformType = ReferenceType.RemoteCommand;
-                    if (CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA)
+                    Kerbal refKerbal = CameraManager.Instance.IVACameraActiveKerbal;
+                    if (refKerbal != null && refKerbal.InPart == referencePart)
                     {
-                        Kerbal refKerbal = CameraManager.Instance.IVACameraActiveKerbal;
-                        if (refKerbal != null && refKerbal.InPart == referencePart)
-                        {
-                            referenceTransformType = ReferenceType.Self;
-                        }
+                        referenceTransformType = ReferenceType.Self;
                     }
                 }
-                else if (referencePart.Modules.GetModule<ModuleDockingNode>() != null)
-                {
-                    referenceTransformType = ReferenceType.DockingPort;
-                }
-                else if (referencePart.Modules.GetModule<ModuleGrappleNode>() != null)
-                {
-                    referenceTransformType = ReferenceType.Claw;
-                }
+            }
+            else if (referencePart.Modules.GetModule<ModuleDockingNode>() != null)
+            {
+                referenceTransformType = ReferenceType.DockingPort;
+            }
+            else if (referencePart.Modules.GetModule<ModuleGrappleNode>() != null)
+            {
+                referenceTransformType = ReferenceType.Claw;
             }
 
             UpdateDockingNode(referencePart);
@@ -1309,7 +1312,7 @@ namespace AvionicsSystems
         private void onCameraChange(CameraManager.CameraMode newMode)
         {
             vesselActive = ActiveVessel(vessel);
-            UpdateReferenceTransform(_referenceTransform, vesselActive);
+            UpdateReferenceTransform(vessel.GetReferenceTransformPart(), vesselActive);
         }
 
         /// <summary>
