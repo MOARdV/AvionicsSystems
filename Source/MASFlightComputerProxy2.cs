@@ -2317,7 +2317,7 @@ namespace AvionicsSystems
         {
             if (vc.targetType == MASVesselComputer.TargetType.DockingPort && vc.targetDockingTransform != null)
             {
-                Vector3 projectedVector = Vector3.ProjectOnPlane(vc.targetDockingTransform.up, vc.referenceTransform.up);
+                Vector3 projectedVector = Vector3.ProjectOnPlane(-vc.targetDockingTransform.up, vc.referenceTransform.up);
                 projectedVector.Normalize();
 
                 float dotLateral = Vector3.Dot(projectedVector, vc.referenceTransform.right);
