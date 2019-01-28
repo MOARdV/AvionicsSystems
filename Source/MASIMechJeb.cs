@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -126,6 +126,9 @@ namespace AvionicsSystems
         //--- Methods found in UserPool
         private static readonly Func<object, object, object> AddUser;
         private static readonly Func<object, object, object> RemoveUser;
+
+        //--- MechJeb landing sites
+        public static FinePrint.Waypoint[] landingSites = new FinePrint.Waypoint[0];
 
         //--- Instance variables
         internal bool mjAvailable;
@@ -729,6 +732,93 @@ namespace AvionicsSystems
 
             return 0.0;
         }
+        #endregion
+
+        /// <summary>
+        /// The Landing Sites category provides a way to access landing sites registered with
+        /// MechJeb.
+        /// 
+        /// The functions in this category do not require MechJeb to be fully installed - only
+        /// the MechJeb LandingSites.cfg file needs to be installed.  If any other config files
+        /// contain MechJeb2Landing nodes, those sites will also be added to this database.
+        /// 
+        /// **NOTE:** At present, only Kerbin sites are included.
+        /// </summary>
+        #region MechJeb Landing Sites
+
+        /// <summary>
+        /// Returns the number of landing sites registered with MechJeb.
+        /// </summary>
+        /// <returns>The number of known landing sites.</returns>
+        public double GetLandingSiteCount()
+        {
+            return landingSites.Length;
+        }
+
+        /// <summary>
+        /// Returns the altitude of the selected landing site.
+        /// </summary>
+        /// <param name="siteIndex">A value between 0 and `mechjeb.GetLandingSiteCount()` - 1.</param>
+        /// <returns>The altitude of the site, or 0 if an invalid site index was specified.</returns>
+        public double LandingSiteAltitude(double siteIndex)
+        {
+            int idx = (int)siteIndex;
+            if (idx >= 0 && idx < landingSites.Length)
+            {
+                return landingSites[idx].altitude;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the latitude of the selected landing site.
+        /// </summary>
+        /// <param name="siteIndex">A value between 0 and `mechjeb.GetLandingSiteCount()` - 1.</param>
+        /// <returns>The latitude of the site, or 0 if an invalid site index was specified.</returns>
+        public double LandingSiteLatitude(double siteIndex)
+        {
+            int idx = (int)siteIndex;
+            if (idx >= 0 && idx < landingSites.Length)
+            {
+                return landingSites[idx].latitude;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the longitude of the selected landing site.
+        /// </summary>
+        /// <param name="siteIndex">A value between 0 and `mechjeb.GetLandingSiteCount()` - 1.</param>
+        /// <returns>The longitude of the site, or 0 if an invalid site index was specified.</returns>
+        public double LandingSiteLongitude(double siteIndex)
+        {
+            int idx = (int)siteIndex;
+            if (idx >= 0 && idx < landingSites.Length)
+            {
+                return landingSites[idx].longitude;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the name of the selected landing site.
+        /// </summary>
+        /// <param name="siteIndex">A value between 0 and `mechjeb.GetLandingSiteCount()` - 1.</param>
+        /// <returns>The name of the site, or an empty string if an invalid site index was specified.</returns>
+        public string LandingSiteName(double siteIndex)
+        {
+            int idx = (int)siteIndex;
+            if (idx >= 0 && idx < landingSites.Length)
+            {
+                return landingSites[idx].name;
+            }
+
+            return string.Empty;
+        }
+
         #endregion
 
         /// <summary>
@@ -1344,6 +1434,77 @@ namespace AvionicsSystems
         #region Reflection Configuration
         static MASIMechJeb()
         {
+            ConfigNode[] mjSites = GameDatabase.Instance.GetConfigNodes("MechJeb2Landing");
+
+            CelestialBody kerbin = Planetarium.fetch.Home;
+            List<FinePrint.Waypoint> mjLandingSites = new List<FinePrint.Waypoint>();
+            foreach (ConfigNode siteGroup in mjSites)
+            {
+                ConfigNode[] sitesList = siteGroup.GetNodes("LandingSites");
+
+                foreach (ConfigNode landingSite in sitesList)
+                {
+                    ConfigNode[] site = landingSite.GetNodes("Site");
+
+                    string name;
+                    double latitude;
+                    double longitude;
+                    string body;
+
+                    foreach (ConfigNode s in site)
+                    {
+                        bool valid = true;
+                        body = string.Empty;
+                        if (s.TryGetValue("body", ref body))
+                        {
+                            if (body != "Kerbin")
+                            {
+                                valid = false;
+                            }
+                        }
+
+                        latitude = 0.0;
+                        if (!s.TryGetValue("latitude", ref latitude))
+                        {
+                            valid = false;
+                        }
+
+                        longitude = 0.0;
+                        if (!s.TryGetValue("longitude", ref longitude))
+                        {
+                            valid = false;
+                        }
+
+                        name = string.Empty;
+                        if (!s.TryGetValue("name", ref name))
+                        {
+                            valid = false;
+                        }
+
+                        if (valid)
+                        {
+                            double altitude = kerbin.TerrainAltitude(latitude, longitude);
+
+                            FinePrint.Waypoint mjWp = new FinePrint.Waypoint();
+
+                            mjWp.latitude = latitude;
+                            mjWp.longitude = longitude;
+                            mjWp.celestialName = kerbin.name;
+                            mjWp.altitude = altitude;
+                            mjWp.name = name;
+                            mjWp.index = 256; // ?
+                            mjWp.navigationId = Guid.NewGuid();
+                            mjWp.id = "vessel"; // seems to be icon name.  May be WPM-specific.
+
+                            mjLandingSites.Add(mjWp);
+                        }
+                    }
+                }
+            }
+
+            landingSites = mjLandingSites.ToArray();
+            Array.Sort(landingSites, MASLoader.waypointNameComparer);
+
             // Spaghetti code: I wanted to use readonly qualifiers on the static
             // variables, but that requires me to do all of this in the static
             // constructor.

@@ -325,7 +325,7 @@ namespace AvionicsSystems
                 }
 
                 deepSpaceNetwork = relays.ToArray();
-                Array.Sort(deepSpaceNetwork, new WaypointNameComparer());
+                Array.Sort(deepSpaceNetwork, waypointNameComparer);
             }
             else
             {
@@ -333,7 +333,8 @@ namespace AvionicsSystems
             }
         }
 
-        private class WaypointNameComparer : IComparer<FinePrint.Waypoint>
+        static public WaypointNameComparer waypointNameComparer = new WaypointNameComparer();
+        public class WaypointNameComparer : IComparer<FinePrint.Waypoint>
         {
             public int Compare(FinePrint.Waypoint a, FinePrint.Waypoint b)
             {

@@ -1074,6 +1074,38 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Select the MechJeb landing site identified by `siteIndex` as the current
+        /// navigation waypoint.
+        /// 
+        /// If `siteIndex` is not a valid landing site, the waypoint system is
+        /// not updated.
+        /// </summary>
+        /// <param name="siteIndex">A value between 0 and `mechjeb.GetLandingSiteCount()` - 1.</param>
+        /// <returns>1 if the waypoint was updated, 0 otherwise.</returns>
+        public double SetWaypointToLandingSite(double siteIndex)
+        {
+            int index = (int)siteIndex;
+            if (index >= 0 && index < MASIMechJeb.landingSites.Length)
+            {
+                if (navWaypoint.IsActive)
+                {
+                    navWaypoint.Clear();
+                    navWaypoint.Deactivate();
+                }
+
+                navWaypoint.Setup(MASIMechJeb.landingSites[index]);
+                navWaypoint.Activate();
+
+                activeWaypointIndex = -1;
+                activeNavWaypoint = MASIMechJeb.landingSites[index];
+
+                return 1.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Sets the waypoint manager to target the vessel's launch site.
         /// 
         /// Requires the vessel to be in the sphere of influence of the launch
