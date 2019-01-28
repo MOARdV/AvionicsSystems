@@ -4265,6 +4265,16 @@ namespace AvionicsSystems
         #region Gear
 
         /// <summary>
+        /// Returns the number of deployable landing gear on the craft.
+        /// this function only counts the parts using ModuleWheelDeployment.
+        /// </summary>
+        /// <returns>Number of deployable gear, or 0.</returns>
+        public double DeployableGearCount()
+        {
+            return vc.moduleWheelDeployment.Length;
+        }
+
+        /// <summary>
         /// Returns the number of landing gear or wheels that are broken.  Returns 0 if none are, or if there
         /// are no gear.
         /// </summary>
@@ -4285,7 +4295,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the number of wheels / landing gear installed on the craft.  This counts all
+        /// Returns the number of wheels / landing gear installed on the craft.  This function counts all
         /// landing gear and wheels, including those that do not deploy.
         /// </summary>
         /// <returns>Number of gear, or 0.</returns>
