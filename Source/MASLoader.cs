@@ -51,7 +51,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Deep Space Network positions on Kerbin.
         /// </summary>
-        static public Dictionary<string, FinePrint.Waypoint> deepSpaceNetwork = new Dictionary<string, FinePrint.Waypoint>();
+        static public FinePrint.Waypoint[] deepSpaceNetwork = new FinePrint.Waypoint[0];
 
         /// <summary>
         /// Fonts that have been loaded (AssetBundle fonts, user bitmap fonts,
@@ -293,18 +293,20 @@ namespace AvionicsSystems
             }
             yield return new WaitForEndOfFrame();
 
-            deepSpaceNetwork.Clear();
             var dsn = UnityEngine.Object.FindObjectsOfType<CommNet.CommNetHome>();
             if (dsn != null)
             {
                 CelestialBody kerbin = Planetarium.fetch.Home;
+                List<FinePrint.Waypoint> relays = new List<FinePrint.Waypoint>();
 
                 for (int i = 0; i < dsn.Length; ++i)
                 {
+                    // TODO: Support non-Kerbin stations?
+
                     // Unfortunately, the lat/lon/alt/body fields are all protected, so I have
                     // to do this, instead:
                     Vector3d position = dsn[i].nodeTransform.position;
-                    //Vector2d ll = kerbin.GetLatitudeAndLongitude(position);
+
                     double latitude, longitude, altitude;
                     kerbin.GetLatLonAlt(position, out latitude, out longitude, out altitude);
 
@@ -318,16 +320,24 @@ namespace AvionicsSystems
                     dsnWp.index = 256; // ?
                     dsnWp.navigationId = Guid.NewGuid();
                     dsnWp.id = "vessel"; // seems to be icon name.  May be WPM-specific.
-                    
-                    if (deepSpaceNetwork.ContainsKey(dsn[i].nodeName))
-                    {
-                        deepSpaceNetwork[dsn[i].nodeName] = dsnWp;
-                    }
-                    else
-                    {
-                        deepSpaceNetwork.Add(dsn[i].nodeName, dsnWp);
-                    }
+
+                    relays.Add(dsnWp);
                 }
+
+                deepSpaceNetwork = relays.ToArray();
+                Array.Sort(deepSpaceNetwork, new WaypointNameComparer());
+            }
+            else
+            {
+                deepSpaceNetwork = new FinePrint.Waypoint[0];
+            }
+        }
+
+        private class WaypointNameComparer : IComparer<FinePrint.Waypoint>
+        {
+            public int Compare(FinePrint.Waypoint a, FinePrint.Waypoint b)
+            {
+                return string.Compare(a.name, b.name);
             }
         }
 
@@ -481,7 +491,7 @@ namespace AvionicsSystems
                     platform = "osx";
                     break;
                 case RuntimePlatform.WindowsPlayer:
-                    platform = (SystemInfo.graphicsDeviceVersion.StartsWith ("OpenGL")) ? "linux" : "windows";
+                    platform = (SystemInfo.graphicsDeviceVersion.StartsWith("OpenGL")) ? "linux" : "windows";
                     break;
                 default:
                     Utility.LogError(this, "Unsupported/unexpected platform {0}", Application.platform);
