@@ -1030,8 +1030,44 @@ namespace AvionicsSystems
                 {
                     navWaypoint.Setup(waypoints[index]);
                     navWaypoint.Activate();
+
+                    activeWaypointIndex = index;
+                    activeNavWaypoint = waypoints[index];
+
                     return 1.0;
                 }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Select the ground station identified by `dsnIndex` as the current
+        /// navigation waypoint.
+        /// 
+        /// If `dsnIndex` is not a valid ground station, the waypoint system is
+        /// not updated.
+        /// </summary>
+        /// <param name="dsnIndex">A value between 0 and `fc.GroundStationCount()` - 1.</param>
+        /// <returns>1 if the waypoint was updated, 0 otherwise.</returns>
+        public double SetWaypointToGroundStation(double dsnIndex)
+        {
+            int index = (int)dsnIndex;
+            if (index >= 0 && index < MASLoader.deepSpaceNetwork.Length)
+            {
+                if (navWaypoint.IsActive)
+                {
+                    navWaypoint.Clear();
+                    navWaypoint.Deactivate();
+                }
+
+                navWaypoint.Setup(MASLoader.deepSpaceNetwork[index]);
+                navWaypoint.Activate();
+
+                activeWaypointIndex = -1;
+                activeNavWaypoint = MASLoader.deepSpaceNetwork[index];
+
+                return 1.0;
             }
 
             return 0.0;

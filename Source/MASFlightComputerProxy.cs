@@ -2347,7 +2347,8 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
-        /// Variables related to CommNet connectivity are in this category.
+        /// Functions related to CommNet connectivity are in this category, as are functions
+        /// related to the Kerbal Deep Space Network ground stations.
         /// </summary>
         #region CommNet
 
@@ -2589,6 +2590,79 @@ namespace AvionicsSystems
         public double CommNetSignalStrength()
         {
             return vessel.connection.SignalStrength;
+        }
+
+        /// <summary>
+        /// Returns the altitude of the selected ground station.
+        /// </summary>
+        /// <param name="dsnIndex">A value between 0 and `fc.GroundStationCount()` - 1.</param>
+        /// <returns>The altitude of the station, or 0 if an invalid station index was specified.</returns>
+        public double GroundStationAltitude(double dsnIndex)
+        {
+            int idx = (int)dsnIndex;
+            if (idx >= 0 && idx < MASLoader.deepSpaceNetwork.Length)
+            {
+                return MASLoader.deepSpaceNetwork[idx].altitude;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the number of ground stations in the Kerbal deep space network.
+        /// </summary>
+        /// <returns></returns>
+        public double GroundStationCount()
+        {
+            return MASLoader.deepSpaceNetwork.Length;
+        }
+
+        /// <summary>
+        /// Returns the latitude of the selected ground station.
+        /// </summary>
+        /// <param name="dsnIndex">A value between 0 and `fc.GroundStationCount()` - 1.</param>
+        /// <returns>The latitude of the station, or 0 if an invalid station index was specified.</returns>
+        public double GroundStationLatitude(double dsnIndex)
+        {
+            int idx = (int)dsnIndex;
+            if (idx >= 0 && idx < MASLoader.deepSpaceNetwork.Length)
+            {
+                return MASLoader.deepSpaceNetwork[idx].latitude;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the longitude of the selected ground station.
+        /// </summary>
+        /// <param name="dsnIndex">A value between 0 and `fc.GroundStationCount()` - 1.</param>
+        /// <returns>The longitude of the station, or 0 if an invalid station index was specified.</returns>
+        public double GroundStationLongitude(double dsnIndex)
+        {
+            int idx = (int)dsnIndex;
+            if (idx >= 0 && idx < MASLoader.deepSpaceNetwork.Length)
+            {
+                return MASLoader.deepSpaceNetwork[idx].longitude;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the name of the selected ground station.
+        /// </summary>
+        /// <param name="dsnIndex">A value between 0 and `fc.GroundStationCount()` - 1.</param>
+        /// <returns>The name of the station, or an empty string if an invalid station index was specified.</returns>
+        public string GroundStationName(double dsnIndex)
+        {
+            int idx = (int)dsnIndex;
+            if (idx >= 0 && idx < MASLoader.deepSpaceNetwork.Length)
+            {
+                return MASLoader.deepSpaceNetwork[idx].name;
+            }
+
+            return string.Empty;
         }
 
         /// <summary>
