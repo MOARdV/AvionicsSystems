@@ -54,7 +54,10 @@ namespace AvionicsSystems
         private NavWaypoint navWaypoint;
         private FinePrint.WaypointManager waypointManager;
 
-        private int activeWaypoint = -1;
+        // The index in the custom waypoint list associated with the
+        // current active waypoint.
+        private int activeWaypointIndex = -1;
+        private FinePrint.Waypoint activeNavWaypoint = null;
 
         [MoonSharpHidden]
         public MASINavigation(Vessel vessel, MASFlightComputer fc)
@@ -136,21 +139,36 @@ namespace AvionicsSystems
                 waypointManager = FinePrint.WaypointManager.Instance();
             }
 
-            // Be nice if this could be done more efficiently.
-            activeWaypoint = -1;
-
+            // See if our local waypoint cache is current.
             if (navWaypoint.IsActive)
             {
-                var waypoints = waypointManager.Waypoints;
-                int numWP = waypoints.Count;
-                for (int i = 0; i < numWP; ++i)
+                if (activeNavWaypoint == null || !navWaypoint.IsUsing(activeNavWaypoint))
                 {
-                    if (navWaypoint.IsUsing(waypoints[i]))
+                    activeWaypointIndex = -1;
+                    activeNavWaypoint = null;
+
+                    if (waypointManager != null)
                     {
-                        activeWaypoint = i;
-                        break;
+                        var waypoints = waypointManager.Waypoints;
+                        int numWP = waypoints.Count;
+                        for (int i = 0; i < numWP; ++i)
+                        {
+                            if (navWaypoint.IsUsing(waypoints[i]))
+                            {
+                                activeWaypointIndex = i;
+                                activeNavWaypoint = waypoints[i];
+                                break;
+                            }
+                        }
                     }
+
+                    // TODO: Do I skim the ground station database, too?
                 }
+            }
+            else
+            {
+                activeWaypointIndex = -1;
+                activeNavWaypoint = null;
             }
         }
 
@@ -978,16 +996,16 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Get the custom waypoint index of the current waypoint.  If there is no active
-        /// waypoint, or the current waypoint is not a custom waypoint, return -1.
+        /// waypoint, or the current waypoint is not in the custom waypoint database, return -1.
         /// </summary>
         /// <returns>Index of the active waypoint, or -1 if no waypoint is active or the waypoint is not a custom waypoint.</returns>
         public double GetWaypointIndex()
         {
-            return activeWaypoint;
+            return activeWaypointIndex;
         }
 
         /// <summary>
-        /// Set the stock waypoint system to the waypoint number selected.
+        /// Set the stock waypoint system to the custom waypoint selected by `waypointIndex`.
         /// 
         /// A negative value, or a value equal to or greater than `nav.GetWaypointCount()`
         /// will clear the current waypoint.
@@ -1039,7 +1057,8 @@ namespace AvionicsSystems
                 navWaypoint.Setup(launchSite);
                 navWaypoint.Activate();
 
-                activeWaypoint = -1;
+                activeWaypointIndex = -1;
+                activeNavWaypoint = launchSite;
 
                 return 1.0;
             }
@@ -1048,7 +1067,8 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if there is a waypoint active.
+        /// Returns 1 if there is a waypoint active.  If the waypoint is a custom waypoint, its index can
+        /// be queried using `fc.GetWaypointIndex()`.
         /// </summary>
         /// <returns>1 if a waypoint is active, 0 otherwise.</returns>
         public double WaypointActive()
@@ -1066,16 +1086,19 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            if (waypointManager != null)
+            if (index == -1)
+            {
+                if (navWaypoint.IsActive)
+                {
+                    return navWaypoint.Altitude;
+                }
+            }
+            else if (waypointManager != null)
             {
                 var waypoints = waypointManager.Waypoints;
                 if (index >= 0 && index < waypoints.Count)
                 {
                     return waypoints[index].altitude;
-                }
-                else if (index == -1 && navWaypoint.IsActive)
-                {
-                    return navWaypoint.Altitude;
                 }
             }
 
@@ -1091,16 +1114,19 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            if (waypointManager != null)
+            if (index == -1)
+            {
+                if (navWaypoint.IsActive)
+                {
+                    return BearingFromVessel(navWaypoint.Latitude, navWaypoint.Longitude);
+                }
+            }
+            else if (waypointManager != null)
             {
                 var waypoints = waypointManager.Waypoints;
                 if (index >= 0 && index < waypoints.Count)
                 {
                     return BearingFromVessel(waypoints[index].latitude, waypoints[index].longitude);
-                }
-                else if (index == -1 && navWaypoint.IsActive)
-                {
-                    return BearingFromVessel(navWaypoint.Latitude, navWaypoint.Longitude);
                 }
             }
 
@@ -1125,16 +1151,19 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            if (waypointManager != null)
+            if (index == -1)
+            {
+                if (navWaypoint.IsActive)
+                {
+                    return CrossTrackDistanceFromVessel(navWaypoint.Latitude, navWaypoint.Longitude);
+                }
+            }
+            else if (waypointManager != null)
             {
                 var waypoints = waypointManager.Waypoints;
                 if (index >= 0 && index < waypoints.Count)
                 {
                     return CrossTrackDistanceFromVessel(waypoints[index].latitude, waypoints[index].longitude);
-                }
-                else if (index == -1 && navWaypoint.IsActive)
-                {
-                    return CrossTrackDistanceFromVessel(navWaypoint.Latitude, navWaypoint.Longitude);
                 }
             }
 
@@ -1150,7 +1179,14 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            if (waypointManager != null)
+            if (index == -1)
+            {
+                if (navWaypoint.IsActive)
+                {
+                    return SlantDistanceFromVessel(navWaypoint.Latitude, navWaypoint.Longitude, navWaypoint.Altitude);
+                }
+            }
+            else if (waypointManager != null)
             {
                 var waypoints = waypointManager.Waypoints;
                 if (index >= 0 && index < waypoints.Count)
@@ -1158,10 +1194,6 @@ namespace AvionicsSystems
                     //return SlantDistanceFromVessel(waypoints[index].latitude, waypoints[index].longitude, waypoints[index].altitude);
                     // accurate enough.
                     return waypointManager.DistanceToVessel(waypoints[index]);
-                }
-                else if (index == -1 && navWaypoint.IsActive)
-                {
-                    return SlantDistanceFromVessel(navWaypoint.Latitude, navWaypoint.Longitude, navWaypoint.Altitude);
                 }
             }
 
@@ -1178,16 +1210,19 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            if (waypointManager != null)
+            if (index == -1)
+            {
+                if (navWaypoint.IsActive)
+                {
+                    return GroundDistanceFromVessel(navWaypoint.Latitude, navWaypoint.Longitude);
+                }
+            }
+            else if (waypointManager != null)
             {
                 var waypoints = waypointManager.Waypoints;
                 if (index >= 0 && index < waypoints.Count)
                 {
                     return GroundDistanceFromVessel(waypoints[index].latitude, waypoints[index].longitude);
-                }
-                else if (index == -1 && navWaypoint.IsActive)
-                {
-                    return GroundDistanceFromVessel(navWaypoint.Latitude, navWaypoint.Longitude);
                 }
             }
 
@@ -1204,16 +1239,19 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            if (waypointManager != null)
+            if (index == -1)
+            {
+                if (navWaypoint.IsActive)
+                {
+                    return navWaypoint.Latitude;
+                }
+            }
+            else if (waypointManager != null)
             {
                 var waypoints = waypointManager.Waypoints;
                 if (index >= 0 && index < waypoints.Count)
                 {
                     return waypoints[index].latitude;
-                }
-                else if (index == -1 && navWaypoint.IsActive)
-                {
-                    return navWaypoint.Latitude;
                 }
             }
 
@@ -1230,16 +1268,19 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            if (waypointManager != null)
+            if (index == -1)
+            {
+                if (navWaypoint.IsActive)
+                {
+                    return navWaypoint.Longitude;
+                }
+            }
+            else if (waypointManager != null)
             {
                 var waypoints = waypointManager.Waypoints;
                 if (index >= 0 && index < waypoints.Count)
                 {
                     return waypoints[index].longitude;
-                }
-                else if (index == -1 && navWaypoint.IsActive)
-                {
-                    return navWaypoint.Longitude;
                 }
             }
 
@@ -1252,28 +1293,37 @@ namespace AvionicsSystems
         /// If waypointIndex is -1, returns the name of the active waypoint.
         /// If waypointIndex is between 0 and `nav.GetWaypointCount()`, returns that
         /// waypoint's name.  Otherwise, returns an empty string.
+        /// 
+        /// If the waypoint was selected by another mod, and it is not in the stock
+        /// waypoint database, this function may return "Unknown".
         /// </summary>
         /// <param name="waypointIndex">The waypoint to name, or -1 to select the current active waypoint.</param>
-        /// <returns>The name of the waypoint, or an empty string.</returns>
+        /// <returns>The name of the waypoint, or an empty string, or "Unknown".</returns>
         public string WaypointName(double waypointIndex)
         {
             int index = (int)waypointIndex;
+
             if (index == -1)
             {
-                index = activeWaypoint;
+                if (navWaypoint.IsActive)
+                {
+                    if (activeNavWaypoint != null)
+                    {
+                        return activeNavWaypoint.name;
+                    }
+                    else
+                    {
+                        return "Unknown";
+                    }
+                }
             }
-
-            if (waypointManager != null)
+            else if (waypointManager != null)
             {
                 var waypoints = waypointManager.Waypoints;
 
                 if (index >= 0 && index < waypoints.Count)
                 {
                     return waypoints[index].name;
-                }
-                else if (index == -1 && navWaypoint.IsActive && navWaypoint.IsUsing(launchSite))
-                {
-                    return launchSite.name;
                 }
             }
 
