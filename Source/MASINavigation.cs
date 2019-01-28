@@ -131,6 +131,11 @@ namespace AvionicsSystems
             // Probably oughtn't need to poll this
             bodyRadius = fc.vc.mainBody.Radius;
 
+            if (waypointManager == null)
+            {
+                waypointManager = FinePrint.WaypointManager.Instance();
+            }
+
             // Be nice if this could be done more efficiently.
             activeWaypoint = -1;
 
@@ -999,13 +1004,16 @@ namespace AvionicsSystems
                 navWaypoint.Deactivate();
             }
 
-            var waypoints = waypointManager.Waypoints;
-
-            if (index >= 0 && index < waypoints.Count)
+            if (waypointManager != null)
             {
-                navWaypoint.Setup(waypoints[index]);
-                navWaypoint.Activate();
-                return 1.0;
+                var waypoints = waypointManager.Waypoints;
+
+                if (index >= 0 && index < waypoints.Count)
+                {
+                    navWaypoint.Setup(waypoints[index]);
+                    navWaypoint.Activate();
+                    return 1.0;
+                }
             }
 
             return 0.0;
@@ -1058,19 +1066,20 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            var waypoints = waypointManager.Waypoints;
-            if (index >= 0 && index < waypoints.Count)
+            if (waypointManager != null)
             {
-                return waypoints[index].altitude;
+                var waypoints = waypointManager.Waypoints;
+                if (index >= 0 && index < waypoints.Count)
+                {
+                    return waypoints[index].altitude;
+                }
+                else if (index == -1 && navWaypoint.IsActive)
+                {
+                    return navWaypoint.Altitude;
+                }
             }
-            else if (index == -1 && navWaypoint.IsActive)
-            {
-                return navWaypoint.Altitude;
-            }
-            else
-            {
-                return 0.0;
-            }
+
+            return 0.0;
         }
 
         /// <summary>
@@ -1082,19 +1091,20 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            var waypoints = waypointManager.Waypoints;
-            if (index >= 0 && index < waypoints.Count)
+            if (waypointManager != null)
             {
-                return BearingFromVessel(waypoints[index].latitude, waypoints[index].longitude);
+                var waypoints = waypointManager.Waypoints;
+                if (index >= 0 && index < waypoints.Count)
+                {
+                    return BearingFromVessel(waypoints[index].latitude, waypoints[index].longitude);
+                }
+                else if (index == -1 && navWaypoint.IsActive)
+                {
+                    return BearingFromVessel(navWaypoint.Latitude, navWaypoint.Longitude);
+                }
             }
-            else if (index == -1 && navWaypoint.IsActive)
-            {
-                return BearingFromVessel(navWaypoint.Latitude, navWaypoint.Longitude);
-            }
-            else
-            {
-                return -1.0;
-            }
+
+            return -1.0;
         }
 
         /// <summary>
@@ -1103,7 +1113,7 @@ namespace AvionicsSystems
         /// <returns>The number of waypoints.</returns>
         public double WaypointCount()
         {
-            return waypointManager.Waypoints.Count;
+            return (waypointManager != null) ? waypointManager.Waypoints.Count : 0;
         }
 
         /// <summary>
@@ -1115,19 +1125,20 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            var waypoints = waypointManager.Waypoints;
-            if (index >= 0 && index < waypoints.Count)
+            if (waypointManager != null)
             {
-                return CrossTrackDistanceFromVessel(waypoints[index].latitude, waypoints[index].longitude);
+                var waypoints = waypointManager.Waypoints;
+                if (index >= 0 && index < waypoints.Count)
+                {
+                    return CrossTrackDistanceFromVessel(waypoints[index].latitude, waypoints[index].longitude);
+                }
+                else if (index == -1 && navWaypoint.IsActive)
+                {
+                    return CrossTrackDistanceFromVessel(navWaypoint.Latitude, navWaypoint.Longitude);
+                }
             }
-            else if (index == -1 && navWaypoint.IsActive)
-            {
-                return CrossTrackDistanceFromVessel(navWaypoint.Latitude, navWaypoint.Longitude);
-            }
-            else
-            {
-                return -1.0;
-            }
+
+            return -1.0;
         }
 
         /// <summary>
@@ -1139,21 +1150,22 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            var waypoints = waypointManager.Waypoints;
-            if (index >= 0 && index < waypoints.Count)
+            if (waypointManager != null)
             {
-                //return SlantDistanceFromVessel(waypoints[index].latitude, waypoints[index].longitude, waypoints[index].altitude);
-                // accurate enough.
-                return waypointManager.DistanceToVessel(waypoints[index]);
+                var waypoints = waypointManager.Waypoints;
+                if (index >= 0 && index < waypoints.Count)
+                {
+                    //return SlantDistanceFromVessel(waypoints[index].latitude, waypoints[index].longitude, waypoints[index].altitude);
+                    // accurate enough.
+                    return waypointManager.DistanceToVessel(waypoints[index]);
+                }
+                else if (index == -1 && navWaypoint.IsActive)
+                {
+                    return SlantDistanceFromVessel(navWaypoint.Latitude, navWaypoint.Longitude, navWaypoint.Altitude);
+                }
             }
-            else if (index == -1 && navWaypoint.IsActive)
-            {
-                return SlantDistanceFromVessel(navWaypoint.Latitude, navWaypoint.Longitude, navWaypoint.Altitude);
-            }
-            else
-            {
-                return -1.0;
-            }
+
+            return -1.0;
         }
 
         /// <summary>
@@ -1166,19 +1178,20 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            var waypoints = waypointManager.Waypoints;
-            if (index >= 0 && index < waypoints.Count)
+            if (waypointManager != null)
             {
-                return GroundDistanceFromVessel(waypoints[index].latitude, waypoints[index].longitude);
+                var waypoints = waypointManager.Waypoints;
+                if (index >= 0 && index < waypoints.Count)
+                {
+                    return GroundDistanceFromVessel(waypoints[index].latitude, waypoints[index].longitude);
+                }
+                else if (index == -1 && navWaypoint.IsActive)
+                {
+                    return GroundDistanceFromVessel(navWaypoint.Latitude, navWaypoint.Longitude);
+                }
             }
-            else if (index == -1 && navWaypoint.IsActive)
-            {
-                return GroundDistanceFromVessel(navWaypoint.Latitude, navWaypoint.Longitude);
-            }
-            else
-            {
-                return -1.0;
-            }
+
+            return -1.0;
         }
 
         /// <summary>
@@ -1191,19 +1204,20 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            var waypoints = waypointManager.Waypoints;
-            if (index >= 0 && index < waypoints.Count)
+            if (waypointManager != null)
             {
-                return waypoints[index].latitude;
+                var waypoints = waypointManager.Waypoints;
+                if (index >= 0 && index < waypoints.Count)
+                {
+                    return waypoints[index].latitude;
+                }
+                else if (index == -1 && navWaypoint.IsActive)
+                {
+                    return navWaypoint.Latitude;
+                }
             }
-            else if (index == -1 && navWaypoint.IsActive)
-            {
-                return navWaypoint.Latitude;
-            }
-            else
-            {
-                return 0.0;
-            }
+
+            return 0.0;
         }
 
         /// <summary>
@@ -1216,19 +1230,20 @@ namespace AvionicsSystems
         {
             int index = (int)waypointIndex;
 
-            var waypoints = waypointManager.Waypoints;
-            if (index >= 0 && index < waypoints.Count)
+            if (waypointManager != null)
             {
-                return waypoints[index].longitude;
+                var waypoints = waypointManager.Waypoints;
+                if (index >= 0 && index < waypoints.Count)
+                {
+                    return waypoints[index].longitude;
+                }
+                else if (index == -1 && navWaypoint.IsActive)
+                {
+                    return navWaypoint.Longitude;
+                }
             }
-            else if (index == -1 && navWaypoint.IsActive)
-            {
-                return navWaypoint.Longitude;
-            }
-            else
-            {
-                return 0.0;
-            }
+
+            return 0.0;
         }
 
         /// <summary>
@@ -1248,19 +1263,21 @@ namespace AvionicsSystems
                 index = activeWaypoint;
             }
 
-            var waypoints = waypointManager.Waypoints;
-            if (index >= 0 && index < waypoints.Count)
+            if (waypointManager != null)
             {
-                return waypoints[index].name;
+                var waypoints = waypointManager.Waypoints;
+
+                if (index >= 0 && index < waypoints.Count)
+                {
+                    return waypoints[index].name;
+                }
+                else if (index == -1 && navWaypoint.IsActive && navWaypoint.IsUsing(launchSite))
+                {
+                    return launchSite.name;
+                }
             }
-            else if (index == -1 && navWaypoint.IsActive && navWaypoint.IsUsing(launchSite))
-            {
-                return launchSite.name;
-            }
-            else
-            {
-                return string.Empty;
-            }
+
+            return string.Empty;
         }
 
         #endregion

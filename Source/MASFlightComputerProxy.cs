@@ -2514,10 +2514,10 @@ namespace AvionicsSystems
         {
             if (lastLink != null && lastLink.hopType == CommNet.HopType.Home)
             {
-                Vector2d ll;
+                FinePrint.Waypoint ll;
                 if (MASLoader.deepSpaceNetwork.TryGetValue(lastLink.b.name, out ll))
                 {
-                    return ll.x;
+                    return ll.latitude;
                 }
             }
 
@@ -2533,10 +2533,10 @@ namespace AvionicsSystems
         {
             if (lastLink != null && lastLink.hopType == CommNet.HopType.Home)
             {
-                Vector2d ll;
+                FinePrint.Waypoint ll;
                 if (MASLoader.deepSpaceNetwork.TryGetValue(lastLink.b.name, out ll))
                 {
-                    return ll.y;
+                    return ll.longitude;
                 }
             }
 

@@ -96,7 +96,6 @@
     <Compile Include="Source\MASITransfer.cs" />
     <Compile Include="Source\MASIVTOL.cs" />
     <Compile Include="Source\MASNavBall.cs" />
-    <Compile Include="Source\MASNavBeaconWaypoint.cs" />
     <Compile Include="Source\MASPageCamera.cs" />
     <Compile Include="Source\MASPageEllipse.cs" />
     <Compile Include="Source\MASPageGroundTrack.cs" />

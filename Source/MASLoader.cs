@@ -49,9 +49,9 @@ namespace AvionicsSystems
         static public string masVersion;
 
         /// <summary>
-        /// Deep Space Network positions on Kerbin.  Vector2d is (lat, lon).
+        /// Deep Space Network positions on Kerbin.
         /// </summary>
-        static public Dictionary<string, Vector2d> deepSpaceNetwork = new Dictionary<string, Vector2d>();
+        static public Dictionary<string, FinePrint.Waypoint> deepSpaceNetwork = new Dictionary<string, FinePrint.Waypoint>();
 
         /// <summary>
         /// Fonts that have been loaded (AssetBundle fonts, user bitmap fonts,
@@ -304,15 +304,28 @@ namespace AvionicsSystems
                     // Unfortunately, the lat/lon/alt/body fields are all protected, so I have
                     // to do this, instead:
                     Vector3d position = dsn[i].nodeTransform.position;
-                    Vector2d ll = kerbin.GetLatitudeAndLongitude(position);
+                    //Vector2d ll = kerbin.GetLatitudeAndLongitude(position);
+                    double latitude, longitude, altitude;
+                    kerbin.GetLatLonAlt(position, out latitude, out longitude, out altitude);
 
+                    FinePrint.Waypoint dsnWp = new FinePrint.Waypoint();
+
+                    dsnWp.latitude = latitude;
+                    dsnWp.longitude = longitude;
+                    dsnWp.celestialName = kerbin.name;
+                    dsnWp.altitude = altitude;
+                    dsnWp.name = dsn[i].nodeName;
+                    dsnWp.index = 256; // ?
+                    dsnWp.navigationId = Guid.NewGuid();
+                    dsnWp.id = "vessel"; // seems to be icon name.  May be WPM-specific.
+                    
                     if (deepSpaceNetwork.ContainsKey(dsn[i].nodeName))
                     {
-                        deepSpaceNetwork[dsn[i].nodeName] = ll;
+                        deepSpaceNetwork[dsn[i].nodeName] = dsnWp;
                     }
                     else
                     {
-                        deepSpaceNetwork.Add(dsn[i].nodeName, ll);
+                        deepSpaceNetwork.Add(dsn[i].nodeName, dsnWp);
                     }
                 }
             }

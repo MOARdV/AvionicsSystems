@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2017-2018 MOARdV
+ * Copyright (c) 2017-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -128,15 +128,11 @@ namespace AvionicsSystems
                                    new DialogGUILabel(delegate { return Localizer.Format("#MAS_Settings_Camera_Texture_Size", (1 << cameraTextureScale).ToString()); }, true),
                                    new DialogGUISlider(delegate { return (float)cameraTextureScale; }, 0.0f, 2.0f, true, 140.0f, 30.0f, (float newValue) => { cameraTextureScale = (int)newValue; }),
                                    new DialogGUISpace(5.0f),
-                                   new DialogGUIToggle(enableCommNetWaypoints, Localizer.GetStringByTag("#MAS_Settings_CommNet_Waypoints"), (bool newValue) => { enableCommNetWaypoints = newValue; }),
-                                   new DialogGUISpace(5.0f),
                                    new DialogGUIFlexibleSpace()
                                    ),
                                 new DialogGUIVerticalLayout(
                                    new DialogGUILabel(Localizer.GetStringByTag("#MAS_Settings_RadioNav_Section"), true),
                                    new DialogGUISpace(10.0f),
-                                   new DialogGUIToggle(enableNavBeacons, Localizer.GetStringByTag("#MAS_Settings_Nav_Beacons"), (bool newValue) => { enableNavBeacons = newValue; }),
-                                   new DialogGUISpace(5.0f),
                                    new DialogGUILabel(delegate { return Localizer.Format("#MAS_Settings_Radio_Propagation", generalPropagation.ToString("P0")); }, true),
                                    new DialogGUISlider(delegate { return generalPropagation; }, 1.0f, 3.0f, false, 140.0f, 30.0f, (float newValue) => { generalPropagation = newValue; }),
                                    new DialogGUISpace(5.0f),
@@ -148,8 +144,6 @@ namespace AvionicsSystems
                                    new DialogGUISpace(5.0f),
                                    new DialogGUILabel(delegate { return Localizer.Format("#MAS_Settings_DME_Propagation", DMEPropagation.ToString("P0")); }, true),
                                    new DialogGUISlider(delegate { return DMEPropagation; }, 1.0f, 2.0f, false, 140.0f, 30.0f, (float newValue) => { DMEPropagation = newValue; }),
-                                   new DialogGUISpace(5.0f),
-                                   new DialogGUIToggle(resetWaypoints, Localizer.GetStringByTag("#MAS_Settings_Reset_Waypoints"), (bool selected) => { resetWaypoints = selected; }, 140.0f, 30.0f),
                                    new DialogGUIFlexibleSpace()
                                     )
                                ),
@@ -179,25 +173,19 @@ namespace AvionicsSystems
         private bool verboseLogging;
         private int luaUpdatePriority;
         private int cameraTextureScale;
-        private bool enableNavBeacons;
-        private bool enableCommNetWaypoints;
         private float generalPropagation;
         private float NDBPropagation;
         private float VORPropagation;
         private float DMEPropagation;
-        private bool resetWaypoints;
         private void InitValues()
         {
             verboseLogging = MASConfig.VerboseLogging;
             luaUpdatePriority = MASConfig.LuaUpdatePriority;
             cameraTextureScale = MASConfig.CameraTextureScale;
-            enableCommNetWaypoints = MASConfig.EnableCommNetWaypoints;
-            enableNavBeacons = MASConfig.navigation.enableNavBeacons;
             generalPropagation = MASConfig.navigation.generalPropagation;
             NDBPropagation = MASConfig.navigation.NDBPropagation;
             VORPropagation = MASConfig.navigation.VORPropagation;
             DMEPropagation = MASConfig.navigation.DMEPropagation;
-            resetWaypoints = MASConfig.ResetWaypoints;
         }
 
         private void ApplyChanges()
@@ -205,13 +193,10 @@ namespace AvionicsSystems
             MASConfig.VerboseLogging = verboseLogging;
             MASConfig.LuaUpdatePriority = luaUpdatePriority;
             MASConfig.CameraTextureScale = cameraTextureScale;
-            MASConfig.EnableCommNetWaypoints = enableCommNetWaypoints;
-            MASConfig.navigation.enableNavBeacons = enableNavBeacons;
             MASConfig.navigation.generalPropagation = generalPropagation;
             MASConfig.navigation.NDBPropagation = NDBPropagation;
             MASConfig.navigation.VORPropagation = VORPropagation;
             MASConfig.navigation.DMEPropagation = DMEPropagation;
-            MASConfig.ResetWaypoints = resetWaypoints;
 
             int numNavAids = MASLoader.navaids.Count;
             for (int i = 0; i < numNavAids; ++i)

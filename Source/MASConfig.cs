@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -37,11 +37,6 @@ namespace AvionicsSystems
         public struct Navigation
         {
             /// <summary>
-            /// Controls whether or not the nav radio beacons are added to the waypoints database.
-            /// </summary>
-            public bool enableNavBeacons;
-
-            /// <summary>
             /// Overall scalar to change general signal propagation.  The small radius of Kerbin makes
             /// values swing wildly on altitude.  Defaults to 2.0.
             /// </summary>
@@ -68,9 +63,6 @@ namespace AvionicsSystems
         static internal string ElectricCharge = "ElectricCharge";
         static internal int LuaUpdatePriority = 1;
         static internal int CameraTextureScale = 0;
-        static internal bool EnableCommNetWaypoints = false;
-
-        static internal bool ResetWaypoints = false;
 
         static internal Navigation navigation = new Navigation();
 
@@ -82,7 +74,6 @@ namespace AvionicsSystems
         /// </summary>
         MASConfig()
         {
-            navigation.enableNavBeacons = false;
             navigation.generalPropagation = 2.0f;
             navigation.NDBPropagation = 1.0f;
             navigation.VORPropagation = 1.2f;
@@ -115,19 +106,9 @@ namespace AvionicsSystems
                 LuaUpdatePriority = 1;
             }
 
-            if (!node.TryGetValue("EnableCommNetWaypoints", ref EnableCommNetWaypoints))
-            {
-                EnableCommNetWaypoints = false;
-            }
-
             if (!node.TryGetValue("CameraTextureScale", ref CameraTextureScale))
             {
                 CameraTextureScale = 0;
-            }
-
-            if (!node.TryGetValue("EnableNavBeacons", ref navigation.enableNavBeacons))
-            {
-                navigation.enableNavBeacons = false;
             }
 
             if (!node.TryGetValue("GeneralPropagation", ref navigation.generalPropagation))
@@ -162,8 +143,6 @@ namespace AvionicsSystems
             node.AddValue("ElectricCharge", ElectricCharge);
             node.AddValue("LuaUpdatePriority", LuaUpdatePriority);
             node.AddValue("CameraTextureScale", CameraTextureScale);
-            node.AddValue("EnableCommNetWaypoints", EnableCommNetWaypoints);
-            node.AddValue("EnableNavBeacons", navigation.enableNavBeacons);
             node.AddValue("GeneralPropagation", navigation.generalPropagation);
             node.AddValue("NDBPropagation", navigation.NDBPropagation);
             node.AddValue("VORPropagation", navigation.VORPropagation);
