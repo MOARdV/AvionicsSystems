@@ -1385,7 +1385,7 @@ namespace AvionicsSystems
                         string biome;
 
                         ScienceUtil.GetExperimentFieldsFromScienceID(data[0].subjectID, out bodyName, out situation, out biome);
-                        CelestialBody body = SelectBody(bodyName);
+                        CelestialBody body = FlightGlobals.GetBodyByName(bodyName);
                         if (body != null)
                         {
                             return ScienceUtil.GetBiomedisplayName(body, biome);
@@ -1395,6 +1395,74 @@ namespace AvionicsSystems
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Returns the size of the data for experiment `experimentId`.
+        /// 
+        /// If `experimentId` is an invalid experiment id, or the experiment has not run,
+        /// returns 0.
+        /// </summary>
+        /// <param name="experimentId">An integer between 0 and `fc.ExperimentTotal()` - 1, inclusive.</param>
+        /// <returns>The data size of the experiment, in Mits, or 0.</returns>
+        public double ExperimentDataSize(double experimentId)
+        {
+            int id = (int)experimentId;
+            if (id >= 0 && id < vc.moduleScienceExperiment.Length)
+            {
+                ModuleScienceExperiment mse = vc.moduleScienceExperiment[id];
+                if (mse.Deployed)
+                {
+                    ScienceData[] data = mse.GetData();
+                    if (data.Length > 0)
+                    {
+                        return data[0].dataAmount;
+                    }
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the science value of the experiment selected by `experimentId`.
+        /// 
+        /// If `experimentId` is not a valid experiment, or the experiment has not been run,
+        /// returns 0.  It will also return 0 if the stored experiment has no science value,
+        /// of course.
+        /// </summary>
+        /// <param name="experimentId">An integer between 0 and `fc.ExperimentTotal()` - 1, inclusive.</param>
+        /// <returns>The science value of the experiment, or 0.</returns>
+        public double ExperimentScienceValue(double experimentId)
+        {
+            int id = (int)experimentId;
+            if (id >= 0 && id < vc.moduleScienceExperiment.Length)
+            {
+                ModuleScienceExperiment mse = vc.moduleScienceExperiment[id];
+                if (mse.Deployed)
+                {
+                    ScienceExperiment experiment = mse.experiment;
+                    ScienceData[] data = mse.GetData();
+                    if (data.Length > 0)
+                    {
+                        string bodyName;
+                        ExperimentSituations situation;
+                        string biome;
+
+                        // TODO: I use this construct in many of the science fields.  It needs to be a dictionary mapping
+                        // subjectID to { CelestialBody, ExperimentSituations, Biome Display Name, ScienceSubject, ScienceExperiment }
+                        ScienceUtil.GetExperimentFieldsFromScienceID(data[0].subjectID, out bodyName, out situation, out biome);
+                        CelestialBody cb = FlightGlobals.GetBodyByName(bodyName);
+
+                        ScienceSubject currentScienceSubject = ResearchAndDevelopment.GetExperimentSubject(experiment, situation, cb, biome, ScienceUtil.GetBiomedisplayName(cb, biome));
+                        float scienceValue = ResearchAndDevelopment.GetScienceValue(experiment.baseValue * experiment.dataScale, currentScienceSubject);
+
+                        return scienceValue * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier;
+                    }
+                }
+            }
+
+            return 0.0;
         }
 
         /// <summary>
@@ -1421,7 +1489,7 @@ namespace AvionicsSystems
                         string biome;
 
                         ScienceUtil.GetExperimentFieldsFromScienceID(data[0].subjectID, out bodyName, out situation, out biome);
-                        CelestialBody body = SelectBody(bodyName);
+                        CelestialBody body = FlightGlobals.GetBodyByName(bodyName);
                         if (body != null)
                         {
                             return situation.displayDescription();
