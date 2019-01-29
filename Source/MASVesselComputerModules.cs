@@ -966,6 +966,8 @@ namespace AvionicsSystems
         // For a bootstrap to interpreting science values, see https://github.com/KerboKatz/AutomatedScienceSampler/blob/master/source/AutomatedScienceSampler/DefaultActivator.cs
         private List<ModuleScienceExperiment> scienceExperimentList = new List<ModuleScienceExperiment>();
         internal ModuleScienceExperiment[] moduleScienceExperiment = new ModuleScienceExperiment[0];
+        private List<ModuleScienceContainer> scienceContainerList = new List<ModuleScienceContainer>();
+        internal ModuleScienceContainer[] scienceContainer = new ModuleScienceContainer[0];
 
         internal class ScienceType
         {
@@ -1433,6 +1435,10 @@ namespace AvionicsSystems
                         {
                             scienceExperimentList.Add(module as ModuleScienceExperiment);
                         }
+                        else if (module is ModuleScienceContainer)
+                        {
+                            scienceContainerList.Add(module as ModuleScienceContainer);
+                        }
                         else if (module is ModuleAeroSurface)
                         {
                             airBrakeList.Add(module as ModuleAeroSurface);
@@ -1513,6 +1519,7 @@ namespace AvionicsSystems
             TransferModules<ModuleWheelBase>(wheelBaseList, ref moduleWheelBase);
             TransferModules<ModuleWheels.ModuleWheelBrakes>(brakesList, ref moduleBrakes);
             TransferModules<ModuleScienceExperiment>(scienceExperimentList, ref moduleScienceExperiment);
+            TransferModules<ModuleScienceContainer>(scienceContainerList, ref scienceContainer);
             TransferModules<LaunchClamp>(launchClampList, ref moduleLaunchClamp);
 
             for (int i = resourceConverterList.Count - 1; i >= 0; --i)

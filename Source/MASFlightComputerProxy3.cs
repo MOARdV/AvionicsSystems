@@ -1564,6 +1564,30 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Trigger the stock "Review Science" dialog for the given experiment.
+        /// 
+        /// If the experiment has not been run, or `experimentId` selects an
+        /// invalid experiment, nothing happens.
+        /// </summary>
+        /// <param name="experimentId">An integer between 0 and `fc.ExperimentTotal()` - 1, inclusive.</param>
+        /// <returns>1 if the experiment review dialog was launched, 0 otherwise.</returns>
+        public double ReviewExperiment(double experimentId)
+        {
+            int id = (int)experimentId;
+            if (id >= 0 && id < vc.moduleScienceExperiment.Length)
+            {
+                ModuleScienceExperiment mse = vc.moduleScienceExperiment[id];
+                if (mse.Deployed)
+                {
+                    mse.ReviewDataEvent();
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Run the selected experiment.
         /// 
         /// If the experiment has already been run, this function has no effect.
@@ -1587,6 +1611,15 @@ namespace AvionicsSystems
             }
 
             return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the number of science containers (ModuleScienceContainer) on the vessel.
+        /// </summary>
+        /// <returns>The number of science containers.</returns>
+        public double ScienceContainerCount()
+        {
+            return vc.scienceContainer.Length;
         }
 
         /// <summary>
