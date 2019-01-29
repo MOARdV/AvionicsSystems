@@ -995,6 +995,34 @@ namespace AvionicsSystems
             TransferModules<ScienceType>(scienceTypeList, ref scienceType);
         }
 
+        internal class ExperimentData
+        {
+            internal CelestialBody body;
+            internal ExperimentSituations situation;
+            internal ScienceSubject subject;
+            internal string biomeDisplayName;
+        };
+        private Dictionary<string, ExperimentData> processedExperimentData = new Dictionary<string, ExperimentData>();
+        internal ExperimentData GetExperimentData(string subjectID, ScienceExperiment experiment)
+        {
+            ExperimentData ed;
+            if (!processedExperimentData.TryGetValue(subjectID, out ed))
+            {
+                ed = new ExperimentData();
+
+                string bodyName;
+                string biome;
+                ScienceUtil.GetExperimentFieldsFromScienceID(subjectID, out bodyName, out ed.situation, out biome);
+                ed.body = FlightGlobals.GetBodyByName(bodyName);
+                ed.biomeDisplayName = ScienceUtil.GetBiomedisplayName(ed.body, biome);
+                ed.subject = ResearchAndDevelopment.GetExperimentSubject(experiment, ed.situation, ed.body, biome, ed.biomeDisplayName);
+
+                processedExperimentData.Add(subjectID, ed);
+            }
+
+            return ed;
+        }
+
         #endregion
 
         #region Thermal Management

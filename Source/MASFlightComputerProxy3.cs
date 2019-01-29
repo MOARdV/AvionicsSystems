@@ -1380,16 +1380,8 @@ namespace AvionicsSystems
                     ScienceData[] data = mse.GetData();
                     if (data.Length > 0)
                     {
-                        string bodyName;
-                        ExperimentSituations situation;
-                        string biome;
-
-                        ScienceUtil.GetExperimentFieldsFromScienceID(data[0].subjectID, out bodyName, out situation, out biome);
-                        CelestialBody body = FlightGlobals.GetBodyByName(bodyName);
-                        if (body != null)
-                        {
-                            return ScienceUtil.GetBiomedisplayName(body, biome);
-                        }
+                        MASVesselComputer.ExperimentData ed = vc.GetExperimentData(data[0].subjectID, mse.experiment);
+                        return ed.biomeDisplayName;
                     }
                 }
             }
@@ -1441,21 +1433,13 @@ namespace AvionicsSystems
                 ModuleScienceExperiment mse = vc.moduleScienceExperiment[id];
                 if (mse.Deployed)
                 {
-                    ScienceExperiment experiment = mse.experiment;
                     ScienceData[] data = mse.GetData();
                     if (data.Length > 0)
                     {
-                        string bodyName;
-                        ExperimentSituations situation;
-                        string biome;
+                        ScienceExperiment experiment = mse.experiment;
+                        MASVesselComputer.ExperimentData ed = vc.GetExperimentData(data[0].subjectID, experiment);
 
-                        // TODO: I use this construct in many of the science fields.  It needs to be a dictionary mapping
-                        // subjectID to { CelestialBody, ExperimentSituations, Biome Display Name, ScienceSubject, ScienceExperiment }
-                        ScienceUtil.GetExperimentFieldsFromScienceID(data[0].subjectID, out bodyName, out situation, out biome);
-                        CelestialBody cb = FlightGlobals.GetBodyByName(bodyName);
-
-                        ScienceSubject currentScienceSubject = ResearchAndDevelopment.GetExperimentSubject(experiment, situation, cb, biome, ScienceUtil.GetBiomedisplayName(cb, biome));
-                        float scienceValue = ResearchAndDevelopment.GetScienceValue(experiment.baseValue * experiment.dataScale, currentScienceSubject);
+                        float scienceValue = ResearchAndDevelopment.GetScienceValue(experiment.baseValue * experiment.dataScale, ed.subject);
 
                         return scienceValue * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier;
                     }
@@ -1484,16 +1468,8 @@ namespace AvionicsSystems
                     ScienceData[] data = mse.GetData();
                     if (data.Length > 0)
                     {
-                        string bodyName;
-                        ExperimentSituations situation;
-                        string biome;
-
-                        ScienceUtil.GetExperimentFieldsFromScienceID(data[0].subjectID, out bodyName, out situation, out biome);
-                        CelestialBody body = FlightGlobals.GetBodyByName(bodyName);
-                        if (body != null)
-                        {
-                            return situation.displayDescription();
-                        }
+                        MASVesselComputer.ExperimentData ed = vc.GetExperimentData(data[0].subjectID, mse.experiment);
+                        return ed.situation.displayDescription();
                     }
                 }
             }
