@@ -262,12 +262,7 @@ namespace AvionicsSystems
 
                 RefreshData();
 
-                PilotFixedUpdate();
                 //Utility.LogMessage(this, "FixedUpdate for {0}", vessel.id);
-            }
-            else
-            {
-                CancelAutopilots();
             }
         }
 
@@ -340,8 +335,6 @@ namespace AvionicsSystems
             {
                 RefreshData();
             }
-
-            PilotInitialize();
 
             GameEvents.OnCameraChange.Add(onCameraChange);
             GameEvents.onStageActivate.Add(onStageActivate);
@@ -683,6 +676,7 @@ namespace AvionicsSystems
             surfacePrograde = vessel.srf_vel_direction;
             radialOut = Vector3.ProjectOnPlane(up, prograde).normalized;
             normal = -Vector3.Cross(radialOut, prograde).normalized;
+            // TODO: does Vector3.OrthoNormalize do anything for me here?
 
             right = vessel.GetTransform().right;
             forward = vessel.GetTransform().up;

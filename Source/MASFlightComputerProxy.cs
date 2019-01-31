@@ -68,19 +68,19 @@ namespace AvionicsSystems
     internal partial class MASFlightComputerProxy
     {
 
-        private static readonly MASVesselComputer.ReferenceAttitude[] referenceAttitudes =
+        private static readonly MASAutoPilot.ReferenceAttitude[] referenceAttitudes =
         {
-            MASVesselComputer.ReferenceAttitude.REF_INERTIAL,
-            MASVesselComputer.ReferenceAttitude.REF_ORBIT_PROGRADE,
-            MASVesselComputer.ReferenceAttitude.REF_ORBIT_HORIZONTAL,
-            MASVesselComputer.ReferenceAttitude.REF_SURFACE_PROGRADE,
-            MASVesselComputer.ReferenceAttitude.REF_SURFACE_HORIZONTAL,
-            MASVesselComputer.ReferenceAttitude.REF_SURFACE_NORTH,
-            MASVesselComputer.ReferenceAttitude.REF_TARGET,
-            MASVesselComputer.ReferenceAttitude.REF_TARGET_RELATIVE_VEL,
-            MASVesselComputer.ReferenceAttitude.REF_TARGET_ORIENTATION,
-            MASVesselComputer.ReferenceAttitude.REF_MANEUVER_NODE,
-            MASVesselComputer.ReferenceAttitude.REF_SUN,
+            MASAutoPilot.ReferenceAttitude.REF_INERTIAL,
+            MASAutoPilot.ReferenceAttitude.REF_ORBIT_PROGRADE,
+            MASAutoPilot.ReferenceAttitude.REF_ORBIT_HORIZONTAL,
+            MASAutoPilot.ReferenceAttitude.REF_SURFACE_PROGRADE,
+            MASAutoPilot.ReferenceAttitude.REF_SURFACE_HORIZONTAL,
+            MASAutoPilot.ReferenceAttitude.REF_SURFACE_NORTH,
+            MASAutoPilot.ReferenceAttitude.REF_TARGET,
+            MASAutoPilot.ReferenceAttitude.REF_TARGET_RELATIVE_VEL,
+            MASAutoPilot.ReferenceAttitude.REF_TARGET_ORIENTATION,
+            MASAutoPilot.ReferenceAttitude.REF_MANEUVER_NODE,
+            MASAutoPilot.ReferenceAttitude.REF_SUN,
         };
 
         internal const double KelvinToCelsius = -273.15;
@@ -754,6 +754,70 @@ namespace AvionicsSystems
         #region Autopilot
 
         /// <summary>
+        /// Engage the MAS Attitude Control Pilot to hold the vessel's heading towards
+        /// the reference direction vector.  The `reference` field must be one of:
+        /// 
+        /// * 0 - Inertial Frame
+        /// * 1 - Orbital Prograde
+        /// * 2 - Orbital Prograde Horizontal
+        /// * 3 - Surface Prograde
+        /// * 4 - Surface Prograde Horizontal
+        /// * 5 - Surface North
+        /// * 6 - Target
+        /// * 7 - Target Prograde
+        /// * 8 - Target Orientation
+        /// * 9 - Maneuver Node
+        /// * 10 - Sun
+        /// 
+        /// This version does not care about the specific vessel orientation.
+        /// </summary>
+        /// <param name="reference">Reference vector, as described in the summary.</param>
+        /// <returns>1 if the pilot was engaged, otherwise 0.</returns>
+        public double EngageAttitudePilot(double reference)
+        {
+            int refAtt = (int)reference;
+            if (refAtt < 0 || refAtt > 10)
+            {
+                return 0.0;
+            }
+
+            return fc.ap.EngageAttitudePilot(referenceAttitudes[refAtt]) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Engages SAS and sets the vessel's heading based on the reference attitude, heading, pitch, and roll.
+        /// The reference attitude is one of the following:
+        /// 
+        /// * 0 - Inertial Frame - the universe's inertial frame of reference, relative to no bodies or vessels.
+        /// * 1 - Orbital Prograde - The orbital prograde direction with Radial Out up.
+        /// * 2 - Orbital Prograde Horizontal - The orbital prograde direction with a surface-relative up.
+        /// * 3 - Surface Prograde - The surface prograde direction with Radial Out up.
+        /// * 4 - Surface Prograde Horizontal - The surface prograde direction with a surface-relative up.
+        /// * 5 - Surface North - Local planetary north with a surface-relative up.
+        /// * 6 - Target - Pointed towards the target with an up direction based on Radial Out.
+        /// * 7 - Target Relative Prograde - Target-relative prograde with an up direction based on Radial Out.
+        /// * 8 - Target Orientation - target's "forward" and "up" directions (for celestial bodies, this
+        /// is an arbitrary direction).
+        /// * 9 - Maneuver Node - towards the maneuver node, with up based on Radial Out.
+        /// * 10 - Sun - towards the Sun, with an inertial reference frame "up".
+        /// </summary>
+        /// <param name="reference">Reference attitude, as described in the summary.</param>
+        /// <param name="heading">Heading (yaw) relative to the reference attitude.</param>
+        /// <param name="pitch">Pitch relative to the reference attitude.</param>
+        /// <param name="roll">Roll relative to the reference attitude.</param>
+        /// <returns>1 if the SetHeading command succeeded, 0 otherwise.</returns>
+        public double EngageAttitudePilot(double reference, double heading, double pitch, double roll)
+        {
+            int refAtt = (int)reference;
+            if (refAtt < 0 || refAtt > 10)
+            {
+                return 0.0;
+            }
+
+            return (fc.ap.EngageAttitudePilot(referenceAttitudes[refAtt], new Vector3((float)heading, (float)pitch, (float)roll))) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Reports if the attitude control pilot is actively attempting to control
         /// the vessel's heading.  This pilot could be active if the crew used
         /// `fc.SetHeading()` to set the vessel's heading, or if another pilot module
@@ -762,7 +826,7 @@ namespace AvionicsSystems
         /// <returns>1 if the attitude control pilot is active, 0 otherwise.</returns>
         public double GetAttitudePilotActive()
         {
-            return (vc.attitudePilotEngaged) ? 1.0 : 0.0;
+            return (fc.ap.attitudePilotEngaged) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -771,7 +835,7 @@ namespace AvionicsSystems
         /// <returns>Heading relative to the reference attitude, in degrees.</returns>
         public double GetAttitudePilotHeading()
         {
-            return vc.relativeHPR.x;
+            return fc.ap.relativeHPR.x;
         }
 
         /// <summary>
@@ -780,7 +844,7 @@ namespace AvionicsSystems
         /// <returns>Pitch relative to the reference attitude, in degrees.</returns>
         public double GetAttitudePilotPitch()
         {
-            return vc.relativeHPR.y;
+            return fc.ap.relativeHPR.y;
         }
 
         /// <summary>
@@ -789,7 +853,7 @@ namespace AvionicsSystems
         /// <returns>Roll relative to the reference attitude, in degrees.</returns>
         public double GetAttitudePilotRoll()
         {
-            return vc.relativeHPR.z;
+            return fc.ap.relativeHPR.z;
         }
 
         /// <summary>
@@ -816,7 +880,7 @@ namespace AvionicsSystems
         /// <returns>One of the numbers listed in the summary.</returns>
         public double GetAttitudeReference()
         {
-            return (int)vc.activeReference;
+            return (int)fc.ap.activeReference;
         }
 
         /// <summary>
@@ -834,7 +898,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double GetManeuverPilotActive()
         {
-            return (vc.maneuverPilotEngaged) ? 1.0 : 0.0;
+            return (fc.ap.maneuverPilotEngaged) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -843,7 +907,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double GetPilotActive()
         {
-            return (vc.PilotActive()) ? 1.0 : 0.0;
+            return (fc.ap.PilotActive()) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -858,21 +922,21 @@ namespace AvionicsSystems
         /// <returns>Returns 1 if the autopilot is now on, 0 if it is now off.</returns>
         public double SetAttitudePilotActive(bool active)
         {
-            if (active != vc.attitudePilotEngaged)
+            if (active != fc.ap.attitudePilotEngaged)
             {
                 if (!active)
                 {
                     // Shutoff is easy.
-                    vc.CancelAutopilots();
+                    fc.ap.DisengageAutopilots();
                 }
                 else
                 {
                     // Engaging takes a couple of extra steps
-                    vc.EngageAttitudePilot(vc.activeReference, vc.relativeHPR);
+                    fc.ap.EngageAttitudePilot(fc.ap.activeReference, fc.ap.relativeHPR);
                 }
             }
 
-            return (vc.attitudePilotEngaged) ? 1.0 : 0.0;
+            return (fc.ap.attitudePilotEngaged) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -899,13 +963,7 @@ namespace AvionicsSystems
         /// <returns>1 if the SetHeading command succeeded, 0 otherwise.</returns>
         public double SetHeading(double reference, double heading, double pitch, double roll)
         {
-            int refAtt = (int)reference;
-            if (refAtt < 0 || refAtt > 10)
-            {
-                return 0.0;
-            }
-
-            return (vc.EngageAttitudePilot(referenceAttitudes[refAtt], new Vector3((float)heading, (float)pitch, (float)roll))) ? 1.0 : 0.0;
+            return EngageAttitudePilot(reference, heading, pitch, roll);
         }
 
         /// <summary>
@@ -916,21 +974,21 @@ namespace AvionicsSystems
         /// <returns>1 if the maneuver autopilot is active, 0 if it is not active.</returns>
         public double SetManeuverPilotActive(bool active)
         {
-            if (active != vc.maneuverPilotEngaged)
+            if (active != fc.ap.maneuverPilotEngaged)
             {
                 if (!active)
                 {
                     // Shutoff is easy.
-                    vc.CancelAutopilots();
+                    fc.ap.DisengageAutopilots();
                 }
                 else
                 {
                     // Engaging takes a couple of extra steps
-                    vc.EngageManeuverPilot();
+                    fc.ap.EngageManeuverPilot();
                 }
             }
 
-            return (vc.maneuverPilotEngaged) ? 1.0 : 0.0;
+            return (fc.ap.maneuverPilotEngaged) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -945,16 +1003,16 @@ namespace AvionicsSystems
         /// <returns>Returns 1 if the autopilot is now on, 0 if it is now off.</returns>
         public double ToggleAttitudePilot()
         {
-            if (vc.attitudePilotEngaged)
+            if (fc.ap.attitudePilotEngaged)
             {
-                vc.CancelAutopilots();
+                fc.ap.DisengageAutopilots();
             }
             else
             {
-                vc.EngageAttitudePilot(vc.activeReference, vc.relativeHPR);
+                fc.ap.EngageAttitudePilot(fc.ap.activeReference, fc.ap.relativeHPR);
             }
 
-            return (vc.attitudePilotEngaged) ? 1.0 : 0.0;
+            return (fc.ap.attitudePilotEngaged) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -963,16 +1021,16 @@ namespace AvionicsSystems
         /// <returns>1 if the maneuver pilot is now active, 0 if it is now inactive.</returns>
         public double ToggleManeuverPilot()
         {
-            if (vc.maneuverPilotEngaged)
+            if (fc.ap.maneuverPilotEngaged)
             {
-                vc.CancelAutopilots();
+                fc.ap.DisengageAutopilots();
             }
             else
             {
-                vc.EngageManeuverPilot();
+                fc.ap.EngageManeuverPilot();
             }
 
-            return (vc.maneuverPilotEngaged) ? 1.0 : 0.0;
+            return (fc.ap.maneuverPilotEngaged) ? 1.0 : 0.0;
         }
         #endregion
 

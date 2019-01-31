@@ -214,6 +214,11 @@ namespace AvionicsSystems
         internal MASVesselComputer vc;
 
         /// <summary>
+        /// Reference to the current vessel autopilot.
+        /// </summary>
+        internal MASAutoPilot ap;
+
+        /// <summary>
         /// Additional EC required by subcomponents via `fc.IncreasePowerDraw(rate)`.  Ignored if requiresPower is false.
         /// </summary>
         private float additionalEC = 0.0f;
@@ -1161,7 +1166,9 @@ namespace AvionicsSystems
                     Utility.LogError(this, e.ToString());
                     Utility.ComplainLoudly("Initialization Failed.  Please check KSP.log");
                 }
+
                 vc = MASPersistent.FetchVesselComputer(vessel);
+                ap = MASAutoPilot.Get(vessel);
                 // Initialize the resourceConverterList with ElectricCharge at index 0
                 if (vc.resourceConverterList.Count > 0)
                 {
@@ -1664,7 +1671,13 @@ namespace AvionicsSystems
                     parentVesselId = vessel.id;
                     SetPersistent(vesselIdLabel, parentVesselId.ToString());
                 }
+
+                if (ap != null)
+                {
+                    ap.DisengageAutopilots();
+                }
                 vc = MASPersistent.FetchVesselComputer(vessel);
+                ap = MASAutoPilot.Get(vessel);
                 fcProxy.vc = vc;
                 fcProxy.vessel = vessel;
                 chattererProxy.UpdateVessel();

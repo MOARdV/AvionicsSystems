@@ -54,6 +54,7 @@
     <Compile Include="Source\DynamicMethodFactory.cs" />
     <Compile Include="Source\KACWrapper.cs" />
     <Compile Include="Source\MASActionGroup.cs" />
+    <Compile Include="Source\MASAutoPilot.cs" />
     <Compile Include="Source\MASCamera.cs" />
     <Compile Include="Source\MASCameraMount.cs" />
     <Compile Include="Source\MASComponent.cs" />

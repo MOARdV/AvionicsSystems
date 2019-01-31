@@ -1,4 +1,5 @@
 ﻿#define VERBOSE_AUTOPILOT_LOGGING
+//#define USE_THIS
 /*****************************************************************************
  * The MIT License (MIT)
  * 
@@ -29,6 +30,7 @@ using UnityEngine;
 
 namespace AvionicsSystems
 {
+#if USE_THIS
     internal partial class MASVesselComputer : MonoBehaviour
     {
         // Flight control / custom autopilot
@@ -533,4 +535,5 @@ namespace AvionicsSystems
             lastDV = vc.maneuverNodeDeltaV;
         }
     }
+#endif
 }
