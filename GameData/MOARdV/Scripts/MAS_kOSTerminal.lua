@@ -48,7 +48,7 @@ function MAS_kOS_PilotToggle(headingStore, pitchStore, rollStore)
 			local roll = math.floor(fc.Roll())
 			fc.SetPersistent(rollStore, roll)
 			
-			fc.SetHeading(5, heading, pitch, roll)
+			fc.EngageAttitudePilot(5, heading, pitch, roll)
 		end
 	else
 		fc.ToggleAttitudePilot()
@@ -76,7 +76,7 @@ function MAS_kOS_Pilot_AdjustSetting(direction, row, headingStore, pitchStore, r
 		end
 		
 		--fc.LogMessage("Adjust Heading " .. heading .. ", " .. pitch..", " .. roll)
-		fc.SetHeading(5, heading, pitch, roll)
+		fc.EngageAttitudePilot(5, heading, pitch, roll)
 	end
 	
 end
@@ -116,7 +116,7 @@ function MAS_kOS_Pilot_UpdateHPR(bufferValue, headingMode, headingStore, pitchSt
 			fc.SetPersistent(rollStore, roll)
 		end
 		
-		fc.SetHeading(5, heading, pitch, roll)
+		fc.EngageAttitudePilot(5, heading, pitch, roll)
 	end
 end
 
