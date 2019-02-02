@@ -290,7 +290,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Delta-V of the next scheduled node.
+        /// Delta-V remaining for the next scheduled node.
         /// </summary>
         /// <returns>ΔV in m/s, or 0 if no node is scheduled.</returns>
         public double ManeuverNodeDV()
@@ -580,6 +580,16 @@ namespace AvionicsSystems
                 return vc.nodeOrbit.UTsoi - Planetarium.GetUniversalTime();
             }
             return 0.0;
+        }
+
+        /// <summary>
+        /// Total Delta-V required for the next scheduled node.  This value does not account for any
+        /// maneuvering.
+        /// </summary>
+        /// <returns>ΔV in m/s, or 0 if no node is scheduled.</returns>
+        public double ManeuverNodeTotalDV()
+        {
+            return vc.maneuverNodeTotalDeltaV;
         }
         #endregion
 
