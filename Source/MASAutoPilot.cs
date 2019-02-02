@@ -212,7 +212,13 @@ namespace AvionicsSystems
         /// <returns></returns>
         public bool ResumeAttitudePilot()
         {
-            return false;
+            if (!ValidReference(activeReference))
+            {
+                return false;
+            }
+            attitudePilotEngaged = true;
+
+            return true;
         }
 
         #endregion

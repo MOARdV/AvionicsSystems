@@ -997,8 +997,8 @@ namespace AvionicsSystems
         /// the attitude pilot (such as the launch pilot), switching off the attitude
         /// pilot will disengage the other pilot as well.
         /// 
-        /// **CAUTION:** If the attitude system has not been initialized, it defaults to an inertial reference
-        /// attitude, which will cause problems during launch or reentry.
+        /// **CAUTION:** If the attitude system has not been initialized, it defaults to a orbital
+        /// prograde, which may not be desired.
         /// </summary>
         /// <returns>Returns 1 if the autopilot is now on, 0 if it is now off.</returns>
         public double ToggleAttitudePilot()
@@ -1009,7 +1009,7 @@ namespace AvionicsSystems
             }
             else
             {
-                fc.ap.EngageAttitudePilot(fc.ap.activeReference, fc.ap.relativeHPR);
+                fc.ap.ResumeAttitudePilot();
             }
 
             return (fc.ap.attitudePilotEngaged) ? 1.0 : 0.0;
