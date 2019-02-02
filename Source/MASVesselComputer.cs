@@ -761,6 +761,7 @@ namespace AvionicsSystems
         private ManeuverNode node;
         internal Orbit nodeOrbit;
         private double nodeDV = -1.0;
+        private double nodeTotalDV = 0.0;
         private void RefreshNodeValues()
         {
             // Per KSP API wiki http://docuwiki-kspapi.rhcloud.com/#/classes/ManeuverNode:
@@ -771,6 +772,7 @@ namespace AvionicsSystems
             // maneuver.  It needs transformed into the right basis.
             maneuverVector = node.GetBurnVector(orbit);
             nodeDV = maneuverVector.magnitude;
+            nodeTotalDV = node.DeltaV.magnitude;
 
             // Swizzle these into the right order.
             Vector3d mnvrVel = orbit.getOrbitalVelocityAtUT(node.UT).xzy;
@@ -822,6 +824,25 @@ namespace AvionicsSystems
                 }
 
                 return nodeDV;
+            }
+        }
+        internal double maneuverNodeTotalDeltaV
+        {
+            get
+            {
+                if (nodeDV < 0.0)
+                {
+                    if (node != null && orbit != null)
+                    {
+                        RefreshNodeValues();
+                    }
+                    else
+                    {
+                        nodeDV = 0.0;
+                    }
+                }
+
+                return nodeTotalDV;
             }
         }
         private Vector3d maneuverVector;
@@ -899,6 +920,7 @@ namespace AvionicsSystems
                 nodeOrbit = null;
             }
             nodeDV = -1.0;
+            nodeTotalDV = 0.0;
             maneuverVector = Vector3d.zero;
             maneuverNodeComponentVector = Vector3d.zero;
         }
