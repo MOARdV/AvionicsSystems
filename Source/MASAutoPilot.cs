@@ -23,6 +23,8 @@
  * 
  ****************************************************************************/
 using KSP.UI;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace AvionicsSystems
@@ -107,6 +109,11 @@ namespace AvionicsSystems
         /// State machine to manage the attitude hold module.
         /// </summary>
         private KerbalFSM attitudePilot = new KerbalFSM();
+
+        /// <summary>
+        /// State machine to manage the maneuver execution module.
+        /// </summary>
+        private KerbalFSM maneuverPilot = new KerbalFSM();
 
         /// <summary>
         /// Reference to the UI buttons that display the current SAS mode, so we can keep
@@ -325,7 +332,7 @@ namespace AvionicsSystems
             {
                 result = result.referenceBody.orbit;
             }
-        
+
             return result;
         }
 
@@ -411,6 +418,7 @@ namespace AvionicsSystems
             return referenceOrientation;
         }
 
+        float currentAttitudeVel = 0.0f;
         /// <summary>
         /// Attitude pilot update method.
         /// </summary>
@@ -445,28 +453,12 @@ namespace AvionicsSystems
                 // than stock.  But it also doesn't tend to overshoot.
                 float smoothTime = 0.20f - Mathf.InverseLerp(60.0f, 180.0f, attitudeError) * 0.10f;
 
-                float currentVel = 0.0f;
-                float newAngle = Mathf.SmoothDampAngle(attitudeError, 0.0f, ref currentVel, smoothTime);
+                float newAngle = Mathf.SmoothDampAngle(attitudeError, 0.0f, ref currentAttitudeVel, smoothTime);
 
                 requestedAttitude = Quaternion.Slerp(requestedAttitude, currentOrientation, newAngle / attitudeError);
             }
 
             vessel.Autopilot.SAS.LockRotation(requestedAttitude);
-        }
-
-        /// <summary>
-        /// Attitude adjustment.
-        /// </summary>
-        private void UpdateAttitude()
-        {
-            // We need to check attitudePilotEngaged because the state machine
-            // event doesn't seem to fire before the state's update fires.
-            // Ditto with ValidReference - if the player canceled the maneuver
-            // node, we may trigger an NRE.
-            if (attitudePilotEngaged && ValidReference(activeReference) && SetMode())
-            {
-                UpdateHeading();
-            }
         }
 
         /// <summary>
@@ -477,11 +469,22 @@ namespace AvionicsSystems
             KFSMState idleState = new KFSMState("Attitude-Idle");
             idleState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
 
-            KFSMState rotateState = new KFSMState("Attitude-Rotate");
-            rotateState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
-            rotateState.OnFixedUpdate = () =>
+            KFSMState holdAttitudeState = new KFSMState("Attitude-Hold");
+            holdAttitudeState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+            holdAttitudeState.OnEnter = (KFSMState fromState) =>
             {
-                UpdateAttitude();
+                currentAttitudeVel = 0.0f;
+            };
+            holdAttitudeState.OnFixedUpdate = () =>
+            {
+                // We need to check attitudePilotEngaged because the state machine
+                // event doesn't seem to fire before the state's update fires.
+                // Ditto with ValidReference - if the player canceled the maneuver
+                // node, we may trigger an NRE.
+                if (attitudePilotEngaged && ValidReference(activeReference) && SetMode())
+                {
+                    UpdateHeading();
+                }
             };
 
             KFSMEvent engageEvent = new KFSMEvent("AttitudeEv-Engage");
@@ -498,13 +501,8 @@ namespace AvionicsSystems
                         return false;
                     }
 
-                    // Other checks here.
-                    //bool startThisPilot = 
-                    //if (stopThisPilot)
-                    //{
-                    //    DisengageAutopilots();
-                    //    //Utility.LogMessage(this, "StopPilot  event: Transitioning");
-                    //}
+                    // Other checks here?
+
                     vessel.ActionGroups.SetGroup(KSPActionGroup.SAS, true);
 
                     return true;
@@ -514,7 +512,7 @@ namespace AvionicsSystems
                     return false;
                 }
             };
-            engageEvent.GoToStateOnEvent = rotateState;
+            engageEvent.GoToStateOnEvent = holdAttitudeState;
             //
             idleState.AddEvent(engageEvent);
 
@@ -532,12 +530,182 @@ namespace AvionicsSystems
             };
             cancelEvent.GoToStateOnEvent = idleState;
             //
-            rotateState.AddEvent(cancelEvent);
+            holdAttitudeState.AddEvent(cancelEvent);
 
             attitudePilot.AddState(idleState);
-            attitudePilot.AddState(rotateState);
+            attitudePilot.AddState(holdAttitudeState);
 
             attitudePilot.StartFSM(idleState);
+        }
+
+        private double startDeltaV = 0.0;
+        float currentThrottleVel = 0.0f;
+        private void Maneuver()
+        {
+            double remainingDeltaV = node.GetBurnVector(vessel.orbit).magnitude;
+            if (remainingDeltaV < 0.15)
+            {
+                maneuverPilotEngaged = false;
+
+                vessel.patchedConicSolver.maneuverNodes.Clear();
+
+                FlightInputHandler.state.mainThrottle = 0.0f;
+            }
+            else
+            {
+                float currentThrottle = vessel.ctrlState.mainThrottle;
+
+                float goalThrottle = 1.0f;
+
+                //Utility.LogMessage(this, "Updating throttle:");
+
+                // Are we way off-axis?
+                float headingErrorDot = Mathf.Clamp01(Vector3.Dot(vessel.GetTransform().up, node.GetBurnVector(vessel.orbit).normalized) + 0.01f);
+                if (headingErrorDot < 1.0f)
+                {
+                    float constraint = headingErrorDot * headingErrorDot;
+                    goalThrottle = Mathf.Min(constraint, goalThrottle);
+                    //Utility.LogMessage(this, "Constraint due to heading error: {0:0.00} because headingErrorDot = {1:0.00}", constraint, headingErrorDot);
+                }
+
+                float remainingDvPercent = (float)(remainingDeltaV / startDeltaV);
+                if (remainingDvPercent < 0.1f)
+                {
+                    float constraint = remainingDvPercent * 10.0f;
+                    goalThrottle = Mathf.Min(constraint, goalThrottle);
+                    //Utility.LogMessage(this, "Constraint due to dV percent: {0:0.00} because remaining dV % = {1:0.00}", constraint, remainingDvPercent);
+                }
+
+                float newThrottle = Mathf.SmoothDamp(currentThrottle, goalThrottle, ref currentThrottleVel, 0.15f);
+                //Utility.LogMessage(this, "Adjusting throttle from {0:0.00} to {1:0.00}", currentThrottle, newThrottle);
+                FlightInputHandler.state.mainThrottle = newThrottle;
+            }
+        }
+
+        // Store the burn start time.  Initialize to the maneuver node time, then use stage Isp
+        // and thrust to refince the value.
+        private double burnStartUT = 0.0;
+
+        // The stock delta-V code doesn't like being hammered frequently.  So, pace the queries
+        // using a 5 second interval.  Realistically, unless the player is messing around with
+        // starting / stopping engines (changing Isp or max thrust), the burn time should be
+        // fairly invariant once it's computed.
+        private double lastBurnStartCheck = 0.0;
+
+        /// <summary>
+        /// Initialize the Maneuver pilot finite state machine.
+        /// </summary>
+        private void InitManeuverFSM()
+        {
+            KFSMState idleState = new KFSMState("Maneuver-Idle");
+            idleState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+
+            KFSMState coastState = new KFSMState("Maneuver-Coast");
+            coastState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+            coastState.OnEnter = (KFSMState fromState) =>
+            {
+                burnStartUT = node.UT;
+                lastBurnStartCheck = 0.0;
+            };
+            coastState.OnFixedUpdate = () =>
+            {
+                if (maneuverPilotEngaged && node != null && Planetarium.GetUniversalTime() - lastBurnStartCheck > 5.0 * TimeWarp.CurrentRate)
+                {
+                    VesselDeltaV vdV = vessel.VesselDeltaV;
+                    if (vdV.IsReady)
+                    {
+                        List<DeltaVStageInfo> stageInfo = vdV.OperatingStageInfo;
+                        if (stageInfo.Count > 0)
+                        {
+                            float currentMaxThrust = stageInfo[0].thrustActual;
+
+                            if (currentMaxThrust > 0.0f)
+                            {
+                                double currentIsp = stageInfo[0].ispActual;
+                                double deltaV = node.DeltaV.magnitude;
+                                double burnTime = currentIsp * (1.0 - Math.Exp(-deltaV / currentIsp / PhysicsGlobals.GravitationalAcceleration)) / (currentMaxThrust / (vessel.totalMass * PhysicsGlobals.GravitationalAcceleration));
+
+                                burnStartUT = node.UT - 0.5 * burnTime;
+
+                                lastBurnStartCheck = Planetarium.GetUniversalTime();
+                            }
+                        }
+                    }
+
+                }
+            };
+
+            KFSMState flyState = new KFSMState("Maneuver-Fly");
+            flyState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+            flyState.OnEnter = (KFSMState fromState) =>
+            {
+                startDeltaV = Math.Max(node.DeltaV.magnitude, 0.01);
+                currentThrottleVel = 0.0f;
+            };
+            flyState.OnFixedUpdate = () =>
+            {
+                if (maneuverPilotEngaged && node != null)
+                {
+                    Maneuver();
+                }
+            };
+
+            KFSMEvent startEvent = new KFSMEvent("ManeuverEv-Start");
+            startEvent.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+            startEvent.OnCheckCondition = (KFSMState currentState) =>
+            {
+                if (maneuverPilotEngaged && node != null)
+                {
+                    Utility.LogMessage(this, "Maneuver Pilot starting");
+                    return true;
+                }
+
+                return false;
+            };
+            startEvent.GoToStateOnEvent = coastState;
+            //
+            idleState.AddEvent(startEvent);
+
+            KFSMEvent cancelEvent = new KFSMEvent("ManeuverEv-Cancel");
+            cancelEvent.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+            cancelEvent.OnCheckCondition = (KFSMState currentState) =>
+            {
+                bool stopThisPilot = (attitudePilotEngaged == false || maneuverPilotEngaged == false || vessel.Autopilot.Enabled == false || node == null);
+                if (stopThisPilot)
+                {
+                    maneuverPilotEngaged = false;
+                    FlightInputHandler.state.mainThrottle = 0.0f;
+                    Utility.LogMessage(this, "Maneuver Pilot canceling");
+                }
+
+                return stopThisPilot;
+            };
+            cancelEvent.GoToStateOnEvent = idleState;
+            //
+            coastState.AddEvent(cancelEvent);
+            flyState.AddEvent(cancelEvent);
+
+            KFSMEvent flyEvent = new KFSMEvent("ManeuverEv-Fly");
+            flyEvent.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+            flyEvent.OnCheckCondition = (KFSMState currentState) =>
+            {
+                if (maneuverPilotEngaged && node != null && Planetarium.GetUniversalTime() > burnStartUT)
+                {
+                    Utility.LogMessage(this, "Time to maneuver");
+                    return true;
+                }
+
+                return false;
+            };
+            flyEvent.GoToStateOnEvent = flyState;
+            //
+            coastState.AddEvent(flyEvent);
+
+            maneuverPilot.AddState(idleState);
+            maneuverPilot.AddState(coastState);
+            maneuverPilot.AddState(flyState);
+
+            maneuverPilot.StartFSM(idleState);
         }
 
         #endregion
@@ -553,6 +721,7 @@ namespace AvionicsSystems
             activeReference = ReferenceAttitude.REF_ORBIT_PROGRADE;
 
             InitAttitudeFSM();
+            InitManeuverFSM();
         }
 
         //public void Start()
@@ -564,10 +733,11 @@ namespace AvionicsSystems
         public void FixedUpdate()
         {
             // Updating.  Refresh what we know.
-            node = (vessel.patchedConicSolver.maneuverNodes.Count) > 0 ? vessel.patchedConicSolver.maneuverNodes[0] : null;
+            node = (vessel.patchedConicSolver != null && vessel.patchedConicSolver.maneuverNodes.Count > 0) ? vessel.patchedConicSolver.maneuverNodes[0] : null;
             activeTarget = FlightGlobals.fetch.VesselTarget;
 
             attitudePilot.FixedUpdateFSM();
+            maneuverPilot.FixedUpdateFSM();
         }
 
         public void OnDestroy()
