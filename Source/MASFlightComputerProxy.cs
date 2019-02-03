@@ -940,33 +940,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Engages SAS and sets the vessel's heading based on the reference attitude, heading, pitch, and roll.
-        /// The reference attitude is one of the following:
-        /// 
-        /// * 0 - Inertial Frame - the universe's inertial frame of reference, relative to no bodies or vessels.
-        /// * 1 - Orbital Prograde - The orbital prograde direction with Radial Out up.
-        /// * 2 - Orbital Prograde Horizontal - The orbital prograde direction with a surface-relative up.
-        /// * 3 - Surface Prograde - The surface prograde direction with Radial Out up.
-        /// * 4 - Surface Prograde Horizontal - The surface prograde direction with a surface-relative up.
-        /// * 5 - Surface North - Local planetary north with a surface-relative up.
-        /// * 6 - Target - Pointed towards the target with an up direction based on Radial Out.
-        /// * 7 - Target Relative Prograde - Target-relative prograde with an up direction based on Radial Out.
-        /// * 8 - Target Orientation - target's "forward" and "up" directions (for celestial bodies, this
-        /// is an arbitrary direction).
-        /// * 9 - Maneuver Node - towards the maneuver node, with up based on Radial Out.
-        /// * 10 - Sun - towards the Sun, with an inertial reference frame "up".
-        /// </summary>
-        /// <param name="reference">Reference attitude, as described in the summary.</param>
-        /// <param name="heading">Heading (yaw) relative to the reference attitude.</param>
-        /// <param name="pitch">Pitch relative to the reference attitude.</param>
-        /// <param name="roll">Roll relative to the reference attitude.</param>
-        /// <returns>1 if the SetHeading command succeeded, 0 otherwise.</returns>
-        public double SetHeading(double reference, double heading, double pitch, double roll)
-        {
-            return EngageAttitudePilot(reference, heading, pitch, roll);
-        }
-
-        /// <summary>
         /// Sets the maneuver autopilot state to active or not based on 'active'.
         /// If no valid maneuver node exists, activating the maneuver pilot has no effect.
         /// </summary>
