@@ -17,6 +17,7 @@ function IFMS_MFD_Init(propId)
 
 	fc.InitializePersistent(propId .. "-LaunchPage", "MAS_IFMS_MFD_Launch0")
 	fc.InitializePersistent(propId .. "-FlightPage", "MAS_IFMS_MFD_Flight0")
+	fc.InitializePersistent(propId .. "-ManeuverPage", "MAS_IFMS_MFD_Maneuver0")
 
 	if mechjeb.Available() > 0 then
 		fc.InitializePersistent("IFMS_Launch_Alt", math.floor(mechjeb.GetDesiredLaunchAltitude() * 0.001))
