@@ -75,14 +75,28 @@ namespace AvionicsSystems
         private Vessel vessel;
 
         /// <summary>
-        /// Active maneuver node, or null.
-        /// </summary>
-        private ManeuverNode node = null;
-
-        /// <summary>
         /// Active target, or null;
         /// </summary>
         private ITargetable activeTarget = null;
+
+        //--- Ascent Pilot Fields ---------------------------------------------
+
+        private double apoapsis, periapsis;
+        private float heading, roll;
+
+        /// <summary>
+        /// Is the MAS ascent pilot doing something?
+        /// </summary>
+        public bool ascentPilotEngaged { get; private set; }
+
+        /// <summary>
+        /// State machine to manage the ascent pilot module.
+        /// </summary>
+        private KerbalFSM ascentPilot = new KerbalFSM();
+
+        private KSP.UI.Screens.Flight.NavBall navBall;
+
+        //--- Attitude Pilot Fields -------------------------------------------
 
         /// <summary>
         /// Is the MAS attitude pilot doing something?
@@ -90,9 +104,9 @@ namespace AvionicsSystems
         public bool attitudePilotEngaged { get; private set; }
 
         /// <summary>
-        /// Is the MAS maneuver autopilot doing something?
+        /// State machine to manage the attitude hold module.
         /// </summary>
-        public bool maneuverPilotEngaged { get; private set; }
+        private KerbalFSM attitudePilot = new KerbalFSM();
 
         /// <summary>
         /// What reference mode is currently active?
@@ -104,16 +118,6 @@ namespace AvionicsSystems
         /// If lockOrientation is false, then the roll component is "don't-care".
         /// </summary>
         public Vector3 relativeHPR { get; private set; }
-
-        /// <summary>
-        /// State machine to manage the attitude hold module.
-        /// </summary>
-        private KerbalFSM attitudePilot = new KerbalFSM();
-
-        /// <summary>
-        /// State machine to manage the maneuver execution module.
-        /// </summary>
-        private KerbalFSM maneuverPilot = new KerbalFSM();
 
         /// <summary>
         /// Reference to the UI buttons that display the current SAS mode, so we can keep
@@ -131,6 +135,23 @@ namespace AvionicsSystems
         /// </summary>
         private Quaternion orientation = Quaternion.identity;
 
+        //--- Maneuver Pilot Fields -------------------------------------------
+
+        /// <summary>
+        /// Is the MAS maneuver autopilot doing something?
+        /// </summary>
+        public bool maneuverPilotEngaged { get; private set; }
+
+        /// <summary>
+        /// State machine to manage the maneuver execution module.
+        /// </summary>
+        private KerbalFSM maneuverPilot = new KerbalFSM();
+
+        /// <summary>
+        /// Active maneuver node, or null.
+        /// </summary>
+        private ManeuverNode node = null;
+
         #region General Interface
 
         /// <summary>
@@ -138,6 +159,7 @@ namespace AvionicsSystems
         /// </summary>
         public void DisengageAutopilots()
         {
+            ascentPilotEngaged = false;
             attitudePilotEngaged = false;
             maneuverPilotEngaged = false;
         }
@@ -148,9 +170,109 @@ namespace AvionicsSystems
         /// <returns></returns>
         public bool PilotActive()
         {
-            return attitudePilotEngaged || maneuverPilotEngaged;
+            return ascentPilotEngaged || attitudePilotEngaged || maneuverPilotEngaged;
         }
 
+        #endregion
+
+        #region Ascent Interface
+
+        /// <summary>
+        /// Disengage the ascent autopilot.
+        /// </summary>
+        /// <returns>True if the AP was previously engaged, false if it was already idle.</returns>
+        public bool DisengageAscentPilot()
+        {
+            if (ascentPilotEngaged)
+            {
+                ascentPilotEngaged = false;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Engage the ascent auto pilot to put the spacecraft into the specified orbit.
+        /// </summary>
+        /// <param name="apoapsis">Target apoapsis, in meters.</param>
+        /// <param name="periapsis">Target periapsis, in meters.</param>
+        /// <param name="inclination">Orbital inclination, degrees.</param>
+        /// <param name="roll">Relative roll to hold during ascent, degrees.</param>
+        /// <returns>True if the pilot can be engaged, false otherwise.</returns>
+        public bool EngageAscentPilot(double apoapsis, double periapsis, double inclination, double roll)
+        {
+            if (!ValidReference(ReferenceAttitude.REF_SURFACE_NORTH) || !ValidReference(ReferenceAttitude.REF_SURFACE_PROGRADE) || !ValidReference(ReferenceAttitude.REF_ORBIT_PROGRADE))
+            {
+                Utility.LogMessage(this, "EngageAP: Failed because of references");
+                return false;
+            }
+            if (periapsis > apoapsis)
+            {
+                Utility.LogMessage(this, "EngageAP: Failed because Pe > Ap");
+                return false;
+            }
+            if (!(vessel.situation == Vessel.Situations.LANDED || vessel.situation == Vessel.Situations.PRELAUNCH || vessel.situation == Vessel.Situations.SPLASHED))
+            {
+                Utility.LogMessage(this, "EngageAP: Failed because of situation {0}", vessel.situation);
+                return false;
+            }
+
+            if (navBall == null)
+            {
+                navBall = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.NavBall>();
+            }
+            Quaternion relativeGimbal = navBall.relativeGymbal;
+            Vector3 surfaceAttitude = Quaternion.Inverse(relativeGimbal).eulerAngles;
+            // Heading is in Y.  Pitch and roll are X and Z, respectively,
+            // but they require a little more processing:
+            if (surfaceAttitude.x > 180.0f)
+            {
+                surfaceAttitude.x = 360.0f - surfaceAttitude.x;
+            }
+            else
+            {
+                surfaceAttitude.x = -surfaceAttitude.x;
+            }
+
+            if (surfaceAttitude.z > 180.0f)
+            {
+                surfaceAttitude.z = 360.0f - surfaceAttitude.z;
+            }
+            else
+            {
+                surfaceAttitude.z = -surfaceAttitude.z;
+            }
+            // Check pitch
+            if (surfaceAttitude.x < 85.0f)
+            {
+                // Vessel is not close enough to vertical to safely engage.
+                Utility.LogMessage(this, "EngageAP: Failed because pitch is {0:0.0}", surfaceAttitude.x);
+                return false;
+            }
+
+            inclination = Utility.NormalizeLongitude(inclination);
+            roll = Utility.NormalizeLongitude(roll);
+
+            this.apoapsis = apoapsis;
+            this.periapsis = periapsis;
+            this.heading = 90.0f - (float)inclination;
+            this.roll = (float)roll;
+
+            lockOrientation = true;
+
+            activeReference = ReferenceAttitude.REF_SURFACE_NORTH;
+            relativeHPR = new Vector3(surfaceAttitude.y, 89.0f, 0.0f);
+            orientation = Quaternion.AngleAxis(relativeHPR.x, Vector3.up) * Quaternion.AngleAxis(-relativeHPR.y, Vector3.right) * Quaternion.AngleAxis(-relativeHPR.z, Vector3.forward) * Quaternion.Euler(90, 0, 0);
+
+            attitudePilotEngaged = true;
+            ascentPilotEngaged = true;
+            maneuverPilotEngaged = false;
+
+            return true;
+        }
         #endregion
 
         #region Attitude Interface
@@ -176,6 +298,7 @@ namespace AvionicsSystems
             orientation = Quaternion.AngleAxis(relativeHPR.x, Vector3.up) * Quaternion.AngleAxis(-relativeHPR.y, Vector3.right) * Quaternion.AngleAxis(-relativeHPR.z, Vector3.forward) * Quaternion.Euler(90, 0, 0);
 
             attitudePilotEngaged = true;
+            ascentPilotEngaged = false;
             maneuverPilotEngaged = false;
 
             return true;
@@ -201,6 +324,7 @@ namespace AvionicsSystems
             orientation = Quaternion.identity; // Updated during FixedUpdate
 
             attitudePilotEngaged = true;
+            ascentPilotEngaged = false;
             maneuverPilotEngaged = false;
 
             return true;
@@ -229,6 +353,7 @@ namespace AvionicsSystems
         /// Engage the attitude pilot to hold heading on the maneuver node.  Simultaneously
         /// engage the maneuver pilot to handle maneuver.
         /// </summary>
+        /// <returns>True if the pilot can be engaged, false otherwise.</returns>
         public bool EngageManeuverPilot()
         {
             // TODO: VALIDATION
@@ -244,6 +369,7 @@ namespace AvionicsSystems
             orientation = Quaternion.identity; // Updated during FixedUpdate
 
             attitudePilotEngaged = true;
+            ascentPilotEngaged = false;
             maneuverPilotEngaged = true;
 
             return true;
@@ -424,7 +550,18 @@ namespace AvionicsSystems
             return referenceOrientation;
         }
 
-        float currentAttitudeVel = 0.0f;
+        // Normalize the angle to the range (-180, 180], and return the absolute value of the
+        // result.
+        static float NormalizeAngle(float angle)
+        {
+            angle = Mathf.Abs(angle);
+
+            return (angle > 180.0f) ? -(angle - 360.0f) : angle;
+        }
+
+        float currentAttitudeXVel = 0.0f;
+        float currentAttitudeYVel = 0.0f;
+        float currentAttitudeZVel = 0.0f;
         /// <summary>
         /// Attitude pilot update method.
         /// </summary>
@@ -443,25 +580,30 @@ namespace AvionicsSystems
 
             // Where we do want to point?
             Quaternion requestedAttitude = referenceRotation * orientation;
+            Vector3 requestedEuler = requestedAttitude.eulerAngles;
 
             // Where do we point now?
             Quaternion currentOrientation = vessel.Autopilot.SAS.lockedRotation;
-            float attitudeError = Quaternion.Angle(requestedAttitude, currentOrientation);
+            Vector3 currentEuler = currentOrientation.eulerAngles;
 
-            // If we're not *really* close to on-target, let's use the Unity angle damping
-            // algorithm to give us a cleaner approach to the correct angle.
-            if (attitudeError > 0.250f)
+            float xError = NormalizeAngle(requestedEuler.x - currentEuler.x);
+            float yError = NormalizeAngle(requestedEuler.y - currentEuler.y);
+            float zError = NormalizeAngle(requestedEuler.z - currentEuler.z);
+            if (xError > 0.500f || yError > 0.500f || zError > 1.000f)
             {
-                // 0.20 for a smooth time seems to give decent results during approach.  Use a
-                // smaller value (higher velocity) when we're way off target.  But we also want
-                // to ramp down the rate as we approach to avoid overshoot.
-                // The 0.20 value damps the rate substantially, so the final refinement is slower
-                // than stock.  But it also doesn't tend to overshoot.
-                float smoothTime = 0.20f - Mathf.InverseLerp(60.0f, 180.0f, attitudeError) * 0.10f;
+                float smoothTime = 0.35f;
+                // Roll tends to overshoot.
+                float rollMaxV = (zError > 1.0f) ? 60.0f : 30.0f;
 
-                float newAngle = Mathf.SmoothDampAngle(attitudeError, 0.0f, ref currentAttitudeVel, smoothTime);
+                float newX = Mathf.SmoothDampAngle(currentEuler.x, requestedEuler.x, ref currentAttitudeXVel, smoothTime, 60.0f, Time.fixedDeltaTime);
+                float newY = Mathf.SmoothDampAngle(currentEuler.y, requestedEuler.y, ref currentAttitudeYVel, smoothTime, 60.0f, Time.fixedDeltaTime);
+                float newZ = Mathf.SmoothDampAngle(currentEuler.z, requestedEuler.z, ref currentAttitudeZVel, smoothTime, rollMaxV, Time.fixedDeltaTime);
 
-                requestedAttitude = Quaternion.Slerp(requestedAttitude, currentOrientation, newAngle / attitudeError);
+                requestedAttitude = Quaternion.Euler(newX, newY, newZ);
+            }
+            else
+            {
+                currentAttitudeXVel = currentAttitudeYVel = currentAttitudeZVel = 0.0f;
             }
 
             vessel.Autopilot.SAS.LockRotation(requestedAttitude);
@@ -479,7 +621,7 @@ namespace AvionicsSystems
             holdAttitudeState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
             holdAttitudeState.OnEnter = (KFSMState fromState) =>
             {
-                currentAttitudeVel = 0.0f;
+                currentAttitudeXVel = currentAttitudeYVel = currentAttitudeZVel = 0.0f;
             };
             holdAttitudeState.OnFixedUpdate = () =>
             {
@@ -529,6 +671,7 @@ namespace AvionicsSystems
                 bool stopThisPilot = (attitudePilotEngaged == false || vessel.Autopilot.Enabled == false || (!ValidReference(activeReference)));
                 if (stopThisPilot)
                 {
+                    Utility.LogWarning(this, "Attitude Pilot canceling - attitudePilot = {0}, sas = {2}, validRef = {1}", attitudePilotEngaged, ValidReference(activeReference), vessel.Autopilot.Enabled);
                     DisengageAutopilots();
                 }
 
@@ -714,6 +857,117 @@ namespace AvionicsSystems
             maneuverPilot.StartFSM(idleState);
         }
 
+        /// <summary>
+        /// Initialize the Ascent Autopilot FSM
+        /// </summary>
+        private void InitAscentFSM()
+        {
+            KFSMState idleState = new KFSMState("Ascent-Idle");
+            idleState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+
+            KFSMState clearTowerState = new KFSMState("Ascent-ClearLaunchTower");
+            clearTowerState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+            clearTowerState.OnFixedUpdate = () =>
+            {
+                FlightInputHandler.state.mainThrottle = 1.0f;
+            };
+
+            KFSMState verticalAscentState = new KFSMState("Ascent-VerticalAscent");
+            verticalAscentState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+            verticalAscentState.OnEnter = (KFSMState fromState) =>
+            {
+                relativeHPR = new Vector3(this.heading, 89.0f, this.roll);
+                orientation = Quaternion.AngleAxis(relativeHPR.x, Vector3.up) * Quaternion.AngleAxis(-relativeHPR.y, Vector3.right) * Quaternion.AngleAxis(-relativeHPR.z, Vector3.forward) * Quaternion.Euler(90, 0, 0);
+                FlightInputHandler.state.mainThrottle = 1.0f;
+            };
+
+            KFSMState pitchManeuverState = new KFSMState("Ascent-PitchManeuver");
+            pitchManeuverState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+
+            KFSMState gravityTurnState = new KFSMState("Ascent-GravityTurn");
+            gravityTurnState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+
+            KFSMState coastToAtmState = new KFSMState("Ascent-CoastToAtmosphere");
+            coastToAtmState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+
+            KFSMEvent startEvent = new KFSMEvent("AscentEv-Start");
+            startEvent.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+            startEvent.OnCheckCondition = (KFSMState currentState) =>
+            {
+                if (ascentPilotEngaged)
+                {
+                    Utility.LogMessage(this, "Ascent Pilot engaged - waiting to clear the tower");
+                    return true;
+                }
+
+                return false;
+            };
+            startEvent.GoToStateOnEvent = clearTowerState;
+            //
+            idleState.AddEvent(startEvent);
+
+            KFSMEvent vertAscentEvent = new KFSMEvent("AscentEv-StartVertAscent");
+            vertAscentEvent.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+            vertAscentEvent.OnCheckCondition = (KFSMState currentState) =>
+            {
+                if (vessel.altitude - vessel.terrainAltitude > 100.0)
+                {
+                    Utility.LogMessage(this, "Tower Cleared - Starting Vertical Ascent");
+                    return true;
+                }
+                return false;
+            };
+            vertAscentEvent.GoToStateOnEvent = verticalAscentState;
+            //
+            clearTowerState.AddEvent(vertAscentEvent);
+
+            KFSMEvent startPitchMnvrEvent = new KFSMEvent("AscentEv-StartPitchMnvr");
+            startPitchMnvrEvent.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+            startPitchMnvrEvent.OnCheckCondition = (KFSMState currentState) =>
+            {
+                if (vessel.altitude - vessel.terrainAltitude > 1000.0)
+                {
+                    Utility.LogMessage(this, "Starting Pitch Maneuver");
+                    return true;
+                }
+                return false;
+            };
+            startPitchMnvrEvent.GoToStateOnEvent = pitchManeuverState;
+            //
+            verticalAscentState.AddEvent(startPitchMnvrEvent);
+
+            KFSMEvent cancelEvent = new KFSMEvent("AscentEv-Cancel");
+            cancelEvent.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+            cancelEvent.OnCheckCondition = (KFSMState currentState) =>
+            {
+                bool stopThisPilot = (attitudePilotEngaged == false || ascentPilotEngaged == false || vessel.Autopilot.Enabled == false);
+                if (stopThisPilot)
+                {
+                    Utility.LogWarning(this, "Ascent Pilot canceling - attitudePilot = {0}, ascentPilot = {1}, sas = {2}", attitudePilotEngaged, ascentPilotEngaged, vessel.Autopilot.Enabled);
+                    ascentPilotEngaged = false;
+                    FlightInputHandler.state.mainThrottle = 0.0f;
+                }
+
+                return stopThisPilot;
+            };
+            cancelEvent.GoToStateOnEvent = idleState;
+            //
+            clearTowerState.AddEvent(cancelEvent);
+            verticalAscentState.AddEvent(cancelEvent);
+            pitchManeuverState.AddEvent(cancelEvent);
+            gravityTurnState.AddEvent(cancelEvent);
+            coastToAtmState.AddEvent(cancelEvent);
+
+            ascentPilot.AddState(idleState);
+            ascentPilot.AddState(clearTowerState);
+            ascentPilot.AddState(verticalAscentState);
+            ascentPilot.AddState(pitchManeuverState);
+            ascentPilot.AddState(gravityTurnState);
+            ascentPilot.AddState(coastToAtmState);
+
+            ascentPilot.StartFSM(idleState);
+        }
+
         #endregion
 
         #region Game Events
@@ -727,6 +981,7 @@ namespace AvionicsSystems
             activeReference = ReferenceAttitude.REF_ORBIT_PROGRADE;
 
             InitAttitudeFSM();
+            InitAscentFSM();
             InitManeuverFSM();
         }
 
@@ -744,6 +999,7 @@ namespace AvionicsSystems
 
             attitudePilot.FixedUpdateFSM();
             maneuverPilot.FixedUpdateFSM();
+            ascentPilot.FixedUpdateFSM();
         }
 
         public void OnDestroy()

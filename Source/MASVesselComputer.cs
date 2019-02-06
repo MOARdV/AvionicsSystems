@@ -107,7 +107,7 @@ namespace AvionicsSystems
         /// <summary>
         /// A reference of the navBall to easily deduce flight information.
         /// </summary>
-        private NavBall navBall;
+        internal NavBall navBall;
 
         /// <summary>
         /// What world / star are we orbiting?
@@ -618,7 +618,7 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        static Quaternion MirrorXAxis(Quaternion input)
+        static internal Quaternion MirrorXAxis(Quaternion input)
         {
             return new Quaternion(input.x, -input.y, -input.z, input.w);
         }
