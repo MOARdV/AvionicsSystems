@@ -1672,10 +1672,6 @@ namespace AvionicsSystems
                     SetPersistent(vesselIdLabel, parentVesselId.ToString());
                 }
 
-                if (ap != null)
-                {
-                    ap.DisengageAutopilots();
-                }
                 vc = MASPersistent.FetchVesselComputer(vessel);
                 ap = MASAutoPilot.Get(vessel);
                 fcProxy.vc = vc;
