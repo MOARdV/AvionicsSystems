@@ -1116,6 +1116,31 @@ namespace AvionicsSystems
             }
         }
 
+        [MASProxy(Dependent = true)]
+        /// <summary>
+        /// Applies `parameter` to `formatString`, returning the result.
+        /// 
+        /// The `formatString` parameter uses normal C# format string delimeters, not the MAS custom delimeters &lt;= and =&gt;.
+        /// Only one variable placeholder, {0}, may be used in FormatString.
+        /// </summary>
+        /// <param name="format">The C# format string, with at most one variable field (eg, {0}).</param>
+        /// <param name="arg0">The argument to formatString</param>
+        /// <returns>The formatted string, or an empty string if an invalid parameter was supplied.</returns>
+        public string FormatString(string format, object arg0)
+        {
+            string result = string.Empty;
+            try
+            {
+                result = string.Format(format, arg0);
+            }
+            catch
+            {
+                result = string.Empty;
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Returns 1 if any of the throttle keys (full throttle, cut throttle, throttle up, throttle down)
         /// were pressed on the keyboard since the last Fixed Update, or if any of those keys are still
