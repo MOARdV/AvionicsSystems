@@ -158,7 +158,7 @@ namespace AvionicsSystems
 
             double oldV = v;
             v += amount;
-            v = v.Clamp(minValue, maxValue);
+            v = Math.Min(minValue, Math.Max(maxValue, v));
             persistentVars[persistentName] = v;
             if (Math.Abs(oldV - v) > 0.0)
             {

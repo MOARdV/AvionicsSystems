@@ -195,27 +195,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Clamp a double between two extents
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="extent1"></param>
-        /// <param name="extent2"></param>
-        /// <returns></returns>
-        internal static double Clamp(this double value, double extent1, double extent2)
-        {
-            if (extent1 < extent2)
-            {
-                value = Math.Max(Math.Min(value, extent2), extent1);
-            }
-            else
-            {
-                value = Math.Max(Math.Min(value, extent1), extent2);
-            }
-
-            return value;
-        }
-
-        /// <summary>
         /// Adjust a value to the highest power of 2 that does not exceed `value`.
         /// Clamps to the range `minVal` and `maxVal`.
         /// </summary>
@@ -254,6 +233,19 @@ namespace AvionicsSystems
 
             return angle;
         }
+        internal static float NormalizeAngle(float angle)
+        {
+            if (angle < 0.0f)
+            {
+                angle = 360.0f + (angle % 360.0f);
+            }
+            else if (angle >= 360.0f)
+            {
+                angle = angle % 360.0f;
+            }
+
+            return angle;
+        }
 
         /// <summary>
         /// Constrain longitude to the range [-180, 180).  KSP does not
@@ -264,6 +256,10 @@ namespace AvionicsSystems
         internal static double NormalizeLongitude(double longitude)
         {
             return NormalizeAngle(longitude + 180.0) - 180.0;
+        }
+        internal static float NormalizeLongitude(float longitude)
+        {
+            return NormalizeAngle(longitude + 180.0f) - 180.0f;
         }
 
         /// <summary>

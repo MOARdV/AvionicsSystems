@@ -112,9 +112,9 @@ namespace AvionicsSystems
         /// <param name="formatSpecification"></param>
         /// <param name="value">The value to use as the scale, ranging [0, 1]/</param>
         /// <returns>The bar graph as specified.</returns>
-        private static string FormatBar(string formatSpecification, double value)
+        private static string FormatBar(string formatSpecification, double valueIn)
         {
-            value.Clamp(0.0, 1.0);
+            float value = Mathf.Clamp01((float)valueIn);
 
             string[] s = formatSpecification.Split(',');
             if (s.Length != 3)
@@ -135,7 +135,7 @@ namespace AvionicsSystems
                 return formatSpecification;
             }
 
-            int fillLength = (int)Math.Floor((double)numChars * value + 0.5);
+            int fillLength = (int)Math.Floor((float)numChars * value + 0.5f);
 
             StringBuilder sb = StringBuilderCache.Acquire();
             sb.Append(s[1][0], fillLength);
