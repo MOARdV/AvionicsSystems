@@ -739,19 +739,49 @@ namespace AvionicsSystems
         /// The Autopilot region provides information about and control over the MAS Vessel
         /// Computer Control system (which needs a cool name amenable to acronyms).
         /// 
-        /// The attitude control pilot is very similar to MechJeb's advanced SASS modes.
+        /// The attitude control pilot is very similar to MechJeb's advanced SASS modes, but
+        /// it uses the stock SAS module to provide steering control.
         /// 
         /// Some caveats about the autopilot subsystems:
         /// 
         /// The attitude control pilot uses the stock SAS feature to provide steering control.
-        /// When it is engaged, SAS is in Stability Control mode.  If SAS is changed to a
+        /// When it is engaged, SAS is usually in Stability Control mode.  If SAS is changed to a
         /// different mode (such as Prograde), the attitude control pilot is disengaged.
-        /// Likewise, if Stability Control is selected, the attitude pilot disengages.
+        /// Likewise, if Stability Control is selected, the attitude pilot disengages.  Turning
+        /// off SAS will disengage the pilots.
         /// 
         /// Other autopilots may use the attitude control system to steer the vessel.  If
         /// the attitude control pilot is disengaged, the other autopilot is also disengaged.
         /// </summary>
         #region Autopilot
+
+        /// <summary>
+        /// Disengage the Ascent Control Pilot.
+        /// </summary>
+        /// <returns>1 if the pilot was on, 0 if it was already disengaged.</returns>
+        public double DisengageAscentPilot()
+        {
+            return (fc.ap.DisengageAscentPilot()) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Engage the Ascent Control Pilot.
+        /// 
+        /// **NOTE: This function is not implemented, and it always returns 0.**
+        /// 
+        /// If invalid parameters are supplied, or the vessel is in flight, the pilot will
+        /// not activate.
+        /// </summary>
+        /// <param name="apoapsis">Goal apoapsis, in meters.</param>
+        /// <param name="periapsis">Goal periapsis, in meters.</param>
+        /// <param name="inclination">Orbital inclination.</param>
+        /// <param name="roll">Horizon-relative roll to maintain during ascent.</param>
+        /// <returns>1 if the pilot is engaged, 0 if it failed to engage.</returns>
+        public double EngageAscentPilot(double apoapsis, double periapsis, double inclination, double roll)
+        {
+            //return (fc.ap.EngageAscentPilot(apoapsis, periapsis, inclination, roll)) ? 1.0 : 0.0;
+            return 0.0;
+        }
 
         /// <summary>
         /// Engage the MAS Attitude Control Pilot to hold the vessel's heading towards
@@ -815,6 +845,15 @@ namespace AvionicsSystems
             }
 
             return (fc.ap.EngageAttitudePilot(referenceAttitudes[refAtt], new Vector3((float)heading, (float)pitch, (float)roll))) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the MAS ascent autopilot is active, 0 if it is idle.
+        /// </summary>
+        /// <returns></returns>
+        public double GetAscentPilotActive()
+        {
+            return (fc.ap.ascentPilotEngaged) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -884,15 +923,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if the MAS ascent autopilot is active, 0 if it is idle.
-        /// </summary>
-        /// <returns></returns>
-        public double GetAscentPilotActive()
-        {
-            return 0.0;
-        }
-
-        /// <summary>
         /// Returns 1 if the MAS maneuver autopilot is active, 0 if it is idle.
         /// </summary>
         /// <returns></returns>
@@ -915,8 +945,9 @@ namespace AvionicsSystems
         /// the attitude pilot (such as the launch pilot), switching off the attitude
         /// pilot will disengage the other pilot as well.
         /// 
-        /// **CAUTION:** If the attitude system has not been initialized, it selects an inertial reference
-        /// attitude, which will cause problems during launch or reentry.
+        /// **CAUTION:** If the attitude system has not been initialized, this function
+        /// may select the orbital prograde
+        /// attitude, which may cause problems during launch or reentry.
         /// </summary>
         /// <param name="active">If true, engage the autopilot and restore the previous attitude.</param>
         /// <returns>Returns 1 if the autopilot is now on, 0 if it is now off.</returns>
@@ -931,8 +962,7 @@ namespace AvionicsSystems
                 }
                 else
                 {
-                    // Engaging takes a couple of extra steps
-                    fc.ap.EngageAttitudePilot(fc.ap.activeReference, fc.ap.relativeHPR);
+                    fc.ap.ResumeAttitudePilot();
                 }
             }
 
