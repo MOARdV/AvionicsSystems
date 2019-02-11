@@ -67,22 +67,6 @@ namespace AvionicsSystems
     /// </mdDoc>
     internal partial class MASFlightComputerProxy
     {
-
-        private static readonly MASAutoPilot.ReferenceAttitude[] referenceAttitudes =
-        {
-            MASAutoPilot.ReferenceAttitude.REF_INERTIAL,
-            MASAutoPilot.ReferenceAttitude.REF_ORBIT_PROGRADE,
-            MASAutoPilot.ReferenceAttitude.REF_ORBIT_HORIZONTAL,
-            MASAutoPilot.ReferenceAttitude.REF_SURFACE_PROGRADE,
-            MASAutoPilot.ReferenceAttitude.REF_SURFACE_HORIZONTAL,
-            MASAutoPilot.ReferenceAttitude.REF_SURFACE_NORTH,
-            MASAutoPilot.ReferenceAttitude.REF_TARGET,
-            MASAutoPilot.ReferenceAttitude.REF_TARGET_RELATIVE_VEL,
-            MASAutoPilot.ReferenceAttitude.REF_TARGET_ORIENTATION,
-            MASAutoPilot.ReferenceAttitude.REF_MANEUVER_NODE,
-            MASAutoPilot.ReferenceAttitude.REF_SUN,
-        };
-
         internal const double KelvinToCelsius = -273.15;
 
         private MASFlightComputer fc;
@@ -798,6 +782,7 @@ namespace AvionicsSystems
         /// * 8 - Target Orientation
         /// * 9 - Maneuver Node
         /// * 10 - Sun
+        /// * 11 - Up
         /// 
         /// This version does not care about the specific vessel orientation.
         /// </summary>
@@ -806,12 +791,12 @@ namespace AvionicsSystems
         public double EngageAttitudePilot(double reference)
         {
             int refAtt = (int)reference;
-            if (refAtt < 0 || refAtt > 10)
+            if (refAtt < 0 || refAtt >= MASAutoPilot.referenceAttitudes.Length)
             {
                 return 0.0;
             }
 
-            return fc.ap.EngageAttitudePilot(referenceAttitudes[refAtt]) ? 1.0 : 0.0;
+            return fc.ap.EngageAttitudePilot(MASAutoPilot.referenceAttitudes[refAtt]) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -830,6 +815,7 @@ namespace AvionicsSystems
         /// is an arbitrary direction).
         /// * 9 - Maneuver Node - towards the maneuver node, with up based on Radial Out.
         /// * 10 - Sun - towards the Sun, with an inertial reference frame "up".
+        /// * 11 - Up - Directly away from the surface, with north being "up".
         /// </summary>
         /// <param name="reference">Reference attitude, as described in the summary.</param>
         /// <param name="heading">Heading (yaw) relative to the reference attitude.</param>
@@ -839,12 +825,12 @@ namespace AvionicsSystems
         public double EngageAttitudePilot(double reference, double heading, double pitch, double roll)
         {
             int refAtt = (int)reference;
-            if (refAtt < 0 || refAtt > 10)
+            if (refAtt < 0 || refAtt >= MASAutoPilot.referenceAttitudes.Length)
             {
                 return 0.0;
             }
 
-            return (fc.ap.EngageAttitudePilot(referenceAttitudes[refAtt], new Vector3((float)heading, (float)pitch, (float)roll))) ? 1.0 : 0.0;
+            return (fc.ap.EngageAttitudePilot(MASAutoPilot.referenceAttitudes[refAtt], new Vector3((float)heading, (float)pitch, (float)roll))) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -910,6 +896,7 @@ namespace AvionicsSystems
         /// * 8 - Target Orientation
         /// * 9 - Maneuver Node
         /// * 10 - Sun
+        /// * 11 - Up
         ///
         /// This reference mode does not indicate whether the attitude control pilot is
         /// active, but it does indicate which reference attitude will take effect if the

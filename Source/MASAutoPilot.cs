@@ -36,6 +36,22 @@ namespace AvionicsSystems
     /// </summary>
     public class MASAutoPilot : MonoBehaviour
     {
+        public static readonly MASAutoPilot.ReferenceAttitude[] referenceAttitudes =
+        {
+            MASAutoPilot.ReferenceAttitude.REF_INERTIAL,
+            MASAutoPilot.ReferenceAttitude.REF_ORBIT_PROGRADE,
+            MASAutoPilot.ReferenceAttitude.REF_ORBIT_HORIZONTAL,
+            MASAutoPilot.ReferenceAttitude.REF_SURFACE_PROGRADE,
+            MASAutoPilot.ReferenceAttitude.REF_SURFACE_HORIZONTAL,
+            MASAutoPilot.ReferenceAttitude.REF_SURFACE_NORTH,
+            MASAutoPilot.ReferenceAttitude.REF_TARGET,
+            MASAutoPilot.ReferenceAttitude.REF_TARGET_RELATIVE_VEL,
+            MASAutoPilot.ReferenceAttitude.REF_TARGET_ORIENTATION,
+            MASAutoPilot.ReferenceAttitude.REF_MANEUVER_NODE,
+            MASAutoPilot.ReferenceAttitude.REF_SUN,
+            MASAutoPilot.ReferenceAttitude.REF_UP,
+        };
+
         public enum ReferenceAttitude
         {
             REF_INERTIAL,
@@ -53,6 +69,7 @@ namespace AvionicsSystems
 
             REF_MANEUVER_NODE,
             REF_SUN,
+            REF_UP,
         };
 
         /// <summary>
@@ -560,6 +577,13 @@ namespace AvionicsSystems
                     Vector3.OrthoNormalize(ref fwd, ref up);
                     referenceOrientation = Quaternion.LookRotation(fwd, up);
                     break;
+
+                case ReferenceAttitude.REF_UP:
+                    fwd = vessel.upAxis;
+                    up = vessel.north;
+                    Vector3.OrthoNormalize(ref fwd, ref up);
+                    referenceOrientation = Quaternion.LookRotation(fwd, up);
+                    break;
             }
 
             return referenceOrientation;
@@ -578,9 +602,6 @@ namespace AvionicsSystems
         }
 
         float currentAttitudeVel = 0.0f;
-        float currentAttitudeXVel = 0.0f;
-        float currentAttitudeYVel = 0.0f;
-        float currentAttitudeZVel = 0.0f;
         /// <summary>
         /// Attitude pilot update method.
         /// </summary>
@@ -599,54 +620,31 @@ namespace AvionicsSystems
 
             // Where we do want to point?
             Quaternion requestedAttitude = referenceRotation * orientation;
-            Vector3 requestedEuler = requestedAttitude.eulerAngles;
+            Vector3 xformRequested = requestedAttitude * Vector3.forward;
 
             // Where do we point now?
             Quaternion currentOrientation = vessel.Autopilot.SAS.lockedRotation;
-            Vector3 currentEuler = currentOrientation.eulerAngles;
+            Vector3 xformCurrent = currentOrientation * Vector3.forward;
+            float rawError = Vector3.Angle(xformRequested, xformCurrent);
 
             // TODO: Compare angle between prograde and requested attitude to Q-alpha,
             // and clamp the requested attitude to satisfy the Q-alpha max angle constraint.
 
             float coarseError = Quaternion.Angle(requestedAttitude, currentOrientation);
 
-            float xError = Utility.NormalizeLongitude(requestedEuler.x - currentEuler.x);
-            float yError = Utility.NormalizeLongitude(requestedEuler.y - currentEuler.y);
-            float zError = Utility.NormalizeLongitude(requestedEuler.z - currentEuler.z);
             if (coarseError > 30.0f)
             {
                 float newAngle = Mathf.SmoothDampAngle(coarseError, 0.0f, ref currentAttitudeVel, 0.35f, 60.0f, Time.fixedDeltaTime);
                 requestedAttitude = Quaternion.Slerp(requestedAttitude, currentOrientation, newAngle / coarseError);
-                currentAttitudeXVel = currentAttitudeYVel = currentAttitudeZVel = 0.0f;
-                //Utility.LogMessage(this, "Att error = coarse {0:0}", coarseError);
-            }
-            else if (Mathf.Abs(xError) > 0.500f || Mathf.Abs(yError) > 0.500f || Mathf.Abs(zError) > 1.000f)
-            {
-                float smoothTime = 0.35f;
-                // Roll tends to overshoot.
-                float rollMaxV = 30.0f;// (zError > 1.0f) ? 60.0f : 30.0f;
 
-                float newX = Mathf.SmoothDampAngle(currentEuler.x, requestedEuler.x, ref currentAttitudeXVel, smoothTime, 60.0f, Time.fixedDeltaTime);
-                float newY = Mathf.SmoothDampAngle(currentEuler.y, requestedEuler.y, ref currentAttitudeYVel, smoothTime, 60.0f, Time.fixedDeltaTime);
-                // Suppress updating roll if we're way off axis.
-                float newZ;
-                if (Mathf.Max(Mathf.Abs(xError), Mathf.Abs(yError)) < 30.0f)
-                {
-                    newZ = Mathf.SmoothDampAngle(currentEuler.z, requestedEuler.z, ref currentAttitudeZVel, smoothTime, rollMaxV, Time.fixedDeltaTime);
-                }
-                else
-                {
-                    newZ = currentEuler.z;
-                    currentAttitudeZVel = 0.0f;
-                }
-
-                requestedAttitude = Quaternion.Euler(newX, newY, newZ);
-                currentAttitudeVel = 0.0f;
-                //Utility.LogMessage(this, "Att error = {0:0}, {1:0}, {2:0}", xError, yError, zError);
+                Utility.LogMessage(this, "Att error = coarse {0:0}, xform {1:0}", coarseError, rawError);
             }
             else
             {
-                currentAttitudeVel = currentAttitudeXVel = currentAttitudeYVel = currentAttitudeZVel = 0.0f;
+                float newAngle = Mathf.SmoothDampAngle(coarseError, 0.0f, ref currentAttitudeVel, 0.40f, 10.0f, Time.fixedDeltaTime);
+                requestedAttitude = Quaternion.Slerp(requestedAttitude, currentOrientation, newAngle / coarseError);
+
+                Utility.LogMessage(this, "Att error = fine  {0:0}, xform {1:0}", coarseError, rawError);
             }
 
             vessel.Autopilot.SAS.LockRotation(requestedAttitude);
@@ -665,7 +663,7 @@ namespace AvionicsSystems
             holdAttitudeState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
             holdAttitudeState.OnEnter = (KFSMState fromState) =>
             {
-                currentAttitudeXVel = currentAttitudeYVel = currentAttitudeZVel = 0.0f;
+                currentAttitudeVel = 0.0f;
             };
             holdAttitudeState.OnFixedUpdate = () =>
             {
@@ -909,8 +907,7 @@ namespace AvionicsSystems
         float maxTimeToAp = 45.0f;
         void FlyGravityTurn()
         {
-            // Probably should be a dynamic pressure control.
-            if (vessel.staticPressurekPa < 0.1)
+            if (vessel.staticPressurekPa < 1.0)
             {
                 // Switch to orbital prograde.
                 activeReference = ReferenceAttitude.REF_ORBIT_PROGRADE;
@@ -923,7 +920,7 @@ namespace AvionicsSystems
             // Heading adjust -- when do I start testing it?
             bool updateHPR = false;
             Vector3 hpr = relativeHPR;
-            if (timeToAp >= minTimeToAp)
+            if (timeToAp >= 15.0f || activeReference == ReferenceAttitude.REF_ORBIT_PROGRADE)
             {
                 // Check the sign -- do we not see a negative inclination during ascent?
                 float currentInclination = (float)vessel.orbit.inclination;
@@ -936,8 +933,12 @@ namespace AvionicsSystems
                 {
                     updateHPR = true;
                     // Oversteer for corrective adjustment
-                    hpr.x = (inclination - currentInclination) * 1.5f;
-                    //hpr.x = (currentInclination - inclination) * 1.5f;
+                    //hpr.x = (inclination - currentInclination) * 1.5f;
+                    hpr.x = (currentInclination - inclination) * 1.5f;
+                    if (activeReference != ReferenceAttitude.REF_ORBIT_PROGRADE)
+                    {
+                        hpr.x = Mathf.Clamp(hpr.x, -5.0f, 5.0f);
+                    }
 
                     Utility.LogMessage(this, "Correcting yaw to {0:0.0} - current in = {1:0.00}, goal is {2:0.00}", hpr.x, currentInclination, inclination);
                 }
@@ -998,7 +999,7 @@ namespace AvionicsSystems
         }
 
         #region Ascent FSM Init
-        double verticalAscentAltitude = 150.0;
+        double verticalAscentAltitude = 250.0;
         int activeStage = -1;
         /// <summary>
         /// Initialize the Ascent Autopilot FSM
@@ -1012,41 +1013,21 @@ namespace AvionicsSystems
             clearTowerState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
             clearTowerState.OnEnter = (KFSMState fromState) =>
             {
-                orientation = vessel.ReferenceTransform.rotation;
-                verticalAscentAltitude = 150.0 + vessel.altitude - vessel.terrainAltitude;
+                verticalAscentAltitude = 250.0 + vessel.altitude - vessel.terrainAltitude;
                 Utility.LogMessage(this, "Waiting to clear tower");
 
-                vessel.ActionGroups.SetGroup(KSPActionGroup.SAS, true);
+                attitudePilotEngaged = true;
+                lockOrientation = false;
+                activeReference = ReferenceAttitude.REF_UP;
+                
                 FlightInputHandler.state.mainThrottle = 1.0f;
             };
             clearTowerState.OnLeave = (KFSMState toState) =>
             {
                 Utility.LogMessage(this, "Clear tower: going to {0}", toState.name);
-                if (toState.name != idleState.name)
-                {
-                    vessel.Autopilot.SAS.LockRotation(vessel.ReferenceTransform.rotation);
-                    //orientation = HPRtoQuaternion(relativeHPR);
-                    attitudePilotEngaged = true;
-                    vessel.ActionGroups.SetGroup(KSPActionGroup.SAS, true);
-                }
             };
             clearTowerState.OnFixedUpdate = () =>
             {
-                TrySetSASMode(VesselAutopilot.AutopilotMode.StabilityAssist);
-                //Vector3 goalAngle = orientation.eulerAngles;
-                //float angleError = Vector3.Angle(goalAngle, vessel.srf_vel_direction);
-                //if (angleError < 30.0f)
-                //{
-                //    // Try to correct to vertical
-                //    Quaternion newOrientation = Quaternion.SlerpUnclamped(Quaternion.Euler(vessel.srf_vel_direction), orientation, 1.25f);
-                //    vessel.Autopilot.SAS.LockRotation(newOrientation);
-                //}
-                //else
-                //{
-                vessel.Autopilot.SAS.LockRotation(orientation);
-                //}
-
-                
                 //Utility.LogMessage(this, "Waiting to clear the launch tower... {0:0}m altitude", vessel.altitude - vessel.terrainAltitude);
                 FlightInputHandler.state.mainThrottle = 1.0f;
             };
@@ -1055,9 +1036,10 @@ namespace AvionicsSystems
             verticalAscentState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
             verticalAscentState.OnEnter = (KFSMState fromState) =>
             {
-                activeReference = ReferenceAttitude.REF_SURFACE_NORTH;
-                lockOrientation = true;
-                relativeHPR = new Vector3(this.heading, 88.0f, this.roll);
+                activeReference = ReferenceAttitude.REF_UP;
+                //activeReference = ReferenceAttitude.REF_SURFACE_NORTH;
+                lockOrientation = false;
+                relativeHPR = new Vector3(0.0f, 0.0f, this.heading);
                 Utility.LogMessage(this, "Vertical Ascent: HPR = {0:0}, {1:0}, {2:0}", relativeHPR.x, relativeHPR.y, relativeHPR.z);
                 orientation = HPRtoQuaternion(relativeHPR);
                 FlightInputHandler.state.mainThrottle = 1.0f;
@@ -1072,9 +1054,10 @@ namespace AvionicsSystems
             pitchManeuverState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
             pitchManeuverState.OnEnter = (KFSMState fromState) =>
             {
+                currentAttitudeVel = 0.0f; 
                 activeReference = ReferenceAttitude.REF_SURFACE_NORTH;
                 lockOrientation = true;
-                // What angle?  Stick with 75 for now.
+                // What angle?
                 relativeHPR = new Vector3(this.heading, 75.0f, this.roll);
                 Utility.LogMessage(this, "Pitch Maneuver: HPR = {0:0}, {1:0}, {2:0}", relativeHPR.x, relativeHPR.y, relativeHPR.z);
                 orientation = HPRtoQuaternion(relativeHPR);
@@ -1091,6 +1074,7 @@ namespace AvionicsSystems
             gravityTurnState.OnEnter = (KFSMState fromState) =>
             {
                 // Lock to surface prograde
+                currentAttitudeVel = 0.0f; 
                 activeReference = ReferenceAttitude.REF_SURFACE_PROGRADE;
                 lockOrientation = true;
 
@@ -1145,10 +1129,11 @@ namespace AvionicsSystems
             startPitchMnvrEvent.updateMode = KFSMUpdateMode.FIXEDUPDATE;
             startPitchMnvrEvent.OnCheckCondition = (KFSMState currentState) =>
             {
-                // TODO: Refine the pitch maneuver altitude?  Static air pressure?
-                if ((vessel.altitude - vessel.terrainAltitude > 1000.0 + verticalAscentAltitude) && (vessel.verticalSpeed > 100.0))
+                // TODO: Refine the pitch maneuver altitude?  Static air pressure?  vertical speed?
+                if ((vessel.altitude - vessel.terrainAltitude > 1000.0 + verticalAscentAltitude) && (vessel.verticalSpeed > 125.0))
                 {
                     Utility.LogMessage(this, "Starting Pitch Maneuver");
+                    verticalAscentAltitude = 1000.0 + vessel.altitude - vessel.terrainAltitude;
                     return true;
                 }
                 return false;
@@ -1170,7 +1155,9 @@ namespace AvionicsSystems
                 float currentPitch = Vector3.Angle(surfacePrograde, fwdProj);
                 float progradePitch = Vector3.Angle(surfacePrograde, noseProj);
 
-                if (progradePitch < currentPitch)
+                // Vertical speed also?
+                // Require at least 1km in Pitch Maneuver before switching to gravity turn.
+                if ((vessel.altitude - vessel.terrainAltitude > verticalAscentAltitude) && (progradePitch < currentPitch))
                 {
                     Utility.LogMessage(this, "Starting Gravity Turn");
                     return true;
