@@ -905,31 +905,46 @@ namespace AvionicsSystems
         }
         #endregion
 
+        float minTimeToAp = 44.0f;
+        float maxTimeToAp = 45.0f;
         void FlyGravityTurn()
         {
+            // Probably should be a dynamic pressure control.
+            if (vessel.staticPressurekPa < 0.1)
+            {
+                // Switch to orbital prograde.
+                activeReference = ReferenceAttitude.REF_ORBIT_PROGRADE;
+            }
+            Utility.LogMessage(this, "sspd {0:0}m/s, static {1:0.000}kPa, dyn {2:0.000}kPa",
+                vessel.srfSpeed, vessel.staticPressurekPa, vessel.dynamicPressurekPa);
             float currentThrottle = FlightInputHandler.state.mainThrottle;
             float timeToAp = (float)vessel.orbit.timeToAp;
 
             // Heading adjust -- when do I start testing it?
             bool updateHPR = false;
             Vector3 hpr = relativeHPR;
-            if (timeToAp > 30.0f)
+            if (timeToAp >= minTimeToAp)
             {
+                // Check the sign -- do we not see a negative inclination during ascent?
                 float currentInclination = (float)vessel.orbit.inclination;
+                if (Vector3.Dot(vessel.obt_velocity, vessel.north) < 0.0f)
+                {
+                    //Utility.LogMessage(this, "negate inclination?");
+                    currentInclination = -currentInclination;
+                }
                 if (Mathf.Abs(inclination - currentInclination) > 0.5f)
                 {
                     updateHPR = true;
-                    hpr.x = inclination - currentInclination;
+                    // Oversteer for corrective adjustment
+                    hpr.x = (inclination - currentInclination) * 1.5f;
+                    //hpr.x = (currentInclination - inclination) * 1.5f;
+
                     Utility.LogMessage(this, "Correcting yaw to {0:0.0} - current in = {1:0.00}, goal is {2:0.00}", hpr.x, currentInclination, inclination);
                 }
-                else if (Mathf.Abs(hpr.x) > 0.0f)
-                {
-                    updateHPR = true;
-                    hpr.x = 0.0f;
-                    Utility.LogMessage(this, "Zeroing yaw");
-                }
             }
-            else if (Mathf.Abs(hpr.x) > 0.0f)
+            // Under what conditions do I pitch up?
+
+            if (!updateHPR && Mathf.Abs(hpr.x) > 0.0f)
             {
                 updateHPR = true;
                 hpr.x = 0.0f;
@@ -943,25 +958,38 @@ namespace AvionicsSystems
             }
 
             // Decide what we want to use for our throttle setting.  Try to keep Ap within 30s-45s in the future.
-            // TODO: Reset to full throttle on flameout (also staging?)
+            // TODO: Reset to full throttle on flameout
             float goalThrottle = currentThrottle;
-            float minTimeToAp = 30.0f;
-            float maxTimeToAp = 45.0f;
             if (timeToAp > maxTimeToAp)
             {
-                goalThrottle = Mathf.Min(currentThrottle, 1.0f - (timeToAp - maxTimeToAp) * 0.02f);
-                goalThrottle = Mathf.Max(goalThrottle, minThrottle);
-                //Mathf.Clamp(1.0f - (timeToAp - maxTimeToAp) * 0.02f, )
-                //Mathf.Min(currenThrottle, Mathf.Max(minThrottle, ));
+                // Absolute throttle based on time error.
+                //goalThrottle = 1.0f - (timeToAp - maxTimeToAp) * 0.04f;
+                // Relative throttle based on time error.
+                goalThrottle = currentThrottle - (timeToAp - maxTimeToAp) * 0.01f * TimeWarp.fixedDeltaTime;
             }
             else if (timeToAp < minTimeToAp)
             {
-                goalThrottle = 1.0f;
+                if (timeToAp < minTimeToAp - 10.0f)
+                {
+                    // Stop messing around.  Floor it.
+                    goalThrottle = 1.0f;
+                }
+                else
+                {
+                    // Absolute throttle based on time error.
+                    //goalThrottle = 1.0f;
+                    // Relative throttle based on time error.  More aggressive throttle up than throttle down.
+                    goalThrottle = currentThrottle - (timeToAp - minTimeToAp) * 0.05f * TimeWarp.fixedDeltaTime;
+                }
             }
 
+            goalThrottle = Mathf.Clamp(goalThrottle, minThrottle, 1.0f);
+            
+            Utility.LogMessage(this, "accel: {0:0.00}", (vessel.acceleration - vessel.graviticAcceleration).magnitude);
             float newThrottle = Mathf.SmoothDamp(currentThrottle, goalThrottle, ref currentThrottleVel, 0.15f);
             if (activeStage != vessel.currentStage)
             {
+                Utility.LogMessage(this, "Staging");
                 newThrottle = 1.0f;
                 activeStage = vessel.currentStage;
             }
@@ -984,6 +1012,7 @@ namespace AvionicsSystems
             clearTowerState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
             clearTowerState.OnEnter = (KFSMState fromState) =>
             {
+                orientation = vessel.ReferenceTransform.rotation;
                 verticalAscentAltitude = 150.0 + vessel.altitude - vessel.terrainAltitude;
                 Utility.LogMessage(this, "Waiting to clear tower");
 
@@ -1003,8 +1032,21 @@ namespace AvionicsSystems
             };
             clearTowerState.OnFixedUpdate = () =>
             {
-                // TODO: This doesn't seem to be sufficient - need to lock to initial rotation?
                 TrySetSASMode(VesselAutopilot.AutopilotMode.StabilityAssist);
+                //Vector3 goalAngle = orientation.eulerAngles;
+                //float angleError = Vector3.Angle(goalAngle, vessel.srf_vel_direction);
+                //if (angleError < 30.0f)
+                //{
+                //    // Try to correct to vertical
+                //    Quaternion newOrientation = Quaternion.SlerpUnclamped(Quaternion.Euler(vessel.srf_vel_direction), orientation, 1.25f);
+                //    vessel.Autopilot.SAS.LockRotation(newOrientation);
+                //}
+                //else
+                //{
+                vessel.Autopilot.SAS.LockRotation(orientation);
+                //}
+
+                
                 //Utility.LogMessage(this, "Waiting to clear the launch tower... {0:0}m altitude", vessel.altitude - vessel.terrainAltitude);
                 FlightInputHandler.state.mainThrottle = 1.0f;
             };
