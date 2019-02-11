@@ -3816,28 +3816,12 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the time until the vessel lands.  If MechJeb is available and the
-        /// landing prediction module is enabled, MechJeb's results are used.
-        /// 
-        /// If the MechJeb is not available, the fallback estimator assumes the surface
-        /// is at sea level and there is no atmosphere, so this result will be inaccurate 
-        /// when the point of impact is at a higher altitude, or there is an atmosphere.
-        /// 
-        /// If the orbit does not intercept the
-        /// surface, 0 is returned.
+        /// Alias for `fc.LandingTime()`
         /// </summary>
-        /// <seealso>MechJeb</seealso>
         /// <returns>Time in seconds until landing; 0 for invalid times.</returns>
         public double TimeToLanding()
         {
-            if (mjProxy.LandingComputerActive() > 0.0 && mjProxy.LandingTime() > 0.0)
-            {
-                return mjProxy.LandingTime();
-            }
-            else
-            {
-                return vc.timeToImpact;
-            }
+            return LandingTime();
         }
 
         /// <summary>
