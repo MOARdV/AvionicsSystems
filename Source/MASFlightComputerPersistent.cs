@@ -156,9 +156,16 @@ namespace AvionicsSystems
                 v = 0.0;
             }
 
+            if (minValue > maxValue)
+            {
+                double tmp = minValue;
+                minValue = maxValue;
+                maxValue = tmp;
+            }
+
             double oldV = v;
             v += amount;
-            v = Math.Min(minValue, Math.Max(maxValue, v));
+            v = Math.Max(minValue, Math.Min(maxValue, v));
             persistentVars[persistentName] = v;
             if (Math.Abs(oldV - v) > 0.0)
             {
