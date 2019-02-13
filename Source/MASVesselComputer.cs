@@ -120,6 +120,12 @@ namespace AvionicsSystems
         internal double universalTime;
 
         /// <summary>
+        /// Debug 'registers'.  Used so I can draw values out of code for viewing in real-
+        /// time without using message logging.
+        /// </summary>
+        internal object[] debugValue = new object[4];
+
+        /// <summary>
         /// Wrapper method for all of the subcategories of data that are
         /// refreshed per-FixedUpdate.
         /// </summary>

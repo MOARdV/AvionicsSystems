@@ -1116,6 +1116,27 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Returns the value of a debug 'register' in MAS.
+        /// 
+        /// **NOTE:** The debug registers are used for development and debugging purposes.
+        /// Bugs filed against this method will be summarily dismissed.
+        /// </summary>
+        /// <param name="index">An integer between 0 and the length of the debug array.</param>
+        /// <returns>Contents of the debug value, or an empty string.</returns>
+        public object DebugValue(double index)
+        {
+            int idx = (int)index;
+            if ((idx >=0 && idx < vc.debugValue.Length) || vc.debugValue[idx] == null)
+            {
+                return vc.debugValue[idx];
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
         [MASProxy(Dependent = true)]
         /// <summary>
         /// Applies `parameter` to `formatString`, returning the result.
