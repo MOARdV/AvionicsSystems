@@ -343,8 +343,10 @@ namespace AvionicsSystems
         /// considered unimportant.
         /// </summary>
         /// <param name="reference">The reference vector.</param>
+        /// <param name="yaw">The yaw (heading) to maintain relative to the reference attitude.</param>
+        /// <param name="pitch">The pitch to maintain relative to the reference attitude.</param>
         /// <returns>true if engaged, false otherwise.</returns>
-        public bool EngageAttitudePilot(ReferenceAttitude reference)
+        public bool EngageAttitudePilot(ReferenceAttitude reference, float yaw, float pitch)
         {
             if (!ValidReference(reference))
             {
@@ -354,7 +356,9 @@ namespace AvionicsSystems
             lockRoll = false;
 
             activeReference = reference;
-            _relativeHPR = Vector3.zero;
+            _relativeHPR.x = yaw;
+            _relativeHPR.y = pitch;
+            _relativeHPR.z = 0.0f;
             orientation = Quaternion.identity; // Updated during FixedUpdate
             vessel.Autopilot.SAS.LockRotation(vessel.ReferenceTransform.rotation);
 

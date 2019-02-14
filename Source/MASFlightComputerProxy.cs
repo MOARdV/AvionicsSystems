@@ -734,8 +734,26 @@ namespace AvionicsSystems
         /// Likewise, if Stability Control is selected, the attitude pilot disengages.  Turning
         /// off SAS will disengage the pilots.
         /// 
-        /// Other autopilots may use the attitude control system to steer the vessel.  If
+        /// Other MAS autopilots may use the attitude control system to steer the vessel.  If
         /// the attitude control pilot is disengaged, the other autopilot is also disengaged.
+        /// 
+        /// There are several supported references available to the MAS autopilot system, as detailed
+        /// here:
+        /// 
+        /// **TODO:** Fully document these reference frames.
+        /// 
+        /// * 0 - Inertial Frame
+        /// * 1 - Orbital Prograde
+        /// * 2 - Orbital Prograde Horizontal
+        /// * 3 - Surface Prograde
+        /// * 4 - Surface Prograde Horizontal
+        /// * 5 - Surface North
+        /// * 6 - Target
+        /// * 7 - Target Prograde
+        /// * 8 - Target Orientation
+        /// * 9 - Maneuver Node
+        /// * 10 - Sun
+        /// * 11 - Up
         /// </summary>
         #region Autopilot
 
@@ -751,7 +769,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Engage the Ascent Control Pilot.
         /// 
-        /// **NOTE: This function is not implemented, and it always returns 0.**
+        /// **NOTE: This function is not enabled, and it always returns 0.**
         /// 
         /// If invalid parameters are supplied, or the vessel is in flight, the pilot will
         /// not activate.
@@ -784,7 +802,7 @@ namespace AvionicsSystems
         /// * 10 - Sun
         /// * 11 - Up
         /// 
-        /// This version does not care about the specific vessel orientation.
+        /// This function is equivalent of `fc.EngageAttitudePilot(reference, 0, 0)`.
         /// </summary>
         /// <param name="reference">Reference vector, as described in the summary.</param>
         /// <returns>1 if the pilot was engaged, otherwise 0.</returns>
@@ -796,7 +814,39 @@ namespace AvionicsSystems
                 return 0.0;
             }
 
-            return fc.ap.EngageAttitudePilot(MASAutoPilot.referenceAttitudes[refAtt]) ? 1.0 : 0.0;
+            return fc.ap.EngageAttitudePilot(MASAutoPilot.referenceAttitudes[refAtt], 0.0f, 0.0f) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Engage the MAS Attitude Control Pilot to hold the vessel's heading towards
+        /// an offset relative to the reference direction vector.  The `reference` field must be one of:
+        /// 
+        /// * 0 - Inertial Frame
+        /// * 1 - Orbital Prograde
+        /// * 2 - Orbital Prograde Horizontal
+        /// * 3 - Surface Prograde
+        /// * 4 - Surface Prograde Horizontal
+        /// * 5 - Surface North
+        /// * 6 - Target
+        /// * 7 - Target Prograde
+        /// * 8 - Target Orientation
+        /// * 9 - Maneuver Node
+        /// * 10 - Sun
+        /// * 11 - Up
+        /// 
+        /// This version does not lock the roll of the vessel to a particular orientation.
+        /// </summary>
+        /// <param name="reference">Reference vector, as described in the summary.</param>
+        /// <returns>1 if the pilot was engaged, otherwise 0.</returns>
+        public double EngageAttitudePilot(double reference, double heading, double pitch)
+        {
+            int refAtt = (int)reference;
+            if (refAtt < 0 || refAtt >= MASAutoPilot.referenceAttitudes.Length)
+            {
+                return 0.0;
+            }
+
+            return fc.ap.EngageAttitudePilot(MASAutoPilot.referenceAttitudes[refAtt], (float)heading, (float)pitch) ? 1.0 : 0.0;
         }
 
         /// <summary>
