@@ -146,7 +146,8 @@ namespace AvionicsSystems
         /// Heading, pitch, roll to hold relative to the current activeReference.
         /// If lockOrientation is false, then the roll component is "don't-care".
         /// </summary>
-        public Vector3 relativeHPR { get; private set; }
+        public Vector3 relativeHPR { get { return _relativeHPR; } }
+        private Vector3 _relativeHPR = Vector3.zero;
 
         /// <summary>
         /// Reference to the UI buttons that display the current SAS mode, so we can keep
@@ -157,7 +158,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Were we asked to hold heading, pitch, and roll (or even just roll) relative to the reference vector?
         /// </summary>
-        private bool lockOrientation = false;
+        private bool lockRoll = false;
 
         /// <summary>
         /// Quaternion representing the desired orientation relative to the vector.
@@ -191,6 +192,8 @@ namespace AvionicsSystems
             ascentPilotEngaged = false;
             attitudePilotEngaged = false;
             maneuverPilotEngaged = false;
+            currentAttitudeVel = 0.0f;
+            currentThrottleVel = 0.0f;
         }
 
         /// <summary>
@@ -291,10 +294,10 @@ namespace AvionicsSystems
             this.heading = 90.0f - this.inclination;
             this.roll = (float)roll;
 
-            lockOrientation = true;
+            lockRoll = true;
 
             //activeReference = ReferenceAttitude.REF_SURFACE_NORTH;
-            relativeHPR = new Vector3(this.heading, 89.0f, this.roll);
+            _relativeHPR = new Vector3(this.heading, 89.0f, this.roll);
             orientation = HPRtoQuaternion(relativeHPR);
 
             attitudePilotEngaged = false;
@@ -321,10 +324,10 @@ namespace AvionicsSystems
                 return false;
             }
 
-            lockOrientation = true;
+            lockRoll = true;
 
             activeReference = reference;
-            relativeHPR = HPR;
+            _relativeHPR = HPR;
             orientation = Quaternion.AngleAxis(relativeHPR.x, Vector3.up) * Quaternion.AngleAxis(-relativeHPR.y, Vector3.right) * Quaternion.AngleAxis(-relativeHPR.z, Vector3.forward) * Quaternion.Euler(90, 0, 0);
             vessel.Autopilot.SAS.LockRotation(vessel.ReferenceTransform.rotation);
 
@@ -348,10 +351,10 @@ namespace AvionicsSystems
                 return false;
             }
 
-            lockOrientation = false;
+            lockRoll = false;
 
             activeReference = reference;
-            relativeHPR = Vector3.zero;
+            _relativeHPR = Vector3.zero;
             orientation = Quaternion.identity; // Updated during FixedUpdate
             vessel.Autopilot.SAS.LockRotation(vessel.ReferenceTransform.rotation);
 
@@ -394,10 +397,10 @@ namespace AvionicsSystems
                 return false;
             }
 
-            lockOrientation = false;
+            lockRoll = false;
 
             activeReference = ReferenceAttitude.REF_MANEUVER_NODE;
-            relativeHPR = Vector3.zero;
+            _relativeHPR = Vector3.zero;
             orientation = Quaternion.identity; // Updated during FixedUpdate
 
             attitudePilotEngaged = true;
@@ -462,7 +465,7 @@ namespace AvionicsSystems
         private bool SetMode()
         {
             // Special cases - just use the stock SAS configuration.
-            if (lockOrientation == false)
+            if (lockRoll == false)
             {
                 if (activeReference == ReferenceAttitude.REF_MANEUVER_NODE)
                 {
@@ -579,7 +582,7 @@ namespace AvionicsSystems
                     break;
 
                 case ReferenceAttitude.REF_UP:
-                    fwd = vessel.upAxis;
+                    fwd = vessel.up;
                     up = vessel.north;
                     Vector3.OrthoNormalize(ref fwd, ref up);
                     referenceOrientation = Quaternion.LookRotation(fwd, up);
@@ -604,48 +607,118 @@ namespace AvionicsSystems
         float currentAttitudeVel = 0.0f;
         /// <summary>
         /// Attitude pilot update method.
+        /// 
+        /// This method is the core of the attitude controller.  It determines what the target heading is,
+        /// and it compares that heading to the current vessel heading.  Based on that information,
+        /// it uses a heuristic of some sort to determine what the updated heading sent to SAS should be.
+        /// 
+        /// The heuristic is the tricky part.  Here are the approaches I tried:
+        /// 
+        /// * Fixed Slerp between current and requested.  Works okay, but it tends to overshoot, since the
+        ///   initial impulse imparts a lot of momentum.  Last setting I tried was to blend 95% current / 5% goal.
+        /// * Variable Slerp between an upper and lower bound based on current error.  Also okay, but still
+        ///   overshoots for the same reason.
+        /// * Using Mathf.SmoothDampAngle() - this seems to give me the best overall control, since there are
+        ///   plenty of tuning options.  Further experiments with it:
+        /// * Don't mess with currentAttitudeVel once underway.  Set it to 0 when starting the alignment process,
+        ///   and let SmoothDampAngle own the value afterwards.  Since all of the angles computed here are non-negative,
+        ///   and currentAttitudeVel is negative (I'm converging to 0), I tried setting it to a positive value to see
+        ///   if it would rebound more aggressively, and it stopped working, instead.
+        /// * Fixed maxSpeed will either cause overshoot (if high) or a very slow convergence (if low).
+        /// * Varying maxSpeed based on the current error works well until convergence.  Scaling maxSpeed as
+        ///   1/2 of the error tends to be slow for large errors, but using maxSpeed * 1 seems to be a good option.
+        /// * Near convergence, maxSpeed needs a floor.  1.5 is too small, 2.5 seems okay.  Need to try larger
+        ///   values once I've nailed down smoothTime.
+        /// * A fixed smoothTime seems to work okay using 0.35f, except recovery from overshoot is slow.
+        /// * Using 0.35f for convergence, and 0.10f for divergence seems to improve the rebound behavior, but
+        ///   once the rebound is complete, the convergence slows due to the relaxed value.
+        /// * 0.10f overall seems to work.
+        /// 
+        /// Once on-axis (or close thereto, there seems to be occasional hiccups of the SAS system that cause the vessel
+        /// to jump off-axis.  I'm not sure if it's because I'm using floats in the computations (and hitting a numeric
+        /// precision error), or if the SAS system gets twitchy with continuous small updates.
+        /// 
+        /// * next test: lock to requested attitude once the error / velocity are small
         /// </summary>
         private void UpdateHeading()
         {
+            // Where we do want to point?
             Quaternion referenceRotation = GetReferenceOrientation(activeReference);
 
-            if (!lockOrientation)
+            // First, let's get the quaternion that represents the desired heading *without*
+            // a locked roll.
+            Vector3 forward = Quaternion.AngleAxis(relativeHPR.x, Vector3.up) * Quaternion.AngleAxis(-relativeHPR.y, Vector3.right) * Vector3.forward;
+            Vector3 up = Quaternion.Inverse(referenceRotation) * (-vessel.GetTransform().forward);
+            Vector3.OrthoNormalize(ref forward, ref up);
+
+            Quaternion unrolledRequestedAttitude = referenceRotation * Quaternion.LookRotation(forward, up) * Quaternion.Euler(90.0f, 0.0f, 0.0f);
+
+            // Then, let's determine the 'real' attitude - which is the same as the
+            // unrolled attitude if roll is unlocked.
+            Quaternion requestedAttitude;
+            if (lockRoll)
             {
-                Vector3 forward = Vector3.forward;
-                Vector3 up = Quaternion.Inverse(referenceRotation) * (-vessel.GetTransform().forward);
-                Vector3.OrthoNormalize(ref forward, ref up);
-
-                orientation = Quaternion.LookRotation(forward, up) * Quaternion.Euler(90, 0, 0);
-            }
-
-            // Where we do want to point?
-            Quaternion requestedAttitude = referenceRotation * orientation;
-            Vector3 xformRequested = requestedAttitude * Vector3.forward;
-
-            // Where do we point now?
-            Quaternion currentOrientation = vessel.Autopilot.SAS.lockedRotation;
-            Vector3 xformCurrent = currentOrientation * Vector3.forward;
-            float rawError = Vector3.Angle(xformRequested, xformCurrent);
-
-            // TODO: Compare angle between prograde and requested attitude to Q-alpha,
-            // and clamp the requested attitude to satisfy the Q-alpha max angle constraint.
-
-            float coarseError = Quaternion.Angle(requestedAttitude, currentOrientation);
-
-            if (coarseError > 30.0f)
-            {
-                float newAngle = Mathf.SmoothDampAngle(coarseError, 0.0f, ref currentAttitudeVel, 0.35f, 60.0f, Time.fixedDeltaTime);
-                requestedAttitude = Quaternion.Slerp(requestedAttitude, currentOrientation, newAngle / coarseError);
-
-                Utility.LogMessage(this, "Att error = coarse {0:0}, xform {1:0}", coarseError, rawError);
+                requestedAttitude = referenceRotation * orientation;
             }
             else
             {
-                float newAngle = Mathf.SmoothDampAngle(coarseError, 0.0f, ref currentAttitudeVel, 0.40f, 10.0f, Time.fixedDeltaTime);
-                requestedAttitude = Quaternion.Slerp(requestedAttitude, currentOrientation, newAngle / coarseError);
-
-                Utility.LogMessage(this, "Att error = fine  {0:0}, xform {1:0}", coarseError, rawError);
+                requestedAttitude = unrolledRequestedAttitude;
             }
+
+            // Where do we currently point?
+            Quaternion currentAttitude = vessel.ReferenceTransform.rotation;
+
+            // Overall error is the angle between the current attitude and the requested attitude,
+            // accounting for roll.
+            float overallError = Quaternion.Angle(currentAttitude, requestedAttitude);
+
+            // yaw/pitch error is the angle between the current heading and the target heading,
+            // ignoring any roll errors.
+            float yawPitchError = Quaternion.Angle(currentAttitude, unrolledRequestedAttitude);
+
+            // rollError infers the roll error by storing the difference between overallError and yawPitchError.
+            float rollError = overallError - yawPitchError;
+
+            // +++ TUNING PARAMETERS
+            // Controls the spring tension - smaller values will increase the rate of change of
+            // the attitude.
+            float smoothTime = 0.10f;
+
+            // At what error / velocity do we lock to the requested attitude
+            // instead of continue applying the damper.  Note that attitude
+            // velocity is negative!
+            float minErrorToLock = 1.5f;
+            float minRollToLock = 10.0f;
+            float maxAttVelToLock = -2.55f;
+
+            // What is the minimum max speed we'll apply?
+            //float minMaxSpeed = 2.5f;
+            float minMaxSpeed = Mathf.Max(2.5f, rollError);
+
+            //+++ HACK DEBUG
+            //MASVesselComputer vc = MASPersistent.FetchVesselComputer(vessel);
+            //--- HACK DEBUG
+
+            // Determine what heading to apply to SAS.
+            // If the error is signficant, use a spring function to smooth it.
+            // XXX: Use yawPitchError instead of overallError.
+            if (yawPitchError > minErrorToLock || rollError > minRollToLock || currentAttitudeVel < maxAttVelToLock)
+            //if (yawPitchError > minErrorToLock || currentAttitudeVel < maxAttVelToLock)
+            //if (overallError > minErrorToLock || currentAttitudeVel < maxAttVelToLock)
+            {
+                float newError = Mathf.SmoothDampAngle(overallError, 0.0f, ref currentAttitudeVel, smoothTime, Mathf.Max(minMaxSpeed, overallError), TimeWarp.fixedDeltaTime);
+                requestedAttitude = Quaternion.Slerp(requestedAttitude, currentAttitude, newError / overallError);
+                //vc.debugValue[0] = "DAMP";
+            }
+            //else
+            //{
+            //    vc.debugValue[0] = "LOCK";
+            //}
+
+            //+++ HACK DEBUG
+            //vc.debugValue[1] = (double)yawPitchError;
+            //vc.debugValue[2] = (double)rollError;
+            //--- HACK DEBUG
 
             vessel.Autopilot.SAS.LockRotation(requestedAttitude);
         }
@@ -769,7 +842,7 @@ namespace AvionicsSystems
                     //Utility.LogMessage(this, "Constraint due to dV percent: {0:0.00} because remaining dV % = {1:0.00}", constraint, remainingDvPercent);
                 }
 
-                float newThrottle = Mathf.SmoothDamp(currentThrottle, goalThrottle, ref currentThrottleVel, 0.15f);
+                float newThrottle = Mathf.SmoothDamp(currentThrottle, goalThrottle, ref currentThrottleVel, 0.20f);
                 //Utility.LogMessage(this, "Adjusting throttle from {0:0.00} to {1:0.00}", currentThrottle, newThrottle);
                 FlightInputHandler.state.mainThrottle = newThrottle;
             }
@@ -800,6 +873,7 @@ namespace AvionicsSystems
             {
                 burnStartUT = node.UT;
                 lastBurnStartCheck = 0.0;
+                currentThrottleVel = 0.0f;
             };
             coastState.OnFixedUpdate = () =>
             {
@@ -954,7 +1028,7 @@ namespace AvionicsSystems
 
             if (updateHPR)
             {
-                relativeHPR = hpr;
+                _relativeHPR = hpr;
                 orientation = HPRtoQuaternion(relativeHPR);
             }
 
@@ -985,7 +1059,7 @@ namespace AvionicsSystems
             }
 
             goalThrottle = Mathf.Clamp(goalThrottle, minThrottle, 1.0f);
-            
+
             Utility.LogMessage(this, "accel: {0:0.00}", (vessel.acceleration - vessel.graviticAcceleration).magnitude);
             float newThrottle = Mathf.SmoothDamp(currentThrottle, goalThrottle, ref currentThrottleVel, 0.15f);
             if (activeStage != vessel.currentStage)
@@ -1017,9 +1091,9 @@ namespace AvionicsSystems
                 Utility.LogMessage(this, "Waiting to clear tower");
 
                 attitudePilotEngaged = true;
-                lockOrientation = false;
+                lockRoll = false;
                 activeReference = ReferenceAttitude.REF_UP;
-                
+
                 FlightInputHandler.state.mainThrottle = 1.0f;
             };
             clearTowerState.OnLeave = (KFSMState toState) =>
@@ -1028,7 +1102,7 @@ namespace AvionicsSystems
             };
             clearTowerState.OnFixedUpdate = () =>
             {
-                //Utility.LogMessage(this, "Waiting to clear the launch tower... {0:0}m altitude", vessel.altitude - vessel.terrainAltitude);
+                //Utility.LogMessage(this, "Clear tower");
                 FlightInputHandler.state.mainThrottle = 1.0f;
             };
 
@@ -1038,8 +1112,8 @@ namespace AvionicsSystems
             {
                 activeReference = ReferenceAttitude.REF_UP;
                 //activeReference = ReferenceAttitude.REF_SURFACE_NORTH;
-                lockOrientation = false;
-                relativeHPR = new Vector3(0.0f, 0.0f, this.heading);
+                lockRoll = false;
+                _relativeHPR = new Vector3(0.0f, 0.0f, this.heading);
                 Utility.LogMessage(this, "Vertical Ascent: HPR = {0:0}, {1:0}, {2:0}", relativeHPR.x, relativeHPR.y, relativeHPR.z);
                 orientation = HPRtoQuaternion(relativeHPR);
                 FlightInputHandler.state.mainThrottle = 1.0f;
@@ -1054,11 +1128,10 @@ namespace AvionicsSystems
             pitchManeuverState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
             pitchManeuverState.OnEnter = (KFSMState fromState) =>
             {
-                currentAttitudeVel = 0.0f; 
                 activeReference = ReferenceAttitude.REF_SURFACE_NORTH;
-                lockOrientation = true;
+                lockRoll = true;
                 // What angle?
-                relativeHPR = new Vector3(this.heading, 75.0f, this.roll);
+                _relativeHPR = new Vector3(this.heading, 75.0f, this.roll);
                 Utility.LogMessage(this, "Pitch Maneuver: HPR = {0:0}, {1:0}, {2:0}", relativeHPR.x, relativeHPR.y, relativeHPR.z);
                 orientation = HPRtoQuaternion(relativeHPR);
                 FlightInputHandler.state.mainThrottle = 1.0f;
@@ -1074,11 +1147,10 @@ namespace AvionicsSystems
             gravityTurnState.OnEnter = (KFSMState fromState) =>
             {
                 // Lock to surface prograde
-                currentAttitudeVel = 0.0f; 
                 activeReference = ReferenceAttitude.REF_SURFACE_PROGRADE;
-                lockOrientation = true;
+                lockRoll = true;
 
-                relativeHPR = new Vector3(0.0f, 0.0f, this.roll);
+                _relativeHPR = new Vector3(0.0f, 0.0f, this.roll);
                 Utility.LogMessage(this, "Gravity Turn: HPR = {0:0}, {1:0}, {2:0}", relativeHPR.x, relativeHPR.y, relativeHPR.z);
                 orientation = HPRtoQuaternion(relativeHPR);
                 FlightInputHandler.state.mainThrottle = 1.0f;
@@ -1123,7 +1195,7 @@ namespace AvionicsSystems
             };
             vertAscentEvent.GoToStateOnEvent = verticalAscentState;
             //
-            clearTowerState.AddEvent(vertAscentEvent);
+            //clearTowerState.AddEvent(vertAscentEvent);
 
             KFSMEvent startPitchMnvrEvent = new KFSMEvent("AscentEv-StartPitchMnvr");
             startPitchMnvrEvent.updateMode = KFSMUpdateMode.FIXEDUPDATE;
@@ -1227,7 +1299,7 @@ namespace AvionicsSystems
         {
             // "constructor"
 
-            relativeHPR = Vector3.zero;
+            _relativeHPR = Vector3.zero;
             // Pick something that might be innocuous.
             activeReference = ReferenceAttitude.REF_ORBIT_PROGRADE;
 
