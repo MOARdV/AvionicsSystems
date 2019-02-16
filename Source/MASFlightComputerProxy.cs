@@ -738,22 +738,25 @@ namespace AvionicsSystems
         /// the attitude control pilot is disengaged, the other autopilot is also disengaged.
         /// 
         /// There are several supported references available to the MAS autopilot system, as detailed
-        /// here:
+        /// here.  "Forward" is defined as the front of the vessel (nose of a space plane, or the top
+        /// of a vertically-launched rocket).  "Up" is the direction of the heads of kerbals sitting
+        /// in a conventional orientation relative to the forward direction, such that their heads point
+        /// away from the surface of the planet in horizontal flight.
         /// 
         /// **TODO:** Fully document these reference frames.
         /// 
-        /// * 0 - Inertial Frame
-        /// * 1 - Orbital Prograde
-        /// * 2 - Orbital Prograde Horizontal
-        /// * 3 - Surface Prograde
-        /// * 4 - Surface Prograde Horizontal
-        /// * 5 - Surface North
-        /// * 6 - Target
-        /// * 7 - Target Prograde
-        /// * 8 - Target Orientation
-        /// * 9 - Maneuver Node
-        /// * 10 - Sun
-        /// * 11 - Up
+        /// * 0 - Inertial Frame: The reference frame of the universe.
+        /// * 1 - Orbital Prograde: Forward = orbital prograde, Up = surface-relative up (radial out).
+        /// * 2 - Orbital Prograde Horizontal: Forward = horizontal, aligned towards orbital prograde, Up = surface-relative up (radial out).
+        /// * 3 - Surface Prograde: Forward = surface-relative prograde, Up = surface-relative up (radial out).
+        /// * 4 - Surface Prograde Horizontal: Forward = horizontal, aligned towards surface-relative prograde, Up = surface-relative up (radial out).
+        /// * 5 - Surface North: Forward = planetary north, Up = surface-relative up.
+        /// * 6 - Target: Forward = direction towards the target, Up = perpendicular to the target direction and orbit normal.
+        /// * 7 - Target Prograde: Forward = towards the target-relative velocity vector, Up = perpendicular to the velocity vector and orbit normal.
+        /// * 8 - Target Orientation: Forward = target's forward direction, Up = target's up direction.
+        /// * 9 - Maneuver Node: Forward = facing towards the maneuver vector, Up = radial out at the time of the burn.
+        /// * 10 - Sun: Forward = facing Kerbol, Up = orbital normal of the body orbiting Kerbol.
+        /// * 11 - Up: Forward = surface-relative up,  Up = planetary north.
         /// </summary>
         #region Autopilot
 
@@ -853,19 +856,18 @@ namespace AvionicsSystems
         /// Engages SAS and sets the vessel's heading based on the reference attitude, heading, pitch, and roll.
         /// The reference attitude is one of the following:
         /// 
-        /// * 0 - Inertial Frame - the universe's inertial frame of reference, relative to no bodies or vessels.
-        /// * 1 - Orbital Prograde - The orbital prograde direction with Radial Out up.
-        /// * 2 - Orbital Prograde Horizontal - The orbital prograde direction with a surface-relative up.
-        /// * 3 - Surface Prograde - The surface prograde direction with Radial Out up.
-        /// * 4 - Surface Prograde Horizontal - The surface prograde direction with a surface-relative up.
-        /// * 5 - Surface North - Local planetary north with a surface-relative up.
-        /// * 6 - Target - Pointed towards the target with an up direction based on Radial Out.
-        /// * 7 - Target Relative Prograde - Target-relative prograde with an up direction based on Radial Out.
-        /// * 8 - Target Orientation - target's "forward" and "up" directions (for celestial bodies, this
-        /// is an arbitrary direction).
-        /// * 9 - Maneuver Node - towards the maneuver node, with up based on Radial Out.
-        /// * 10 - Sun - towards the Sun, with an inertial reference frame "up".
-        /// * 11 - Up - Directly away from the surface, with north being "up".
+        /// * 0 - Inertial Frame
+        /// * 1 - Orbital Prograde
+        /// * 2 - Orbital Prograde Horizontal
+        /// * 3 - Surface Prograde
+        /// * 4 - Surface Prograde Horizontal
+        /// * 5 - Surface North
+        /// * 6 - Target
+        /// * 7 - Target Prograde
+        /// * 8 - Target Orientation
+        /// * 9 - Maneuver Node
+        /// * 10 - Sun
+        /// * 11 - Up
         /// </summary>
         /// <param name="reference">Reference attitude, as described in the summary.</param>
         /// <param name="heading">Heading (yaw) relative to the reference attitude.</param>
