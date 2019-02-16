@@ -1,4 +1,6 @@
-﻿/*****************************************************************************
+﻿//#define DEBUG_REGISTERS
+//#define ASCENT_PILOT
+/*****************************************************************************
  * The MIT License (MIT)
  * 
  * Copyright (c) 2019 MOARdV
@@ -109,7 +111,9 @@ namespace AvionicsSystems
         /// <summary>
         /// State machine to manage the ascent pilot module.
         /// </summary>
+#if ASCENT_PILOT
         private KerbalFSM ascentPilot = new KerbalFSM();
+#endif
 
         private KSP.UI.Screens.Flight.NavBall navBall;
 
@@ -161,9 +165,18 @@ namespace AvionicsSystems
         private bool lockRoll = false;
 
         /// <summary>
+        /// Is the current HPR 0, 0, 0, and is lockRoll false?
+        /// </summary>
+        private bool zeroOffset = true;
+
+        /// <summary>
         /// Quaternion representing the desired orientation relative to the vector.
         /// </summary>
         private Quaternion orientation = Quaternion.identity;
+
+#if DEBUG_REGISTERS
+        private MASVesselComputer vc;
+#endif
 
         //--- Maneuver Pilot Fields -------------------------------------------
 
@@ -284,6 +297,7 @@ namespace AvionicsSystems
                 Utility.LogMessage(this, "EngageAP: Failed because pitch is {0:0.0}", surfaceAttitude.x);
                 return false;
             }
+            vessel.ActionGroups.SetGroup(KSPActionGroup.SAS, true);
 
             inclination = Utility.NormalizeLongitude(inclination);
             roll = Utility.NormalizeLongitude(roll);
@@ -294,13 +308,14 @@ namespace AvionicsSystems
             this.heading = 90.0f - this.inclination;
             this.roll = (float)roll;
 
-            lockRoll = true;
+            lockRoll = false;
+            zeroOffset = false;
 
-            //activeReference = ReferenceAttitude.REF_SURFACE_NORTH;
-            _relativeHPR = new Vector3(this.heading, 89.0f, this.roll);
+            activeReference = ReferenceAttitude.REF_UP;
+            _relativeHPR = new Vector3(0.0f, 0.0f, 0.0f);
             orientation = HPRtoQuaternion(relativeHPR);
 
-            attitudePilotEngaged = false;
+            attitudePilotEngaged = true;
             ascentPilotEngaged = true;
             maneuverPilotEngaged = false;
 
@@ -325,6 +340,7 @@ namespace AvionicsSystems
             }
 
             lockRoll = true;
+            zeroOffset = false;
 
             activeReference = reference;
             _relativeHPR = HPR;
@@ -359,6 +375,8 @@ namespace AvionicsSystems
             _relativeHPR.x = yaw;
             _relativeHPR.y = pitch;
             _relativeHPR.z = 0.0f;
+            zeroOffset = Vector3.Dot(_relativeHPR, _relativeHPR) == 0.0f;
+
             orientation = Quaternion.identity; // Updated during FixedUpdate
             vessel.Autopilot.SAS.LockRotation(vessel.ReferenceTransform.rotation);
 
@@ -402,6 +420,7 @@ namespace AvionicsSystems
             }
 
             lockRoll = false;
+            zeroOffset = true;
 
             activeReference = ReferenceAttitude.REF_MANEUVER_NODE;
             _relativeHPR = Vector3.zero;
@@ -469,7 +488,7 @@ namespace AvionicsSystems
         private bool SetMode()
         {
             // Special cases - just use the stock SAS configuration.
-            if (lockRoll == false)
+            if (lockRoll == false && zeroOffset)
             {
                 if (activeReference == ReferenceAttitude.REF_MANEUVER_NODE)
                 {
@@ -609,6 +628,7 @@ namespace AvionicsSystems
         }
 
         float currentAttitudeVel = 0.0f;
+        //float lastError = 0.0f;
         /// <summary>
         /// Attitude pilot update method.
         /// 
@@ -686,43 +706,52 @@ namespace AvionicsSystems
             // +++ TUNING PARAMETERS
             // Controls the spring tension - smaller values will increase the rate of change of
             // the attitude.
-            float smoothTime = 0.10f;
+            float smoothTime = 0.25f;
 
             // At what error / velocity do we lock to the requested attitude
             // instead of continue applying the damper.  Note that attitude
             // velocity is negative!
             float minErrorToLock = 1.5f;
-            float minRollToLock = 10.0f;
-            float maxAttVelToLock = -2.55f;
+            float minRollToLock = 7.5f;
+            float maxAttVelToLock = -2.0f;
 
-            // What is the minimum max speed we'll apply?
-            //float minMaxSpeed = 2.5f;
-            float minMaxSpeed = Mathf.Max(2.5f, rollError);
+            // What is the minimum max speed we'll allow?
+            float minMaxSpeed = 2.5f;
+            // Letting a big ship spin is bad for stability...
+            // I think the minMaxSpeed should be based on the moment of inertia and
+            // the available torque forces (that's what MJ does).
+            //float minMaxSpeed = Mathf.Max(2.5f, rollError);
 
-            //+++ HACK DEBUG
-            //MASVesselComputer vc = MASPersistent.FetchVesselComputer(vessel);
-            //--- HACK DEBUG
+            // Divergence from heading.  At what point do we try something more aggressive?
+            //float netErrorRate = 0.0f;
+            //if (yawPitchError > lastError)
+            //{
+            //    netErrorRate = (yawPitchError - lastError) / TimeWarp.fixedDeltaTime;
+            //}
+            //lastError = yawPitchError;
+#if DEBUG_REGISTERS
+            //vc.debugValue[3] = (double)netErrorRate;
+#endif
+            // TODO: Need a different guidance control system for launch.  The springs aren't
+            // cutting it.
 
             // Determine what heading to apply to SAS.
-            // If the error is signficant, use a spring function to smooth it.
-            // XXX: Use yawPitchError instead of overallError.
             if (yawPitchError > minErrorToLock || rollError > minRollToLock || currentAttitudeVel < maxAttVelToLock)
-            //if (yawPitchError > minErrorToLock || currentAttitudeVel < maxAttVelToLock)
-            //if (overallError > minErrorToLock || currentAttitudeVel < maxAttVelToLock)
             {
                 float newError = Mathf.SmoothDampAngle(overallError, 0.0f, ref currentAttitudeVel, smoothTime, Mathf.Max(minMaxSpeed, overallError), TimeWarp.fixedDeltaTime);
                 requestedAttitude = Quaternion.Slerp(requestedAttitude, currentAttitude, newError / overallError);
-                //vc.debugValue[0] = "DAMP";
+#if DEBUG_REGISTERS
+                vc.debugValue[2] = "DAMP";
+#endif
             }
-            //else
-            //{
-            //    vc.debugValue[0] = "LOCK";
-            //}
+#if DEBUG_REGISTERS
+            else
+            {
+                vc.debugValue[2] = "LOCK";
+            }
 
-            //+++ HACK DEBUG
-            //vc.debugValue[1] = (double)yawPitchError;
-            //vc.debugValue[2] = (double)rollError;
-            //--- HACK DEBUG
+            vc.debugValue[1] = (double)overallError;
+#endif
 
             vessel.Autopilot.SAS.LockRotation(requestedAttitude);
         }
@@ -762,7 +791,7 @@ namespace AvionicsSystems
                 {
                     if (!ValidReference(activeReference))
                     {
-                        Utility.LogWarning(this, "Not engaging pilot - {0} is not currently a valid reference vector.", activeReference);
+                        //Utility.LogWarning(this, "Not engaging pilot - {0} is not currently a valid reference vector.", activeReference);
                         attitudePilotEngaged = false;
 
                         return false;
@@ -791,7 +820,7 @@ namespace AvionicsSystems
                 bool stopThisPilot = (attitudePilotEngaged == false || vessel.Autopilot.Enabled == false || (!ValidReference(activeReference)));
                 if (stopThisPilot)
                 {
-                    Utility.LogWarning(this, "Attitude Pilot canceling - attitudePilot = {0}, sas = {2}, validRef = {1}", attitudePilotEngaged, ValidReference(activeReference), vessel.Autopilot.Enabled);
+                    //Utility.LogWarning(this, "Attitude Pilot canceling - attitudePilot = {0}, sas = {2}, validRef = {1}", attitudePilotEngaged, ValidReference(activeReference), vessel.Autopilot.Enabled);
                     DisengageAutopilots();
                 }
 
@@ -981,8 +1010,17 @@ namespace AvionicsSystems
         }
         #endregion
 
+#if ASCENT_PILOT
+        void FlyVerticalAscent()
+        {
+            // TODO: Steer prograde towards vertical
+            //Utility.LogMessage(this, "Vertical ascent...");
+            FlightInputHandler.state.mainThrottle = 1.0f;
+        }
+
         float minTimeToAp = 44.0f;
         float maxTimeToAp = 45.0f;
+        int activeStage = -1;
         void FlyGravityTurn()
         {
             if (vessel.staticPressurekPa < 1.0)
@@ -990,8 +1028,8 @@ namespace AvionicsSystems
                 // Switch to orbital prograde.
                 activeReference = ReferenceAttitude.REF_ORBIT_PROGRADE;
             }
-            Utility.LogMessage(this, "sspd {0:0}m/s, static {1:0.000}kPa, dyn {2:0.000}kPa",
-                vessel.srfSpeed, vessel.staticPressurekPa, vessel.dynamicPressurekPa);
+            //Utility.LogMessage(this, "sspd {0:0}m/s, static {1:0.000}kPa, dyn {2:0.000}kPa",
+            //    vessel.srfSpeed, vessel.staticPressurekPa, vessel.dynamicPressurekPa);
             float currentThrottle = FlightInputHandler.state.mainThrottle;
             float timeToAp = (float)vessel.orbit.timeToAp;
 
@@ -1018,7 +1056,7 @@ namespace AvionicsSystems
                         hpr.x = Mathf.Clamp(hpr.x, -5.0f, 5.0f);
                     }
 
-                    Utility.LogMessage(this, "Correcting yaw to {0:0.0} - current in = {1:0.00}, goal is {2:0.00}", hpr.x, currentInclination, inclination);
+                    //Utility.LogMessage(this, "Correcting yaw to {0:0.0} - current in = {1:0.00}, goal is {2:0.00}", hpr.x, currentInclination, inclination);
                 }
             }
             // Under what conditions do I pitch up?
@@ -1064,11 +1102,11 @@ namespace AvionicsSystems
 
             goalThrottle = Mathf.Clamp(goalThrottle, minThrottle, 1.0f);
 
-            Utility.LogMessage(this, "accel: {0:0.00}", (vessel.acceleration - vessel.graviticAcceleration).magnitude);
+            //Utility.LogMessage(this, "accel: {0:0.00}", (vessel.acceleration - vessel.graviticAcceleration).magnitude);
             float newThrottle = Mathf.SmoothDamp(currentThrottle, goalThrottle, ref currentThrottleVel, 0.15f);
             if (activeStage != vessel.currentStage)
             {
-                Utility.LogMessage(this, "Staging");
+                //Utility.LogMessage(this, "Staging");
                 newThrottle = 1.0f;
                 activeStage = vessel.currentStage;
             }
@@ -1078,7 +1116,6 @@ namespace AvionicsSystems
 
         #region Ascent FSM Init
         double verticalAscentAltitude = 250.0;
-        int activeStage = -1;
         /// <summary>
         /// Initialize the Ascent Autopilot FSM
         /// </summary>
@@ -1086,16 +1123,27 @@ namespace AvionicsSystems
         {
             KFSMState idleState = new KFSMState("Ascent-Idle");
             idleState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
+            idleState.OnEnter = (KFSMState fromState) =>
+            {
+#if DEBUG_REGISTERS
+                vc.debugValue[0] = "Idle";
+#endif
+            };
 
             KFSMState clearTowerState = new KFSMState("Ascent-ClearLaunchTower");
             clearTowerState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
             clearTowerState.OnEnter = (KFSMState fromState) =>
             {
+#if DEBUG_REGISTERS
+                vc.debugValue[0] = "Clear Tower";
+#endif
                 verticalAscentAltitude = 250.0 + vessel.altitude - vessel.terrainAltitude;
                 Utility.LogMessage(this, "Waiting to clear tower");
 
+                _relativeHPR = Vector3.zero;
                 attitudePilotEngaged = true;
                 lockRoll = false;
+                zeroOffset = true;
                 activeReference = ReferenceAttitude.REF_UP;
 
                 FlightInputHandler.state.mainThrottle = 1.0f;
@@ -1114,9 +1162,12 @@ namespace AvionicsSystems
             verticalAscentState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
             verticalAscentState.OnEnter = (KFSMState fromState) =>
             {
+#if DEBUG_REGISTERS
+                vc.debugValue[0] = "Vertical Ascent";
+#endif
                 activeReference = ReferenceAttitude.REF_UP;
-                //activeReference = ReferenceAttitude.REF_SURFACE_NORTH;
-                lockRoll = false;
+                lockRoll = true;
+                zeroOffset = false;
                 _relativeHPR = new Vector3(0.0f, 0.0f, this.heading);
                 Utility.LogMessage(this, "Vertical Ascent: HPR = {0:0}, {1:0}, {2:0}", relativeHPR.x, relativeHPR.y, relativeHPR.z);
                 orientation = HPRtoQuaternion(relativeHPR);
@@ -1124,16 +1175,22 @@ namespace AvionicsSystems
             };
             verticalAscentState.OnFixedUpdate = () =>
             {
-                //Utility.LogMessage(this, "Vertical ascent...");
-                FlightInputHandler.state.mainThrottle = 1.0f;
+                if (ascentPilotEngaged)
+                {
+                    FlyVerticalAscent();
+                }
             };
 
             KFSMState pitchManeuverState = new KFSMState("Ascent-PitchManeuver");
             pitchManeuverState.updateMode = KFSMUpdateMode.FIXEDUPDATE;
             pitchManeuverState.OnEnter = (KFSMState fromState) =>
             {
+#if DEBUG_REGISTERS
+                vc.debugValue[0] = "Pitch Maneuver";
+#endif
                 activeReference = ReferenceAttitude.REF_SURFACE_NORTH;
                 lockRoll = true;
+                zeroOffset = false;
                 // What angle?
                 _relativeHPR = new Vector3(this.heading, 75.0f, this.roll);
                 Utility.LogMessage(this, "Pitch Maneuver: HPR = {0:0}, {1:0}, {2:0}", relativeHPR.x, relativeHPR.y, relativeHPR.z);
@@ -1153,6 +1210,7 @@ namespace AvionicsSystems
                 // Lock to surface prograde
                 activeReference = ReferenceAttitude.REF_SURFACE_PROGRADE;
                 lockRoll = true;
+                zeroOffset = false;
 
                 _relativeHPR = new Vector3(0.0f, 0.0f, this.roll);
                 Utility.LogMessage(this, "Gravity Turn: HPR = {0:0}, {1:0}, {2:0}", relativeHPR.x, relativeHPR.y, relativeHPR.z);
@@ -1199,7 +1257,7 @@ namespace AvionicsSystems
             };
             vertAscentEvent.GoToStateOnEvent = verticalAscentState;
             //
-            //clearTowerState.AddEvent(vertAscentEvent);
+            clearTowerState.AddEvent(vertAscentEvent);
 
             KFSMEvent startPitchMnvrEvent = new KFSMEvent("AscentEv-StartPitchMnvr");
             startPitchMnvrEvent.updateMode = KFSMUpdateMode.FIXEDUPDATE;
@@ -1255,6 +1313,9 @@ namespace AvionicsSystems
                     Utility.LogWarning(this, "Ascent Pilot canceling - ascentPilot = {0}", ascentPilotEngaged);
                     ascentPilotEngaged = false;
                     FlightInputHandler.state.mainThrottle = 0.0f;
+#if DEBUG_REGISTERS
+                    vc.debugValue[0] = "Cancel";
+#endif
                 }
 
                 return stopThisPilot;
@@ -1273,6 +1334,9 @@ namespace AvionicsSystems
                     Utility.LogWarning(this, "Ascent Pilot canceling - attitudePilot = {0}, ascentPilot = {1}", attitudePilotEngaged, ascentPilotEngaged);
                     ascentPilotEngaged = false;
                     FlightInputHandler.state.mainThrottle = 0.0f;
+#if DEBUG_REGISTERS
+                    vc.debugValue[0] = "Cancel";
+#endif
                 }
 
                 return stopThisPilot;
@@ -1294,6 +1358,7 @@ namespace AvionicsSystems
             ascentPilot.StartFSM(idleState);
         }
         #endregion
+#endif
 
         #endregion
 
@@ -1302,21 +1367,23 @@ namespace AvionicsSystems
         public void Awake()
         {
             // "constructor"
-
+#if DEBUG_REGISTERS
+            vc = MASPersistent.FetchVesselComputer(FlightGlobals.ActiveVessel);
+            if (vc == null)
+            {
+                Utility.LogError(this, "Could not fetch the MASVesselComputer");
+            }
+#endif
             _relativeHPR = Vector3.zero;
             // Pick something that might be innocuous.
             activeReference = ReferenceAttitude.REF_ORBIT_PROGRADE;
 
             InitAttitudeFSM();
+#if ASCENT_PILOT
             InitAscentFSM();
+#endif
             InitManeuverFSM();
         }
-
-        //public void Start()
-        //{
-        //Utility.LogMessage(this, "Start()");
-        // Scene should be initialized.
-        //}
 
         public void FixedUpdate()
         {
@@ -1326,7 +1393,9 @@ namespace AvionicsSystems
 
             attitudePilot.FixedUpdateFSM();
             maneuverPilot.FixedUpdateFSM();
+#if ASCENT_PILOT
             ascentPilot.FixedUpdateFSM();
+#endif
         }
 
         public void OnDestroy()
