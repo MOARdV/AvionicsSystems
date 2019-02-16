@@ -20,7 +20,8 @@ function IFMS_MFD_Init(propId)
 	fc.InitializePersistent(propId .. "-ManeuverPage", "MAS_IFMS_MFD_Maneuver0")
 
 	if mechjeb.Available() > 0 then
-		fc.InitializePersistent("IFMS_Launch_Alt", math.floor(mechjeb.GetDesiredLaunchAltitude() * 0.001))
+		fc.InitializePersistent("IFMS_Launch_Ap", math.floor(mechjeb.GetDesiredLaunchAltitude() * 0.001))
+		fc.InitializePersistent("IFMS_Launch_Pe", math.floor(mechjeb.GetDesiredLaunchAltitude() * 0.001) - 1)
 		fc.InitializePersistent("IFMS_Launch_Inc", mechjeb.GetDesiredLaunchInclination())
 	end
 
@@ -36,7 +37,8 @@ function IFMS_Term_Init(propId)
 	fc.InitializePersistent(propId .. "-ProgramPage", "MAS_IFMS_Term_Program0")
 
 	if mechjeb.Available() > 0 then
-		fc.InitializePersistent("IFMS_Launch_Alt", math.floor(mechjeb.GetDesiredLaunchAltitude() * 0.001))
+		fc.InitializePersistent("IFMS_Launch_Ap", math.floor(mechjeb.GetDesiredLaunchAltitude() * 0.001))
+		fc.InitializePersistent("IFMS_Launch_Pe", math.floor(mechjeb.GetDesiredLaunchAltitude() * 0.001) - 1)
 		fc.InitializePersistent("IFMS_Launch_Inc", mechjeb.GetDesiredLaunchInclination())
 	end
 
@@ -49,16 +51,32 @@ end
 ---------------------------------------
 -- IFMS Terminal Launch Parameters Actions -----------------------------------
 
-function IFMS_SetLaunchAltitude(altitude)
+function IFMS_SetLaunchApoapsis(altitude)
 
 	if altitude < fc.BodySoI(fc.CurrentBodyIndex()) and altitude > 0 then
-		--todo: fc.SetLaunchAltitude(altitude)
 		mechjeb.SetDesiredLaunchAltitude(altitude)
-		fc.SetPersistent("IFMS_Launch_Alt", altitude * 0.001)
+		fc.SetPersistent("IFMS_Launch_Ap", altitude * 0.001)
 
 		fc.SetPersistent("MAS_IFMS_Error", 0)
 		fc.SetPersistent("MAS_IFMS_Launch_Buffer", 0)
-		fc.SetPersistent("IFMS_Launch_Alt_OK", fc.UT() + 2)
+		fc.SetPersistent("IFMS_Launch_Ap_OK", fc.UT() + 2)
+	else
+		fc.SetPersistent("MAS_IFMS_Error", fc.UT() + 4)
+	end
+
+
+	return 1
+end
+
+---------------------------------------
+function IFMS_SetLaunchPeriapsis(altitude)
+
+	if altitude <= fc.GetPersistentAsNumber("IFMS_Launch_Ap") * 1000 then
+		fc.SetPersistent("IFMS_Launch_Pe", altitude * 0.001)
+
+		fc.SetPersistent("MAS_IFMS_Error", 0)
+		fc.SetPersistent("MAS_IFMS_Launch_Buffer", 0)
+		fc.SetPersistent("IFMS_Launch_Pe_OK", fc.UT() + 2)
 	else
 		fc.SetPersistent("MAS_IFMS_Error", fc.UT() + 4)
 	end
@@ -71,7 +89,6 @@ end
 function IFMS_SetLaunchInclination(inclination)
 
 	if inclination < 360 and inclination >= 0 then
-		--todo: fc.SetLaunchInclination(inclination)
 		mechjeb.SetDesiredLaunchInclination(inclination)
 		fc.SetPersistent("IFMS_Launch_Inc", inclination)
 
@@ -88,9 +105,23 @@ end
 
 ---------------------------------------
 function IFMS_ToggleLaunchPilot()
-	-- TODO: Selector to choose between MAS and MechJeb (when MAS can do this)
-	mechjeb.ToggleAscentAutopilot()
 
+	local rv
+	if fc.GetPersistentAsNumber("IFMS_MechJeb_Select") == 0 then
+		if fc.GetAscentPilotActive() == 1 then
+			rv = 0
+			fc.DisengageAscentPilot()
+		else
+			rv = fc.EngageAscentPilot(fc.GetPersistentAsNumber("IFMS_Launch_Ap") * 1000, fc.GetPersistentAsNumber("IFMS_Launch_Pe") * 1000, fc.GetPersistentAsNumber("IFMS_Launch_Inc"), 0)
+		end
+	else
+		rv = mechjeb.ToggleAscentAutopilot()
+	end
+
+	if rv == 0 then
+		fc.SetPersistent("MAS_IFMS_Error", fc.UT() + 4)
+	end
+	
 	return 1
 end
 
@@ -106,6 +137,7 @@ function IFMS_Reset()
 	mechjeb.Reset()
 	fc.SetAttitudePilotActive(false)
 	fc.SetManeuverPilotActive(false)
+	fc.DisengageAscentPilot()
 
 	for i = 1, nextTerminalId - 1 do
 		fc.LogMessage("Terminal " .. i .. " is " .. terminals[i])
@@ -196,12 +228,22 @@ end
 
 ---------------------------------------
 function IFMS_ToggleManeuverPilot()
-	-- TODO: Selector to choose between MAS and MechJeb (when MAS can do this)
-	--if  then
-		fc.ToggleManeuverPilot()
-	--else
-	--	mechjeb.ToggleManeuverNodeExecutor()
-	--end
+
+	local rv = 0
+	if fc.GetPersistentAsNumber("IFMS_MechJeb_Select") == 0 then
+		if mechjeb.ManeuverNodeExecutorActive() > 0 then
+			rv = mechjeb.ToggleManeuverNodeExecutor()
+		end
+		
+		rv = fc.ToggleManeuverPilot()
+	else
+		fc.SetManeuverPilotActive(false)
+		rv = mechjeb.ToggleManeuverNodeExecutor()
+	end
+
+	if rv == 0 then
+		fc.SetPersistent("MAS_IFMS_Error", fc.UT() + 4)
+	end
 
 	return 1
 end
