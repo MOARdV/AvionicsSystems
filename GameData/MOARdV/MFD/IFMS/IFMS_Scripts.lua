@@ -121,7 +121,7 @@ function IFMS_ToggleLaunchPilot()
 	if rv == 0 then
 		fc.SetPersistent("MAS_IFMS_Error", fc.UT() + 4)
 	end
-	
+
 	return 1
 end
 
@@ -183,7 +183,7 @@ end
 ---------------------------------------
 function IFMS_ChangePeriapsis(altitude)
 
-	if altitude <= fc.Apoapsis() and transfer.ChangePeriapsis(altitude) > 0 then
+	if altitude <= fc.Apoapsis() and transfer.ChangePeriapsis(altitude) >= 0 then
 		fc.SetPersistent("MAS_IFMS_Plan_Buffer", 0)
 		fc.SetPersistent("IFMS_Mnvr_Pe_OK", fc.UT() + 2)
 	else
@@ -196,10 +196,17 @@ end
 ---------------------------------------
 function IFMS_PlotTransfer()
 
-	--if  then
-	--else
+	local rv = 0
+
+	if fc.GetPersistentAsNumber("IFMS_MechJeb_Select") == 0 then
+		rv = transfer.HohmannTransfer()
+	else
+		rv = mechjeb.PlotTransfer()
+	end
+
+	if rv == 0 then
 		fc.SetPersistent("MAS_IFMS_Error", fc.UT() + 4)
-	--end
+	end
 
 	return 1
 end
@@ -207,16 +214,24 @@ end
 ---------------------------------------
 function IFMS_MatchVelocity()
 
-	--if  then
-	--else
+	local rv = 0
+
+	if fc.GetPersistentAsNumber("IFMS_MechJeb_Select") == 0 then
+		rv = transfer.MatchVelocities()
+	else
+		rv = mechjeb.MatchVelocities()
+	end
+
+	if rv == 0 then
 		fc.SetPersistent("MAS_IFMS_Error", fc.UT() + 4)
-	--end
+	end
 
 	return 1
 end
 
 ---------------------------------------
 function IFMS_ClearNode()
+
 	if fc.ManeuverNodeExists() > 0 then
 		fc.ClearManeuverNode()
 	else
@@ -232,9 +247,9 @@ function IFMS_ToggleManeuverPilot()
 	local rv = 0
 	if fc.GetPersistentAsNumber("IFMS_MechJeb_Select") == 0 then
 		if mechjeb.ManeuverNodeExecutorActive() > 0 then
-			rv = mechjeb.ToggleManeuverNodeExecutor()
+			mechjeb.ToggleManeuverNodeExecutor()
 		end
-		
+
 		rv = fc.ToggleManeuverPilot()
 	else
 		fc.SetManeuverPilotActive(false)
