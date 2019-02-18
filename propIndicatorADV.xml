@@ -162,7 +162,7 @@
 				<variable>fc.GForce() &gt; 9</variable>
 			</COLOR_SHIFT>
 			<TEXT_LABEL id="0">
-				<text>{0,4:000}[@x-40].$#$fc.Min(99.98, fc.GForce()) * 100</text>
+				<text>{0,4:0.0}$#$fc.Min(99.9, fc.GForce())</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
 				<text>G-FORCE</text>
