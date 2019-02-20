@@ -4856,6 +4856,42 @@
 				<text>DIM</text>
 			</TEXT_LABEL>
 		</prop>
+		<prop>
+			<name>MAS_pb_SH03_B2_Cabin_Fans</name>
+			<style>SH03 DoubleCollider Dimmer</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH03 style.  Press top half to speed cabin fans, press bottom half to slow.</comment>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("CabinFanSpeed", fc.SetPersistent("%AUTOID%", 0.20), 0, 1)</onClick>
+				<autoRepeat delete="true" />
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("CabinFanSpeed", fc.SetPersistent("%AUTOID%", -0.20), 0, 1)</onClick>
+				<autoRepeat delete="true" />
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("CabinFanSpeed") &lt; 1)</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("CabinFanSpeed") &gt; 0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("CabinFanSpeed") &lt; 1)</variable>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("CabinFanSpeed") &gt; 0)</variable>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>CABIN$$$FAN SPD</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>INC</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>DEC</text>
+			</TEXT_LABEL>
+		</prop>
 		
 		<style name="SH03 DoubleCollider">
 			<!--

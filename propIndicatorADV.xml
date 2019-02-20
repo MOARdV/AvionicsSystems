@@ -311,6 +311,7 @@
 				<text>{0,3:0}$#$fc.GetThrottle() * 100</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
+				<fontSize>3.25</fontSize>
 				<text>THROTTLE</text>
 			</TEXT_LABEL>
 		</prop>
@@ -331,4 +332,201 @@
 			</TEXT_LABEL>
 		</prop>
 	</IndicatorADV>
+	<IndicatorADV_2Scales folder="IndicatorADV_2Scales">
+		<!--
+		Standard gauge:
+		Optional color-shifting "active" caption background.
+		Default "normal" background is a white backlight (dimmer-controlled).
+		
+		ANIMATION id 0 fills the bar graph above the center readout.  ANIMATION id 1 fills
+		the bar graph below the center readout.  They may be used independently.
+
+		To color-shift on alarm, use a threshold variable (eg, `fc.PowerPercent() < 0.1`)
+		for each of the following: TRANSLATION id 0 and id 1, COLOR_SHIFT id 0, id 1, and id 2.
+		
+		Note that there are two separate animations for the bars - the "up" animation that extends above
+		the center, and the "down" animation that extends below.  "up" is id 1, "down" is id 2.  They
+		may be activated separately.
+
+		By default, during an alarm, the border around the quantity display will flash at 0.5Hz (1 second at
+		normal color, 1 second at alarm color).
+
+		TEXTURE_SHIFT id 0 selects the color of the alarm plate color (default red).
+		TEXTURE_SHIFT id 1 selects the normal background color (default white).
+
+		TEXT_LABEL id 0 is the quantity.  Setting a variable (such as using the threshold above) will
+		cause it to flash when low.
+		TEXT_LABEL id 1 is the caption.
+		
+		The readout is scaled for 5 digits maximum
+		-->
+		<style name="Standard Gauge">
+			<MODEL id="0">
+				<model>ASET/ASET_Props/Instruments/IndicatorADV_2Scales/IndicatorADV_2Scales</model>
+				<texture>IndicatorAdvICON,MOARdV/Props/IndicatorADV/IndicatorAdvBlank</texture>
+			</MODEL>
+			<MODEL id="1">
+				<model>MOARdV/Props/IndicatorADV/IndicatorADV_MAS_Upgrade</model>
+				<texture>Indicator_Single_DIFFUSE,ASET/ASET_Props/Instruments/IndicatorADV/Indicator_Single_DIFFUSE</texture>
+				<texture>Indicator_Single_Emissive,ASET/ASET_Props/Instruments/IndicatorADV/Indicator_Single_Emissive</texture>
+				<texture>IndicatorAdvICON,MOARdV/Props/IndicatorADV/IndicatorAdvBlank</texture>
+			</MODEL>
+			<TRANSLATION id="0">
+				<name>Hide normal plate</name>
+				<transform>IndicatorNamePlate</transform>
+				<startTranslation>0,0,0</startTranslation>
+				<endTranslation>0,-0.001,0</endTranslation>
+				<variable>0</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<name>Show active plate</name>
+				<transform>IndicatorNamePlateActive</transform>
+				<startTranslation>0,0,0</startTranslation>
+				<endTranslation>0,0.001,0</endTranslation>
+				<variable>0</variable>
+			</TRANSLATION>
+			<TRANSLATION id="2">
+				<name>New power off</name>
+				<transform>PowerOFF_Rect</transform>
+				<startTranslation>0,0,0</startTranslation>
+				<endTranslation>0,-0.005,0</endTranslation>
+				<variable>fc.Conditioned(1)</variable>
+			</TRANSLATION>
+			<ANIMATION id="0">
+				<name>Up Scale animation</name>
+				<animation>IndicatorScaleUPanim</animation>
+				<variable>0</variable>
+			</ANIMATION>
+			<ANIMATION id="1">
+				<name>Down Scale animation</name>
+				<animation>IndicatorScaleDOWNanim</animation>
+				<variable>0</variable>
+			</ANIMATION>
+			<ANIMATION id="2">
+				<name>Old power off</name>
+				<animation>IndicatorPowerOFFanim</animation>
+				<variable>1</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<name>Up Scale color</name>
+				<transform>Indicator_ScaleUP</transform>
+				<passiveColor>COLOR_ASET_IND_ADV_RESRC_SCALE_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_RESRC_SCALE_ACTIVECOLOR</activeColor>
+				<variable>0</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Down Scale color</name>
+				<transform>Indicator_ScaleDOWN</transform>
+				<passiveColor>COLOR_ASET_IND_ADV_RESRC_SCALE_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_RESRC_SCALE_ACTIVECOLOR</activeColor>
+				<variable>0</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<name>Amount border color</name>
+				<transform>IndicatorAmount</transform>
+				<flashRate>0.5</flashRate>
+				<passiveColor>COLOR_ASET_IND_ADV_RESRC_READOUT_BORD_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_RESRC_READOUT_BORD_ACTIVECOLOR</activeColor>
+				<variable>0</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="3">
+				<name>Active plate backlight</name>
+				<transform>IndicatorNamePlateActive</transform>
+				<passiveColor>255,255,255,255</passiveColor>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="4">
+				<name>Passive plate backlight</name>
+				<transform>IndicatorNamePlate</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<name>Readout</name>
+				<transform>DigitTransformObj</transform>
+				<fontSize>6</fontSize>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<transformOffset>0.0121,-0.004</transformOffset>
+				<emissive>always</emissive>
+				<variable>0</variable>
+				<activeColor>COLOR_ASET_IND_ADV_RESRC_READOUT_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_IND_ADV_RESRC_READOUT_ZEROCOLOR</passiveColor>
+				<text>0000</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Plate Text</name>
+				<transform>PlateText</transform>
+				<fontSize>3.5</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>never</emissive>
+				<passiveColor>COLOR_MOARdV_UnlitBlackText</passiveColor>
+			</TEXT_LABEL>
+			<TEXTURE_SHIFT id="0">
+				<name>Active Plate color</name>
+				<transform>IndicatorNamePlateActive</transform>
+				<startUV>0.5,0</startUV>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<comment>White backlight color</comment>
+				<name>Indicator Plate color</name>
+				<transform>IndicatorNamePlate</transform>
+				<startUV>0.25,0.625</startUV>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_IndADV_2Scale_PowerRate</name>
+			<style>Standard Gauge</style>
+			<ANIMATION id="0">
+				<variable>-(fc.PowerDelta() * 0.1)</variable>
+			</ANIMATION>
+			<ANIMATION id="1">
+				<variable>fc.PowerDelta() * 0.1</variable>
+			</ANIMATION>
+			<TEXT_LABEL id="0">
+				<text>{0,5:0.0}$#$fc.Clamp(-fc.PowerDelta(), -99.9, 999.9)</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>CHARGE$$$RATE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndADV_2Scale_VertSpeed</name>
+			<style>Standard Gauge</style>
+			<ANIMATION id="0">
+				<variable>fc.PseudoLog10(fc.VerticalSpeed() * 0.01) * 0.5</variable>
+			</ANIMATION>
+			<ANIMATION id="1">
+				<variable>-(fc.PseudoLog10(fc.VerticalSpeed() * 0.01) * 0.5)</variable>
+			</ANIMATION>
+			<TRANSLATION id="0">
+				<variable>(fc.AltitudeTerrain(true) &lt; 5000) and (fc.VerticalSpeed() &lt; -fc.MaxImpactSpeed())</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>(fc.AltitudeTerrain(true) &lt; 5000) and (fc.VerticalSpeed() &lt; -fc.MaxImpactSpeed())</variable>
+			</TRANSLATION>
+			<COLOR_SHIFT id="1">
+				<variable>(fc.AltitudeTerrain(true) &lt; 5000) and (fc.VerticalSpeed() &lt; -fc.MaxImpactSpeed())</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<variable>((fc.AltitudeTerrain(true) &lt; 5000) and (fc.VerticalSpeed() &lt; -fc.MaxImpactSpeed())) or (fc.Abs(fc.VerticalSpeed()) &gt; 9999)</variable>
+			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<variable>(fc.AltitudeTerrain(true) &lt; 5000) and (fc.VerticalSpeed() &lt; -fc.MaxImpactSpeed())</variable>
+				<text>{0,5:0}$#$fc.Clamp(fc.VerticalSpeed(), -9999, 9999)</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>VERT.$$$SPD, m/s</text>
+			</TEXT_LABEL>
+		</prop>
+	</IndicatorADV_2Scales>
 </PropConfig>

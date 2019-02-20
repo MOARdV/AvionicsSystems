@@ -147,13 +147,13 @@
 			<name>MAS_IndicatorCircular_ChargeRate</name>
 			<style>Standard Circular Indicator</style>
 			<ANIMATION>
-				<variable>fc.PowerDelta() * 0.04</variable>
+				<variable>-fc.PowerDelta() * 0.04</variable>
 			</ANIMATION>
 			<TEXT_LABEL id="0">
 				<text>Chg Rate:</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
-				<text>{0,6:0.0} $#$ fc.Clamp(fc.PowerDelta(), -999.9, 999.9)</text>
+				<text>{0,6:0.0} $#$ fc.Clamp(-fc.PowerDelta(), -999.9, 999.9)</text>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
