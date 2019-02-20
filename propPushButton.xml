@@ -4857,6 +4857,147 @@
 			</TEXT_LABEL>
 		</prop>
 		
+		<style name="SH03 DoubleCollider">
+			<!--
+			SH03 in the ModulePushButton_V0.2 documentation.
+			Horizontal split cap, double collider, full border with caption.
+			Top half backlit green, unlit text.
+			Bottom half backlit green, unlit text.
+			-->
+			<MODEL id="0">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_SplitHorizontal_Cap</model>
+				<texture>pb_Full_Cap_Black,ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Full_Cap_Black</texture>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Bcklt_2</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<MODEL id="2">
+				<model>ASET/ASET_Props/Control/Switch_Toggle_Modular/models/TgglCollider_DBL</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Collider</name>
+				<collider>SwitchColliderUP</collider>
+				<sound>ASET/ASET_Props/Sounds/pb_Push02</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<name>Collider</name>
+				<collider>SwitchColliderDOWN</collider>
+				<sound>ASET/ASET_Props/Sounds/pb_Push02</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<name>Caption</name>
+				<transform>PanelTextTop_bklt</transform>
+				<fontSize>5.8</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Upper Legend</name>
+				<transform>Legend_Upper</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>never</emissive>
+				<passiveColor>COLOR_MOARdV_UnlitBlackText</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>Lower Legend</name>
+				<transform>Legend_Lower</transform>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>never</emissive>
+				<passiveColor>COLOR_MOARdV_UnlitBlackText</passiveColor>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>Border</name>
+				<transform>GlowBorder</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Upper Panel</name>
+				<transform>pb_SH_TopLens_obj</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_MOARdV_IndicatorPanelGreen</activeColor>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<name>Lower Panel</name>
+				<transform>pb_SH_BottomLens_obj</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_MOARdV_IndicatorPanelGreen</activeColor>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<name>Upper Panel</name>
+				<transform>pb_SH_TopLens_obj</transform>
+				<startUV>0, 0</startUV>
+				<endUV>0, -0.5</endUV>
+				<layers>_Emissive</layers>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<name>Lower Panel</name>
+				<transform>pb_SH_BottomLens_obj</transform>
+				<startUV>0, 0</startUV>
+				<endUV>0, -0.5</endUV>
+				<layers>_Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_pb_SH03_B2_ReferencePart</name>
+			<style>SH03 DoubleCollider Dimmer</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH03 style.</comment>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.SetPodToReference()</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.SetDockToReference()</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPodIsReference())</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<variable>fc.Conditioned(fc.GetDockIsReference())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(fc.GetPodIsReference())</variable>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetDockIsReference())</variable>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>REF.$$$PART</text>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>POD</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>DOCK</text>
+			</TEXT_LABEL>
+		</prop>
+		
 		<style name="SH02">
 			<!--
 			SH02 in the ModulePushButton_V0.2 documentation.
@@ -4951,6 +5092,35 @@
 			</TEXTURE_SHIFT>
 		</style>
 		<prop>
+			<name>MAS_pb_SH02_B2_Antenna</name>
+			<style>SH02</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Toggles antenna.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleAntenna()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.AntennaPosition() == 1 or fc.AntennaMoving() == 1</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>ANTENNA</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.AntennaPosition() == 1 or fc.AntennaMoving() == 1)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(fc.AntennaPosition() == 1 or fc.AntennaMoving() == 1)</variable>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="1">
+				<text>DEPLOY</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>IN</text>
+				<variable>fc.Conditioned((fc.AntennaCount() &gt; 0) and (fc.AntennaPosition() == 0 or fc.AntennaMoving() == -1))</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_pb_SH02_B2_Cabin_NightMode</name>
 			<style>SH02</style>
 			<MODEL id="0">
@@ -4980,6 +5150,114 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_pb_SH02_B2_FuelCell</name>
+			<style>SH02</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Toggles Fuel cell.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleFuelCellActive()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetFuelCellActive()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>FUEL CELL</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.GetFuelCellActive())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(fc.GetFuelCellActive())</variable>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned((fc.FuelCellCount() &gt; 0) and not fc.GetFuelCellActive())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SH02_B2_Gear</name>
+			<style>SH02</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Toggles Gear.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleGear()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetGear()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>LDG. GEAR</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.GearHasActions() and not fc.GetGear())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(fc.GearHasActions() and not fc.GetGear())</variable>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="1">
+				<text>UP</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>DOWN</text>
+				<variable>fc.Conditioned(fc.GearHasActions() and fc.GetGear())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SH02_B2_Lights</name>
+			<style>SH02</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Toggles Lights.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleLights()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetLights()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>EXT. LIGHT</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.LightsHasActions() and fc.GetLights())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(fc.LightsHasActions() and fc.GetLights())</variable>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="2">
+				<variable>fc.Conditioned(fc.LightsHasActions() and not fc.GetLights())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SH02_B2_Parachute</name>
+			<style>SH02</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Toggles Parachute arming.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>parachute.ToggleParachuteArmed()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>parachute.GetParachuteArmedOrDeployed()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>PARACHUTE</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(parachute.GetParachuteArmedOrDeployed())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(parachute.GetParachuteArmedOrDeployed())</variable>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="1">
+				<text>ARMED</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>STBY</text>
+				<variable>fc.Conditioned((parachute.ParachuteCount() &gt; 0) and not parachute.GetParachuteArmedOrDeployed())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_pb_SH02_B2_Precision</name>
 			<style>SH02</style>
 			<MODEL id="0">
@@ -4995,17 +5273,46 @@
 				<text>PRECISION$$$MODE</text>
 			</TEXT_LABEL>
 			<COLOR_SHIFT id="0">
-				<variable>fc.GetPrecisionMode()</variable>
+				<variable>fc.Conditioned(fc.GetPrecisionMode())</variable>
 			</COLOR_SHIFT>
 			<TEXTURE_SHIFT id="0">
-				<variable>fc.GetPrecisionMode()</variable>
+				<variable>fc.Conditioned(fc.GetPrecisionMode())</variable>
 			</TEXTURE_SHIFT>
 			<TEXT_LABEL id="1">
 				<text>PREC</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="2">
 				<text>NORM</text>
-				<variable>1 - fc.GetPrecisionMode()</variable>
+				<variable>fc.Conditioned(1 - fc.GetPrecisionMode())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SH02_B2_Radar</name>
+			<style>SH02</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Toggles Radar.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleRadar()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.RadarActive()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>RADAR</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.RadarActive())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(fc.RadarActive())</variable>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="1">
+				<text>ACTIVE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>STBY</text>
+				<variable>fc.Conditioned((fc.RadarCount() &gt; 0) and not fc.RadarActive())</variable>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
@@ -5024,13 +5331,13 @@
 				<text>RCS</text>
 			</TEXT_LABEL>
 			<COLOR_SHIFT id="0">
-				<variable>fc.GetRCS()</variable>
+				<variable>fc.Conditioned(fc.GetRCS())</variable>
 			</COLOR_SHIFT>
 			<TEXTURE_SHIFT id="0">
-				<variable>fc.GetRCS()</variable>
+				<variable>fc.Conditioned(fc.GetRCS())</variable>
 			</TEXTURE_SHIFT>
 			<TEXT_LABEL id="2">
-				<variable>1 - fc.GetRCS()</variable>
+				<variable>fc.Conditioned(1 - fc.GetRCS())</variable>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
@@ -5049,16 +5356,16 @@
 				<text>ROTATE</text>
 			</TEXT_LABEL>
 			<COLOR_SHIFT id="0">
-				<variable>fc.GetRCSRotate()</variable>
+				<variable>fc.Conditioned(fc.GetRCSRotate())</variable>
 			</COLOR_SHIFT>
 			<TEXTURE_SHIFT id="0">
-				<variable>fc.GetRCSRotate()</variable>
+				<variable>fc.Conditioned(fc.GetRCSRotate())</variable>
 			</TEXTURE_SHIFT>
 			<TEXT_LABEL id="1">
 				<text>ENABLE</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="2">
-				<variable>1 - fc.GetRCSRotate()</variable>
+				<variable>fc.Conditioned(1 - fc.GetRCSRotate())</variable>
 				<text>DISABLE</text>
 			</TEXT_LABEL>
 		</prop>
@@ -5078,16 +5385,16 @@
 				<text>XLATE</text>
 			</TEXT_LABEL>
 			<COLOR_SHIFT id="0">
-				<variable>fc.GetRCSTranslate()</variable>
+				<variable>fc.Conditioned(fc.GetRCSTranslate())</variable>
 			</COLOR_SHIFT>
 			<TEXTURE_SHIFT id="0">
-				<variable>fc.GetRCSTranslate()</variable>
+				<variable>fc.Conditioned(fc.GetRCSTranslate())</variable>
 			</TEXTURE_SHIFT>
 			<TEXT_LABEL id="1">
 				<text>ENABLE</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="2">
-				<variable>1 - fc.GetRCSTranslate()</variable>
+				<variable>fc.Conditioned(1 - fc.GetRCSTranslate())</variable>
 				<text>DISABLE</text>
 			</TEXT_LABEL>
 		</prop>
@@ -5107,13 +5414,88 @@
 				<text>SAS</text>
 			</TEXT_LABEL>
 			<COLOR_SHIFT id="0">
-				<variable>fc.GetSAS()</variable>
+				<variable>fc.Conditioned(fc.GetSAS())</variable>
 			</COLOR_SHIFT>
 			<TEXTURE_SHIFT id="0">
-				<variable>fc.GetSAS()</variable>
+				<variable>fc.Conditioned(fc.GetSAS())</variable>
 			</TEXTURE_SHIFT>
 			<TEXT_LABEL id="2">
-				<variable>1 - fc.GetSAS()</variable>
+				<variable>fc.Conditioned(1 - fc.GetSAS())</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SH02_B2_SolarPanel</name>
+			<style>SH02</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Toggles solar panels.</comment>
+			</MODEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleSolarPanel()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.SolarPanelPosition()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>SOLAR$$$PANEL</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.SolarPanelPosition() == 1 or fc.SolarPanelMoving() == 1)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(fc.SolarPanelPosition() == 1 or fc.SolarPanelMoving() == 1)</variable>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="1">
+				<text>DEPLOY</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>IN</text>
+				<variable>fc.Conditioned(fc.SolarPanelCount() &gt; 0 and (fc.SolarPanelPosition() == 0 or fc.SolarPanelMoving() == -1))</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_pb_SH02_B2_C3R_Undock</name>
+			<style>SH02</style>
+			<MODEL id="0">
+				<comment>ASET MPB SH02 style.  Undocks.</comment>
+			</MODEL>
+			<MODEL id="1">
+				<model>ASET/ASET_Props/Control/Push_Button_Modular/models/pb_Cover03_RED</model>
+				<texture>Switch_TUMBLEDiffuse,ASET/ASET_Props/Control/Switch_Tumble/Switch_TUMBLEDiffuse</texture>
+			</MODEL>
+			<COLLIDER_EVENT id="1">
+				<collider>pb_Cover_Collider</collider>
+				<sound>ASET/ASET_Props/Sounds/OpenSwitchCover</sound>
+				<volume>1</volume>
+				<onClick>fc.TogglePersistent("%AUTOID%-cover")</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER id="1">
+				<name>Button press animation</name>
+				<animation>pb_Cover_Anim</animation>
+				<animationSpeed>1.0</animationSpeed>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%-cover")</variable>
+			</ANIMATION_PLAYER>
+			<COLOR_SHIFT id="1" delete="true" />
+			<COLLIDER_EVENT>
+				<onClick>fc.Undock()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>1 - fc.Docked()</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<text>UNDOCK</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<variable>fc.Conditioned(fc.DockReady())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT id="0">
+				<variable>fc.Conditioned(fc.DockReady())</variable>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="1">
+				<text>READY</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>UNDOCK</text>
+				<variable>fc.Conditioned(fc.Docked())</variable>
 			</TEXT_LABEL>
 		</prop>
 		
