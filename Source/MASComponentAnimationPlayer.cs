@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -36,9 +36,9 @@ namespace AvionicsSystems
         private Animation animation;
         private AnimationState animationState;
         private bool playedOnce = false;
+        private bool loop = false;
         private bool currentState = false;
 
-        // TODO: Support 'reverse'?
         internal MASComponentAnimationPlayer(ConfigNode config, InternalProp prop, MASFlightComputer comp)
             : base(config, prop, comp)
         {
@@ -57,13 +57,33 @@ namespace AvionicsSystems
             Animation[] animators = (exterior) ? prop.part.FindModelAnimators(animationName) : prop.FindModelAnimators(animationName);
             if (animators.Length == 0)
             {
+                animators = (exterior) ? prop.part.FindModelAnimators() : prop.FindModelAnimators();
+                Utility.LogWarning(this, "Did not find{0}animation {1} for ANIMATION_PLAYER {2}.  Valid animation names are:",
+                    (exterior) ? " external " : " ", animationName, name);
+                foreach (var a in animators)
+                {
+                    if (a.clip != null)
+                    {
+                        Utility.LogWarning(this, "... \"{0}\"", a.clip.name);
+                    }
+                }
                 throw new ArgumentException("Unable to find" + ((exterior) ? " external " : " ") + "animation " + animationName + " for ANIMATION_PLAYER " + name);
             }
             animation = animators[0];
             animationState = animation[animationName];
-            animationState.wrapMode = WrapMode.Once;
 
-            config.TryGetValue("animationSpeed", ref animationSpeed);
+            if (!config.TryGetValue("loop", ref loop))
+            {
+                loop = false;
+            }
+            animationState.wrapMode = (loop) ? WrapMode.Loop : WrapMode.Once;
+
+            string animationSpeedString = string.Empty;
+
+            if (config.TryGetValue("animationSpeed", ref animationSpeedString))
+            {
+                variableRegistrar.RegisterVariableChangeCallback(animationSpeedString, AnimationSpeedCallback);
+            }
 
             string variableName = string.Empty;
             if (!config.TryGetValue("variable", ref variableName) || string.IsNullOrEmpty(variableName))
@@ -73,6 +93,20 @@ namespace AvionicsSystems
             variableName = variableName.Trim();
 
             variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
+        }
+
+        /// <summary>
+        /// Callback to set the animation speed.  Takes effect immediate on a looped animation
+        /// that is playing; otherwise, takes effect next time the animation plays.
+        /// </summary>
+        /// <param name="newSpeed"></param>
+        private void AnimationSpeedCallback(double newSpeed)
+        {
+            animationSpeed = (float)newSpeed;
+            if (loop && currentState)
+            {
+                animationState.speed = animationSpeed;
+            }
         }
 
         /// <summary>
@@ -88,15 +122,29 @@ namespace AvionicsSystems
                 if (newState != currentState)
                 {
                     currentState = newState;
-                    if (newState)
+                    if (loop)
                     {
-                        animationState.normalizedTime = 0.0f;
-                        animationState.speed = 1.0f * animationSpeed;
+                        if (newState)
+                        {
+                            animationState.speed = animationSpeed;
+                        }
+                        else
+                        {
+                            animationState.speed = 0.0f;
+                        }
                     }
                     else
                     {
-                        animationState.normalizedTime = 1.0f;
-                        animationState.speed = -1.0f * animationSpeed;
+                        if (newState)
+                        {
+                            animationState.normalizedTime = 0.0f;
+                            animationState.speed = animationSpeed;
+                        }
+                        else
+                        {
+                            animationState.normalizedTime = 1.0f;
+                            animationState.speed = -animationSpeed;
+                        }
                     }
                     animation.Play(animationName);
                 }
@@ -105,13 +153,13 @@ namespace AvionicsSystems
             {
                 if (newValue > 0.0)
                 {
-                    animationState.speed = float.MaxValue;
+                    animationState.speed = (loop) ? animationSpeed : float.MaxValue;
                     animationState.normalizedTime = 0.0f;
                     currentState = true;
                 }
                 else
                 {
-                    animationState.speed = float.MinValue;
+                    animationState.speed = (loop) ? 0.0f : float.MinValue;
                     animationState.normalizedTime = 1.0f;
                     currentState = false;
                 }
