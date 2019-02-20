@@ -2509,7 +2509,7 @@
 			<ANIMATION>
 				<name>TB animation</name>
 				<animation>TB_2POS</animation>
-				<speed>16</speed>
+				<speed>2</speed>
 			</ANIMATION>
 			<COLOR_SHIFT>
 				<name>Talkback Backlight</name>
@@ -2526,8 +2526,8 @@
 				<font>Liberation Sans</font>
 				<style>Bold</style>
 				<alignment>Center</alignment>
-				<anchor>UpperCenter</anchor>
-				<transformOffset>0, -0.005</transformOffset>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0, -0.020</transformOffset>
 				<emissive>active</emissive>
 				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
 				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
@@ -2551,6 +2551,87 @@
 			</ANIMATION>
 			<TEXT_LABEL>
 				<text>RCS</text>
+			</TEXT_LABEL>
+			<TEXTURE_SHIFT>
+				<startUV>-0.5, 0</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<!--
+		TB3 is a 3-position talkback.  It consists of two end positions (labeled OP and CL by default) and
+		a hatched rectangle for the "transition" section.  It can be used with various position indicators,
+		such as fc.GearPosition(), to show landing gear movement.  It could also be used with functions like
+		fc.GearMoving() to indicate the transitioning behavior (such as "solar panels opening").
+		Replacing startUV in the texture shift with -0.5, 0 will display UP and DN for the end values.
+		Note that the scale for the animation is backwards: 1 is the DN / CL position, 0 is the UP / OP
+		position.
+		-->
+		<style name="TB3">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/ASET_Talkback_Indicator/Talkback_3pos</model>
+			</MODEL>
+			<ANIMATION>
+				<name>TB animation</name>
+				<animation>TB_3POS</animation>
+				<speed>2</speed>
+			</ANIMATION>
+			<COLOR_SHIFT>
+				<name>Talkback Backlight</name>
+				<transform>WarningPlate1</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_NASAGAUGESCALE_ACTIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<TEXT_LABEL>
+				<name>Caption</name>
+				<transform>TextTopObj</transform>
+				<fontSize>6.5</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0, -0.020</transformOffset>
+				<emissive>active</emissive>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+			</TEXT_LABEL>
+			<TEXTURE_SHIFT>
+				<name>Talkback values</name>
+				<transform>WarningPlate1</transform>
+				<layers>_MainTex _Emissive</layers>
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_TB3_AntennaMoving</name>
+			<style>TB3</style>
+			<ANIMATION>
+				<variable>fc.Conditioned(0.5 * (1 + fc.AntennaMoving()), 0.5)</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>ANTENNA</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_TB3_SolarMoving</name>
+			<style>TB3</style>
+			<ANIMATION>
+				<variable>fc.Conditioned(0.5 * (1 + fc.SolarPanelMoving()), 0.5)</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>SOLAR$$$PANEL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_TB3_LandingGear</name>
+			<style>TB3</style>
+			<ANIMATION>
+				<variable>fc.Conditioned(1 - fc.GearPosition(), 0.5)</variable>
+			</ANIMATION>
+			<TEXT_LABEL>
+				<text>GEAR</text>
 			</TEXT_LABEL>
 			<TEXTURE_SHIFT>
 				<startUV>-0.5, 0</startUV>
