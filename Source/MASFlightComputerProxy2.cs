@@ -1127,7 +1127,7 @@ namespace AvionicsSystems
         public object DebugValue(double index)
         {
             int idx = (int)index;
-            if ((idx >=0 && idx < vc.debugValue.Length) || vc.debugValue[idx] == null)
+            if ((idx >= 0 && idx < vc.debugValue.Length) || vc.debugValue[idx] == null)
             {
                 return vc.debugValue[idx];
             }
@@ -3015,16 +3015,19 @@ namespace AvionicsSystems
         /// <summary>
         /// Toggle a persistent between 0 and 1.
         /// 
-        /// If the persistent is a number, it becomes 0 if it was a
-        /// positive number and it becomes 1 if it was previously %lt;= 0.
+        /// If the persistent is a number, it becomes 0 if it was already a
+        /// positive number, and it becomes 1 if it was previously &lt;= 0.
         /// 
-        /// If the persistent was a string, it is converted to a number, and
+        /// If the persistent is a string, it is converted to a number, and
         /// the same rule is applied.
+        /// 
+        /// If the persistent did not previously exist, or it is a string that
+        /// cannot be converted to a number, it is treated as if it
+        /// were zero.
         /// </summary>
         /// <param name="persistentName">The name of the persistent variable to change.</param>
-        /// <returns>0 or 1.  If the variable was a string, and it could not be converted
-        /// to a number, `persistentName` is returned, instead.</returns>
-        public object TogglePersistent(string persistentName)
+        /// <returns>0 or 1.</returns>
+        public double TogglePersistent(string persistentName)
         {
             return fc.TogglePersistent(persistentName);
         }

@@ -540,11 +540,11 @@ namespace AvionicsSystems
         /// Treat the persistent as a boolean value (0 or 1) and toggle it.
         /// Treat it like it was 0 if it wasn't found (thus setting it to 1).
         /// If it is a string, try to convert it to a numeric before toggling.
-        /// If it can't be converted to a number, return the name as a string.
+        /// If it can't be converted to a number, treat it as 0.
         /// </summary>
         /// <param name="persistentName"></param>
         /// <returns></returns>
-        internal object TogglePersistent(string persistentName)
+        internal double TogglePersistent(string persistentName)
         {
             object o;
             if (persistentVars.TryGetValue(persistentName, out o))
@@ -567,18 +567,12 @@ namespace AvionicsSystems
                         UpdatePersistent(persistentName);
                         return newVal;
                     }
-                    else
-                    {
-                        return persistentName;
-                    }
                 }
             }
-            else
-            {
-                persistentVars[persistentName] = 1.0;
-                UpdatePersistent(persistentName);
-                return 1.0;
-            }
+
+            persistentVars[persistentName] = 1.0;
+            UpdatePersistent(persistentName);
+            return 1.0;
         }
         #endregion
     }
