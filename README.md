@@ -10,30 +10,30 @@ The goal is to provide a more powerful and more performant design without sacrif
 features that are available in RPM.  A longer-winded explanation is available in the
 wiki's [Introduction](https://github.com/MOARdV/AvionicsSystems/wiki/Introduction).
 
-**NOTE:** MAS is a separate mod from RPM.  It is not a drop-in replacement.  IVAs created for RasterPropMonitor must
-use RPM.  They will not magically work with MAS.  MAS uses different props, and it has different requirements than
+**NOTE:** MAS is a separate mod from RPM.  It is **not** a drop-in replacement.  IVAs created for RasterPropMonitor must
+use RPM.  They will not automatically work with MAS.  MAS uses different props, and it has different requirements than
 RPM.
 
 MAS is under intermittent development (basically, when I feel like it and I have time).
 
-The [wiki](https://github.com/MOARdV/AvionicsSystems/wiki) contains most of the documentation for this mod, including guides to
-configuring props and integrating scripting.
+The [wiki](https://github.com/MOARdV/AvionicsSystems/wiki) contains the documentation for this mod, including guides to
+configuring props, integrating scripting, and the 900+ functions that MAS makes available.  Most of this documentation is geared towards IVA creators and prop developers.
 
-Releases appear under [Releases](https://github.com/MOARdV/AvionicsSystems/releases).  Development builds
-occasionally show up on DropBox - the home page of the wiki will usually contain a link to the current dev build.
+For players who want to make sense of the props, please take a look at [MOARdVPlus](https://github.com/MOARdV/MOARdVPlus), my advanced IVA mod (which includes user
+guides for the props).
+
+Releases appear under [Releases](https://github.com/MOARdV/AvionicsSystems/releases).
 
 The MAS distribution contains multiple licensed components.  The [license](https://github.com/MOARdV/AvionicsSystems/blob/master/LICENSE.md) document identifies these
 components and their licenses.
 
-This mod includes version checking using [MiniAVC](https://forum.kerbalspaceprogram.com/index.php?/topic/173126-141-ksp-avc-add-on-version-checker-plugin-120-miniavc/). If you opt-in, it will use the
-internet to check whether there is a new version available. Data is only read from the internet and no personal information is sent.
+This mod includes version information compatible with MiniAVC and AVC.
 
 ## Where are the IVAs?
 
 MAS is intended to be a toolkit for developing IVAs.  I do not intend to include many example
-IVAs like RPM had - good IVAs take a lot of time to create, and I have no plans for stock-derived sample
-props with this mod.  IVAs included with MAS have other dependencies.
-In particular, alexustas's props packs - [ASET Props Pack](http://forum.kerbalspaceprogram.com/index.php?/topic/116430-aset-props-pack-v14-for-the-modders-who-create-iva/) and
+IVAs like RPM had - good IVAs take a lot of time to create.
+The example IVAs included with MAS require alexustas's props packs - [ASET Props Pack](http://forum.kerbalspaceprogram.com/index.php?/topic/116430-aset-props-pack-v14-for-the-modders-who-create-iva/) and
 [ASET Avionics Pack](http://forum.kerbalspaceprogram.com/index.php?/topic/116479-aset-avionics-pack-v-20-for-the-modders-who-create-iva/) must be installed
 for the MAS props to appear.
 
@@ -46,21 +46,18 @@ development, there are IVAs included in this package:
 * The stock Mk1 Lander Can by snakeru, a conversion of the [ASET Mk1 Lander Can](https://forum.kerbalspaceprogram.com/index.php?/topic/156131-mk1-lander-can-iva-replacement-by-aset11/).  Note that if the ASET mod is installed, the MAS version of the IVA is switched off.  You must uninstall the ASET IVA to use the MAS IVA.
 * The MRK DM command pod, part of the [Commonwealth Rockets](https://forum.kerbalspaceprogram.com/index.php?/topic/164365-13-commonwealth-rockets-tea-powered-spaceflight-in-development/) mod.
 This command pod demonstrates a modern partial-glass cockpit design good for activity around Kerbin and its moons.
-* The Flapjack cockpit in the [Kerbal Flying Saucer](https://forum.kerbalspaceprogram.com/index.php?/topic/173857-14x-pre-release-live-kerbal-flying-saucers-build-flying-saucers-in-ksp/) mod shows a glass cockpit design, including HUD.
+
+For some additional IVAs, the Flapjack cockpit in the [Kerbal Flying Saucer](https://forum.kerbalspaceprogram.com/index.php?/topic/173857-14x-pre-release-live-kerbal-flying-saucers-build-flying-saucers-in-ksp/) mod shows a glass cockpit design, including HUD.
+Additionally, the [MOARdVPlus](https://github.com/MOARdV/MOARdVPlus) mod includes a complete 1960s-style Apollo IVA compatible with
+the Bluedog Design Bureau mod, as well as a glass Apollo cockpit.
 
 You will need to download and install [Module Manager](https://forum.kerbalspaceprogram.com/index.php?/topic/50533-130-module-manager-281-june-29th-2017-with-n-cats-physics/),
-ASET Props Pack v1.5 (or later), and ASET Avionics Pack in order to fly these IVAs.
-
-## Where are the Props?
-
-Converting props to MAS is an easy but repetitive task.  To help out with it, I've created the [Prop Config](https://github.com/MOARdV/AvionicsSystems/wiki/Prop-Config)
-tool to automate a good deal of the process.  The Prop Config tool is released separately from the main MAS distribution.
-The Prop Config Tool includes the master XML files used to generate most of the props.
+ASET Props Pack v1.5 (or later), and ASET Avionics Pack in order to fly these IVAs.  Refer to the [Installation Guide](https://github.com/MOARdV/AvionicsSystems/wiki/Installation)
+on the wiki for more information, as well as a list of optional mods that enhance MAS gameplay.
 
 ## What about RasterPropMonitor?
 
-My development on RasterPropMonitor has stopped.  I have announced that it is available if another modder wants to
-pick it up, since I have done nothing with the mod since KSP 1.4.0 came out.
+My development on RasterPropMonitor has stopped.  It is available for adoption, but I have no plans to release any additional updates.
 
 ## How do I Build MAS?
 
@@ -68,4 +65,4 @@ The [Building MAS](https://github.com/MOARdV/AvionicsSystems/blob/master/Buildin
 
 ## Other questions?
 
-Look at the [FAQ](https://github.com/MOARdV/AvionicsSystems/wiki/FAQ) on the wiki.  I may have already come up with an answer.  If not, please ask.
+Look at the [FAQ](https://github.com/MOARdV/AvionicsSystems/wiki/FAQ) on the wiki.  If the answer is not there, please ask.
