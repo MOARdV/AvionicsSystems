@@ -991,6 +991,38 @@ namespace AvionicsSystems
 
         [MASProxy(Dependent = true)]
         /// <summary>
+        /// Returns the requested color channel for the `namedColor` specified.  The parameter
+        /// `channel` may be 0 (for red), 1 (for green), 2 (for blue), or 3 (for alpha).
+        /// 
+        /// Invalid channels or invalid named colors will result in a 255 being returned.
+        /// </summary>
+        /// <param name="namedColor">The named color to look up.</param>
+        /// <param name="channel">The channel to return (0, 1, 2, or 3).</param>
+        /// <returns>A value between [0, 255].</returns>
+        public double ColorComponent(string namedColor, double channel)
+        {
+            int i_channel = (int)channel;
+            Color32 namedColorValue;
+            if (fc.TryGetNamedColor(namedColor, out namedColorValue) && i_channel >= 0 && i_channel < 4)
+            {
+                switch (i_channel)
+                {
+                    case 0:
+                        return namedColorValue.r;
+                    case 1:
+                        return namedColorValue.g;
+                    case 2:
+                        return namedColorValue.b;
+                    case 3:
+                        return namedColorValue.a;
+                }
+            }
+            
+            return 255.0;
+        }
+
+        [MASProxy(Dependent = true)]
+        /// <summary>
         /// Converts the supplied RGB value into a MAS text color tag
         /// (eg, `fc.ColorTag(255, 255, 0)` returns "[#ffff00]").
         /// This value is slightly more efficient if you do not need to
@@ -1001,7 +1033,7 @@ namespace AvionicsSystems
         /// <param name="red">Red channel value, [0, 255]</param>
         /// <param name="green">Green channel value, [0, 255]</param>
         /// <param name="blue">Blue channel value, [0, 255]</param>
-        /// <returns></returns>
+        /// <returns>The color tag that represents the requested color.</returns>
         public string ColorTag(double red, double green, double blue)
         {
             int r = Mathf.Clamp((int)(red + 0.5), 0, 255);
@@ -1021,7 +1053,7 @@ namespace AvionicsSystems
         /// <param name="green">Green channel value, [0, 255]</param>
         /// <param name="blue">Blue channel value, [0, 255]</param>
         /// <param name="alpha">Alpha channel value, [0, 255]</param>
-        /// <returns></returns>
+        /// <returns>The color tag that represents the requested color.</returns>
         public string ColorTag(double red, double green, double blue, double alpha)
         {
             int r = Mathf.Clamp((int)(red + 0.5), 0, 255);
@@ -1029,6 +1061,28 @@ namespace AvionicsSystems
             int b = Mathf.Clamp((int)(blue + 0.5), 0, 255);
             int a = Mathf.Clamp((int)(alpha + 0.5), 0, 255);
             return string.Format("[#{0:X2}{1:X2}{2:X2}{3:X2}]", r, g, b, a);
+        }
+
+        [MASProxy(Dependent=true)]
+        /// <summary>
+        /// Looks up the [Named Color](https://github.com/MOARdV/AvionicsSystems/wiki/Named-Colors) `namedColor`, and returns its value as a color tag.
+        /// For instance, `fc.ColorTag("COLOR_XKCD_KSPUNNAMEDCYAN")` will return "[#5fbdb9ff]".
+        /// 
+        /// If an invalid color is selected, this function returns bright magenta "[#ff00ff]".
+        /// </summary>
+        /// <param name="namedColor">The named color to look up.</param>
+        /// <returns>The color tag that represents the named color.</returns>
+        public string ColorTag(string namedColor)
+        {
+            Color32 namedColorValue;
+            if (fc.TryGetNamedColor(namedColor, out namedColorValue))
+            {
+                return string.Format("[#{0:X2}{1:X2}{2:X2}{3:X2}]", namedColorValue.r, namedColorValue.g, namedColorValue.b, namedColorValue.a);
+            }
+            else
+            {
+                return "[#ff0ff]";
+            }
         }
 
         /// <summary>
