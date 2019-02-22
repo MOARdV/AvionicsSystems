@@ -1363,6 +1363,31 @@ namespace AvionicsSystems
         // For a bootstrap to interpreting science values, see https://github.com/KerboKatz/AutomatedScienceSampler/blob/master/source/AutomatedScienceSampler/DefaultActivator.cs
 
         /// <summary>
+        /// Returns a count of the number of experiments of the specified science type that
+        /// are available.  If an invalid science type is selected, returns 0.
+        /// </summary>
+        /// <param name="scienceTypeId">An integer in the range [0, `fc.ScienceTypeTotal()`).</param>
+        /// <returns>The number of valid experiments available for the selected science type.</returns>
+        public double ExperimentAvailableCount(double scienceTypeId)
+        {
+            int id = (int)scienceTypeId;
+            int available = 0;
+            if (id >= 0 && id < vc.scienceType.Length)
+            {
+                var exp = vc.scienceType[id].experiments;
+                for (int i = exp.Count - 1; i >= 0; --i)
+                {
+                    if (!exp[i].Deployed)
+                    {
+                        ++available;
+                    }
+                }
+            }
+
+            return available;
+        }
+
+        /// <summary>
         /// Returns the name of the biome where the experiment `experimentId` was conducted.
         ///  
         /// If `experimentId` does not refer to a valid experiment, or if the selected experiment
@@ -1621,6 +1646,22 @@ namespace AvionicsSystems
         public double ScienceContainerCount()
         {
             return vc.scienceContainer.Length;
+        }
+
+        /// <summary>
+        /// Returns the name of the part that the container is installed on, or an empty string if an invalid ID is provided.
+        /// </summary>
+        /// <param name="scienceContainerId">An integer between [0, `fc.ScienceContainerCount()`).</param>
+        /// <returns>The part name, or an empty string.</returns>
+        public string ScienceContainerName(double scienceContainerId)
+        {
+            int idx = (int)scienceContainerId;
+            if (idx >= 0 && idx < vc.scienceContainer.Length)
+            {
+                return vc.scienceContainer[idx].part.partInfo.title;
+            }
+
+            return string.Empty;
         }
 
         /// <summary>
