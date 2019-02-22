@@ -40,7 +40,7 @@ for the MAS props to appear.
 Since it is important to have *something* to look at before deciding to adopt this mod for IVA
 development, there are IVAs included in this package:
 
-* The stock Mk 1 v2 Command Pod (pictured above), which demonstrates a retro-NASA style stripped-down IVA suitable for suborbital or short orbital flights.
+* The stock Mk 1 v2 Command Pod (pictured above), which demonstrates a retro-NASA style stripped-down IVA suitable for suborbital or short orbital flights.  A flight manual is available [on the wiki](https://github.com/MOARdV/AvionicsSystems/wiki/Operations-Manual-Mk1).
 * The original Mk 1 Command Pod IVA is still included, since the original pod and IVA are still available (as of KSP 1.5.0).
 * The stock Mk 1-3 Command Pod, which includes a more complete retro-NASA IVA for the center seat (with stock props still in place on the rest of the panel).
 * The stock Mk1 Lander Can by snakeru, a conversion of the [ASET Mk1 Lander Can](https://forum.kerbalspaceprogram.com/index.php?/topic/156131-mk1-lander-can-iva-replacement-by-aset11/).  Note that if the ASET mod is installed, the MAS version of the IVA is switched off.  You must uninstall the ASET IVA to use the MAS IVA.
