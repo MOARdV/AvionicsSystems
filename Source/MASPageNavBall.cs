@@ -37,9 +37,9 @@ namespace AvionicsSystems
         private GameObject imageObject;
         private GameObject cameraObject;
         private GameObject navballModel;
-        private GameObject[] markers = new GameObject[12];
-        private Material[] markerMaterial = new Material[12];
-        private MeshRenderer[] meshRenderer = new MeshRenderer[12];
+        private GameObject[] markers = new GameObject[10];
+        private Material[] markerMaterial = new Material[10];
+        private MeshRenderer[] meshRenderer = new MeshRenderer[10];
         private RenderTexture navballRenTex;
         private Camera navballCamera;
         private Material imageMaterial;
@@ -55,7 +55,7 @@ namespace AvionicsSystems
         private readonly float iconAlphaScalar;
         private static readonly int navballLayer = 29;
         private static int colorIdx = Shader.PropertyToID("_Color");
-        private readonly Color[] activeMarkerColor = new Color[12];
+        private readonly Color[] activeMarkerColor = new Color[10];
 
         enum MarkerId
         {
@@ -66,10 +66,8 @@ namespace AvionicsSystems
             NormalPlus,
             NormalMinus,
             ManeuverPlus,
-            ManeuverMinus,
             TargetPlus,
             TargetMinus,
-            DockingAlignment,
             Waypoint
         }
 
@@ -254,9 +252,7 @@ namespace AvionicsSystems
             RenderPage(false);
 
             // Following icons are not currently supported:
-            markers[7].SetActive(false); // Maneuver minus (why did I want this?)
-            markers[10].SetActive(false); // Docking port alignment
-            markers[11].SetActive(false); // Waypoint
+            markers[9].SetActive(false); // Waypoint
 
             if (!string.IsNullOrEmpty(variableName))
             {
@@ -372,43 +368,29 @@ namespace AvionicsSystems
                 if (comp.vc.maneuverNodeValid)
                 {
                     markers[6].SetActive(true);
-                    //markers[7].SetActive(false);
                     UpdateSingleVector(6, (attitudeGimbal * comp.vc.maneuverNodeVector.normalized) * navballExtents);
                 }
                 else
                 {
                     markers[6].SetActive(false);
-                    //markers[7].SetActive(false);
                 }
 
                 // Target +/-
                 if (comp.vc.targetValid)
                 {
+                    markers[7].SetActive(true);
                     markers[8].SetActive(true);
-                    markers[9].SetActive(true);
-                    UpdateVectorPair(8, (attitudeGimbal * comp.vc.targetDirection) * navballExtents);
-
-                    // Docking Port
-                    //if (comp.vc.targetType == MASVesselComputer.TargetType.DockingPort)
-                    //{
-                    //    // TODO:
-                    //    markers[10].SetActive(false);
-                    //}
-                    //else
-                    //{
-                    //    markers[10].SetActive(false);
-                    //}
+                    UpdateVectorPair(7, (attitudeGimbal * comp.vc.targetDirection) * navballExtents);
                 }
                 else
                 {
+                    markers[7].SetActive(false);
                     markers[8].SetActive(false);
-                    markers[9].SetActive(false);
-                    //markers[10].SetActive(false);
                 }
 
                 // Waypoint
                 // TODO: This requires some additional effort, since the waypoint icon may change
-                //markers[11].SetActive(false);
+                //markers[9].SetActive(false);
 
             }
         }
@@ -422,7 +404,8 @@ namespace AvionicsSystems
             if (whichCamera == navballCamera)
             {
                 navballRenderer.enabled = false;
-                for (int i = 0; i < 12; ++i)
+                int meshCount = meshRenderer.Length;
+                for (int i = 0; i < meshCount; ++i)
                 {
                     meshRenderer[i].enabled = false;
                 }
@@ -442,10 +425,8 @@ namespace AvionicsSystems
             new Vector2(0.0f / 3.0f, 0.0f / 3.0f), // NormalPlus
             new Vector2(1.0f / 3.0f, 0.0f / 3.0f), // NormalMinus
             new Vector2(2.0f / 3.0f, 0.0f / 3.0f), // ManeuverPlus
-            new Vector2(1.0f / 3.0f, 2.0f / 3.0f), // ManeuverMinus
             new Vector2(2.0f / 3.0f, 2.0f / 3.0f), // TargetPlus
             new Vector2(2.0f / 3.0f, 1.0f / 3.0f), // TargetMinus
-            new Vector2(0.0f / 3.0f, 2.0f / 3.0f), // DockingAlignment
             new Vector2(0.0f / 3.0f, 2.0f / 3.0f), // Waypoint
         };
 
@@ -461,10 +442,8 @@ namespace AvionicsSystems
             new Color32(156, 0, 206, 255), // NormalPlus
             new Color32(156, 0, 206, 255), // NormalMinus
             new Color32(0, 102, 249, 255), // ManeuverPlus
-            new Color32(0, 102, 249, 255), // ManeuverMinus
             new Color32(255, 0, 255, 255), // TargetPlus
             new Color32(255, 0, 255, 255), // TargetMinus
-            XKCDColors.Red, // DockingAlignment
             XKCDColors.Red, // Waypoint
         };
 
