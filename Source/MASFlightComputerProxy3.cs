@@ -3214,7 +3214,10 @@ namespace AvionicsSystems
         #region Thermal
 
         /// <summary>
-        /// Returns the current atmosphere / ambient temperature outside the craft.
+        /// Returns the static temperature of the atmosphere (or vacuum of space) outside the craft.
+        /// 
+        /// Static temperature does not account for compression heating caused by the vessel's passage through an
+        /// atmosphere.
         /// </summary>
         /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
         /// <returns>Ambient temperature in Kelvin or Celsius.</returns>
@@ -3231,7 +3234,10 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the current temperature outside the vessel.
+        /// Returns the current actual temperature outside the vessel.
+        /// 
+        /// In an atmosphere at high speeds, this temperature represents the compression heating as the
+        /// vessel travels through the atmosphere.  In a vacuum, this temperature is identical to `fc.AmbientTemperature(useKelvin)`.
         /// </summary>
         /// <param name="useKelvin">If true, the temperature is returned in Kelvin; if false, the temperature is in Celsius.</param>
         /// <returns>External temperature in Kelvin or Celsius.</returns>
