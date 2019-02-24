@@ -1,1 +1,0 @@
-{1,4}:[#ffff9b]{0:METddd/hh:mm:ss} $&$ MAS_Mfd2_Time(); fc.GetPersistent("MFD2-TimeMode")
