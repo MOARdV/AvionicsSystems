@@ -1210,7 +1210,7 @@ namespace AvionicsSystems
             string result = string.Empty;
             try
             {
-                result = string.Format(format, arg0);
+                result = string.Format(MdVTextMesh.formatter, format, arg0);
             }
             catch
             {

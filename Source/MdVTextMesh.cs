@@ -41,7 +41,7 @@ namespace AvionicsSystems
     /// </summary>
     public class MdVTextMesh : MonoBehaviour
     {
-        static private MASStringFormatter formatter = new MASStringFormatter();
+        static internal MASStringFormatter formatter = new MASStringFormatter();
 
         private TextAlignment alignment_ = TextAlignment.Left;
         public TextAlignment alignment
