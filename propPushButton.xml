@@ -4863,11 +4863,11 @@
 				<comment>ASET MPB SH03 style.  Press top half to speed cabin fans, press bottom half to slow.</comment>
 			</MODEL>
 			<COLLIDER_EVENT id="0">
-				<onClick>fc.AddPersistentClamped("CabinFanSpeed", fc.SetPersistent("%AUTOID%", 0.20), 0, 1)</onClick>
+				<onClick>fc.AddPersistentClamped("CabinFanSpeed", fc.SetPersistent("%AUTOID%", 0.25), 0, 1)</onClick>
 				<autoRepeat delete="true" />
 			</COLLIDER_EVENT>
 			<COLLIDER_EVENT id="1">
-				<onClick>fc.AddPersistentClamped("CabinFanSpeed", fc.SetPersistent("%AUTOID%", -0.20), 0, 1)</onClick>
+				<onClick>fc.AddPersistentClamped("CabinFanSpeed", fc.SetPersistent("%AUTOID%", -0.25), 0, 1)</onClick>
 				<autoRepeat delete="true" />
 			</COLLIDER_EVENT>
 			<COLOR_SHIFT id="1">
