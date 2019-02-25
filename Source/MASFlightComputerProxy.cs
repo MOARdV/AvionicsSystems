@@ -2457,10 +2457,35 @@ namespace AvionicsSystems
         /// functions contain `ColorChanger` without the `Pod` prefix.  Those functions are used to control
         /// all ModuleColorChanger installations on the current vessel.
         /// 
+        /// The `ColorChanger` functions may return inconsistent results if modules are controlled through
+        /// other interfaces, such as the `PodColorChanger` functions or action groups.
+        /// 
         /// The Color Changer category only interacts with those modules that have toggleInFlight and toggleAction set
         /// to true.
         /// </summary>
         #region Color Changer
+
+        /// <summary>
+        /// Returns the total number of ModuleColorChanger installed on the vessel.
+        /// </summary>
+        /// <returns>An integer 0 or larger.</returns>
+        public double ColorChangerCount()
+        {
+            return vc.moduleColorChanger.Length;
+        }
+
+        /// <summary>
+        /// Returns the current state of the vessel color changer modules.
+        /// </summary>
+        /// <returns>1 if the color changers are on, 0 if they are off, or there are no color changer modules.</returns>
+        public double GetColorChanger()
+        {
+            if (vc.moduleColorChanger.Length > 0)
+            {
+                return (vc.moduleColorChanger[0].animState) ? 1.0 : 0.0;
+            }
+            return 0.0;
+        }
 
         /// <summary>
         /// Returns the current state of the current part's color changer module.
@@ -2496,6 +2521,30 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Set the state of all color changer modules.
+        /// 
+        /// Some color changers may not be able to update under some circumstances,
+        /// so this function could return 0 with a valid color changer.
+        /// </summary>
+        /// <param name="newState">true to switch on the color changers, false to switch them off.</param>
+        /// <returns>1 if any color changers were updated.</returns>
+        public double SetColorChanger(bool newState)
+        {
+            bool anyUpdated = false;
+
+            for (int i = vc.moduleColorChanger.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleColorChanger[i].CanMove && vc.moduleColorChanger[i].animState != newState)
+                {
+                    vc.moduleColorChanger[i].ToggleEvent();
+                    anyUpdated = true;
+                }
+            }
+
+            return anyUpdated ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Set the state of the pod color changer.
         /// 
         /// Some color changers may not be able to update under some circumstances,
@@ -2503,7 +2552,7 @@ namespace AvionicsSystems
         /// `fc.PodColorChangerCanChange()` to determine in advance if the color
         /// changer is able to be updated.
         /// </summary>
-        /// <param name="newState"></param>
+        /// <param name="newState">true to switch on the color changer, false to switch it off.</param>
         /// <returns>1 if the color changer has been updated, 0 if did not change, or it cannot currently change, or there is no color changer module.</returns>
         public double SetPodColorChanger(bool newState)
         {
@@ -2517,6 +2566,47 @@ namespace AvionicsSystems
             }
 
             return 0.0;
+        }
+
+        /// <summary>
+        /// Toggle the color changers on the vessel.
+        /// 
+        /// If the current pod has a color changer, its setting is used to decide the toggled
+        /// setting.  For instance, if the pod's color changer is on, then all color changers
+        /// will be switched off.
+        /// 
+        /// If the current pod does not have a color changer, the first color changer detected
+        /// will decide what the new state will be.
+        /// </summary>
+        /// <returns>1 if any color changers were updated.</returns>
+        public double ToggleColorChanger()
+        {
+            bool anyUpdated = false;
+
+            bool newState;
+            if (fc.colorChangerModule != null)
+            {
+                newState = !fc.colorChangerModule.animState;
+            }
+            else if (vc.moduleColorChanger.Length > 0)
+            {
+                newState = !vc.moduleColorChanger[0].animState;
+            }
+            else
+            {
+                newState = false;
+            }
+
+            for (int i = vc.moduleColorChanger.Length - 1; i >= 0; --i)
+            {
+                if (vc.moduleColorChanger[i].animState != newState)
+                {
+                    vc.moduleColorChanger[i].ToggleEvent();
+                    anyUpdated = true;
+                }
+            }
+
+            return anyUpdated ? 1.0 : 0.0;
         }
 
         /// <summary>
