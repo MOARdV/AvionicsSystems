@@ -1017,7 +1017,7 @@ namespace AvionicsSystems
                         return namedColorValue.a;
                 }
             }
-            
+
             return 255.0;
         }
 
@@ -1063,7 +1063,7 @@ namespace AvionicsSystems
             return string.Format("[#{0:X2}{1:X2}{2:X2}{3:X2}]", r, g, b, a);
         }
 
-        [MASProxy(Dependent=true)]
+        [MASProxy(Dependent = true)]
         /// <summary>
         /// Looks up the [Named Color](https://github.com/MOARdV/AvionicsSystems/wiki/Named-Colors) `namedColor`, and returns its value as a color tag.
         /// For instance, `fc.ColorTag("COLOR_XKCD_KSPUNNAMEDCYAN")` will return "[#5fbdb9ff]".
@@ -3237,6 +3237,59 @@ namespace AvionicsSystems
         {
             // longitude seems to be unnormalized.
             return Utility.NormalizeLongitude(vessel.longitude);
+        }
+
+        /// <summary>
+        /// Returns the predicted altitude of the landing position.
+        /// 
+        /// This version will not use any mods to compute the landing site.
+        /// 
+        /// See the [category description](#description) for limitations on this function.
+        /// </summary>
+        /// <returns>Predicted altitude (meters ASL) of the point of landing.</returns>
+        public double MASLandingAltitude()
+        {
+            return vc.landingAltitude;
+        }
+
+        /// <summary>
+        /// Returns the predicted latitude of the landing position.
+        /// 
+        /// This version will not use any mods to compute the landing site.
+        /// 
+        /// See the [category description](#description) for limitations on this function.
+        /// </summary>
+        /// <returns>Latitude of estimated landing point, or 0 if the orbit does not lithobrake.</returns>
+        public double MASLandingLatitude()
+        {
+            return vc.landingLatitude;
+        }
+
+        /// <summary>
+        /// Returns the predicted longitude of the landing position.
+        /// 
+        /// This version will not use any mods to compute the landing site.
+        /// 
+        /// See the [category description](#description) for limitations on this function.
+        /// </summary>
+        /// <returns>Longitude of estimated landing point, or 0 if the orbit does not lithobrake.</returns>
+        public double MASLandingLongitude()
+        {
+            return vc.landingLongitude;
+        }
+
+        /// <summary>
+        /// Returns the predicted time until landing in seconds.
+        /// 
+        /// This version will not use any mods to compute the landing site.
+        /// 
+        /// See the [category description](#description) for limitations on this function.
+        /// </summary>
+        /// <returns>Estimated time until landing, or 0 if the orbit does not lithobrake.</returns>
+        public double MASLandingTime()
+        {
+            double landingTime = vc.timeToImpact;
+            return (landingTime > 0.0) ? (landingTime) : 0.0;
         }
         #endregion
 
