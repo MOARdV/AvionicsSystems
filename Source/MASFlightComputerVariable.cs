@@ -814,8 +814,8 @@ namespace AvionicsSystems
                 }
                 else
                 {
-                    Func<object, object, double, object> dm = DynamicMethodFactory.CreateFunc<object, object, double, object>(method);
-                    newVar = new GenericVariable(canonical, () => dm(tableInstance, parms[0].AsObject(), parms[1].AsDouble()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
+                    Func<object, string, object, object> dm = DynamicMethodFactory.CreateFunc<object, string, object, object>(method);
+                    newVar = new GenericVariable(canonical, () => dm(tableInstance, parms[0].AsString(), parms[1].AsObject()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
                 }
                 if (dependent)
                 {
@@ -927,7 +927,7 @@ namespace AvionicsSystems
             {
                 if (methodReturn != typeof(object))
                 {
-                    Utility.LogWarning(this, "(bool, double, double) -> {0} could be optimized for {1}", methodReturn.ToString(), canonical);
+                    Utility.LogWarning(this, "(bool, object, object) -> {0} could be optimized for {1}", methodReturn.ToString(), canonical);
                 }
                 Func<object, bool, object, object, object> dm = DynamicMethodFactory.CreateFunc<object, bool, object, object, object>(method);
                 return new GenericVariable(canonical, () => dm(tableInstance, parms[0].AsBool(), parms[1].AsObject(), parms[2].AsObject()), cacheable, mutable, Variable.VariableType.Func);
@@ -936,7 +936,7 @@ namespace AvionicsSystems
             {
                 if (methodReturn != typeof(object))
                 {
-                    Utility.LogWarning(this, "(double, double, double) -> {0} could be optimized for {1}", methodReturn.ToString(), canonical);
+                    Utility.LogWarning(this, "(double, object, object) -> {0} could be optimized for {1}", methodReturn.ToString(), canonical);
                 }
                 Func<object, double, object, object, object> dm = DynamicMethodFactory.CreateFunc<object, double, object, object, object>(method);
                 return new GenericVariable(canonical, () => dm(tableInstance, parms[0].AsDouble(), parms[1].AsObject(), parms[2].AsObject()), cacheable, mutable, Variable.VariableType.Func);
