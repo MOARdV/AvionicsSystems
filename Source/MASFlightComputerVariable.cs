@@ -897,6 +897,14 @@ namespace AvionicsSystems
                     Func<object, string, double, double, object> dm = DynamicMethodFactory.CreateFunc<object, string, double, double, object>(method);
                     newVar = new GenericVariable(canonical, () => dm(tableInstance, parms[0].AsString(), parms[1].AsDouble(), parms[2].AsDouble()), cacheable, mutable, Variable.VariableType.Func);
                 }
+
+                if (dependent)
+                {
+                    parms[0].RegisterNumericCallback(newVar.TriggerUpdate);
+                    parms[1].RegisterNumericCallback(newVar.TriggerUpdate);
+                    parms[2].RegisterNumericCallback(newVar.TriggerUpdate);
+                }
+
                 return newVar;
             }
             else if (methodParams[0].ParameterType == typeof(object) && methodParams[1].ParameterType == typeof(double) && methodParams[2].ParameterType == typeof(double))
@@ -931,6 +939,34 @@ namespace AvionicsSystems
                 }
                 Func<object, bool, object, object, object> dm = DynamicMethodFactory.CreateFunc<object, bool, object, object, object>(method);
                 return new GenericVariable(canonical, () => dm(tableInstance, parms[0].AsBool(), parms[1].AsObject(), parms[2].AsObject()), cacheable, mutable, Variable.VariableType.Func);
+            }
+            else if (methodParams[0].ParameterType == typeof(bool) && methodParams[1].ParameterType == typeof(double) && methodParams[2].ParameterType == typeof(double))
+            {
+                Variable newVar;
+                if (method.ReturnType == typeof(double))
+                {
+                    Func<object, bool, double, double, double> dm = DynamicMethodFactory.CreateFunc<object, bool, double, double, double>(method);
+                    newVar = new DoubleVariable(canonical, () => dm(tableInstance, parms[0].AsBool(), parms[1].AsDouble(), parms[2].AsDouble()), cacheable, mutable, Variable.VariableType.Func);
+                }
+                else
+                {
+                    if (methodReturn != typeof(object))
+                    {
+                        Utility.LogWarning(this, "(bool, double, double) -> {0} could be optimized for {1}", methodReturn.ToString(), canonical);
+                    }
+                    Func<object, bool, double, double, object> dm = DynamicMethodFactory.CreateFunc<object, bool, double, double, object>(method);
+                    newVar = new GenericVariable(canonical, () => dm(tableInstance, parms[0].AsBool(), parms[1].AsDouble(), parms[2].AsDouble()), cacheable, mutable, Variable.VariableType.Func);
+                }
+
+
+                if (dependent)
+                {
+                    parms[0].RegisterNumericCallback(newVar.TriggerUpdate);
+                    parms[1].RegisterNumericCallback(newVar.TriggerUpdate);
+                    parms[2].RegisterNumericCallback(newVar.TriggerUpdate);
+                }
+
+                return newVar;
             }
             else if (methodParams[0].ParameterType == typeof(double) && methodParams[1].ParameterType == typeof(object) && methodParams[2].ParameterType == typeof(object))
             {

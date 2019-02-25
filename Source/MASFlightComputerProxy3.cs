@@ -4072,10 +4072,38 @@ namespace AvionicsSystems
             }
         }
 
+        // Add signatures that allow us to avoid paying for boxing / unboxing doubles in the
+        // trueValue and falseValue cases.
         [MASProxy(Dependent = true)]
         public object Select(double condition, object trueValue, object falseValue)
         {
             if (condition > 0.0)
+            {
+                return trueValue;
+            }
+            else
+            {
+                return falseValue;
+            }
+        }
+
+        [MASProxy(Dependent = true)]
+        public double Select(double condition, double trueValue, double falseValue)
+        {
+            if (condition > 0.0)
+            {
+                return trueValue;
+            }
+            else
+            {
+                return falseValue;
+            }
+        }
+
+        [MASProxy(Dependent = true)]
+        public double Select(bool condition, double trueValue, double falseValue)
+        {
+            if (condition)
             {
                 return trueValue;
             }
