@@ -4464,6 +4464,47 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the total delta-V remaining for the vessel based on its current
+        /// altitude.
+        /// 
+        /// This version uses only the stock KSP delta-V computations.
+        /// </summary>
+        /// <returns>Remaining delta-V in m/s.</returns>
+        public double StockDeltaV()
+        {
+            VesselDeltaV vdV = vessel.VesselDeltaV;
+            if (vdV.IsReady)
+            {
+                return vdV.TotalDeltaVActual;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Returns an estimate of the delta-V remaining for the current stage.  This computation uses
+        /// the current ISP.
+        /// 
+        /// This version uses only the stock KSP delta-V computations.
+        /// </summary>
+        /// <returns>Remaining delta-V for this stage in m/s.</returns>
+        public double StockDeltaVStage()
+        {
+            VesselDeltaV vdV = vessel.VesselDeltaV;
+            if (vdV.IsReady && vdV.currentStageActivated)
+            {
+                DeltaVStageInfo stageInfo = vdV.OperatingStageInfo[0];
+                return stageInfo.deltaVActual;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Turns on/off engines for the current stage
         /// </summary>
         /// <returns>1 if engines are now enabled, 0 if they are disabled.</returns>
