@@ -249,6 +249,8 @@ namespace AvionicsSystems
         private ModuleCommand commandModule = null;
         private int activeControlPoint = 0;
 
+        internal ModuleColorChanger colorChangerModule = null;
+
         internal static readonly string vesselIdLabel = "__vesselId";
         internal static readonly string vesselFilterLabel = "__vesselFilter";
 
@@ -1019,6 +1021,12 @@ namespace AvionicsSystems
                 rate = Mathf.Max(0.0f, rate);
                 commandModule = part.FindModuleImplementing<ModuleCommand>();
                 UpdateControlPoint(commandModule.ActiveControlPointName);
+                colorChangerModule = part.FindModuleImplementing<ModuleColorChanger>();
+                if (colorChangerModule != null && colorChangerModule.toggleInFlight == false && colorChangerModule.toggleAction == false)
+                {
+                    // Not a controllable light
+                    colorChangerModule = null;
+                }
 
                 if (dependentLuaMethods.Count == 0)
                 {

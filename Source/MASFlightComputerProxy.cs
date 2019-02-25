@@ -2447,6 +2447,97 @@ namespace AvionicsSystems
         #endregion
 
         /// <summary>
+        /// The Color Changer category controls the ModuleColorChanger module on parts.  This module
+        /// is most commonly used to toggle emissives representing portholes and windows on occupied parts,
+        /// as well as the charring effect on heat shields.
+        /// 
+        /// There are two groups of functions in this category.  Those functions that contain the
+        /// name `PodColorChanger` only affect the current command pod / part.  This allows external
+        /// cockpit glows to be coordinated with interior lighting, for instance.  The other group of
+        /// functions contain `ColorChanger` without the `Pod` prefix.  Those functions are used to control
+        /// all ModuleColorChanger installations on the current vessel.
+        /// 
+        /// The Color Changer category only interacts with those modules that have toggleInFlight and toggleAction set
+        /// to true.
+        /// </summary>
+        #region Color Changer
+
+        /// <summary>
+        /// Returns the current state of the current part's color changer module.
+        /// </summary>
+        /// <returns>1 if the color changer is on, 0 if it is off, or there is no color changer module.</returns>
+        public double GetPodColorChanger()
+        {
+            if (fc.colorChangerModule != null)
+            {
+                return (fc.colorChangerModule.animState) ? 1.0 : 0.0;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the pod's color changer module can currently be changed.
+        /// Returns 0 if it cannot, or there is no color changer module.
+        /// </summary>
+        /// <returns></returns>
+        public double PodColorChangerCanChange()
+        {
+            return (fc.colorChangerModule != null && fc.colorChangerModule.CanMove) ? 1.0 : 0.0;
+        }
+
+        [MASProxy(Immutable = true)]
+        /// <summary>
+        /// Returns 1 if the current IVA has a color changer module.
+        /// </summary>
+        /// <returns>1 or 0.</returns>
+        public double PodColorChangerExists()
+        {
+            return (fc.colorChangerModule != null) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Set the state of the pod color changer.
+        /// 
+        /// Some color changers may not be able to update under some circumstances,
+        /// so this function could return 0 with a valid color changer.  Query
+        /// `fc.PodColorChangerCanChange()` to determine in advance if the color
+        /// changer is able to be updated.
+        /// </summary>
+        /// <param name="newState"></param>
+        /// <returns>1 if the color changer has been updated, 0 if did not change, or it cannot currently change, or there is no color changer module.</returns>
+        public double SetPodColorChanger(bool newState)
+        {
+            if (fc.colorChangerModule != null && fc.colorChangerModule.CanMove)
+            {
+                if (fc.colorChangerModule.animState != newState)
+                {
+                    fc.colorChangerModule.ToggleEvent();
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Toggle the pod's color changer.
+        /// </summary>
+        /// <returns>1 if the color changer is switching on, 0 if it is switching off, or there is no color changer.</returns>
+        public double TogglePodColorChanger()
+        {
+            if (fc.colorChangerModule != null && fc.colorChangerModule.CanMove)
+            {
+                bool newState = !fc.colorChangerModule.animState;
+                fc.colorChangerModule.ToggleEvent();
+                return (newState) ? 1.0 : 0.0;
+            }
+
+            return 0.0;
+        }
+
+        #endregion
+
+        /// <summary>
         /// Functions related to CommNet connectivity are in this category, as are functions
         /// related to the Kerbal Deep Space Network ground stations.
         /// </summary>

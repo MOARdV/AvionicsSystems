@@ -215,6 +215,11 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Color Changer
+        private List<ModuleColorChanger> colorChangerList = new List<ModuleColorChanger>(2);
+        internal ModuleColorChanger[] moduleColorChanger = new ModuleColorChanger[0];
+        #endregion
+
         #region Communications
         private List<ModuleDeployableAntenna> antennaList = new List<ModuleDeployableAntenna>(8);
         internal ModuleDeployableAntenna[] moduleAntenna = new ModuleDeployableAntenna[0];
@@ -1443,6 +1448,14 @@ namespace AvionicsSystems
                         {
                             airBrakeList.Add(module as ModuleAeroSurface);
                         }
+                        else if (module is ModuleColorChanger)
+                        {
+                            ModuleColorChanger cc = module as ModuleColorChanger;
+                            if (cc.toggleInFlight && cc.toggleAction)
+                            {
+                                colorChangerList.Add(cc);
+                            }
+                        }
 
                         foreach (BaseAction ba in module.Actions)
                         {
@@ -1495,6 +1508,7 @@ namespace AvionicsSystems
             TransferModules<ModuleAlternator>(alternatorList, ref moduleAlternator);
             TransferModules<ModuleAblator>(ablatorList, ref moduleAblator);
             TransferModules<ModuleCargoBay>(cargoBayList, ref moduleCargoBay);
+            TransferModules<ModuleColorChanger>(colorChangerList, ref moduleColorChanger);
             TransferModules<ModuleDeployableAntenna>(antennaList, ref moduleAntenna);
             TransferModules<ModuleDeployableRadiator>(deployableRadiatorList, ref moduleDeployableRadiator);
             TransferModules<MASIdEngineGroup>(engineGroupList, ref engineGroup);
