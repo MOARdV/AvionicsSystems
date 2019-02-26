@@ -815,8 +815,6 @@ namespace AvionicsSystems
 
             for (int i = resources.Length - 1; i >= 0; --i)
             {
-                vesselActiveResource[i] = int.MaxValue;
-
                 int numPartResources = resources[i].partResources.Count;
                 if (numPartResources > 0)
                 {
@@ -858,13 +856,16 @@ namespace AvionicsSystems
 
                     totalResourceMass += curV * resources[i].density;
 
-                    if (maxV > 0.0f)
+                    vesselActiveResource[i] = i;
+
+                    if (maxV == 0.0f)
                     {
-                        vesselActiveResource[i] = i;
+                        Utility.LogWarning(this, "Resource {0} has {1} PartResource modules, but no storage capacity.", resources[i].displayName, numPartResources);
                     }
                 }
                 else
                 {
+                    vesselActiveResource[i] = int.MaxValue;
                     resources[i].currentQuantity = 0.0f;
                     resources[i].reserveQuantity = 0.0f;
                     resources[i].maxQuantity = 0.0f;
