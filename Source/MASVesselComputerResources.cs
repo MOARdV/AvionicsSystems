@@ -94,8 +94,9 @@ namespace AvionicsSystems
             internal ResourceFlowMode flowMode;
 
             internal float currentQuantity;
+            internal float reserveQuantity;
             internal float maxQuantity;
-            internal float previousQuantity; // for tracking delta
+            internal float previousQuantity; // for tracking delta - stores currentQuantity from last iteration.
             internal float deltaPerSecond;
 
             internal float currentStage;
@@ -590,6 +591,19 @@ namespace AvionicsSystems
             }
         }
 
+        internal double ResourceReserve(object resourceId)
+        {
+            int index = GetResourceIndex(resourceId);
+            if (index >= 0 && index < resources.Length)
+            {
+                return resources[index].reserveQuantity;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
         /// <summary>
         /// Returns the amount of the resource remaining in the current stage.
         /// </summary>
@@ -713,6 +727,7 @@ namespace AvionicsSystems
                 resources[index].density = thatResource.density;
                 resources[index].flowMode = thatResource.resourceFlowMode;
                 resources[index].currentQuantity = 0.0f;
+                resources[index].reserveQuantity = 0.0f;
                 resources[index].maxQuantity = 0.0f;
                 resources[index].previousQuantity = 0.0f;
                 resources[index].deltaPerSecond = 0.0f;
@@ -732,6 +747,7 @@ namespace AvionicsSystems
             enginePropellant.displayName = "Engine Propellant";
             enginePropellant.density = 0.0f;
             enginePropellant.currentQuantity = 0.0f;
+            enginePropellant.reserveQuantity = 0.0f;
             enginePropellant.maxQuantity = 0.0f;
             enginePropellant.previousQuantity = 0.0f;
             enginePropellant.deltaPerSecond = 0.0f;
@@ -743,6 +759,7 @@ namespace AvionicsSystems
             rcsPropellant.displayName = "RCS Propellant";
             rcsPropellant.density = 0.0f;
             rcsPropellant.currentQuantity = 0.0f;
+            rcsPropellant.reserveQuantity = 0.0f;
             rcsPropellant.maxQuantity = 0.0f;
             rcsPropellant.previousQuantity = 0.0f;
             rcsPropellant.deltaPerSecond = 0.0f;
@@ -800,44 +817,61 @@ namespace AvionicsSystems
             {
                 vesselActiveResource[i] = int.MaxValue;
 
-                double amount, maxAmount;
-                vessel.GetConnectedResourceTotals(resources[i].id, out amount, out maxAmount);
-
-                totalResourceMass += (float)amount * resources[i].density;
-
-                resources[i].currentQuantity = (float)amount;
-                resources[i].maxQuantity = (float)maxAmount;
-                if (IsFreeFlow(resources[i].flowMode))
-                {
-                    resources[i].currentStage = (float)amount;
-                    resources[i].maxStage = (float)maxAmount;
-                }
-                else
-                {
-                    resources[i].currentStage = 0.0f;
-                    resources[i].maxStage = 0.0f;
-                }
-                resources[i].deltaPerSecond = 0.0f;
-                if (maxAmount > 0.0)
-                {
-                    vesselActiveResource[i] = i;
-                }
-
                 int numPartResources = resources[i].partResources.Count;
                 if (numPartResources > 0)
                 {
+                    float maxV = 0.0f;
+                    float rsrV = 0.0f;
+                    float curV = 0.0f;
+                    
                     resources[i].resourceLocked = false;
+                    
                     for (int rsrcIdx = 0; rsrcIdx < numPartResources; ++rsrcIdx)
                     {
+                        maxV += (float)resources[i].partResources[rsrcIdx].maxAmount;
                         if (resources[i].partResources[rsrcIdx].flowState == false)
                         {
                             resources[i].resourceLocked = true;
-                            break;
+                            rsrV += (float)resources[i].partResources[rsrcIdx].amount;
                         }
+                        else
+                        {
+                            curV += (float)resources[i].partResources[rsrcIdx].amount;
+                        }
+                    }
+
+                    resources[i].maxQuantity = maxV;
+                    resources[i].currentQuantity = curV;
+                    resources[i].reserveQuantity = rsrV;
+                    resources[i].deltaPerSecond = 0.0f;
+
+                    if (IsFreeFlow(resources[i].flowMode))
+                    {
+                        resources[i].currentStage = curV;
+                        resources[i].maxStage = maxV;
+                    }
+                    else
+                    {
+                        resources[i].currentStage = 0.0f;
+                        resources[i].maxStage = 0.0f;
+                    }
+
+                    totalResourceMass += curV * resources[i].density;
+
+                    if (maxV > 0.0f)
+                    {
+                        vesselActiveResource[i] = i;
                     }
                 }
                 else
                 {
+                    resources[i].currentQuantity = 0.0f;
+                    resources[i].reserveQuantity = 0.0f;
+                    resources[i].maxQuantity = 0.0f;
+                    resources[i].previousQuantity = 0.0f;
+                    resources[i].deltaPerSecond = 0.0f;
+                    resources[i].currentStage = 0.0f;
+                    resources[i].maxStage = 0.0f;
                     resources[i].resourceLocked = false;
                 }
             }
@@ -854,12 +888,14 @@ namespace AvionicsSystems
             enginePropellant.currentStage = 0.0f;
             enginePropellant.maxStage = 0.0f;
             enginePropellant.currentQuantity = 0.0f;
+            enginePropellant.reserveQuantity = 0.0f;
             enginePropellant.maxQuantity = 0.0f;
             enginePropellant.density = 0.0f;
 
             rcsPropellant.currentStage = 0.0f;
             rcsPropellant.maxStage = 0.0f;
             rcsPropellant.currentQuantity = 0.0f;
+            rcsPropellant.reserveQuantity = 0.0f;
             rcsPropellant.maxQuantity = 0.0f;
             rcsPropellant.density = 0.0f;
 
@@ -873,8 +909,9 @@ namespace AvionicsSystems
                     // TODO: Does this manage blocked resource transfers (like over decouplers)?
                     // Maybe, instead of / in addition to marking engines, I should collect *all* parts
                     // on the currently active stage.
-                    if (resources[i].maxStage == 0.0)
+                    if (resources[i].maxStage == 0.0f)
                     {
+                        // Ask the partSet what's connected to the current stage.
                         double amount, maxAmount;
                         partSet.GetConnectedResourceTotals(resources[i].id, out amount, out maxAmount, true);
 
@@ -892,24 +929,26 @@ namespace AvionicsSystems
                     }
 
                     resources[i].previousQuantity = resources[i].currentQuantity;
-                }
 
-                if (enginePropellantIds.Contains(resources[i].id))
-                {
-                    enginePropellant.currentStage += resources[i].currentStage;
-                    enginePropellant.maxStage += resources[i].maxStage;
-                    enginePropellant.currentQuantity += resources[i].currentQuantity;
-                    enginePropellant.maxQuantity += resources[i].maxQuantity;
-                    enginePropellant.density += resources[i].currentStage * resources[i].density;
-                }
+                    if (enginePropellantIds.Contains(resources[i].id))
+                    {
+                        enginePropellant.currentStage += resources[i].currentStage;
+                        enginePropellant.maxStage += resources[i].maxStage;
+                        enginePropellant.currentQuantity += resources[i].currentQuantity;
+                        enginePropellant.reserveQuantity += resources[i].reserveQuantity;
+                        enginePropellant.maxQuantity += resources[i].maxQuantity;
+                        enginePropellant.density += resources[i].currentStage * resources[i].density;
+                    }
 
-                if (rcsPropellantIds.Contains(resources[i].id))
-                {
-                    rcsPropellant.currentStage += resources[i].currentStage;
-                    rcsPropellant.maxStage += resources[i].maxStage;
-                    rcsPropellant.currentQuantity += resources[i].currentQuantity;
-                    rcsPropellant.maxQuantity += resources[i].maxQuantity;
-                    rcsPropellant.density += resources[i].currentStage * resources[i].density;
+                    if (rcsPropellantIds.Contains(resources[i].id))
+                    {
+                        rcsPropellant.currentStage += resources[i].currentStage;
+                        rcsPropellant.maxStage += resources[i].maxStage;
+                        rcsPropellant.currentQuantity += resources[i].currentQuantity;
+                        rcsPropellant.reserveQuantity += resources[i].reserveQuantity;
+                        rcsPropellant.maxQuantity += resources[i].maxQuantity;
+                        rcsPropellant.density += resources[i].currentStage * resources[i].density;
+                    }
                 }
             }
 

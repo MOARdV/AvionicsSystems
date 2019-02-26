@@ -249,12 +249,12 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Reports the current mass of the propellant.
+        /// Reports the current mass of the propellant, including any locked resource tanks.
         /// </summary>
         /// <returns>The current propellant mass, in kg.</returns>
         public double PropellantMass()
         {
-            return vc.enginePropellant.currentQuantity * vc.enginePropellant.density * 1000.0;
+            return (vc.enginePropellant.currentQuantity + vc.enginePropellant.reserveQuantity) * vc.enginePropellant.density * 1000.0;
         }
 
         /// <summary>
@@ -272,7 +272,16 @@ namespace AvionicsSystems
         /// <returns>The percentage of maximum propellant capacity that contains propellant, between 0 and 1.</returns>
         public double PropellantPercent()
         {
-            return (vc.enginePropellant.maxQuantity > 0.0f) ? (vc.enginePropellant.currentQuantity / vc.enginePropellant.maxQuantity) : 0.0;
+            return (vc.enginePropellant.maxQuantity > 0.0f) ? ((vc.enginePropellant.currentQuantity + vc.enginePropellant.reserveQuantity) / vc.enginePropellant.maxQuantity) : 0.0;
+        }
+
+        /// <summary>
+        /// Reports the amount of propellant, in U, that is currently locked (unavailable to engines).
+        /// </summary>
+        /// <returns>The locked propellant amount, in U.</returns>
+        public double PropellantReserve()
+        {
+            return vc.enginePropellant.reserveQuantity;
         }
 
         /// <summary>
@@ -285,7 +294,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Reports the current amount of propellant available, in U, to active engines on the current stage.
+        /// Reports the current amount of propellant, in U, available to active engines on the current stage.
         /// </summary>
         /// <returns>The current quantity of propellant accessible by the current stage, in U.</returns>
         public double PropellantStageCurrent()
@@ -294,8 +303,8 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Reports the maximum amount of propellant available, in U, to the active engiens on the
-        /// current stage.
+        /// Reports the maximum amount of propellant available, in U, to the active engines on the
+        /// current stage.  Note that locked propellant tanks are *not* reported by this function.
         /// </summary>
         /// <returns>The maximum quantity of propellant accessible by the current stage, in U.</returns>
         public double PropellantStageMax()
@@ -373,11 +382,13 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Reports whether the vessel's propellant percentage falls between the two listed bounds.
+        /// Reports whether the vessel's available propellant percentage falls between the two listed bounds.
         /// The bounds do not need to be in numerical order.
         /// 
         /// If there is no propellant or active engines, returns 0.  Doing so makes this
         /// function useful for alerts, for example.
+        /// 
+        /// Reserve propellant is not included in this computation.
         /// </summary>
         /// <param name="firstBound">The first boundary percentage, between 0 and 1.</param>
         /// <param name="secondBound">The second boundary percentage, between 0 and 1.</param>
@@ -445,12 +456,21 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Tracks the percentage of total RCS propellant mass currently onboard.
+        /// Tracks the percentage of total RCS propellant currently onboard.
         /// </summary>
         /// <returns>Current RCS propellant supply, between 0 and 1.</returns>
         public double RcsPercent()
         {
-            return (vc.rcsPropellant.maxQuantity > 0.0f) ? (vc.rcsPropellant.currentQuantity / vc.rcsPropellant.maxQuantity) : 0.0;
+            return (vc.rcsPropellant.maxQuantity > 0.0f) ? ((vc.rcsPropellant.currentQuantity + vc.rcsPropellant.reserveQuantity) / vc.rcsPropellant.maxQuantity) : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the number of units of RCS propellant that is currently locked and unavailable.
+        /// </summary>
+        /// <returns>Reserve RCS propellant, in U.</returns>
+        public double RcsReserve()
+        {
+            return vc.rcsPropellant.reserveQuantity;
         }
 
         /// <summary>
@@ -513,6 +533,8 @@ namespace AvionicsSystems
         /// 
         /// If there is no RCS propellant, returns 0.  Doing so makes this
         /// function useful for alerts, for example.
+        /// 
+        /// This function does not count reserve quantities.
         /// </summary>
         /// <param name="firstBound">The first boundary percentage, between 0 and 1.</param>
         /// <param name="secondBound">The second boundary percentage, between 0 and 1.</param>
@@ -544,7 +566,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the current amount of the selected resource.
+        /// Returns the current available amount of the selected resource.
         /// </summary>
         /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
         /// <returns></returns>
@@ -575,6 +597,17 @@ namespace AvionicsSystems
         public double ResourceDensity(object resourceId)
         {
             return vc.ResourceDensity(resourceId) * 1000.0;
+        }
+
+        /// <summary>
+        /// Returns the display (localized) name of the selected resource, or an empty string if it doesn't
+        /// exist.
+        /// </summary>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
+        /// <returns></returns>
+        public string ResourceDisplayName(object resourceId)
+        {
+            return vc.ResourceDisplayName(resourceId);
         }
 
         /// <summary>
@@ -650,17 +683,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the display (localized) name of the selected resource, or an empty string if it doesn't
-        /// exist.
-        /// </summary>
-        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
-        /// <returns></returns>
-        public string ResourceDisplayName(object resourceId)
-        {
-            return vc.ResourceDisplayName(resourceId);
-        }
-
-        /// <summary>
         /// Returns the name of the selected resource, or an empty string if it doesn't
         /// exist.
         /// </summary>
@@ -683,13 +705,23 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the amount of the selected resource that is marked as unavailable for use (locked).
+        /// </summary>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
+        /// <returns>The amount of the selected resource that is locked, or 0.</returns>
+        public double ResourceReserve(object resourceId)
+        {
+            return vc.ResourceReserve(resourceId);
+        }
+
+        /// <summary>
         /// Returns the current amount of the selected resource in the current stage.
         /// </summary>
         /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
         /// <returns></returns>
         public double ResourceStageCurrent(object resourceId)
         {
-            return vc.ResourceCurrent(resourceId);
+            return vc.ResourceStageCurrent(resourceId);
         }
 
         /// <summary>
