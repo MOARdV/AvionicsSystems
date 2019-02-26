@@ -2475,6 +2475,24 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the module ID for the selected color changer module.
+        /// 
+        /// Returns an empty string if an invalid `ccId` is provided.
+        /// </summary>
+        /// <param name="ccId">An integer between 0 and `fc.ColorChangerCount()` - 1.</param>
+        /// <returns>The `moduleID` field of the selected ModuleColorChanger, or an empty string..</returns>
+        public string ColorChangerId(double ccId)
+        {
+            int id = (int)ccId;
+            if (id >=0 && id <  vc.moduleColorChanger.Length)
+            {
+                return vc.moduleColorChanger[id].moduleID;
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Returns the current state of the vessel color changer modules.
         /// </summary>
         /// <returns>1 if the color changers are on, 0 if they are off, or there are no color changer modules.</returns>
