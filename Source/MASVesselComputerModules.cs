@@ -1011,6 +1011,7 @@ namespace AvionicsSystems
             internal ExperimentSituations situation;
             internal ScienceSubject subject;
             internal string biomeDisplayName;
+            internal string experimentResults;
         };
         private Dictionary<string, ExperimentData> processedExperimentData = new Dictionary<string, ExperimentData>();
         internal ExperimentData GetExperimentData(string subjectID, ScienceExperiment experiment)
@@ -1026,6 +1027,7 @@ namespace AvionicsSystems
                 ed.body = FlightGlobals.GetBodyByName(bodyName);
                 ed.biomeDisplayName = ScienceUtil.GetBiomedisplayName(ed.body, biome);
                 ed.subject = ResearchAndDevelopment.GetExperimentSubject(experiment, ed.situation, ed.body, biome, ed.biomeDisplayName);
+                ed.experimentResults = ResearchAndDevelopment.GetResults(subjectID);
 
                 processedExperimentData.Add(subjectID, ed);
             }

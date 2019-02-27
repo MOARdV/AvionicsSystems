@@ -1552,6 +1552,33 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the results of the selected experiment.
+        /// 
+        /// Note that this string may be lengthy - using `fc.ScrollingMarquee()` is recommended.
+        /// </summary>
+        /// <param name="experimentId">An integer between 0 and `fc.ExperimentTotal()` - 1, inclusive.</param>
+        /// <returns>The results of the experiment, or an empty string.</returns>
+        public string ExperimentResults(double experimentId)
+        {
+            int id = (int)experimentId;
+            if (id >= 0 && id < vc.moduleScienceExperiment.Length)
+            {
+                ModuleScienceExperiment mse = vc.moduleScienceExperiment[id];
+                if (mse.Deployed)
+                {
+                    ScienceData[] data = mse.GetData();
+                    if (data.Length > 0)
+                    {
+                        MASVesselComputer.ExperimentData ed = vc.GetExperimentData(data[0].subjectID, mse.experiment);
+                        return ed.experimentResults;
+                    }
+                }
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Returns the science value of the experiment selected by `experimentId`.
         /// 
         /// If `experimentId` is not a valid experiment, or the experiment has not been run,
