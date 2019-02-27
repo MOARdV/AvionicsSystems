@@ -1394,7 +1394,9 @@ namespace AvionicsSystems
         /// can send science, however (such as the default transmitter found in a Command Pod), so the transmitters
         /// that MAS reports will not be all of the transmitters on the vessel.
         /// 
-        /// **NOTE:** This feature is under development.  It is not feature complete.
+        /// Note that the functions that run an experiment always trigger the KSP experiment dialog, even if the UI overlays
+        /// are switched off.  The dialog's buttons do not intercept the button presses, so it won't have any side-effects other
+        /// than possibly confusion when he player enables the UI later.
         /// </summary>
         #region Science
         // For a bootstrap to interpreting science values, see https://github.com/KerboKatz/AutomatedScienceSampler/blob/master/source/AutomatedScienceSampler/DefaultActivator.cs
