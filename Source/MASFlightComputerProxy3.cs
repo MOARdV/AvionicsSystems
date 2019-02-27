@@ -1384,15 +1384,48 @@ namespace AvionicsSystems
 
 
         /// <summary>
-        /// The Science category provides interaction with both science experiments and categories of science experiments.
+        /// The Science category provides interaction with science experiments, categories of science experiments,
+        /// and data transmitters.
         /// 
         /// The `Experiment` functions interact with individual experiments on the vessel, such as a Crew Report in the
         /// Command Pod.  The `ScienceType` functions interact with categories of experiments.
+        /// 
+        /// Data Transmitters are any transmitter on the vessel capable of transmitting science.  Not every transmitter
+        /// can send science, however (such as the default transmitter found in a Command Pod), so the transmitters
+        /// that MAS reports will not be all of the transmitters on the vessel.
         /// 
         /// **NOTE:** This feature is under development.  It is not feature complete.
         /// </summary>
         #region Science
         // For a bootstrap to interpreting science values, see https://github.com/KerboKatz/AutomatedScienceSampler/blob/master/source/AutomatedScienceSampler/DefaultActivator.cs
+
+        /// <summary>
+        /// Indicates whether the selected transmitter is available for transmitting science.
+        /// 
+        /// **TODO:** This function only checks if the transmitter is busy.  It should also check
+        /// transmission ranges, once I find out how to do that.
+        /// </summary>
+        /// <param name="transmitterId">An integer in the range [0, `fc.DataTransmitterCount()`).</param>
+        /// <returns>1 if the selected transmitter is available to send data, 0 if it is not, or an invalid `transmitterId` was provided.</returns>
+        public double DataTransmitterAvailable(double transmitterId)
+        {
+            int idx = (int)transmitterId;
+            if (idx >= 0 && idx < vc.moduleTransmitter.Length)
+            {
+                // Note the reversed values - converting from IsBusy to !IsBusy.
+                return vc.moduleTransmitter[idx].IsBusy() ? 0.0 : 1.0;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the number of data transmitters aboard the vessel that are capable of transmitting science.
+        /// </summary>
+        /// <returns>An integer 0 or larger.</returns>
+        public double DataTransmitterCount()
+        {
+            return vc.moduleTransmitter.Length;
+        }
 
         /// <summary>
         /// Returns a count of the number of experiments of the specified science type that
@@ -1723,6 +1756,40 @@ namespace AvionicsSystems
             return vc.scienceType.Length;
         }
 
+        /// <summary>
+        /// Transmit the experiment selected by `experimentId` using the transmitter
+        /// `transmitterId`.
+        /// </summary>
+        /// <param name="transmitterId">An integer in the range [0, `fc.DataTransmitterCount()`).</param>
+        /// <param name="experimentId">An integer between 0 and `fc.ExperimentTotal()` - 1, inclusive.</param>
+        /// <returns>1 if the experiment was sent, 0 if it could not be sent or an invalid ID was provided.</returns>
+        public double TransmitExperiment(double transmitterId, double experimentId)
+        {
+            int xmitId = (int)transmitterId;
+            int expId = (int)experimentId;
+            if (xmitId >= 0 && xmitId < vc.moduleTransmitter.Length && expId >= 0 && expId < vc.moduleScienceExperiment.Length)
+            {
+                ModuleDataTransmitter mdt = vc.moduleTransmitter[xmitId];
+                ModuleScienceExperiment mse = vc.moduleScienceExperiment[expId];
+                if (mdt.IsBusy() == false && mse.Deployed)
+                {
+                    List<ScienceData> sd = new List<ScienceData>();
+                    sd.AddRange(mse.GetData());
+                    int numSciences = sd.Count;
+                    if (numSciences > 0)
+                    {
+                        mdt.TransmitData(sd);
+                        for (int i = 0; i < numSciences; ++i)
+                        {
+                            mse.DumpData(sd[i]);
+                        }
+
+                        return 1.0;
+                    }
+                }
+            }
+            return 0.0;
+        }
         #endregion
 
         /// <summary>

@@ -221,12 +221,15 @@ namespace AvionicsSystems
         #endregion
 
         #region Communications
-        private List<ModuleDeployableAntenna> antennaList = new List<ModuleDeployableAntenna>(8);
+        private List<ModuleDeployableAntenna> antennaList = new List<ModuleDeployableAntenna>(2);
         internal ModuleDeployableAntenna[] moduleAntenna = new ModuleDeployableAntenna[0];
         internal bool antennaDeployable;
         internal bool antennaRetractable;
         internal int antennaMoving;
         internal bool antennaDamaged;
+
+        private List<ModuleDataTransmitter> transmitterList = new List<ModuleDataTransmitter>(2);
+        internal ModuleDataTransmitter[] moduleTransmitter = new ModuleDataTransmitter[0];
         private void UpdateAntenna()
         {
             // TODO: What about detecting if dynamic pressure is low enough to deploy antennae?
@@ -1456,6 +1459,15 @@ namespace AvionicsSystems
                                 colorChangerList.Add(cc);
                             }
                         }
+                        else if (module is ModuleDataTransmitter)
+                        {
+                            ModuleDataTransmitter mdt = module as ModuleDataTransmitter;
+                            // We currently only care about transmitters that can send science.
+                            if (mdt.CanTransmit())
+                            {
+                                transmitterList.Add(mdt);
+                            }
+                        }
 
                         foreach (BaseAction ba in module.Actions)
                         {
@@ -1509,6 +1521,7 @@ namespace AvionicsSystems
             TransferModules<ModuleAblator>(ablatorList, ref moduleAblator);
             TransferModules<ModuleCargoBay>(cargoBayList, ref moduleCargoBay);
             TransferModules<ModuleColorChanger>(colorChangerList, ref moduleColorChanger);
+            TransferModules<ModuleDataTransmitter>(transmitterList, ref moduleTransmitter);
             TransferModules<ModuleDeployableAntenna>(antennaList, ref moduleAntenna);
             TransferModules<ModuleDeployableRadiator>(deployableRadiatorList, ref moduleDeployableRadiator);
             TransferModules<MASIdEngineGroup>(engineGroupList, ref engineGroup);
