@@ -1446,6 +1446,30 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Dump all of the data stored in the selected science container.
+        /// </summary>
+        /// <param name="scienceContainerId">An integer between [0, `fc.ScienceContainerCount()`).</param>
+        /// <returns>1 if data was dumped, 0 if the container was empty or an invalid container was selected.</returns>
+        public double DumpScienceContainer(double scienceContainerId)
+        {
+            int idx = (int)scienceContainerId;
+            if (idx >= 0 && idx < vc.scienceContainer.Length)
+            {
+                ModuleScienceContainer msc = vc.scienceContainer[idx];
+                if (msc.GetStoredDataCount() > 0)
+                {
+                    ScienceData[] data = msc.GetData();
+                    for (int i = data.Length - 1; i >= 0; --i)
+                    {
+                        msc.DumpData(data[i]);
+                    }
+                    return 1.0;
+                }
+            }
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns a count of the number of experiments of the specified science type that
         /// are available.  If an invalid science type is selected, returns 0.
         /// </summary>
@@ -1673,6 +1697,28 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Resets the selected experiment.  If the experiment has not been run, or it requires
+        /// a scientist to clean it first, this function has no effect.
+        /// </summary>
+        /// <param name="experimentId">An integer between 0 and `fc.ExperimentTotal()` - 1, inclusive.</param>
+        /// <returns>1 if the experiment was reset, 0 otherwise.</returns>
+        public double ResetExperiment(double experimentId)
+        {
+            int id = (int)experimentId;
+            if (id >= 0 && id < vc.moduleScienceExperiment.Length)
+            {
+                ModuleScienceExperiment mse = vc.moduleScienceExperiment[id];
+                if (mse.Deployed && mse.resettable && !mse.Inoperable)
+                {
+                    mse.ResetExperiment();
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Trigger the stock "Review Science" dialog for the given experiment.
         /// 
         /// If the experiment has not been run, or `experimentId` selects an
@@ -1709,6 +1755,31 @@ namespace AvionicsSystems
                 vc.scienceContainer[idx].ReviewDataEvent();
                 return 1.0;
             }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Run the first available experiment of the type selected by `scienceTypeId`.  If no experiments
+        /// are available, then nothing happens.
+        /// </summary>
+        /// <param name="scienceTypeId">An integer in the range [0, `fc.ScienceTypeTotal()`).</param>
+        /// <returns>1 if an experiment was run, 0 otherwise.</returns>
+        public double RunAvailableExperiment(double scienceTypeId)
+        {
+            int id = (int)scienceTypeId;
+            if (id >= 0 && id < vc.scienceType.Length)
+            {
+                var exp = vc.scienceType[id].experiments;
+                for (int i = exp.Count - 1; i >= 0; --i)
+                {
+                    if (!exp[i].Deployed)
+                    {
+                        exp[i].DeployExperiment();
+                        return 1.0;
+                    }
+                }
+            }
+
             return 0.0;
         }
 
