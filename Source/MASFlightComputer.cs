@@ -103,6 +103,14 @@ namespace AvionicsSystems
         [KSPField]
         public string startupScript = string.Empty;
 
+        [KSPField]
+        public string onEnterIVA = string.Empty;
+        private DynValue enterIvaScript = null;
+
+        [KSPField]
+        public string onExitIVA = string.Empty;
+        private DynValue exitIvaScript = null;
+
         /// <summary>
         /// Our module ID (so each FC can be distinguished in a save file).
         /// </summary>
@@ -991,21 +999,21 @@ namespace AvionicsSystems
                 GameEvents.OnIVACameraKerbalChange.Remove(OnIVACameraKerbalChange);
                 GameEvents.OnControlPointChanged.Remove(OnControlPointChanged);
 
-                Utility.LogInfo(this, "{3} variables created: {0} constant variables, {1} lambda variables, {2} Lua variables, and {4} dependent variables",
+                Utility.LogInfo(this, "{3} variables created: {0} constant variables, {1} delegate variables, {2} Lua variables, and {4} dependent variables",
                     constantVariableCount, nativeVariableCount, luaVariableCount, variables.Count, dependentVariableCount);
                 if (samplecount > 0)
                 {
                     double msPerFixedUpdate = 1000.0 * (double)(nativeStopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
                     double samplesPerMs = (double)nativeEvaluationCount / (1000.0 * (double)(nativeStopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
-                    Utility.LogInfo(this, "FixedUpdate Lambda average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
+                    Utility.LogInfo(this, "FixedUpdate Delegate average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
 
                     msPerFixedUpdate = 1000.0 * (double)(luaStopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
                     samplesPerMs = (double)luaEvaluationCount / (1000.0 * (double)(luaStopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
-                    Utility.LogInfo(this, "FixedUpdate Lua    average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
+                    Utility.LogInfo(this, "FixedUpdate Lua      average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
 
                     msPerFixedUpdate = 1000.0 * (double)(dependentStopwatch.ElapsedTicks) / (double)(samplecount * Stopwatch.Frequency);
                     samplesPerMs = (double)dependentEvaluationCount / (1000.0 * (double)(dependentStopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
-                    Utility.LogInfo(this, "FixedUpdate Expr   average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
+                    Utility.LogInfo(this, "FixedUpdate Expr     average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
                 }
             }
         }
@@ -1411,6 +1419,24 @@ namespace AvionicsSystems
                     }
                 }
 
+                if (!string.IsNullOrEmpty(onEnterIVA))
+                {
+                    enterIvaScript = script.LoadString(onEnterIVA);
+                    if (enterIvaScript.IsNil())
+                    {
+                        Utility.LogError(this, "Failed to process onEnterIVA script");
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(onExitIVA))
+                {
+                    exitIvaScript = script.LoadString(onExitIVA);
+                    if (exitIvaScript.IsNil())
+                    {
+                        Utility.LogError(this, "Failed to process onExitIVA script");
+                    }
+                }
+
                 initialized = true;
             }
         }
@@ -1625,6 +1651,20 @@ namespace AvionicsSystems
                     InternalCamera.Instance.minPitch = minPitch;
                     InternalCamera.Instance.maxPitch = maxPitch;
                 }
+                if (enterIvaScript != null)
+                {
+                    try
+                    {
+                        script.Call(enterIvaScript);
+                    }
+                    catch (Exception e)
+                    {
+                        Utility.ComplainLoudly("MASFlightComputer onEnterIVA triggered an exception");
+                        Utility.LogError(this, "MASFlightComputer onEnterIVA triggered an exception:");
+                        Utility.LogError(this, e.ToString());
+                        enterIvaScript = null;
+                    }
+                }
             }
             else
             {
@@ -1632,6 +1672,20 @@ namespace AvionicsSystems
                 InternalCamera.Instance.maxRot = 80.0f;
                 InternalCamera.Instance.minPitch = -80.0f;
                 InternalCamera.Instance.maxPitch = 45.0f;
+                if (exitIvaScript != null)
+                {
+                    try
+                    {
+                        script.Call(exitIvaScript);
+                    }
+                    catch (Exception e)
+                    {
+                        Utility.ComplainLoudly("MASFlightComputer onExitIVA triggered an exception");
+                        Utility.LogError(this, "MASFlightComputer onExitIVA  triggered an exception:");
+                        Utility.LogError(this, e.ToString());
+                        exitIvaScript = null;
+                    }
+                }
             }
         }
 
