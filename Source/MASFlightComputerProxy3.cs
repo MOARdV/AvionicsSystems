@@ -1400,6 +1400,24 @@ namespace AvionicsSystems
         // For a bootstrap to interpreting science values, see https://github.com/KerboKatz/AutomatedScienceSampler/blob/master/source/AutomatedScienceSampler/DefaultActivator.cs
 
         /// <summary>
+        /// Tell the science container identified by `scienceContainerId` to fill itself
+        /// with as many experiments as possible.
+        /// </summary>
+        /// <param name="scienceContainerId">An integer between [0, `fc.ScienceContainerCount()`).</param>
+        /// <returns>1 if a valid science container was selected, 0 otherwise.</returns>
+        public double CollectExperiments(double scienceContainerId)
+        {
+            int idx = (int)scienceContainerId;
+            if (idx >= 0 && idx < vc.scienceContainer.Length)
+            {
+                vc.scienceContainer[idx].CollectAllEvent();
+                return 1.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Indicates whether the selected transmitter is available for transmitting science.
         /// 
         /// **TODO:** This function only checks if the transmitter is busy.  It should also check
@@ -1679,6 +1697,22 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Trigger the stock "Review Science" dialog for the given container.
+        /// </summary>
+        /// <param name="scienceContainerId">An integer between [0, `fc.ScienceContainerCount()`).</param>
+        /// <returns>1 if the container review dialog was launched, 0 otherwise.</returns>
+        public double ReviewScienceContainer(double scienceContainerId)
+        {
+            int idx = (int)scienceContainerId;
+            if (idx >= 0 && idx < vc.scienceContainer.Length)
+            {
+                vc.scienceContainer[idx].ReviewDataEvent();
+                return 1.0;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
         /// Run the selected experiment.
         /// 
         /// If the experiment has already been run, this function has no effect.
@@ -1705,12 +1739,46 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the number of experiments that may be stored in the container, or 0 if an invalid ID is provided.
+        /// 
+        /// A capacity of 0 indicates unlimited storage capacity.
+        /// </summary>
+        /// <param name="scienceContainerId">An integer between [0, `fc.ScienceContainerCount()`).</param>
+        /// <returns>The storage capacity, or 0.</returns>
+        public double ScienceContainerCapacity(double scienceContainerId)
+        {
+            int idx = (int)scienceContainerId;
+            if (idx >= 0 && idx < vc.scienceContainer.Length)
+            {
+                return vc.scienceContainer[idx].capacity;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the number of science containers (ModuleScienceContainer) on the vessel.
         /// </summary>
         /// <returns>The number of science containers.</returns>
         public double ScienceContainerCount()
         {
             return vc.scienceContainer.Length;
+        }
+
+        /// <summary>
+        /// Returns the number of experiments stored in the container, or 0 if an invalid ID is provided.
+        /// </summary>
+        /// <param name="scienceContainerId">An integer between [0, `fc.ScienceContainerCount()`).</param>
+        /// <returns>The number of stored experiments, or 0.</returns>
+        public double ScienceContainerDataCount(double scienceContainerId)
+        {
+            int idx = (int)scienceContainerId;
+            if (idx >= 0 && idx < vc.scienceContainer.Length)
+            {
+                return vc.scienceContainer[idx].GetScienceCount();
+            }
+
+            return 0.0;
         }
 
         /// <summary>
@@ -1757,8 +1825,50 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Transmit all of the contents of the selected science container using the transmitter
+        /// identified by `transitterId`.
+        /// 
+        /// Does nothing if there is no data in the container, or if an invalid or busy
+        /// transmitter is selected.
+        /// </summary>
+        /// <param name="transmitterId">An integer in the range [0, `fc.DataTransmitterCount()`).</param>
+        /// <param name="scienceContainerId">An integer between [0, `fc.ScienceContainerCount()`).</param>
+        /// <returns>1 if the container's data was sent, 0 if it could not be sent or an invalid ID was provided.</returns>
+        public double TransmitScienceContainer(double transmitterId, double scienceContainerId)
+        {
+            int xmitId = (int)transmitterId;
+            int idx = (int)scienceContainerId;
+            if (xmitId >= 0 && xmitId < vc.moduleTransmitter.Length && idx >= 0 && idx < vc.scienceContainer.Length)
+            {
+                ModuleDataTransmitter mdt = vc.moduleTransmitter[xmitId];
+                ModuleScienceContainer msc = vc.scienceContainer[idx];
+                if (mdt.IsBusy() == false && msc.GetStoredDataCount() > 0)
+                {
+                    List<ScienceData> sd = new List<ScienceData>();
+                    sd.AddRange(msc.GetData());
+                    int numSciences = sd.Count;
+                    if (numSciences > 0)
+                    {
+                        mdt.TransmitData(sd);
+                        for (int i = 0; i < numSciences; ++i)
+                        {
+                            msc.DumpData(sd[i]);
+                        }
+
+                        return 1.0;
+                    }
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Transmit the experiment selected by `experimentId` using the transmitter
         /// `transmitterId`.
+        /// 
+        /// Does nothing if there is no data in the experiment, or if an invalid or busy
+        /// transmitter is selected.
         /// </summary>
         /// <param name="transmitterId">An integer in the range [0, `fc.DataTransmitterCount()`).</param>
         /// <param name="experimentId">An integer between 0 and `fc.ExperimentTotal()` - 1, inclusive.</param>
