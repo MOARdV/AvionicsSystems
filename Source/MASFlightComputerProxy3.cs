@@ -1472,6 +1472,118 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Checks to see if the vessel currently has data for the selected experiment in the
+        /// current circumstances (situation, biome, etc).
+        /// </summary>
+        /// <param name="experimentId">An integer between 0 and `fc.ExperimentTotal()` - 1, inclusive.</param>
+        /// <returns>1 if the vessel already has equivalent data stored, 0 if it does not, or the experimentId is invalid.</returns>
+        public double DuplicateExperiment(double experimentId)
+        {
+            int id = (int)experimentId;
+            if (id >= 0 && id < vc.moduleScienceExperiment.Length)
+            {
+                var experiment = vc.moduleScienceExperiment[id];
+
+                // XXX: This is grossly ineffecient, since I create a ScienceData object
+                // every time this is called.  I need to reverse engineer the subjectId
+                // algorithm, or figure out what helper function creates it.
+                ScienceData sd = vc.GenerateScienceData(experiment.experiment, experiment.xmitDataScalar);
+
+                var st = Array.Find(vc.scienceType, x => x.type.id == experiment.experiment.id);
+
+                // It looks like some modules don't have a valid experiment.id field at startup,
+                // so we have to do a null check here.  If we see null, we will signal to the vessel
+                // computer to check again on the science type data at the next FixedUpdate.
+                if (st != null)
+                {
+                    var exp = st.experiments;
+
+                    // Iterate over the science experiments to see if one already contains this data.
+                    for (int i = exp.Count - 1; i >= 0; --i)
+                    {
+                        if (exp[i].Deployed)
+                        {
+                            ScienceData[] data = exp[i].GetData();
+                            int duplicateIdx = Array.FindIndex(data, s => s.subjectID == sd.subjectID);
+                            if (duplicateIdx >= 0)
+                            {
+                                return 1.0;
+                            }
+                        }
+                    }
+
+                    for (int i = vc.scienceContainer.Length - 1; i >= 0; --i)
+                    {
+                        ScienceData[] data = vc.scienceContainer[i].GetData();
+                        int duplicateIdx = Array.FindIndex(data, s => s.subjectID == sd.subjectID);
+                        if (duplicateIdx >= 0)
+                        {
+                            return 1.0;
+                        }
+                    }
+
+                }
+                else
+                {
+                    //Utility.LogMessage(this, "st is null for {0} - triggering update:", experiment.experiment.id);
+                    //foreach (var ss in vc.scienceType)
+                    //{
+                    //    Utility.LogMessage(this, "...{0}", ss.type.id);
+                    //}
+                    vc.scienceInvalidated = true;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Checks to see if the vessel already has data for the selected science type in the current circumstances
+        /// (situation, biome).
+        /// </summary>
+        /// <param name="scienceTypeId">An integer in the range [0, `fc.ScienceTypeTotal()`).</param>
+        /// <returns>1 if the vessel already has equivalent data stored, 0 if it does not, or the scienceTypeId is invalid.</returns>
+        public double DuplicateScienceType(double scienceTypeId)
+        {
+            int id = (int)scienceTypeId;
+            if (id >= 0 && id < vc.scienceType.Length)
+            {
+                var exp = vc.scienceType[id].experiments;
+
+                // XXX: This is grossly ineffecient, since I create a ScienceData object
+                // every time this is called.  I need to reverse engineer the subjectId
+                // algorithm, or figure out what helper function creates it.
+                ScienceData sd = vc.GenerateScienceData(exp[0].experiment, exp[0].xmitDataScalar);
+
+                // Iterate over the science experiments to see if one already contains this data.
+                for (int i = exp.Count - 1; i >= 0; --i)
+                {
+                    if (exp[i].Deployed)
+                    {
+                        ScienceData[] data = exp[i].GetData();
+                        int duplicateIdx = Array.FindIndex(data, s => s.subjectID == sd.subjectID);
+                        if (duplicateIdx >= 0)
+                        {
+                            return 1.0;
+                        }
+                    }
+                }
+
+                for (int i = vc.scienceContainer.Length - 1; i >= 0; --i)
+                {
+                    ScienceData[] data = vc.scienceContainer[i].GetData();
+                    int duplicateIdx = Array.FindIndex(data, s => s.subjectID == sd.subjectID);
+                    if (duplicateIdx >= 0)
+                    {
+                        return 1.0;
+                    }
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns a count of the number of experiments of the specified science type that
         /// are available.  If an invalid science type is selected, returns 0.
         /// </summary>

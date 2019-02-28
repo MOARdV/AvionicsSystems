@@ -38,6 +38,13 @@ namespace AvionicsSystems
         // Tracks per-module data.
 
         internal bool modulesInvalidated = true;
+        // There appears to be a quirk when entering flight.  The MASVesselComputer will
+        // initialize before all of the ModuleScienceExperiment modules are ready, and MAS
+        // will see some ScienceExperiment fields that aren't initialized yet.  To manage
+        // that problem, this boolean is exposed such that the fc proxy can set it.
+        // When true, the vc will reprocess the MSE entries and rebuild its table of known
+        // science types.
+        internal bool scienceInvalidated = false;
 
         #region Action Groups
         //---Action Groups
@@ -1002,7 +1009,19 @@ namespace AvionicsSystems
                 }
             }
 
-            TransferModules<ScienceType>(scienceTypeList, ref scienceType);
+            // TransferModules does not copy values if the array isn't resized.  However, we
+            // may need to do that here.  For some reason, not every experiment has a
+            // valid ScienceExperiment the first time this code runs.
+            //TransferModules<ScienceType>(scienceTypeList, ref scienceType);
+            if (scienceTypeList.Count != scienceType.Length)
+            {
+                scienceType = new ScienceType[scienceTypeList.Count];
+            }
+            for (int i = scienceTypeList.Count - 1; i >= 0; --i)
+            {
+                scienceType[i] = scienceTypeList[i];
+            }
+            scienceTypeList.Clear();
         }
 
         internal class ExperimentData
@@ -1596,6 +1615,12 @@ namespace AvionicsSystems
                 RebuildModules();
 
                 modulesInvalidated = false;
+                scienceInvalidated = false;
+            }
+            if (scienceInvalidated)
+            {
+                RebuildScienceTypes();
+                scienceInvalidated = false;
             }
 
 #if TIME_UPDATES
