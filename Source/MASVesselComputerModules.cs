@@ -1034,6 +1034,19 @@ namespace AvionicsSystems
 
             return ed;
         }
+        internal ScienceData GenerateScienceData(ScienceExperiment experiment, float xmitDataScalar)
+        {
+            string biome = string.Empty;
+            ExperimentSituations situation = ScienceUtil.GetExperimentSituation(vessel);
+            if (experiment.BiomeIsRelevantWhile(situation))
+            {
+                biome = ScienceUtil.GetExperimentBiome(vessel.mainBody, vessel.latitude, vessel.longitude);
+            }
+
+            ScienceSubject subject = ResearchAndDevelopment.GetExperimentSubject(experiment, situation, vessel.mainBody, biome, null);
+            return new ScienceData(experiment.baseValue * subject.dataScale, xmitDataScalar, 0.0f,
+                        subject.id, subject.title);
+        }
 
         #endregion
 

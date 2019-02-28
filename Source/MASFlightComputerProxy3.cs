@@ -1798,12 +1798,15 @@ namespace AvionicsSystems
             int id = (int)scienceTypeId;
             if (id >= 0 && id < vc.scienceType.Length)
             {
+                // TODO: Obey ExperimentUsageReqs -> ModuleScienceExperiment.usageReqMaskInternal
                 var exp = vc.scienceType[id].experiments;
                 for (int i = exp.Count - 1; i >= 0; --i)
                 {
                     if (!exp[i].Deployed)
                     {
-                        exp[i].DeployExperiment();
+                        ScienceData sd = vc.GenerateScienceData(exp[i].experiment, exp[i].xmitDataScalar);
+                        // XXX: There isn't an AddData method in ModuleScienceExperiment.
+                        exp[i].ReturnData(sd);
                         return 1.0;
                     }
                 }
@@ -1828,9 +1831,12 @@ namespace AvionicsSystems
             {
                 ModuleScienceExperiment mse = vc.moduleScienceExperiment[id];
 
+                // TODO: Obey ExperimentUsageReqs -> ModuleScienceExperiment.usageReqMaskInternal
                 if (!mse.Deployed)
                 {
-                    mse.DeployExperiment();
+                    ScienceData sd = vc.GenerateScienceData(mse.experiment, mse.xmitDataScalar);
+                    // XXX: There isn't an AddData method in ModuleScienceExperiment.
+                    mse.ReturnData(sd);
                     return 1.0;
                 }
             }
