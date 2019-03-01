@@ -40,8 +40,10 @@ namespace AvionicsSystems
         private MeshRenderer meshRenderer;
         private Material imageMaterial;
         private RenderTexture displayTexture;
-        private RenderTexture renderTexture;
+        private int temporarySizeX, temporarySizeY;
         private Vector2 position = Vector2.zero;
+        private Vector2 uvScale = Vector2.one;
+        private Vector2 uvOffset = Vector2.zero;
         private Vector3 componentOrigin = Vector3.zero;
 
         private object rpmModule;
@@ -51,6 +53,7 @@ namespace AvionicsSystems
 
         private bool pageEnabled;
         private bool coroutineActive;
+        private bool useTemporaryTexture = false;
         private MASFlightComputer comp;
 
         internal MASPageRpmModule(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform pageRoot, float depth)
@@ -116,8 +119,25 @@ namespace AvionicsSystems
 
                         if (renderSize != size)
                         {
-                            renderTexture = new RenderTexture((int)renderSize.x, (int)renderSize.y, 24, RenderTextureFormat.ARGB32);
-                            renderTexture.Create();
+                            temporarySizeX = (int)renderSize.x;
+                            temporarySizeY = (int)renderSize.y;
+                            useTemporaryTexture = true;
+
+                            float xScaling = size.x / renderSize.x;
+                            float yScaling = size.y / renderSize.y;
+
+                            float aspectRatio = xScaling / yScaling;
+                            if (aspectRatio > 1.0f)
+                            {
+                                // wide aspect ratio
+                                uvScale.y = 1.0f / aspectRatio;
+                                uvOffset.y = uvScale.y * 0.5f;
+                            }
+                            else if (aspectRatio < 1.0f)
+                            {
+                                uvScale.x = aspectRatio;
+                                uvOffset.x = uvScale.x * 0.5f;
+                            }
                         }
                     }
                     else
@@ -288,9 +308,9 @@ namespace AvionicsSystems
                     if (renderMethod != null)
                     {
                         RenderTexture renderTo;
-                        if (renderTexture != null)
+                        if (useTemporaryTexture)
                         {
-                            renderTo = renderTexture;
+                            renderTo = RenderTexture.GetTemporary(temporarySizeX, temporarySizeY, 24, RenderTextureFormat.ARGB32);
                         }
                         else
                         {
@@ -319,9 +339,10 @@ namespace AvionicsSystems
                             RenderTexture.active = backupRenderTexture;
                         }
 
-                        if (renderTexture != null)
+                        if (useTemporaryTexture)
                         {
-                            Graphics.Blit(renderTexture, displayTexture);
+                            Graphics.Blit(renderTo, displayTexture, uvScale, uvOffset);
+                            RenderTexture.ReleaseTemporary(renderTo);
                         }
                     }
                 }
@@ -409,15 +430,6 @@ namespace AvionicsSystems
                 }
                 UnityEngine.GameObject.Destroy(displayTexture);
                 displayTexture = null;
-            }
-            if (renderTexture != null)
-            {
-                if (renderTexture.IsCreated())
-                {
-                    renderTexture.Release();
-                }
-                UnityEngine.GameObject.Destroy(renderTexture);
-                renderTexture = null;
             }
 
             variableRegistrar.ReleaseResources();
