@@ -7,14 +7,19 @@ MOARdV's Avionics Systems for Kerbal Space Program - a new generation of IVA enh
 
 MOARdV's Avionics Systems (MAS) is a replacement for RasterPropMonitor.
 The goal is to provide a more powerful and more performant design without sacrificing
-features that are available in RPM.  A longer-winded explanation is available in the
-wiki's [Introduction](https://github.com/MOARdV/AvionicsSystems/wiki/Introduction).
+features that are available in RPM.
 
-**NOTE:** MAS is a separate mod from RPM.  It is **not** a drop-in replacement.  IVAs created for RasterPropMonitor must
+**NOTE:** MAS is **not** a drop-in replacement for RasterPropMonitor.  IVAs created for RasterPropMonitor must
 use RPM.  They will not automatically work with MAS.  MAS uses different props, and it has different requirements than
 RPM.
 
 MAS is under intermittent development (basically, when I feel like it and I have time).
+
+To install, select the latest release AvionicsSystems zip file from the "Releases" tab (such as AvionicsSystems-0.95.3.zip).  Do not choose to "Clone or Download" this repo, unless you
+intend to build MAS yourself - the compiled DLL files are not stored on GitHub.  The Avionics Systems zip file contains all of the data
+needed to use an IVA in MAS.
+Players do not need to download the PropConfig zip file. That file contains an application and data that
+prop creators can use to automate the task of generating props for IVA.
 
 The [wiki](https://github.com/MOARdV/AvionicsSystems/wiki) contains the documentation for this mod, including guides to
 configuring props, integrating scripting, and the 900+ functions that MAS makes available.  Most of this documentation is geared towards IVA creators and prop developers.
