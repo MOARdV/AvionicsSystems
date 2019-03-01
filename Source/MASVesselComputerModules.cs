@@ -1066,6 +1066,34 @@ namespace AvionicsSystems
             return new ScienceData(experiment.baseValue * subject.dataScale, xmitDataScalar, 0.0f,
                         subject.id, subject.title);
         }
+        internal bool CanRunExperiment(ModuleScienceExperiment exp)
+        {
+            int requirements = exp.usageReqMaskInternal;
+            // ExperimentUsageReqs.Always = 0, ExperimentUsageReqs.VesselControl = 1 << 0, ExperimentUsageReqs.CrewInVessel = 1 << 1
+            if (requirements == 0 || (requirements & 3) != 0)
+            {
+                return true;
+            }
+            // ExperimentUsageReqs.CrewInPart = 1 << 2
+            if ((requirements & 4) != 0)
+            {
+                if (exp.part.protoModuleCrew != null && exp.part.protoModuleCrew.Count > 0)
+                {
+                    return true;
+                }
+            }
+            // ExperimentUsageReqs.ScientistCrew = 1 << 3
+            if ((requirements & 8) != 0)
+            {
+                int idx = vessel.GetVesselCrew().FindIndex(x => x.trait == KerbalRoster.scientistTrait);
+                if (idx >= 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         #endregion
 

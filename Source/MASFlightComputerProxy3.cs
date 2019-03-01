@@ -1917,11 +1917,10 @@ namespace AvionicsSystems
             int id = (int)scienceTypeId;
             if (id >= 0 && id < vc.scienceType.Length)
             {
-                // TODO: Obey ExperimentUsageReqs -> ModuleScienceExperiment.usageReqMaskInternal
                 var exp = vc.scienceType[id].experiments;
                 for (int i = exp.Count - 1; i >= 0; --i)
                 {
-                    if (!exp[i].Deployed)
+                    if (!exp[i].Deployed && vc.CanRunExperiment(exp[i]))
                     {
                         ScienceData sd = vc.GenerateScienceData(exp[i].experiment, exp[i].xmitDataScalar);
                         // XXX: There isn't an AddData method in ModuleScienceExperiment.
@@ -1950,8 +1949,7 @@ namespace AvionicsSystems
             {
                 ModuleScienceExperiment mse = vc.moduleScienceExperiment[id];
 
-                // TODO: Obey ExperimentUsageReqs -> ModuleScienceExperiment.usageReqMaskInternal
-                if (!mse.Deployed)
+                if (!mse.Deployed && vc.CanRunExperiment(mse))
                 {
                     ScienceData sd = vc.GenerateScienceData(mse.experiment, mse.xmitDataScalar);
                     // XXX: There isn't an AddData method in ModuleScienceExperiment.
