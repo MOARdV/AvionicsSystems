@@ -36,21 +36,16 @@ namespace AvionicsSystems
 
     /// <summary>
     /// The flight computer proxy provides the interface between the flight
-    /// computer module and the Lua environment.  It is a thin wrapper over
-    /// the flight computer that prevents in-Lua access to some elements.
+    /// computer module and the variable / Lua environment.
     /// 
-    /// Note that this class must be stateless - it can not maintain variables
-    /// between calls because there is no guarantee it'll exist next time it's
-    /// called.
-    /// 
-    /// Also note that, while it is a wrapper for ASFlightComputer, not all
+    /// While it is a wrapper for MASFlightComputer, not all
     /// values are plumbed through to the flight computer (for instance, the
     /// action group control and state are all handled in this class).
     /// </summary>
     /// <LuaName>fc</LuaName>
     /// <mdDoc>
     /// The `fc` group contains the core interface between KSP, Avionics
-    /// Systems, and props in an IVA.  It consists of many 'variable' functions
+    /// Systems, and props in an IVA.  It consists of many 'information' functions
     /// that can be used to get information as well as numerous 'action' functions
     /// that are used to do things.
     /// 
@@ -61,9 +56,21 @@ namespace AvionicsSystems
     /// * [[MASFlightComputerProxy2]] (Maneuver Node - Reaction Wheel), and
     /// * [[MASFlightComputerProxy3]] (Resources - Vessel Info).
     /// 
-    /// *NOTE:* If a variable listed below includes an entry for 'Required Mod(s)',
-    /// then the mod listed (or any of the mods, if more than one) must be installed
-    /// for that particular feature to work.
+    /// **NOTE 1:** If a function listed below includes an entry for 'Supported Mod(s)',
+    /// then that function will automatically use one of the mods listed to
+    /// generate the data.  In some cases, it is possible that the function does not work without
+    /// one of the required mods.  Those instances are noted in the function's description.
+    /// 
+    /// **NOTE 2:** Many descriptions make use of mathetmatical short-hand to describe
+    /// a range of values.  This short-hand consists of using square brackets `[` and `]`
+    /// to denote "inclusive range", while parentheses `(` and `)` indicate exclusive range.
+    /// 
+    /// For example, if a parameter says "an integer between [0, `fc.ExperimentCount()`)", it
+    /// means that the parameter must be an integer greater than or equal to 0, but less
+    /// than `fc.ExperimentCount()`.
+    /// 
+    /// For another example, if a parameter says "a number in the range [0, 1]", it means that
+    /// the number must be at least zero, and it must not be larger than 1.
     /// </mdDoc>
     internal partial class MASFlightComputerProxy
     {
@@ -1994,6 +2001,32 @@ namespace AvionicsSystems
             if (idx >= 0 && idx < vc.scienceContainer.Length)
             {
                 return vc.scienceContainer[idx].GetScienceCount();
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the size of all the data stored in the science container.
+        /// 
+        /// If `scienceContainerId` is an invalid science container id, or there is
+        /// no data in the container, it returns 0.
+        /// </summary>
+        /// <param name="scienceContainerId">An integer between [0, `fc.ScienceContainerCount()`).</param>
+        /// <returns>The data size of all experiments stored in the container, in Mits, or 0.</returns>
+        public double ScienceContainerDataSize(double scienceContainerId)
+        {
+            int idx = (int)scienceContainerId;
+            if (idx >= 0 && idx < vc.scienceContainer.Length)
+            {
+                ScienceData[] sd = vc.scienceContainer[idx].GetData();
+                float data = 0.0f;
+                for (int i = sd.Length - 1; i >= 0; --i)
+                {
+                    data += sd[i].dataAmount;
+                }
+
+                return data;
             }
 
             return 0.0;
