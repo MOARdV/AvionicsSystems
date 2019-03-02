@@ -984,6 +984,14 @@ namespace AvionicsSystems
         private List<ModuleScienceContainer> scienceContainerList = new List<ModuleScienceContainer>();
         internal ModuleScienceContainer[] scienceContainer = new ModuleScienceContainer[0];
 
+        private class ModuleScienceExperimentComparer : IComparer<ModuleScienceExperiment>
+        {
+            public int Compare(ModuleScienceExperiment a, ModuleScienceExperiment b)
+            {
+                return string.Compare(a.experiment.id, b.experiment.id);
+            }
+        }
+        ModuleScienceExperimentComparer mseComparer = new ModuleScienceExperimentComparer();
         internal class ScienceType
         {
             internal ScienceExperiment type;
@@ -993,7 +1001,10 @@ namespace AvionicsSystems
         internal ScienceType[] scienceType = new ScienceType[0];
         private void RebuildScienceTypes()
         {
-            for (int i = moduleScienceExperiment.Length - 1; i >= 0; --i)
+            // Sort the array.
+            Array.Sort(moduleScienceExperiment, mseComparer);
+            int numExperiments = moduleScienceExperiment.Length;
+            for (int i = 0; i < numExperiments; ++i)
             {
                 int idx = scienceTypeList.FindIndex(x => x.type.id == moduleScienceExperiment[i].experiment.id);
                 if (idx == -1)
