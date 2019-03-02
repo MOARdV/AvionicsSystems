@@ -1644,6 +1644,23 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns a count of the total number of experiments of the specified science type.
+        /// If an invalid science type is selected, returns 0.
+        /// </summary>
+        /// <param name="scienceTypeId">An integer in the range [0, `fc.ScienceTypeTotal()`).</param>
+        /// <returns>The total number of experiments for the selected science type.</returns>
+        public double ExperimentCount(double scienceTypeId)
+        {
+            int id = (int)scienceTypeId;
+            if (id >= 0 && id < vc.scienceType.Length)
+            {
+                return vc.scienceType[id].experiments.Count;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the size of the data for experiment `experimentId`.
         /// 
         /// If `experimentId` is an invalid experiment id, or the experiment has not run,
@@ -1668,6 +1685,27 @@ namespace AvionicsSystems
             }
 
             return 0.0;
+        }
+
+        /// <summary>
+        /// Returns the `experimentId` value for the selected experiment for the science type ID.  This
+        /// value may then be used as the parameter for science fields that require `experimentId`.  If
+        /// an invalid `scienceTypeId` or `experimentIndex` is used, this function returns -1.
+        /// </summary>
+        /// <param name="scienceTypeId">An integer in the range [0, `fc.ScienceTypeTotal()`).</param>
+        /// <param name="experimentIndex">An integer in the range [0, `fc.ExperimentCount(scienceTypeId)`).</param>
+        /// <returns>The experimentId for the selected experiment, or -1 if an invalid id or index was provided.</returns>
+        public double ExperimentId(double scienceTypeId, double experimentIndex)
+        {
+            int id = (int)scienceTypeId;
+            int expIdx = (int)experimentIndex;
+            if (id >= 0 && id < vc.scienceType.Length && expIdx >= 0 && expIdx < vc.scienceType[id].experiments.Count)
+            {
+                int hashCode = vc.scienceType[id].experiments[expIdx].GetHashCode();
+                return Array.FindIndex(vc.moduleScienceExperiment, x => x.GetHashCode() == hashCode);
+            }
+
+            return -1.0;
         }
 
         /// <summary>
@@ -2062,6 +2100,21 @@ namespace AvionicsSystems
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Returns a number usable as the `scienceTypeId` parameter in science functions
+        /// based on the `scienceTypeName` parameter.  If an invalid name is supplied, or
+        /// there are no experiments of the named type, returns -1.
+        /// 
+        /// Note that `scienceTypeName` is the "id" field for the corresponding EXPERIMENT_DEFINITION
+        /// from ScienceDefs.cfg (or another science definition config file).
+        /// </summary>
+        /// <param name="scienceTypeName">The id of the science.</param>
+        /// <returns>An integer in the range [0, `fc.ScienceTypeTotal()`), or -1.</returns>
+        public double ScienceTypeId(string scienceTypeName)
+        {
+            return Array.FindIndex(vc.scienceType, x => x.type.id == scienceTypeName);
         }
 
         /// <summary>
