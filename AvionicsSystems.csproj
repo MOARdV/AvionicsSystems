@@ -76,7 +76,6 @@
     <Compile Include="Source\MASIKerbalEngineer.cs" />
     <Compile Include="Source\MASPageCompoundText.cs" />
     <Compile Include="Source\MASConfig.cs" />
-    <Compile Include="Source\MASContextMenu.cs" />
     <Compile Include="Source\MASFlightComputerFlash.cs" />
     <Compile Include="Source\MASFlightComputerNavigation.cs" />
     <Compile Include="Source\MASFlightComputerPersistent.cs" />
