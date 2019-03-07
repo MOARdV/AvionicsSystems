@@ -471,8 +471,41 @@ namespace AvionicsSystems
                 Utility.LogError(this, "Trying to set {0} to null - check Lua scripts", persistentName);
                 value = "null";
             }
-            persistentVars[persistentName] = value;
-            UpdatePersistent(persistentName);
+            object val;
+            if (persistentVars.TryGetValue(persistentName, out val))
+            {
+                bool doUpdate = false;
+                Type valType = val.GetType();
+                if (valType == value.GetType())
+                {
+                    if (valType == typeof(double))
+                    {
+                        if ((double)val != (double)value)
+                        {
+                            doUpdate = true;
+                        }
+                    }
+                    else if (val as string != value as string)
+                    {
+                        doUpdate = true;
+                    }
+                }
+                else
+                {
+                    doUpdate = true;
+                }
+
+                if (doUpdate)
+                {
+                    persistentVars[persistentName] = value;
+                    UpdatePersistent(persistentName);
+                }
+            }
+            else
+            {
+                persistentVars[persistentName] = value;
+                UpdatePersistent(persistentName);
+            }
             return value;
         }
 
