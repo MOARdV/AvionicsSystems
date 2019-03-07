@@ -119,6 +119,7 @@ namespace AvionicsSystems
 
             this.cacheable = cacheable;
             this.variableType = variableType;
+            this.triggerUpdate = (variableType != VariableType.Constant);
         }
 
         /// <summary>
@@ -256,9 +257,9 @@ namespace AvionicsSystems
         /// <returns></returns>
         public override object AsObject()
         {
-            if (!cacheable)
+            if (!cacheable || triggerUpdate)
             {
-                Evaluate(false);
+                Evaluate(triggerUpdate);
             }
             return boolValue;
         }
@@ -269,9 +270,9 @@ namespace AvionicsSystems
         /// <returns></returns>
         public override bool AsBool()
         {
-            if (!cacheable)
+            if (!cacheable || triggerUpdate)
             {
-                Evaluate(false);
+                Evaluate(triggerUpdate);
             }
             return boolValue;
         }
@@ -282,9 +283,9 @@ namespace AvionicsSystems
         /// <returns></returns>
         public override DynValue AsDynValue()
         {
-            if (!cacheable)
+            if (!cacheable || triggerUpdate)
             {
-                Evaluate(false);
+                Evaluate(triggerUpdate);
             }
             return DynValue.NewBoolean(boolValue);
         }
@@ -296,9 +297,9 @@ namespace AvionicsSystems
         /// <returns></returns>
         public override double AsDouble()
         {
-            if (!cacheable)
+            if (!cacheable || triggerUpdate)
             {
-                Evaluate(false);
+                Evaluate(triggerUpdate);
             }
             return (boolValue) ? 1.0 : 0.0;
         }
@@ -309,9 +310,9 @@ namespace AvionicsSystems
         /// <returns></returns>
         public override string AsString()
         {
-            if (!cacheable)
+            if (!cacheable || triggerUpdate)
             {
-                Evaluate(false);
+                Evaluate(triggerUpdate);
             }
             return boolValue.ToString();
         }
@@ -381,9 +382,9 @@ namespace AvionicsSystems
         /// <returns></returns>
         public override object AsObject()
         {
-            if (!cacheable)
+            if (!cacheable || triggerUpdate)
             {
-                Evaluate(false);
+                Evaluate(triggerUpdate);
             }
             return doubleValue;
         }
@@ -394,9 +395,9 @@ namespace AvionicsSystems
         /// <returns></returns>
         public override bool AsBool()
         {
-            if (!cacheable)
+            if (!cacheable || triggerUpdate)
             {
-                Evaluate(false);
+                Evaluate(triggerUpdate);
             }
             return (doubleValue != 0.0);
         }
@@ -407,9 +408,9 @@ namespace AvionicsSystems
         /// <returns></returns>
         public override DynValue AsDynValue()
         {
-            if (!cacheable)
+            if (!cacheable || triggerUpdate)
             {
-                Evaluate(false);
+                Evaluate(triggerUpdate);
             }
             return DynValue.NewNumber(doubleValue);
         }
@@ -421,9 +422,9 @@ namespace AvionicsSystems
         /// <returns></returns>
         public override double AsDouble()
         {
-            if (!cacheable)
+            if (!cacheable || triggerUpdate)
             {
-                Evaluate(false);
+                Evaluate(triggerUpdate);
             }
             return doubleValue;
         }
@@ -434,9 +435,9 @@ namespace AvionicsSystems
         /// <returns></returns>
         public override string AsString()
         {
-            if (!cacheable)
+            if (!cacheable || triggerUpdate)
             {
-                Evaluate(false);
+                Evaluate(triggerUpdate);
             }
             return string.Format("{0:R}", doubleValue);
         }
