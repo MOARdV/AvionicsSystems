@@ -277,3 +277,4 @@ AvionicsSystems.sln
 Assembly-CSharp-Editor.csproj
 *.manifest
 Assets/AssetBundles/AssetBundles
+Package.bat
