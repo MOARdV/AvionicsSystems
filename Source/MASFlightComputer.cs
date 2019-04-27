@@ -1647,9 +1647,14 @@ namespace AvionicsSystems
                 Kerbal activeKerbal = FindCurrentKerbal();
                 if (activeKerbal != null)
                 {
-                    InternalCamera.Instance.maxRot = maxRot;
-                    InternalCamera.Instance.minPitch = minPitch;
-                    InternalCamera.Instance.maxPitch = maxPitch;
+                    // There are situations where InternalCamera is null - like during staging
+                    // from IVA when the IVA isn't in the new active vessel.
+                    if (InternalCamera.Instance != null)
+                    {
+                        InternalCamera.Instance.maxRot = maxRot;
+                        InternalCamera.Instance.minPitch = minPitch;
+                        InternalCamera.Instance.maxPitch = maxPitch;
+                    }
                 }
                 if (enterIvaScript != null)
                 {
@@ -1668,10 +1673,15 @@ namespace AvionicsSystems
             }
             else
             {
-                // Reset to defaults
-                InternalCamera.Instance.maxRot = 80.0f;
-                InternalCamera.Instance.minPitch = -80.0f;
-                InternalCamera.Instance.maxPitch = 45.0f;
+                // There are situations where InternalCamera is null - like during staging
+                // from IVA when the IVA isn't in the new active vessel.
+                if (InternalCamera.Instance != null)
+                {
+                    // Reset to defaults
+                    InternalCamera.Instance.maxRot = 80.0f;
+                    InternalCamera.Instance.minPitch = -80.0f;
+                    InternalCamera.Instance.maxPitch = 45.0f;
+                }
                 if (exitIvaScript != null)
                 {
                     try
@@ -1711,9 +1721,14 @@ namespace AvionicsSystems
             Kerbal newKerbal = FindCurrentKerbal();
             if (newKerbal != null)
             {
-                InternalCamera.Instance.maxRot = maxRot;
-                InternalCamera.Instance.minPitch = minPitch;
-                InternalCamera.Instance.maxPitch = maxPitch;
+                // There are situations where InternalCamera is null - like during staging
+                // from IVA when the IVA isn't in the new active vessel.
+                if (InternalCamera.Instance != null)
+                {
+                    InternalCamera.Instance.maxRot = maxRot;
+                    InternalCamera.Instance.minPitch = minPitch;
+                    InternalCamera.Instance.maxPitch = maxPitch;
+                }
             }
         }
 

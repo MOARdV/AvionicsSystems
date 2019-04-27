@@ -1285,11 +1285,12 @@ namespace AvionicsSystems
         {
             if (referencePart == null)
             {
-                Utility.LogWarning(this, "UpdateReferenceTransform(): referencePart is null?");
+                // During staging, it's possible for referencePart to be null.  If it is, let's skip
+                // this processing.  Things will sort out later.
                 return;
             }
 
-            Transform newRefXform = (referencePart == null) ? null : referencePart.GetReferenceTransform();
+            Transform newRefXform = referencePart.GetReferenceTransform();
             if (_referenceTransform == newRefXform && !forceEvaluate)
             {
                 return;
