@@ -992,6 +992,7 @@ namespace AvionicsSystems
             if (initialized)
             {
                 Utility.LogMessage(this, "OnDestroy for {0}", flightComputerId);
+                StopAllCoroutines();
                 GameEvents.onVesselWasModified.Remove(onVesselChanged);
                 GameEvents.onVesselChange.Remove(onVesselChanged);
                 GameEvents.onVesselCrewWasModified.Remove(onVesselChanged);

@@ -62,6 +62,7 @@ namespace AvionicsSystems
             internal float normalizationScalar;
             internal float repeatRate = float.MaxValue;
             private float repeatCounter;
+            private Coroutine activeCoroutine = null;
 
             /// <summary>
             /// Mouse press handler.  Trigger the autorepeat event, if appropriate.
@@ -83,7 +84,7 @@ namespace AvionicsSystems
                         {
                             buttonState = true;
                             repeatCounter = 0.0f;
-                            StartCoroutine(AutoRepeat());
+                            activeCoroutine = StartCoroutine(AutoRepeat());
                         }
                     }
                     if (drag)
@@ -152,6 +153,7 @@ namespace AvionicsSystems
                     }
                     yield return MASConfig.waitForFixedUpdate;
                 }
+                activeCoroutine = null;
             }
 
             /// <summary>
@@ -163,6 +165,14 @@ namespace AvionicsSystems
                 if (colliderEnabled && onRelease != null)
                 {
                     onRelease();
+                }
+            }
+
+            public void OnDestroy()
+            {
+                if (activeCoroutine != null)
+                {
+                    StopCoroutine(activeCoroutine);
                 }
             }
         }

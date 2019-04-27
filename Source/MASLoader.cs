@@ -189,7 +189,7 @@ namespace AvionicsSystems
 
             LoadAssets();
 
-            StartCoroutine("LoadAvionicsSystemAssets");
+            StartCoroutine(LoadAvionicsSystemAssets());
             RegisterWithModuleManager();
 
             for (int i = AssemblyLoader.loadedAssemblies.Count - 1; i >= 0; --i)
@@ -765,7 +765,7 @@ namespace AvionicsSystems
         /// </summary>
         public void PostPatchCallback()
         {
-            StartCoroutine("LoadAvionicsSystemAssets");
+            StartCoroutine(LoadAvionicsSystemAssets());
         }
 
         /// <summary>
