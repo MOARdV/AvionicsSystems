@@ -2,10 +2,16 @@
   "NAME": "MOARdV's Avionics Systems",
   "URL": "https://raw.githubusercontent.com/MOARdV/AvionicsSystems/master/GameData/MOARdV/AvionicsSystems/AvionicsSystems.version",
   "DOWNLOAD": "https://github.com/MOARdV/AvionicsSystems/releases",
+  "GITHUB":
+  {
+    "USERNAME":"MOARdV",
+    "REPOSITORY":"AvionicsSystems",
+    "ALLOW_PRE_RELEASE":false
+  },
   "VERSION":
   {
     "MAJOR": 0,
-    "MINOR": 96,
+    "MINOR": 97,
     "PATCH": 0
   },
   "KSP_VERSION":
@@ -23,7 +29,7 @@
   "KSP_VERSION_MAX":
   {
     "MAJOR": 1,
-    "MINOR": 6,
-    "PATCH": 99
+    "MINOR": 7,
+    "PATCH": 9
   }
 }
