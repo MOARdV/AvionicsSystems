@@ -4685,6 +4685,7 @@ namespace AvionicsSystems
         /// Line breaks are preserved, so this text may display as multiple lines.
         /// Any Action Group Memos (lines that begin with "AG") are removed.
         /// </summary>
+        /// <returns>The (possibly multi-line) vessel description, or an empty string if no description was provided.</returns>
         public string VesselDescription()
         {
             return fc.vesselDescription;
