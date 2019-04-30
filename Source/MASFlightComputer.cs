@@ -58,6 +58,7 @@ namespace AvionicsSystems
         public string shipDescription = string.Empty;
         internal string[] agMemoOff = { "AG0", "AG1", "AG2", "AG3", "AG4", "AG5", "AG6", "AG7", "AG8", "AG9" };
         internal string[] agMemoOn = { "AG0", "AG1", "AG2", "AG3", "AG4", "AG5", "AG6", "AG7", "AG8", "AG9" };
+        internal string vesselDescription = string.Empty;
 
         /// <summary>
         /// The maximum g-loading the command pod can sustain without disrupting
@@ -1280,6 +1281,7 @@ namespace AvionicsSystems
                 if (!string.IsNullOrEmpty(shipDescription))
                 {
                     string[] rows = shipDescription.Replace("$$$", Environment.NewLine).Split(Utility.LineSeparator, StringSplitOptions.RemoveEmptyEntries);
+                    StringBuilder sb = StringBuilderCache.Acquire();
                     for (int i = 0; i < rows.Length; ++i)
                     {
                         if (rows[i].StartsWith("AG"))
@@ -1307,6 +1309,18 @@ namespace AvionicsSystems
                                 }
                             }
                         }
+                        else if (sb.Length == 0)
+                        {
+                            sb.Append(rows[i].Trim());
+                        }
+                        else
+                        {
+                            sb.Append("$$$").Append(rows[i].Trim());
+                        }
+                    }
+                    if (sb.Length > 0)
+                    {
+                        vesselDescription = sb.ToStringAndRelease();
                     }
                 }
 

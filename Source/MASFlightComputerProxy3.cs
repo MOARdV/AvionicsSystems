@@ -4680,6 +4680,17 @@ namespace AvionicsSystems
         #region Vessel Info
 
         /// <summary>
+        /// Returns the text entered into the vessel description in the Editor.
+        /// 
+        /// Line breaks are preserved, so this text may display as multiple lines.
+        /// Any Action Group Memos (lines that begin with "AG") are removed.
+        /// </summary>
+        public string VesselDescription()
+        {
+            return fc.vesselDescription;
+        }
+
+        /// <summary>
         /// Returns the name of the vessel.
         /// </summary>
         /// <returns></returns>
