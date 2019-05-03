@@ -3,6 +3,9 @@
 -- MOARdV's Avionics Systems
 -- Lua function for the Altitude / Range Rate indicator ARRT
 --
+-- NOTE: This script is no longer used.  It provides an example of how a validation script could be
+-- done, although this particular case was more efficient to impelement using some TRIGGER_EVENT
+--
 -- Author: MOARdV
 --
 -- This script is public domain (although acknowledgement that MOARdV wrote it would be nice).
