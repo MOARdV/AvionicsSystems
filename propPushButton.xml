@@ -2673,7 +2673,7 @@
 			<name>MAS_pb_Xpointer_Scale</name>
 			<style>Two Mode Bordered Captioned Button</style>
 			<COLLIDER_EVENT>
-				<onClick>fc.SetPersistent("%AUTOID%", XPtr_NextScale(fc.AddPersistentWrapped("MAS_Xpointer_Scale", -1, -1, 2)))</onClick>
+				<onClick>fc.SetPersistent("%AUTOID%", fc.AddPersistentWrapped("MAS_Xpointer_Scale", -1, -1, 2))</onClick>
 				<onRelease>fc.SetPersistent("%AUTOID%", 0)</onRelease>
 			</COLLIDER_EVENT>
 			<ANIMATION_PLAYER>

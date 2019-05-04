@@ -2159,10 +2159,10 @@
 			<name>MAS_swRotary3_XPtrScale</name>
 			<style>3 pos switch</style>
 			<COLLIDER_EVENT id="0">
-				<onClick>XPtr_NextScale(fc.AddPersistentClamped("MAS_Xpointer_Scale", -1, -1, 1))</onClick>
+				<onClick>fc.AddPersistentClamped("MAS_Xpointer_Scale", -1, -1, 1)</onClick>
 			</COLLIDER_EVENT>
 			<COLLIDER_EVENT id="1">
-				<onClick>XPtr_NextScale(fc.AddPersistentClamped("MAS_Xpointer_Scale", 1, -1, 1))</onClick>
+				<onClick>fc.AddPersistentClamped("MAS_Xpointer_Scale", 1, -1, 1)</onClick>
 			</COLLIDER_EVENT>
 			<ROTATION>
 				<variable>fc.GetPersistentAsNumber("MAS_Xpointer_Scale")</variable>
