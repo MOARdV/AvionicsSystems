@@ -1,4 +1,5 @@
 ﻿//#define MEASURE_FC_FIXEDUPDATE
+//#define LIST_LUA_VARIABLES
 /*****************************************************************************
  * The MIT License (MIT)
  * 
@@ -1001,7 +1002,7 @@ namespace AvionicsSystems
                 GameEvents.OnIVACameraKerbalChange.Remove(OnIVACameraKerbalChange);
                 GameEvents.OnControlPointChanged.Remove(OnControlPointChanged);
 
-                Utility.LogInfo(this, "{3} variables created: {0} constant variables, {1} delegate variables, {2} Lua variables, and {4} dependent variables",
+                Utility.LogInfo(this, "{3} variables created: {0} constant variables, {1} delegate variables, {2} Lua variables, and {4} expression variables",
                     constantVariableCount, nativeVariableCount, luaVariableCount, variables.Count, dependentVariableCount);
                 if (samplecount > 0)
                 {
@@ -1017,6 +1018,14 @@ namespace AvionicsSystems
                     samplesPerMs = (double)dependentEvaluationCount / (1000.0 * (double)(dependentStopwatch.ElapsedTicks) / (double)(Stopwatch.Frequency));
                     Utility.LogInfo(this, "FixedUpdate Expr     average = {0:0.00}ms/FixedUpdate or {1:0.0} variables/ms", msPerFixedUpdate, samplesPerMs);
                 }
+#if LIST_LUA_VARIABLES
+                // Lua variables are costly to evaluate - ideally, we minimize the number created for use as variables.
+                Utility.LogMessage(this, "{0} Lua variables were created:", luaVariables.Length);
+                for(int i=0; i<luaVariables.Length; ++i)
+                {
+                    Utility.LogMessage(this, "  [{0,2}]: {1}", i, luaVariables[i].name);
+                }
+#endif
             }
         }
 
