@@ -41,7 +41,7 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Self-contained monobehaviour to provide button click and release
-        /// service to the ASActionColliderEvent.
+        /// service to the MASComponentColliderEvent.
         /// </summary>
         internal class ButtonObject : MonoBehaviour
         {

@@ -38,8 +38,8 @@ namespace AvionicsSystems
         private AdvancedButtonObject buttonObject;
 
         /// <summary>
-        /// Self-contained monobehaviour to provide button click and release
-        /// service to the ASActionColliderEvent.
+        /// Self-contained monobehaviour to provide button handling
+        /// service to the MASComponentColliderAdvanced.
         /// </summary>
         internal class AdvancedButtonObject : MonoBehaviour
         {
