@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -59,6 +59,8 @@ namespace AvionicsSystems
                     return new MASComponentAudioPlayer(config, prop, comp);
                 case "COLOR_SHIFT":
                     return new MASComponentColorShift(config, prop, comp);
+                case "COLLIDER_ADVANCED":
+                    return new MASComponentColliderAdvanced(config, prop, comp);
                 case "COLLIDER_EVENT":
                     return new MASComponentColliderEvent(config, prop, comp);
                 case "IMAGE":

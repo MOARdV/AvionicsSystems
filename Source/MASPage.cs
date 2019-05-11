@@ -31,8 +31,15 @@ namespace AvionicsSystems
 {
     internal class MASPage
     {
+        internal class HitBox
+        {
+            internal Rect bounds;
+            internal Action action;
+        };
+
         private List<IMASMonitorComponent> component = new List<IMASMonitorComponent>();
         private Dictionary<int, Action> softkeyAction = new Dictionary<int, Action>();
+        private List<HitBox> hitboxActions = new List<HitBox>();
         private string name = string.Empty;
         private GameObject pageRoot;
         private Action onEntry, onExit;
@@ -114,6 +121,29 @@ namespace AvionicsSystems
                         if (action != null)
                         {
                             softkeyAction[id] = action;
+                        }
+                    }
+                }
+            }
+
+            string[] hitboxes = config.GetValues("hitbox");
+            int numHitboxes = hitboxes.Length;
+            for (int i = 0; i < numHitboxes; ++i)
+            {
+                string[] vals = Utility.SplitVariableList(hitboxes[i]);
+                if (vals.Length == 5)
+                {
+                    float x1, y1, x2, y2;
+                    if (float.TryParse(vals[0], out x1) && float.TryParse(vals[1], out y1) && float.TryParse(vals[2], out x2) && float.TryParse(vals[3], out y2))
+                    {
+                        Action action = comp.GetAction(vals[4], prop);
+                        if (action != null)
+                        {
+                            HitBox hb = new HitBox();
+                            hb.bounds = new Rect(x1, y1, x2 - x1, y2 - y1);
+                            hb.action = action;
+
+                            hitboxActions.Add(hb);
                         }
                     }
                 }
@@ -354,6 +384,27 @@ namespace AvionicsSystems
             {
                 component[i].RenderPage(enable);
             }
+        }
+
+        /// <summary>
+        /// Handle a click location within a collider.  This function is intended for emulating
+        /// touchscreen displays.
+        /// </summary>
+        /// <param name="hitCoordinate">x and y coordinate of the click, as processed by the COLLIDER_ADVANCED</param>
+        /// <returns>True if the click was handled, false otherwise.</returns>
+        internal bool HandleClickLocation(Vector2 hitCoordinate)
+        {
+            int numHitboxes = hitboxActions.Count;
+            for (int i = 0; i < numHitboxes; ++i)
+            {
+                if (hitboxActions[i].bounds.Contains(hitCoordinate))
+                {
+                    hitboxActions[i].action();
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>

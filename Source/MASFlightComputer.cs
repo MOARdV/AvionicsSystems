@@ -452,6 +452,20 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Function to handle a touchscreen (COLLIDER_ADVANCED) click event.
+        /// </summary>
+        /// <param name="monitorName">The monitor that will receive the event.</param>
+        /// <param name="hitCoordinate">The x and y coordinates of the click, as processed by the COLLIDER_ADVANCED</param>
+        internal void HandleClickLocation(string monitorName, Vector2 hitCoordinate)
+        {
+            MASMonitor monitor;
+            if (monitors.TryGetValue(monitorName, out monitor))
+            {
+                monitor.HandleClickLocation(hitCoordinate);
+            }
+        }
+
+        /// <summary>
         /// Convert an RPM-compatible named color to a Color32.  Returns true
         /// if successful.
         /// </summary>
@@ -586,6 +600,71 @@ namespace AvionicsSystems
                 Utility.LogError(this, "Failed to compile \"{0}\" into a Lua function", actionName);
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Returns an action that the COLLIDER_ADVANCED object can us to pass click information to a monitor.
+        /// </summary>
+        /// <param name="monitorID"></param>
+        /// <param name="prop"></param>
+        /// <returns></returns>
+        internal Action<Vector2> GetHitAction(string monitorID, InternalProp prop)
+        {
+            string conditionedId = ConditionVariableName(monitorID, prop);
+
+            Action<Vector2> ev = (xy) => HandleClickLocation(conditionedId, xy);
+            return ev;
+        }
+
+        /// <summary>
+        /// Write a Lua script to transform x, y, z normalized Collider coordinates into an x, y value
+        /// that is sent to the monitor.
+        /// </summary>
+        /// <param name="xTransformation"></param>
+        /// <param name="yTransformation"></param>
+        /// <param name="prop"></param>
+        /// <returns></returns>
+        internal Func<float, float, float, Vector2> GetColliderTransformation(string xTransformation, string yTransformation, string componentName, InternalProp prop)
+        {
+            string propName = ConditionVariableName(string.Format("%AUTOID%_{0}", componentName), prop);
+            propName = propName.Replace('-', '_').Replace(' ', '_');
+
+            string conditionedX = ConditionVariableName(xTransformation, prop).Replace("%X%", "x").Replace("%Y%", "y").Replace("%Z%", "z");
+            string conditionedY = ConditionVariableName(yTransformation, prop).Replace("%X%", "x").Replace("%Y%", "y").Replace("%Z%", "z");
+            //Utility.LogMessage(this, "Transformed X: {0}", conditionedX);
+            //Utility.LogMessage(this, "Transformed Y: {0}", conditionedY);
+            StringBuilder sb = StringBuilderCache.Acquire();
+
+            sb.AppendFormat("function {0}_transform(x, y, z)", propName).AppendLine().AppendFormat("  local x1 = {0}", conditionedX).AppendFormat("  local y1 = {0}", conditionedY).AppendLine().AppendLine("  return x1, y1").AppendLine("end");
+
+            string preppedFunction = sb.ToStringAndRelease();
+            script.DoString(preppedFunction);
+
+            // Get the function.
+            DynValue closure = script.Globals.Get(string.Format("{0}_transform", propName));
+
+            Func<float, float, float, Vector2> f = (x, y, z) =>
+                {
+                    DynValue xIn = DynValue.NewNumber(x);
+                    DynValue yIn = DynValue.NewNumber(y);
+                    DynValue zIn = DynValue.NewNumber(z);
+                    DynValue result = script.Call(closure, xIn, yIn, zIn);
+                    if (result.Type == DataType.Tuple)
+                    {
+                        DynValue[] multiret = result.Tuple;
+                        double x1 = multiret[0].Number;
+                        double y1 = multiret[1].Number;
+
+                        return new Vector2((float)x1, (float)y1);
+                    }
+                    else
+                    {
+                        Utility.LogError(this, "Called script - result = {0}, not DataType.Tuple", result.Type);
+
+                        return new Vector2(x, y);
+                    }
+                };
+            return f;
         }
 
         /// <summary>

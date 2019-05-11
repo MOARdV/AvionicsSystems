@@ -61,6 +61,7 @@
     <Compile Include="Source\MASComponentAnimation.cs" />
     <Compile Include="Source\MASComponentAnimationPlayer.cs" />
     <Compile Include="Source\MASComponentAudioPlayer.cs" />
+    <Compile Include="Source\MASComponentColliderAdvanced.cs" />
     <Compile Include="Source\MASComponentColliderEvent.cs" />
     <Compile Include="Source\MASComponentColorShift.cs" />
     <Compile Include="Source\MASComponentImage.cs" />

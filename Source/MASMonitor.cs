@@ -379,6 +379,21 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Handle a touchscreen click event as genreated by COLLIDER_ADVANCED.
+        /// </summary>
+        /// <param name="hitCoordinate">x and y coordinate of the click, as processed by the COLLIDER_ADVANCED</param>
+        /// <returns>1 if the code was processed, 0 otherwise.</returns>
+        internal bool HandleClickLocation(Vector2 hitCoordinate)
+        {
+            if (currentPage != null)
+            {
+                return currentPage.HandleClickLocation(hitCoordinate);
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Method to handle softkeys.
         /// </summary>
         /// <param name="keyId">The keyId to process</param>
