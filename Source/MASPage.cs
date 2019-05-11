@@ -89,6 +89,8 @@ namespace AvionicsSystems
                     return new MASPageVerticalStrip(config, prop, comp, monitor, pageRoot, depth);
                 case "VIEWPORT":
                     return new MASPageViewport(config, prop, comp, monitor, pageRoot, depth);
+                case "hitbox":
+                    return null; // Not an error - these nodes are handled separately.
                 default:
                     Utility.LogError(config, "Unrecognized MASPage child node {0} found", config.name);
                     return null;
@@ -98,6 +100,50 @@ namespace AvionicsSystems
         private static bool IsTextNode(ConfigNode config)
         {
             return (config.name == "TEXT") || (config.name == "ROLLING_DIGIT") || (config.name == "COMPOUND_TEXT");
+        }
+
+        internal HitBox InitHitBox(ConfigNode hitBoxConfig, InternalProp prop, MASFlightComputer comp)
+        {
+            HitBox hb = new HitBox();
+
+            string boundString = string.Empty;
+            if (!hitBoxConfig.TryGetValue("bounds", ref boundString))
+            {
+                Utility.LogWarning(this, "Missing 'bounds' in hitbox for MASPage " + name);
+                return null;
+            }
+            string[] bounds = Utility.SplitVariableList(boundString);
+            if (bounds.Length != 4)
+            {
+                Utility.LogWarning(this, "Incorrect number of values in 'bounds' in hitbox for MASPage " + name);
+                return null;
+            }
+
+            float x1, y1, x2, y2;
+            if (!(float.TryParse(bounds[0], out x1) && float.TryParse(bounds[1], out y1) && float.TryParse(bounds[2], out x2) && float.TryParse(bounds[3], out y2)))
+            {
+                Utility.LogWarning(this, "Unable to parse 'bounds' in hitbox for MASPage " + name);
+                return null;
+            }
+            hb.bounds = new Rect(x1, y1, x2 - x1, y2 - y1);
+
+            // This will eventually be optional
+            string onClickString = string.Empty;
+            if (!hitBoxConfig.TryGetValue("onClick", ref onClickString))
+            {
+                Utility.LogWarning(this, "Missing 'onClick' in hitbox for MASPage " + name);
+                return null;
+            }
+
+            Action onClick = comp.GetAction(onClickString, prop);
+            if (onClick == null)
+            {
+                Utility.LogWarning(this, "Unable to configure 'onClick' in hitbox for MASPage " + name);
+                return null;
+            }
+            hb.action = onClick;
+
+            return hb;
         }
 
         internal MASPage(ConfigNode config, InternalProp prop, MASFlightComputer comp, MASMonitor monitor, Transform rootTransform)
@@ -126,26 +172,14 @@ namespace AvionicsSystems
                 }
             }
 
-            string[] hitboxes = config.GetValues("hitbox");
+            ConfigNode[] hitboxes = config.GetNodes("hitbox");
             int numHitboxes = hitboxes.Length;
             for (int i = 0; i < numHitboxes; ++i)
             {
-                string[] vals = Utility.SplitVariableList(hitboxes[i]);
-                if (vals.Length == 5)
+                HitBox hb = InitHitBox(hitboxes[i], prop, comp);
+                if (hb != null)
                 {
-                    float x1, y1, x2, y2;
-                    if (float.TryParse(vals[0], out x1) && float.TryParse(vals[1], out y1) && float.TryParse(vals[2], out x2) && float.TryParse(vals[3], out y2))
-                    {
-                        Action action = comp.GetAction(vals[4], prop);
-                        if (action != null)
-                        {
-                            HitBox hb = new HitBox();
-                            hb.bounds = new Rect(x1, y1, x2 - x1, y2 - y1);
-                            hb.action = action;
-
-                            hitboxActions.Add(hb);
-                        }
-                    }
+                    hitboxActions.Add(hb);
                 }
             }
 
