@@ -106,26 +106,46 @@ namespace AvionicsSystems
         {
             HitBox hb = new HitBox();
 
-            string boundString = string.Empty;
-            if (!hitBoxConfig.TryGetValue("bounds", ref boundString))
+            string cornerString = string.Empty;
+            if (!hitBoxConfig.TryGetValue("corner", ref cornerString))
             {
-                Utility.LogWarning(this, "Missing 'bounds' in hitbox for MASPage " + name);
+                Utility.LogWarning(this, "Missing 'corner' in hitbox for MASPage " + name);
                 return null;
             }
-            string[] bounds = Utility.SplitVariableList(boundString);
-            if (bounds.Length != 4)
+            string[] corners = Utility.SplitVariableList(cornerString);
+            if (corners.Length != 2)
             {
-                Utility.LogWarning(this, "Incorrect number of values in 'bounds' in hitbox for MASPage " + name);
+                Utility.LogWarning(this, "Incorrect number of values in 'corner' in hitbox for MASPage " + name);
                 return null;
             }
 
-            float x1, y1, x2, y2;
-            if (!(float.TryParse(bounds[0], out x1) && float.TryParse(bounds[1], out y1) && float.TryParse(bounds[2], out x2) && float.TryParse(bounds[3], out y2)))
+            float x1, y1;
+            if (!(float.TryParse(corners[0], out x1) && float.TryParse(corners[1], out y1)))
             {
-                Utility.LogWarning(this, "Unable to parse 'bounds' in hitbox for MASPage " + name);
+                Utility.LogWarning(this, "Unable to parse 'corner' in hitbox for MASPage " + name);
                 return null;
             }
-            hb.bounds = new Rect(x1, y1, x2 - x1, y2 - y1);
+
+            string sizeString = string.Empty;
+            if (!hitBoxConfig.TryGetValue("size", ref sizeString))
+            {
+                Utility.LogWarning(this, "Missing 'size' in hitbox for MASPage " + name);
+                return null;
+            }
+            string[] sizes = Utility.SplitVariableList(sizeString);
+            if (sizes.Length != 2)
+            {
+                Utility.LogWarning(this, "Incorrect number of values in 'size' in hitbox for MASPage " + name);
+                return null;
+            }
+
+            float w, h;
+            if (!(float.TryParse(sizes[0], out w) && float.TryParse(sizes[1], out h)))
+            {
+                Utility.LogWarning(this, "Unable to parse 'size' in hitbox for MASPage " + name);
+                return null;
+            }
+            hb.bounds = new Rect(x1, y1, w, h);
 
             // This will eventually be optional
             string onClickString = string.Empty;
