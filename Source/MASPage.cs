@@ -106,23 +106,23 @@ namespace AvionicsSystems
         {
             HitBox hb = new HitBox();
 
-            string cornerString = string.Empty;
-            if (!hitBoxConfig.TryGetValue("corner", ref cornerString))
+            string positionString = string.Empty;
+            if (!hitBoxConfig.TryGetValue("position", ref positionString))
             {
-                Utility.LogWarning(this, "Missing 'corner' in hitbox for MASPage " + name);
+                Utility.LogWarning(this, "Missing 'position' in hitbox for MASPage " + name);
                 return null;
             }
-            string[] corners = Utility.SplitVariableList(cornerString);
-            if (corners.Length != 2)
+            string[] positions = Utility.SplitVariableList(positionString);
+            if (positions.Length != 2)
             {
-                Utility.LogWarning(this, "Incorrect number of values in 'corner' in hitbox for MASPage " + name);
+                Utility.LogWarning(this, "Incorrect number of values in 'position' in hitbox for MASPage " + name);
                 return null;
             }
 
             float x1, y1;
-            if (!(float.TryParse(corners[0], out x1) && float.TryParse(corners[1], out y1)))
+            if (!(float.TryParse(positions[0], out x1) && float.TryParse(positions[1], out y1)))
             {
-                Utility.LogWarning(this, "Unable to parse 'corner' in hitbox for MASPage " + name);
+                Utility.LogWarning(this, "Unable to parse 'position' in hitbox for MASPage " + name);
                 return null;
             }
 
