@@ -833,6 +833,26 @@ namespace AvionicsSystems
                 }
                 return newVar;
             }
+            else if (methodParams[0].ParameterType == typeof(string) && methodParams[1].ParameterType == typeof(double))
+            {
+                Variable newVar;
+                if (methodReturn == typeof(double))
+                {
+                    Func<object, string, double, double> dm = DynamicMethodFactory.CreateFunc<object, string, double, double>(method);
+                    newVar = new DoubleVariable(canonical, () => dm(tableInstance, parms[0].AsString(), parms[1].AsDouble()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
+                }
+                else
+                {
+                    Func<object, string, double, object> dm = DynamicMethodFactory.CreateFunc<object, string, double, object>(method);
+                    newVar = new GenericVariable(canonical, () => dm(tableInstance, parms[0].AsString(), parms[1].AsDouble()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
+                }
+                if (dependent)
+                {
+                    parms[0].RegisterNumericCallback(newVar.TriggerUpdate);
+                    parms[1].RegisterNumericCallback(newVar.TriggerUpdate);
+                }
+                return newVar;
+            }
             else
             {
                 Utility.LogWarning(this, "Generate2ParmCallVariable(): Don't know how to optimize variable for {0}, with parameters {1} and {2}.  Falling back to Lua.", canonical, methodParams[0].ParameterType, methodParams[1].ParameterType);
