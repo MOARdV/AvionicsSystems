@@ -603,9 +603,9 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns an action that the COLLIDER_ADVANCED object can us to pass click information to a monitor.
+        /// Returns an action that the COLLIDER_ADVANCED object can use to pass click information to a monitor.
         /// </summary>
-        /// <param name="monitorID"></param>
+        /// <param name="monitorID">ID of the monitor.</param>
         /// <param name="prop"></param>
         /// <returns></returns>
         internal Action<Vector2> GetHitAction(string monitorID, InternalProp prop)
@@ -614,6 +614,81 @@ namespace AvionicsSystems
 
             Action<Vector2> ev = (xy) => HandleClickLocation(conditionedId, xy);
             return ev;
+        }
+
+        internal Action<Vector2> GetColliderAction(string actionName, int hitboxID, InternalProp prop)
+        {
+            actionName = ConditionVariableName(actionName, prop);
+
+            string propName = ConditionVariableName(string.Format("%AUTOID%_{0}", hitboxID), prop);
+            propName = propName.Replace('-', '_').Replace(' ', '_');
+
+            Action<Vector2> act = null;
+            if (actionName.Contains("%X%") || actionName.Contains("%Y%"))
+            {
+                // Case where the location within the hitbox matters.
+
+                actionName = actionName.Replace("%X%", "x").Replace("%Y%", "y");
+                StringBuilder sb = StringBuilderCache.Acquire();
+                sb.AppendFormat("function {0}_click(x, y)", propName).AppendLine().AppendFormat("  {0}", actionName).AppendLine().AppendLine("end");
+                string preppedActionName = ConditionVariableName(sb.ToStringAndRelease(), prop);
+
+                // Compile the script.
+                script.DoString(preppedActionName);
+                // Get the function.
+                DynValue closure = script.Globals.Get(string.Format("{0}_click", propName));
+                if (closure.Type == DataType.Function)
+                {
+                    return (loc) =>
+                    {
+                        DynValue xIn = DynValue.NewNumber(loc.x);
+                        DynValue yIn = DynValue.NewNumber(loc.y);
+                        try
+                        {
+                            script.Call(closure, xIn, yIn);
+                        }
+                        catch (Exception e)
+                        {
+                            Utility.ComplainLoudly("Action " + actionName + " triggered an exception");
+                            Utility.LogError(this, "Action {0} triggered exception:", actionName);
+                            Utility.LogError(this, e.ToString());
+                        }
+                    };
+                }
+                else
+                {
+                    Utility.LogError(this, "Failed to compile \"{0}\" into a Lua function", actionName);
+                    return null;
+                }
+            }
+            else
+            {
+                // Simple case - doesn't use X or Y parameter.
+                try
+                {
+                    DynValue dv = script.LoadString(actionName);
+
+                    act = (loc) =>
+                    {
+                        try
+                        {
+                            script.Call(dv);
+                        }
+                        catch (Exception e)
+                        {
+                            Utility.ComplainLoudly("Action " + actionName + " triggered an exception");
+                            Utility.LogError(this, "Action {0} triggered exception:", actionName);
+                            Utility.LogError(this, e.ToString());
+                        }
+                    };
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+            return act;
         }
 
         /// <summary>
@@ -631,8 +706,6 @@ namespace AvionicsSystems
 
             string conditionedX = ConditionVariableName(xTransformation, prop).Replace("%X%", "x").Replace("%Y%", "y").Replace("%Z%", "z");
             string conditionedY = ConditionVariableName(yTransformation, prop).Replace("%X%", "x").Replace("%Y%", "y").Replace("%Z%", "z");
-            //Utility.LogMessage(this, "Transformed X: {0}", conditionedX);
-            //Utility.LogMessage(this, "Transformed Y: {0}", conditionedY);
             StringBuilder sb = StringBuilderCache.Acquire();
 
             sb.AppendFormat("function {0}_transform(x, y, z)", propName).AppendLine().AppendFormat("  local x1 = {0}", conditionedX).AppendFormat("  local y1 = {0}", conditionedY).AppendLine().AppendLine("  return x1, y1").AppendLine("end");

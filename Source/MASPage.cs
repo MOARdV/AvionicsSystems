@@ -34,7 +34,20 @@ namespace AvionicsSystems
         internal class HitBox
         {
             internal Rect bounds;
-            internal Action action;
+            internal Action<Vector2> action;
+
+            internal bool IsHit(Vector2 hitCoordinate)
+            {
+                if (bounds.Contains(hitCoordinate))
+                {
+                    Vector2 scaledCoordinate = hitCoordinate - bounds.min;
+                    scaledCoordinate.x = Mathf.Clamp(scaledCoordinate.x, 0.0f, bounds.max.x);
+                    scaledCoordinate.y = Mathf.Clamp(scaledCoordinate.y, 0.0f, bounds.max.y);
+                    action(scaledCoordinate);
+                    return true;
+                }
+                return false;
+            }
         };
 
         private List<IMASMonitorComponent> component = new List<IMASMonitorComponent>();
@@ -102,7 +115,7 @@ namespace AvionicsSystems
             return (config.name == "TEXT") || (config.name == "ROLLING_DIGIT") || (config.name == "COMPOUND_TEXT");
         }
 
-        internal HitBox InitHitBox(ConfigNode hitBoxConfig, InternalProp prop, MASFlightComputer comp)
+        internal HitBox InitHitBox(int idx, ConfigNode hitBoxConfig, InternalProp prop, MASFlightComputer comp)
         {
             HitBox hb = new HitBox();
 
@@ -155,7 +168,7 @@ namespace AvionicsSystems
                 return null;
             }
 
-            Action onClick = comp.GetAction(onClickString, prop);
+            Action<Vector2> onClick = comp.GetColliderAction(onClickString, idx, prop);
             if (onClick == null)
             {
                 Utility.LogWarning(this, "Unable to configure 'onClick' in hitbox for MASPage " + name);
@@ -196,7 +209,7 @@ namespace AvionicsSystems
             int numHitboxes = hitboxes.Length;
             for (int i = 0; i < numHitboxes; ++i)
             {
-                HitBox hb = InitHitBox(hitboxes[i], prop, comp);
+                HitBox hb = InitHitBox(i, hitboxes[i], prop, comp);
                 if (hb != null)
                 {
                     hitboxActions.Add(hb);
@@ -451,11 +464,15 @@ namespace AvionicsSystems
             int numHitboxes = hitboxActions.Count;
             for (int i = 0; i < numHitboxes; ++i)
             {
-                if (hitboxActions[i].bounds.Contains(hitCoordinate))
+                if (hitboxActions[i].IsHit(hitCoordinate))
                 {
-                    hitboxActions[i].action();
                     return true;
                 }
+                //if (hitboxActions[i].bounds.Contains(hitCoordinate))
+                //{
+                //    hitboxActions[i].action();
+                //    return true;
+                //}
             }
 
             return false;
