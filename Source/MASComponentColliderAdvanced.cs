@@ -44,60 +44,94 @@ namespace AvionicsSystems
         internal class AdvancedButtonObject : MonoBehaviour
         {
             internal MASComponentColliderAdvanced parent;
-            internal Action<Vector2> onClick;
+            internal Action<Vector2, EventType> onTouch;
             internal Func<float, float, float, Vector2> hitTransformation;
             internal AudioSource audioSource;
             internal bool colliderEnabled = true;
             internal Collider collider = null;
             internal bool debugEnabled = false;
+            private bool mouseDown = false;
             private Camera camera = null;
 
-            /// <summary>
-            /// Mouse press handler.  Trigger the autorepeat event, if appropriate.
-            /// </summary>
-            public void OnMouseDown()
+            private bool HitAt(out Vector2 hitLocation)
             {
-                if (colliderEnabled)
+                Camera ca = InternalCamera.Instance.gameObject.GetComponentCached<Camera>(ref camera);
+                if (ca != null)
                 {
                     RaycastHit hit;
-                    Camera ca = InternalCamera.Instance.gameObject.GetComponentCached<Camera>(ref camera);
-                    if (ca != null)
+                    Ray ray = ca.ScreenPointToRay(Input.mousePosition);
+                    if (collider.Raycast(ray, out hit, Mathf.Infinity))
                     {
-                        Ray ray = ca.ScreenPointToRay(Input.mousePosition);
-                        if (collider.Raycast(ray, out hit, Mathf.Infinity))
-                        {
-                            float x1 = Mathf.InverseLerp(collider.bounds.min.x, collider.bounds.max.x, hit.point.x);
-                            float y1 = Mathf.InverseLerp(collider.bounds.min.y, collider.bounds.max.y, hit.point.y);
-                            float z1 = Mathf.InverseLerp(collider.bounds.min.z, collider.bounds.max.z, hit.point.z);
+                        float x1 = Mathf.InverseLerp(collider.bounds.min.x, collider.bounds.max.x, hit.point.x);
+                        float y1 = Mathf.InverseLerp(collider.bounds.min.y, collider.bounds.max.y, hit.point.y);
+                        float z1 = Mathf.InverseLerp(collider.bounds.min.z, collider.bounds.max.z, hit.point.z);
 
-                            if (debugEnabled)
-                            {
-                                Utility.LogMessage(this, "Normalized click at {0}, {1}, {2} for {3}",
-                                    x1, y1, z1, parent.name);
-                            }
-
-                            Vector2 transformedHit = hitTransformation(x1, y1, z1);
-                            onClick(transformedHit);
-                        }
-                        else
+                        if (debugEnabled)
                         {
-                            Utility.LogWarning(this, "Mouse event did not map to collider");
+                            Utility.LogMessage(this, "Normalized click at {0}, {1}, {2} for {3}",
+                                x1, y1, z1, parent.name);
                         }
+
+                        hitLocation = hitTransformation(x1, y1, z1);
+                        return true;
                     }
                     else
                     {
-                        Utility.LogWarning(this, "Did not find an internal camera - cannot raycast collision");
+                        Utility.LogWarning(this, "Mouse event did not map to collider");
                     }
+                }
+                else
+                {
+                    Utility.LogWarning(this, "Did not find an internal camera - cannot raycast collision");
+                }
+                hitLocation = Vector2.zero;
+                return false;
+            }
+
+            /// <summary>
+            /// Mouse press handler.
+            /// </summary>
+            public void OnMouseDown()
+            {
+                Vector2 transformedHit;
+                if (colliderEnabled && HitAt(out transformedHit))
+                {
+                    mouseDown = true;
+                    onTouch(transformedHit, EventType.MouseDown);
                 }
             }
 
-            public void OnDestroy()
+            /// <summary>
+            /// Mouse drag handler.
+            /// </summary>
+            public void OnMouseDrag()
             {
-                //if (activeCoroutine != null)
-                //{
-                //    StopCoroutine(activeCoroutine);
-                //}
+                if (mouseDown)
+                {
+                    Vector2 transformedHit;
+                    HitAt(out transformedHit);
+
+                    onTouch(transformedHit, EventType.MouseDrag);
+                }
             }
+
+            /// <summary>
+            /// Mouse release handler.
+            /// </summary>
+            public void OnMouseUp()
+            {
+                if (mouseDown)
+                {
+                    Vector2 transformedHit;
+                    HitAt(out transformedHit);
+
+                    onTouch(transformedHit, EventType.MouseUp);
+                }
+            }
+
+            //public void OnDestroy()
+            //{
+            //}
         }
 
         internal MASComponentColliderAdvanced(ConfigNode config, InternalProp internalProp, MASFlightComputer comp)
@@ -166,7 +200,7 @@ namespace AvionicsSystems
 
             buttonObject = tr.gameObject.AddComponent<AdvancedButtonObject>();
             buttonObject.parent = this;
-            buttonObject.onClick = comp.GetHitAction(monitorID, internalProp);
+            buttonObject.onTouch = comp.GetHitAction(monitorID, internalProp, comp.HandleTouchEvent);
             buttonObject.hitTransformation = comp.GetColliderTransformation(clickX, clickY, name, internalProp);
             Collider btnCollider = tr.gameObject.GetComponent<Collider>();
             if (btnCollider == null)

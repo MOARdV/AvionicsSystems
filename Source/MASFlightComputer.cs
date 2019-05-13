@@ -452,16 +452,16 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Function to handle a touchscreen (COLLIDER_ADVANCED) click event.
+        /// Function to handle a touchscreen (COLLIDER_ADVANCED) event.
         /// </summary>
         /// <param name="monitorName">The monitor that will receive the event.</param>
-        /// <param name="hitCoordinate">The x and y coordinates of the click, as processed by the COLLIDER_ADVANCED</param>
-        internal void HandleClickLocation(string monitorName, Vector2 hitCoordinate)
+        /// <param name="hitCoordinate">The x and y coordinates of the event, as processed by the COLLIDER_ADVANCED</param>
+        internal void HandleTouchEvent(string monitorName, Vector2 hitCoordinate, EventType eventType)
         {
             MASMonitor monitor;
             if (monitors.TryGetValue(monitorName, out monitor))
             {
-                monitor.HandleClickLocation(hitCoordinate);
+                monitor.HandleTouchEvent(hitCoordinate, eventType);
             }
         }
 
@@ -608,15 +608,15 @@ namespace AvionicsSystems
         /// <param name="monitorID">ID of the monitor.</param>
         /// <param name="prop"></param>
         /// <returns></returns>
-        internal Action<Vector2> GetHitAction(string monitorID, InternalProp prop)
+        internal Action<Vector2, EventType> GetHitAction(string monitorID, InternalProp prop, Action<string, Vector2, EventType> hitAction)
         {
             string conditionedId = ConditionVariableName(monitorID, prop);
 
-            Action<Vector2> ev = (xy) => HandleClickLocation(conditionedId, xy);
+            Action<Vector2, EventType> ev = (xy, eventType) => hitAction(conditionedId, xy, eventType);
             return ev;
         }
 
-        internal Action<Vector2> GetColliderAction(string actionName, int hitboxID, InternalProp prop)
+        internal Action<Vector2> GetColliderAction(string actionName, int hitboxID, string actionType, InternalProp prop)
         {
             actionName = ConditionVariableName(actionName, prop);
 
@@ -630,13 +630,13 @@ namespace AvionicsSystems
 
                 actionName = actionName.Replace("%X%", "x").Replace("%Y%", "y");
                 StringBuilder sb = StringBuilderCache.Acquire();
-                sb.AppendFormat("function {0}_click(x, y)", propName).AppendLine().AppendFormat("  {0}", actionName).AppendLine().AppendLine("end");
+                sb.AppendFormat("function {0}_{1}(x, y)", propName, actionType).AppendLine().AppendFormat("  {0}", actionName).AppendLine().AppendLine("end");
                 string preppedActionName = ConditionVariableName(sb.ToStringAndRelease(), prop);
 
                 // Compile the script.
                 script.DoString(preppedActionName);
                 // Get the function.
-                DynValue closure = script.Globals.Get(string.Format("{0}_click", propName));
+                DynValue closure = script.Globals.Get(string.Format("{0}_{1}", propName, actionType));
                 if (closure.Type == DataType.Function)
                 {
                     return (loc) =>

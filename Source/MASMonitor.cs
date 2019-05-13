@@ -383,11 +383,11 @@ namespace AvionicsSystems
         /// </summary>
         /// <param name="hitCoordinate">x and y coordinate of the click, as processed by the COLLIDER_ADVANCED</param>
         /// <returns>1 if the code was processed, 0 otherwise.</returns>
-        internal bool HandleClickLocation(Vector2 hitCoordinate)
+        internal bool HandleTouchEvent(Vector2 hitCoordinate, EventType type)
         {
             if (currentPage != null)
             {
-                return currentPage.HandleClickLocation(hitCoordinate);
+                return currentPage.HandleTouchLocation(hitCoordinate, type);
             }
 
             return false;

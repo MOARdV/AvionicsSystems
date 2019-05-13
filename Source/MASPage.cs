@@ -34,7 +34,9 @@ namespace AvionicsSystems
         internal class HitBox
         {
             internal Rect bounds;
-            internal Action<Vector2> action;
+            internal Action<Vector2> onClick;
+            internal Action<Vector2> onRelease;
+            internal Action<Vector2> onDrag;
 
             internal bool IsHit(Vector2 hitCoordinate)
             {
@@ -43,16 +45,35 @@ namespace AvionicsSystems
                     Vector2 scaledCoordinate = hitCoordinate - bounds.min;
                     scaledCoordinate.x = Mathf.Clamp(scaledCoordinate.x, 0.0f, bounds.max.x);
                     scaledCoordinate.y = Mathf.Clamp(scaledCoordinate.y, 0.0f, bounds.max.y);
-                    action(scaledCoordinate);
+                    if (onClick != null)
+                    {
+                        onClick(scaledCoordinate);
+                    }
                     return true;
                 }
                 return false;
+            }
+
+            internal Vector2 TransformHit(Vector2 hitCoordinate)
+            {
+                if (bounds.Contains(hitCoordinate))
+                {
+                    Vector2 scaledCoordinate = hitCoordinate - bounds.min;
+                    scaledCoordinate.x = Mathf.Clamp(scaledCoordinate.x, 0.0f, bounds.max.x);
+                    scaledCoordinate.y = Mathf.Clamp(scaledCoordinate.y, 0.0f, bounds.max.y);
+                    return scaledCoordinate;
+                }
+                else
+                {
+                    return new Vector2(-1.0f, -1.0f);
+                }
             }
         };
 
         private List<IMASMonitorComponent> component = new List<IMASMonitorComponent>();
         private Dictionary<int, Action> softkeyAction = new Dictionary<int, Action>();
         private List<HitBox> hitboxActions = new List<HitBox>();
+        private HitBox activeHitBox = null;
         private string name = string.Empty;
         private GameObject pageRoot;
         private Action onEntry, onExit;
@@ -122,60 +143,85 @@ namespace AvionicsSystems
             string positionString = string.Empty;
             if (!hitBoxConfig.TryGetValue("position", ref positionString))
             {
-                Utility.LogWarning(this, "Missing 'position' in hitbox for MASPage " + name);
+                Utility.LogError(this, "Missing 'position' in hitbox for MASPage " + name);
                 return null;
             }
             string[] positions = Utility.SplitVariableList(positionString);
             if (positions.Length != 2)
             {
-                Utility.LogWarning(this, "Incorrect number of values in 'position' in hitbox for MASPage " + name);
+                Utility.LogError(this, "Incorrect number of values in 'position' in hitbox for MASPage " + name);
                 return null;
             }
 
             float x1, y1;
             if (!(float.TryParse(positions[0], out x1) && float.TryParse(positions[1], out y1)))
             {
-                Utility.LogWarning(this, "Unable to parse 'position' in hitbox for MASPage " + name);
+                Utility.LogError(this, "Unable to parse 'position' in hitbox for MASPage " + name);
                 return null;
             }
 
             string sizeString = string.Empty;
             if (!hitBoxConfig.TryGetValue("size", ref sizeString))
             {
-                Utility.LogWarning(this, "Missing 'size' in hitbox for MASPage " + name);
+                Utility.LogError(this, "Missing 'size' in hitbox for MASPage " + name);
                 return null;
             }
             string[] sizes = Utility.SplitVariableList(sizeString);
             if (sizes.Length != 2)
             {
-                Utility.LogWarning(this, "Incorrect number of values in 'size' in hitbox for MASPage " + name);
+                Utility.LogError(this, "Incorrect number of values in 'size' in hitbox for MASPage " + name);
                 return null;
             }
 
             float w, h;
             if (!(float.TryParse(sizes[0], out w) && float.TryParse(sizes[1], out h)))
             {
-                Utility.LogWarning(this, "Unable to parse 'size' in hitbox for MASPage " + name);
+                Utility.LogError(this, "Unable to parse 'size' in hitbox for MASPage " + name);
                 return null;
             }
             hb.bounds = new Rect(x1, y1, w, h);
 
-            // This will eventually be optional
             string onClickString = string.Empty;
-            if (!hitBoxConfig.TryGetValue("onClick", ref onClickString))
+            if (hitBoxConfig.TryGetValue("onClick", ref onClickString))
             {
-                Utility.LogWarning(this, "Missing 'onClick' in hitbox for MASPage " + name);
-                return null;
+                Action<Vector2> onClick = comp.GetColliderAction(onClickString, idx, "click", prop);
+                if (onClick == null)
+                {
+                    Utility.LogError(this, "Unable to configure 'onClick' in hitbox for MASPage " + name);
+                    return null;
+                }
+                hb.onClick = onClick;
             }
 
-            Action<Vector2> onClick = comp.GetColliderAction(onClickString, idx, prop);
-            if (onClick == null)
+            string onDragString = string.Empty;
+            if (hitBoxConfig.TryGetValue("onDrag", ref onDragString))
             {
-                Utility.LogWarning(this, "Unable to configure 'onClick' in hitbox for MASPage " + name);
+                Action<Vector2> onDrag = comp.GetColliderAction(onDragString, idx, "drag", prop);
+                if (onDrag == null)
+                {
+                    Utility.LogError(this, "Unable to configure 'onDrag' in hitbox for MASPage " + name);
+                    return null;
+                }
+                hb.onDrag = onDrag;
+            }
+
+            string onReleaseString = string.Empty;
+            if (hitBoxConfig.TryGetValue("onRelease", ref onReleaseString))
+            {
+                Action<Vector2> onRelease = comp.GetColliderAction(onReleaseString, idx, "release", prop);
+                if (onRelease == null)
+                {
+                    Utility.LogError(this, "Unable to configure 'onRelease' in hitbox for MASPage " + name);
+                    return null;
+                }
+                hb.onRelease = onRelease;
+            }
+
+            if (hb.onClick == null && hb.onDrag == null && hb.onRelease == null)
+            {
+                Utility.LogError(this, "No 'onClick', 'onDrag', or 'onRelease' entries in hitbox for MASPage " + name);
                 return null;
             }
-            hb.action = onClick;
-
             return hb;
         }
 
@@ -454,25 +500,44 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Handle a click location within a collider.  This function is intended for emulating
+        /// Handle a click/drag/release location within a collider.  This function is intended for emulating
         /// touchscreen displays.
         /// </summary>
         /// <param name="hitCoordinate">x and y coordinate of the click, as processed by the COLLIDER_ADVANCED</param>
         /// <returns>True if the click was handled, false otherwise.</returns>
-        internal bool HandleClickLocation(Vector2 hitCoordinate)
+        internal bool HandleTouchLocation(Vector2 hitCoordinate, EventType eventType)
         {
-            int numHitboxes = hitboxActions.Count;
-            for (int i = 0; i < numHitboxes; ++i)
+            if (eventType == EventType.MouseDown)
             {
-                if (hitboxActions[i].IsHit(hitCoordinate))
+                int numHitboxes = hitboxActions.Count;
+                for (int i = 0; i < numHitboxes; ++i)
                 {
-                    return true;
+                    if (hitboxActions[i].IsHit(hitCoordinate))
+                    {
+                        activeHitBox = hitboxActions[i];
+                        return true;
+                    }
                 }
-                //if (hitboxActions[i].bounds.Contains(hitCoordinate))
-                //{
-                //    hitboxActions[i].action();
-                //    return true;
-                //}
+            }
+            else if (activeHitBox != null)
+            {
+                if (eventType == EventType.MouseUp)
+                {
+                    if (activeHitBox.onRelease != null)
+                    {
+                        hitCoordinate = activeHitBox.TransformHit(hitCoordinate);
+                        activeHitBox.onRelease(hitCoordinate);
+                    }
+                    activeHitBox = null;
+                }
+                else if (eventType == EventType.MouseDrag)
+                {
+                    if (activeHitBox.onDrag != null)
+                    {
+                        hitCoordinate = activeHitBox.TransformHit(hitCoordinate);
+                        activeHitBox.onDrag(hitCoordinate);
+                    }
+                }
             }
 
             return false;
