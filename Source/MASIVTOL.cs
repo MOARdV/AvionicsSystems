@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2018 MOARdV
+ * Copyright (c) 2018-2019 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -375,7 +375,7 @@ namespace AvionicsSystems
         /// Returns the commanded vertical speed in m/s.
         /// </summary>
         /// <param name="amount"></param>
-        /// <returns></returns>
+        /// <returns>The vertical speed the VTOL manager is trying to hold, or 0.</returns>
         public double GetVerticalSpeed()
         {
             object manager = GetVtolManager();
@@ -389,7 +389,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Set the commanded vertical speed to zero.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>1 if the speed was updated, 0 otherwise.</returns>
         public double KillVerticalSpeed()
         {
             object manager = GetVtolManager();
@@ -400,6 +400,40 @@ namespace AvionicsSystems
                     return 0.0;
                 }
                 wbiKillVerticalSpeed(manager);
+                return 1.0;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Set the commanded vertical speed to the rate selected.
+        /// </summary>
+        /// <param name="vSpeed">The new vertical speed, in m/s.</param>
+        /// <returns>1 if the speed was updated, 0 otherwise.</returns>
+        public double SetVerticalSpeed(double vSpeed)
+        {
+            object manager = GetVtolManager();
+            if (manager != null)
+            {
+                if (!wbiHoverControllerAvailable(manager))
+                {
+                    return 0.0;
+                }
+                float newVSpeed = (float)vSpeed;
+                float currSpd = wbiGetVerticalSpeed(manager);
+                if (currSpd - newVSpeed != 0.0f)
+                {
+                    float deltaSpeed = newVSpeed - currSpd;
+
+                    if (deltaSpeed > 0.0f)
+                    {
+                        wbiIncreaseVerticalSpeed(manager, deltaSpeed);
+                    }
+                    else if (deltaSpeed < 0.0f)
+                    {
+                        wbiDecreaseVerticalSpeed(manager, -deltaSpeed);
+                    }
+                }
                 return 1.0;
             }
             return 0.0;
