@@ -52,6 +52,7 @@ namespace AvionicsSystems
             internal bool debugEnabled = false;
             private bool mouseDown = false;
             private Camera camera = null;
+            private Vector2 lastHit = Vector2.zero;
 
             private bool HitAt(out Vector2 hitLocation)
             {
@@ -97,6 +98,7 @@ namespace AvionicsSystems
                 if (colliderEnabled && HitAt(out transformedHit))
                 {
                     mouseDown = true;
+                    lastHit = transformedHit;
                     onTouch(transformedHit, EventType.MouseDown);
                 }
             }
@@ -111,7 +113,12 @@ namespace AvionicsSystems
                     Vector2 transformedHit;
                     HitAt(out transformedHit);
 
-                    onTouch(transformedHit, EventType.MouseDrag);
+                    // If the movement was fairly small, don't spam the callback system with updates.
+                    if (!Mathf.Approximately(transformedHit.x, lastHit.x) || !Mathf.Approximately(transformedHit.x, lastHit.x))
+                    {
+                        lastHit = transformedHit;
+                        onTouch(transformedHit, EventType.MouseDrag);
+                    }
                 }
             }
 
