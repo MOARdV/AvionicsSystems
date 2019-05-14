@@ -1121,6 +1121,65 @@ namespace AvionicsSystems
         /// a vessel's SAS stability system.
         /// </summary>
         #region SAS
+
+        /// <summary>
+        /// Query if a select SAS mode is may be selected.  For example, mode 9
+        /// (Maneuver Node) is not valid if there is no maneuver node.
+        /// 
+        /// If SAS is off, this function always returns 0.
+        /// </summary>
+        /// <returns>1 if the selected mode is currently selectable, 0 otherwise.</returns>
+        public double CanSetSASMode(double mode)
+        {
+            if (!vessel.ActionGroups[KSPActionGroup.SAS])
+            {
+                return 0.0;
+            }
+
+            int iMode = (int)mode;
+            bool canset = false;
+            switch (iMode)
+            {
+                case 0:
+                    canset = vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.StabilityAssist);
+                    break;
+                case 1:
+                    canset = vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.Prograde);
+                    break;
+                case 2:
+                    canset = vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.Retrograde);
+                    break;
+                case 3:
+                    canset = vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.Normal);
+                    break;
+                case 4:
+                    canset = vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.Antinormal);
+                    break;
+                case 5:
+                    // RadialIn and RadialOut appear to be backwards?!?
+                    canset = vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.RadialOut);
+                    break;
+                case 6:
+                    // RadialIn and RadialOut appear to be backwards?!?
+                    canset = vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.RadialIn);
+                    break;
+                case 7:
+                    canset = vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.Target);
+                    break;
+                case 8:
+                    canset = vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.AntiTarget);
+                    break;
+                case 9:
+                    canset = vessel.Autopilot.CanSetMode(VesselAutopilot.AutopilotMode.Maneuver);
+                    break;
+                default:
+                    canset = false;
+                    break;
+            }
+
+            return (canset) ? 1.0 : 0.0;
+        }
+
         /// <summary>
         /// Returns whether the controls are configured for precision mode.
         /// </summary>
