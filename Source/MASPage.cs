@@ -33,6 +33,7 @@ namespace AvionicsSystems
     {
         internal class HitBox
         {
+            private bool enabled = true;
             internal Rect bounds;
             internal Action<Vector2> onClick;
             internal Action<Vector2> onRelease;
@@ -40,7 +41,7 @@ namespace AvionicsSystems
 
             internal bool IsHit(Vector2 hitCoordinate)
             {
-                if (bounds.Contains(hitCoordinate))
+                if (enabled && bounds.Contains(hitCoordinate))
                 {
                     Vector2 scaledCoordinate = hitCoordinate - bounds.min;
                     scaledCoordinate.x = Mathf.Clamp(scaledCoordinate.x, 0.0f, bounds.max.x);
@@ -68,8 +69,19 @@ namespace AvionicsSystems
                     return new Vector2(-1.0f, -1.0f);
                 }
             }
+
+            internal void VariableCallback(double newValue)
+            {
+                bool newState = (newValue > 0.0);
+
+                if (newState != enabled)
+                {
+                    enabled = newState;
+                }
+            }
         };
 
+        private VariableRegistrar variableRegistrar;
         private List<IMASMonitorComponent> component = new List<IMASMonitorComponent>();
         private Dictionary<int, Action> softkeyAction = new Dictionary<int, Action>();
         private List<HitBox> hitboxActions = new List<HitBox>();
@@ -222,6 +234,14 @@ namespace AvionicsSystems
                 Utility.LogError(this, "No 'onClick', 'onDrag', or 'onRelease' entries in hitbox for MASPage " + name);
                 return null;
             }
+
+            string variableString = string.Empty;
+            if (hitBoxConfig.TryGetValue("variable", ref variableString))
+            {
+                // Force the state to false to begin with.
+                hb.VariableCallback(0.0);
+                variableRegistrar.RegisterVariableChangeCallback(variableString, hb.VariableCallback);
+            }
             return hb;
         }
 
@@ -231,6 +251,7 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Invalid or missing 'name' in MASPage");
             }
+            variableRegistrar = new VariableRegistrar(comp, prop);
 
             string[] softkeys = config.GetValues("softkey");
             int numSoftkeys = softkeys.Length;
@@ -579,6 +600,8 @@ namespace AvionicsSystems
         /// <param name="comp"></param>
         internal void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
+            variableRegistrar.ReleaseResources();
+
             int numComponents = component.Count;
             for (int i = 0; i < numComponents; ++i)
             {
