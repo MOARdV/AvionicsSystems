@@ -1967,6 +1967,51 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns 1 if the camera is capable of panning left/right.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <returns>1 if the camera can pan, 0 if it cannot pan or an invalid `index` is provided.</returns>
+        public double GetCameraCanPan(double index)
+        {
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                return (vc.moduleCamera[i].panRange.x == vc.moduleCamera[i].panRange.y) ? 0.0 : 1.0;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the camera is capable of tilting up/down.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <returns>1 if the camera can tilt, 0 if it cannot tilt or an invalid `index` is provided.</returns>
+        public double GetCameraCanTilt(double index)
+        {
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                return (vc.moduleCamera[i].tiltRange.x == vc.moduleCamera[i].tiltRange.y) ? 0.0 : 1.0;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the camera is capable of zooming.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <returns>1 if the camera can zoom, 0 if it cannot zoom or an invalid `index` is provided.</returns>
+        public double GetCameraCanZoom(double index)
+        {
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                return (vc.moduleCamera[i].fovRange.x == vc.moduleCamera[i].fovRange.y) ? 0.0 : 1.0;
+            }
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns a count of the valid MASCamera modules found on this vessel.
         /// </summary>
         /// <returns>The number of valid MASCamera modules installed on this vessel.</returns>
@@ -2491,7 +2536,7 @@ namespace AvionicsSystems
         public string ColorChangerId(double ccId)
         {
             int id = (int)ccId;
-            if (id >=0 && id <  vc.moduleColorChanger.Length)
+            if (id >= 0 && id < vc.moduleColorChanger.Length)
             {
                 return vc.moduleColorChanger[id].moduleID;
             }
