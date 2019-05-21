@@ -54,7 +54,7 @@ namespace AvionicsSystems
             private Camera camera = null;
             private Vector2 lastHit = Vector2.zero;
 
-            private bool HitAt(out Vector2 hitLocation)
+            private bool HitAt(out Vector2 hitLocation, bool isClick)
             {
                 Camera ca = InternalCamera.Instance.gameObject.GetComponentCached<Camera>(ref camera);
                 if (ca != null)
@@ -67,13 +67,12 @@ namespace AvionicsSystems
                         float y1 = Mathf.InverseLerp(collider.bounds.min.y, collider.bounds.max.y, hit.point.y);
                         float z1 = Mathf.InverseLerp(collider.bounds.min.z, collider.bounds.max.z, hit.point.z);
 
-                        if (debugEnabled)
-                        {
-                            Utility.LogMessage(this, "Normalized click at {0}, {1}, {2} for {3}",
-                                x1, y1, z1, parent.name);
-                        }
-
                         hitLocation = hitTransformation(x1, y1, z1);
+                        if (isClick && debugEnabled)
+                        {
+                            Utility.LogMessage(this, "Normalized click at {0}, {1}, {2} => {4}, {5} for {3}",
+                                x1, y1, z1, parent.name, hitLocation.x, hitLocation.y);
+                        }
                         return true;
                     }
                     else
@@ -95,7 +94,7 @@ namespace AvionicsSystems
             public void OnMouseDown()
             {
                 Vector2 transformedHit;
-                if (colliderEnabled && HitAt(out transformedHit))
+                if (colliderEnabled && HitAt(out transformedHit, true))
                 {
                     mouseDown = true;
                     lastHit = transformedHit;
@@ -111,7 +110,7 @@ namespace AvionicsSystems
                 if (mouseDown)
                 {
                     Vector2 transformedHit;
-                    HitAt(out transformedHit);
+                    HitAt(out transformedHit, false);
 
                     // If the movement was fairly small, don't spam the callback system with updates.
                     if (!Mathf.Approximately(transformedHit.x, lastHit.x) || !Mathf.Approximately(transformedHit.x, lastHit.x))
@@ -130,7 +129,7 @@ namespace AvionicsSystems
                 if (mouseDown)
                 {
                     Vector2 transformedHit;
-                    HitAt(out transformedHit);
+                    HitAt(out transformedHit, false);
 
                     onTouch(transformedHit, EventType.MouseUp);
                 }
