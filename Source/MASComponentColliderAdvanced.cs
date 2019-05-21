@@ -48,11 +48,23 @@ namespace AvionicsSystems
             internal Func<float, float, float, Vector2> hitTransformation;
             internal AudioSource audioSource;
             internal bool colliderEnabled = true;
-            internal Collider collider = null;
+            private BoxCollider collider = null;
+            private Vector3 hitCorner = Vector3.zero;
+            private Vector3 invSize = Vector3.zero;
             internal bool debugEnabled = false;
             private bool mouseDown = false;
             private Camera camera = null;
             private Vector2 lastHit = Vector2.zero;
+            private Matrix4x4 worldToLocal = Matrix4x4.identity;
+
+            internal void InitBoxCollider(BoxCollider bc)
+            {
+                collider = bc;
+                Vector3 size = collider.size;
+                hitCorner = collider.center - 0.5f * size;
+                invSize = new Vector3(1.0f / size.x, 1.0f / size.y, 1.0f / size.z);
+                worldToLocal = collider.transform.worldToLocalMatrix;
+            }
 
             private bool HitAt(out Vector2 hitLocation, bool isClick)
             {
@@ -63,9 +75,14 @@ namespace AvionicsSystems
                     Ray ray = ca.ScreenPointToRay(Input.mousePosition);
                     if (collider.Raycast(ray, out hit, Mathf.Infinity))
                     {
-                        float x1 = Mathf.InverseLerp(collider.bounds.min.x, collider.bounds.max.x, hit.point.x);
-                        float y1 = Mathf.InverseLerp(collider.bounds.min.y, collider.bounds.max.y, hit.point.y);
-                        float z1 = Mathf.InverseLerp(collider.bounds.min.z, collider.bounds.max.z, hit.point.z);
+                        // hit.point reports the world space coordinate of the collision.  We need local space
+                        // so we can determine where along the collider we actually hit.
+                        Vector3 xFormedHit = worldToLocal.MultiplyPoint(hit.point) - hitCorner;
+
+                        // Normalize the values
+                        float x1 = xFormedHit.x * invSize.x;
+                        float y1 = xFormedHit.y * invSize.y;
+                        float z1 = xFormedHit.z * invSize.z;
 
                         hitLocation = hitTransformation(x1, y1, z1);
                         if (isClick && debugEnabled)
@@ -77,7 +94,7 @@ namespace AvionicsSystems
                     }
                     else
                     {
-                        Utility.LogWarning(this, "Mouse event did not map to collider");
+                        Utility.LogWarning(this, "Mouse event did not intersect collider?");
                     }
                 }
                 else
@@ -213,7 +230,13 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Unable to retrieve Collider from GameObject in COLLIDER_ADVANCED " + name);
             }
-            buttonObject.collider = btnCollider;
+            BoxCollider boxCollider = btnCollider as BoxCollider;
+            if (boxCollider == null)
+            {
+                throw new ArgumentException("Collider for COLLIDER_ADVANCED " + name + " is not a BoxCollider");
+            }
+
+            buttonObject.InitBoxCollider(boxCollider);
             if (!config.TryGetValue("logHits", ref buttonObject.debugEnabled))
             {
                 buttonObject.debugEnabled = false;
