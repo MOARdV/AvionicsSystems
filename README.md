@@ -5,8 +5,8 @@ MOARdV's Avionics Systems for Kerbal Space Program - a new generation of IVA enh
 
 ## Short Intro
 
-MOARdV's Avionics Systems (MAS) is a replacement for RasterPropMonitor.
-The goal is to provide a more powerful and more performant design without sacrificing
+MOARdV's Avionics Systems (MAS) is a successor to RasterPropMonitor.
+The goal is to provide a more powerful and more performant design without removing
 features that are available in RPM.
 
 **NOTE:** MAS is **not** a drop-in replacement for RasterPropMonitor.  IVAs created for RasterPropMonitor must
@@ -19,7 +19,7 @@ To install, select the latest release AvionicsSystems zip file from the "Release
 intend to build MAS yourself - the compiled DLL files are not stored on GitHub.  The Avionics Systems zip file contains all of the data
 needed to use an IVA in MAS.
 Players do not need to download the PropConfig zip file. That file contains an application and data that
-prop creators can use to automate the task of generating props for IVA.
+prop creators can use to automate the task of generating new props for IVA.
 
 The [wiki](https://github.com/MOARdV/AvionicsSystems/wiki) contains the documentation for this mod, including guides to
 configuring props, integrating scripting, and the 900+ functions that MAS makes available.  Most of this documentation is geared towards IVA creators and prop developers.
@@ -37,7 +37,7 @@ This mod includes version information compatible with MiniAVC and AVC.
 ## Where are the IVAs?
 
 MAS is intended to be a toolkit for developing IVAs.  I do not intend to include many example
-IVAs like RPM had - good IVAs take a lot of time to create.
+IVAs like RPM had - good IVAs take a lot of time to create, and I don't have that much spare time.
 The example IVAs included with MAS require alexustas's props packs - [ASET Props Pack](http://forum.kerbalspaceprogram.com/index.php?/topic/116430-aset-props-pack-v14-for-the-modders-who-create-iva/) and
 [ASET Avionics Pack](http://forum.kerbalspaceprogram.com/index.php?/topic/116479-aset-avionics-pack-v-20-for-the-modders-who-create-iva/) must be installed
 for the MAS props to appear.
@@ -47,10 +47,10 @@ development, there are IVAs included in this package:
 
 * The stock Mk 1 v2 Command Pod (pictured above), which demonstrates a retro-NASA style stripped-down IVA suitable for suborbital or short orbital flights.  A flight manual is available [on the wiki](https://github.com/MOARdV/AvionicsSystems/wiki/Operations-Manual-Mk1).
 * The original Mk 1 Command Pod IVA is still included, since the original pod and IVA are still available (as of KSP 1.5.0).
-* The stock Mk 1-3 Command Pod, which includes a more complete retro-NASA IVA for the center seat (with stock props still in place on the rest of the panel).
+* The stock Mk 1-3 Command Pod, which includes a more complete retro-NASA IVA for the center seat (with stock props still in place on the rest of the panel). This IVA *is not* complete, and I do not expect to finish it, since the seating arrangement for the three crew is suboptimal.
 * The stock Mk1 Lander Can by snakeru, a conversion of the [ASET Mk1 Lander Can](https://forum.kerbalspaceprogram.com/index.php?/topic/156131-mk1-lander-can-iva-replacement-by-aset11/).  Note that if the ASET mod is installed, the MAS version of the IVA is switched off.  You must uninstall the ASET IVA to use the MAS IVA.
 * The MRK DM command pod, part of the [Commonwealth Rockets](https://forum.kerbalspaceprogram.com/index.php?/topic/164365-13-commonwealth-rockets-tea-powered-spaceflight-in-development/) mod.
-This command pod demonstrates a modern partial-glass cockpit design good for activity around Kerbin and its moons.
+This command pod demonstrates a modern partial-glass cockpit design good for activity around Kerbin and its moons.  Since development of this pod appears to have stopped, the included IVA is deprecated, and it may be removed in a future MAS update.
 
 For some additional IVAs, the Flapjack cockpit in the [Kerbal Flying Saucer](https://forum.kerbalspaceprogram.com/index.php?/topic/173857-14x-pre-release-live-kerbal-flying-saucers-build-flying-saucers-in-ksp/) mod shows a glass cockpit design, including HUD.
 Additionally, the [MOARdVPlus](https://github.com/MOARdV/MOARdVPlus) mod includes a complete 1960s-style Apollo IVA compatible with
@@ -62,7 +62,7 @@ on the wiki for more information, as well as a list of optional mods that enhanc
 
 ## What about RasterPropMonitor?
 
-My development on RasterPropMonitor has stopped.  It is available for adoption, but I have no plans to release any additional updates.
+My development on RasterPropMonitor has stopped. I have no plans to release any additional updates. It is available for adoption.
 
 ## How do I Build MAS?
 
@@ -70,4 +70,4 @@ The [Building MAS](https://github.com/MOARdV/AvionicsSystems/blob/master/Buildin
 
 ## Other questions?
 
-Look at the [FAQ](https://github.com/MOARdV/AvionicsSystems/wiki/FAQ) on the wiki.  If the answer is not there, please ask.
+Look at the [FAQ](https://github.com/MOARdV/AvionicsSystems/wiki/FAQ) on the wiki.  If the answer is not there, please ask me.
