@@ -33,10 +33,9 @@
 -- Initialization script for the ALCOR MFD.  This script may set up multiple variables if needed.
 function MAS_AlcorMfdInit(propId)
 
-	if fc.GetPersistentExists(propId .. "-Acapt") < 1 then
-		fc.SetPersistent(propId .. "-A", "MAS_ALCOR_MFD_A_Launch")
-		fc.SetPersistent(propId .. "-Acapt", "LAUNCH")
-	end
+	fc.InitializePersistent(propId .. "-A", "MAS_ALCOR_MFD_A_Launch")
+	fc.InitializePersistent(propId .. "-Acapt", "LAUNCH")
+
 end
 
 -- Toggle button A mode.
