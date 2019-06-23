@@ -1916,8 +1916,12 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Adjusts the field of view setting on the selected camera.
+        /// Adjusts the field of view setting on the selected camera.  The change in `deltaFoV` is clamped
+        /// to the selected camera's range.  A negative value reduces the FoV, which is equivalent to zooming
+        /// in; a positive value increases the FoV (zooms out).
         /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <param name="deltaFoV">The number of degrees to add or subtract from the current FoV.</param>
         /// <returns>The new field of view setting, or 0 if an invalid index was supplied.</returns>
         public double AddFoV(double index, double deltaFoV)
         {
@@ -1933,8 +1937,12 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Adjusts the pan setting on the selected camera.
+        /// Adjusts the pan setting on the selected camera.  `deltaPan` is clamped to the
+        /// pan range of the selected camera.  A negative value pans the camera left, while a
+        /// positive value pans right.
         /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <param name="deltaPan">The number of degrees to increase or decrease the pan position.</param>
         /// <returns>The new pan setting, or 0 if an invalid index was supplied.</returns>
         public double AddPan(double index, double deltaPan)
         {
@@ -1950,8 +1958,12 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Adjusts the tilt setting on the selected camera.
+        /// Adjusts the tilt setting on the selected camera.  `deltaTilt` is clamped to the
+        /// tilt range of the selected camera.  A negative value tilts the camera up, while a
+        /// positive value tils the camera down. **Verify these directions**
         /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <param name="deltaTilt">The number of degrees to increase or decrease the pan position.</param>
         /// <returns>The new tilt setting, or 0 if an invalid index was supplied.</returns>
         public double AddTilt(double index, double deltaTilt)
         {
@@ -2242,8 +2254,9 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Retrieve the field of view setting on the selected camera.
+        /// Retrieve the current field of view setting on the selected camera.
         /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
         /// <returns>The current field of view setting, or 0 if an invalid index was supplied.</returns>
         public double GetFoV(double index)
         {
@@ -2259,8 +2272,9 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Retrieve the pan setting on the selected camera.
+        /// Retrieve the current pan setting on the selected camera.
         /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
         /// <returns>The current pan setting, or 0 if an invalid index was supplied.</returns>
         public double GetPan(double index)
         {
@@ -2276,8 +2290,9 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Retrieve the tilt setting on the selected camera.
+        /// Retrieve the current tilt setting on the selected camera.
         /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
         /// <returns>The current tilt setting, or 0 if an invalid index was supplied.</returns>
         public double GetTilt(double index)
         {
@@ -2329,8 +2344,11 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Adjusts the field of view setting on the selected camera.
+        /// Adjusts the field of view setting on the selected camera.  `newFoV` is clamped to
+        /// the FoV range.
         /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <param name="newFoV">The new field of view of the selected camera.</param>
         /// <returns>The new field of view setting, or 0 if an invalid index was supplied.</returns>
         public double SetFoV(double index, double newFoV)
         {
@@ -2346,34 +2364,40 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Adjusts the pan setting on the selected camera.
+        /// Adjusts the pan setting on the selected camera.  `newPan` is clamped to
+        /// the pan range.
         /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <param name="newPan">The new pan position of the camera.  Use 0 to send it to the camera's home position.</param>
         /// <returns>The new pan setting, or 0 if an invalid index was supplied.</returns>
-        public double SetPan(double index, double setPan)
+        public double SetPan(double index, double newPan)
         {
             double pan = 0.0;
 
             int i = (int)index;
             if (i >= 0 && i < vc.moduleCamera.Length)
             {
-                pan = vc.moduleCamera[i].SetPan((float)setPan);
+                pan = vc.moduleCamera[i].SetPan((float)newPan);
             }
 
             return pan;
         }
 
         /// <summary>
-        /// Adjusts the tilt setting on the selected camera.
+        /// Adjusts the tilt setting on the selected camera.  `newTilt` is clamped
+        /// to the camera's tilt range.
         /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <param name="newTilt">The new tilt position for the camera.  Use 0 to send it to the home position.</param>
         /// <returns>The new tilt setting, or 0 if an invalid index was supplied.</returns>
-        public double SetTilt(double index, double setTilt)
+        public double SetTilt(double index, double newTilt)
         {
             double tilt = 0.0;
 
             int i = (int)index;
             if (i >= 0 && i < vc.moduleCamera.Length)
             {
-                tilt = vc.moduleCamera[i].SetTilt((float)setTilt);
+                tilt = vc.moduleCamera[i].SetTilt((float)newTilt);
             }
 
             return tilt;
