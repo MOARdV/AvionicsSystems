@@ -36,6 +36,10 @@ namespace AvionicsSystems
     class MASComponentColliderAdvanced : IMASSubComponent
     {
         private AdvancedButtonObject buttonObject;
+        // Actions for on-prop control:
+        private Action<Vector2> onClick;
+        private Action<Vector2> onDrag;
+        private Action<Vector2> onRelease;
 
         /// <summary>
         /// Self-contained monobehaviour to provide button handling
@@ -92,10 +96,11 @@ namespace AvionicsSystems
                         }
                         return true;
                     }
-                    else
-                    {
-                        Utility.LogWarning(this, "Mouse event did not intersect collider?");
-                    }
+                    // This happens when the mouse is dragged out of bounds
+                    //else
+                    //{
+                    //    Utility.LogWarning(this, "Raycast failed: Mouse event did not intersect {0} collider?", parent.name);
+                    //}
                 }
                 else
                 {
@@ -127,13 +132,15 @@ namespace AvionicsSystems
                 if (mouseDown)
                 {
                     Vector2 transformedHit;
-                    HitAt(out transformedHit, false);
-
-                    // If the movement was fairly small, don't spam the callback system with updates.
-                    if (!Mathf.Approximately(transformedHit.x, lastHit.x) || !Mathf.Approximately(transformedHit.x, lastHit.x))
+                    // See if the mouse drag was in bounds.  If not, don't forward it to the callback.
+                    if (HitAt(out transformedHit, false))
                     {
-                        lastHit = transformedHit;
-                        onTouch(transformedHit, EventType.MouseDrag);
+                        // If the movement was fairly small, don't spam the callback system with updates.
+                        if (!Mathf.Approximately(transformedHit.x, lastHit.x) || !Mathf.Approximately(transformedHit.y, lastHit.y))
+                        {
+                            lastHit = transformedHit;
+                            onTouch(transformedHit, EventType.MouseDrag);
+                        }
                     }
                 }
             }
@@ -146,15 +153,19 @@ namespace AvionicsSystems
                 if (mouseDown)
                 {
                     Vector2 transformedHit;
-                    HitAt(out transformedHit, false);
-
-                    onTouch(transformedHit, EventType.MouseUp);
+                    if (HitAt(out transformedHit, false))
+                    {
+                        onTouch(transformedHit, EventType.MouseUp);
+                    }
+                    else
+                    {
+                        // If the mouse release was out of bounds, notify the callback using the last
+                        // in-bounds hit location.
+                        onTouch(lastHit, EventType.MouseUp);
+                    }
+                    mouseDown = false;
                 }
             }
-
-            //public void OnDestroy()
-            //{
-            //}
         }
 
         internal MASComponentColliderAdvanced(ConfigNode config, InternalProp internalProp, MASFlightComputer comp)
@@ -166,10 +177,20 @@ namespace AvionicsSystems
                 throw new ArgumentException("Missing 'collider' in COLLIDER_ADVANCED " + name);
             }
 
+            string clickAction = string.Empty;
+            string dragAction = string.Empty;
+            string releaseAction = string.Empty;
             string monitorID = string.Empty;
             if (!config.TryGetValue("monitorID", ref monitorID))
             {
-                throw new ArgumentException("Missing 'monitorID' in COLLIDER_ADVANCED " + name);
+                config.TryGetValue("onClick", ref clickAction);
+                config.TryGetValue("onDrag", ref dragAction);
+                config.TryGetValue("onRelease", ref releaseAction);
+
+                if (string.IsNullOrEmpty(clickAction) && string.IsNullOrEmpty(dragAction) && string.IsNullOrEmpty(releaseAction))
+                {
+                    throw new ArgumentException("Missing 'monitorID', 'onClick', 'onDrag', or 'onRelease' in COLLIDER_ADVANCED " + name);
+                }
             }
 
             string clickX = string.Empty;
@@ -223,7 +244,50 @@ namespace AvionicsSystems
 
             buttonObject = tr.gameObject.AddComponent<AdvancedButtonObject>();
             buttonObject.parent = this;
-            buttonObject.onTouch = comp.GetHitAction(monitorID, internalProp, comp.HandleTouchEvent);
+            if (string.IsNullOrEmpty(monitorID))
+            {
+                if (!string.IsNullOrEmpty(clickAction))
+                {
+                    onClick = comp.GetColliderAction(clickAction, 0, "click", internalProp);
+                }
+                if (!string.IsNullOrEmpty(dragAction))
+                {
+                    onDrag = comp.GetColliderAction(dragAction, 0, "drag", internalProp);
+                }
+                if (!string.IsNullOrEmpty(releaseAction))
+                {
+                    onRelease = comp.GetColliderAction(releaseAction, 0, "release", internalProp);
+                }
+
+                buttonObject.onTouch = (Vector2 hitCoordinate, EventType eventType) =>
+                    {
+                        if (eventType == EventType.MouseDown)
+                        {
+                            if (onClick != null)
+                            {
+                                onClick(hitCoordinate);
+                            }
+                        }
+                        else if (eventType == EventType.MouseDrag)
+                        {
+                            if (onDrag != null)
+                            {
+                                onDrag(hitCoordinate);
+                            }
+                        }
+                        else if (eventType == EventType.MouseUp)
+                        {
+                            if (onRelease != null)
+                            {
+                                onRelease(hitCoordinate);
+                            }
+                        }
+                    };
+            }
+            else
+            {
+                buttonObject.onTouch = comp.GetHitAction(monitorID, internalProp, comp.HandleTouchEvent);
+            }
             buttonObject.hitTransformation = comp.GetColliderTransformation(clickX, clickY, name, internalProp);
             Collider btnCollider = tr.gameObject.GetComponent<Collider>();
             if (btnCollider == null)
