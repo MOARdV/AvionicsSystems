@@ -2110,6 +2110,29 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_swRotary3_RCSMode</name>
+			<style>3 pos switch</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>RCSModeSelect(fc.AddPersistentClamped("MAS_RCS_Mode", 1, -1, 1))</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>RCSModeSelect(fc.AddPersistentClamped("MAS_RCS_Mode", -1, -1, 1))</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_RCS_Mode")</variable>
+				<range>-1, 1</range>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>XLATE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>XLATE$$$+ ROT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>ROT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_swRotary3_SpeedMode</name>
 			<style>3 pos switch</style>
 			<COLLIDER_EVENT id="0">
