@@ -53,6 +53,8 @@ In order to fly the IVAs included with this mod, you will need to download and i
 * [ASET Props Pack](https://forum.kerbalspaceprogram.com/index.php?/topic/116430-aset-props-pack-v15-for-the-modders-who-create-iva/), and
 * [ASET Avionics Pack](https://forum.kerbalspaceprogram.com/index.php?/topic/116479-aset-avionics-pack-v-21-for-the-modders-who-create-iva/).
 
+**NOTE:** Although the ASET packs list RasterPropMonitor as a dependency, you do not need to install RPM in order to use MAS.
+
 Refer to the [Installation Guide](https://github.com/MOARdV/AvionicsSystems/wiki/Installation)
 on the wiki for more information, as well as a list of optional mods that enhance MAS gameplay.
 
