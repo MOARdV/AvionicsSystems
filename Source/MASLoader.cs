@@ -567,7 +567,7 @@ namespace AvionicsSystems
             }
             bundle.Unload(false);
 
-            Utility.LogInfo(this, "Found {0} RPM shaders and {1} fonts.", shaders.Count, fonts.Count);
+            Utility.LogInfo(this, "Found {0} MAS shaders and {1} fonts.", shaders.Count, fonts.Count);
 
             // User fonts.  We put them here to make sure that internal
             // shaders exist already.

@@ -1160,7 +1160,7 @@ namespace AvionicsSystems
         #endregion
 
         #region Editor
-        private static readonly Material fovRendererMaterial = new Material(Shader.Find("Particles/Additive"));
+        private static readonly Material fovRendererMaterial = new Material(Shader.Find("Legacy Shaders/Particles/Additive"));
         private LineRenderer minFovRenderer;
         private GameObject maxFovPosition;
         private LineRenderer maxFovRenderer;

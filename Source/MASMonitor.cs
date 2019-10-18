@@ -338,7 +338,7 @@ namespace AvionicsSystems
 
                 comp.UnregisterMonitor(monitorID, internalProp, this);
 
-                GameObject.DestroyObject(screenSpace);
+                GameObject.Destroy(screenSpace);
                 screenSpace = null;
                 screenCamera = null;
             }
