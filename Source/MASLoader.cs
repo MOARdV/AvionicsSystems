@@ -457,8 +457,9 @@ namespace AvionicsSystems
         private AssetBundle LoadAssetBundle(string formatString, string suffix)
         {
             string assetBundleName = string.Format(formatString, suffix);
-            // TODO: Replace this with UnityWebRequest...?  Or can I load directly with
-            // AssetBundle now?
+            // TODO: This is obsolete, according to Unity's warning at compile time.  It says I should
+            // use UnityWebRequest.  I've tried to use AssetBundle.LoadFromFile(), but that fails.
+            // If I ever have time to play with Unity in the future, maybe I can fix this.
             WWW www = new WWW(assetBundleName);
 
             if (!string.IsNullOrEmpty(www.error))
