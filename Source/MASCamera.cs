@@ -1160,7 +1160,10 @@ namespace AvionicsSystems
         #endregion
 
         #region Editor
-        private static readonly Material fovRendererMaterial = new Material(Shader.Find("Legacy Shaders/Particles/Additive"));
+        // per JPLRepo:
+        // also there’s a lot of Unity calls that are not allowed in constructors. Like your static material there. Better to define it only as null and set it in Awake.
+        // So, although this works as-is, it's not allowed.
+        private static Material fovRendererMaterial = null;
         private LineRenderer minFovRenderer;
         private GameObject maxFovPosition;
         private LineRenderer maxFovRenderer;
@@ -1170,6 +1173,11 @@ namespace AvionicsSystems
         /// </summary>
         private void CreateFovRenderer()
         {
+            if (fovRendererMaterial == null)
+            {
+                fovRendererMaterial = new Material(Shader.Find("Legacy Shaders/Particles/Additive"));
+            }
+
             float minSpan = rayLength * 2.0f * (float)Math.Tan(Mathf.Deg2Rad * fovRange.x * 0.5f);
 
             part.OnEditorAttach += AttachPart;
