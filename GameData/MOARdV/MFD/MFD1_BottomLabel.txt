@@ -1,1 +1,1 @@
-[hw]    RSRC   ENGINE   NAVBALL  ------   {1:"DPAI ";"-----"}   {0:"SCANSAT";" ----- "}  CAMERA $&$ fc.AssemblyLoaded("SCANsat") - 0.5 ; fc.AssemblyLoaded("DPAI_RPM") - 0.5
+[hw]    RSRC   ENGINE   NAVBALL  {2:"VESSEL";"------"}   {1:"DPAI ";"-----"}   {0:"SCANSAT";" ----- "}  CAMERA $&$ fc.AssemblyLoaded("SCANsat") - 0.5 ; fc.AssemblyLoaded("DPAI_RPM") - 0.5 ; fc.AssemblyLoaded("VesselViewRPM") - 0.5
