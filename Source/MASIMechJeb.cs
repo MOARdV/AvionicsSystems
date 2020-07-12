@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2019 MOARdV
+ * Copyright (c) 2016-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -1462,7 +1462,8 @@ namespace AvionicsSystems
                 mjCore_t = Utility.GetExportedType("MechJeb2", "MuMech.MechJebCore");
                 if (mjCore_t == null)
                 {
-                    throw new ArgumentNullException("mjUserPool_t");
+                    // Mech Jeb isn't installed.  This isn't an exception.
+                    return;
                 }
                 mjVesselExtensions_t = Utility.GetExportedType("MechJeb2", "MuMech.VesselExtensions");
                 if (mjVesselExtensions_t == null)
