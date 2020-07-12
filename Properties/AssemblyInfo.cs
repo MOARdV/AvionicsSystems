@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("MOARdV")]
 [assembly: AssemblyProduct("AvionicsSystems")]
-[assembly: AssemblyCopyright("Copyright © 2016-2019 MOARdV")]
+[assembly: AssemblyCopyright("Copyright © 2016-2020 MOARdV")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
