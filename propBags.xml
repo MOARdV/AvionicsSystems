@@ -27,6 +27,16 @@
 			</TEXTURE_SHIFT>
 		</style>
 		<prop>
+			<name>MAS_BigBag</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.0, 0.0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.0, 0.0</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
 			<name>MAS_BigBag_Beverages</name>
 			<style>Big Bag</style>
 			<TEXTURE_SHIFT id="0">
@@ -34,6 +44,76 @@
 			</TEXTURE_SHIFT>
 			<TEXTURE_SHIFT id="1">
 				<startUV>0.5, 0.375</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_BigBag_EVAsupply01</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.75, 0.0</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_BigBag_EVAsupply02</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.125</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.75, 0.125</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_BigBag_EVAsupply03</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.25</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.75, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_BigBag_EVAsupply04</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.375</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.75, 0.375</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_BigBag_EVAsupply05</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.75, 0.5</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_BigBag_ExperimentSamples</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.75</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.75, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_BigBagExtraWater</name>
+			<style>Big Bag</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.50</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.50, 0.50</startUV>
 			</TEXTURE_SHIFT>
 		</prop>
 		<prop>
