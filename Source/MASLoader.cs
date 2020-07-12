@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2019 MOARdV
+ * Copyright (c) 2016-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -30,7 +30,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace AvionicsSystems
 {
@@ -457,23 +459,31 @@ namespace AvionicsSystems
         private AssetBundle LoadAssetBundle(string formatString, string suffix)
         {
             string assetBundleName = string.Format(formatString, suffix);
-            // TODO: This is obsolete, according to Unity's warning at compile time.  It says I should
-            // use UnityWebRequest.  I've tried to use AssetBundle.LoadFromFile(), but that fails.
-            // If I ever have time to play with Unity in the future, maybe I can fix this.
-            WWW www = new WWW(assetBundleName);
-
-            if (!string.IsNullOrEmpty(www.error))
+            AssetBundle bundle = null;
+            try
             {
-                Utility.LogError(this, "Error loading AssetBundle {1}: {0}", www.error, assetBundleName);
-                return null;
-            }
-            else if (www.assetBundle == null)
-            {
-                Utility.LogError(this, "Unable to load AssetBundle {0}", assetBundleName);
-                return null;
-            }
+                var uwr = UnityWebRequestAssetBundle.GetAssetBundle(assetBundleName);
+                // TODO: Make this a coroutine instead of a spin wait?
+                //yield return uwr.SendWebRequest();
+                uwr.SendWebRequest();
 
-            return www.assetBundle;
+                while (!uwr.isDone)
+                {
+                    Thread.Sleep(1);
+                }
+
+                // Get an asset from the bundle and instantiate it.
+                bundle = DownloadHandlerAssetBundle.GetContent(uwr);
+                if (bundle == null)
+                {
+                    Utility.LogError(this, "Failed to load asset bundle {0}", assetBundleName);
+                }
+            }
+            catch (Exception e)
+            {
+                Utility.LogError(this, "Exception trying to get asset bundle {0}: {1}", assetBundleName, e.ToString());
+            }
+            return bundle;
         }
 
         /// <summary>
