@@ -51,7 +51,7 @@
 				<anchor>MiddleCenter</anchor>
 				<transformOffset>0.0087, -0.0015</transformOffset>
 				<emissive>active</emissive>
-				<variable>fc.GetPersistentAsNumber("Backlight"))</variable>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
 				<blend>true</blend>
 				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
 				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
