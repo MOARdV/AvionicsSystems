@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2019 MOARdV
+ * Copyright (c) 2016-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -22,7 +22,6 @@
  * DEALINGS IN THE SOFTWARE.
  * 
  ****************************************************************************/
-using KSP.UI;
 using KSP.UI.Screens;
 using MoonSharp.Interpreter;
 using System;
@@ -1437,13 +1436,6 @@ namespace AvionicsSystems
                 fc.ap.DisengageAutopilots();
 
                 vessel.Autopilot.SetMode(mode);
-
-                if (SASbtns == null)
-                {
-                    SASbtns = UnityEngine.Object.FindObjectOfType<VesselAutopilotUI>().modeButtons;
-                }
-                // set our mode, note it takes the mode as an int, generally top to bottom, left to right, as seen on the screen. Maneuver node being the exception, it is 9
-                SASbtns[(int)mode].SetState(true);
             }
         }
         #endregion

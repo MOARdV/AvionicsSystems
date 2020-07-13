@@ -24,7 +24,6 @@
  * DEALINGS IN THE SOFTWARE.
  * 
  ****************************************************************************/
-using KSP.UI;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -150,12 +149,6 @@ namespace AvionicsSystems
         /// </summary>
         public Vector3 relativeHPR { get { return _relativeHPR; } }
         private Vector3 _relativeHPR = Vector3.zero;
-
-        /// <summary>
-        /// Reference to the UI buttons that display the current SAS mode, so we can keep
-        /// them updated.
-        /// </summary>
-        private UIStateToggleButton[] SASbtns = null;
 
         /// <summary>
         /// Were we asked to hold heading, pitch, and roll (or even just roll) relative to the reference vector?
@@ -476,13 +469,6 @@ namespace AvionicsSystems
             if (vessel.Autopilot.Mode != mode && vessel.Autopilot.CanSetMode(mode))
             {
                 vessel.Autopilot.SetMode(mode);
-
-                if (SASbtns == null)
-                {
-                    SASbtns = UnityEngine.Object.FindObjectOfType<VesselAutopilotUI>().modeButtons;
-                }
-                // set our mode, note it takes the mode as an int, generally top to bottom, left to right, as seen on the screen. Maneuver node being the exception, it is 9
-                SASbtns[(int)mode].SetState(true);
             }
         }
 

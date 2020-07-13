@@ -22,8 +22,6 @@
  * DEALINGS IN THE SOFTWARE.
  * 
  ****************************************************************************/
-using KSP.UI;
-using KSP.UI.Screens;
 using MoonSharp.Interpreter;
 using System;
 using System.Collections.Generic;
@@ -82,7 +80,6 @@ namespace AvionicsSystems
         internal MASIKerbalEngineer keProxy;
         internal MASIMechJeb mjProxy;
         internal Vessel vessel;
-        private UIStateToggleButton[] SASbtns = null;
 
         private VesselAutopilot.AutopilotMode autopilotMode = VesselAutopilot.AutopilotMode.StabilityAssist;
         private int vesselSituationConverted;
@@ -109,7 +106,6 @@ namespace AvionicsSystems
             keProxy = null;
             mjProxy = null;
             vessel = null;
-            SASbtns = null;
         }
 
         /// <summary>
