@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2019 MOARdV
+ * Copyright (c) 2016-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -22,7 +22,6 @@
  * DEALINGS IN THE SOFTWARE.
  * 
  ****************************************************************************/
-using KSP.UI.Screens.Flight;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -98,16 +97,6 @@ namespace AvionicsSystems
         /// the vessel to lose target track.
         /// </summary>
         private bool doubleClickDetected = false;
-
-        /// <summary>
-        /// A reference of the linear gauge used for atmospheric depth.
-        /// </summary>
-        private KSP.UI.Screens.LinearGauge atmosphereDepthGauge;
-
-        /// <summary>
-        /// A reference of the navBall to easily deduce flight information.
-        /// </summary>
-        internal NavBall navBall;
 
         /// <summary>
         /// What world / star are we orbiting?
@@ -310,22 +299,6 @@ namespace AvionicsSystems
             }
             //Utility.LogMessage(this, "Awake() for {0}", vessel.id);
 
-            navBall = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.NavBall>();
-            if (navBall == null)
-            {
-                Utility.LogError(this, "navBall was null!");
-            }
-            LinearAtmosphereGauge linearAtmosGauge = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.LinearAtmosphereGauge>();
-            if (linearAtmosGauge == null)
-            {
-                Utility.LogError(this, "linearAtmosGauge was null!");
-                atmosphereDepthGauge = new KSP.UI.Screens.LinearGauge();
-            }
-            else
-            {
-                atmosphereDepthGauge = linearAtmosGauge.gauge;
-            }
-
             mainBody = vessel.mainBody;
             vesselId = vessel.id;
             orbit = vessel.orbit;
@@ -368,9 +341,7 @@ namespace AvionicsSystems
 
             vesselId = Guid.Empty;
             orbit = null;
-            atmosphereDepthGauge = null;
             mainBody = null;
-            navBall = null;
             activeTarget = null;
         }
         #endregion
@@ -537,7 +508,7 @@ namespace AvionicsSystems
         {
             get
             {
-                return Mathf.Clamp01(atmosphereDepthGauge.Value);
+                return (mainBody.atmosphere) ? Mathf.Clamp01((float)(vessel.atmDensity / mainBody.atmDensityASL)) : 0.0;                
             }
         }
         internal double apoapsis;
@@ -559,6 +530,9 @@ namespace AvionicsSystems
         }
 
         #region Attitudes
+        /// <summary>
+        /// Surface Attitude is pitch, heading, roll
+        /// </summary>
         private Vector3 surfaceAttitude;
         internal float heading
         {
@@ -646,14 +620,24 @@ namespace AvionicsSystems
             }
         }
 
+        // The vessel's transform is rotated about the x axis 90 degrees, which is why "forward" uses the "up" transform, for instance;
+        // we need to correct the reference transform's orientation using this transform.
+        private readonly Quaternion vesselOrientationCorrection = Quaternion.Euler(90.0f, 0.0f, 0.0f);
+
         void UpdateAttitude()
         {
-            Quaternion relativeGimbal = navBall.relativeGymbal;
+            navballAttitudeGimbal = vesselOrientationCorrection * Quaternion.Inverse(referenceTransform.rotation);
+
+            Vector3 relativePositionVector = (referenceTransform.position - mainBody.position).normalized;
+
+            Quaternion relativeGimbal = navballAttitudeGimbal * Quaternion.LookRotation(
+                Vector3.ProjectOnPlane(relativePositionVector + mainBody.transform.up, (relativePositionVector)),
+                relativePositionVector);
+            
             // We have to do all sorts of voodoo to get the navball
             // gimbal rotated so the rendered navball behaves the same
             // as navballs.
             navballRelativeGimbal = navballYRotate * MirrorXAxis(relativeGimbal);
-            navballAttitudeGimbal = navBall.attitudeGymbal;
             surfaceAttitude = Quaternion.Inverse(relativeGimbal).eulerAngles;
             if (surfaceAttitude.x > 180.0f)
             {

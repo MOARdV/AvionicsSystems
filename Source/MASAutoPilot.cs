@@ -3,7 +3,7 @@
 /*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2019 MOARdV
+ * Copyright (c) 2019-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -115,8 +115,6 @@ namespace AvionicsSystems
         private KerbalFSM ascentPilot = new KerbalFSM();
 #endif
 
-        private KSP.UI.Screens.Flight.NavBall navBall;
-
         /// <summary>
         /// A representation of the maximum deflection from prograde that is allowed.
         /// 
@@ -222,6 +220,10 @@ namespace AvionicsSystems
 
         #region Ascent Interface
 
+        // The vessel's transform is rotated about the x axis 90 degrees, which is why "forward" uses the "up" transform, for instance;
+        // we need to correct the reference transform's orientation using this transform.
+        private readonly Quaternion vesselOrientationCorrection = Quaternion.Euler(90.0f, 0.0f, 0.0f);
+
         /// <summary>
         /// Disengage the ascent autopilot.
         /// </summary>
@@ -265,11 +267,14 @@ namespace AvionicsSystems
                 return false;
             }
 
-            if (navBall == null)
-            {
-                navBall = UnityEngine.Object.FindObjectOfType<KSP.UI.Screens.Flight.NavBall>();
-            }
-            Quaternion relativeGimbal = navBall.relativeGymbal;
+            Quaternion navballAttitudeGimbal = vesselOrientationCorrection * Quaternion.Inverse(vessel.ReferenceTransform.rotation);
+
+            Vector3 relativePositionVector = (vessel.ReferenceTransform.position - vessel.mainBody.position).normalized;
+
+            Quaternion relativeGimbal = navballAttitudeGimbal * Quaternion.LookRotation(
+                Vector3.ProjectOnPlane(relativePositionVector + vessel.mainBody.transform.up, (relativePositionVector)),
+                relativePositionVector);
+
             Vector3 surfaceAttitude = Quaternion.Inverse(relativeGimbal).eulerAngles;
             // Heading is in Y.  Pitch and roll are X and Z, respectively,
             // but they require a little more processing:
