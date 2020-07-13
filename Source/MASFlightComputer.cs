@@ -3,7 +3,7 @@
 /*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2019 MOARdV
+ * Copyright (c) 2016-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -1282,58 +1282,70 @@ namespace AvionicsSystems
                 // don't use the proxy system included in MoonSharp, since it
                 // creates a proxy object for every single script.Call(), which
                 // means plenty of garbage...
+                string whichProxy = string.Empty;
                 try
                 {
+                    whichProxy = "chatterer";
                     chattererProxy = new MASIChatterer();
                     UserData.RegisterType<MASIChatterer>();
                     script.Globals["chatterer"] = chattererProxy;
                     registeredTables.Add("chatterer", new MASRegisteredTable(chattererProxy));
 
+                    whichProxy = "engine";
                     engineProxy = new MASIEngine();
                     UserData.RegisterType<MASIEngine>();
                     script.Globals["engine"] = engineProxy;
                     registeredTables.Add("engine", new MASRegisteredTable(engineProxy));
 
+                    whichProxy = "far";
                     farProxy = new MASIFAR(vessel);
                     UserData.RegisterType<MASIFAR>();
                     script.Globals["far"] = farProxy;
                     registeredTables.Add("far", new MASRegisteredTable(farProxy));
 
+                    whichProxy = "kac";
                     kacProxy = new MASIKAC(vessel);
                     UserData.RegisterType<MASIKAC>();
                     script.Globals["kac"] = kacProxy;
                     registeredTables.Add("kac", new MASRegisteredTable(kacProxy));
 
+                    whichProxy = "ke";
                     keProxy = new MASIKerbalEngineer();
                     UserData.RegisterType<MASIKerbalEngineer>();
                     script.Globals["ke"] = keProxy;
                     registeredTables.Add("ke", new MASRegisteredTable(keProxy));
 
+                    whichProxy = "mechjeb";
                     mjProxy = new MASIMechJeb();
                     UserData.RegisterType<MASIMechJeb>();
                     script.Globals["mechjeb"] = mjProxy;
                     registeredTables.Add("mechjeb", new MASRegisteredTable(mjProxy));
 
+                    whichProxy = "nav";
                     navProxy = new MASINavigation(vessel, this);
                     UserData.RegisterType<MASINavigation>();
                     script.Globals["nav"] = navProxy;
                     registeredTables.Add("nav", new MASRegisteredTable(navProxy));
 
+                    whichProxy = "parachute";
                     parachuteProxy = new MASIParachute(vessel);
                     UserData.RegisterType<MASIParachute>();
                     script.Globals["parachute"] = parachuteProxy;
                     registeredTables.Add("parachute", new MASRegisteredTable(parachuteProxy));
 
+                    whichProxy = "transfer";
                     transferProxy = new MASITransfer(vessel);
                     UserData.RegisterType<MASITransfer>();
                     script.Globals["transfer"] = transferProxy;
                     registeredTables.Add("transfer", new MASRegisteredTable(transferProxy));
 
+                    whichProxy = "vtol";
                     vtolProxy = new MASIVTOL();
                     UserData.RegisterType<MASIVTOL>();
                     script.Globals["vtol"] = vtolProxy;
                     registeredTables.Add("vtol", new MASRegisteredTable(vtolProxy));
 
+                    whichProxy = "fc";
                     fcProxy = new MASFlightComputerProxy(this, farProxy, keProxy, mjProxy);
                     UserData.RegisterType<MASFlightComputerProxy>();
                     script.Globals["fc"] = fcProxy;
@@ -1341,9 +1353,10 @@ namespace AvionicsSystems
                 }
                 catch (Exception e)
                 {
-                    Utility.LogError(this, "Proxy object configuration failed:");
+                    Utility.LogError(this, "Proxy object {0} configuration failed:", whichProxy);
                     Utility.LogError(this, e.ToString());
                     Utility.ComplainLoudly("Initialization Failed.  Please check KSP.log");
+                    return;
                 }
 
                 vc = MASPersistent.FetchVesselComputer(vessel);
