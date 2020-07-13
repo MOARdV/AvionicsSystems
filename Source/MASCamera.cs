@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2017-2019 MOARdV
+ * Copyright (c) 2017-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -322,16 +322,18 @@ namespace AvionicsSystems
         {
             "GalaxyCamera",
             "Camera ScaledSpace",
-            "Camera 01",
+            "Camera 01", // Far camera - Not used by KSP 1.9.0 or later in DX
             "Camera 00",
             "FXCamera"
         };
+        private static readonly int farCameraIdx = 2;
         private Camera scaledSpace;
         private readonly Camera[] cameras = { null, null, null, null, null };
         private readonly GameObject[] cameraBody = { null, null, null, null, null };
         internal RenderTexture cameraRentex;
         internal event Action<RenderTexture, Material> renderCallback;
         private bool cameraLive;
+        private bool useD3DCamera = false;
 
         /*
          * Camera notes:
@@ -342,6 +344,10 @@ namespace AvionicsSystems
          * Camera 01 = 8A'8013 -> Default | TransparentFX | Water | Local Scenery | Editor_UI | Disconnected Parts | ScaledSpaceSun
          * Camera 02 = 8A'8013 -> Default | TransparentFX | Water | Local Scenery | Editor_UI | Disconnected Parts | ScaledSpaceSun
          * FXCamera = 2'0001 -> Default | Editor_UI
+         * 
+         * KSP 1.9.0 introduced a change for D3D cameras where the far camera (Camera 01) was eliminated, so
+         * we now have to play games with checking the renderer + game version to decide when to skip trying
+         * to instantiate a clone of Camera 01.
          */
 
         private MASDeployableCamera deploymentController;
@@ -369,6 +375,11 @@ namespace AvionicsSystems
             if (!(HighLogic.LoadedScene == GameScenes.EDITOR || HighLogic.LoadedScene == GameScenes.FLIGHT))
             {
                 return;
+            }
+
+            if (SystemInfo.graphicsDeviceVersion.StartsWith("Direct3D"))
+            {
+                useD3DCamera = (Versioning.version_major > 1 || Versioning.version_minor >= 9);
             }
 
             if (knownCameraNames.Length != cameras.Length)
@@ -566,7 +577,7 @@ namespace AvionicsSystems
                 // or 750:1 Far/Near ratio.  Changing this to 8192:1 brings the
                 // near plane to 37cm or so, which hopefully is close enough to
                 // see nearby details without creating z-fighting artifacts.
-                if (index == 3 || index == 4)
+                if (!useD3DCamera && (index == 3 || index == 4))
                 {
                     cameras[index].nearClipPlane = cameras[index].farClipPlane / 8192.0f;
                 }
@@ -612,7 +623,10 @@ namespace AvionicsSystems
 
             for (int i = 0; i < cameras.Length; ++i)
             {
-                ConstructCamera(i);
+                if (!useD3DCamera || i != farCameraIdx)
+                {
+                    ConstructCamera(i);
+                }
             }
 
             activeMode = Mathf.Clamp(activeMode, 0, mode.Length - 1);
@@ -1085,7 +1099,10 @@ namespace AvionicsSystems
                     {
                         if (cameras[i] == null)
                         {
-                            ConstructCamera(i);
+                            if (!useD3DCamera || i != farCameraIdx)
+                            {
+                                ConstructCamera(i);
+                            }
                         }
 
                         // It looks like the FXCamera can be null when the vessel being loaded isn't the current vessel
