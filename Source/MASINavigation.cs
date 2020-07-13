@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2019 MOARdV
+ * Copyright (c) 2016-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -90,7 +90,7 @@ namespace AvionicsSystems
                                 launchSite.longitude = longitude;
                                 launchSite.celestialName = ksc.hostBody.name;
                                 launchSite.altitude = altitude;
-                                launchSite.name = KSP.Localization.Localizer.GetStringByTag(ksc.facilityDisplayName);
+                                launchSite.name = string.IsNullOrEmpty(ksc.facilityDisplayName) ? "Launch Site" : KSP.Localization.Localizer.GetStringByTag(ksc.facilityDisplayName);
                                 launchSite.index = 256; // ?
                                 launchSite.navigationId = Guid.NewGuid();
                                 launchSite.id = "vessel"; // seems to be icon name.  May be WPM-specific.
@@ -112,7 +112,7 @@ namespace AvionicsSystems
                                 launchSite.longitude = longitude;
                                 launchSite.celestialName = site.Body.name;
                                 launchSite.altitude = altitude;
-                                launchSite.name = KSP.Localization.Localizer.GetStringByTag(site.launchSiteName);
+                                launchSite.name = string.IsNullOrEmpty(site.launchSiteName) ? "Launch Site" : KSP.Localization.Localizer.GetStringByTag(site.launchSiteName);
                                 launchSite.index = 256; // ?
                                 launchSite.navigationId = Guid.NewGuid();
                                 launchSite.id = "vessel"; // seems to be icon name.  May be WPM-specific.
