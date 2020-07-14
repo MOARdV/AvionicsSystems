@@ -12,4 +12,408 @@
 	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
 	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
 	-->
+	<LightSwitch folder="LightSwitch">
+		<style name="Push Button">
+			<MODEL>
+				<model>ASET/ASET_Props/Control/LightSwitch/SwitchLightButton</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Collider</name>
+				<collider>SwitchPUSHcollider</collider>
+				<sound>ASET/ASET_Props/Sounds/buttonbeep</sound>
+				<volume>0.5</volume>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="0">
+				<name>Label Illumination</name>
+				<transform>SwitchNamePlate</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_PUSHBUTTON_BACKLIGHT_ACTIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Border Illumination</name>
+				<transform>buttonBorder</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_STANDART_PUSHBUTTON_ACTIVECOLOR</activeColor>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<name>Switch animation</name>
+				<animation>SwitchLightAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<name>Label</name>
+				<transform>SwitchNamePlate</transform>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_AirLockLightSwitch</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("AirLockLights")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<activeColor>130,60,20,255</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("AirLockLights"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER id="0">
+				<variable>fc.GetPersistentAsNumber("AirLockLights")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.25, 0.50</startUV>
+			</TEXTURE_SHIFT>
+			<ANIMATION_PLAYER id="1">
+				<name>External Airlock Lights</name>
+				<externalAnimation>AirLockLightsAnim</externalAnimation>
+				<variable>fc.GetPersistentAsNumber("AirLockLights")</variable>
+			</ANIMATION_PLAYER>
+		</prop>
+		<prop>
+			<name>MAS_CockpitBackLightSwitch</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("Backlight")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="0">
+				<!-- Backlight's button is always illuminated -->
+				<variable>fc.Conditioned(1)</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<passiveColor>10,10,10,255</passiveColor>
+				<activeColor>130,130,150,255</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("Backlight")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.0, 0.5</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_CockpitLightSwitch</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("TurnInternalCockpitLights")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<passiveColor>10,10,10,255</passiveColor>
+				<activeColor>60,90,180,255</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("TurnInternalCockpitLights"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER id="0">
+				<variable>fc.GetPersistentAsNumber("TurnInternalCockpitLights")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.00</startUV>
+			</TEXTURE_SHIFT>
+			<INT_LIGHT>
+				<lightName>CockpitLight</lightName>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("TurnInternalCockpitLights"))</variable>
+			</INT_LIGHT>
+		</prop>
+		<prop>
+			<name>MAS_DockportSpotlightSwitch</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("DockingSpotlight")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<activeColor>130,60,20,255</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("DockingSpotlight"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER id="0">
+				<variable>fc.GetPersistentAsNumber("DockingSpotlight")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.25, 0.25</startUV>
+			</TEXTURE_SHIFT>
+			<ANIMATION_PLAYER id="1">
+				<name>External Docking Port Lights</name>
+				<externalAnimation>DockingSpotlightAnim</externalAnimation>
+				<variable>fc.GetPersistentAsNumber("DockingSpotlight")</variable>
+			</ANIMATION_PLAYER>
+		</prop>
+		<prop>
+			<name>MAS_EngineerDeckLightSwitch</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("TurnEngineerDeckLight")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<passiveColor>10,10,10,255</passiveColor>
+				<activeColor>60,90,180,255</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("TurnEngineerDeckLight"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER id="0">
+				<variable>fc.GetPersistentAsNumber("TurnEngineerDeckLight")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.75</startUV>
+			</TEXTURE_SHIFT>
+			<INT_LIGHT>
+				<lightName>EngineerDeckLight</lightName>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("TurnEngineerDeckLight"))</variable>
+			</INT_LIGHT>
+		</prop>
+		<prop>
+			<name>MAS_FloodLightSwitch</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("FloodLight")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<passiveColor>10,10,10,255</passiveColor>
+				<activeColor>130,60,20,255</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("FloodLight"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER id="0">
+				<variable>fc.GetPersistentAsNumber("FloodLight")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.25</startUV>
+			</TEXTURE_SHIFT>
+			<INT_LIGHT>
+				<lightName>FloodLight</lightName>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("FloodLight"))</variable>
+			</INT_LIGHT>
+			<ANIMATION_PLAYER id="1">
+				<externalAnimation>WindowsEmissveAnim</externalAnimation>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("FloodLight"))</variable>
+			</ANIMATION_PLAYER>
+		</prop>
+		<prop>
+			<name>MAS_NothingSwitch01</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("%AUTOID%"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_NothingSwitch02</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("%AUTOID%"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_NothingSwitch03</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("%AUTOID%"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.25, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_NothingSwitch04</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("%AUTOID%"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_NothingSwitch05</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("%AUTOID%"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_NothingSwitch06</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("%AUTOID%"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.50</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_NothingSwitch07</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("%AUTOID%"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_NothingSwitch08</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("%AUTOID%"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.50</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_NothingSwitch09</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("%AUTOID%"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_NothingSwitch10</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("%AUTOID%"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.00</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_NothingSwitch11</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("%AUTOID%"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_NothingSwitch12</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("%AUTOID%"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.50</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_NothingSwitch13</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("%AUTOID%")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("%AUTOID%"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPersistentAsNumber("%AUTOID%")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_StrobeLightSwitch</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePersistent("StrobeLights")</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<activeColor>130,60,20,255</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("StrobeLights"))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER id="0">
+				<variable>fc.GetPersistentAsNumber("StrobeLights")</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.25, 0.75</startUV>
+			</TEXTURE_SHIFT>
+			<ANIMATION_PLAYER id="1">
+				<externalAnimation>NavLightsAnim</externalAnimation>
+				<variable>fc.GetPersistentAsNumber("StrobeLights")</variable>
+				<loop>true</loop>
+				<animationSpeed>0.125</animationSpeed>
+			</ANIMATION_PLAYER>
+		</prop>
+	</LightSwitch>
 </PropConfig>
