@@ -416,4 +416,51 @@
 			</ANIMATION_PLAYER>
 		</prop>
 	</LightSwitch>
+	<PanelDivider folder="PanelDivider">
+		<style name="Panel Divider">
+			<MODEL>
+				<model>ASET/ASET_Props/Misc/PanelDivider/PanelDivider</model>
+			</MODEL>
+			<COLOR_SHIFT id="0">
+				<name>BackLight On/Off	</name>
+				<transform>PanelDivider</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_PANELDIVIDER_PRIMARY_BACKLIGHTCOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_PanelDivider</name>
+			<style>Panel Divider</style>
+		</prop>
+		<prop>
+			<name>MAS_PanelDividerBLUE</name>
+			<style>Panel Divider</style>
+			<COLOR_SHIFT id="0">
+				<activeColor>15,65,255,255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_PanelDividerGREEN</name>
+			<style>Panel Divider</style>
+			<COLOR_SHIFT id="0">
+				<activeColor>95,175,0,255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_PanelDividerORANGE</name>
+			<style>Panel Divider</style>
+			<COLOR_SHIFT id="0">
+				<activeColor>220,90,10,255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_PanelDividerRED</name>
+			<style>Panel Divider</style>
+			<COLOR_SHIFT id="0">
+				<activeColor>210,0,0,255</activeColor>
+			</COLOR_SHIFT>
+		</prop>
+	</PanelDivider>
 </PropConfig>
