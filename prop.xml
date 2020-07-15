@@ -1140,14 +1140,14 @@
 			<TEXT_LABEL>
 				<text>ALARM</text>
 			</TEXT_LABEL>
-			<!-- 
+			<!--
 			Using a bitfield for the master alarm and master caution lamps allows multiple overlapping alarms.
 			With a couple of extra functions in MAS, we can even figure out exactly which alarms are active
 			from this persistent number.  Using the bitfields also means we can have multiple alarm props installed
 			on the vessel, and we don't need to worry about the alarm counts getting out of synch.
-			
+
 			We could also create a prop to suppress the alarms by setting MAS_MasterAlarm or MAS_MasterCaution to 0.
-			
+
 			We can use up to 32 unique alarms if we really wanted to.
 			-->
 			<TRIGGER_EVENT id="0">
@@ -1462,6 +1462,67 @@
 				<colorName>_EmissiveColor</colorName>
 			</COLOR_SHIFT>
 		</style>
+		<style name="EPG Plate">
+			<!-- Style used only by the EPG plate -->
+			<MODEL>
+				<model>ASET/ASET_Props/Misc/SmallLabelPlate/SmallLabelPlate</model>
+			</MODEL>
+			<TEXT_LABEL>
+				<name>Name Plate</name>
+				<transform>TextObj</transform>
+				<fontSize>10.6</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<transformOffset>0.048,-0.006</transformOffset>
+				<emissive>always</emissive>
+				<passiveColor>COLOR_ASET_PLATETEXT_ZEROCOLOR</passiveColor>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>Plate Diffuse</name>
+				<transform>SmallLablePlate</transform>
+				<activeColor>200,200,200,255</activeColor>
+				<passiveColor>255,0,0,255</passiveColor>
+				<colorName>_Color</colorName>
+				<variable>fc.Conditioned(1)</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Plate Emissive</name>
+				<transform>SmallLablePlate</transform>
+				<activeColor>0,0,0,255</activeColor>
+				<passiveColor>255,0,0,255</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+				<variable>fc.Conditioned(1)</variable>
+			</COLOR_SHIFT>
+		</style>
+		<style name="MechJeb Plate">
+			<!-- Style used only by the AFC plate -->
+			<MODEL>
+				<model>ASET/ASET_Props/Misc/SmallLabelPlate/SmallLabelPlate</model>
+			</MODEL>
+			<TEXT_LABEL>
+				<name>Name Plate</name>
+				<transform>TextObj</transform>
+				<fontSize>3.6</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<!-- <transformOffset>0.048,-0.006</transformOffset> -->
+				<transformOffset>0.048,-0.008</transformOffset>
+				<emissive>never</emissive>
+				<passiveColor>0,0,0,255</passiveColor>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>Plate Diffuse</name>
+				<transform>SmallLablePlate</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>10,180,50,255</activeColor>
+				<colorName>_EmissiveColor</colorName>
+				<variable>fc.Conditioned(mechjeb.Available())</variable>
+			</COLOR_SHIFT>
+		</style>
 		<prop>
 			<name>MAS_ActionGroupPlate00</name>
 			<style>Small Plate</style>
@@ -1533,6 +1594,13 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_SmallPlate_Actions</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>ACTIONS</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_SmallPlate_ActionGroup</name>
 			<style>Small Plate</style>
 			<TEXT_LABEL>
@@ -1540,10 +1608,24 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_SmallPlate_AFC_MechJeb</name>
+			<style>MechJeb Plate</style>
+			<TEXT_LABEL>
+				<text>AUTOMATED FLIGHT CONTROL$$$UNIT (MECHJEB)</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_SmallPlate_ARRT</name>
 			<style>Small Plate</style>
 			<TEXT_LABEL>
 				<text>ARRT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_AscentSeq</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>ASCENT SEQ</text>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
@@ -1558,6 +1640,13 @@
 			<style>Small Plate</style>
 			<TEXT_LABEL>
 				<text>ATTITUDE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Autopilot</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>AUTOPILOT</text>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
@@ -1617,6 +1706,13 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_SmallPlate_DockingSeq</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>DOCKING SEQ</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_SmallPlate_EngineControl</name>
 			<style>Small Plate</style>
 			<TEXT_LABEL>
@@ -1645,6 +1741,13 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_SmallPlate_EPG</name>
+			<style>EPG Plate</style>
+			<TEXT_LABEL>
+				<text>▌▌EPG▐▐</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_SmallPlate_Exterior_Light</name>
 			<style>Small Plate</style>
 			<TEXT_LABEL>
@@ -1656,6 +1759,13 @@
 			<style>Small Plate</style>
 			<TEXT_LABEL>
 				<text>GPWS CTRL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_GearStatus</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>GEAR STATUS</text>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
@@ -1673,13 +1783,6 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
-			<name>MAS_SmallPlate_Lights</name>
-			<style>Small Plate</style>
-			<TEXT_LABEL>
-				<text>LIGHTS</text>
-			</TEXT_LABEL>
-		</prop>
-		<prop>
 			<name>MAS_SmallPlate_Int_Lights</name>
 			<style>Small Plate</style>
 			<TEXT_LABEL>
@@ -1687,10 +1790,66 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_SmallPlate_LandingSeq</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>LANDING SEQ</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Lights</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>LIGHTS</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_LiquidFuel</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>LIQUID FUEL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_LSS_Status</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>LSS STATUS</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Maneuver</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>MANEUVER</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_SmallPlate_MechJeb</name>
 			<style>Small Plate</style>
 			<TEXT_LABEL>
 				<text>MECHJEB</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_OMS_Status</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>OMS STATUS</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Orbit</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>ORBIT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Oxidizer</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>OXIDIZER</text>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
@@ -1715,6 +1874,34 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_SmallPlate_PowerSupply</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>POWER SUPPLY</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Propellants</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>PROPELLANTS</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Propulsion</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>PROPULSION</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Protection</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>PROTECTION</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_SmallPlate_Radiator</name>
 			<style>Small Plate</style>
 			<TEXT_LABEL>
@@ -1729,10 +1916,122 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_SmallPlate_RCSFuel</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>RCS FUEL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Reserves</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>RESERVES</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Roll</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>ROLL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_SmallPlate_SAS</name>
 			<style>Small Plate</style>
 			<TEXT_LABEL>
 				<text>SAS / ATT CTRL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_SAS2</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>SAS</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_SASMode</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>SAS MODE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_SASOnOff</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>SAS ON/OFF</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_SolidFuel</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>SOLID FUEL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_StabCtrl</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>STAB. CTRL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Staging</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>STAGING</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Surface</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>SURFACE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Target</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>TARGET</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Temperature</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>TEMPERATURE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Thermal</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>THERMAL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_ThrustCtrl</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>THRUST CTRL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_WheelsBrakes</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>WHEELS/BRAKES</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Xenon</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>XENON</text>
 			</TEXT_LABEL>
 		</prop>
 	</SmallPlate>
@@ -2698,7 +2997,7 @@
 			</ANIMATION>
 		</prop>
 	</ElecOutput>
-	
+
 	<Talkback folder="ASET_Talkback_Indicator">
 		<style name="TB2">
 			<MODEL>
