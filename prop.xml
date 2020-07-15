@@ -129,6 +129,31 @@
 			</TEXT_LABEL>
 		</style>
 		<prop>
+			<name>MAS_CrewManual_DataProcessing</name>
+			<style>ASET_Manual</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="2">
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="3">
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>Data Processing$$$System Dictionary</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>Data Processing System Dictionary</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>ALC00236-A2, REV A</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_CrewManual_AscentChklist</name>
 			<style>ASET_Manual</style>
 			<TEXTURE_SHIFT id="0">
@@ -148,31 +173,6 @@
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
 				<text>Ascent Checklist</text>
-			</TEXT_LABEL>
-			<TEXT_LABEL id="2">
-				<text>ALC00236-A2, REV A</text>
-			</TEXT_LABEL>
-		</prop>
-		<prop>
-			<name>MAS_CrewManual_TakeOffChecklist</name>
-			<style>ASET_Manual</style>
-			<TEXTURE_SHIFT id="0">
-				<startUV>0.5, 0</startUV>
-			</TEXTURE_SHIFT>
-			<TEXTURE_SHIFT id="1">
-				<startUV>0.5, 0</startUV>
-			</TEXTURE_SHIFT>
-			<TEXTURE_SHIFT id="2">
-				<startUV>0.5, 0</startUV>
-			</TEXTURE_SHIFT>
-			<TEXTURE_SHIFT id="3">
-				<startUV>0.5, 0</startUV>
-			</TEXTURE_SHIFT>
-			<TEXT_LABEL id="0">
-				<text>Take-Off Checklist</text>
-			</TEXT_LABEL>
-			<TEXT_LABEL id="1">
-				<text>Take-Off Checklist</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="2">
 				<text>ALC00236-A2, REV A</text>
@@ -273,6 +273,31 @@
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
 				<text>In-Flight Maintenance</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>ALC00236-A2, REV A</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_CrewManual_MalfunctionChklist</name>
+			<style>ASET_Manual</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.25, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.25, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="2">
+				<startUV>0.25, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="3">
+				<startUV>0.25, 0.5</startUV>
+			</TEXTURE_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>Malfunction$$$Checklist</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>Malfunction Checklist</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="2">
 				<text>ALC00236-A2, REV A</text>
@@ -454,25 +479,25 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
-			<name>MAS_CrewManual_MalfunctionChklist</name>
+			<name>MAS_CrewManual_TakeOffChecklist</name>
 			<style>ASET_Manual</style>
 			<TEXTURE_SHIFT id="0">
-				<startUV>0.25, 0.5</startUV>
+				<startUV>0.5, 0</startUV>
 			</TEXTURE_SHIFT>
 			<TEXTURE_SHIFT id="1">
-				<startUV>0.25, 0.5</startUV>
+				<startUV>0.5, 0</startUV>
 			</TEXTURE_SHIFT>
 			<TEXTURE_SHIFT id="2">
-				<startUV>0.25, 0.5</startUV>
+				<startUV>0.5, 0</startUV>
 			</TEXTURE_SHIFT>
 			<TEXTURE_SHIFT id="3">
-				<startUV>0.25, 0.5</startUV>
+				<startUV>0.5, 0</startUV>
 			</TEXTURE_SHIFT>
 			<TEXT_LABEL id="0">
-				<text>Malfunction$$$Checklist</text>
+				<text>Take-Off Checklist</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
-				<text>Malfunction Checklist</text>
+				<text>Take-Off Checklist</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="2">
 				<text>ALC00236-A2, REV A</text>
