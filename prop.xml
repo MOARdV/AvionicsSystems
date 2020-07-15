@@ -1463,6 +1463,76 @@
 			</COLOR_SHIFT>
 		</style>
 		<prop>
+			<name>MAS_ActionGroupPlate00</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>{0} $#$ fc.ActionGroupMemo(0, false)</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_ActionGroupPlate01</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>{0} $#$ fc.ActionGroupMemo(1, false)</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_ActionGroupPlate02</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>{0} $#$ fc.ActionGroupMemo(2, false)</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_ActionGroupPlate03</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>{0} $#$ fc.ActionGroupMemo(3, false)</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_ActionGroupPlate04</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>{0} $#$ fc.ActionGroupMemo(4, false)</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_ActionGroupPlate05</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>{0} $#$ fc.ActionGroupMemo(5, false)</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_ActionGroupPlate06</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>{0} $#$ fc.ActionGroupMemo(6, false)</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_ActionGroupPlate07</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>{0} $#$ fc.ActionGroupMemo(7, false)</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_ActionGroupPlate08</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>{0} $#$ fc.ActionGroupMemo(8, false)</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_ActionGroupPlate09</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>{0} $#$ fc.ActionGroupMemo(9, false)</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_SmallPlate_ActionGroup</name>
 			<style>Small Plate</style>
 			<TEXT_LABEL>
@@ -1474,6 +1544,48 @@
 			<style>Small Plate</style>
 			<TEXT_LABEL>
 				<text>ARRT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Atmosphere</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>ATMOSPHERE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Attitude</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>ATTITUDE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_AuxLight</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>AUX LIGHTS</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_AVAS_CTRL</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>AVAS CTRL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Brakes</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>BRAKES</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_CautionsAndWarnings</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>CAUTION AND WARNING SYSTEM</text>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
@@ -1491,10 +1603,66 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_SmallPlate_Contact</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>CONTACT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_SmallPlate_Docking</name>
 			<style>Small Plate</style>
 			<TEXT_LABEL>
 				<text>DOCKING</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_EngineControl</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>ENGINE CTRL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_EngineStatus</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>ENGINE STATUS</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Environment</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>ENVIRONMENT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Environmental_Ctrl</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>ENVIR. CONTROL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Exterior_Light</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>EXTERIOR LTG</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_GPWS_CTRL</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>GPWS CTRL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Horizontal</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>HORIZONTAL</text>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
@@ -1509,6 +1677,13 @@
 			<style>Small Plate</style>
 			<TEXT_LABEL>
 				<text>LIGHTS</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SmallPlate_Int_Lights</name>
+			<style>Small Plate</style>
+			<TEXT_LABEL>
+				<text>INT. LIGHTS</text>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
