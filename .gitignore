@@ -278,3 +278,4 @@ Assembly-CSharp-Editor.csproj
 *.manifest
 Assets/AssetBundles/AssetBundles
 Package.bat
+updateProps.bat
