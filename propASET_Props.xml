@@ -12,6 +12,173 @@
 	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
 	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
 	-->
+	<CircuitBreaker folder="CircuitBreaker">
+		<style name="Breaker">
+			<MODEL>
+				<model>ASET/ASET_Props/Control/CircuitBreaker/CircuitBreaker</model>
+			</MODEL>
+			<TEXTURE_SHIFT id="0">
+				<name>Handle</name>
+				<transform>CB_HandleObj</transform>
+				<layers>_MainTex</layers>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<name>Label</name>
+				<transform>CB_LableObj</transform>
+				<layers>_MainTex</layers>
+			</TEXTURE_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_CircuitBreakerB0</name>
+			<style>Breaker</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0.667</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.000, 0.667</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_CircuitBreakerB3</name>
+			<style>Breaker</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0.667</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.333, 0.667</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_CircuitBreakerB5</name>
+			<style>Breaker</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0.667</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.333, 0.333</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_CircuitBreakerB7</name>
+			<style>Breaker</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0.667</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.667, 0.667</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_CircuitBreakerB10</name>
+			<style>Breaker</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0.667</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.333, 0.000</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_CircuitBreakerR0</name>
+			<style>Breaker</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.000, 0.667</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_CircuitBreakerR3</name>
+			<style>Breaker</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.333, 0.667</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_CircuitBreakerR5</name>
+			<style>Breaker</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.333, 0.333</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_CircuitBreakerR7</name>
+			<style>Breaker</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.667, 0.667</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_CircuitBreakerR10</name>
+			<style>Breaker</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.333, 0.000</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_CircuitBreakerY0</name>
+			<style>Breaker</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0.333</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.000, 0.667</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_CircuitBreakerY3</name>
+			<style>Breaker</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0.333</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.333, 0.667</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_CircuitBreakerY5</name>
+			<style>Breaker</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0.333</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.333, 0.333</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_CircuitBreakerY7</name>
+			<style>Breaker</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0.333</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.667, 0.667</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_CircuitBreakerY10</name>
+			<style>Breaker</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0, 0.333</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.333, 0.000</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+	</CircuitBreaker>
 	<LightSwitch folder="LightSwitch">
 		<style name="Push Button">
 			<MODEL>
@@ -463,4 +630,297 @@
 			</COLOR_SHIFT>
 		</prop>
 	</PanelDivider>
+	<SASSwitch folder="SAS_Switch">
+		<style name="Push Button">
+			<MODEL>
+				<model>ASET/ASET_Props/Control/SAS_Switch/AP_ButtonSwitch</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Collider</name>
+				<collider>SwitchPUSHcollider</collider>
+				<sound>ASET/ASET_Props/Sounds/buttonbeep</sound>
+				<volume>0.5</volume>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="0">
+				<name>Label Illumination</name>
+				<transform>SwitchNamePlate</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_PUSHBUTTON_BACKLIGHT_ACTIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Border Illumination</name>
+				<transform>buttonBorder</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SAS_PUSHBUTTON_ACTIVECOLOR</activeColor>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<name>Switch animation</name>
+				<animation>SwitchLightAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<name>Label</name>
+				<transform>SwitchNamePlate</transform>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_swPush_CHUT_ARM</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>parachute.ToggleParachuteArmed()</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(parachute.GetParachuteArmedOrDeployed())</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>parachute.GetParachuteArmedOrDeployed()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.00</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_CHUT_CUT</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>parachute.CutParachute()</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(parachute.GetParachuteDeployed())</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>parachute.GetParachuteDeployed()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.50</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_CHUT_DEPLOY</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>parachute.DeployParachute()</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(parachute.GetParachuteDeployed())</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>parachute.GetParachuteDeployed()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_GIMBAL_LOCK</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleGimbalLock()</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetGimbalsLocked())</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetGimbalsLocked()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.00</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_SAS_AntiNormal</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(4)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetSASMode() == 4)</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 4</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.25, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_SAS_AntiTarget</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(8)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetSASMode() == 8)</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 8</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_SAS_Maneuver</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(9)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetSASMode() == 9)</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 9</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.25, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_SAS_Normal</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(3)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetSASMode() == 3)</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 3</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_SAS_Prograde</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(1)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetSASMode() == 1)</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 1</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.50</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_SAS_RadialIn</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(5)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetSASMode() == 5)</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 5</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.00</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_SAS_RadialOut</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(6)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetSASMode() == 6)</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 6</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.25, 0.00</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_SAS_Retrograde</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(2)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetSASMode() == 2)</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 2</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.25, 0.50</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_SAS_Stab</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(0)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetSASMode() == 0)</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 0</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_SAS_Target</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetSASMode(7)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetSASMode() == 7)</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSASMode() == 7</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_THRTL_CUT</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetThrottle(0)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetThrottle() &lt; 0.01)</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetThrottle() &lt; 0.01</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.50</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_THRTL_FULL</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.SetThrottle(1)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetThrottle() &gt; 0.99)</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetThrottle() &gt; 0.99</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+	</SASSwitch>
 </PropConfig>
