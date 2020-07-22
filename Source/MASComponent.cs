@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2019 MOARdV
+ * Copyright (c) 2016-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -73,6 +73,8 @@ namespace AvionicsSystems
                     return new MASComponentRotation(config, prop, comp);
                 case "TEXT_LABEL":
                     return new MASComponentTextLabel(config, prop, comp);
+                case "TEXTURE_REPLACEMENT":
+                    return new MASComponentTextureReplacement(config, prop, comp);
                 case "TEXTURE_SCALE":
                     return new MASComponentTextureScale(config, prop, comp);
                 case "TEXTURE_SHIFT":

@@ -102,6 +102,7 @@
     <Compile Include="Source\MASComponentModelScale.cs" />
     <Compile Include="Source\MASComponentRotation.cs" />
     <Compile Include="Source\MASComponentTextLabel.cs" />
+    <Compile Include="Source\MASComponentTextureReplacement.cs" />
     <Compile Include="Source\MASComponentTextureScale.cs" />
     <Compile Include="Source\MASComponentTextureShift.cs" />
     <Compile Include="Source\MASComponentTranslation.cs" />
