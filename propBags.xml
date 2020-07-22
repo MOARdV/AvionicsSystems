@@ -276,4 +276,179 @@
 			</TEXTURE_SHIFT>
 		</prop>
 	</MediumBag>
+	<Beverage folder="BeveragePackage">
+		<style name="Beverage Package">
+			<MODEL>
+				<model>ASET/ASET_Props/SpaceFoodPack/beveragePackage/Food_BeveragePackage</model>
+			</MODEL>
+			<TEXTURE_SHIFT id="0">
+				<name>Label</name>
+				<transform>FoodPackLable01Obj</transform>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<name>Label</name>
+				<transform>FoodPackLable02Obj</transform>
+			</TEXTURE_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_Beverage_AppleCider</name>
+			<style>Beverage Package</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.125</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.00, 0.000</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Beverage_AppleJuice</name>
+			<style>Beverage Package</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.000</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.50, 0.000</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Beverage_GrapefruitJuice</name>
+			<style>Beverage Package</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.125</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.50, 0.125</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Beverage_Lemonade</name>
+			<style>Beverage Package</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.250</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.50, 0.250</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Beverage_OrangeDrink</name>
+			<style>Beverage Package</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.500</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.00, 0.500</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Beverage_OrangeJuice</name>
+			<style>Beverage Package</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.375</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.50, 0.375</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Beverage_OrangeMangoDrink</name>
+			<style>Beverage Package</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.625</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.00, 0.625</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Beverage_OrangePineappleDrink</name>
+			<style>Beverage Package</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.750</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.00, 0.750</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Beverage_PineGrapeJuice</name>
+			<style>Beverage Package</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.500</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.50, 0.500</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Beverage_TomatoJuice</name>
+			<style>Beverage Package</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.750</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.50, 0.750</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Beverage_TropicalPunch</name>
+			<style>Beverage Package</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.875</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.00, 0.875</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Beverage_CherryDrink</name>
+			<style>Beverage Package</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.125</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.00, 0.125</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Beverage_Chocolate</name>
+			<style>Beverage Package</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.875</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.50, 0.875</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Beverage_Cocoa</name>
+			<style>Beverage Package</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.250</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.00, 0.250</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Beverage_CranRaspJuice</name>
+			<style>Beverage Package</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.625</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.50, 0.625</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Beverage_GrapeDrink</name>
+			<style>Beverage Package</style>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.375</startUV>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<startUV>0.00, 0.375</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+	</Beverage>
 </PropConfig>
