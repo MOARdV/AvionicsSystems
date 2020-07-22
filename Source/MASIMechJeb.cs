@@ -99,6 +99,8 @@ namespace AvionicsSystems
 
         //--- Methods found in ModuleSmartASS
         private static readonly FieldInfo saTarget_t;
+        private static readonly FieldInfo saForceRollEnabled;
+        private static readonly FieldInfo saForceRollAngle;
         private static readonly Func<object, bool, object> Engage;
         internal static readonly string[] modeNames;
 
@@ -143,6 +145,9 @@ namespace AvionicsSystems
 
         double deltaV;
         double deltaVStage;
+
+        bool sassForceRollEnabled;
+        double sassForceRollAngle;
 
         object masterMechJeb;
         object ascentAutopilot;
@@ -1047,6 +1052,39 @@ namespace AvionicsSystems
         /// methods from this category.
         /// </summary>
         #region MechJeb SASS
+
+        /// <summary>
+        /// Reports the current SASS Force Roll angle.
+        /// </summary>
+        /// <returns>The current roll angle for the SASS Force Roll control.</returns>
+        public double GetSASSRollAngle()
+        {
+            if (mjAvailable)
+            {
+                return sassForceRollAngle;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Reports if the SASS Force Roll control is enabled.
+        /// </summary>
+        /// <returns>1 if SASS Force Roll is enabled, 0 otherwise.</returns>
+        public double GetSASSForceRollEnabled()
+        {
+            if (mjAvailable)
+            {
+                return (sassForceRollEnabled) ? 1.0 : 0.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
         /// <summary>
         /// Returns the number of the currently active SASS mode, or zero if MechJeb
         /// is unavailable.
@@ -1131,6 +1169,27 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Enable or disable the SASS Force Roll control.
+        /// </summary>
+        /// <param name="enabled">If `true`, Force Roll is enabled; if `false`, it is disabled.</param>
+        /// <returns>1 if Force Roll is now enabled, 0 if it is disabled or MechJeb is unavailable.</returns>
+        public double SetSASSForceRoll(bool enabled)
+        {
+            if (mjAvailable)
+            {
+                sassForceRollEnabled = enabled;
+                saForceRollEnabled.SetValue(smartAss, enabled);
+                Engage(smartAss, true);
+
+                return (enabled) ? 1.0 : 0.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
         /// Returns true if SASS is off
         /// </summary>
         /// <returns></returns>
@@ -1174,8 +1233,9 @@ namespace AvionicsSystems
         /// * HORIZONTAL_MINUS = 21,
         /// * VERTICAL_PLUS = 22,
         /// </summary>
-        /// <param name="mode"></param>
-        public void SetSASSMode(double mode)
+        /// <param name="mode">The mode from the table.</param>
+        /// <returns>The selected mode, or 0 if MechJeb is unavailable.</returns>
+        public double SetSASSMode(double mode)
         {
             int mode_i = (int)mode;
             if (mjAvailable && saTargetMap.ContainsKey(mode_i))
@@ -1183,6 +1243,56 @@ namespace AvionicsSystems
                 saTarget_t.SetValue(smartAss, mode_i);
 
                 Engage(smartAss, true);
+                return mode;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Set the SASS Force Roll angle to the value specified.  This number is normalized to
+        /// the range [-180, +180].
+        /// 
+        /// Note that this function does not automatically enable Force Roll, unlike the RasterPropMonitor
+        /// equivalent controls.
+        /// </summary>
+        /// <param name="angle">The desired angle for SASS Force Roll.</param>
+        /// <returns>1 if the angle was set, 0 if it was not, or if MechJeb is not installed.</returns>
+        public double SetSASSRollAngle(double angle)
+        {
+            if (mjAvailable)
+            {
+                object fra = saForceRollAngle.GetValue(smartAss);
+                if (fra != null)
+                {
+                    sassForceRollAngle = Utility.NormalizeLongitude(angle);
+                    setEditableDoubleMult(fra, sassForceRollAngle);
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+                    }
+
+        /// <summary>
+        /// Toggles the SASS Force Roll controls (enable / disable).
+        /// </summary>
+        /// <returns>1 if Force Roll is now enabled, 0 if it is disabled or MechJeb is not installed.</returns>
+        public double ToggleSASSForceRoll()
+        {
+            if (mjAvailable)
+            {
+                sassForceRollEnabled = !sassForceRollEnabled;
+                saForceRollEnabled.SetValue(smartAss, sassForceRollEnabled);
+                Engage(smartAss, true);
+
+                return (sassForceRollEnabled) ? 1.0 : 0.0;
+            }
+            else
+            {
+                return 0.0;
             }
         }
         #endregion
@@ -1197,6 +1307,12 @@ namespace AvionicsSystems
             {
                 object activeSATarget = saTarget_t.GetValue(smartAss);
                 saTarget = saTargetMap[(int)activeSATarget];
+
+                object o1 = saForceRollEnabled.GetValue(smartAss);
+                sassForceRollEnabled = (bool)o1;
+
+                object fra = saForceRollAngle.GetValue(smartAss);
+                sassForceRollAngle = Utility.NormalizeLongitude(getEditableDoubleMult(fra));
 
                 landingPredictionEnabled = GetModuleEnabled(landingPrediction);
 
@@ -1697,6 +1813,16 @@ namespace AvionicsSystems
                     throw new NotImplementedException("mjSmartassEngage");
                 }
                 Engage = DynamicMethodFactory.CreateDynFunc<object, bool, object>(mjSmartassEngage);
+                saForceRollEnabled = mjModuleSmartass_t.GetField("forceRol", BindingFlags.Instance | BindingFlags.Public);
+                if (saForceRollEnabled == null)
+                {
+                    throw new ArgumentNullException("saForceRollEnabled");
+                }
+                saForceRollAngle = mjModuleSmartass_t.GetField("rol", BindingFlags.Instance | BindingFlags.Public);
+                if (saForceRollAngle == null)
+                {
+                    throw new ArgumentNullException("saForceRollAngle");
+                }
 
                 //--- ModuleTargetController
                 PropertyInfo mjPositionTargetExists = mjModuleTargetController_t.GetProperty("PositionTargetExists", BindingFlags.Instance | BindingFlags.Public);
