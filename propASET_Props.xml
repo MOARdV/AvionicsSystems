@@ -48,6 +48,41 @@
 				<layers>_MainTex _Emissive</layers>
 			</TEXTURE_SHIFT>
 		</style>
+		<style name="Push Button2">
+			<MODEL>
+				<model>ASET/ASET_Props/Control/AutoPilotSwitch2/AP_ButtonSwitch</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Collider</name>
+				<collider>SwitchPUSHcollider</collider>
+				<sound>ASET/ASET_Props/Sounds/buttonbeep</sound>
+				<volume>0.5</volume>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="0">
+				<name>Label Illumination</name>
+				<transform>SwitchNamePlate</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_PUSHBUTTON_BACKLIGHT_ACTIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Border Illumination</name>
+				<transform>buttonBorder</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_MJ_PUSHBUTTON_ACTIVECOLOR</activeColor>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<name>Switch animation</name>
+				<animation>SwitchLightAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<name>Label</name>
+				<transform>SwitchNamePlate</transform>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
 		<prop>
 			<name>MAS_APswitchOFF</name>
 			<style>Push Button</style>
@@ -302,6 +337,214 @@
 			</ANIMATION_PLAYER>
 			<TEXTURE_SHIFT id="0">
 				<startUV>0.00, 0.00</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_APswitchSURFPROGRADE</name>
+			<style>Push Button2</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>mechjeb.SetSASSMode(18)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(mechjeb.GetSASSModeActive(18))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>mechjeb.GetSASSModeActive(18)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.25, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_APswitchSURFRETROGRADE</name>
+			<style>Push Button2</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>mechjeb.SetSASSMode(19)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(mechjeb.GetSASSModeActive(19))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>mechjeb.GetSASSModeActive(19)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.00</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_APswitchUP</name>
+			<style>Push Button2</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>mechjeb.SetSASSMode(22)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(mechjeb.GetSASSModeActive(22))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>mechjeb.GetSASSModeActive(22)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_APswitchHVELplus</name>
+			<style>Push Button2</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>mechjeb.SetSASSMode(20)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(mechjeb.GetSASSModeActive(20))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>mechjeb.GetSASSModeActive(20)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_APswitchHVELminus</name>
+			<style>Push Button2</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>mechjeb.SetSASSMode(21)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(mechjeb.GetSASSModeActive(21))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>mechjeb.GetSASSModeActive(21)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.50</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_PRECISION_MODE</name>
+			<style>Push Button2</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.TogglePrecisionMode()</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetPrecisionMode())</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetPrecisionMode()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_APswitchButtonClearTarget</name>
+			<style>Push Button2</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ClearTarget()</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.TargetType() > 0)</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.TargetType() == 0</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.25, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_APswitchButtonClearNodes</name>
+			<style>Push Button2</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.ClearManeuverNode()</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.ManeuverNodeExists())</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.ManeuverNodeExists()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_APswitchRollOFF</name>
+			<style>Push Button2</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>mechjeb.SetSASSForceRoll(false)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(mechjeb.GetSASSForceRollEnabled() == 0)</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>mechjeb.GetSASSForceRollEnabled() == 0</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.00</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_APswitchRoll0</name>
+			<style>Push Button2</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>mechjeb.SetSASSForceRoll(mechjeb.SetSASSRollAngle(0) == 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(mechjeb.GetSASSForceRollEnabled() == 1 and fc.Abs(mechjeb.GetSASSRollAngle()) &lt; 0.5)</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.Abs(mechjeb.GetSASSRollAngle()) &lt; 0.5</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_APswitchRoll90</name>
+			<style>Push Button2</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>mechjeb.SetSASSForceRoll(mechjeb.SetSASSRollAngle(90) == 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(mechjeb.GetSASSForceRollEnabled() == 1 and fc.Abs(mechjeb.GetSASSRollAngle() - 90) &lt; 0.5)</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.Abs(mechjeb.GetSASSRollAngle() - 90) &lt; 0.5</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.50</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_APswitchRoll180</name>
+			<style>Push Button2</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>mechjeb.SetSASSForceRoll(mechjeb.SetSASSRollAngle(180) == 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(mechjeb.GetSASSForceRollEnabled() == 1 and fc.Abs(fc.Abs(mechjeb.GetSASSRollAngle()) - 180) &lt; 0.5)</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.Abs(fc.Abs(mechjeb.GetSASSRollAngle()) - 180) &lt; 0.5</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_APswitchRoll270</name>
+			<style>Push Button2</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>mechjeb.SetSASSForceRoll(mechjeb.SetSASSRollAngle(-90) == 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(mechjeb.GetSASSForceRollEnabled() == 1 and fc.Abs(mechjeb.GetSASSRollAngle() + 90) &lt; 0.5)</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.Abs(mechjeb.GetSASSRollAngle() + 90) &lt; 0.5</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.25, 0.00</startUV>
 			</TEXTURE_SHIFT>
 		</prop>
 	</AutoPilotSwitch>
