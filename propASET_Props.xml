@@ -1459,6 +1459,284 @@
 			</TEXTURE_SHIFT>
 		</prop>
 	</SASSwitch>
+	<SwitchPush folder="SwitchPUSH">
+		<style name="Push Button">
+			<MODEL>
+				<model>ASET/ASET_Props/Control/SwitchPUSH/SwitchPushButton</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Collider</name>
+				<collider>SwitchPUSHcollider</collider>
+				<sound>ASET/ASET_Props/Sounds/buttonbeep</sound>
+				<volume>0.5</volume>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="0">
+				<name>Label Illumination</name>
+				<transform>SwitchNamePlate</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_PUSHBUTTON_BACKLIGHT_ACTIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Border Illumination</name>
+				<transform>buttonBorder</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_AG_PUSHBUTTON_ACTIVECOLOR</activeColor>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<name>Switch animation</name>
+				<animation>SwitchPUSHanim</animation>
+				<animationSpeed>1.0</animationSpeed>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<name>Label</name>
+				<transform>SwitchNamePlate</transform>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_swPush_AG1</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(1)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(1))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(1)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.25, 0.50</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_AG2</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(2)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(2))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(2)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.25, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_AG3</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(3)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(3))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(3)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.25, 0.00</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_AG4</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(4)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(4))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(4)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_AG5</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(5)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(5))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(5)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.50</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_AG6</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(6)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(6))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(6)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_AG7</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(7)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(7))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(7)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.50, 0.00</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_AG8</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(8)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(8))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(8)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_AG9</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(9)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(9))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(9)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.50</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_AG0</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(0)</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetActionGroup(0))</variable>
+				<variable>fc.Conditioned(fc.GetActionGroup(0))</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(0)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.75, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_Brakes</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleBrakes()</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetBrakes())</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetBrakes()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.25, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_Gear</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleGear()</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetGear())</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetGear()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_Lights</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleLights()</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetLights())</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetLights()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.50</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_RCS</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleRCS()</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetRCS())</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetRCS()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_swPush_SAS</name>
+			<style>Push Button</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleSAS()</onClick>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.Conditioned(fc.GetSAS())</variable>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSAS()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<startUV>0.00, 0.00</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+	</SwitchPush>
 	<SwitchWGuard folder="SwitchWCover">
 		<style name="ASET Covered Switch">
 			<MODEL>
