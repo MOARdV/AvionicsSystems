@@ -1459,4 +1459,346 @@
 			</TEXTURE_SHIFT>
 		</prop>
 	</SASSwitch>
+	<SwitchWGuard folder="SwitchWCover">
+		<style name="ASET Covered Switch">
+			<MODEL>
+				<model>ASET/ASET_Props/Control/SwitchWCover/SwitchWCover</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Collider</name>
+				<collider>SwitchColider</collider>
+				<sound>ASET/ASET_Props/Sounds/tumbleClick02</sound>
+			</COLLIDER_EVENT>
+			<COLOR_SHIFT id="0">
+				<name>Label Illumination</name>
+				<transform>SwitchNamePlate</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_PUSHBUTTON_BACKLIGHT_ACTIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<ANIMATION_PLAYER>
+				<name>Switch animation</name>
+				<animation>SwitchWCoverAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+			</ANIMATION_PLAYER>
+			<TRANSLATION>
+				<name>Power off animation</name>
+				<transform>SwitchIndicator</transform>
+				<startTranslation>0,-0.001,0</startTranslation>
+				<endTranslation>0,0,0</endTranslation>
+				<variable>fc.Conditioned(1)</variable>
+			</TRANSLATION>
+			<TEXTURE_SHIFT id="0">
+				<name>Label</name>
+				<transform>SwitchNamePlate</transform>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
+		<style name="JSI Covered Switch">
+			<MODEL>
+				<model>JSI/RasterPropMonitor/Library/Props/SwitchWCover/SwitchWCover</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Collider</name>
+				<collider>SwitchColider</collider>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<name>Switch animation</name>
+				<animation>SwitchWCoverAnim</animation>
+				<animationSpeed>1.0</animationSpeed>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT id="0">
+				<name>Label</name>
+				<transform>SwitchNamePlate</transform>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_JSIswitch_GEAR</name>
+			<style>JSI Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.Gear()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetGear()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.00, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_JSIswitch_LIGHTS</name>
+			<style>JSI Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleLights()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetLights()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.00, 0.50</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_JSIswitch_RCS</name>
+			<style>JSI Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleRCS()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetRCS()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.00, 0.50</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_JSIswitch_SAS</name>
+			<style>JSI Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleSAS()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSAS()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.00, 0.00</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_JSIswitch_BRAKE</name>
+			<style>JSI Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleBrakes()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetBrakes()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.25, 0.00</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_JSIswitch_StageLock</name>
+			<style>JSI Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleStageLocked()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetStageLocked()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.25, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_switchWCover_AG1</name>
+			<style>ASET Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(1)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(1)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.25, 0.50</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_switchWCover_AG2</name>
+			<style>ASET Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(2)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(2)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.25, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_switchWCover_AG3</name>
+			<style>ASET Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(3)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(3)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.25, 0.00</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_switchWCover_AG4</name>
+			<style>ASET Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(4)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(4)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.50, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_switchWCover_AG5</name>
+			<style>ASET Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(5)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(5)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.50, 0.50</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_switchWCover_AG6</name>
+			<style>ASET Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(6)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(6)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.50, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_switchWCover_AG7</name>
+			<style>ASET Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(7)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(7)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.50, 0.00</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_switchWCover_AG8</name>
+			<style>ASET Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(8)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(8)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.75, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_switchWCover_AG9</name>
+			<style>ASET Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(9)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(9)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.75, 0.50</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_switchWCover_AG0</name>
+			<style>ASET Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleActionGroup(0)</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetActionGroup(0)</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.75, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_switchWCover_BRAKE</name>
+			<style>ASET Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleBrakes()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetBrakes()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.25, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_switchWCover_GEAR</name>
+			<style>ASET Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleGear()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetGear()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.00, 0.75</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_switchWCover_LIGHT</name>
+			<style>ASET Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleLights()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetLights()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.00, 0.50</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_switchWCover_RCS</name>
+			<style>ASET Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleRCS()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetRCS()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.00, 0.25</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_switchWCover_SAS</name>
+			<style>ASET Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleSAS()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetSAS()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.00, 0.00</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_switchWCover_ToggleEngines</name>
+			<style>ASET Covered Switch</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.ToggleEnginesEnabled()</onClick>
+			</COLLIDER_EVENT>
+			<ANIMATION_PLAYER>
+				<variable>fc.GetEnginesEnabled()</variable>
+			</ANIMATION_PLAYER>
+			<TEXTURE_SHIFT>
+				<startUV>0.75, 0.00</startUV>
+			</TEXTURE_SHIFT>
+		</prop>
+	</SwitchWGuard>
 </PropConfig>
