@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2019 MOARdV
+ * Copyright (c) 2019-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -227,18 +227,22 @@ namespace AvionicsSystems
             }
 
             AudioClip clip = null;
-            if (string.IsNullOrEmpty(sound) == (volume >= 0.0f))
+            if (string.IsNullOrEmpty(sound) && (volume >= 0.0f))
             {
-                throw new ArgumentException("Only one of 'sound' or 'volume' found in COLLIDER_ADVANCED " + name);
+                throw new ArgumentException("'volume', but no 'sound', found in COLLIDER_ADVANCED " + name);
             }
 
-            if (volume >= 0.0f)
+            if (!string.IsNullOrEmpty(sound))
             {
                 //Try Load audio
                 clip = GameDatabase.Instance.GetAudioClip(sound);
                 if (clip == null)
                 {
                     throw new ArgumentException("Unable to load 'sound' " + sound + " in COLLIDER_ADVANCED " + name);
+                }
+                if (volume < 0.0f)
+                {
+                    volume = 1.0f;
                 }
             }
 
