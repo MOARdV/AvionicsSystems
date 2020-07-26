@@ -7,7 +7,7 @@
 	without the tedious effort of copying config files and making small edits
 	while hoping you didn't overlook something.
 
-	Copyright (c) 2019 MOARdV
+	Copyright (c) 2019-2020 MOARdV
 
 	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
 	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
@@ -157,4 +157,152 @@
 			</TEXT_LABEL>
 		</prop>
 	</EmissiveScreen>
+	<DigitalIndicator folder="DigitalIndicator">
+		<style name="DI15-4">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/DigitalIndicator/DigitalIndicator</model>
+			</MODEL>
+			<ANIMATION_PLAYER id="0">
+				<name>DigitalIndicatorPowerOffAnim</name>
+				<animation>DigitalIndicatorPowerOffAnim</animation>
+				<variable>1 - fc.Conditioned(1)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<name>DigitIndicatorNameObj Amount</name>
+				<transform>DigitIndicatorNameObj</transform>
+				<fontSize>15</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<transformOffset>0.095, 0</transformOffset>
+				<font>Repetition Scrolling</font>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>always</emissive>
+				<activeColor>COLOR_ASET_DIGITALINDICATOR_NORMAL_COLOR</activeColor>
+				<passiveColor>COLOR_ASET_DIGITALINDICATOR_STBY_COLOR</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>DigitIndicatorNameObj Name</name>
+				<transform>DigitIndicatorNameObj</transform>
+				<fontSize>4</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>InconsolataGo</font>
+				<style>Bold</style>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>always</emissive>
+				<activeColor>COLOR_ASET_DIGITALINDICATOR_LEGEND_NORMAL_COLOR</activeColor>
+				<passiveColor>COLOR_ASET_DIGITALINDICATOR_LEGEND_STBY_COLOR</passiveColor>
+			</TEXT_LABEL>
+		</style>
+		<style name="DI17-4">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/DigitalIndicator/DigitalIndicator</model>
+			</MODEL>
+			<ANIMATION_PLAYER id="0">
+				<name>DigitalIndicatorPowerOffAnim</name>
+				<animation>DigitalIndicatorPowerOffAnim</animation>
+				<variable>1 - fc.Conditioned(1)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<name>DigitIndicatorNameObj Amount</name>
+				<transform>DigitIndicatorNameObj</transform>
+				<fontSize>17</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<transformOffset>0.095, 0</transformOffset>
+				<font>Repetition Scrolling</font>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>always</emissive>
+				<activeColor>COLOR_ASET_DIGITALINDICATOR_WARNING_COLOR</activeColor>
+				<passiveColor>COLOR_ASET_DIGITALINDICATOR_NORMAL_COLOR</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>DigitIndicatorNameObj Name</name>
+				<transform>DigitIndicatorNameObj</transform>
+				<fontSize>4</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>InconsolataGo</font>
+				<style>Bold</style>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>always</emissive>
+				<passiveColor>COLOR_ASET_DIGITALINDICATOR_LEGEND_NORMAL_COLOR</passiveColor>
+			</TEXT_LABEL>
+		</style>
+		<prop>
+			<name>MAS_DigitalIndicator_DragForce</name>
+			<style>DI15-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:0.0;"";"-------"} $#$ fc.Drag()</text>
+				<variable>fc.Drag() &gt;= 0.01</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>DRAG FORCE.................kN</text>
+				<variable>fc.Drag() &gt;= 0.01</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_DYNAMICPRESSURE</name>
+			<style>DI15-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:SIP6.2;"";"-------"} $#$ fc.DynamicPressure()</text>
+				<variable>fc.DynamicPressure() &gt;= 0.01</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>DYNAMIC PRESSURE..........kPa</text>
+				<variable>fc.DynamicPressure() &gt;= 0.01</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_EASPEED</name>
+			<style>DI15-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:0.0;"";"-------"} $#$ fc.EquivalentAirspeed()</text>
+				<variable>fc.EquivalentAirspeed() &gt;= 0</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>SPEED (EAS)...............m/s</text>
+				<variable>fc.EquivalentAirspeed() &gt;= 0</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_EFFECTIVEACCEL</name>
+			<style>DI15-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:SIP5.2} $#$ fc.Acceleration()</text>
+				<variable>1</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<fontSize>3.8</fontSize>
+				<text>EFFECTIVE ACCELERATION....m/s²</text>
+				<variable>1</variable>
+				<passiveColor>COLOR_ASET_DIGITALINDICATOR_LEGEND_NORMAL_COLOR</passiveColor>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_Elec_Output</name>
+			<style>DI17-4</style>
+			<TEXT_LABEL id="0">
+				<!-- TODO: Actual implementation, once the switch is convered -->
+				<text>{0:0.0;"---";"0.0"} $#$ fc.PowerDelta()</text>
+				<variable>0</variable>
+				<fontSize>18</fontSize>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ELEC$$$OUTPUT:</text>
+				<fontSize>3.6</fontSize>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_GFORCE</name>
+			<style>DI17-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:0.00} $#$ fc.GForce()</text>
+				<variable>fc.GForce() &gt;= 3</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>G-FORCE</text>
+			</TEXT_LABEL>
+		</prop>
+	</DigitalIndicator>
 </PropConfig>
