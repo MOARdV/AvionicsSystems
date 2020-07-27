@@ -16,7 +16,7 @@
 	<!--
 	DigitalIndicator is a collection of rectangular props used for numeric displays or small status
 	panels.  The common usage is as a multi-digit 7-segment LED / LCD display.
-	
+
 	Note that this XML file does not contain all of the digital indicators!
 
 	The Power Off feature is set up as always-on (unless there's a power disruption).  It could be changed
@@ -194,6 +194,48 @@
 				<passiveColor>COLOR_ASET_DIGITALINDICATOR_LEGEND_STBY_COLOR</passiveColor>
 			</TEXT_LABEL>
 		</style>
+		<style name="DI15-4 tap">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/DigitalIndicator/DigitalIndicator</model>
+			</MODEL>
+			<ANIMATION_PLAYER id="0">
+				<name>DigitalIndicatorPowerOffAnim</name>
+				<animation>DigitalIndicatorPowerOffAnim</animation>
+				<variable>1 - fc.Conditioned(1)</variable>
+			</ANIMATION_PLAYER>
+			<TEXT_LABEL id="0">
+				<name>DigitIndicatorNameObj Amount</name>
+				<transform>DigitIndicatorNameObj</transform>
+				<fontSize>15</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<transformOffset>0.095, -0.004</transformOffset>
+				<font>Repetition Scrolling</font>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>always</emissive>
+				<activeColor>COLOR_ASET_DIGITALINDICATOR_NORMAL_COLOR</activeColor>
+				<passiveColor>COLOR_ASET_DIGITALINDICATOR_STBY_COLOR</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>DigitIndicatorNameObj Name</name>
+				<transform>DigitIndicatorNameObj</transform>
+				<fontSize>4</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>InconsolataGo</font>
+				<style>Bold</style>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>always</emissive>
+				<activeColor>COLOR_ASET_DIGITALINDICATOR_LEGEND_NORMAL_COLOR</activeColor>
+				<passiveColor>COLOR_ASET_DIGITALINDICATOR_LEGEND_STBY_COLOR</passiveColor>
+			</TEXT_LABEL>
+			<COLLIDER_EVENT>
+				<name>Screen Collider</name>
+				<collider>DigitalIndicator</collider>
+				<sound>ASET/ASET_Props/Sounds/beep-21</sound>
+				<volume>0.5</volume>
+			</COLLIDER_EVENT>
+		</style>
 		<style name="DI17-4">
 			<MODEL>
 				<model>ASET/ASET_Props/Instruments/DigitalIndicator/DigitalIndicator</model>
@@ -245,7 +287,7 @@
 			<name>MAS_DigitalIndicator_DYNAMICPRESSURE</name>
 			<style>DI15-4</style>
 			<TEXT_LABEL id="0">
-				<text>{0:SIP6.2;"";"-------"} $#$ fc.DynamicPressure()</text>
+				<text>{0:SIP###0.00;"";"-------"} $#$ fc.DynamicPressure()</text>
 				<variable>fc.DynamicPressure() &gt;= 0.01</variable>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
@@ -269,7 +311,7 @@
 			<name>MAS_DigitalIndicator_EFFECTIVEACCEL</name>
 			<style>DI15-4</style>
 			<TEXT_LABEL id="0">
-				<text>{0:SIP5.2} $#$ fc.Acceleration()</text>
+				<text>{0:SIP###0.00} $#$ fc.Acceleration()</text>
 				<variable>1</variable>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
@@ -357,17 +399,21 @@
 		</prop>
 		<prop>
 			<name>MAS_DigitalIndicator_ImpactSPEED</name>
-			<style>DI15-4</style>
+			<style>DI15-4 tap</style>
 			<TEXT_LABEL id="0">
-				<text>{0:SIP5.1} $#$ 0</text>
-				<variable>1</variable>
+				<text>{0:SIP###0.0} $#$ fc.Select(fc.GetPersistentAsNumber("%AUTOID%") - 1, fc.ImpactSpeed(), fc.VerticalSpeed(), fc.HorizontalSpeed())</text>
+				<variable>0</variable>
 				<fontSize>14</fontSize>
+				<passiveColor>fc.Select(fc.GetPersistentAsNumber("%AUTOID%") - 1, 255, 255, 0), fc.Select(fc.GetPersistentAsNumber("%AUTOID%") - 1, 0, 255, 255), 0</passiveColor>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
 				<fontSize>3.6</fontSize>
-				<text>EST.SPEED AT IMPACT.....m/s</text>
+				<text>{0} $#$ fc.Select(fc.GetPersistentAsNumber("%AUTOID%") - 1, "EST.SPEED AT IMPACT.....m/s", "VERT.SPEED..............m/s", "HOR.SPEED ..............m/s")</text>
 				<variable>1</variable>
 			</TEXT_LABEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.AddPersistentWrapped("%AUTOID%", 1, 0, 3)</onClick>
+			</COLLIDER_EVENT>
 		</prop>
 		<prop>
 			<name>MAS_DigitalIndicator_IntTemp</name>
@@ -385,7 +431,7 @@
 			<name>MAS_DigitalIndicator_ISP</name>
 			<style>DI17-4</style>
 			<TEXT_LABEL id="0">
-				<text>{0:SIP5.0} $#$ fc.CurrentIsp()</text>
+				<text>{0:SIP###0} $#$ fc.CurrentIsp()</text>
 				<variable>0</variable>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
@@ -403,6 +449,40 @@
 				<text>MACH NUMBER</text>
 				<variable>fc.MachNumber() &gt; 0</variable>
 			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_Multi01</name>
+			<style>DI15-4 tap</style>
+			<TEXT_LABEL id="0">
+				<text>{0:SIP###0.0} $#$ fc.Select(fc.GetPersistentAsNumber("%AUTOID%") == 3, fc.Apoapsis(), fc.Select(fc.GetPersistentAsNumber("%AUTOID%") - 1, fc.OrbitSpeed(), fc.SurfaceSpeed(), fc.TargetSpeed()))</text>
+				<variable>1</variable>
+				<fontSize>14</fontSize>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<fontSize>3.6</fontSize>
+				<text>{0} $#$ fc.Select(fc.GetPersistentAsNumber("%AUTOID%") == 3, "APOAPSIS ...............m", fc.Select(fc.GetPersistentAsNumber("%AUTOID%") - 1, "ORBITAL VELOCITY .......m/s", "SURFACE SPEED ..........m/s", "RELATIVE SPEED .........m/s"))</text>
+				<variable>1</variable>
+			</TEXT_LABEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.AddPersistentWrapped("%AUTOID%", 1, 0, 4)</onClick>
+			</COLLIDER_EVENT>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_Multi02</name>
+			<style>DI15-4 tap</style>
+			<TEXT_LABEL id="0">
+				<text>{0:SIP###0.0} $#$ fc.Select(fc.GetPersistentAsNumber("%AUTOID%") == 3, fc.Periapsis(), fc.Select(fc.GetPersistentAsNumber("%AUTOID%") - 1, fc.Acceleration(), fc.Heading(), fc.Inclination()))</text>
+				<variable>1</variable>
+				<fontSize>14</fontSize>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<fontSize>3.6</fontSize>
+				<text>{0} $#$ fc.Select(fc.GetPersistentAsNumber("%AUTOID%") == 3, "PERIAPSIS ..............m", fc.Select(fc.GetPersistentAsNumber("%AUTOID%") - 1, "EFFECTIVE ACCEL. .......m/s²", "HEADING ................deg", "INCLINATION ............deg"))</text>
+				<variable>1</variable>
+			</TEXT_LABEL>
+			<COLLIDER_EVENT>
+				<onClick>fc.AddPersistentWrapped("%AUTOID%", 1, 0, 4)</onClick>
+			</COLLIDER_EVENT>
 		</prop>
 	</DigitalIndicator>
 </PropConfig>
