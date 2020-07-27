@@ -2467,6 +2467,20 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns an estimate of the speed of the vessel when it impacts the surface of the body.
+        /// 
+        /// If the vessel will not hit the surface, or it has adequate thrust to reduce speed, this function
+        /// returns 0.
+        /// 
+        /// NOTE: This function is currently a place-holder, and it always returns 0.
+        /// </summary>
+        /// <returns>Impact speed in m/s, or 0 if the vessel's orbit does not impact the surface.</returns>
+        public double ImpactSpeed()
+        {
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the indicated airspeed in m/s, based on current surface speed, atmospheric density, and Mach number.
         /// </summary>
         /// <returns>IAS in m/s.</returns>
