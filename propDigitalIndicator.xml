@@ -172,7 +172,7 @@
 				<transform>DigitIndicatorNameObj</transform>
 				<fontSize>15</fontSize>
 				<lineSpacing>0.9</lineSpacing>
-				<transformOffset>0.095, 0</transformOffset>
+				<transformOffset>0.095, -0.004</transformOffset>
 				<font>Repetition Scrolling</font>
 				<alignment>Right</alignment>
 				<anchor>UpperRight</anchor>
@@ -294,6 +294,45 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_DigitalIndicator_EngineTemp</name>
+			<style>DI15-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:0} $#$ fc.HottestEngineTemperature(false)</text>
+				<variable>fc.EngineCountTotal() &gt; 0</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ENGINE TEMPERATURE.........C°</text>
+				<variable>fc.EngineCountTotal() &gt; 0</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>DigitIndicatorNameObj Warning</name>
+				<transform>DigitIndicatorNameObj</transform>
+				<fontSize>13</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<transformOffset>0, -0.005</transformOffset>
+				<font>Repetition Scrolling</font>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>always</emissive>
+				<passiveColor>255,0,0,255</passiveColor>
+				<text>{0:0} $#$ fc.Select(fc.EngineCountTotal() &gt; 0 and fc.HottestEngineTemperature(true) &gt; fc.HottestEngineMaxTemperature(true) * 0.9 and fc.PeriodStep(4) &gt; 0, "██", " ")</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_EXTTemp</name>
+			<style>DI15-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:0.0} $#$ fc.ExternalTemperature(false)</text>
+				<variable>1</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<fontSize>3.8</fontSize>
+				<text>EXTERNAL TEMPERATURE.......C°</text>
+				<variable>1</variable>
+				<passiveColor>COLOR_ASET_DIGITALINDICATOR_LEGEND_NORMAL_COLOR</passiveColor>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_DigitalIndicator_GFORCE</name>
 			<style>DI17-4</style>
 			<TEXT_LABEL id="0">
@@ -302,6 +341,67 @@
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
 				<text>G-FORCE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_Heading</name>
+			<style>DI17-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:0.0} $#$ fc.Heading()</text>
+				<variable>0</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>HEADING:</text>
+				<fontSize>3.6</fontSize>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_ImpactSPEED</name>
+			<style>DI15-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:SIP5.1} $#$ 0</text>
+				<variable>1</variable>
+				<fontSize>14</fontSize>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<fontSize>3.6</fontSize>
+				<text>EST.SPEED AT IMPACT.....m/s</text>
+				<variable>1</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_IntTemp</name>
+			<style>DI15-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:0.0} $#$ fc.PodTemperature(false)</text>
+				<variable>1</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>POD INT. TEMPERATURE.......C°</text>
+				<variable>1</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_ISP</name>
+			<style>DI17-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:SIP5.0} $#$ fc.CurrentIsp()</text>
+				<variable>0</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ISP</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_MachNumber</name>
+			<style>DI15-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:0.0} $#$ fc.MachNumber()</text>
+				<variable>fc.MachNumber() &gt; 0</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>MACH NUMBER</text>
+				<variable>fc.MachNumber() &gt; 0</variable>
 			</TEXT_LABEL>
 		</prop>
 	</DigitalIndicator>
