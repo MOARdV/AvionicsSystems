@@ -484,5 +484,175 @@
 				<onClick>fc.AddPersistentWrapped("%AUTOID%", 1, 0, 4)</onClick>
 			</COLLIDER_EVENT>
 		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_Pitch</name>
+			<style>DI17-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:0.0} $#$ fc.Pitch()</text>
+				<variable>0</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>PITCH:</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_Roll</name>
+			<style>DI17-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:0.0} $#$ fc.Roll()</text>
+				<variable>0</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ROLL:</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_SASMode</name>
+			<style>DI15-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0} $#$ fc.ScrollingMarquee(fc.GetSASModeName(fc.GetSASMode()), 7, 1)</text>
+				<variable>fc.GetSAS()</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>SAS MODE:</text>
+				<variable>1</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_SignalStrength</name>
+			<style>DI15-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:0.000} $#$ fc.CommNetSignalStrength()</text>
+				<variable>1</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>SIGNAL$$$STRENGTH:</text>
+				<fontSize>3.6</fontSize>
+				<variable>1</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_Slope</name>
+			<style>DI17-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:0.00} $#$ fc.SlopeAngle()</text>
+				<variable>fc.SlopeAngle() &gt; 15</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>SLOPE:</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_SURF_Temp</name>
+			<style>DI15-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:0} $#$ fc.BodySurfaceTemp(fc.CurrentBodyIndex())</text>
+				<variable>1</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>SURFACE TEMPERATURE........C°</text>
+				<variable>1</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_SurfSpeed</name>
+			<style>DI15-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:SIP###0} $#$ fc.SurfaceSpeed()</text>
+				<variable>1</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>SURFACE SPEED.............m/s</text>
+				<variable>1</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_Temp</name>
+			<style>DI15-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:0} $#$ fc.PodTemperature(false)</text>
+				<variable>1</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>POD SKIN TEMPERATURE.......C°</text>
+				<variable>1</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>DigitIndicatorNameObj Warning</name>
+				<transform>DigitIndicatorNameObj</transform>
+				<fontSize>13</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<transformOffset>0, -0.005</transformOffset>
+				<font>Repetition Scrolling</font>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>always</emissive>
+				<passiveColor>255,0,0,255</passiveColor>
+				<text>{0:0} $#$ fc.Select(fc.PodTemperature(true) &gt; fc.PodMaxTemperature(true) * 0.7 and fc.PeriodStep(4) &gt; 0, "██", " ")</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_TerminalVel</name>
+			<style>DI15-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0} $#$ fc.Select(fc.TerminalVelocity() &gt; 0.1, fc.FormatString("{0:0.0}", fc.TerminalVelocity()), "-------")</text>
+				<variable>fc.TerminalVelocity() &gt; 0.1</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>TERMINAL VELOCITY.........m/s</text>
+				<variable>fc.TerminalVelocity() &gt; 0.1</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_Throttle</name>
+			<style>DI17-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0} $#$ fc.Select(fc.GetThrottle() &gt; 0, fc.FormatString("{0:P0}", fc.GetThrottle()), "------")</text>
+				<variable>fc.CurrentTWR() &gt; 0 and fc.CurrentTWR() &lt; 1</variable>
+				<passiveColor>50,255,50,255</passiveColor>
+				<activeColor>255,50,50,255</activeColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1" delete="true"/>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_THRUST</name>
+			<style>DI15-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:###00} $#$ fc.CurrentThrustkN()</text>
+				<variable>1</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>THRUST.....................kN</text>
+				<fontSize>3.8</fontSize>
+				<variable>1</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_THRUSTLIMIT</name>
+			<style>DI15-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0,5:P0} $#$ fc.GetThrottleLimit()</text>
+				<variable>1</variable>
+				<fontSize>18</fontSize>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>THRUST$$$LIMIT</text>
+				<fontSize>3.8</fontSize>
+				<variable>1</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_THRUSTMAX</name>
+			<style>DI15-4</style>
+			<TEXT_LABEL id="0">
+				<text>{0:###00} $#$ fc.MaxThrustkN(false)</text>
+				<variable>1</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>MAX.THRUST.................kN</text>
+				<fontSize>3.8</fontSize>
+				<variable>1</variable>
+			</TEXT_LABEL>
+		</prop>
 	</DigitalIndicator>
 </PropConfig>
