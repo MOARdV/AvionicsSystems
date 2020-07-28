@@ -1255,6 +1255,44 @@ namespace AvionicsSystems
             return mode;
         }
 
+        [MASProxy(Dependent = true)]
+        /// <summary>
+        /// Returns the *localized* name for the mode number provided.  Invalid modes
+        /// return "???"
+        /// </summary>
+        /// <param name="mode">The SAS mode that is being queried</param>
+        /// <returns>Returns the localized string for the selected mode, or "???" for an invalid mode.</returns>
+        public string GetSASModeName(double mode)
+        {
+            int iMode = (int)mode;
+
+            switch (iMode)
+            {
+                case 0:
+                    return KSP.Localization.Localizer.GetStringByTag("#autoLOC_900603");
+                case 1:
+                    return KSP.Localization.Localizer.GetStringByTag("#autoLOC_900597");
+                case 2:
+                    return KSP.Localization.Localizer.GetStringByTag("#autoLOC_900607");
+                case 3:
+                    return KSP.Localization.Localizer.GetStringByTag("#autoLOC_900602");
+                case 4:
+                    return KSP.Localization.Localizer.GetStringByTag("#autoLOC_7001230");
+                case 5:
+                    return KSP.Localization.Localizer.GetStringByTag("#autoLOC_900581");
+                case 6:
+                    return KSP.Localization.Localizer.GetStringByTag("#autoLOC_900598");
+                case 7:
+                    return KSP.Localization.Localizer.GetStringByTag("#autoLOC_900591");
+                case 8:
+                    return KSP.Localization.Localizer.GetStringByTag("#autoLOC_900589");
+                case 9:
+                    return KSP.Localization.Localizer.GetStringByTag("#autoLOC_900587");
+                default:
+                    return "???";
+            }
+        }
+
         /// <summary>
         /// Return the current speed display mode: 1 for orbit, 0 for surface,
         /// and -1 for target.
