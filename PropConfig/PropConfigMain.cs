@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2018 MOARdV
+ * Copyright (c) 2018-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -38,16 +38,25 @@ namespace PropConfig
     /// It uses an XML file (or several) for input, and it generates an arbitrary
     /// number of config files.
     /// 
-    /// The XML schema is documented on the MAS wiki under PropConfig
-    /// (URL todo).
+    /// The XML schema is documented on the MAS wiki under Prop Config
+    /// at https://github.com/MOARdV/AvionicsSystems/wiki/Prop-Config.
     /// </summary>
     public class PropConfig
     {
+        static bool forceRebuild = false;
+
         static void Main(string[] args)
         {
-            for (int i = 0; i < args.Length; ++i)
+            int startIndex = 0;
+            if (args[0] == "--force")
             {
-                //Console.WriteLine(string.Format(" ...{0}", args[i]));
+                forceRebuild = true;
+                startIndex = 1;
+            }
+
+            for (int i = startIndex; i < args.Length; ++i)
+            {
+                //Console.WriteLine(string.Format(" ...{1}: {0}", args[i], i));
                 try
                 {
                     MakeConfigs(args[i]);
@@ -113,6 +122,7 @@ namespace PropConfig
                 Console.WriteLine("{0}", e.ToString());
                 return;
             }
+            DateTime lastModified = File.GetLastWriteTimeUtc(sourceXmlFile);
 
             // Minimally validate the root node.
             XmlNode root = doc.DocumentElement;
@@ -126,7 +136,7 @@ namespace PropConfig
             {
                 if (child is XmlElement)
                 {
-                    ProcessPropGroup(child as XmlElement);
+                    ProcessPropGroup(child as XmlElement, lastModified);
                 }
             }
         }
@@ -233,7 +243,7 @@ namespace PropConfig
                             duplicate = true;
                         }
                     }
-                    else if(node.name.StartsWith("MODULE"))
+                    else if (node.name.StartsWith("MODULE"))
                     {
                         if (style.module.FindIndex(x => x.name == node.name && x.id == node.id) < 0)
                         {
@@ -468,9 +478,24 @@ namespace PropConfig
         /// <param name="startupScript"></param>
         /// <param name="elem"></param>
         /// <param name="writeDirectory"></param>
-        static void GenerateProp(string propName, Style selectedStyle, string startupScript, XmlElement elem, string writeDirectory)
+        /// <param name="ifOlderThan">Date/time stamp of the source config.  The prop is only written if its older than this timestamp.</param>
+        static void GenerateProp(string propName, Style selectedStyle, string startupScript, XmlElement elem, string writeDirectory, DateTime ifOlderThan)
         {
             string fileName = writeDirectory + propName.Replace('.', '_') + ".cfg";
+
+            if (forceRebuild == false)
+            {
+                bool writeFile = true;
+                if (File.Exists(fileName))
+                {
+                    DateTime fileModified = File.GetLastWriteTimeUtc(fileName);
+                    writeFile = (fileModified < ifOlderThan);
+                }
+                if (!writeFile)
+                {
+                    return;
+                }
+            }
 
             Style propChanges = new Style();
             ProcessProp(elem, propChanges);
@@ -524,7 +549,7 @@ namespace PropConfig
                 prop.AppendLine("\t}");
 
                 // Write any optional modules
-                foreach(var module in finalConfig.module)
+                foreach (var module in finalConfig.module)
                 {
                     prop.AppendLine();
                     if (!string.IsNullOrEmpty(module.comment))
@@ -547,9 +572,12 @@ namespace PropConfig
 
         /// <summary>
         /// Process a prop group (logical collection of related props).
+        /// 
+        /// Only writes props whose configs are older than their source XML file.
         /// </summary>
-        /// <param name="group"></param>
-        static void ProcessPropGroup(XmlElement group)
+        /// <param name="group">The prop group</param>
+        /// <param name="ifOlderThan">The date stamp on the source XML file.</param>
+        static void ProcessPropGroup(XmlElement group, DateTime ifOlderThan)
         {
             string writeDirectory = group.GetAttribute("folder");
             if (string.IsNullOrEmpty(writeDirectory))
@@ -633,7 +661,7 @@ namespace PropConfig
                                     startupScript = startupElem.InnerText;
                                 }
 
-                                GenerateProp(propName, selectedStyle, startupScript, elem, writeDirectory);
+                                GenerateProp(propName, selectedStyle, startupScript, elem, writeDirectory, ifOlderThan);
                             }
                         }
                     }
