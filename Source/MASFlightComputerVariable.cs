@@ -2,7 +2,7 @@
 /*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2019 MOARdV
+ * Copyright (c) 2016-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -805,6 +805,26 @@ namespace AvionicsSystems
                 {
                     Func<object, object, double, object> dm = DynamicMethodFactory.CreateFunc<object, object, double, object>(method);
                     newVar = new GenericVariable(canonical, () => dm(tableInstance, parms[0].AsObject(), parms[1].AsDouble()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
+                }
+                if (dependent)
+                {
+                    parms[0].RegisterNumericCallback(newVar.TriggerUpdate);
+                    parms[1].RegisterNumericCallback(newVar.TriggerUpdate);
+                }
+                return newVar;
+            }
+            else if (methodParams[0].ParameterType == typeof(object) && methodParams[1].ParameterType == typeof(bool))
+            {
+                Variable newVar;
+                if (methodReturn == typeof(double))
+                {
+                    Func<object, object, bool, double> dm = DynamicMethodFactory.CreateFunc<object, object, bool, double>(method);
+                    newVar = new DoubleVariable(canonical, () => dm(tableInstance, parms[0].AsObject(), parms[1].AsBool()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
+                }
+                else
+                {
+                    Func<object, object, bool, object> dm = DynamicMethodFactory.CreateFunc<object, object, bool, object>(method);
+                    newVar = new GenericVariable(canonical, () => dm(tableInstance, parms[0].AsObject(), parms[1].AsBool()), cacheable, mutable, (dependent) ? Variable.VariableType.Dependent : Variable.VariableType.Func);
                 }
                 if (dependent)
                 {
