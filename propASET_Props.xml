@@ -1119,13 +1119,149 @@
 			</ANIMATION_PLAYER>
 		</prop>
 	</LightSwitch>
+	<NumInputDial folder="NumInputDial">
+		<style name="NID-NoButton">
+		<!-- Basic knob, no button on the top -->
+			<MODEL>
+				<model>ASET/ASET_Props/Control/NumInputDial_NoButton/NumInputDial_NoButton</model>
+			</MODEL>
+			<COLOR_SHIFT id="0">
+				<name>BackLight On/Off</name>
+				<transform>Point_pict, HDG_pict, Arrow_pict, Course_pict, Dash_pict, Point_pict, WideArrow_pict</transform>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_MARK_POSITIVECOLOR</activeColor>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<TEXT_LABEL>
+				<name>Top Label</name>
+				<transform>NameTopTextObj</transform>
+				<fontSize>6.5</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<transformOffset>0.03592, -0.0151</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+			</TEXT_LABEL>
+			<COLLIDER_EVENT id="0">
+				<name>Decrease</name>
+				<collider>DialColliderMinus</collider>
+				<sound>ASET/ASET_Props/Sounds/NID02</sound>
+				<volume>0.5</volume>
+				<autoRepeat>0.25</autoRepeat>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<name>Increase</name>
+				<collider>DialColliderPlus</collider>
+				<sound>ASET/ASET_Props/Sounds/NID02</sound>
+				<volume>0.5</volume>
+				<autoRepeat>0.25</autoRepeat>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<name>Knob rotation</name>
+				<transform>KnobGrp</transform>
+				<startRotation>0,0,0</startRotation>
+				<endRotation>0,0,360</endRotation>
+				<longPath>true</longPath>
+				<blend>true</blend>
+			</ROTATION>
+			<ANIMATION>
+				<!-- 
+				The icon on the knob of the dial is controlled by an animation.  The animation is
+				one of 7.  To select the animation, set variable to a constant, #/7, with # chosen
+				as follows (names are from the original ASET prop configs):
+				0 = No icon
+				1 = Arrow - simple line arrow
+				2 = Course Icon - orange cross, with the long arm pointing at the value
+				3 = Dash Mark - white triangle with a line projecting from the top
+				4 = Heading Icon - ??? no icon visible
+				5 = Point Mark - small white dot/circle
+				6 = Wide Arrow - wide arrow
+				For example, to show Arrow #1, you would use <variable>1/7</variable>
+				-->
+				<name>Pictogram</name>
+				<animation>NID_nb_PictSwitchAnim</animation>
+			</ANIMATION>
+		</style>
+		<prop>
+			<name>MAS_NID_nb_ALT_WARN</name>
+			<style>NID-NoButton</style>
+			<startupScript>fc.InitializePersistent("ASET_ALTITUDE_WARN_INPUT", 150)</startupScript>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("ASET_ALTITUDE_WARN_INPUT", -50, 0, 5000)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("ASET_ALTITUDE_WARN_INPUT", 50, 0, 5000)</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL>
+				<text>ALTITUDE WARNING</text>
+			</TEXT_LABEL>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("ASET_ALTITUDE_WARN_INPUT")</variable>
+				<range>0,5000</range>
+				<modulo>1000</modulo>
+			</ROTATION>
+			<ANIMATION>
+				<variable>5/7</variable>
+			</ANIMATION>
+		</prop>
+		<prop>
+			<name>MAS_NID_nb_Brake_Force</name>
+			<style>NID-NoButton</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.SetBrakeForce(fc.Max(0, fc.GetBrakeForce() - 0.25)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.SetBrakeForce(fc.Min(2, fc.GetBrakeForce() + 0.25)</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL>
+				<text>BRAKE FORCE</text>
+			</TEXT_LABEL>
+			<ROTATION>
+				<variable>fc.GetBrakeForce()</variable>
+				<range>0,2</range>
+				<speed>1</speed>
+			</ROTATION>
+			<ANIMATION>
+				<variable>3/7</variable>
+			</ANIMATION>
+		</prop>
+		<prop>
+			<name>MAS_NID_nb_DriveSpeed_WARN</name>
+			<style>NID-NoButton</style>
+			<startupScript>fc.InitializePersistent("ASET_Drive_SPD_WARN_INPUT", 25)</startupScript>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("ASET_Drive_SPD_WARN_INPUT", -1, 0, 100)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("ASET_Drive_SPD_WARN_INPUT", 1, 0, 100)</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL>
+				<text>SPEED WARNING$$$(m/s)</text>
+			</TEXT_LABEL>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("ASET_Drive_SPD_WARN_INPUT")</variable>
+				<range>0,100</range>
+				<speed>1</speed>
+			</ROTATION>
+			<ANIMATION>
+				<variable>5/7</variable>
+			</ANIMATION>
+		</prop>
+	</NumInputDial>
 	<PanelDivider folder="PanelDivider">
 		<style name="Panel Divider">
 			<MODEL>
 				<model>ASET/ASET_Props/Misc/PanelDivider/PanelDivider</model>
 			</MODEL>
 			<COLOR_SHIFT id="0">
-				<name>BackLight On/Off	</name>
+				<name>BackLight On/Off</name>
 				<transform>PanelDivider</transform>
 				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
 				<passiveColor>0,0,0,255</passiveColor>

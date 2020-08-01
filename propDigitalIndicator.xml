@@ -26,6 +26,83 @@
 	is relative to the current working directory.
 	-->
 	<EmissiveScreen folder="DigitalIndicator_EmissiveScreen">
+		<style name="3char">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/DigitalIndicator_EmisiiveScreen_3char</model>
+				<texture>DigitalIndicator_Diffuse,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/DigitalIndicator_Diffuse</texture>
+				<texture>SmallLablePlateDiffuse,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/SmallLablePlateDiffuse</texture>
+				<texture>SmallLablePlateEmissive,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/SmallLablePlateEmissive</texture>
+			</MODEL>
+			<TRANSLATION id="0">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<startTranslation>0, 0, 0</startTranslation>
+				<endTranslation>0, -0.004, 0</endTranslation>
+				<variable>1 - fc.Conditioned(1)</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<name>DigitalIndicatorScreenOFFObj</name>
+				<transform>DigitalIndicatorScreenOFFObj</transform>
+				<startTranslation>0, 0, 0</startTranslation>
+				<endTranslation>0, -0.004, 0</endTranslation>
+				<variable>fc.Conditioned(1)</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<name>DigitIndicatorTextObj</name>
+				<transform>DigitIndicatorTextObj</transform>
+				<fontSize>20</fontSize>
+				<transformOffset>0.093,0</transformOffset>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(1)</variable>
+				<activeColor>COLOR_ASET_NUMINPUT_DISPLAY_POSITIVECOLOR</activeColor>
+				<passiveColor>0, 0, 0, 255</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>DigitIndicatorText2Obj</name>
+				<transform>DigitIndicatorText2Obj</transform>
+				<fontSize>20</fontSize>
+				<transformOffset>0.093,0</transformOffset>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(1)</variable>
+				<activeColor>COLOR_ASET_NUMINPUT_DISPLAY_GHOSTCOLOR</activeColor>
+				<passiveColor>0, 0, 0, 255</passiveColor>
+				<text>888</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>DigitalIndicatorScreenOFFObj</name>
+				<transform>DigitalIndicatorScreenOFFObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_DIFFUSE_PASSIVECOLOR</passiveColor>
+				<colorName>_Color</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>DigitalIndicatorScreenOFFObj</name>
+				<transform>DigitalIndicatorScreenOFFObj</transform>
+				<passiveColor>0,0,0,0</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_DIFFUSE_PASSIVECOLOR</passiveColor>
+				<colorName>_Color</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="3">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_EMISSIVE_PASSIVECOLOR</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+		</style>
 		<style name="5char">
 			<MODEL>
 				<model>ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/DigitalIndicator_EmisiiveScreen_5char</model>
@@ -116,6 +193,97 @@
 				<colorName>_EmissiveColor</colorName>
 			</COLOR_SHIFT>
 		</style>
+		<style name="6char">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/DigitalIndicator_EmissiveScreen</model>
+				<texture>DigitalIndicator_Diffuse,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/DigitalIndicator_Diffuse</texture>
+				<texture>SmallLablePlateDiffuse,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/SmallLablePlateDiffuse</texture>
+				<texture>SmallLablePlateEmissive,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/SmallLablePlateEmissive</texture>
+			</MODEL>
+			<TRANSLATION id="0">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<startTranslation>0, 0, 0</startTranslation>
+				<endTranslation>0, -0.004, 0</endTranslation>
+				<variable>1 - fc.Conditioned(1)</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<name>DigitalIndicatorScreenOFFObj</name>
+				<transform>DigitalIndicatorScreenOFFObj</transform>
+				<startTranslation>0, 0, 0</startTranslation>
+				<endTranslation>0, -0.004, 0</endTranslation>
+				<variable>fc.Conditioned(1)</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<name>DigitIndicatorTextObj</name>
+				<transform>DigitIndicatorTextObj</transform>
+				<fontSize>20</fontSize>
+				<transformOffset>0.093,0</transformOffset>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(1)</variable>
+				<activeColor>COLOR_ASET_NUMINPUT_DISPLAY_POSITIVECOLOR</activeColor>
+				<passiveColor>0, 0, 0, 255</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>DigitIndicatorText2Obj</name>
+				<transform>DigitIndicatorText2Obj</transform>
+				<fontSize>20</fontSize>
+				<transformOffset>0.093,0</transformOffset>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(1)</variable>
+				<activeColor>COLOR_ASET_NUMINPUT_DISPLAY_GHOSTCOLOR</activeColor>
+				<passiveColor>0, 0, 0, 255</passiveColor>
+				<text>888888</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>DigitalIndicatorScreenOFFObj</name>
+				<transform>DigitalIndicatorScreenOFFObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_DIFFUSE_PASSIVECOLOR</passiveColor>
+				<colorName>_Color</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>DigitalIndicatorScreenOFFObj</name>
+				<transform>DigitalIndicatorScreenOFFObj</transform>
+				<passiveColor>0,0,0,0</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_DIFFUSE_PASSIVECOLOR</passiveColor>
+				<colorName>_Color</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="3">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_EMISSIVE_PASSIVECOLOR</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_DigitalIndicator_3char_Brake_Force</name>
+			<style>3char</style>
+			<TEXT_LABEL id="0">
+				<text>{0:0;"";"OFF"} $#$ fc.GetBrakeForce() * 100</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_3char_DriveSpeed_WARN</name>
+			<style>3char</style>
+			<TEXT_LABEL id="0">
+				<text>{0:0;"";"OFF"} $#$ fc.GetPersistentAsNumber("ASET_Drive_SPD_WARN_INPUT")</text>
+			</TEXT_LABEL>
+		</prop>
 		<prop>
 			<name>MAS_DigitalIndicator_5char_ElectricCharge</name>
 			<style>5char</style>
@@ -154,6 +322,13 @@
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
 				<text>{0,5:0} $#$ fc.Min(fc.ResourceCurrent("Oxidizer"), 99999)</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_6char_ALT_WARN</name>
+			<style>6char</style>
+			<TEXT_LABEL id="0">
+				<text>{0:0;"";"OFF"} $#$ fc.GetPersistentAsNumber("ASET_ALTITUDE_WARN_INPUT")</text>
 			</TEXT_LABEL>
 		</prop>
 	</EmissiveScreen>
