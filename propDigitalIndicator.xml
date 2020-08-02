@@ -26,6 +26,81 @@
 	is relative to the current working directory.
 	-->
 	<EmissiveScreen folder="DigitalIndicator_EmissiveScreen">
+		<style name="2char">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/DigitalIndicator_EmisiiveScreen_2char</model>
+				<texture>DigitalIndicator_Diffuse,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/DigitalIndicator_Diffuse</texture>
+				<texture>SmallLablePlateDiffuse,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/SmallLablePlateDiffuse</texture>
+				<texture>SmallLablePlateEmissive,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/SmallLablePlateEmissive</texture>
+			</MODEL>
+			<TRANSLATION id="0">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<startTranslation>0, 0, 0</startTranslation>
+				<endTranslation>0, -0.004, 0</endTranslation>
+				<variable>1 - fc.Conditioned(1)</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<name>DigitalIndicatorScreenOFFObj</name>
+				<transform>DigitalIndicatorScreenOFFObj</transform>
+				<startTranslation>0, 0, 0</startTranslation>
+				<endTranslation>0, -0.004, 0</endTranslation>
+				<variable>fc.Conditioned(1)</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<name>DigitIndicatorTextObj</name>
+				<transform>DigitIndicatorTextObj</transform>
+				<fontSize>20</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(1)</variable>
+				<activeColor>COLOR_ASET_NUMINPUT_DISPLAY_POSITIVECOLOR</activeColor>
+				<passiveColor>0, 0, 0, 255</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>DigitIndicatorText2Obj</name>
+				<transform>DigitIndicatorText2Obj</transform>
+				<fontSize>20</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(1)</variable>
+				<activeColor>COLOR_ASET_NUMINPUT_DISPLAY_GHOSTCOLOR</activeColor>
+				<passiveColor>0, 0, 0, 255</passiveColor>
+				<text>88</text>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>DigitalIndicatorScreenOFFObj</name>
+				<transform>DigitalIndicatorScreenOFFObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_DIFFUSE_PASSIVECOLOR</passiveColor>
+				<colorName>_Color</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>DigitalIndicatorScreenOFFObj</name>
+				<transform>DigitalIndicatorScreenOFFObj</transform>
+				<passiveColor>0,0,0,0</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_DIFFUSE_PASSIVECOLOR</passiveColor>
+				<colorName>_Color</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="3">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_EMISSIVE_PASSIVECOLOR</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+		</style>
 		<style name="3char">
 			<MODEL>
 				<model>ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/DigitalIndicator_EmisiiveScreen_3char</model>
@@ -270,6 +345,106 @@
 				<colorName>_EmissiveColor</colorName>
 			</COLOR_SHIFT>
 		</style>
+		<style name="12char">
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/DigitalIndicator_EmisiiveScreen_12char</model>
+				<texture>DigitalIndicator_Diffuse,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/DigitalIndicator_Diffuse</texture>
+				<texture>SmallLablePlateDiffuse,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/SmallLablePlateDiffuse</texture>
+				<texture>SmallLablePlateEmissive,ASET/ASET_Props/Instruments/DigitalIndicator_EmissiveScreen/SmallLablePlateEmissive</texture>
+			</MODEL>
+			<TRANSLATION id="0">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<startTranslation>0, 0, 0</startTranslation>
+				<endTranslation>0, -0.004, 0</endTranslation>
+				<variable>1 - fc.Conditioned(1)</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<name>DigitalIndicatorScreenOFFObj</name>
+				<transform>DigitalIndicatorScreenOFFObj</transform>
+				<startTranslation>0, 0, 0</startTranslation>
+				<endTranslation>0, -0.004, 0</endTranslation>
+				<variable>fc.Conditioned(1)</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<name>DigitIndicatorTextObj</name>
+				<transform>DigitIndicatorTextObj</transform>
+				<fontSize>20</fontSize>
+				<transformOffset>0.093,0</transformOffset>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(1)</variable>
+				<activeColor>COLOR_ASET_NUMINPUT_DISPLAY_POSITIVECOLOR</activeColor>
+				<passiveColor>0, 0, 0, 255</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>DigitIndicatorText2Obj</name>
+				<transform>DigitIndicatorText2Obj</transform>
+				<fontSize>20</fontSize>
+				<transformOffset>0.093,0</transformOffset>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Right</alignment>
+				<anchor>UpperRight</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(1)</variable>
+				<activeColor>COLOR_ASET_NUMINPUT_DISPLAY_GHOSTCOLOR</activeColor>
+				<passiveColor>0, 0, 0, 255</passiveColor>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>DigitalIndicatorScreenOFFObj</name>
+				<transform>DigitalIndicatorScreenOFFObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_DIFFUSE_PASSIVECOLOR</passiveColor>
+				<colorName>_Color</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>DigitalIndicatorScreenOFFObj</name>
+				<transform>DigitalIndicatorScreenOFFObj</transform>
+				<passiveColor>0,0,0,0</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_DIFFUSE_PASSIVECOLOR</passiveColor>
+				<colorName>_Color</colorName>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="3">
+				<name>DigitalIndicatorScreenObj</name>
+				<transform>DigitalIndicatorScreenObj</transform>
+				<passiveColor>COLOR_ASET_NUMINPUT_DISPLAY_EMISSIVE_PASSIVECOLOR</passiveColor>
+				<colorName>_EmissiveColor</colorName>
+			</COLOR_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_DigitalIndicator_2char_Stage_Num</name>
+			<style>2char</style>
+			<TEXT_LABEL id="0">
+				<text>{0:00} $#$ fc.CurrentStage()</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>DisplayNameTextObj</name>
+				<transform>DisplayNameTextObj</transform>
+				<fontSize>3.5</fontSize>
+				<transformOffset>0,-0.0006</transformOffset>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.GetPersistentAsNumber("Backlight")</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>CURR.STAGE</text>
+			</TEXT_LABEL>
+		</prop>
 		<prop>
 			<name>MAS_DigitalIndicator_3char_Brake_Force</name>
 			<style>3char</style>
@@ -285,6 +460,141 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_DigitalIndicator_2char_MissionTimer_Years</name>
+			<style>2char</style>
+			<TEXT_LABEL id="0">
+				<text>{0}$#$ fc.Select(fc.GetPersistentAsNumber("STS_MISSION_TIMER") - 1, fc.Select(fc.PeriodStep(2) > 0, "88", "   "), fc.FormatString("{0:METyy}", fc.MET()), fc.FormatString("{0:KDTyy}", fc.UT()))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>"88"</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>DisplayNameTextObj</name>
+				<transform>DisplayNameTextObj</transform>
+				<fontSize>3.5</fontSize>
+				<transformOffset>0,-0.0006</transformOffset>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.GetPersistentAsNumber("Backlight")</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>YEAR</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_3char_MissionTimer_Days</name>
+			<style>3char</style>
+			<TEXT_LABEL id="0">
+				<text>{0}$#$ fc.Select(fc.GetPersistentAsNumber("STS_MISSION_TIMER") - 1, fc.Select(fc.PeriodStep(2) > 0, "888", "   "), fc.FormatString("{0:METddd}", fc.MET()), fc.FormatString("{0:KDTddd}", fc.UT()))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>"888"</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>DisplayNameTextObj</name>
+				<transform>DisplayNameTextObj</transform>
+				<fontSize>3.5</fontSize>
+				<transformOffset>0,-0.0006</transformOffset>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.GetPersistentAsNumber("Backlight")</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>DAY</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_2char_MissionTimer_Hours</name>
+			<style>2char</style>
+			<TEXT_LABEL id="0">
+				<text>{0}$#$ fc.Select(fc.GetPersistentAsNumber("STS_MISSION_TIMER") - 1, fc.Select(fc.PeriodStep(2) > 0, "88", "   "), fc.FormatString("{0:METhh}", fc.MET()), fc.FormatString("{0:KDThh}", fc.UT()))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>"88"</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>DisplayNameTextObj</name>
+				<transform>DisplayNameTextObj</transform>
+				<fontSize>3.5</fontSize>
+				<transformOffset>0,-0.0006</transformOffset>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.GetPersistentAsNumber("Backlight")</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>HR</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_2char_MissionTimer_Minutes</name>
+			<style>2char</style>
+			<TEXT_LABEL id="0">
+				<text>{0}$#$ fc.Select(fc.GetPersistentAsNumber("STS_MISSION_TIMER") - 1, fc.Select(fc.PeriodStep(2) > 0, "88", "   "), fc.FormatString("{0:METmm}", fc.MET()), fc.FormatString("{0:KDTmm}", fc.UT()))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>"88"</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>DisplayNameTextObj</name>
+				<transform>DisplayNameTextObj</transform>
+				<fontSize>3.5</fontSize>
+				<transformOffset>0,-0.0006</transformOffset>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.GetPersistentAsNumber("Backlight")</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>MIN</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_2char_MissionTimer_Seconds</name>
+			<style>2char</style>
+			<TEXT_LABEL id="0">
+				<text>{0}$#$ fc.Select(fc.GetPersistentAsNumber("STS_MISSION_TIMER") - 1, fc.Select(fc.PeriodStep(2) > 0, "88", "   "), fc.FormatString("{0:METss}", fc.MET()), fc.FormatString("{0:KDTss}", fc.UT()))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>"88"</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>DisplayNameTextObj</name>
+				<transform>DisplayNameTextObj</transform>
+				<fontSize>3.5</fontSize>
+				<transformOffset>0,-0.0006</transformOffset>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.GetPersistentAsNumber("Backlight")</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>SEC</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_DigitalIndicator_5char_ElectricCharge</name>
 			<style>5char</style>
 			<TEXT_LABEL id="0">
@@ -295,6 +605,36 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_DigitalIndicator_5char_EventTimer</name>
+			<style>5char</style>
+			<TEXT_LABEL id="0">
+				<text>EVENT TIMER</text>
+				<fontSize>4.5</fontSize>
+				<transformOffset>0,0.0055</transformOffset>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<!-- TODO -->
+				<text>{0:KDTmm ss;"     ";"00:00"}$#$ 0</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<name>DisplayNameTextObj</name>
+				<transform>DisplayNameTextObj</transform>
+				<fontSize>3.5</fontSize>
+				<transformOffset>0,-0.0006</transformOffset>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.GetPersistentAsNumber("Backlight")</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>$$$MIN                  SEC</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_DigitalIndicator_5char_LiquidFuel</name>
 			<style>5char</style>
 			<TEXT_LABEL id="0">
@@ -302,6 +642,16 @@
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
 				<text>{0,5:0} $#$ fc.Min(fc.ResourceCurrent("LiquidFuel"), 99999)</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_5char_MCP_Altitude</name>
+			<style>5char</style>
+			<TEXT_LABEL id="0">
+				<text>ALTITUDE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0:0}$#$ fc.GetPersistentAsNumber("MCP_AltDialInput")</text>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
@@ -329,6 +679,61 @@
 			<style>6char</style>
 			<TEXT_LABEL id="0">
 				<text>{0:0;"";"OFF"} $#$ fc.GetPersistentAsNumber("ASET_ALTITUDE_WARN_INPUT")</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_12char_MissionTimer</name>
+			<style>12char</style>
+			<TEXT_LABEL id="0">
+				<text>{0}$#$ fc.Select(fc.GetPersistentAsNumber("STS_MISSION_TIMER") - 1, fc.Select(fc.PeriodStep(2) > 0, "888:88:88:88", "   :  :  :  "), fc.FormatString("{0:METddd:hh:mm:ss}", fc.MET()), fc.FormatString("{0:KDTddd:hh:mm:ss}", fc.UT()))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>"888:88:88:88"</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>DisplayNameTextObj</name>
+				<transform>DisplayNameTextObj</transform>
+				<fontSize>4.5</fontSize>
+				<transformOffset>0,0.0055</transformOffset>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.GetPersistentAsNumber("Backlight")</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>MISSION TIME</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<name>DisplayNameTextObj</name>
+				<transform>DisplayNameTextObj</transform>
+				<fontSize>3.5</fontSize>
+				<transformOffset>0.01,-0.0006</transformOffset>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.GetPersistentAsNumber("Backlight")</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>$$$DAY                        HR                       MIN                      SEC</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_DigitalIndicator_12char_OrbitNumInput</name>
+			<style>12char</style>
+			<TEXT_LABEL id="0">
+				<!-- TODO -->
+				<text>{0:########0.00}$#$ 0</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>888888888.88</text>
 			</TEXT_LABEL>
 		</prop>
 	</EmissiveScreen>
