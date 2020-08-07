@@ -1,0 +1,36 @@
+<PropConfig>
+	<!--
+	This file is a prop configuration template for the Prop Config utility
+	described on the MAS wiki at https://github.com/MOARdV/AvionicsSystems/wiki/Prop-Config
+
+	The tool and this XML file are used to quickly generate multiple props
+	without the tedious effort of copying config files and making small edits
+	while hoping you didn't overlook something.
+
+	Copyright (c) 2020 MOARdV
+
+	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
+	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
+	-->
+	<AxisIndicator folder="SimpleProps">
+		<style name="AI">
+			<MODEL>
+				<model>Squad/Props/AxisIndicator/model</model>
+			</MODEL>
+			<TRANSLATION id="0">
+				<name>Collider</name>
+				<transform>SwitchPUSHcollider</transform>
+				<startTranslation>0, 0.001, 0.066</startTranslation>
+				<endTranslation>0, 0.001, 0</endTranslation>				
+				<blend>true</blend>
+			</TRANSLATION>
+		</style>
+		<prop>
+			<name>MAS_JSI_AI_Throttle</name>
+			<style>AI</style>
+			<TRANSLATION id="0">
+				<variable>fc.GetThrottle()</variable>
+			</TRANSLATION>
+		</prop>
+	</AxisIndicator>
+</PropConfig>
