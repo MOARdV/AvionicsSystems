@@ -2774,6 +2774,8 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Returns a random number in the range [0, 1] that updates based on `period`.
+        /// 
+        /// Note that all props using the same `period` will see the same value from this function.
         /// </summary>
         /// <param name="period">The period between updates, in cycles/second (Hertz).</param>
         /// <returns>A number between 0 and 1, inclusive.  0 if period is not a positive value.</returns>
