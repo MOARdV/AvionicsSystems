@@ -93,6 +93,10 @@ namespace AvionicsSystems
             }
 
             Transform textObjTransform = prop.FindModelTransform(transform);
+            if (textObjTransform == null)
+            {
+                throw new ArgumentException("Unable to find transform '" + transform + "' in TEXT_LABEL " + name);
+            }
             Vector3 localScale = prop.transform.localScale;
 
             Transform offsetTransform = new GameObject().transform;
