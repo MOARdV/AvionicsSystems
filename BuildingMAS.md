@@ -48,10 +48,6 @@ build for all platforms, there should be no additional settings that need change
 
 PropConfig.exe reads one or more XML files and converts the contents into KSP-compatible prop config files.
 
-### MiniAVC.dll
-
-MAS currently ships with MiniAVC.dll in GameData/MOARdV/AvionicsSystems.  Note that this is not strictly required.
-
 ## Building
 
 ### MAS DLL
