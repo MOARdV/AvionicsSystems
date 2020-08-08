@@ -368,6 +368,17 @@ namespace AvionicsSystems
                 {
                     initialName = initialName.Replace("%PROPID%", prop.propID.ToString());
                 }
+                if (initialName.Contains("%PROPCOUNT%"))
+                {
+                    if (prop.internalModel != null)
+                    {
+                        initialName = initialName.Replace("%PROPCOUNT%", prop.internalModel.props.Count.ToString());
+                    }
+                    else
+                    {
+                        initialName = initialName.Replace("%PROPCOUNT%", "1");
+                    }
+                }
                 return initialName;
             }
         }
