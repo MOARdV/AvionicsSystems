@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2019 MOARdV
+ * Copyright (c) 2016-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -447,6 +447,64 @@ namespace AvionicsSystems
             sb.Append(goName).Append("-").Append(typeName).Append("-").Append(objectName).AppendFormat("-{0}", id);
 
             return sb.ToStringAndRelease();
+        }
+
+        /// <summary>
+        /// Walk the transforms of a prop.
+        /// </summary>
+        /// <param name="aTransform"></param>
+        internal static void DumpTransformTree(Transform aTransform, bool recurseToRoot)
+        {
+            Transform parent = aTransform;
+            if (recurseToRoot)
+            {
+                while (parent.parent != null)
+                {
+                    parent = parent.parent;
+                }
+            }
+
+            LogInfo(aTransform, "Root:");
+            RecurseTransform(0, parent);
+        }
+
+        /// <summary>
+        /// Dumps info about the transform `self`, then recurses to `self`'s children.
+        /// </summary>
+        /// <param name="depth">The current recursion depth</param>
+        /// <param name="self">The transform to dimp.</param>
+        private static void RecurseTransform(int depth, Transform self)
+        {
+            var sb = StringBuilderCache.Acquire();
+            sb.Append(" ");
+            if (depth > 0)
+            {
+                // Remember how to do this efficiently...
+                int limit = Math.Max(0, depth - 1);
+                for (int i = 0; i < limit; ++i)
+                {
+                    sb.Append(" ");
+                }
+            }
+            if (depth > 1)
+            {
+                sb.Append("|");
+            }
+            string s = sb.ToStringAndRelease();
+            LogInfo(self, "{0}+ {1}  @{2:0.000}, {3:0.000}, {4:0.000}, rot {5:0.00}, {6:0.00}, {7:0.00}, scale {8:0.0}, {9:0.0}, {10:0.0},",
+                s, self.name,
+                self.localPosition.x, self.localPosition.y, self.localPosition.z,
+                self.localEulerAngles.x, self.localEulerAngles.y, self.localEulerAngles.z,
+                self.localScale.x, self.localScale.y, self.localScale.z
+                );
+
+            if (self.childCount > 0)
+            {
+                for (int i = 0; i < self.childCount; ++i)
+                {
+                    RecurseTransform(depth + 1, self.GetChild(i));
+                }
+            }
         }
 
         private static void DumpConfigNode(ConfigNode node, int depth)
