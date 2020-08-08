@@ -2773,6 +2773,21 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns a random number in the range [0, 1] that updates based on `period`.
+        /// </summary>
+        /// <param name="period">The period between updates, in cycles/second (Hertz).</param>
+        /// <returns>A number between 0 and 1, inclusive.  0 if period is not a positive value.</returns>
+        public double PeriodRandom(double period)
+        {
+            if (period > 0.0)
+            {
+                return fc.PeriodRandom((float)(1.0 / period));
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns a periodic variable that follows a sine-wave curve.
         /// </summary>
         /// <param name="period">The period of the change, in cycles/second (Hertz).</param>

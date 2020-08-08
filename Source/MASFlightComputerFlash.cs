@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -32,6 +32,8 @@ namespace AvionicsSystems
     public partial class MASFlightComputer : PartModule
     {
         private Dictionary<float, FlashModule> flashModule = new Dictionary<float, FlashModule>();
+
+        private Dictionary<float, float> periodRandom = new Dictionary<float, float>();
 
         private class FlashModule
         {
@@ -108,6 +110,35 @@ namespace AvionicsSystems
             if (flashModule.ContainsKey(period))
             {
                 flashModule[period].flashCallbacks -= callback;
+            }
+        }
+
+        /// <summary>
+        /// Return a value for the periodic random value.
+        /// </summary>
+        /// <param name="period"></param>
+        /// <returns>A number in the range 0 to 1.</returns>
+        internal float PeriodRandom(float period)
+        {
+            period = QuantizePeriod(period);
+
+            float value;
+            if (periodRandom.TryGetValue(period, out value))
+            {
+                return value;
+            }
+            else
+            {
+                periodRandom.Add(period, UnityEngine.Random.value);
+
+                RegisterFlashCallback(period,
+                    (bool t) =>
+                    {
+                        periodRandom[period] = UnityEngine.Random.value;
+                    }
+                    );
+
+                return periodRandom[period];
             }
         }
 
