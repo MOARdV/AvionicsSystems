@@ -207,7 +207,7 @@
 			<style>LedPanel</style>
 			<COLOR_SHIFT>
 				<activeColor>0,255,0,255</activeColor>
-				<variable>fc.GetSASMode(1)</variable>
+				<variable>fc.GetSASMode() == 1</variable>
 			</COLOR_SHIFT>
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(1)</onClick>
@@ -221,7 +221,7 @@
 			<style>LedPanel</style>
 			<COLOR_SHIFT>
 				<activeColor>0,255,0,255</activeColor>
-				<variable>fc.GetSASMode(2)</variable>
+				<variable>fc.GetSASMode() == 2</variable>
 			</COLOR_SHIFT>
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(2)</onClick>
@@ -235,7 +235,7 @@
 			<style>LedPanel</style>
 			<COLOR_SHIFT>
 				<activeColor>0,255,0,255</activeColor>
-				<variable>fc.GetSASMode(3)</variable>
+				<variable>fc.GetSASMode() == 3</variable>
 			</COLOR_SHIFT>
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(3)</onClick>
@@ -249,7 +249,7 @@
 			<style>LedPanel</style>
 			<COLOR_SHIFT>
 				<activeColor>0,255,0,255</activeColor>
-				<variable>fc.GetSASMode(4)</variable>
+				<variable>fc.GetSASMode() == 4</variable>
 			</COLOR_SHIFT>
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(4)</onClick>
@@ -263,7 +263,7 @@
 			<style>LedPanel</style>
 			<COLOR_SHIFT>
 				<activeColor>0,255,0,255</activeColor>
-				<variable>fc.GetSASMode(6)</variable>
+				<variable>fc.GetSASMode() == 6</variable>
 			</COLOR_SHIFT>
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(6)</onClick>
@@ -277,7 +277,7 @@
 			<style>LedPanel</style>
 			<COLOR_SHIFT>
 				<activeColor>0,255,0,255</activeColor>
-				<variable>fc.GetSASMode(5)</variable>
+				<variable>fc.GetSASMode() == 5</variable>
 			</COLOR_SHIFT>
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(5)</onClick>
@@ -291,7 +291,7 @@
 			<style>LedPanel</style>
 			<COLOR_SHIFT>
 				<activeColor>0,255,0,255</activeColor>
-				<variable>fc.GetSASMode(7)</variable>
+				<variable>fc.GetSASMode() == 7</variable>
 			</COLOR_SHIFT>
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(7)</onClick>
@@ -305,7 +305,7 @@
 			<style>LedPanel</style>
 			<COLOR_SHIFT>
 				<activeColor>0,255,0,255</activeColor>
-				<variable>fc.GetSASMode(8)</variable>
+				<variable>fc.GetSASMode() == 8</variable>
 			</COLOR_SHIFT>
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(8)</onClick>
@@ -319,7 +319,7 @@
 			<style>LedPanel</style>
 			<COLOR_SHIFT>
 				<activeColor>0,255,0,255</activeColor>
-				<variable>fc.GetSASMode(9)</variable>
+				<variable>fc.GetSASMode() == 9</variable>
 			</COLOR_SHIFT>
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(9)</onClick>
@@ -333,7 +333,7 @@
 			<style>LedPanel</style>
 			<COLOR_SHIFT>
 				<activeColor>0,255,0,255</activeColor>
-				<variable>fc.GetSASMode(0)</variable>
+				<variable>fc.GetSASMode() == 0</variable>
 			</COLOR_SHIFT>
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(0)</onClick>
