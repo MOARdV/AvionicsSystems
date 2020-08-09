@@ -503,6 +503,11 @@ namespace AvionicsSystems
                     lhs.RegisterNumericCallback(v.TriggerUpdate);
                     rhs.RegisterNumericCallback(v.TriggerUpdate);
                     break;
+                case CodeGen.Parser.LuaToken.CONCAT:
+                    v = new StringVariable(operatorExpression.CanonicalName(), () => lhs.AsString() + rhs.AsString(), lhs.cacheable && rhs.cacheable, lhs.mutable || rhs.mutable, Variable.VariableType.Dependent);
+                    lhs.RegisterNumericCallback(v.TriggerUpdate);
+                    rhs.RegisterNumericCallback(v.TriggerUpdate);
+                    break;
                 default:
                     Utility.LogWarning(this, "Encountered unhandled OperatorExpression operator {0}", operatorExpression.Operator());
                     break;
