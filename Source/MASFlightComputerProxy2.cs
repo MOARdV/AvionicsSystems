@@ -972,7 +972,7 @@ namespace AvionicsSystems
         /// </summary>
         #region Meta
 
-        [MASProxyAttribute(Immutable = true)]
+        [MASProxyAttribute(Dependent = true)]
         /// <summary>
         /// Checks for the existence of the named assembly (eg, `fc.AssemblyLoaded("MechJeb2")`).
         /// This can be used to determine
