@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -125,8 +125,7 @@ namespace AvionicsSystems
                 borderObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name + "-border", (int)(-depth / MASMonitor.depthDelta));
                 borderObject.layer = pageRoot.gameObject.layer;
                 borderObject.transform.parent = pageRoot;
-                borderObject.transform.position = pageRoot.position;
-                borderObject.transform.Translate(monitor.screenSize.x * -0.5f + position.x, monitor.screenSize.y * 0.5f - position.y - size.y, depth);
+                borderObject.transform.position = componentOrigin + new Vector3(position.x, -(position.y + size.y), 0.0f);
 
                 borderMaterial = new Material(MASLoader.shaders["MOARdV/Monitor"]);
                 borderRenderer = borderObject.AddComponent<LineRenderer>();
@@ -191,8 +190,8 @@ namespace AvionicsSystems
                 {
                     new Vector3(-halfWidth, -halfWidth, 0.0f),
                     new Vector3(size.x + halfWidth, -halfWidth, 0.0f),
-                    new Vector3(size.x + halfWidth, size.y + halfWidth, 0.0f),
-                    new Vector3(-halfWidth, size.y+halfWidth, 0.0f)
+                    new Vector3(size.x + halfWidth, -(size.y + halfWidth), 0.0f),
+                    new Vector3(-halfWidth, -(size.y+halfWidth), 0.0f)
                 };
                 borderRenderer.SetPositions(borderPoints);
             }
@@ -201,8 +200,7 @@ namespace AvionicsSystems
             graphObject.name = Utility.ComposeObjectName(pageRoot.gameObject.name, this.GetType().Name, name, (int)(-depth / MASMonitor.depthDelta));
             graphObject.layer = pageRoot.gameObject.layer;
             graphObject.transform.parent = pageRoot;
-            graphObject.transform.position = pageRoot.position;
-            graphObject.transform.Translate(monitor.screenSize.x * -0.5f + position.x, monitor.screenSize.y * 0.5f - position.y - size.y, depth);
+            graphObject.transform.position = componentOrigin + new Vector3(position.x, -position.y, 0.0f);
             // add renderer stuff
             graphMaterial = new Material(MASLoader.shaders["MOARdV/Monitor"]);
             lineRenderer = graphObject.AddComponent<LineRenderer>();
@@ -343,7 +341,7 @@ namespace AvionicsSystems
             while (lineRenderer != null)
             {
                 float newSample = verticalSpan * Mathf.InverseLerp(sourceRange1, sourceRange2, sourceValue);
-                newSample = Mathf.Round(newSample);
+                newSample = Mathf.Round(newSample) - verticalSpan;
 
                 if (currentSample < maxSamples)
                 {
