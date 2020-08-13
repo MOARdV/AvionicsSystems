@@ -1164,6 +1164,19 @@ namespace AvionicsSystems
 
         [MASProxy(Dependent = true)]
         /// <summary>
+        /// Returns the distance to the requested body, in meters.
+        /// </summary>
+        /// <param name="id">The name or index of the body of interest.</param>
+        /// <returns>Distance in meters, or 0 if invalid.</returns>
+        public double BodyDistance(object id)
+        {
+            CelestialBody cb = SelectBody(id);
+
+            return (cb != null) ? Vector3d.Distance(vessel.GetTransform().position, cb.GetTransform().position) : 0.0;
+        }
+
+        [MASProxy(Dependent = true)]
+        /// <summary>
         /// Returns the escape velocity of the body.
         /// </summary>
         /// <param name="id">The name or index of the body of interest.</param>

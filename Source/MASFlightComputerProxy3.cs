@@ -3333,6 +3333,11 @@ namespace AvionicsSystems
         /// <returns>The name of the current target, or "" if there is no target.</returns>
         public string TargetName()
         {
+            string name;
+            if (KSP.Localization.Localizer.TryGetStringByTag(vc.targetName, out name))
+            {
+                return name;
+            }
             return vc.targetName;
         }
 
@@ -3748,6 +3753,30 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the index of the non-debris vessel that is currently targeted, between
+        /// 0 and fc.TargetVesselCount() - 1.  If none of those vessels are targeted, returns
+        /// -1.
+        /// </summary>
+        /// <returns>An integer between 0 and fc.TargetVesselCount() - 1, or -1 if the none of the vessels is the current target.</returns>
+        public double TargetVesselIndex()
+        {
+            UpdateNeighboringVessels();
+
+            if (vc.targetType == MASVesselComputer.TargetType.Vessel || vc.targetType == MASVesselComputer.TargetType.DockingPort)
+            {
+                Vessel target = (vc.targetType == MASVesselComputer.TargetType.DockingPort) ? (vc.activeTarget as ModuleDockingNode).vessel : (vc.activeTarget as Vessel);
+                int i = neighboringVessels.IndexOf(target);
+
+                if (i >= 0 && i < neighboringVessels.Length)
+                {
+                    return (double)i;
+                }
+            }
+
+            return -1.0;
+        }
+
+        /// <summary>
         /// Returns the name of the non-debris vessel selected by id.  The id parameter
         /// must be between 0 and fc.TargetVesselCount() - 1.
         /// </summary>
@@ -3760,7 +3789,13 @@ namespace AvionicsSystems
             int index = (int)id;
             if (index >= 0 && index < neighboringVessels.Length)
             {
-                return neighboringVessels[index].GetName();
+                string baseName = neighboringVessels[index].GetName();
+                string name;
+                if (KSP.Localization.Localizer.TryGetStringByTag(baseName, out name))
+                {
+                    return name;
+                }
+                return baseName;
             }
             else
             {

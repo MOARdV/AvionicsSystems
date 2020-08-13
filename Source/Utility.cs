@@ -477,7 +477,7 @@ namespace AvionicsSystems
         {
             var sb = StringBuilderCache.Acquire();
             sb.Append(" ");
-            if (depth > 0)
+            if (depth > 2)
             {
                 // Remember how to do this efficiently...
                 int limit = Math.Max(0, depth - 1);
@@ -486,7 +486,7 @@ namespace AvionicsSystems
                     sb.Append(" ");
                 }
             }
-            if (depth > 1)
+            if (depth > 0)
             {
                 sb.Append("|");
             }
