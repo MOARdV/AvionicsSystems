@@ -387,7 +387,10 @@ namespace AvionicsSystems
         /// be rendered.  false indicates that the page has completed rendering.</param>
         public override void RenderPage(bool enable)
         {
-            borderRenderer.enabled = enable;
+            if (borderRenderer != null)
+            {
+                borderRenderer.enabled = enable;
+            }
             lineRenderer.enabled = enable;
         }
 
