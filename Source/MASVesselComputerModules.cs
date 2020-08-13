@@ -3,7 +3,7 @@
 /*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2019 MOARdV
+ * Copyright (c) 2016-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -274,19 +274,29 @@ namespace AvionicsSystems
         // station, and we never want to affect more than one docking port with
         // such transactions.  Code substantially imported from what I wrote for
         // RasterPropMonitor.
+        // This concept has also been extended to the Claw / grabber units.
         internal ModuleDockingNode dockingNode;
         internal DockingNodeState dockingNodeState = DockingNodeState.UNKNOWN;
         internal enum DockingNodeState
         {
+            // Indeterminate state
             UNKNOWN,
+            // Docked to an object
             DOCKED,
+            // Pre-attached (docked in the VAB/SPH)
             PREATTACHED,
-            READY
+            // Ready to dock
+            READY,
+            // Disabled (such as a grapple that is not armed)
+            DISABLED
         };
+        internal ModuleGrappleNode clawNode;
+        internal DockingNodeState clawNodeState = DockingNodeState.UNKNOWN;
         private void UpdateDockingNode(Part referencePart)
         {
             // Our candidate for docking node.  Called from UpdateReferenceTransform()
             ModuleDockingNode dockingNode = null;
+            ModuleGrappleNode clawNode = null;
 
             if (referencePart != null)
             {
@@ -295,6 +305,10 @@ namespace AvionicsSystems
                 {
                     // If it's a docking port, this should be all we need to do.
                     dockingNode = referencePart.FindModuleImplementing<ModuleDockingNode>();
+                }
+                else if (referenceTransformType == ReferenceType.Claw)
+                {
+                    clawNode = referencePart.FindModuleImplementing<ModuleGrappleNode>();
                 }
                 else
                 {
@@ -331,6 +345,11 @@ namespace AvionicsSystems
                                 {
                                     break;
                                 }
+                                clawNode = p.FindModuleImplementing<ModuleGrappleNode>();
+                                if (clawNode != null)
+                                {
+                                    break;
+                                }
                             }
                         }
                     }
@@ -338,6 +357,7 @@ namespace AvionicsSystems
             }
 
             this.dockingNode = dockingNode;
+            this.clawNode = clawNode;
         }
 
         private void UpdateDockingNodeState()
@@ -366,6 +386,30 @@ namespace AvionicsSystems
             else
             {
                 dockingNodeState = DockingNodeState.UNKNOWN;
+            }
+
+            if (clawNode != null)
+            {
+                switch (clawNode.state)
+                {
+                    case "Disabled":
+                        clawNodeState = DockingNodeState.DISABLED;
+                        break;
+                    case "Ready":
+                        clawNodeState = DockingNodeState.READY;
+                        break;
+                    case "Grappled":
+                        clawNodeState = DockingNodeState.DOCKED;
+                        break;
+                    default:
+                        Utility.LogMessage(this, "Claw = {0}, unlocked {1}, loose {2}", clawNode.state, clawNode.IsJointUnlocked(), clawNode.IsLoose());
+                        clawNodeState = DockingNodeState.UNKNOWN;
+                        break;
+                }
+            }
+            else
+            {
+                clawNodeState = DockingNodeState.UNKNOWN;
             }
         }
         #endregion

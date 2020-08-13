@@ -3768,6 +3768,18 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns 1 if the primary grapple on the vessel is the current reference transform.
+        /// 
+        /// Returns 0 if the grapple is not the reference transform, or if there is no grapple,
+        /// or if a grapple other than the primary grapple is the reference transform.
+        /// </summary>
+        /// <returns></returns>
+        public double GetGrappleIsReference()
+        {
+            return (vc.clawNode != null && vc.clawNode.part == vessel.GetReferenceTransformPart()) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Returns 1 if the current IVA pod is the reference transform.  Returns 0 otherwise.
         /// </summary>
         /// <returns></returns>
@@ -3809,6 +3821,23 @@ namespace AvionicsSystems
             if (vc.dockingNode != null)
             {
                 vessel.SetReferenceTransform(vc.dockingNode.part);
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Set the primary grapple to be the reference transform.
+        /// </summary>
+        /// <returns>1 if the reference was changed, 0 otherwise.</returns>
+        public double SetGrappleToReference()
+        {
+            if (vc.clawNode != null)
+            {
+                vessel.SetReferenceTransform(vc.clawNode.part);
                 return 1.0;
             }
             else
@@ -3995,7 +4024,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Undock / detach (if pre-attached) the active docking node.
         /// </summary>
-        /// <returns>If the active dock undocked from something.</returns>
+        /// <returns>1 if the active dock undocked from something, 0 otherwise.</returns>
         public double Undock()
         {
             if (vc.dockingNode != null)
@@ -4884,6 +4913,225 @@ namespace AvionicsSystems
         {
             vessel.ActionGroups.ToggleGroup(KSPActionGroup.Gear);
             return (vessel.ActionGroups[KSPActionGroup.Gear]) ? 1.0 : 0.0;
+        }
+        #endregion
+
+        /// <summary>
+        /// The Grapple category controls grappling nodes ("The Claw").
+        /// 
+        /// Like the Dock category, many of these methods use the concept of "Primary Grapple".
+        /// The primary grapple is defined as the first or only grapple
+        /// found on the vessel.
+        /// 
+        /// Grapples may be made reference transforms.  The functions related to that are found
+        /// under the Dock category to be consistent with the existing reference transform
+        /// functionality.
+        /// </summary>
+        #region Grapple
+
+        /// <summary>
+        /// Returns 1 if the primary grapple's pivot is locked, returns 0 if it is unlocked, or
+        /// there is no grapple.
+        /// </summary>
+        public double GetGrapplePivotLocked()
+        {
+            return (vc.clawNode != null && !vc.clawNode.IsLoose()) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the primary grapple is armed and ready for use.  Returns 0 otherwise.
+        /// </summary>
+        /// <returns>1 if the primary grapple is ready, 0 if it is not ready (in use, not armed), or there is no grapple.</returns>
+        public double GrappleArmed()
+        {
+            if (vc.clawNode != null)
+            {
+                return (vc.clawNodeState == MASVesselComputer.DockingNodeState.DISABLED) ? 0.0 : 1.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns a number representing whether the primary grapple is arming, or disarming, or not changing.
+        /// </summary>
+        /// <returns>-1 if the grapple is disarming, +1 if the grapple is arming, 0 otherwise.</returns>
+        public double GrappleMoving()
+        {
+            if (vc.clawNode != null)
+            {
+                try
+                {
+                    ModuleAnimateGeneric clawAnimation = (vc.clawNode.part.Modules[vc.clawNode.deployAnimationController] as ModuleAnimateGeneric);
+                    if (clawAnimation != null)
+                    {
+                        if(clawAnimation.IsMoving())
+                        {
+                            return (clawAnimation.animSpeed > 0.0f) ? 1.0 : -1.0;
+                        }
+                    }
+                }
+                catch
+                {
+                    return 0.0;
+                }
+            }
+            
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the primary grapple is armed and ready for use.  Returns 0 otherwise.
+        /// </summary>
+        /// <returns>1 if the primary grapple is ready, 0 if it is not ready, or there is no grapple.</returns>
+        public double GrappleReady()
+        {
+            if (vc.clawNode != null)
+            {
+                return (vc.clawNodeState == MASVesselComputer.DockingNodeState.READY) ? 1.0 : 0.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Release the primary grapple from whatever it's connected to.
+        /// </summary>
+        /// <returns>1 if the grapple released, 0 if it did not, or there is no grapple.</returns>
+        public double GrappleRelease()
+        {
+            if (vc.clawNode != null)
+            {
+                if (vc.clawNodeState == MASVesselComputer.DockingNodeState.DOCKED)
+                {
+                    vc.clawNode.Release();
+                    return 1.0;
+                }
+                else if (vc.clawNodeState == MASVesselComputer.DockingNodeState.PREATTACHED)
+                {
+                    // Not sure this actually happens.
+                    vc.clawNode.Decouple();
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Sets the arming state of the primary grapple.  Has no effect if there is no grapple, or if it can not
+        /// be armed or disarmed, such as when it is grappling something.
+        /// </summary>
+        /// <param name="armGrapple">If true, and the grapple is disarmed, arm the grapple.  If false, and the grapple can be disarmed, disarm the grapple.</param>
+        /// <returns>1 if the state was changed.  0 otherwise.</returns>
+        public double SetGrappleArmed(bool armGrapple)
+        {
+            if (vc.clawNode != null)
+            {
+                bool applyChange = false;
+                if (vc.clawNodeState == MASVesselComputer.DockingNodeState.DISABLED && armGrapple == true)
+                {
+                    applyChange = true;
+                }
+                else if (vc.clawNodeState == MASVesselComputer.DockingNodeState.READY && armGrapple == false)
+                {
+                    applyChange = true;
+                }
+
+                if (applyChange)
+                {
+                    try
+                    {
+                        ModuleAnimateGeneric clawAnimation = (vc.clawNode.part.Modules[vc.clawNode.deployAnimationController] as ModuleAnimateGeneric);
+                        if (clawAnimation != null)
+                        {
+                            clawAnimation.Toggle();
+                        }
+                    }
+                    catch
+                    {
+                        return 0.0;
+                    }
+
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Change whether the primary grapple's pivot is locked on loose.
+        /// </summary>
+        /// <param name="locked">If true, the joint is locked.  If loose, it is unlocked.</param>
+        /// <returns>1 if the state is changed, 0 otherwise.</returns>
+        public double SetGrapplePivot(bool locked)
+        {
+            if (vc.clawNode != null)
+            {
+                if (locked && vc.clawNode.IsJointUnlocked())
+                {
+                    vc.clawNode.LockPivot();
+                    return 1.0;
+                }
+                else if(!locked && !vc.clawNode.IsJointUnlocked())
+                {
+                    vc.clawNode.SetLoose();
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Arm or disarm the installed primary grapple.
+        /// </summary>
+        /// <returns>1 if the grapple is arming or disarming, 0 if the grapple does not have an arming behavior, or if there is no grapple.</returns>
+        public double ToggleGrappleArmed()
+        {
+            if (vc.clawNode != null)
+            {
+                try
+                {
+                    ModuleAnimateGeneric clawAnimation = (vc.clawNode.part.Modules[vc.clawNode.deployAnimationController] as ModuleAnimateGeneric);
+                    if (clawAnimation != null)
+                    {
+                        clawAnimation.Toggle();
+                    }
+                }
+                catch
+                {
+                    return 0.0;
+                }
+
+                return 1.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
+        /// Toggle the state of the primary grapple's pivot
+        /// </summary>
+        /// <returns>1 if the state qas changed, 0 otherwise.</returns>
+        public double ToggleGrapplePivot()
+        {
+            if (vc.clawNode != null)
+            {
+                if(vc.clawNode.IsJointUnlocked())
+                {
+                    vc.clawNode.LockPivot();
+                }
+                else
+                {
+                    vc.clawNode.SetLoose();
+                }
+
+                return 1.0;
+            }
+
+            return 0.0;
         }
         #endregion
 
