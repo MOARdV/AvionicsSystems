@@ -3813,6 +3813,15 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Indicates whether a primary docking port was found on this vessel.
+        /// </summary>
+        /// <returns>1 if a node was found, 0 otherwise.</returns>
+        public double HasDock()
+        {
+            return (vc.dockingNode != null) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
         /// Set the primary docking port to be the reference transform.
         /// </summary>
         /// <returns>1 if the reference was changed, 0 otherwise.</returns>
@@ -4965,7 +4974,7 @@ namespace AvionicsSystems
                     ModuleAnimateGeneric clawAnimation = (vc.clawNode.part.Modules[vc.clawNode.deployAnimationController] as ModuleAnimateGeneric);
                     if (clawAnimation != null)
                     {
-                        if(clawAnimation.IsMoving())
+                        if (clawAnimation.IsMoving())
                         {
                             return (clawAnimation.animSpeed > 0.0f) ? 1.0 : -1.0;
                         }
@@ -4976,7 +4985,7 @@ namespace AvionicsSystems
                     return 0.0;
                 }
             }
-            
+
             return 0.0;
         }
 
@@ -5016,6 +5025,15 @@ namespace AvionicsSystems
             }
 
             return 0.0;
+        }
+
+        /// <summary>
+        /// Indicates whether a primary grapple was found on the vessel.
+        /// </summary>
+        /// <returns>1 if a grapple is available, 0 if none were detected.</returns>
+        public double HasGrapple()
+        {
+            return (vc.clawNode != null) ? 1.0 : 0.0;
         }
 
         /// <summary>
@@ -5074,7 +5092,7 @@ namespace AvionicsSystems
                     vc.clawNode.LockPivot();
                     return 1.0;
                 }
-                else if(!locked && !vc.clawNode.IsJointUnlocked())
+                else if (!locked && !vc.clawNode.IsJointUnlocked())
                 {
                     vc.clawNode.SetLoose();
                     return 1.0;
@@ -5119,7 +5137,7 @@ namespace AvionicsSystems
         {
             if (vc.clawNode != null)
             {
-                if(vc.clawNode.IsJointUnlocked())
+                if (vc.clawNode.IsJointUnlocked())
                 {
                     vc.clawNode.LockPivot();
                 }
