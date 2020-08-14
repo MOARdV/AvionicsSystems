@@ -15,6 +15,7 @@
 -- Initialization script for the JSI MFD.  This script may set up multiple variables if needed.
 function MAS_JSI_MFD_Init(propId)
 
-	fc.InitializePersistent(propId .. "-A", "MAS_JSI_BasicMFD_NavBall")
+	fc.InitializePersistent(propId .. "-A", "MAS_JSI_BasicMFD_A_NavBall")
+	fc.InitializePersistent(propId .. "-D", "MAS_JSI_BasicMFD_D_MechJeb")
 
 end
