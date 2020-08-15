@@ -1131,7 +1131,7 @@
 			<name>MAS_DigitalIndicator_ImpactSPEED</name>
 			<style>DI15-4 tap</style>
 			<TEXT_LABEL id="0">
-				<text>{0:SIP###0.0} $#$ fc.Select(fc.GetPersistentAsNumber("%AUTOID%") - 1, fc.ImpactSpeed(), fc.VerticalSpeed(), fc.HorizontalSpeed())</text>
+				<text>{0:SIP###0.0} $#$ fc.Select(fc.GetPersistentAsNumber("%AUTOID%") - 1, fc.LandingSpeed(), fc.VerticalSpeed(), fc.HorizontalSpeed())</text>
 				<variable>0</variable>
 				<fontSize>14</fontSize>
 				<passiveColor>fc.Select(fc.GetPersistentAsNumber("%AUTOID%") - 1, 255, 255, 0), fc.Select(fc.GetPersistentAsNumber("%AUTOID%") - 1, 0, 255, 255), 0</passiveColor>

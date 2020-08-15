@@ -3204,6 +3204,28 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns an estimate of the speed of the vessel at landing, based on current speed
+        /// and current thrust.
+        /// 
+        /// This is purely an estimate, and it does not account for atmospheric drag or maximum
+        /// available thrust.
+        /// 
+        /// If the vessel will not lithobrake, or if the current thrust is adequate, the speed
+        /// estimate is 0.
+        /// </summary>
+        /// <returns>Impact speed in m/s, or 0 if the vessel will not intersect the planet.</returns>
+        public double LandingSpeed()
+        {
+            double landingTime = LandingTime();
+            if (landingTime > 0.0)
+            {
+                return Math.Max(0.0, SurfaceSpeed() - AccelSurfacePrograde() * landingTime);
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the predicted time until landing in seconds.
         /// 
         /// See the [category description](#description) for limitations on this function.
