@@ -2402,13 +2402,13 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Returns a number identifying what the current reference transform is:
-        /// 1: The current IVA pod (if in IVA)
-        /// 2: A command pod or probe control part.
-        /// 3: A docking port
-        /// 4: A Grapple Node (Claw)
-        /// 0: Unknown.
+        /// * 1: The current IVA pod (if in IVA)
+        /// * 2: A command pod or probe control part.
+        /// * 3: A docking port
+        /// * 4: A Grapple Node (Claw)
+        /// * 0: Unknown.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A number as specified in the summary.</returns>
         public double ReferenceTransformType()
         {
             switch (vc.referenceTransformType)
