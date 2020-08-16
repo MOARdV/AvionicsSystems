@@ -3735,6 +3735,30 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the name of the object docked to the vessel.  Returns an empty string if fc.Docked() returns 0.
+        /// </summary>
+        /// <returns>The name of the docked vessel.</returns>
+        public string DockedObjectName()
+        {
+            if (vc.dockingNodeState == MASVesselComputer.DockingNodeState.DOCKED)
+            {
+                if (vc.dockingNode.vesselInfo != null)
+                {
+                    string l10n = string.Empty;
+                    if (KSP.Localization.Localizer.TryGetStringByTag(vc.dockingNode.vesselInfo.name, out l10n))
+                    {
+                        return l10n;
+                    }
+                    else
+                    {
+                        return vc.dockingNode.vesselInfo.name;
+                    }
+                }
+            }
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Return 1 if the dock is attached to a compatible dock; return 0 otherwise.
         /// 
         /// Note that this function will return 0 if the compatible dock was connected in the
@@ -4959,6 +4983,40 @@ namespace AvionicsSystems
             }
 
             return 0.0;
+        }
+
+        /// <summary>
+        /// Returns 1 if the primary grapple is holding something.  Returns 0 if it is not, or no grapple
+        /// is installed.
+        /// </summary>
+        /// <returns></returns>
+        public double Grappled()
+        {
+            return (vc.clawNodeState == MASVesselComputer.DockingNodeState.DOCKED) ? 1.0 : 0.0;
+        }
+
+        /// <summary>
+        /// Returns the name of the object grappled by the vessel.  Returns an empty string if fc.Grappled() returns 0.
+        /// </summary>
+        /// <returns>The name of the grappled object.</returns>
+        public string GrappledObjectName()
+        {
+            if (vc.clawNodeState == MASVesselComputer.DockingNodeState.DOCKED)
+            {
+                if (vc.clawNode.vesselInfo != null)
+                {
+                    string l10n = string.Empty;
+                    if (KSP.Localization.Localizer.TryGetStringByTag(vc.clawNode.vesselInfo.name, out l10n))
+                    {
+                        return l10n;
+                    }
+                    else
+                    {
+                        return vc.clawNode.vesselInfo.name;
+                    }
+                }
+            }
+            return string.Empty;
         }
 
         /// <summary>
