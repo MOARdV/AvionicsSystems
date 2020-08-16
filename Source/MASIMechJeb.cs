@@ -152,6 +152,8 @@ namespace AvionicsSystems
         object masterMechJeb;
         object ascentAutopilot;
         object ascentGuidance;
+        object dockingAutopilot;
+        object dockingGuidance;
         object landingAutopilot;
         object landingGuidance;
         object landingPrediction;
@@ -242,7 +244,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double AutopilotActive()
         {
-            if (mjAvailable && (GetModuleEnabled(ascentAutopilot) || GetModuleEnabled(landingAutopilot) || GetModuleEnabled(nodeExecutor) || GetModuleEnabled(rendezvousAutopilot)))
+            if (mjAvailable && (GetModuleEnabled(ascentAutopilot) || GetModuleEnabled(dockingAutopilot) || GetModuleEnabled(landingAutopilot) || GetModuleEnabled(nodeExecutor) || GetModuleEnabled(rendezvousAutopilot)))
             {
                 return 1.0;
             }
@@ -268,7 +270,7 @@ namespace AvionicsSystems
         /// <returns></returns>
         public double ComputerActive()
         {
-            if (mjAvailable && (saTarget != SATarget.OFF || GetModuleEnabled(ascentAutopilot) || GetModuleEnabled(landingAutopilot) || GetModuleEnabled(nodeExecutor) || GetModuleEnabled(rendezvousAutopilot)))
+            if (mjAvailable && (saTarget != SATarget.OFF || GetModuleEnabled(ascentAutopilot) || GetModuleEnabled(dockingAutopilot) || GetModuleEnabled(landingAutopilot) || GetModuleEnabled(nodeExecutor) || GetModuleEnabled(rendezvousAutopilot)))
             {
                 return 1.0;
             }
@@ -295,6 +297,11 @@ namespace AvionicsSystems
                 if (GetModuleEnabled(ascentAutopilot))
                 {
                     RemoveUser(ModuleUsers.GetValue(ascentAutopilot), ascentGuidance);
+                }
+
+                if (GetModuleEnabled(dockingAutopilot))
+                {
+                    RemoveUser(ModuleUsers.GetValue(dockingAutopilot), dockingGuidance);
                 }
 
                 if (GetModuleEnabled(landingAutopilot))
@@ -366,8 +373,6 @@ namespace AvionicsSystems
             if (mjAvailable)
             {
                 return GetLaunchInclination(ascentAutopilot);
-                //object desiredInc = desiredOrbitInclination_t.GetValue(ascentAutopilot);
-                //desiredInclination = (double)desiredInc;
             }
 
             return desiredInclination;
@@ -537,6 +542,57 @@ namespace AvionicsSystems
 
             return 0.0;
         }
+        #endregion
+
+        /// <summary>
+        /// Interface for the MechJeb Docking Autopilot.
+        /// </summary>
+        #region MechJeb Docking Autopilot
+
+        /// <summary>
+        /// Returns 1 if the Docking Autopilot is enabled.  Returns 0 otherwise.
+        /// </summary>
+        /// <returns>1 or 0, as described in the summary.</returns>
+        public double DockingAutopilotActive()
+        {
+            if (mjAvailable && GetModuleEnabled(dockingAutopilot))
+            {
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+        /// <summary>
+        /// Toggles the Docking Autopilot on or off.
+        /// </summary>
+        /// <returns>1 if the autopilot was engaged, 0 if it was disengaged or unavailable.</returns>
+        public double ToggleDockingAutopilot()
+        {
+            if (mjAvailable)
+            {
+                object users = ModuleUsers.GetValue(dockingAutopilot);
+                if (users == null)
+                {
+                    Utility.LogWarning(this, "dockingAutopilot's ModuleUsers is null");
+                }
+
+                if (GetModuleEnabled(dockingAutopilot))
+                {
+                    RemoveUser(users, dockingGuidance);
+                }
+                else
+                {
+                    AddUser(users, dockingGuidance);
+                    return 1.0;
+                }
+            }
+
+            return 0.0;
+        }
+
         #endregion
 
         /// <summary>
@@ -1274,7 +1330,7 @@ namespace AvionicsSystems
             }
 
             return 0.0;
-                    }
+        }
 
         /// <summary>
         /// Toggles the SASS Force Roll controls (enable / disable).
@@ -1434,6 +1490,18 @@ namespace AvionicsSystems
                         if (ascentGuidance == null)
                         {
                             throw new Exception("MASIMechJeb: Failed to get Ascent Guidance MJ module");
+                        }
+
+                        dockingAutopilot = GetComputerModule(masterMechJeb, "MechJebModuleDockingAutopilot");
+                        if (dockingAutopilot == null)
+                        {
+                            throw new Exception("MASIMechJeb: Failed to get Docking Autopilot MJ module");
+                        }
+
+                        dockingGuidance = GetComputerModule(masterMechJeb, "MechJebModuleDockingGuidance");
+                        if (dockingGuidance == null)
+                        {
+                            throw new Exception("MASIMechJeb: Failed to get Docking Guidance MJ module");
                         }
 
                         landingAutopilot = GetComputerModule(masterMechJeb, "MechJebModuleLandingAutopilot");
