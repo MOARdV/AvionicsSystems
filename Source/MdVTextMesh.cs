@@ -136,7 +136,7 @@ namespace AvionicsSystems
         // We use only one tangent value ever.
         private readonly Vector4 tangent = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
 
-        private static readonly string[] VariableListSeparator = { "$&$", "$#$" };
+        internal static readonly string[] VariableListSeparator = { "$&$", "$#$" };
 
         /// <summary>
         /// Set the default text color
@@ -1600,7 +1600,7 @@ namespace AvionicsSystems
         /// TextRow encapsulates one row of text.  It handles parsing variables
         /// and updating text (as stored in formattedData).
         /// </summary>
-        private class TextRow
+        internal class TextRow
         {
             internal string formatString;
             internal string formattedData;
