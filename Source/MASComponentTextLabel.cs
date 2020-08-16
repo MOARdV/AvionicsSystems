@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -41,7 +41,6 @@ namespace AvionicsSystems
         private float flashRate = 0.0f;
         private float fontSize = 1.0f;
         private MdVTextMesh textObj;
-        private MASFlightComputer comp;
         private EmissiveMode emissiveMode = EmissiveMode.always;
         private readonly int emissiveFactorIndex = Shader.PropertyToID("_EmissiveFactor");
         enum EmissiveMode
@@ -411,7 +410,6 @@ namespace AvionicsSystems
             {
                 if (blend == false && config.TryGetValue("flashRate", ref flashRate) && flashRate > 0.0f)
                 {
-                    this.comp = comp;
                     comp.RegisterFlashCallback(flashRate, FlashToggle);
                 }
                 else
@@ -544,8 +542,6 @@ namespace AvionicsSystems
         public override void ReleaseResources(MASFlightComputer comp, InternalProp internalProp)
         {
             variableRegistrar.ReleaseResources();
-
-            this.comp = null;
         }
     }
 }
