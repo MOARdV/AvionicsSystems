@@ -3426,6 +3426,23 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the orbital period, in seconds, of the current target.  If there is no target,
+        /// returns 0.
+        /// </summary>
+        /// <returns></returns>
+        public double TargetOrbitPeriod()
+        {
+            if (vc.targetType > 0)
+            {
+                return vc.targetOrbit.period;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        /// <summary>
         /// Returns the orbital speed of the current target, in m/s.  If there is no target, returns 0.
         /// </summary>
         /// <returns>Current orbital speed of the target, or 0.</returns>
