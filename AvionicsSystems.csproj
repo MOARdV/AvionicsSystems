@@ -98,6 +98,7 @@
     <Compile Include="Source\MASComponentColliderEvent.cs" />
     <Compile Include="Source\MASComponentColorShift.cs" />
     <Compile Include="Source\MASComponentImage.cs" />
+    <Compile Include="Source\MASComponentInternalText.cs" />
     <Compile Include="Source\MASComponentIntLight.cs" />
     <Compile Include="Source\MASComponentModelScale.cs" />
     <Compile Include="Source\MASComponentRotation.cs" />

@@ -67,6 +67,8 @@ namespace AvionicsSystems
                     return new MASComponentImage(config, prop, comp);
                 case "INT_LIGHT":
                     return new MASComponentIntLight(config, prop, comp);
+                case "INTERNAL_TEXT":
+                    return new MASComponentInternalText(config, prop, comp);
                 case "MODEL_SCALE":
                     return new MASComponentModelScale(config, prop, comp);
                 case "ROTATION":

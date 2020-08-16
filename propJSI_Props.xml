@@ -49,18 +49,11 @@
 				<sound>Squad/Sounds/sound_click_tock</sound>
 				<volume>1</volume>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<name>Caption</name>
-				<comment>This is not working with these props - something wrong with the transform?</comment>
 				<transform>textLabel</transform>
-				<fontSize>15</fontSize>
-				<font>Liberation Sans</font>
-				<alignment>Left</alignment>
-				<anchor>UpperLeft</anchor>
-				<transformOffset>0,0</transformOffset>
-				<emissive>always</emissive>
 				<passiveColor>255,255,255,255</passiveColor>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</style>
 		<prop>
 			<name>MAS_JSI_LEDPanel_AG1</name>
@@ -72,9 +65,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.ToggleActionGroup(1)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>{0}$#$fc.ActionGroupActiveMemo(1)</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_AG2</name>
@@ -86,9 +79,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.ToggleActionGroup(2)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>{0}$#$fc.ActionGroupActiveMemo(2)</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_AG3</name>
@@ -100,9 +93,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.ToggleActionGroup(3)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>{0}$#$fc.ActionGroupActiveMemo(3)</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_AG4</name>
@@ -114,9 +107,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.ToggleActionGroup(4)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>{0}$#$fc.ActionGroupActiveMemo(4)</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_AG5</name>
@@ -128,9 +121,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.ToggleActionGroup(5)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>{0}$#$fc.ActionGroupActiveMemo(5)</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_AG6</name>
@@ -142,9 +135,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.ToggleActionGroup(6)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>{0}$#$fc.ActionGroupActiveMemo(6)</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_AG7</name>
@@ -156,9 +149,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.ToggleActionGroup(7)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>{0}$#$fc.ActionGroupActiveMemo(7)</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_AG8</name>
@@ -170,9 +163,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.ToggleActionGroup(8)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>{0}$#$fc.ActionGroupActiveMemo(8)</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_AG9</name>
@@ -184,9 +177,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.ToggleActionGroup(9)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>{0}$#$fc.ActionGroupActiveMemo(9)</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_AG0</name>
@@ -198,9 +191,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.ToggleActionGroup(0)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>{0}$#$fc.ActionGroupActiveMemo(0)</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_SAS_Prograde</name>
@@ -212,9 +205,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(1)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>Prograde</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_SAS_Retrograde</name>
@@ -226,9 +219,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(2)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>Retrograde</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_SAS_NormalPlus</name>
@@ -240,9 +233,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(3)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>Normal +</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_SAS_NormalMinus</name>
@@ -254,9 +247,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(4)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>Normal -</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_SAS_RadialPlus</name>
@@ -268,9 +261,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(6)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>Radial +</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_SAS_RadialMinus</name>
@@ -282,9 +275,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(5)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>Radial -</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_SAS_TargetPlus</name>
@@ -296,9 +289,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(7)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>Target +</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_SAS_TargetMinus</name>
@@ -310,9 +303,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(8)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>Target -</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_SAS_NodePlus</name>
@@ -324,9 +317,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(9)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>Node Plus</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_SAS_StabilityAssist</name>
@@ -338,9 +331,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.SetSASMode(0)</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>Stab. Assist</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_Altimeter</name>
@@ -353,9 +346,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.TogglePersistent("%AUTOID%")</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
+			<INTERNAL_TEXT>
 				<text>{0} {1:SIP####0.0}$#$ fc.Select(fc.GetPersistentAsNumber("%AUTOID%") == 0, "ASL:", "AGL:"); fc.Select(fc.GetPersistentAsNumber("%AUTOID%") == 0, fc.Altitude(), fc.AltitudeTerrain(false))</text>
-			</TEXT_LABEL>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_Fuel</name>
@@ -368,9 +361,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.TogglePersistent("%AUTOID%")</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
-				<text>Fuel: {0}$#$ fc.Select(fc.GetPersistentAsNumber("%AUTOID%") == 0, fc.FormatString("{0,6:0}", fc.PropellantCurrent()), fc.FormatString("{0,6:P0}", fc.PropellantPercent()))</text>
-			</TEXT_LABEL>
+			<INTERNAL_TEXT>
+				<text>FUEL: {0}$#$ fc.Select(fc.GetPersistentAsNumber("%AUTOID%") == 0, fc.FormatString("{0,6:0}", fc.PropellantCurrent()), fc.FormatString("{0,6:P0}", fc.PropellantPercent()))</text>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_Monoprop</name>
@@ -383,9 +376,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.TogglePersistent("%AUTOID%")</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
-				<text>Fuel: {0}$#$ fc.Select(fc.GetPersistentAsNumber("%AUTOID%") == 0, fc.FormatString("{0,6:0}", fc.ResourceCurrent("MonoPropellant")), fc.FormatString("{0,6:P0}", fc.ResourcePercent("MonoPropellant")))</text>
-			</TEXT_LABEL>
+			<INTERNAL_TEXT>
+				<text>MONO: {0}$#$ fc.Select(fc.GetPersistentAsNumber("%AUTOID%") == 0, fc.FormatString("{0,6:0}", fc.ResourceCurrent("MonoPropellant")), fc.FormatString("{0,6:P0}", fc.ResourcePercent("MonoPropellant")))</text>
+			</INTERNAL_TEXT>
 		</prop>
 		<prop>
 			<name>MAS_JSI_LEDPanel_Power</name>
@@ -398,9 +391,9 @@
 			<COLLIDER_EVENT>
 				<onClick>fc.TogglePersistent("%AUTOID%")</onClick>
 			</COLLIDER_EVENT>
-			<TEXT_LABEL>
-				<text>Fuel: {0}$#$ fc.Select(fc.GetPersistentAsNumber("%AUTOID%") == 0, fc.FormatString("{0,6:0}", fc.PowerCurrent()), fc.FormatString("{0,6:P0}", fc.PowerPercent()))</text>
-			</TEXT_LABEL>
+			<INTERNAL_TEXT>
+				<text>ELEC: {0}$#$ fc.Select(fc.GetPersistentAsNumber("%AUTOID%") == 0, fc.FormatString("{0,6:0}", fc.PowerCurrent()), fc.FormatString("{0,6:P0}", fc.PowerPercent()))</text>
+			</INTERNAL_TEXT>
 		</prop>
 	</LedPanel>
 	<SquareButton folder="SimpleProps">
