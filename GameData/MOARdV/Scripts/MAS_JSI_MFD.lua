@@ -17,5 +17,6 @@ function MAS_JSI_MFD_Init(propId)
 
 	fc.InitializePersistent(propId .. "-A", "MAS_JSI_BasicMFD_A_NavBall")
 	fc.InitializePersistent(propId .. "-D", "MAS_JSI_BasicMFD_D_MechJeb")
+	fc.InitializePersistent(propId .. "-2", "MAS_JSI_BasicMFD_2_Orbit")
 
 end
