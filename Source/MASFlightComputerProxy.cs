@@ -4815,6 +4815,15 @@ namespace AvionicsSystems
         {
             return vesselSituationConverted;
         }
+
+        /// <summary>
+        /// Returns the name of the vessel's situation.
+        /// </summary>
+        /// <returns></returns>
+        public string VesselSituationName()
+        {
+            return vessel.SituationString;
+        }
         #endregion
 
         /// <summary>

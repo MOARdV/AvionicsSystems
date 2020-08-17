@@ -2216,6 +2216,26 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the total science data stored on the vessel, in Mits.
+        /// </summary>
+        /// <returns>Total science data, in Mits.</returns>
+        public double ScienceDataTotal()
+        {
+            float totalData = 0.0f;
+
+            for (int idx = vc.scienceContainer.Length - 1; idx >= 0; --idx)
+            {
+                ScienceData[] sd = vc.scienceContainer[idx].GetData();
+                for (int i = sd.Length - 1; i >= 0; --i)
+                {
+                    totalData += sd[i].dataAmount;
+                }
+            }
+
+            return totalData;
+        }
+
+        /// <summary>
         /// Transmit all of the contents of the selected science container using the transmitter
         /// identified by `transitterId`.
         /// 
@@ -4838,6 +4858,11 @@ namespace AvionicsSystems
         /// <returns></returns>
         public string VesselName()
         {
+            string name;
+            if (KSP.Localization.Localizer.TryGetStringByTag(vessel.vesselName, out name))
+            {
+                return name;
+            }
             return vessel.vesselName;
         }
 
