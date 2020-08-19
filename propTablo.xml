@@ -1,0 +1,222 @@
+<PropConfig>
+	<!--
+	This file is a prop configuration template for the Prop Config utility
+	described on the MAS wiki at https://github.com/MOARdV/AvionicsSystems/wiki/Prop-Config
+
+	The tool and this XML file are used to quickly generate multiple props
+	without the tedious effort of copying config files and making small edits
+	while hoping you didn't overlook something.
+
+	Copyright (c) 2020 MOARdV
+
+	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
+	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
+	-->
+	<TabloIndicator folder="TabloIndicator">
+		<style name="PassiveAlarm">
+		<!-- Alarm used for the Fake Alarms - does not apply UV shift to the panel -->
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/TabloIndicator/TabloIndicator</model>
+			</MODEL>
+			<TEXT_LABEL>
+				<name>Caption</name>
+				<transform>TextObj</transform>
+				<fontSize>4.2</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<activeColor>255,190,150,255</activeColor>
+				<passiveColor>145,80,80,255</passiveColor>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Panel Color</name>
+				<transform>TabloColorPlate</transform>
+				<activeColor>255,180,180,255</activeColor>
+				<passiveColor>0,0,0,255</passiveColor>
+			</COLOR_SHIFT>
+		</style>
+		<style name="Status">
+			<!-- Green status tablo -->
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/TabloIndicator/TabloIndicator</model>
+			</MODEL>
+			<TEXT_LABEL>
+				<name>Caption</name>
+				<transform>TextObj</transform>
+				<fontSize>4.2</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<activeColor>150,255,100,255</activeColor>
+				<passiveColor>80,175,80,255</passiveColor>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Panel Color</name>
+				<transform>TabloColorPlate</transform>
+				<activeColor>180,255,180,255</activeColor>
+				<passiveColor>0,0,0,255</passiveColor>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<name>Panel Color</name>
+				<transform>TabloColorPlate</transform>
+				<startUV>0.5, 0</startUV>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
+		<prop>
+			<name>MAS_Tablo_Fake_AlarmExCabinWater</name>
+			<style>PassiveAlarm</style>
+			<TEXT_LABEL>
+				<text>EXCESS CABIN$$$WATER</text>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.005) + (%PROPID%/%PROPCOUNT%)) &lt; 0.1)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.005) + (%PROPID%/%PROPCOUNT%)) &lt; 0.1)</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Fake_AlarmExSuitWater</name>
+			<style>PassiveAlarm</style>
+			<TEXT_LABEL>
+				<text>EXCESS SUIT$$$WATER</text>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.005) + (%PROPID%/%PROPCOUNT%)) &lt; 0.1)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.005) + (%PROPID%/%PROPCOUNT%)) &lt; 0.1)</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Fake_AlarmMaster</name>
+			<style>PassiveAlarm</style>
+			<TEXT_LABEL>
+				<text>MASTER$$$ALARM</text>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.01)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.01)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<name>Panel Color</name>
+				<transform>TabloColorPlate</transform>
+				<startUV>0.0, 0.6</startUV>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Fake_AlarmOxFlow</name>
+			<style>PassiveAlarm</style>
+			<TEXT_LABEL>
+				<text>EXCESS SUIT$$$WATER</text>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.01)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.01)</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Fake_AlarmRadiator</name>
+			<style>PassiveAlarm</style>
+			<TEXT_LABEL>
+				<text>RADIATORS</text>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.02)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.02)</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Fake_AlarmValve</name>
+			<style>PassiveAlarm</style>
+			<TEXT_LABEL>
+				<text>VALVE$$$CLOSE</text>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.05)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.05)</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Fake_GoodCabinFans</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>CABIN FANS</text>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.05)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.05)</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Fake_GoodCabinPressAuto</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>CABIN PRESS$$$AUTO</text>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.003) + (%PROPID%/%PROPCOUNT%)) &lt; 0.45)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.003) + (%PROPID%/%PROPCOUNT%)) &lt; 0.45)</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Fake_GoodCabinTempAuto</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>CABIN TEMP$$$AUTO</text>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.003) + (%PROPID%/%PROPCOUNT%)) &lt; 0.55)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.003) + (%PROPID%/%PROPCOUNT%)) &lt; 0.55)</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Fake_GoodHeaters</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>HEATERS</text>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%)) &lt; 0.35)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%)) &lt; 0.35)</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Fake_GoodManual</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>MANUAL</text>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%)) &lt; 0.05)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%)) &lt; 0.05)</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Fake_GoodSuitFans</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>SUIT FANS</text>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.005) + (%PROPID%/%PROPCOUNT%)) &lt; 0.35)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.005) + (%PROPID%/%PROPCOUNT%)) &lt; 0.35)</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Fake_GoodTestOK</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>TEST OK</text>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%)) &lt; 0.05)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%)) &lt; 0.05)</variable>
+			</COLOR_SHIFT>
+		</prop>
+	</TabloIndicator>
+</PropConfig>
