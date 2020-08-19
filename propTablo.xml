@@ -38,6 +38,37 @@
 				<passiveColor>0,0,0,255</passiveColor>
 			</COLOR_SHIFT>
 		</style>
+		<style name="Alarm">
+		<!-- Alarm used for the alarms in TabloIndicator/Alarms - applies a UV shift to the panel -->
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/TabloIndicator/TabloIndicator</model>
+			</MODEL>
+			<TEXT_LABEL>
+				<name>Caption</name>
+				<transform>TextObj</transform>
+				<fontSize>4.2</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<activeColor>255,190,150,255</activeColor>
+				<passiveColor>145,80,80,255</passiveColor>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Panel Color</name>
+				<transform>TabloColorPlate</transform>
+				<activeColor>255,180,180,255</activeColor>
+				<passiveColor>0,0,0,255</passiveColor>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<name>Panel Color</name>
+				<transform>TabloColorPlate</transform>
+				<startUV>0, 0</startUV>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
 		<style name="Status">
 			<!-- Green status tablo -->
 			<MODEL>
@@ -70,14 +101,359 @@
 			</TEXTURE_SHIFT>
 		</style>
 		<prop>
+			<name>MAS_Tablo_Alarm_Ablation</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>ABLATION</text>
+				<variable>fc.Conditioned(fc.ResourceDelta("Ablator") &gt; 0.1)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.ResourceDelta("Ablator") &gt; 0.1)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(fc.ResourceDelta("Ablator") &gt; 0.1)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_AVAS_OFF</name>
+			<style>Alarm</style>
+			<AUDIO_PLAYER>
+				<name>Alarm</name>
+				<sound>ASET/ASET_Props/Sounds/AlarmBeep02</sound>
+				<volume>1</volume>
+				<trigger>ON</trigger>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("AVAS_ON") == 0)</variable>
+			</AUDIO_PLAYER>
+			<TEXT_LABEL>
+				<text>OFF</text>
+				<fontSize>6.5</fontSize>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("AVAS_ON") == 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("AVAS_ON") == 0)</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_DockingAngle</name>
+			<style>Alarm</style>
+			<TRIGGER_EVENT>
+				<name>trigger</name>
+				<event>fc.SetPersistent("ALCOR_DOCKINGANGLEALARM_ON", 1)</event>
+				<exitEvent>fc.SetPersistent("ALCOR_DOCKINGANGLEALARM_ON", 0)</exitEvent>
+				<variable>fc.Conditioned(fc.TargetDistance() &lt; 10 and (fc.PitchTarget() &gt; 1.5 or fc.YawTarget() &gt; 1.5))</variable>
+			</TRIGGER_EVENT>
+			<TEXT_LABEL>
+				<text>ANGLE</text>
+				<fontSize>5</fontSize>
+				<variable>fc.Conditioned(fc.TargetDistance() &lt; 10 and (fc.PitchTarget() &gt; 1.5 or fc.YawTarget() &gt; 1.5))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.TargetDistance() &lt; 10 and (fc.PitchTarget() &gt; 1.5 or fc.YawTarget() &gt; 1.5))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.6</endUV>
+				<variable>fc.Conditioned(fc.TargetDistance() &lt; 10 and (fc.PitchTarget() &gt; 1.5 or fc.YawTarget() &gt; 1.5))</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_DockingSpeed</name>
+			<style>Alarm</style>
+			<TRIGGER_EVENT>
+				<name>trigger</name>
+				<event>fc.SetPersistent("ALCOR_DOCKINGSPEEDALARM_ON", 1)</event>
+				<exitEvent>fc.SetPersistent("ALCOR_DOCKINGSPEEDALARM_ON", 0)</exitEvent>
+				<variable>fc.Conditioned(fc.TargetDistance() &lt; 10 and fc.TargetSpeed() &gt; 2.5)</variable>
+			</TRIGGER_EVENT>
+			<TEXT_LABEL>
+				<text>SPEED</text>
+				<fontSize>5</fontSize>
+				<variable>fc.Conditioned(fc.TargetDistance() &lt; 10 and fc.TargetSpeed() &gt; 2.5)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.TargetDistance() &lt; 10 and fc.TargetSpeed() &gt; 2.5)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.6</endUV>
+				<variable>fc.Conditioned(fc.TargetDistance() &lt; 10 and fc.TargetSpeed() &gt; 2.5)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_ERS_MasterAlarm</name>
+			<comment>I can't find CUSTOM_ERS_MASTER_ALARM listed in the ASET directories</comment>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>MASTER$$$ALARM</text>
+				<fontSize>5</fontSize>
+				<variable>fc.Conditioned(0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<startUV>0, 0.4</startUV>
+				<endUV>0.5, 0.4</endUV>
+				<variable>fc.Conditioned(0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_HighG</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>HIGH G</text>
+				<variable>fc.Conditioned(fc.GForce() &gt; 3)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GForce() &gt; 3)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(fc.GForce() &gt; 3)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_HighQ</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>HIGH Q</text>
+				<variable>fc.Conditioned(fc.DynamicPressure() &gt; 40)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.DynamicPressure() &gt; 40)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(fc.DynamicPressure() &gt; 40)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_GearBroken</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>LANDING$$$GEAR BROKEN</text>
+				<variable>fc.Conditioned(fc.GearBrokenCount())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GearBrokenCount())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.6</endUV>
+				<variable>fc.Conditioned(fc.GearBrokenCount())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_Brakes</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>BRAKES</text>
+				<variable>fc.Conditioned(fc.GetBrakes())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetBrakes())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(fc.GetBrakes())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_EngineFailure</name>
+			<style>Alarm</style>
+			<TRIGGER_EVENT>
+				<name>trigger</name>
+				<event>fc.SetPersistent("ALCOR_ENGFAILURE_ON", 1)</event>
+				<exitEvent>fc.SetPersistent("ALCOR_ENGFAILURE_ON", 0)</exitEvent>
+				<variable>fc.Conditioned(fc.EngineFlameout())</variable>
+			</TRIGGER_EVENT>
+			<TEXT_LABEL>
+				<text>ENGINE$$$FLAME OUT</text>
+				<variable>fc.Conditioned(fc.EngineFlameout())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.EngineFlameout())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(fc.EngineFlameout())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_EngineOverheat</name>
+			<style>Alarm</style>
+			<TRIGGER_EVENT>
+				<name>trigger</name>
+				<event>fc.SetPersistent("ALCOR_ENGINEOVERHEATALARM_ON", 1)</event>
+				<exitEvent>fc.SetPersistent("ALCOR_ENGINEOVERHEATALARM_ON", 0)</exitEvent>
+				<variable>fc.Conditioned(fc.HottestEngineTemperature(true) &gt; 0.85 * fc.HottestEngineMaxTemperature(true))</variable>
+			</TRIGGER_EVENT>
+			<TEXT_LABEL>
+				<text>ENGINE$$$OVERHEAT</text>
+				<variable>fc.Conditioned(fc.HottestEngineTemperature(true) &gt; 0.85 * fc.HottestEngineMaxTemperature(true))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.HottestEngineTemperature(true) &gt; 0.85 * fc.HottestEngineMaxTemperature(true))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(fc.HottestEngineTemperature(true) &gt; 0.85 * fc.HottestEngineMaxTemperature(true))</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_GPWS_OFF</name>
+			<style>Alarm</style>
+			<AUDIO_PLAYER>
+				<name>Alarm</name>
+				<sound>ASET/ASET_Props/Sounds/AlarmBeep02</sound>
+				<volume>1</volume>
+				<trigger>ON</trigger>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("GPWS_ON") == 0)</variable>
+			</AUDIO_PLAYER>
+			<TEXT_LABEL>
+				<text>OFF</text>
+				<fontSize>6.5</fontSize>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("GPWS_ON") == 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("GPWS_ON") == 0)</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_GroundProximity</name>
+			<style>Alarm</style>
+			<TRIGGER_EVENT>
+				<name>trigger</name>
+				<event>fc.SetPersistent("ALCOR_GROUNDPROXIMITYALARM_ON", 1)</event>
+				<exitEvent>fc.SetPersistent("ALCOR_GROUNDPROXIMITYALARM_ON", 0)</exitEvent>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("GPWS_ON") &gt; 0 and fc.VerticalSpeed() &lt; -1 and fc.AltitudeBottom() &lt; 15)</variable>
+			</TRIGGER_EVENT>
+			<TEXT_LABEL>
+				<text>GROUND$$$PROX</text>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("ALCOR_GROUNDPROXIMITYALARM_ON"))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("ALCOR_GROUNDPROXIMITYALARM_ON"))</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_PodHeat</name>
+			<style>Alarm</style>
+			<TRIGGER_EVENT>
+				<name>trigger</name>
+				<event>fc.SetPersistent("ALCOR_PODTEMPERATUREALARM_ON", 1)</event>
+				<exitEvent>fc.SetPersistent("ALCOR_PODTEMPERATUREALARM_ON", 0)</exitEvent>
+				<variable>fc.Conditioned(fc.PodTemperature(true) &gt; 0.7 * fc.PodMaxTemperature(true))</variable>
+			</TRIGGER_EVENT>
+			<TEXT_LABEL>
+				<text>CABIN$$$OVERHEAT</text>
+				<variable>fc.Conditioned(fc.PodTemperature(true) &gt; 0.7 * fc.PodMaxTemperature(true))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.PodTemperature(true) &gt; 0.7 * fc.PodMaxTemperature(true))</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_HighSlope</name>
+			<style>Alarm</style>
+			<TRIGGER_EVENT>
+				<name>trigger</name>
+				<event>fc.SetPersistent("ALCOR_SLOPEALARM_ON", 1)</event>
+				<exitEvent>fc.SetPersistent("ALCOR_SLOPEALARM_ON", 0)</exitEvent>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("ASET_WARN_SLOPE_ON") &gt; 0 and fc.AltitudeBottom() &lt; 15 and fc.SlopeAngle() &gt; 15)</variable>
+			</TRIGGER_EVENT>
+			<TEXT_LABEL>
+				<text>HIGH$$$SLOPE</text>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("ALCOR_SLOPEALARM_ON"))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("ALCOR_SLOPEALARM_ON"))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("ALCOR_SLOPEALARM_ON"))</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_LandingGear</name>
+			<style>Alarm</style>
+			<TRIGGER_EVENT>
+				<name>trigger</name>
+				<event>fc.SetPersistent("ALCOR_GEARALARM_ON_LANDING", 1)</event>
+				<exitEvent>fc.SetPersistent("ALCOR_GEARALARM_ON_LANDING", 0)</exitEvent>
+				<variable>fc.Conditioned(fc.VerticalSpeed() &lt; 1 and fc.AltitudeBottom() &lt; 1000 and fc.GetGear() == 0)</variable>
+			</TRIGGER_EVENT>
+			<TEXT_LABEL>
+				<text>LANDING$$$GEAR</text>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("ALCOR_GROUNDPROXIMITYALARM_ON"))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("ALCOR_GROUNDPROXIMITYALARM_ON"))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("ALCOR_GROUNDPROXIMITYALARM_ON"))</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_HeatshieldOverheat</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>SHIELD$$$OVERHEAT</text>
+				<variable>fc.Conditioned(fc.HeatShieldMaxTemperature(true) - fc.HeatShieldTemperature(true) &lt; 700)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.HeatShieldMaxTemperature(true) - fc.HeatShieldTemperature(true) &lt; 700)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.6</endUV>
+				<variable>fc.Conditioned(fc.HeatShieldMaxTemperature(true) - fc.HeatShieldTemperature(true) &lt; 700)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_Tumble</name>
+			<style>Alarm</style>
+			<TRIGGER_EVENT>
+				<name>trigger</name>
+				<event>fc.SetPersistent("ALCOR_TUMBLEALARM_ON", 1)</event>
+				<exitEvent>fc.SetPersistent("ALCOR_TUMBLEALARM_ON", 0)</exitEvent>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("ASET_WARN_TUMBLE_ON") &gt; 0 and fc.AltitudeBottom() &lt; 15 and fc.HorizontalSpeed() &gt; 5)</variable>
+			</TRIGGER_EVENT>
+			<TEXT_LABEL>
+				<text>TUMBLE</text>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("ALCOR_TUMBLEALARM_ON"))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("ALCOR_TUMBLEALARM_ON"))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("ALCOR_TUMBLEALARM_ON"))</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_Master</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>MASTER$$$ALARM</text>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("ALCOR_PODTEMPERATUREALARM_ON") + fc.GetPersistentAsNumber("ALCOR_GROUNDPROXIMITYALARM_ON") + fc.GetPersistentAsNumber("ALCOR_SLOPEALARM_ON") + fc.GetPersistentAsNumber("ALCOR_ENGINEOVERHEATALARM_ON") + fc.GetPersistentAsNumber("ALCOR_ENGFAILURE_ON") + fc.GetPersistentAsNumber("ALCOR_DOCKINGANGLEALARM_ON") + fc.GetPersistentAsNumber("ALCOR_DOCKINGSPEEDALARM_ON") + fc.GetPersistentAsNumber("ALCOR_GEARALARM_ON_LANDING") + fc.GetPersistentAsNumber("ALCOR_TUMBLEALARM_ON"))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("ALCOR_PODTEMPERATUREALARM_ON") + fc.GetPersistentAsNumber("ALCOR_GROUNDPROXIMITYALARM_ON") + fc.GetPersistentAsNumber("ALCOR_SLOPEALARM_ON") + fc.GetPersistentAsNumber("ALCOR_ENGINEOVERHEATALARM_ON") + fc.GetPersistentAsNumber("ALCOR_ENGFAILURE_ON") + fc.GetPersistentAsNumber("ALCOR_DOCKINGANGLEALARM_ON") + fc.GetPersistentAsNumber("ALCOR_DOCKINGSPEEDALARM_ON") + fc.GetPersistentAsNumber("ALCOR_GEARALARM_ON_LANDING") + fc.GetPersistentAsNumber("ALCOR_TUMBLEALARM_ON"))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<startUV>0, 0.4</startUV>
+				<endUV>0.5, 0.4</endUV>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("ALCOR_PODTEMPERATUREALARM_ON") + fc.GetPersistentAsNumber("ALCOR_GROUNDPROXIMITYALARM_ON") + fc.GetPersistentAsNumber("ALCOR_SLOPEALARM_ON") + fc.GetPersistentAsNumber("ALCOR_ENGINEOVERHEATALARM_ON") + fc.GetPersistentAsNumber("ALCOR_ENGFAILURE_ON") + fc.GetPersistentAsNumber("ALCOR_DOCKINGANGLEALARM_ON") + fc.GetPersistentAsNumber("ALCOR_DOCKINGSPEEDALARM_ON") + fc.GetPersistentAsNumber("ALCOR_GEARALARM_ON_LANDING") + fc.GetPersistentAsNumber("ALCOR_TUMBLEALARM_ON"))</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
 			<name>MAS_Tablo_Fake_AlarmExCabinWater</name>
 			<style>PassiveAlarm</style>
 			<TEXT_LABEL>
 				<text>EXCESS CABIN$$$WATER</text>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.005) + (%PROPID%/%PROPCOUNT%)) &lt; 0.1)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.005) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.1)</variable>
 			</TEXT_LABEL>
 			<COLOR_SHIFT>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.005) + (%PROPID%/%PROPCOUNT%)) &lt; 0.1)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.005) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.1)</variable>
 			</COLOR_SHIFT>
 		</prop>
 		<prop>
@@ -85,10 +461,10 @@
 			<style>PassiveAlarm</style>
 			<TEXT_LABEL>
 				<text>EXCESS SUIT$$$WATER</text>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.005) + (%PROPID%/%PROPCOUNT%)) &lt; 0.1)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.005) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.1)</variable>
 			</TEXT_LABEL>
 			<COLOR_SHIFT>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.005) + (%PROPID%/%PROPCOUNT%)) &lt; 0.1)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.005) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.1)</variable>
 			</COLOR_SHIFT>
 		</prop>
 		<prop>
@@ -96,10 +472,10 @@
 			<style>PassiveAlarm</style>
 			<TEXT_LABEL>
 				<text>MASTER$$$ALARM</text>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.01)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.01)</variable>
 			</TEXT_LABEL>
 			<COLOR_SHIFT>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.01)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.01)</variable>
 			</COLOR_SHIFT>
 			<TEXTURE_SHIFT>
 				<name>Panel Color</name>
@@ -113,10 +489,10 @@
 			<style>PassiveAlarm</style>
 			<TEXT_LABEL>
 				<text>EXCESS SUIT$$$WATER</text>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.01)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.01)</variable>
 			</TEXT_LABEL>
 			<COLOR_SHIFT>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.01)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.01)</variable>
 			</COLOR_SHIFT>
 		</prop>
 		<prop>
@@ -124,10 +500,10 @@
 			<style>PassiveAlarm</style>
 			<TEXT_LABEL>
 				<text>RADIATORS</text>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.02)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.02)</variable>
 			</TEXT_LABEL>
 			<COLOR_SHIFT>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.02)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.02)</variable>
 			</COLOR_SHIFT>
 		</prop>
 		<prop>
@@ -135,10 +511,10 @@
 			<style>PassiveAlarm</style>
 			<TEXT_LABEL>
 				<text>VALVE$$$CLOSE</text>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.05)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.05)</variable>
 			</TEXT_LABEL>
 			<COLOR_SHIFT>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.05)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.05)</variable>
 			</COLOR_SHIFT>
 		</prop>
 		<prop>
@@ -146,10 +522,10 @@
 			<style>Status</style>
 			<TEXT_LABEL>
 				<text>CABIN FANS</text>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.05)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.05)</variable>
 			</TEXT_LABEL>
 			<COLOR_SHIFT>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%)) &lt; 0.05)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.05)</variable>
 			</COLOR_SHIFT>
 		</prop>
 		<prop>
@@ -157,10 +533,10 @@
 			<style>Status</style>
 			<TEXT_LABEL>
 				<text>CABIN PRESS$$$AUTO</text>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.003) + (%PROPID%/%PROPCOUNT%)) &lt; 0.45)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.003) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.45)</variable>
 			</TEXT_LABEL>
 			<COLOR_SHIFT>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.003) + (%PROPID%/%PROPCOUNT%)) &lt; 0.45)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.003) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.45)</variable>
 			</COLOR_SHIFT>
 		</prop>
 		<prop>
@@ -168,10 +544,10 @@
 			<style>Status</style>
 			<TEXT_LABEL>
 				<text>CABIN TEMP$$$AUTO</text>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.003) + (%PROPID%/%PROPCOUNT%)) &lt; 0.55)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.003) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.55)</variable>
 			</TEXT_LABEL>
 			<COLOR_SHIFT>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.003) + (%PROPID%/%PROPCOUNT%)) &lt; 0.55)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.003) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.55)</variable>
 			</COLOR_SHIFT>
 		</prop>
 		<prop>
@@ -179,10 +555,10 @@
 			<style>Status</style>
 			<TEXT_LABEL>
 				<text>HEATERS</text>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%)) &lt; 0.35)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.35)</variable>
 			</TEXT_LABEL>
 			<COLOR_SHIFT>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%)) &lt; 0.35)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.35)</variable>
 			</COLOR_SHIFT>
 		</prop>
 		<prop>
@@ -190,10 +566,10 @@
 			<style>Status</style>
 			<TEXT_LABEL>
 				<text>MANUAL</text>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%)) &lt; 0.05)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.05)</variable>
 			</TEXT_LABEL>
 			<COLOR_SHIFT>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%)) &lt; 0.05)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.05)</variable>
 			</COLOR_SHIFT>
 		</prop>
 		<prop>
@@ -201,10 +577,10 @@
 			<style>Status</style>
 			<TEXT_LABEL>
 				<text>SUIT FANS</text>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.005) + (%PROPID%/%PROPCOUNT%)) &lt; 0.35)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.005) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.35)</variable>
 			</TEXT_LABEL>
 			<COLOR_SHIFT>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.005) + (%PROPID%/%PROPCOUNT%)) &lt; 0.35)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.005) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.35)</variable>
 			</COLOR_SHIFT>
 		</prop>
 		<prop>
@@ -212,10 +588,10 @@
 			<style>Status</style>
 			<TEXT_LABEL>
 				<text>TEST OK</text>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%)) &lt; 0.05)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.05)</variable>
 			</TEXT_LABEL>
 			<COLOR_SHIFT>
-				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%)) &lt; 0.05)</variable>
+				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.05)</variable>
 			</COLOR_SHIFT>
 		</prop>
 	</TabloIndicator>
