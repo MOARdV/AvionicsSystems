@@ -9,13 +9,15 @@ MOARdV's Avionics Systems (MAS) is a successor to RasterPropMonitor (RPM) that a
 
 ### Players:
 
-**NOTE:** MAS is *not* a drop-in replacement for RasterPropMonitor.  IVAs created for RasterPropMonitor must use RPM.  They will not work with MAS.  MAS uses different props, and it has different requirements than RPM.  Releases appear under [Releases](https://github.com/MOARdV/AvionicsSystems/releases).
-
+**NOTE:** MAS is *not* a 100% drop-in replacement for RasterPropMonitor.  
 As of **MAS v1.2.0**, a Module Manager patch is included in MAS that replaces the basic RPM props with equivalent MAS props.  This patch does
-not upgrade ASET props, but it allows the IVAs included in RPM to use MAS-powered props.
+not update ASET props, but it allows the IVAs included in RPM to use MAS-powered props.  An RPM ASET update patch is in the works.
 
-**To Install:** select the latest release AvionicsSystems zip file from the "Releases" tab (such as AvionicsSystems-0.95.3.zip).  Do not choose to "Clone or Download" this repo, unless you intend to build MAS yourself.  The Avionics Systems release contains all of the data needed to use an IVA in MAS.
-Players do not need to download the PropConfig zip file. That file contains an application and data that prop creators can use to automate the task of generating new props with a common style for IVA.
+Releases appear under [Releases](https://github.com/MOARdV/AvionicsSystems/releases).
+
+**To Install:** select the latest released AvionicsSystems zip file from the "Releases" tab.  Do not download this repo, unless you intend to build MAS yourself.
+
+Players do not need to download the PropConfig zip file.
 
 For players who want to understand the advanced ASET props, please take a look at [MOARdVPlus](https://github.com/MOARdV/MOARdVPlus), my advanced IVA mod (which includes user guides for the props).
 
@@ -23,23 +25,21 @@ The KSP Forum has a [MAS thread](https://forum.kerbalspaceprogram.com/index.php?
 
 This mod includes version information compatible with MiniAVC and AVC.
 
+The MAS distribution contains multiple licensed components.  The [license](https://github.com/MOARdV/AvionicsSystems/blob/master/LICENSE.md) document identifies these components and their licenses.
+
 ### IVA / Prop Creators:
 
-The [wiki](https://github.com/MOARdV/AvionicsSystems/wiki) contains the documentation for this mod, including guides to
-configuring props, integrating scripting, and about 1000 functions that MAS provides.  Most of this documentation is geared towards IVA creators and prop developers.
+The [wiki](https://github.com/MOARdV/AvionicsSystems/wiki) contains documentation for this mod geared towards creating new props.
 
-The MAS distribution contains multiple licensed components.  The [license](https://github.com/MOARdV/AvionicsSystems/blob/master/LICENSE.md) document identifies these components and their licenses.
+Documentation of the props themselves is a work in progress.
 
 ## Where are the IVAs?
 
-MAS is intended to be a toolkit for developing IVAs.  The MAS distribution will not include many example
-IVAs like RPM did, because good IVAs take a lot of time to perfect.
+MAS is intended to be a toolkit for developing IVAs.  There are a few example IVAs.
 
-Since it is important to have *something* to look at before deciding to adopt this mod for IVA
-development, there are example IVAs included in this package.  Except for the RPM IVA upgrade patch, all of these IVAs
-require the ASET Props and Avionivs packs.
+Except for the RPM IVA upgrade patch, all of these IVAs require the ASET Props and Avionivs packs.
 
-* Module Manager patches are included that upgrade the basic RPM props to MAS-equivalent props.  This patch allows the RPM IVAs included in RPM to use MAS.
+* Module Manager patches are included that upgrade the basic RPM props to MAS-equivalent props.  This patch allows the RPM IVAs included in RPM to use MAS instead.
 * The stock Mk 1 v2 Command Pod (pictured above) demonstrates a retro-NASA style IVA suitable for suborbital or short orbital flights.  A flight manual is available [on the wiki](https://github.com/MOARdV/AvionicsSystems/wiki/Operations-Manual-Mk1).  This is a fully-featured IVA.
 * The stock Mk 1-3 Command Pod includes a retro-NASA IVA for the center seat. This IVA *is not* complete, but it is a starting point if someone else wants to finish it.
 * The stock Mk1 Lander Can by snakeru, a conversion of the [ASET Mk1 Lander Can](https://forum.kerbalspaceprogram.com/index.php?/topic/156131-mk1-lander-can-iva-replacement-by-aset11/).  Note that if RasterPropMonitor is installed, the MAS version of the IVA is switched off.  You must uninstall the ASET IVA to use the MAS IVA.
