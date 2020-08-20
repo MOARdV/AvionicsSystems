@@ -1021,6 +1021,62 @@ namespace AvionicsSystems
         }
         #endregion
 
+        #region Resource Harvestor
+        private List<ModuleAnalysisResource> scannerList = new List<ModuleAnalysisResource>();
+        internal ModuleAnalysisResource[] moduleScanner= new ModuleAnalysisResource[0];
+
+        private List<ModuleResourceHarvester> harvesterList = new List<ModuleResourceHarvester>();
+        internal ModuleResourceHarvester[] moduleHarvester = new ModuleResourceHarvester[0];
+
+        internal bool surfaceScannerInstalled;
+        internal Part harvesterPart;
+        internal double harvesterCoreTemp;
+        internal double activeHarvesterCoreTemp;
+        internal double thermalEfficiency;
+        internal int activeDrillCount;
+
+        private void UpdateOreHarvesters()
+        {
+            harvesterCoreTemp = 0.0d;
+            activeHarvesterCoreTemp = 0.0f;
+            thermalEfficiency = 0.0f;
+            activeDrillCount = 0;
+            if (moduleHarvester.Length > 0)
+            {
+                for (int i = moduleHarvester.Length - 1; i >= 0; --i)
+                {
+                    harvesterPart = moduleHarvester[i].part;
+                    harvesterCoreTemp += moduleHarvester[i].GetCoreTemperature();
+                    if (moduleHarvester[i].IsActivated)
+                    {
+                        activeHarvesterCoreTemp += moduleHarvester[i].GetCoreTemperature();
+                        thermalEfficiency += moduleHarvester[i].ThermalEfficiency.Evaluate((float)moduleHarvester[i].GetCoreTemperature());
+                        activeDrillCount++;
+                    }
+                    //moduleHarvester[i].status //OreRate i.e. X% Load (only while running)
+                }
+                if (activeDrillCount > 0)
+                {
+                    activeHarvesterCoreTemp /= activeDrillCount;
+                    harvesterCoreTemp = activeHarvesterCoreTemp;
+                    thermalEfficiency /= activeDrillCount;
+                }
+                else
+                {
+                    harvesterCoreTemp /= moduleHarvester.Length;
+                }
+
+            }
+
+            surfaceScannerInstalled = false;
+            if (moduleScanner.Length > 0)
+            {
+                surfaceScannerInstalled = true;
+            }
+        }
+
+        #endregion
+
         #region Science
         // For a bootstrap to interpreting science values, see https://github.com/KerboKatz/AutomatedScienceSampler/blob/master/source/AutomatedScienceSampler/DefaultActivator.cs
         private List<ModuleScienceExperiment> scienceExperimentList = new List<ModuleScienceExperiment>();
@@ -1455,6 +1511,14 @@ namespace AvionicsSystems
                                 }
                             }
                         }
+                        else if (module is ModuleResourceHarvester)
+                        {
+                            harvesterList.Add(module as ModuleResourceHarvester);
+                        }
+                        else if (module is ModuleAnalysisResource)
+                        {
+                            scannerList.Add(module as ModuleAnalysisResource);
+                        }
                         else if (module is ModuleDeployableAntenna)
                         {
                             antennaList.Add(module as ModuleDeployableAntenna);
@@ -1671,6 +1735,8 @@ namespace AvionicsSystems
                 TransferModules<ModuleResourceConverter>(resourceConverterList[i].converterList, ref resourceConverterList[i].moduleConverter);
                 TransferModules<float>(resourceConverterList[i].outputRatioList, ref resourceConverterList[i].outputRatio);
             }
+            TransferModules<ModuleResourceHarvester>(harvesterList, ref moduleHarvester);
+            TransferModules<ModuleAnalysisResource>(scannerList, ref moduleScanner);
             RebuildScienceTypes();
 
 #if TIME_REBUILD
@@ -1724,6 +1790,7 @@ namespace AvionicsSystems
             UpdateRcs();
             UpdateReactionWheels();
             UpdateResourceConverter();
+            UpdateOreHarvesters();
 
             if (requestReset)
             {
