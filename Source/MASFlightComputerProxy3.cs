@@ -1115,6 +1115,127 @@ namespace AvionicsSystems
         }
         #endregion
 
+
+        /// <summary>
+        /// The Harvester section provides methods to query the state of
+        /// a vessel's drills or resource abundance.
+        /// </summary>
+        #region Harvester
+
+        /// <summary>
+        /// Query returns the average temperature of all drills in Kelvins.
+        /// If >=1 drills are active, the average is only for ACTIVE drills.
+        /// If no drills are active, the average is for ALL drills
+        /// If the vessel has no drills, this function returns 0.0;
+        /// </summary>
+        /// <returns>Average drill temperature. 0 if no drills attached.</returns>
+        public float DrillTemp()
+        {
+            return (float)vc.harvesterCoreTemp;
+        }
+
+        /// <summary>
+        /// Query returns the thermal efficiency of ACTIVE drills.
+        /// If the vessel has no drills, this function returns 0.0;
+        /// </summary>
+        /// <returns>thermal efficiency of ACTIVE drills. (a nunber between 0 and 1)</returns>
+        public float DrillThermalEfficiency()
+        {
+            return (float)vc.thermalEfficiency;
+        }
+
+        /// <summary>
+        /// Returns the number of active drills on the vessel.
+        /// </summary>
+        /// <returns>The number of active drill modules on the vessel.</returns>
+        public float DrillsActiveCount()
+        {
+            return (float)vc.activeDrillCount;
+        }
+
+        /// If at least one drill is deployed
+        public bool DrillsDeployed()
+        {
+            bool drillsDeployed = false;
+            foreach (var c in vessel.FindPartModulesImplementing<ModuleAnimationGroup>())
+            {
+                if (c.moduleType == "Drill") //drill animation module
+                {
+                    if (c.isDeployed)
+                    {
+                        // If at least one drill is extended, return true
+                        drillsDeployed = true;
+                        break;
+                    }
+                }
+            }
+            return drillsDeployed;
+        }
+
+        /// If at least one drill is active, return true
+        public bool DrillsActive(string resourceName)
+        {
+            bool drillsActive = false;
+            foreach (var c in vessel.FindPartModulesImplementing<ModuleResourceHarvester>())
+            {
+                if (c.ResourceName == resourceName && c.IsActivated)
+                {
+                    drillsActive = true;
+                    break;
+                }
+            }
+            return drillsActive;
+        }
+
+        /// bool value if the specified resource name is in range of resource scanner
+        public bool ResourceScannerInRange(string resourceName)
+        {
+            bool ResourceScannerinRange = false;
+            foreach (var c in vessel.FindPartModulesImplementing<ModuleResourceScanner>())
+            {
+                if (c.ResourceName == resourceName && vessel.radarAltitude <= c.MaxAbundanceAltitude)
+                {
+                    ResourceScannerinRange = true;
+                    break;
+                }
+            }
+            return ResourceScannerinRange;
+        }
+
+        ///Returns the resource abundance of the specified resource name
+        public float ResourceAbundance(string resourceName)
+        {
+            ModuleResourceHarvester moduleHarvester;
+            float abundance = 0;
+
+            if (vc.surfaceScannerInstalled)
+            {
+                List<ModuleResourceHarvester> modules = vc.harvesterPart.FindModulesImplementing<ModuleResourceHarvester>();
+                for (int i = modules.Count - 1; i >= 0; --i)
+                {
+                    moduleHarvester = modules[i];
+                    if (moduleHarvester.ResourceName == resourceName)
+                    {
+                        // detect amount of ore in the ground
+                        AbundanceRequest request = new AbundanceRequest
+                        {
+                            ResourceType = (HarvestTypes)moduleHarvester.HarvesterType,
+                            ResourceName = moduleHarvester.ResourceName,
+                            BodyId = vessel.mainBody.flightGlobalsIndex,
+                            Latitude = vessel.latitude,
+                            Longitude = vessel.longitude,
+                            Altitude = vessel.altitude,
+                            CheckForLock = false
+                        };
+                        abundance = ResourceMap.Instance.GetAbundance(request);
+                    }
+                }
+            }
+            return abundance;
+        }
+        #endregion
+            
+            
         /// <summary>
         /// The SAS section provides methods to control and query the state of
         /// a vessel's SAS stability system.
