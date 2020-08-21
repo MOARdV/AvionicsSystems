@@ -69,8 +69,8 @@
 				<layers>_MainTex _Emissive</layers>
 			</TEXTURE_SHIFT>
 		</style>
-		<style name="Status">
-			<!-- Green status tablo -->
+		<style name="PassiveStatus">
+			<!-- Green status tablo, does not change the texture when activating -->
 			<MODEL>
 				<model>ASET/ASET_Props/Instruments/TabloIndicator/TabloIndicator</model>
 			</MODEL>
@@ -90,13 +90,75 @@
 			<COLOR_SHIFT>
 				<name>Panel Color</name>
 				<transform>TabloColorPlate</transform>
-				<activeColor>180,255,180,255</activeColor>
+				<activeColor>255,255,255,255</activeColor>
 				<passiveColor>0,0,0,255</passiveColor>
 			</COLOR_SHIFT>
 			<TEXTURE_SHIFT>
 				<name>Panel Color</name>
 				<transform>TabloColorPlate</transform>
 				<startUV>0.5, 0</startUV>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
+		<style name="Status">
+			<!-- Green status tablo, changes the texture when activating -->
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/TabloIndicator/TabloIndicator</model>
+			</MODEL>
+			<TEXT_LABEL>
+				<name>Caption</name>
+				<transform>TextObj</transform>
+				<fontSize>4.2</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<activeColor>150,255,100,255</activeColor>
+				<passiveColor>80,175,80,255</passiveColor>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Panel Color</name>
+				<transform>TabloColorPlate</transform>
+				<activeColor>255,255,255,255</activeColor>
+				<passiveColor>0,0,0,255</passiveColor>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<name>Panel Color</name>
+				<transform>TabloColorPlate</transform>
+				<startUV>0.5, 0</startUV>
+				<endUV>0.5, 0.2</endUV>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
+		<style name="Other">
+			<!-- A black status tablo? -->
+			<MODEL>
+				<model>ASET/ASET_Props/Instruments/TabloIndicator/TabloIndicator</model>
+			</MODEL>
+			<TEXT_LABEL>
+				<name>Caption</name>
+				<transform>TextObj</transform>
+				<fontSize>5.6</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>active</emissive>
+				<activeColor>255,255,30,255</activeColor>
+				<passiveColor>40,40,10,255</passiveColor>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<name>Panel Color</name>
+				<transform>TabloColorPlate</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<name>Panel Color</name>
+				<transform>TabloColorPlate</transform>
+				<startUV>0.0, 0.4</startUV>
 				<layers>_MainTex _Emissive</layers>
 			</TEXTURE_SHIFT>
 		</style>
@@ -409,6 +471,36 @@
 			</TEXTURE_SHIFT>
 		</prop>
 		<prop>
+			<name>MAS_Tablo_Alarm_Overspeed</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>OVERSPEED</text>
+				<variable>fc.Conditioned(fc.TerminalVelocity() &gt; 0 and fc.SurfaceSpeed() &gt; fc.TerminalVelocity())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.TerminalVelocity() &gt; 0 and fc.SurfaceSpeed() &gt; fc.TerminalVelocity())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(fc.TerminalVelocity() &gt; 0 and fc.SurfaceSpeed() &gt; fc.TerminalVelocity())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_Stall</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>STALL</text>
+				<variable>fc.Conditioned(far.StallFraction() &gt; 0.02 and fc.VesselFlying() &gt; 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(far.StallFraction() &gt; 0.02 and fc.VesselFlying() &gt; 0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(far.StallFraction() &gt; 0.02 and fc.VesselFlying() &gt; 0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
 			<name>MAS_Tablo_Alarm_Tumble</name>
 			<style>Alarm</style>
 			<TRIGGER_EVENT>
@@ -519,7 +611,7 @@
 		</prop>
 		<prop>
 			<name>MAS_Tablo_Fake_GoodCabinFans</name>
-			<style>Status</style>
+			<style>PassiveStatus</style>
 			<TEXT_LABEL>
 				<text>CABIN FANS</text>
 				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.004) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.05)</variable>
@@ -530,7 +622,7 @@
 		</prop>
 		<prop>
 			<name>MAS_Tablo_Fake_GoodCabinPressAuto</name>
-			<style>Status</style>
+			<style>PassiveStatus</style>
 			<TEXT_LABEL>
 				<text>CABIN PRESS$$$AUTO</text>
 				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.003) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.45)</variable>
@@ -541,7 +633,7 @@
 		</prop>
 		<prop>
 			<name>MAS_Tablo_Fake_GoodCabinTempAuto</name>
-			<style>Status</style>
+			<style>PassiveStatus</style>
 			<TEXT_LABEL>
 				<text>CABIN TEMP$$$AUTO</text>
 				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.003) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.55)</variable>
@@ -552,7 +644,7 @@
 		</prop>
 		<prop>
 			<name>MAS_Tablo_Fake_GoodHeaters</name>
-			<style>Status</style>
+			<style>PassiveStatus</style>
 			<TEXT_LABEL>
 				<text>HEATERS</text>
 				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.35)</variable>
@@ -563,7 +655,7 @@
 		</prop>
 		<prop>
 			<name>MAS_Tablo_Fake_GoodManual</name>
-			<style>Status</style>
+			<style>PassiveStatus</style>
 			<TEXT_LABEL>
 				<text>MANUAL</text>
 				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.05)</variable>
@@ -574,7 +666,7 @@
 		</prop>
 		<prop>
 			<name>MAS_Tablo_Fake_GoodSuitFans</name>
-			<style>Status</style>
+			<style>PassiveStatus</style>
 			<TEXT_LABEL>
 				<text>SUIT FANS</text>
 				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.005) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.35)</variable>
@@ -585,13 +677,141 @@
 		</prop>
 		<prop>
 			<name>MAS_Tablo_Fake_GoodTestOK</name>
-			<style>Status</style>
+			<style>PassiveStatus</style>
 			<TEXT_LABEL>
 				<text>TEST OK</text>
 				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.05)</variable>
 			</TEXT_LABEL>
 			<COLOR_SHIFT>
 				<variable>fc.Conditioned(fc.SafeModulo(fc.PeriodRandom(0.007) + (%PROPID%/%PROPCOUNT%), 1) &lt; 0.05)</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Auto_Speedbrake</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>AUTO$$$SPEED BRAKE</text>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("AUTOSPEEDBRAKE_ARM") * fc.GetGear() * fc.VesselFlying())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("AUTOSPEEDBRAKE_ARM") * fc.GetGear() * fc.VesselFlying())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("AUTOSPEEDBRAKE_ARM") * fc.GetGear() * fc.VesselFlying())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_FlapsExtended</name>
+			<style>Status</style>
+			<TRIGGER_EVENT>
+				<name>Flaps Good Status</name>
+				<event>fc.SetPersistent("ASET_FLAPS_GOOD", 1)</event>
+				<exitEvent>fc.SetPersistent("ASET_FLAPS_GOOD", 0)</exitEvent>
+				<variable>fc.Abs(fc.VerticalSpeed()) &lt; 30 and fc.EquivalentAirspeed() &lt; 250</variable>
+			</TRIGGER_EVENT>
+			<TEXT_LABEL>
+				<text>FLAPS$$$EXTENDED</text>
+				<variable>fc.Conditioned(far.GetFlapSetting() > 0 and ((fc.GetPersistentAsNumber("ASET_FLAPS_GOOD") + fc.PeriodStep(2)) &gt; 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(far.GetFlapSetting() > 0 and ((fc.GetPersistentAsNumber("ASET_FLAPS_GOOD") + fc.PeriodStep(2)) &gt; 0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(far.GetFlapSetting() > 0 and ((fc.GetPersistentAsNumber("ASET_FLAPS_GOOD") + fc.PeriodStep(2)) &gt; 0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_SpoilerExtended</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>SPOILERS$$$EXTENDED</text>
+				<variable>fc.Conditioned(far.GetSpoilerSetting() > 0 and (fc.VerticalSpeed() &lt; 10 or fc.PeriodStep(2) &gt; 0))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(far.GetSpoilerSetting() > 0 and (fc.VerticalSpeed() &lt; 10 or fc.PeriodStep(2) &gt; 0))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(far.GetSpoilerSetting() > 0 and (fc.VerticalSpeed() &lt; 10 or fc.PeriodStep(2) &gt; 0))</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_ThrustReverser</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>REVERSE</text>
+				<variable>fc.Conditioned(engine.ThrustReverserPosition() &gt; 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(engine.ThrustReverserPosition() &gt; 0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(engine.ThrustReverserPosition() &gt; 0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_TrimEnabled</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>TRIM</text>
+				<variable>fc.Conditioned(fc.Abs(fc.GetPitchTrim()) &gt; 0.01 or fc.Abs(fc.GetRollTrim()) &gt; 0.01 or fc.Abs(fc.GetYawTrim()) &gt; 0.01)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.Abs(fc.GetPitchTrim()) &gt; 0.01 or fc.Abs(fc.GetRollTrim()) &gt; 0.01 or fc.Abs(fc.GetYawTrim()) &gt; 0.01)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.Abs(fc.GetPitchTrim()) &gt; 0.01 or fc.Abs(fc.GetRollTrim()) &gt; 0.01 or fc.Abs(fc.GetYawTrim()) &gt; 0.01)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_APU_On</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>APU GEN</text>
+				<variable>fc.Conditioned(fc.GetFuelCellActive())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetFuelCellActive())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<startUV>0.5, 0.6</startUV>
+				<endUV delete="true" />
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_EngineMode1</name>
+			<style>Other</style>
+			<TEXT_LABEL>
+				<text>MODE 1</text>
+				<activeColor>50,255,30,255</activeColor>
+				<variable>fc.Conditioned(1 - fc.GetMultiModeEngineMode())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<activeColor>50,255,100,255</activeColor>
+				<variable>fc.Conditioned(1 - fc.GetMultiModeEngineMode())</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_EngineMode2</name>
+			<style>Other</style>
+			<TEXT_LABEL>
+				<text>MODE 2</text>
+				<variable>fc.Conditioned(fc.GetMultiModeEngineMode())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<activeColor>255,255,100,255</activeColor>
+				<variable>fc.Conditioned(fc.GetMultiModeEngineMode())</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_AircraftLimitedThrust</name>
+			<style>Other</style>
+			<TEXT_LABEL>
+				<text>LIMITED$$$THRUST</text>
+				<variable>fc.Conditioned(fc.GetThrottleLimit() &gt; 0.001 and fc.GetThrottleLimit() &lt; 0.99)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<activeColor>255,255,100,255</activeColor>
+				<variable>fc.Conditioned(fc.GetThrottleLimit() &gt; 0.001 and fc.GetThrottleLimit() &lt; 0.99)</variable>
 			</COLOR_SHIFT>
 		</prop>
 	</TabloIndicator>
