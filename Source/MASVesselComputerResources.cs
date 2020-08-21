@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2019 MOARdV
+ * Copyright (c) 2016-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -39,7 +39,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Array of all known resources.
         /// </summary>
-        private ResourceData[] resources = new ResourceData[0];
+        internal ResourceData[] resources = new ResourceData[0];
 
         /// <summary>
         /// Structure to track active propellant use.  Stores in units of kg, not KSP units.

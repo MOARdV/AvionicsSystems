@@ -1023,13 +1023,12 @@ namespace AvionicsSystems
 
         #region Resource Harvestor
         private List<ModuleAnalysisResource> scannerList = new List<ModuleAnalysisResource>();
-        internal ModuleAnalysisResource[] moduleScanner= new ModuleAnalysisResource[0];
+        internal ModuleAnalysisResource[] moduleScanner = new ModuleAnalysisResource[0];
 
         private List<ModuleResourceHarvester> harvesterList = new List<ModuleResourceHarvester>();
         internal ModuleResourceHarvester[] moduleHarvester = new ModuleResourceHarvester[0];
 
         internal bool surfaceScannerInstalled;
-        internal Part harvesterPart;
         internal double harvesterCoreTemp;
         internal double activeHarvesterCoreTemp;
         internal double thermalEfficiency;
@@ -1045,7 +1044,6 @@ namespace AvionicsSystems
             {
                 for (int i = moduleHarvester.Length - 1; i >= 0; --i)
                 {
-                    harvesterPart = moduleHarvester[i].part;
                     harvesterCoreTemp += moduleHarvester[i].GetCoreTemperature();
                     if (moduleHarvester[i].IsActivated)
                     {
