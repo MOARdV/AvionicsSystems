@@ -76,6 +76,11 @@ namespace AvionicsSystems
             chattererStartTalking = (Action)Delegate.CreateDelegate(typeof(Action), chatterer, chatterMethod_t);
         }
 
+        /// <summary>
+        /// The Chatterer category provides the interface with the Chatterer mod (when installed).
+        /// </summary>
+        #region Chatterer
+
         [MASProxyAttribute(Immutable = true)]
         /// <summary>
         /// Reports whether the Chatterer mod is installed.
@@ -136,6 +141,7 @@ namespace AvionicsSystems
                 return 0.0;
             }
         }
+        #endregion
 
         [MoonSharpHidden]
         internal void UpdateVessel()
