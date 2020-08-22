@@ -163,6 +163,16 @@
 			</TEXTURE_SHIFT>
 		</style>
 		<prop>
+			<name>MAS_Tablo_Alarm_GPWS</name>
+			<style>Alarm</style>
+			<TEXT_LABEL delete="true"/>
+			<COLOR_SHIFT>
+				<comment>This prop implements all of the GPWS functionality.</comment>
+				<variable>fc.Conditioned(0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT delete="true"/>
+		</prop>
+		<prop>
 			<name>MAS_Tablo_Alarm_Ablation</name>
 			<style>Alarm</style>
 			<TEXT_LABEL>
@@ -175,6 +185,21 @@
 			<TEXTURE_SHIFT>
 				<endUV>0, 0.2</endUV>
 				<variable>fc.Conditioned(fc.ResourceDelta("Ablator") &gt; 0.1)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_AeroBraking</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>AIR$$$BRAKING</text>
+				<variable>fc.Conditioned(fc.DynamicPressure() &gt; 0.01)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.DynamicPressure() &gt; 0.01)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(fc.DynamicPressure() &gt; 0.01)</variable>
 			</TEXTURE_SHIFT>
 		</prop>
 		<prop>
@@ -471,6 +496,112 @@
 			</TEXTURE_SHIFT>
 		</prop>
 		<prop>
+			<name>MAS_Tablo_Alarm_LowAltitude</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>ALTITUDE</text>
+				<!-- Not done yet -->
+				<variable>fc.Conditioned(0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_LowFuel</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>LIQUID$$$FUEL</text>
+				<variable>fc.Conditioned(fc.ResourceExists("LiquidFuel") &gt; 0 and fc.ResourcePercent("LiquidFuel") &lt; 0.1)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.ResourceExists("LiquidFuel") &gt; 0 and fc.ResourcePercent("LiquidFuel") &lt; 0.1)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(fc.ResourceExists("LiquidFuel") &gt; 0 and fc.ResourcePercent("LiquidFuel") &lt; 0.1)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_LowMonopropellant</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>MONO$$$PROPELLANT</text>
+				<variable>fc.Conditioned(fc.ResourceExists("MonoPropellant") &gt; 0 and fc.ResourcePercent("MonoPropellant") &lt; 0.1)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.ResourceExists("MonoPropellant") &gt; 0 and fc.ResourcePercent("MonoPropellant") &lt; 0.1)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(fc.ResourceExists("MonoPropellant") &gt; 0 and fc.ResourcePercent("MonoPropellant") &lt; 0.1)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_LowOxidizer</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>OXIDIZER</text>
+				<variable>fc.Conditioned(fc.ResourceExists("Oxidizer") &gt; 0 and fc.ResourcePercent("Oxidizer") &lt; 0.1)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.ResourceExists("Oxidizer") &gt; 0 and fc.ResourcePercent("Oxidizer") &lt; 0.1)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(fc.ResourceExists("Oxidizer") &gt; 0 and fc.ResourcePercent("Oxidizer") &lt; 0.1)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_LowXenon</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>XENON</text>
+				<variable>fc.Conditioned(fc.ResourceExists("XenonGas") &gt; 0 and fc.ResourcePercent("XenonGas") &lt; 0.1)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.ResourceExists("XenonGas") &gt; 0 and fc.ResourcePercent("XenonGas") &lt; 0.1)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(fc.ResourceExists("XenonGas") &gt; 0 and fc.ResourcePercent("XenonGas") &lt; 0.1)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_LowPower</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>LOW CHARGE</text>
+				<variable>fc.Conditioned(fc.PowerPercent() &lt; 0.2)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.PowerPercent() &lt; 0.2)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(fc.PowerPercent() &lt; 0.2)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_LowTWR</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>LOW TWR</text>
+				<variable>fc.Conditioned(fc.CurrentTWR() &gt; 0.01 and fc.CurrentTWR() &lt; 0.99)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.CurrentTWR() &gt; 0.01 and fc.CurrentTWR() &lt; 0.99)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(fc.CurrentTWR() &gt; 0.01 and fc.CurrentTWR() &lt; 0.99)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
 			<name>MAS_Tablo_Alarm_Overspeed</name>
 			<style>Alarm</style>
 			<TEXT_LABEL>
@@ -483,6 +614,49 @@
 			<TEXTURE_SHIFT>
 				<endUV>0, 0.2</endUV>
 				<variable>fc.Conditioned(fc.TerminalVelocity() &gt; 0 and fc.SurfaceSpeed() &gt; fc.TerminalVelocity())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_LandingGear_Broken</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>LANDING GEAR$$$BROKEN</text>
+				<variable>fc.Conditioned(fc.GearBrokenCount() &gt; 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GearBrokenCount() &gt; 0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GearBrokenCount() &gt; 0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_SolarArray_Broken</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>SOLAR ARRAY$$$BROKEN</text>
+				<variable>fc.Conditioned(fc.SolarPanelDamaged() &gt; 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.SolarPanelDamaged() &gt; 0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.SolarPanelDamaged() &gt; 0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Alarm_StageLocked</name>
+			<style>Alarm</style>
+			<TEXT_LABEL>
+				<text>STAGE$$$LOCKED</text>
+				<variable>fc.Conditioned(fc.GetStageLocked())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetStageLocked())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
+				<variable>fc.Conditioned(fc.GetStageLocked())</variable>
 			</TEXTURE_SHIFT>
 		</prop>
 		<prop>
@@ -536,6 +710,19 @@
 				<endUV>0.5, 0.4</endUV>
 				<variable>fc.Conditioned(fc.GetPersistentAsNumber("ALCOR_PODTEMPERATUREALARM_ON") + fc.GetPersistentAsNumber("ALCOR_GROUNDPROXIMITYALARM_ON") + fc.GetPersistentAsNumber("ALCOR_SLOPEALARM_ON") + fc.GetPersistentAsNumber("ALCOR_ENGINEOVERHEATALARM_ON") + fc.GetPersistentAsNumber("ALCOR_ENGFAILURE_ON") + fc.GetPersistentAsNumber("ALCOR_DOCKINGANGLEALARM_ON") + fc.GetPersistentAsNumber("ALCOR_DOCKINGSPEEDALARM_ON") + fc.GetPersistentAsNumber("ALCOR_GEARALARM_ON_LANDING") + fc.GetPersistentAsNumber("ALCOR_TUMBLEALARM_ON"))</variable>
 			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Fake_AlarmEPG</name>
+			<style>PassiveAlarm</style>
+			<TEXT_LABEL>
+				<fontSize>3.9</fontSize>
+				<lineSpacing>0.8</lineSpacing>
+				<text>EMERGENCY$$$POWER$$$GENERATOR</text>
+				<variable>0</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>0</variable>
+			</COLOR_SHIFT>
 		</prop>
 		<prop>
 			<name>MAS_Tablo_Fake_AlarmExCabinWater</name>
@@ -687,6 +874,356 @@
 			</COLOR_SHIFT>
 		</prop>
 		<prop>
+			<name>MAS_Tablo_Status_CommnetConnected</name>
+			<style>Other</style>
+			<TEXT_LABEL>
+				<text>COMMNET$$$CONNECTED</text>
+				<variable>fc.Conditioned(fc.CommNetConnected())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.CommNetConnected())</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_CommnetNoSignal</name>
+			<style>Other</style>
+			<TEXT_LABEL>
+				<text>NO SIGNAL</text>
+				<variable>fc.Conditioned(1 - fc.CommNetConnected())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(1 - fc.CommNetConnected())</variable>
+			</COLOR_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_UIStagingMode</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>STAGING$$$MODE</text>
+				<variable>fc.Conditioned(fc.FlightUIMode() == 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.FlightUIMode() == 0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.FlightUIMode() == 0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_UIDockingMode</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>DOCKING$$$MODE</text>
+				<variable>fc.Conditioned(fc.FlightUIMode() == 1)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.FlightUIMode() == 1)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.FlightUIMode() == 1)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_DockIsReference</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>DOCK PORT$$$IS REFERENCE</text>
+				<variable>fc.Conditioned(fc.GetDockIsReference())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetDockIsReference())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GetDockIsReference())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Alternator_Active</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>ALTERNATOR$$$ACTIVE</text>
+				<variable>fc.Conditioned(fc.AlternatorOutput() &gt; 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.AlternatorOutput() &gt; 0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.AlternatorOutput() &gt; 0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Alternator_Available</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>ALTERNATOR$$$AVAILABLE</text>
+				<variable>fc.Conditioned(fc.AlternatorCount() &gt; 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.AlternatorCount() &gt; 0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.AlternatorCount() &gt; 0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_TargetApproach</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>APPROACH</text>
+				<variable>fc.Conditioned(fc.TargetSpeed() &gt; 0.01)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.TargetSpeed() &gt; 0.01)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.TargetSpeed() &gt; 0.01)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Ascent</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>ASCENT</text>
+				<variable>fc.Conditioned(fc.VerticalSpeed() &gt; 0.1)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.VerticalSpeed() &gt; 0.1)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.VerticalSpeed() &gt; 0.1)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_FuelCell_Active</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>FUEL CELL$$$ACTIVE</text>
+				<variable>fc.Conditioned(fc.FuelCellOutput() &gt; 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.FuelCellOutput() &gt; 0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.FuelCellOutput() &gt; 0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_FuelCell_Available</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>FUEL CELL$$$AVAILABLE</text>
+				<variable>fc.Conditioned(fc.FuelCellCount() &gt; 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.FuelCellCount() &gt; 0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.FuelCellCount() &gt; 0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_FuelCell_Enabled</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>FUEL$$$CELL</text>
+				<variable>fc.Conditioned(fc.GetFuelCellActive())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetFuelCellActive())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GetFuelCellActive())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Generator_Active</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>GENERATOR$$$ACTIVE</text>
+				<variable>fc.Conditioned(fc.GeneratorOutput() &gt; 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GeneratorOutput() &gt; 0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GeneratorOutput() &gt; 0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Generator_Available</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>GENERATOR$$$AVAILABLE</text>
+				<variable>fc.Conditioned(fc.GeneratorCount() &gt; 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GeneratorCount() &gt; 0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GeneratorCount() &gt; 0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_GimbalLocked</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>GIMBAL$$$LOCKED</text>
+				<variable>fc.Conditioned(fc.GetGimbalsLocked())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetGimbalsLocked())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GetGimbalsLocked())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_AVAS_On</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>ON</text>
+				<fontSize>6</fontSize>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("AVAS_ON"))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("AVAS_ON"))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("AVAS_ON"))</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_GPWS_On</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>ON</text>
+				<fontSize>6</fontSize>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("GPWS_ON"))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("GPWS_ON"))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("GPWS_ON"))</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Chatterer_Available</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<fontSize>6</fontSize>
+				<text>ON</text>
+				<variable>fc.Conditioned(chatterer.Available())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(chatterer.Available())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(chatterer.Available())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Chatterer_Recv</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<fontSize>6</fontSize>
+				<text>RECV</text>
+				<variable>fc.Conditioned(chatterer.Receiving())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(chatterer.Receiving())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(chatterer.Receiving())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Chatterer_Xmit</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<fontSize>6</fontSize>
+				<text>XMIT</text>
+				<variable>fc.Conditioned(chatterer.Transmitting())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(chatterer.Transmitting())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(chatterer.Transmitting())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Chatterer_Standby</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<fontSize>6</fontSize>
+				<text>STBY</text>
+				<variable>fc.Conditioned(chatterer.Available() - (chatterer.Transmitting() + chatterer.Receiving()))</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(chatterer.Available() - (chatterer.Transmitting() + chatterer.Receiving()))</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(chatterer.Available() - (chatterer.Transmitting() + chatterer.Receiving()))</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Parachute_Safe</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>SAFE$$$TO DEPLOY</text>
+				<variable>fc.Conditioned(parachute.DeploymentSafe())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(parachute.DeploymentSafe())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(parachute.DeploymentSafe())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Battery_Charging</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>BATTERY$$$CHARGING</text>
+				<variable>fc.Conditioned(fc.PowerDelta() &gt; 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.PowerDelta() &gt; 0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.PowerDelta() &gt; 0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_TargetDepart</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>DEPART</text>
+				<variable>fc.Conditioned(fc.TargetSpeed() &lt; -0.01)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.TargetSpeed() &lt; -0.01)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.TargetSpeed() &lt; -0.01)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Descent</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>DESCENT</text>
+				<variable>fc.Conditioned(fc.VerticalSpeed() &lt; -0.1)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.VerticalSpeed() &lt; -0.1)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.VerticalSpeed() &lt; -0.1)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
 			<name>MAS_Tablo_Status_Auto_Speedbrake</name>
 			<style>Status</style>
 			<TEXT_LABEL>
@@ -698,6 +1235,62 @@
 			</COLOR_SHIFT>
 			<TEXTURE_SHIFT>
 				<variable>fc.Conditioned(fc.GetPersistentAsNumber("AUTOSPEEDBRAKE_ARM") * fc.GetGear() * fc.VesselFlying())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Brakes</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>BRAKES</text>
+				<variable>fc.Conditioned(fc.GetBrakes())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetBrakes())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GetBrakes())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Contact</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>CONTACT</text>
+				<variable>fc.Conditioned(fc.VesselLanded())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.VesselLanded())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.VesselLanded())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Dock_Targeted</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>TARGET D/P$$$SELECTED</text>
+				<variable>fc.Conditioned(fc.TargetType() == 2)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.TargetType() == 2)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.TargetType() == 2)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Docked</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>VESSEL$$$DOCKED</text>
+				<variable>fc.Conditioned(fc.Docked())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.Docked())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.Docked())</variable>
 			</TEXTURE_SHIFT>
 		</prop>
 		<prop>
@@ -718,6 +1311,272 @@
 			</COLOR_SHIFT>
 			<TEXTURE_SHIFT>
 				<variable>fc.Conditioned(far.GetFlapSetting() > 0 and ((fc.GetPersistentAsNumber("ASET_FLAPS_GOOD") + fc.PeriodStep(2)) &gt; 0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Gear</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>LANDING$$$GEAR</text>
+				<variable>fc.Conditioned(fc.GetGear())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetGear())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GetGear())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_LeftGear</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>LEFT$$$GEAR</text>
+				<variable>fc.Conditioned(fc.GearMoving() &gt; 0 or fc.GearPosition() == 1)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GearMoving() &gt; 0 or fc.GearPosition() == 1)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GearMoving() &gt; 0 or fc.GearPosition() == 1)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_NoseGear</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>NOSE$$$GEAR</text>
+				<variable>fc.Conditioned(fc.GearMoving() &gt; 0 or fc.GearPosition() == 1)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GearMoving() &gt; 0 or fc.GearPosition() == 1)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GearMoving() &gt; 0 or fc.GearPosition() == 1)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_RightGear</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>RIGHT$$$GEAR</text>
+				<variable>fc.Conditioned(fc.GearMoving() &gt; 0 or fc.GearPosition() == 1)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GearMoving() &gt; 0 or fc.GearPosition() == 1)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GearMoving() &gt; 0 or fc.GearPosition() == 1)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_LandingGear_Deployed</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>LANDING GEAR$$$DEPLOYED</text>
+				<variable>fc.Conditioned(fc.GearPosition() &gt; 0.5)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GearPosition() &gt; 0.5)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GearPosition() &gt; 0.5)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_LandingGear_Deploying</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>LANDING GEAR$$$DEPLOYING</text>
+				<variable>fc.Conditioned(fc.GearMoving() &gt; 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GearMoving() &gt; 0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GearMoving() &gt; 0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_LandingGear_Retracted</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>LANDING GEAR$$$RETRACTED</text>
+				<variable>fc.Conditioned(fc.GearCount() &gt; 0 and fc.GearPosition() == 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GearCount() &gt; 0 and fc.GearPosition() == 0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GearCount() &gt; 0 and fc.GearPosition() == 0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_LandingGear_Retracting</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>LANDING GEAR$$$RETRACTING</text>
+				<variable>fc.Conditioned(fc.GearMoving() &lt; 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GearMoving() &lt; 0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GearMoving() &lt; 0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Lights</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>LIGHTS</text>
+				<variable>fc.Conditioned(fc.GetLights())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetLights())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GetLights())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_MECO</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>MECO</text>
+				<variable>fc.Conditioned(fc.CurrentThrustkN() &lt; 0.0001)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.CurrentThrustkN() &lt; 0.0001)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.CurrentThrustkN() &lt; 0.0001)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_PrecisionCtrl</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>PRECISION$$$CONTROL</text>
+				<variable>fc.Conditioned(fc.GetPrecisionMode())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetPrecisionMode())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GetPrecisionMode())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_RCSActive</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>RCS$$$ACTIVE</text>
+				<variable>fc.Conditioned(fc.GetRCS())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetRCS())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GetRCS())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_RCSEnabled</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>RCS</text>
+				<variable>fc.Conditioned(fc.GetRCS())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetRCS())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GetRCS())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_SAS</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>SAS</text>
+				<variable>fc.Conditioned(fc.GetSAS())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.GetSAS())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.GetSAS())</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_SolarArray_Active</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>SOLAR ARRAY$$$ACTIVE</text>
+				<variable>fc.Conditioned(fc.SolarPanelOutput() &gt; 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.SolarPanelOutput() &gt; 0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.SolarPanelOutput() &gt; 0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_SolarArray_Available</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>SOLAR ARRAY$$$AVAILABLE</text>
+				<variable>fc.Conditioned(fc.SolarPanelCount() &gt; 0)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.SolarPanelCount() &gt; 0)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.SolarPanelCount() &gt; 0)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_SolarArray_Deployed</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>SOLAR ARRAY$$$DEPLOYED</text>
+				<variable>fc.Conditioned(fc.SolarPanelPosition() &gt; 0.5)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.SolarPanelPosition() &gt; 0.5)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.SolarPanelPosition() &gt; 0.5)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_SolarArray_Retracted</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>SOLAR ARRAY$$$RETRACTED</text>
+				<variable>fc.Conditioned(fc.SolarPanelCount() &gt; 0 and fc.SolarPanelPosition() &lt; 0.5)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.SolarPanelCount() &gt; 0 and fc.SolarPanelPosition() &lt; 0.5)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.SolarPanelCount() &gt; 0 and fc.SolarPanelPosition() &lt; 0.5)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_StageReady</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>STAGE$$$READY</text>
+				<variable>fc.Conditioned(fc.StageReady())</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.StageReady())</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>fc.Conditioned(fc.StageReady())</variable>
 			</TEXTURE_SHIFT>
 		</prop>
 		<prop>
@@ -760,6 +1619,23 @@
 			</COLOR_SHIFT>
 			<TEXTURE_SHIFT>
 				<variable>fc.Conditioned(fc.Abs(fc.GetPitchTrim()) &gt; 0.01 or fc.Abs(fc.GetRollTrim()) &gt; 0.01 or fc.Abs(fc.GetYawTrim()) &gt; 0.01)</variable>
+			</TEXTURE_SHIFT>
+		</prop>
+		<prop>
+			<name>MAS_Tablo_Status_Warp</name>
+			<style>Status</style>
+			<TEXT_LABEL>
+				<text>WARP</text>
+				<passiveColor>80,175,80,255</passiveColor>
+				<activeColor>150,255,100,255</activeColor>
+				<variable>fc.Conditioned(fc.WarpRate() &gt; 1.1)</variable>
+			</TEXT_LABEL>
+			<COLOR_SHIFT>
+				<variable>fc.Conditioned(fc.WarpRate() &gt; 1.1)</variable>
+			</COLOR_SHIFT>
+			<TEXTURE_SHIFT>
+				<variable>0</variable>
+				<startUV>0, 0.8</startUV>
 			</TEXTURE_SHIFT>
 		</prop>
 		<prop>
