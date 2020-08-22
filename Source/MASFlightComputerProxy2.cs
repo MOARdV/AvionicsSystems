@@ -770,11 +770,12 @@ namespace AvionicsSystems
 
         [MASProxy(Dependent = true)]
         /// <summary>
-        /// Provides an "inverse lerp" of value, returning a value between 0 and 1 if
-        /// the value is between `range1` and range2`.  If `range1` &lt; `range2`,
-        /// it returns 0 if value &lt; range1, and 1 if value &gt; range2.  If range1 &gt;
-        /// range2, the out-of-range values are reversed.  If range1 == range2, this
-        /// function returns 0.
+        /// Provides an "inverse lerp" of value, returning a value between 0 and 1
+        /// depending on where `value` falls between `range1` and `range2`.
+        /// 
+        /// If `range1` == `range2`, or if `value` &lt; `range1`, it returns 0.
+        /// 
+        /// If `value` &gt; `range2`, it returns 1.
         /// </summary>
         /// <param name="value">The value to evaluate.</param>
         /// <param name="range1">The first bound of the range.</param>
