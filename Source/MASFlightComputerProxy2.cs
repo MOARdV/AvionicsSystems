@@ -1207,6 +1207,30 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Returns the current Flight UI Mode.
+        /// 
+        /// The Flight UI mode is the UI typically in the lower-left corner of the
+        /// screen during flight when not in IVA.  It may be one of the following
+        /// values:
+        /// * 0 - Staging Mode
+        /// * 1 - Docking Mode
+        /// * 2 = Map Mode
+        /// * 3 = Maneuver Edit Mode
+        /// * 4 = Maneuver Info Mode
+        /// </summary>
+        /// <returns>A mode number as described above, or -1 if the mode cannot be queried.</returns>
+        public double FlightUIMode()
+        {
+            var ui = FlightUIModeController.Instance;
+            if (ui != null)
+            {
+                return (double)ui.Mode;
+            }
+
+            return -1.0;
+        }
+
         [MASProxy(Dependent = true)]
         /// <summary>
         /// Applies `parameter` to `formatString`, returning the result.
