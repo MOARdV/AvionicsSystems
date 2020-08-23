@@ -7,7 +7,7 @@
 	without the tedious effort of copying config files and making small edits
 	while hoping you didn't overlook something.
 
-	Copyright (c) 2019 MOARdV
+	Copyright (c) 2019-2020 MOARdV
 
 	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
 	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
@@ -36,7 +36,9 @@
 		cause it to flash when low.
 		TEXT_LABEL id 1 is the caption.
 		
-		The readout is scaled for 5 digits maximum
+		The readout is scaled for 5 digits maximum.
+		
+		The Touch Gauge adds a collider to the instrument that allows it to set values (such as to set backlight brightness).
 		-->
 		<style name="Standard Gauge">
 			<MODEL id="0">
@@ -127,7 +129,341 @@
 				<name>Plate Text</name>
 				<transform>PlateText</transform>
 				<fontSize>3.5</fontSize>
-				<lineSpacing>0.9</lineSpacing>
+				<lineSpacing>0.8</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>never</emissive>
+				<passiveColor>COLOR_MOARdV_UnlitBlackText</passiveColor>
+			</TEXT_LABEL>
+			<TEXTURE_SHIFT id="0">
+				<name>Active Plate color</name>
+				<transform>IndicatorNamePlateActive</transform>
+				<startUV>0.5,0</startUV>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<comment>White backlight color</comment>
+				<name>Indicator Plate color</name>
+				<transform>IndicatorNamePlate</transform>
+				<startUV>0.25,0.625</startUV>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
+		<style name="Temperature Gauge">
+			<MODEL id="0">
+				<model>ASET/ASET_Props/Instruments/IndicatorADV/IndcatorADV</model>
+				<texture>IndicatorAdvICON,MOARdV/Props/IndicatorADV/IndicatorAdvBlank</texture>
+			</MODEL>
+			<MODEL id="1">
+				<model>MOARdV/Props/IndicatorADV/IndicatorADV_MAS_Upgrade</model>
+				<texture>Indicator_Single_DIFFUSE,ASET/ASET_Props/Instruments/IndicatorADV/Indicator_Single_DIFFUSE</texture>
+				<texture>Indicator_Single_Emissive,ASET/ASET_Props/Instruments/IndicatorADV/Indicator_Single_Emissive</texture>
+				<texture>IndicatorAdvICON,MOARdV/Props/IndicatorADV/IndicatorAdvBlank</texture>
+			</MODEL>
+			<TRANSLATION id="0">
+				<name>Hide normal plate</name>
+				<transform>IndicatorNamePlate</transform>
+				<startTranslation>0,0,0</startTranslation>
+				<endTranslation>0,-0.001,0</endTranslation>
+				<variable>0</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<name>Show active plate</name>
+				<transform>IndicatorNamePlateActive</transform>
+				<startTranslation>0,0,0</startTranslation>
+				<endTranslation>0,0.001,0</endTranslation>
+				<variable>0</variable>
+			</TRANSLATION>
+			<TRANSLATION id="2">
+				<name>New power off</name>
+				<transform>PowerOFF_Rect</transform>
+				<startTranslation>0,0,0</startTranslation>
+				<endTranslation>0,-0.005,0</endTranslation>
+				<variable>fc.Conditioned(1)</variable>
+			</TRANSLATION>
+			<TRANSLATION id="3">
+				<name>Old power off</name>
+				<transform>IndicatorADVBlackPlateObj</transform>
+				<startTranslation>0,-0.006,0</startTranslation>
+			</TRANSLATION>
+			<ANIMATION>
+				<name>Scale animation</name>
+				<animation>IndicatorADVanim</animation>
+				<variable>0</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<name>Scale color</name>
+				<transform>Indicator_Scale</transform>
+				<passiveColor>COLOR_ASET_IND_ADV_TEMP_SCALE_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_TEMP_SCALE_ACTIVECOLOR</activeColor>
+				<variable>0</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Amount border color</name>
+				<transform>IndicatorAmount</transform>
+				<flashRate>0.5</flashRate>
+				<passiveColor>COLOR_ASET_IND_ADV_TEMP_SCALE_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_TEMP_SCALE_ACTIVECOLOR</activeColor>
+				<variable>0</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<name>Active plate backlight</name>
+				<transform>IndicatorNamePlateActive</transform>
+				<passiveColor>255,255,255,255</passiveColor>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="3">
+				<name>Passive plate backlight</name>
+				<transform>IndicatorNamePlate</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<name>Readout</name>
+				<transform>DigitTransformObj</transform>
+				<fontSize>6</fontSize>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<transformOffset>0.0121,-0.004</transformOffset>
+				<emissive>always</emissive>
+				<variable>0</variable>
+				<activeColor>COLOR_ASET_IND_ADV_TEMP_READOUT_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_IND_ADV_TEMP_READOUT_ZEROCOLOR</passiveColor>
+				<text>0000</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Plate Text</name>
+				<transform>PlateText</transform>
+				<fontSize>3.5</fontSize>
+				<lineSpacing>0.8</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>never</emissive>
+				<passiveColor>COLOR_MOARdV_UnlitBlackText</passiveColor>
+			</TEXT_LABEL>
+			<TEXTURE_SHIFT id="0">
+				<name>Active Plate color</name>
+				<transform>IndicatorNamePlateActive</transform>
+				<startUV>0.5,0</startUV>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<comment>White backlight color</comment>
+				<name>Indicator Plate color</name>
+				<transform>IndicatorNamePlate</transform>
+				<startUV>0.25,0.625</startUV>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
+		<style name="Rate Gauge">
+			<!-- Uses a larger font size, since resources use abbreviations -->
+			<MODEL id="0">
+				<model>ASET/ASET_Props/Instruments/IndicatorADV/IndcatorADV</model>
+				<texture>IndicatorAdvICON,MOARdV/Props/IndicatorADV/IndicatorAdvBlank</texture>
+			</MODEL>
+			<MODEL id="1">
+				<model>MOARdV/Props/IndicatorADV/IndicatorADV_MAS_Upgrade</model>
+				<texture>Indicator_Single_DIFFUSE,ASET/ASET_Props/Instruments/IndicatorADV/Indicator_Single_DIFFUSE</texture>
+				<texture>Indicator_Single_Emissive,ASET/ASET_Props/Instruments/IndicatorADV/Indicator_Single_Emissive</texture>
+				<texture>IndicatorAdvICON,MOARdV/Props/IndicatorADV/IndicatorAdvBlank</texture>
+			</MODEL>
+			<TRANSLATION id="0">
+				<name>Hide normal plate</name>
+				<transform>IndicatorNamePlate</transform>
+				<startTranslation>0,0,0</startTranslation>
+				<endTranslation>0,-0.001,0</endTranslation>
+				<variable>0</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<name>Show active plate</name>
+				<transform>IndicatorNamePlateActive</transform>
+				<startTranslation>0,0,0</startTranslation>
+				<endTranslation>0,0.001,0</endTranslation>
+				<variable>0</variable>
+			</TRANSLATION>
+			<TRANSLATION id="2">
+				<name>New power off</name>
+				<transform>PowerOFF_Rect</transform>
+				<startTranslation>0,0,0</startTranslation>
+				<endTranslation>0,-0.005,0</endTranslation>
+				<variable>fc.Conditioned(1)</variable>
+			</TRANSLATION>
+			<TRANSLATION id="3">
+				<name>Old power off</name>
+				<transform>IndicatorADVBlackPlateObj</transform>
+				<startTranslation>0,-0.006,0</startTranslation>
+			</TRANSLATION>
+			<ANIMATION>
+				<name>Scale animation</name>
+				<animation>IndicatorADVanim</animation>
+				<variable>0</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<name>Scale color</name>
+				<transform>Indicator_Scale</transform>
+				<passiveColor>100,100,100,255</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_RESRC_CONS_SCALE_ACTIVECOLOR</activeColor>
+				<variable>0</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Amount border color</name>
+				<transform>IndicatorAmount</transform>
+				<passiveColor>100,100,100,255</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_RESRC_CONS_SCALE_ACTIVECOLOR</activeColor>
+				<variable>0</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<name>Active plate backlight</name>
+				<transform>IndicatorNamePlateActive</transform>
+				<passiveColor>255,255,255,255</passiveColor>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="3">
+				<name>Passive plate backlight</name>
+				<transform>IndicatorNamePlate</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<name>Readout</name>
+				<transform>DigitTransformObj</transform>
+				<fontSize>6</fontSize>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<transformOffset>0.0121,-0.004</transformOffset>
+				<emissive>always</emissive>
+				<variable>0</variable>
+				<activeColor>COLOR_ASET_IND_ADV_RESRC_CONS_READOUT_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_IND_ADV_RESRC_CONS_READOUT_ZEROCOLOR</passiveColor>
+				<text>0000</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Plate Text</name>
+				<transform>PlateText</transform>
+				<fontSize>4</fontSize>
+				<lineSpacing>0.8</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>never</emissive>
+				<passiveColor>COLOR_MOARdV_UnlitBlackText</passiveColor>
+			</TEXT_LABEL>
+			<TEXTURE_SHIFT id="0">
+				<name>Active Plate color</name>
+				<transform>IndicatorNamePlateActive</transform>
+				<startUV>0.5,0</startUV>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<comment>White backlight color</comment>
+				<name>Indicator Plate color</name>
+				<transform>IndicatorNamePlate</transform>
+				<startUV>0.25,0.625</startUV>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
+		<style name="Resource Gauge">
+			<!-- Uses a larger font size, since resources use abbreviations -->
+			<MODEL id="0">
+				<model>ASET/ASET_Props/Instruments/IndicatorADV/IndcatorADV</model>
+				<texture>IndicatorAdvICON,MOARdV/Props/IndicatorADV/IndicatorAdvBlank</texture>
+			</MODEL>
+			<MODEL id="1">
+				<model>MOARdV/Props/IndicatorADV/IndicatorADV_MAS_Upgrade</model>
+				<texture>Indicator_Single_DIFFUSE,ASET/ASET_Props/Instruments/IndicatorADV/Indicator_Single_DIFFUSE</texture>
+				<texture>Indicator_Single_Emissive,ASET/ASET_Props/Instruments/IndicatorADV/Indicator_Single_Emissive</texture>
+				<texture>IndicatorAdvICON,MOARdV/Props/IndicatorADV/IndicatorAdvBlank</texture>
+			</MODEL>
+			<TRANSLATION id="0">
+				<name>Hide normal plate</name>
+				<transform>IndicatorNamePlate</transform>
+				<startTranslation>0,0,0</startTranslation>
+				<endTranslation>0,-0.001,0</endTranslation>
+				<variable>0</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<name>Show active plate</name>
+				<transform>IndicatorNamePlateActive</transform>
+				<startTranslation>0,0,0</startTranslation>
+				<endTranslation>0,0.001,0</endTranslation>
+				<variable>0</variable>
+			</TRANSLATION>
+			<TRANSLATION id="2">
+				<name>New power off</name>
+				<transform>PowerOFF_Rect</transform>
+				<startTranslation>0,0,0</startTranslation>
+				<endTranslation>0,-0.005,0</endTranslation>
+				<variable>fc.Conditioned(1)</variable>
+			</TRANSLATION>
+			<TRANSLATION id="3">
+				<name>Old power off</name>
+				<transform>IndicatorADVBlackPlateObj</transform>
+				<startTranslation>0,-0.006,0</startTranslation>
+			</TRANSLATION>
+			<ANIMATION>
+				<name>Scale animation</name>
+				<animation>IndicatorADVanim</animation>
+				<variable>0</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<name>Scale color</name>
+				<transform>Indicator_Scale</transform>
+				<passiveColor>COLOR_ASET_IND_ADV_RESRC_SCALE_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_RESRC_SCALE_ACTIVECOLOR</activeColor>
+				<variable>0</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Amount border color</name>
+				<transform>IndicatorAmount</transform>
+				<flashRate>0.5</flashRate>
+				<passiveColor>COLOR_ASET_IND_ADV_RESRC_READOUT_BORD_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_RESRC_READOUT_BORD_ACTIVECOLOR</activeColor>
+				<variable>0</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<name>Active plate backlight</name>
+				<transform>IndicatorNamePlateActive</transform>
+				<passiveColor>255,255,255,255</passiveColor>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="3">
+				<name>Passive plate backlight</name>
+				<transform>IndicatorNamePlate</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<name>Readout</name>
+				<transform>DigitTransformObj</transform>
+				<fontSize>6</fontSize>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<transformOffset>0.0121,-0.004</transformOffset>
+				<emissive>always</emissive>
+				<variable>0</variable>
+				<activeColor>COLOR_ASET_IND_ADV_RESRC_READOUT_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_IND_ADV_RESRC_READOUT_ZEROCOLOR</passiveColor>
+				<text>0000</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Plate Text</name>
+				<transform>PlateText</transform>
+				<fontSize>4</fontSize>
+				<lineSpacing>0.8</lineSpacing>
 				<font>Liberation Sans</font>
 				<style>Bold</style>
 				<alignment>Center</alignment>
@@ -272,6 +608,146 @@
 			</COLLIDER_ADVANCED>
 		</style>
 		<prop>
+			<name>MAS_IndicatorADV_Ablator</name>
+			<style>Resource Gauge</style>
+			<ANIMATION>
+				<variable>fc.ResourcePercent("Ablator")</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.ResourceThreshold("Ablator", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.ResourceThreshold("Ablator", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<TRANSLATION id="0">
+				<variable>fc.ResourceThreshold("Ablator", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.ResourceThreshold("Ablator", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<variable>fc.ResourceThreshold("Ablator", 0.0, 0.1)</variable>
+				<text>{0,5:0}$#$fc.Min(99999, fc.ResourceCurrent("Ablator"))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0}$#$fc.ResourceAbbreviatedName("Ablator")</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_AtmPress</name>
+			<style>Standard Gauge</style>
+			<ANIMATION>
+				<variable>fc.StaticPressureAtm()</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<activeColor>100,120,190,255</activeColor>
+				<passiveColor>190,190,190,255</passiveColor>
+				<variable>fc.StaticPressureAtm()</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<activeColor>190,033,033,255</activeColor>
+				<passiveColor>10,180,50,255</passiveColor>
+				<variable>fc.StaticPressureAtm()</variable>
+			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<passiveColor>255,246,0,255</passiveColor>
+				<text>{0,5:P0}$#$fc.Min(9.9, fc.StaticPressureAtm())</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ATM PRESS</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_ElectricCharge</name>
+			<style>Resource Gauge</style>
+			<ANIMATION>
+				<variable>fc.ResourcePercent("ElectricCharge")</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.ResourceThreshold("ElectricCharge", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.ResourceThreshold("ElectricCharge", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<TRANSLATION id="0">
+				<variable>fc.ResourceThreshold("ElectricCharge", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.ResourceThreshold("ElectricCharge", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<variable>fc.ResourceThreshold("ElectricCharge", 0.0, 0.1)</variable>
+				<text>{0,5:0}$#$fc.Min(99999, fc.ResourceCurrent("ElectricCharge"))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0}$#$fc.ResourceAbbreviatedName("ElectricCharge")</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_ElectricCharge_Rate</name>
+			<style>Rate Gauge</style>
+			<ANIMATION>
+				<variable>fc.ResourceDelta("ElectricCharge") * (1/30)</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.ResourceDelta("ElectricCharge") &gt; 0</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.ResourceDelta("ElectricCharge") &gt; 0</variable>
+			</COLOR_SHIFT>
+			<TRANSLATION id="0">
+				<variable>fc.ResourceDelta("ElectricCharge") &gt; 0</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.ResourceDelta("ElectricCharge") &gt; 0</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<variable>fc.ResourceDelta("ElectricCharge") &gt; 0</variable>
+				<text>{0,5:0}$#$fc.Clamp(fc.ResourceDelta("ElectricCharge"), 0, 99999)</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0}$#$fc.ResourceAbbreviatedName("ElectricCharge")$$$RATE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_EngineTemperature</name>
+			<style>Temperature Gauge</style>
+			<ANIMATION>
+				<variable>fc.SafeDivide(fc.HottestEngineTemperature(true), fc.HottestEngineMaxTemperature(true))</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.HottestEngineTemperature(true) &gt; 0.85 * fc.HottestEngineMaxTemperature(true)</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.HottestEngineTemperature(true) &gt; 0.85 * fc.HottestEngineMaxTemperature(true)</variable>
+			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>{0,4:0}$#$fc.Min(9999, fc.HottestEngineTemperature(false))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>ENGINE$$$TEMP °C</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_DynamicPressure</name>
+			<style>Standard Gauge</style>
+			<ANIMATION>
+				<variable>fc.DynamicPressure() * (1/60)</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.DynamicPressure() &gt; 40</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.DynamicPressure() &gt; 40</variable>
+			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>{0,5:0}$#$fc.Min(99999, fc.DynamicPressure())</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>Q, KPa</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_IndicatorADV_GForces</name>
 			<style>Standard Gauge</style>
 			<ANIMATION>
@@ -288,6 +764,297 @@
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
 				<text>G-FORCE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_HeatshieldTemperature</name>
+			<style>Temperature Gauge</style>
+			<ANIMATION>
+				<variable>fc.SafeDivide(fc.HeatShieldTemperature(true), fc.HeatShieldMaxTemperature(true))</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.HeatShieldTemperature(true) &gt; 0.85 * fc.HeatShieldMaxTemperature(true)</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.HeatShieldTemperature(true) &gt; 0.85 * fc.HeatShieldMaxTemperature(true)</variable>
+			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>{0,4:0}$#$fc.Min(9999, fc.HeatShieldTemperature(false))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>SHIELD$$$TEMP °C</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_IntakeAir</name>
+			<style>Resource Gauge</style>
+			<ANIMATION>
+				<variable>fc.ResourcePercent("IntakeAir")</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.ResourceThreshold("IntakeAir", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.ResourceThreshold("IntakeAir", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<TRANSLATION id="0">
+				<variable>fc.ResourceThreshold("IntakeAir", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.ResourceThreshold("IntakeAir", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<variable>fc.ResourceThreshold("IntakeAir", 0.0, 0.1)</variable>
+				<text>{0,5:0}$#$fc.Min(99999, fc.ResourceCurrent("IntakeAir"))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0}$#$fc.ResourceAbbreviatedName("IntakeAir")</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_LiquidFuel</name>
+			<style>Resource Gauge</style>
+			<ANIMATION>
+				<variable>fc.ResourcePercent("LiquidFuel")</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.ResourceThreshold("LiquidFuel", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.ResourceThreshold("LiquidFuel", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<TRANSLATION id="0">
+				<variable>fc.ResourceThreshold("LiquidFuel", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.ResourceThreshold("LiquidFuel", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<variable>fc.ResourceThreshold("LiquidFuel", 0.0, 0.1)</variable>
+				<text>{0,5:0}$#$fc.Min(99999, fc.ResourceCurrent("LiquidFuel"))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0}$#$fc.ResourceAbbreviatedName("LiquidFuel")</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_LiquidFuel_Rate</name>
+			<style>Rate Gauge</style>
+			<ANIMATION>
+				<variable>fc.ResourceDelta("LiquidFuel") * (1/30)</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.ResourceDelta("LiquidFuel") &gt; 0</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.ResourceDelta("LiquidFuel") &gt; 0</variable>
+			</COLOR_SHIFT>
+			<TRANSLATION id="0">
+				<variable>fc.ResourceDelta("LiquidFuel") &gt; 0</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.ResourceDelta("LiquidFuel") &gt; 0</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<variable>fc.ResourceDelta("LiquidFuel") &gt; 0</variable>
+				<text>{0,5:0}$#$fc.Clamp(fc.ResourceDelta("LiquidFuel"), 0, 99999)</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0}$#$fc.ResourceAbbreviatedName("LiquidFuel")$$$RATE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_LiquidFuel_Stage</name>
+			<style>Resource Gauge</style>
+			<ANIMATION>
+				<variable>fc.ResourceStagePercent("LiquidFuel")</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.ResourceStageThreshold("LiquidFuel", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.ResourceStageThreshold("LiquidFuel", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<TRANSLATION id="0">
+				<variable>fc.ResourceStageThreshold("LiquidFuel", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.ResourceStageThreshold("LiquidFuel", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<variable>fc.ResourceStageThreshold("LiquidFuel", 0.0, 0.1)</variable>
+				<text>{0,5:0}$#$fc.Min(99999, fc.ResourceStageCurrent("LiquidFuel"))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>STAGE$$${0}$#$fc.ResourceAbbreviatedName("LiquidFuel")</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_Monopropellant</name>
+			<style>Resource Gauge</style>
+			<ANIMATION>
+				<variable>fc.ResourcePercent("MonoPropellant")</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.ResourceThreshold("MonoPropellant", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.ResourceThreshold("MonoPropellant", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<TRANSLATION id="0">
+				<variable>fc.ResourceThreshold("MonoPropellant", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.ResourceThreshold("MonoPropellant", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<variable>fc.ResourceThreshold("MonoPropellant", 0.0, 0.1)</variable>
+				<text>{0,5:0}$#$fc.Min(99999, fc.ResourceCurrent("MonoPropellant"))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0}$#$fc.ResourceAbbreviatedName("MonoPropellant")</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_Monopropellant_Rate</name>
+			<style>Rate Gauge</style>
+			<ANIMATION>
+				<variable>fc.ResourceDelta("MonoPropellant") * (1/30)</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.ResourceDelta("MonoPropellant") &gt; 0</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.ResourceDelta("MonoPropellant") &gt; 0</variable>
+			</COLOR_SHIFT>
+			<TRANSLATION id="0">
+				<variable>fc.ResourceDelta("MonoPropellant") &gt; 0</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.ResourceDelta("MonoPropellant") &gt; 0</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<variable>fc.ResourceDelta("MonoPropellant") &gt; 0</variable>
+				<text>{0,5:0}$#$fc.Clamp(fc.ResourceDelta("MonoPropellant"), 0, 99999)</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0}$#$fc.ResourceAbbreviatedName("MonoPropellant")$$$RATE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_Oxidizer</name>
+			<style>Resource Gauge</style>
+			<ANIMATION>
+				<variable>fc.ResourcePercent("Oxidizer")</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.ResourceThreshold("Oxidizer", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.ResourceThreshold("Oxidizer", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<TRANSLATION id="0">
+				<variable>fc.ResourceThreshold("Oxidizer", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.ResourceThreshold("Oxidizer", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<variable>fc.ResourceThreshold("Oxidizer", 0.0, 0.1)</variable>
+				<text>{0,5:0}$#$fc.Min(99999, fc.ResourceCurrent("Oxidizer"))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0}$#$fc.ResourceAbbreviatedName("Oxidizer")</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_Oxidizer_Rate</name>
+			<style>Rate Gauge</style>
+			<ANIMATION>
+				<variable>fc.ResourceDelta("Oxidizer") * (1/30)</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.ResourceDelta("Oxidizer") &gt; 0</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.ResourceDelta("Oxidizer") &gt; 0</variable>
+			</COLOR_SHIFT>
+			<TRANSLATION id="0">
+				<variable>fc.ResourceDelta("Oxidizer") &gt; 0</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.ResourceDelta("Oxidizer") &gt; 0</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<variable>fc.ResourceDelta("Oxidizer") &gt; 0</variable>
+				<text>{0,5:0}$#$fc.Clamp(fc.ResourceDelta("Oxidizer"), 0, 99999)</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0}$#$fc.ResourceAbbreviatedName("Oxidizer")$$$RATE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_Oxidizer_Stage</name>
+			<style>Resource Gauge</style>
+			<ANIMATION>
+				<variable>fc.ResourceStagePercent("Oxidizer")</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.ResourceStageThreshold("Oxidizer", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.ResourceStageThreshold("Oxidizer", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<TRANSLATION id="0">
+				<variable>fc.ResourceStageThreshold("Oxidizer", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.ResourceStageThreshold("Oxidizer", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<variable>fc.ResourceStageThreshold("Oxidizer", 0.0, 0.1)</variable>
+				<text>{0,5:0}$#$fc.Min(99999, fc.ResourceStageCurrent("Oxidizer"))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>STAGE$$${0}$#$fc.ResourceAbbreviatedName("Oxidizer")</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_PodTemperature</name>
+			<style>Temperature Gauge</style>
+			<ANIMATION>
+				<variable>fc.SafeDivide(fc.PodTemperature(true), fc.PodMaxTemperature(true))</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.PodTemperature(true) &gt; 0.85 * fc.PodMaxTemperature(true)</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.PodTemperature(true) &gt; 0.85 * fc.PodMaxTemperature(true)</variable>
+			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>{0,4:0}$#$fc.Min(9999, fc.PodTemperature(false))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>POD$$$TEMP °C</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_PodInternalTemperature</name>
+			<style>Temperature Gauge</style>
+			<ANIMATION>
+				<variable>fc.SafeDivide(fc.InternalTemperature(true), fc.InternalMaxTemperature(true))</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.InternalTemperature(true) &gt; 0.85 * fc.InternalMaxTemperature(true)</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.InternalTemperature(true) &gt; 0.85 * fc.InternalMaxTemperature(true)</variable>
+			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<text>{0,4:0}$#$fc.Min(9999, fc.InternalTemperature(false))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>CABIN$$$TEMP °C</text>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
@@ -395,6 +1162,58 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_IndicatorADV_SolidFuel</name>
+			<style>Resource Gauge</style>
+			<ANIMATION>
+				<variable>fc.ResourcePercent("SolidFuel")</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.ResourceThreshold("SolidFuel", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.ResourceThreshold("SolidFuel", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<TRANSLATION id="0">
+				<variable>fc.ResourceThreshold("SolidFuel", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.ResourceThreshold("SolidFuel", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<variable>fc.ResourceThreshold("SolidFuel", 0.0, 0.1)</variable>
+				<text>{0,5:0}$#$fc.Min(99999, fc.ResourceCurrent("SolidFuel"))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0}$#$fc.ResourceAbbreviatedName("SolidFuel")</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_SolidFuel_Stage</name>
+			<style>Resource Gauge</style>
+			<ANIMATION>
+				<variable>fc.ResourceStagePercent("SolidFuel")</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.ResourceStageThreshold("SolidFuel", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.ResourceStageThreshold("SolidFuel", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<TRANSLATION id="0">
+				<variable>fc.ResourceStageThreshold("SolidFuel", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.ResourceStageThreshold("SolidFuel", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<variable>fc.ResourceStageThreshold("SolidFuel", 0.0, 0.1)</variable>
+				<text>{0,5:0}$#$fc.Min(99999, fc.ResourceStageCurrent("SolidFuel"))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>STAGE$$${0}$#$fc.ResourceAbbreviatedName("SolidFuel")</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_IndicatorADV_Stage_DeltaV</name>
 			<style>Standard Gauge</style>
 			<ANIMATION>
@@ -426,11 +1245,24 @@
 			<ANIMATION>
 				<variable>fc.GetThrottle()</variable>
 			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<passiveColor>COLOR_ASET_IND_ADV_ENG_SCALE_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_ENG_SCALE_ACTIVECOLOR</activeColor>
+				<blend>true</blend>
+				<variable>fc.Clamp((fc.GetThrottle() - 0.5) * 3, 0, 1)</variable>
+			</COLOR_SHIFT>
 			<COLOR_SHIFT id="1">
-				<variable>fc.EngineFlameout()</variable>
+				<passiveColor>COLOR_ASET_IND_ADV_ENG_SCALE_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_ENG_SCALE_ACTIVECOLOR</activeColor>
+				<blend>true</blend>
+				<flashRate delete="true" />
+				<variable>fc.Clamp((fc.GetThrottle() - 0.5) * 3, 0, 1)</variable>
 			</COLOR_SHIFT>
 			<TEXT_LABEL id="0">
+				<passiveColor>COLOR_ASET_IND_ADV_ENG_SCALE_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_ENG_SCALE_ACTIVECOLOR</activeColor>
 				<text>{0,3:0}$#$fc.GetThrottle() * 100</text>
+				<variable>fc.EngineCountActive()</variable>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
 				<fontSize>3.25</fontSize>
@@ -443,11 +1275,24 @@
 			<ANIMATION>
 				<variable>fc.GetThrottle()</variable>
 			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<passiveColor>COLOR_ASET_IND_ADV_ENG_SCALE_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_ENG_SCALE_ACTIVECOLOR</activeColor>
+				<blend>true</blend>
+				<variable>fc.Clamp((fc.GetThrottle() - 0.5) * 3, 0, 1)</variable>
+			</COLOR_SHIFT>
 			<COLOR_SHIFT id="1">
-				<variable>fc.EngineFlameout()</variable>
+				<passiveColor>COLOR_ASET_IND_ADV_ENG_SCALE_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_ENG_SCALE_ACTIVECOLOR</activeColor>
+				<blend>true</blend>
+				<flashRate delete="true" />
+				<variable>fc.Clamp((fc.GetThrottle() - 0.5) * 3, 0, 1)</variable>
 			</COLOR_SHIFT>
 			<TEXT_LABEL id="0">
+				<passiveColor>COLOR_ASET_IND_ADV_ENG_SCALE_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_ENG_SCALE_ACTIVECOLOR</activeColor>
 				<text>{0,3:0}$#$fc.GetThrottle() * 100</text>
+				<variable>fc.EngineCountActive()</variable>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
 				<fontSize>3.25</fontSize>
@@ -465,14 +1310,158 @@
 			<ANIMATION>
 				<variable>fc.CurrentThrust(false)</variable>
 			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<passiveColor>COLOR_ASET_IND_ADV_ENG_SCALE_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_ENG_SCALE_ACTIVECOLOR</activeColor>
+				<blend>true</blend>
+				<variable>fc.InverseLerp(fc.CurrentThrustkN(), 0, fc.MaxRatedThrustkN())</variable>
+			</COLOR_SHIFT>
 			<COLOR_SHIFT id="1">
-				<variable>fc.EngineFlameout()</variable>
+				<passiveColor>COLOR_ASET_IND_ADV_ENG_SCALE_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_ENG_SCALE_ACTIVECOLOR</activeColor>
+				<blend>true</blend>
+				<flashRate delete="true" />
+				<variable>fc.InverseLerp(fc.CurrentThrustkN(), 0, fc.MaxRatedThrustkN())</variable>
 			</COLOR_SHIFT>
 			<TEXT_LABEL id="0">
-				<text>{0,5:0}$#$fc.Min(99999, fc.CurrentThrustkN())</text>
+				<passiveColor>COLOR_ASET_IND_ADV_ENG_SCALE_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_ENG_SCALE_ACTIVECOLOR</activeColor>
+				<text>{0,5:0}$#$fc.Clamp(fc.CurrentThrustkN(), 0, 99999)</text>
+				<variable>fc.EngineCountActive()</variable>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
 				<text>THRUST</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_ThrottleLimit</name>
+			<style>Standard Gauge</style>
+			<ANIMATION>
+				<variable>fc.GetThrottleLimit()</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<passiveColor>COLOR_ASET_IND_ADV_ENG_SCALE_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_ENG_SCALE_ACTIVECOLOR</activeColor>
+				<variable>fc.GetThrottleLimit() &lt; 0.99</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<passiveColor>COLOR_ASET_IND_ADV_ENG_SCALE_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_ENG_SCALE_ACTIVECOLOR</activeColor>
+				<flashRate delete="true" />
+				<variable>fc.GetThrottleLimit() &lt; 0.99</variable>
+			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<passiveColor>COLOR_ASET_IND_ADV_ENG_SCALE_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_ENG_SCALE_ACTIVECOLOR</activeColor>
+				<text>{0:P0}$#$fc.GetThrottleLimit()</text>
+				<variable>1</variable>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>THROTTLE$$$LIMIT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_WheelStress</name>
+			<style>Standard Gauge</style>
+			<ANIMATION>
+				<variable>fc.GearStress()</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.GearStress() &gt; 0.85</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.GearStress() &gt; 0.85</variable>
+			</COLOR_SHIFT>
+			<TRANSLATION id="0">
+				<variable>fc.GearStress() &gt; 0.85</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.GearStress() &gt; 0.85</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<variable>fc.GearStress() &gt; 0.85</variable>
+				<text>{0,5:P0}$#$fc.GearStress()</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>STRESS</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_Xenon</name>
+			<style>Resource Gauge</style>
+			<ANIMATION>
+				<variable>fc.ResourcePercent("XenonGas")</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.ResourceThreshold("XenonGas", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.ResourceThreshold("XenonGas", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<TRANSLATION id="0">
+				<variable>fc.ResourceThreshold("XenonGas", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.ResourceThreshold("XenonGas", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<variable>fc.ResourceThreshold("XenonGas", 0.0, 0.1)</variable>
+				<text>{0,5:0}$#$fc.Min(99999, fc.ResourceCurrent("XenonGas"))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0}$#$fc.ResourceAbbreviatedName("XenonGas")</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_Xenon_Rate</name>
+			<style>Rate Gauge</style>
+			<ANIMATION>
+				<variable>fc.ResourceDelta("XenonGas") * (1/30)</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.ResourceDelta("XenonGas") &gt; 0</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.ResourceDelta("XenonGas") &gt; 0</variable>
+			</COLOR_SHIFT>
+			<TRANSLATION id="0">
+				<variable>fc.ResourceDelta("XenonGas") &gt; 0</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.ResourceDelta("XenonGas") &gt; 0</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<variable>fc.ResourceDelta("XenonGas") &gt; 0</variable>
+				<text>{0,5:0}$#$fc.Clamp(fc.ResourceDelta("XenonGas"), 0, 99999)</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0}$#$fc.ResourceAbbreviatedName("XenonGas")$$$RATE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndicatorADV_Xenon_Stage</name>
+			<style>Resource Gauge</style>
+			<ANIMATION>
+				<variable>fc.ResourceStagePercent("XenonGas")</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<variable>fc.ResourceStageThreshold("XenonGas", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<variable>fc.ResourceStageThreshold("XenonGas", 0.0, 0.1)</variable>
+			</COLOR_SHIFT>
+			<TRANSLATION id="0">
+				<variable>fc.ResourceStageThreshold("XenonGas", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<variable>fc.ResourceStageThreshold("XenonGas", 0.0, 0.1)</variable>
+			</TRANSLATION>
+			<TEXT_LABEL id="0">
+				<variable>fc.ResourceStageThreshold("XenonGas", 0.0, 0.1)</variable>
+				<text>{0,5:0}$#$fc.Min(99999, fc.ResourceStageCurrent("XenonGas"))</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>STAGE$$${0}$#$fc.ResourceAbbreviatedName("XenonGas")</text>
 			</TEXT_LABEL>
 		</prop>
 	</IndicatorADV>
@@ -627,9 +1616,126 @@
 				<layers>_MainTex _Emissive</layers>
 			</TEXTURE_SHIFT>
 		</style>
+		<style name="Rate Gauge">
+			<MODEL id="0">
+				<model>ASET/ASET_Props/Instruments/IndicatorADV_2Scales/IndicatorADV_2Scales</model>
+				<texture>IndicatorAdvICON,MOARdV/Props/IndicatorADV/IndicatorAdvBlank</texture>
+			</MODEL>
+			<MODEL id="1">
+				<model>MOARdV/Props/IndicatorADV/IndicatorADV_MAS_Upgrade</model>
+				<texture>Indicator_Single_DIFFUSE,ASET/ASET_Props/Instruments/IndicatorADV/Indicator_Single_DIFFUSE</texture>
+				<texture>Indicator_Single_Emissive,ASET/ASET_Props/Instruments/IndicatorADV/Indicator_Single_Emissive</texture>
+				<texture>IndicatorAdvICON,MOARdV/Props/IndicatorADV/IndicatorAdvBlank</texture>
+			</MODEL>
+			<TRANSLATION id="0">
+				<name>Hide normal plate</name>
+				<transform>IndicatorNamePlate</transform>
+				<startTranslation>0,0,0</startTranslation>
+				<endTranslation>0,-0.001,0</endTranslation>
+				<variable>0</variable>
+			</TRANSLATION>
+			<TRANSLATION id="1">
+				<name>Show active plate</name>
+				<transform>IndicatorNamePlateActive</transform>
+				<startTranslation>0,0,0</startTranslation>
+				<endTranslation>0,0.001,0</endTranslation>
+				<variable>0</variable>
+			</TRANSLATION>
+			<TRANSLATION id="2">
+				<name>New power off</name>
+				<transform>PowerOFF_Rect</transform>
+				<startTranslation>0,0,0</startTranslation>
+				<endTranslation>0,-0.005,0</endTranslation>
+				<variable>fc.Conditioned(1)</variable>
+			</TRANSLATION>
+			<ANIMATION id="0">
+				<name>Up Scale animation</name>
+				<animation>IndicatorScaleUPanim</animation>
+				<variable>0</variable>
+			</ANIMATION>
+			<ANIMATION id="1">
+				<name>Down Scale animation</name>
+				<animation>IndicatorScaleDOWNanim</animation>
+				<variable>0</variable>
+			</ANIMATION>
+			<ANIMATION id="2">
+				<name>Old power off</name>
+				<animation>IndicatorPowerOFFanim</animation>
+				<variable>1</variable>
+			</ANIMATION>
+			<COLOR_SHIFT id="0">
+				<name>Up Scale color</name>
+				<transform>Indicator_ScaleUP</transform>
+				<passiveColor>COLOR_ASET_IND_ADV_RESRC_CONS_SCALE_PASSIVECOLOR</passiveColor>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Down Scale color</name>
+				<transform>Indicator_ScaleDOWN</transform>
+				<passiveColor>COLOR_ASET_IND_ADV_RESRC_CONS_SCALE_ACTIVECOLOR</passiveColor>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="2">
+				<name>Amount border color</name>
+				<transform>IndicatorAmount</transform>
+				<flashRate>0.5</flashRate>
+				<passiveColor>COLOR_ASET_IND_ADV_RESRC_READOUT_BORD_PASSIVECOLOR</passiveColor>
+				<activeColor>COLOR_ASET_IND_ADV_RESRC_READOUT_BORD_ACTIVECOLOR</activeColor>
+				<variable>0</variable>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="3">
+				<name>Active plate backlight</name>
+				<transform>IndicatorNamePlateActive</transform>
+				<passiveColor>255,255,255,255</passiveColor>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="4">
+				<name>Passive plate backlight</name>
+				<transform>IndicatorNamePlate</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_MOARdV_ActiveBacklightText</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<name>Readout</name>
+				<transform>DigitTransformObj</transform>
+				<fontSize>6</fontSize>
+				<font>Digital-7 Mono</font>
+				<style>Italic</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<transformOffset>0.0121,-0.004</transformOffset>
+				<emissive>always</emissive>
+				<passiveColor>COLOR_ASET_IND_ADV_RESRC_READOUT_POSITIVECOLOR</passiveColor>
+				<text>0000</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Plate Text</name>
+				<transform>PlateText</transform>
+				<fontSize>3.5</fontSize>
+				<lineSpacing>0.9</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>MiddleCenter</anchor>
+				<emissive>never</emissive>
+				<passiveColor>COLOR_MOARdV_UnlitBlackText</passiveColor>
+			</TEXT_LABEL>
+			<TEXTURE_SHIFT id="0">
+				<name>Active Plate color</name>
+				<transform>IndicatorNamePlateActive</transform>
+				<startUV>0.5,0</startUV>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+			<TEXTURE_SHIFT id="1">
+				<comment>White backlight color</comment>
+				<name>Indicator Plate color</name>
+				<transform>IndicatorNamePlate</transform>
+				<startUV>0.25,0.625</startUV>
+				<layers>_MainTex _Emissive</layers>
+			</TEXTURE_SHIFT>
+		</style>
 		<prop>
 			<name>MAS_IndADV_2Scale_PowerRate</name>
-			<style>Standard Gauge</style>
+			<style>Rate Gauge</style>
 			<ANIMATION id="0">
 				<variable>-(fc.PowerDelta() * 0.1)</variable>
 			</ANIMATION>
@@ -641,6 +1747,38 @@
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
 				<text>CHARGE$$$RATE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndADV_2Scale_ElectricCharge_Rate</name>
+			<style>Rate Gauge</style>
+			<ANIMATION id="0">
+				<variable>-(fc.ResourceDelta("ElectricCharge") * (1/15))</variable>
+			</ANIMATION>
+			<ANIMATION id="1">
+				<variable>fc.ResourceDelta("ElectricCharge") * (1/15)</variable>
+			</ANIMATION>
+			<TEXT_LABEL id="0">
+				<text>{0,5:0.0}$#$fc.Clamp(-fc.ResourceDelta("ElectricCharge"), -99.9, 999.9)</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>{0}$#$fc.ResourceAbbreviatedName("ElectricCharge")$$$RATE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_IndADV_2Scale_ExternalTemp</name>
+			<style>Rate Gauge</style>
+			<ANIMATION id="0">
+				<variable>fc.ExternalTemperature(false) * 0.005</variable>
+			</ANIMATION>
+			<ANIMATION id="1">
+				<variable>-(fc.ExternalTemperature(false) * 0.005)</variable>
+			</ANIMATION>
+			<TEXT_LABEL id="0">
+				<text>{0,4:0}$#$fc.Clamp(fc.ExternalTemperature(false), -999, 9999)</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>EXTERNAL$$$TEMP °C</text>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
