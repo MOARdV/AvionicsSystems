@@ -563,6 +563,21 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the abbreviation for the selected resource, or an empty string if the resource selected
+        /// is invalid.
+        /// 
+        /// Some mod resources may not have an abbreviation.  For those resources, the first three letters of
+        /// the localized name are returned.  If the resource does not have a localized name, either, then the
+        /// first three letters of the internal name are returned.
+        /// </summary>
+        /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>
+        /// <returns></returns>
+        public string ResourceAbbreviatedName(object resourceId)
+        {
+            return vc.ResourceAbbreviatedName(resourceId);
+        }
+
+        /// <summary>
         /// Returns the total number of resources found on this vessel.
         /// </summary>
         /// <returns></returns>
@@ -689,7 +704,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the name of the selected resource, or an empty string if it doesn't
+        /// Returns the internal name of the selected resource, or an empty string if it doesn't
         /// exist.
         /// </summary>
         /// <param name="resourceId">A number between 0 and `fc.ResourceCount()`-1 or the name of a resource.</param>

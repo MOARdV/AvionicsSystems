@@ -88,6 +88,7 @@ namespace AvionicsSystems
         {
             internal string name;
             internal string displayName;
+            internal string abbreviation;
 
             internal int id;
             internal float density;
@@ -214,6 +215,42 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the abbreviated name of the resource.
+        /// </summary>
+        /// <param name="resourceId"></param>
+        /// <returns></returns>
+        internal string ResourceAbbreviatedName(object resourceId)
+        {
+            int index = GetResourceIndex(resourceId);
+            if (index >= 0 && index < resources.Length)
+            {
+                return resources[index].abbreviation;
+            }
+            else if (resourceId is string)
+            {
+                string rsrc = resourceId as string;
+                if (PartResourceLibrary.Instance.resourceDefinitions.Contains(rsrc))
+                {
+                    var def = PartResourceLibrary.Instance.resourceDefinitions[rsrc];
+                    if (!string.IsNullOrEmpty(def.abbreviation))
+                    {
+                        return def.abbreviation;
+                    }
+                    else if (!string.IsNullOrEmpty(def.displayName))
+                    {
+                        return def.displayName.Substring(0, 3);
+                    }
+                    else
+                    {
+                        return rsrc.Substring(0, 3);
+                    }
+                }
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Returns the number of resources on the vessel.
         /// </summary>
         /// <returns></returns>
@@ -315,10 +352,17 @@ namespace AvionicsSystems
             {
                 return resources[index].density;
             }
-            else
+            else if (resourceId is string)
             {
-                return 0.0;
+                string rsrc = resourceId as string;
+                if (PartResourceLibrary.Instance.resourceDefinitions.Contains(rsrc))
+                {
+                    var def = PartResourceLibrary.Instance.resourceDefinitions[rsrc];
+                    return def.density;
+                }
             }
+
+            return 0.0;
         }
 
         /// <summary>
@@ -445,6 +489,22 @@ namespace AvionicsSystems
             {
                 return resources[index].displayName;
             }
+            else if (resourceId is string)
+            {
+                string rsrc = resourceId as string;
+                if (PartResourceLibrary.Instance.resourceDefinitions.Contains(rsrc))
+                {
+                    var def = PartResourceLibrary.Instance.resourceDefinitions[rsrc];
+                    if (!string.IsNullOrEmpty(def.displayName))
+                    {
+                        return def.displayName.Substring(0, 3);
+                    }
+                    else
+                    {
+                        return rsrc.Substring(0, 3);
+                    }
+                }
+            }
 
             return string.Empty;
         }
@@ -550,7 +610,10 @@ namespace AvionicsSystems
             {
                 return resources[index].name;
             }
-
+            else if (resourceId is string)
+            {
+                return resourceId as string;
+            }
             return string.Empty;
         }
 
@@ -721,7 +784,22 @@ namespace AvionicsSystems
                 vesselActiveResource[index] = int.MaxValue;
 
                 resources[index].name = thatResource.name;
-                resources[index].displayName = thatResource.displayName;
+                if (string.IsNullOrEmpty(thatResource.displayName))
+                {
+                    resources[index].displayName = thatResource.name;
+                }
+                else
+                {
+                    resources[index].displayName = thatResource.displayName;
+                }
+                if (string.IsNullOrEmpty(thatResource.abbreviation))
+                {
+                    resources[index].abbreviation = thatResource.displayName.Substring(0, 3);
+                }
+                else
+                {
+                    resources[index].abbreviation = thatResource.abbreviation;
+                }
 
                 resources[index].id = thatResource.id;
                 resources[index].density = thatResource.density;
@@ -821,9 +899,9 @@ namespace AvionicsSystems
                     float maxV = 0.0f;
                     float rsrV = 0.0f;
                     float curV = 0.0f;
-                    
+
                     resources[i].resourceLocked = false;
-                    
+
                     for (int rsrcIdx = 0; rsrcIdx < numPartResources; ++rsrcIdx)
                     {
                         maxV += (float)resources[i].partResources[rsrcIdx].maxAmount;
