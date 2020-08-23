@@ -680,7 +680,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the static atmospheric pressure in standard atmospheres.
+        /// Returns the static atmospheric pressure outside the vessel in standard atmospheres.
         /// </summary>
         /// <returns></returns>
         public double StaticPressureAtm()
@@ -689,7 +689,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns the static atmospheric pressure in kiloPascals.
+        /// Returns the static atmospheric pressure outside the vessel in kiloPascals.
         /// </summary>
         /// <returns>Static pressure in kPa.</returns>
         public double StaticPressureKPa()
