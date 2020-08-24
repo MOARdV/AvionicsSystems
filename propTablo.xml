@@ -66,6 +66,8 @@
 				<name>Panel Color</name>
 				<transform>TabloColorPlate</transform>
 				<startUV>0, 0</startUV>
+				<endUV>0, 0.2</endUV>
+				<variable>0</variable>
 				<layers>_MainTex _Emissive</layers>
 			</TEXTURE_SHIFT>
 		</style>
@@ -627,6 +629,7 @@
 				<variable>fc.Conditioned(fc.GearBrokenCount() &gt; 0)</variable>
 			</COLOR_SHIFT>
 			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
 				<variable>fc.Conditioned(fc.GearBrokenCount() &gt; 0)</variable>
 			</TEXTURE_SHIFT>
 		</prop>
@@ -641,6 +644,7 @@
 				<variable>fc.Conditioned(fc.SolarPanelDamaged() &gt; 0)</variable>
 			</COLOR_SHIFT>
 			<TEXTURE_SHIFT>
+				<endUV>0, 0.2</endUV>
 				<variable>fc.Conditioned(fc.SolarPanelDamaged() &gt; 0)</variable>
 			</TEXTURE_SHIFT>
 		</prop>
