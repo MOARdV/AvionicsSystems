@@ -722,10 +722,10 @@
 				<fontSize>3.9</fontSize>
 				<lineSpacing>0.8</lineSpacing>
 				<text>EMERGENCY$$$POWER$$$GENERATOR</text>
-				<variable>0</variable>
+				<variable>fc.GetPersistentAsNumber("ALCOR_EPG_FAKE")</variable>
 			</TEXT_LABEL>
 			<COLOR_SHIFT>
-				<variable>0</variable>
+				<variable>fc.GetPersistentAsNumber("ALCOR_EPG_FAKE")</variable>
 			</COLOR_SHIFT>
 		</prop>
 		<prop>
