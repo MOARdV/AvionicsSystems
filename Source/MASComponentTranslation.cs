@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -106,11 +106,7 @@ namespace AvionicsSystems
 
             this.transform.localPosition = startTranslation;
 
-            if (string.IsNullOrEmpty(variableName))
-            {
-                Utility.LogMessage(this, "TRANSLATION {0} configured as static translation, with no variable defined", name);
-            }
-            else
+            if (!string.IsNullOrEmpty(variableName))
             {
                 variableRegistrar.RegisterVariableChangeCallback(variableName, VariableCallback);
             }
