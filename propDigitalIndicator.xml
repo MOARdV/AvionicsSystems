@@ -1055,8 +1055,7 @@
 			<name>MAS_DigitalIndicator_Elec_Output</name>
 			<style>DI17-4</style>
 			<TEXT_LABEL id="0">
-				<!-- TODO: Actual implementation, once the switch is convered -->
-				<text>{0:0.0;"---";"0.0"} $#$ fc.PowerDelta()</text>
+				<text>{0:0.0;"---";"0.0"} $#$ SelectElectricOutput(fc.GetPersistentAsNumber("ASET_ELEC_POWER_SOURCE_SELECT"))</text>
 				<variable>0</variable>
 				<fontSize>18</fontSize>
 			</TEXT_LABEL>
