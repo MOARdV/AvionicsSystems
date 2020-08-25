@@ -158,101 +158,6 @@
 				<name>Interior Lights</name>
 			</INT_LIGHT>
 		</style>
-		<style name="3 pos switch">
-			<MODEL id="0">
-				<comment>Knob model</comment>
-				<model>ASET/ASET_Props/Control/SwitchRotary/model/Switch_Rotary_Model</model>
-				<texture>SwitchRotaryDiffuse,ASET/ASET_Props/Control/SwitchRotary/model/SwitchRotaryDiffuse</texture>
-			</MODEL>
-			<MODEL id="1">
-				<comment>Double collider</comment>
-				<model>ASET/ASET_Props/Control/SwitchRotary/model/Switch_Rotary_DoubleCollider_L-R</model>
-			</MODEL>
-			<MODEL id="2">
-				<comment>Switcher position marks with text objects</comment>
-				<model>ASET/ASET_Props/Control/SwitchRotary/model/Switch_Rotary_3_Marks</model>
-			</MODEL>
-			<COLLIDER_EVENT id="0">
-				<name>Collider +</name>
-				<collider>ColliderPlus</collider>
-				<sound>ASET/ASET_Props/Sounds/click-027</sound>
-				<volume>1</volume>
-			</COLLIDER_EVENT>
-			<COLLIDER_EVENT id="1">
-				<name>Collider -</name>
-				<collider>ColliderMinus</collider>
-				<sound>ASET/ASET_Props/Sounds/click-027</sound>
-				<volume>1</volume>
-			</COLLIDER_EVENT>
-			<ROTATION>
-				<name>Knob position</name>
-				<transform>swRotaryLoc</transform>
-				<startRotation>0,-55,0</startRotation>
-				<endRotation>0,55,0</endRotation>
-				<longPath>true</longPath>
-				<range>0, 1</range>
-				<blend>true</blend>
-				<speed>6.0</speed>
-			</ROTATION>
-			<TEXT_LABEL id="0">
-				<name>1 Mark</name>
-				<transform>LeftTextObj</transform>
-				<fontSize>5</fontSize>
-				<font>Liberation Sans</font>
-				<style>Bold</style>
-				<alignment>Right</alignment>
-				<anchor>LowerRight</anchor>
-				<emissive>active</emissive>
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
-				<blend>true</blend>
-				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
-				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
-			</TEXT_LABEL>
-			<TEXT_LABEL id="1">
-				<name>2 Mark</name>
-				<transform>CenterTextObj</transform>
-				<fontSize>5</fontSize>
-				<font>Liberation Sans</font>
-				<style>Bold</style>
-				<alignment>Center</alignment>
-				<anchor>LowerCenter</anchor>
-				<emissive>active</emissive>
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
-				<blend>true</blend>
-				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
-				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
-			</TEXT_LABEL>
-			<TEXT_LABEL id="2">
-				<name>3 Mark</name>
-				<transform>RightTextObj</transform>
-				<fontSize>5</fontSize>
-				<font>Liberation Sans</font>
-				<style>Bold</style>
-				<alignment>Left</alignment>
-				<anchor>LowerLeft</anchor>
-				<emissive>active</emissive>
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
-				<blend>true</blend>
-				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
-				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
-			</TEXT_LABEL>
-			<COLOR_SHIFT id="0">
-				<name>Pointer Backlight</name>
-				<transform>swRotaryPointerObj</transform>
-				<passiveColor>0,0,0,255</passiveColor>
-				<activeColor>COLOR_ASET_SWITCHER_MARK_POSITIVECOLOR</activeColor>
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
-				<blend>true</blend>
-			</COLOR_SHIFT>
-			<COLOR_SHIFT id="1">
-				<name>Circle Mark and Rotary Circle Backlight</name>
-				<transform>swRotaryCircleMarkObj, swRotaryCircleObj</transform>
-				<passiveColor>0,0,0,255</passiveColor>
-				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
-				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
-				<blend>true</blend>
-			</COLOR_SHIFT>
-		</style>
 		<prop>
 			<name>MAS_swRotary_InstrumentLight</name>
 			<style>Rheostat Light</style>
@@ -536,9 +441,120 @@
 				<text>UPPER$$$CABIN</text>
 			</TEXT_LABEL>
 		</prop>
+		
+		<!-- 3 position switch -->
+		<style name="3pos">
+			<MODEL id="0">
+				<comment>Knob model</comment>
+				<model>ASET/ASET_Props/Control/SwitchRotary/model/Switch_Rotary_Model</model>
+				<texture>SwitchRotaryDiffuse,ASET/ASET_Props/Control/SwitchRotary/model/SwitchRotaryDiffuse</texture>
+			</MODEL>
+			<MODEL id="1">
+				<comment>Double collider</comment>
+				<model>ASET/ASET_Props/Control/SwitchRotary/model/Switch_Rotary_DoubleCollider_L-R</model>
+			</MODEL>
+			<MODEL id="2">
+				<comment>Switcher position marks with text objects</comment>
+				<model>ASET/ASET_Props/Control/SwitchRotary/model/Switch_Rotary_3_Marks</model>
+			</MODEL>
+			<COLLIDER_EVENT id="0">
+				<name>Collider +</name>
+				<collider>ColliderPlus</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<name>Collider -</name>
+				<collider>ColliderMinus</collider>
+				<sound>ASET/ASET_Props/Sounds/click-027</sound>
+				<volume>1</volume>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<name>Knob position</name>
+				<transform>swRotaryLoc</transform>
+				<startRotation>0,-55,0</startRotation>
+				<endRotation>0,55,0</endRotation>
+				<longPath>true</longPath>
+				<range>0, 1</range>
+				<blend>true</blend>
+				<speed>6.0</speed>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<name>1 Mark</name>
+				<transform>LeftTextObj</transform>
+				<fontSize>4</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Right</alignment>
+				<anchor>LowerRight</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>2 Mark</name>
+				<transform>CenterTextObj</transform>
+				<fontSize>4</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<name>3 Mark</name>
+				<transform>RightTextObj</transform>
+				<fontSize>4</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Left</alignment>
+				<anchor>LowerLeft</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<name>Caption</name>
+				<transform>TopNameTextObj</transform>
+				<fontSize>5</fontSize>
+				<font>Liberation Sans</font>
+				<style>Bold</style>
+				<alignment>Center</alignment>
+				<anchor>LowerCenter</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+			</TEXT_LABEL>
+			<COLOR_SHIFT id="0">
+				<name>Pointer Backlight</name>
+				<transform>swRotaryPointerObj</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_MARK_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+			<COLOR_SHIFT id="1">
+				<name>Circle Mark and Rotary Circle Backlight</name>
+				<transform>swRotaryCircleMarkObj, swRotaryCircleObj</transform>
+				<passiveColor>0,0,0,255</passiveColor>
+				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+			</COLOR_SHIFT>
+		</style>
 		<prop>
-			<name>MAS.swRotary3_IMPModeSelect</name>
-			<style>3 pos switch</style>
+			<name>MAS_swRotary_3pos_IMPModeSelect</name>
+			<style>3pos</style>
 			<COLLIDER_EVENT id="0">
 				<onClick>fc.AddPersistentClamped("MAS_IMP_Mode", 1, -1, 1)</onClick>
 			</COLLIDER_EVENT>
@@ -560,10 +576,11 @@
 				<fontSize>4</fontSize>
 				<text>LANDING</text>
 			</TEXT_LABEL>
+			<TEXT_LABEL id="3" delete="true" />
 		</prop>
 		<prop>
-			<name>MAS_swRotary3_RCSMode</name>
-			<style>3 pos switch</style>
+			<name>MAS_swRotary_3pos_RCSMode</name>
+			<style>3pos</style>
 			<COLLIDER_EVENT id="0">
 				<onClick>RCSModeSelect(fc.AddPersistentClamped("MAS_RCS_Mode", 1, -1, 1))</onClick>
 			</COLLIDER_EVENT>
@@ -583,10 +600,117 @@
 			<TEXT_LABEL id="2">
 				<text>ROT</text>
 			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>RCS MODE</text>
+			</TEXT_LABEL>
 		</prop>
 		<prop>
-			<name>MAS_swRotary3_SpeedMode</name>
-			<style>3 pos switch</style>
+			<name>MAS_swRotary_3pos_FDAI1_ErrorScale</name>
+			<style>3pos</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("MAS_FDAI1_Error", -1, 0, 2)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("MAS_FDAI1_Error", 1, 0, 2)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_Error")</variable>
+				<range>0, 2</range>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>+/- 12</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>+/- 60</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>+/- 120</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<text>FDAI 1$$$ERR. SCALE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_swRotary_3pos_FDAI2_ErrorScale</name>
+			<style>3pos</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("MAS_FDAI2_Error", -1, 0, 2)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("MAS_FDAI2_Error", 1, 0, 2)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI2_Error")</variable>
+				<range>0, 2</range>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>+/- 12</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>+/- 60</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>+/- 120</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<text>FDAI 2$$$ERR. SCALE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_swRotary_3pos_FDAI1_RateScale</name>
+			<style>3pos</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fdaiRateClamped(1, -1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fdaiRateClamped(1, 1)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI1_Rate")</variable>
+				<range>0, 2</range>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>+/- 10</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>+/- 50</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>+/- 100</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<text>FDAI 1$$$RATE SCALE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_swRotary_3pos_FDAI2_RateScale</name>
+			<style>3pos</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fdaiRateClamped(2, -1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fdaiRateClamped(2, 1)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_FDAI2_Rate")</variable>
+				<range>0, 2</range>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>+/- 10</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>+/- 50</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>+/- 100</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<text>FDAI 2$$$RATE SCALE</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_swRotary_3pos_SpeedMode</name>
+			<style>3pos</style>
 			<COLLIDER_EVENT id="0">
 				<onClick>fc.ToggleSASSpeedMode()</onClick>
 			</COLLIDER_EVENT>
@@ -598,18 +722,21 @@
 				<range>-1, 1</range>
 			</ROTATION>
 			<TEXT_LABEL id="0">
-				<text>TGT</text>
+				<text>TARGET</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
-				<text>SRF</text>
+				<text>SURFACE</text>
 			</TEXT_LABEL>
 			<TEXT_LABEL id="2">
-				<text>OBT</text>
+				<text>ORBIT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<text>SPEED MODE</text>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
-			<name>MAS_swRotary3_XPtrMode</name>
-			<style>3 pos switch</style>
+			<name>MAS_swRotary_3pos_XPtrMode</name>
+			<style>3pos</style>
 			<COLLIDER_EVENT id="0">
 				<onClick>fc.AddPersistentClamped("MAS_Xpointer_Mode", -1, 0, 2)</onClick>
 			</COLLIDER_EVENT>
@@ -629,10 +756,13 @@
 			<TEXT_LABEL id="2">
 				<text>GRND</text>
 			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<text>X-POINTER$$$MODE</text>
+			</TEXT_LABEL>
 		</prop>
 		<prop>
-			<name>MAS_swRotary3_XPtrScale</name>
-			<style>3 pos switch</style>
+			<name>MAS_swRotary_3pos_XPtrScale</name>
+			<style>3pos</style>
 			<COLLIDER_EVENT id="0">
 				<onClick>fc.AddPersistentClamped("MAS_Xpointer_Scale", -1, -1, 1)</onClick>
 			</COLLIDER_EVENT>
@@ -651,6 +781,9 @@
 			</TEXT_LABEL>
 			<TEXT_LABEL id="2">
 				<text>x 10</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="3">
+				<text>X-POINTER$$$SCALE</text>
 			</TEXT_LABEL>
 		</prop>
 	</RotarySwitch>

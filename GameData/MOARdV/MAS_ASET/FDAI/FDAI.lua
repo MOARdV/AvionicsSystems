@@ -434,6 +434,21 @@ function fdaiNextRateWrapped(which)
 	return 1
 end
 
+function fdaiRateClamped(which, direction)
+	local persistentPrefix = "MAS_FDAI" .. which .. "_"
+	local ratePersist = fc.AddPersistentClamped(persistentPrefix .. "Rate", direction, 0, 2)
+	---local fdai = GetFDAI(which)
+
+	if ratePersist == 0 then
+		fc.SetPersistent(persistentPrefix .. "RateScalar", 1)
+	else
+		fc.SetPersistent(persistentPrefix .. "RateScalar", 0.2 / ratePersist)
+	end
+	
+	-- So we can play some games with button press/release
+	return 1
+end
+
 -- Error Needle readouts
 
 function fdaiRollError(which)
