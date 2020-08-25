@@ -2,7 +2,7 @@
 /*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2019 MOARdV
+ * Copyright (c) 2016-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -61,7 +61,7 @@ namespace AvionicsSystems
         private static readonly Func<Vessel, bool> VesselSpoilerSetting;
         private static readonly Func<Vessel, double> VesselStallFrac;
         private static readonly Func<Vessel, double> VesselTerminalVelocity;
-        
+
         private static readonly Func<object, object> GetInfoParameters;
         private static readonly Func<object, double> GetDragForce;
         private static readonly Func<object, double> GetLiftForce;
@@ -115,7 +115,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the vessel's angle of attack.
         /// </summary>
-        /// <returns>Angle of attack in degrees.</returns>
+        /// <returns>Angle of attack in degrees, or 0 if FAR is not available.</returns>
         public double AngleOfAttack()
         {
 #if !UNSUPPORT_FAR
@@ -144,7 +144,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Return the ballistic coefficient for this vessel.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Ballistic coefficient, or 0 if FAR is not available.</returns>
         public double CoeffBallistic()
         {
 #if !UNSUPPORT_FAR
@@ -162,7 +162,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Return the coefficient of drag for this vessel.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Coefficient of drag, or 0 if FAR is not available.</returns>
         public double CoeffDrag()
         {
 #if !UNSUPPORT_FAR
@@ -180,7 +180,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Return the coefficient of lift for this vessel.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Coefficient of lift, or 0 if FAR is not available.</returns>
         public double CoeffLift()
         {
 #if !UNSUPPORT_FAR
@@ -198,7 +198,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Reduce flap setting one step, unless flaps are already at 0.
         /// </summary>
-        /// <returns>1 if flap settings were decreased, 0 otherwise.</returns>
+        /// <returns>1 if flap settings were decreased, 0 otherwise or if FAR is not available.</returns>
         public double DecreaseFlapSetting()
         {
 #if !UNSUPPORT_FAR
@@ -214,7 +214,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Return the total force applied to the vessel due to drag.
         /// </summary>
-        /// <returns>Drag force in kN.</returns>
+        /// <returns>Drag force in kN, or 0 if FAR is not available.</returns>
         public double DragForce()
         {
 #if !UNSUPPORT_FAR
@@ -230,7 +230,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the current dynamic pressure in kPa.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Dynamic pressure in kPa, or 0 if FAR is not available.</returns>
         public double DynamicPressure()
         {
 #if !UNSUPPORT_FAR
@@ -248,7 +248,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the current flap setting for the vessel.
         /// </summary>
-        /// <returns>0 (no flaps) through 3 (maximum flaps).</returns>
+        /// <returns>0 (no flaps) through 3 (maximum flaps), or 0 if FAR is not available.</returns>
         public double GetFlapSetting()
         {
 #if !UNSUPPORT_FAR
@@ -264,7 +264,7 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if spoilers are deployed, 0 otherwise.
+        /// Returns 1 if spoilers are deployed, 0 if spoilers are not deployed or if FAR is not available.
         /// </summary>
         /// <returns></returns>
         public double GetSpoilerSetting()
@@ -284,7 +284,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Increase flap setting one step, unless flaps are already at 3.
         /// </summary>
-        /// <returns>1 if flap settings were increased, 0 otherwise.</returns>
+        /// <returns>1 if flap settings were increased, 0 if flaps did not change or FAR is not available.</returns>
         public double IncreaseFlapSetting()
         {
 #if !UNSUPPORT_FAR
@@ -300,7 +300,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Return the total force applied to the vessel due to lift.
         /// </summary>
-        /// <returns>Lift force in kN.</returns>
+        /// <returns>Lift force in kN, or 0 if FAR is not available.</returns>
         public double LiftForce()
         {
 #if !UNSUPPORT_FAR
@@ -315,6 +315,8 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Return the RefArea for this vessel.
+        /// 
+        /// Returns 0 if FAR is not available.
         /// </summary>
         /// <returns></returns>
         public double RefArea()
@@ -335,7 +337,7 @@ namespace AvionicsSystems
         /// Deploy or retract spoilers.
         /// </summary>
         /// <param name="newState">true to deploy spoilers, false to retract spoilers.</param>
-        /// <returns>1 if the spoiler state changed, 0 otherwise.</returns>
+        /// <returns>1 if the spoiler state changed, 0 if spoilers did not move or FAR is not available.</returns>
         public double SetSpoilers(bool newState)
         {
 #if !UNSUPPORT_FAR
@@ -351,7 +353,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the sideslip of the vessel.
         /// </summary>
-        /// <returns>Sideslip in degrees.</returns>
+        /// <returns>Sideslip in degrees, or 0 if FAR is not available.</returns>
         public double Sideslip()
         {
 #if !UNSUPPORT_FAR
@@ -368,6 +370,8 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Returns the thrust specific fuel consumption of the vessel.
+        /// 
+        /// Returns 0 if FAR is not available.
         /// </summary>
         /// <returns></returns>
         public double SpecFuelConsumption()
@@ -386,6 +390,8 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Returns the stall fraction for this vessel.
+        /// 
+        /// Returns 0 if FAR is not available.
         /// </summary>
         /// <returns></returns>
         public double StallFraction()
@@ -405,7 +411,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns an estimate of the terminal velocity for the current vessel.
         /// </summary>
-        /// <returns>Terminal velocity in m/s.</returns>
+        /// <returns>Terminal velocity in m/s, or 0 if FAR is not available.</returns>
         public double TerminalVelocity()
         {
 #if !UNSUPPORT_FAR
