@@ -279,6 +279,168 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_Switch_v1_ALCOR_CamATilt</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("ALCOR_CamATilt")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("ALCOR_CamATilt")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0" delete="true" />
+			<TEXT_LABEL id="1" delete="true" />
+			<TEXT_LABEL id="2" delete="true" />
+			<ANIMATION_PLAYER>
+				<name>Camera A tilt</name>
+				<externalAnimation>ALCORCamAanim</externalAnimation>
+				<variable>fc.GetPersistentAsNumber("ALCOR_CamATilt")</variable>
+			</ANIMATION_PLAYER>
+		</prop>
+		<prop>
+			<name>MAS_Switch_v1_ALCOR_CamBTilt</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("ALCOR_CamBTilt")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("ALCOR_CamBTilt")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0" delete="true" />
+			<TEXT_LABEL id="1" delete="true" />
+			<TEXT_LABEL id="2" delete="true" />
+			<ANIMATION_PLAYER>
+				<name>Camera B tilt</name>
+				<externalAnimation>ALCORCamBanim</externalAnimation>
+				<variable>fc.GetPersistentAsNumber("ALCOR_CamBTilt")</variable>
+			</ANIMATION_PLAYER>
+		</prop>
+		<prop>
+			<name>MAS_Switch_v1_ALCOR_CamCTilt</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("ALCOR_CamCTilt")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("ALCOR_CamCTilt")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0" delete="true" />
+			<TEXT_LABEL id="1" delete="true" />
+			<TEXT_LABEL id="2" delete="true" />
+			<ANIMATION_PLAYER>
+				<name>Camera C tilt</name>
+				<externalAnimation>ALCORCamCanim</externalAnimation>
+				<variable>fc.GetPersistentAsNumber("ALCOR_CamCTilt")</variable>
+			</ANIMATION_PLAYER>
+		</prop>
+		<prop>
+			<name>MAS_Switch_v1_ALCOR_CamDTilt</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("ALCOR_CamDTilt")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("ALCOR_CamDTilt")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0" delete="true" />
+			<TEXT_LABEL id="1" delete="true" />
+			<TEXT_LABEL id="2" delete="true" />
+			<ANIMATION_PLAYER>
+				<name>Camera D tilt</name>
+				<externalAnimation>ALCORCamDanim</externalAnimation>
+				<variable>fc.GetPersistentAsNumber("ALCOR_CamDTilt")</variable>
+			</ANIMATION_PLAYER>
+		</prop>
+		<prop>
+			<name>MAS_Switch_v1_ALCOR_CameraGain</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("ALCOR_Camera_HighGain")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("ALCOR_Camera_HighGain")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>IMAGE GAIN</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>HI</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>NORMAL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_Switch_v1_ALCOR_DockingShutter</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("ALCOR_DockingShutter")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("ALCOR_DockingShutter")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>SHUTTER</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>OPEN</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>CLOSE</text>
+			</TEXT_LABEL>
+			<ANIMATION_PLAYER>
+				<name>Docking shutter</name>
+				<externalAnimation>DockingWindowOpenAnim</externalAnimation>
+				<variable>fc.GetPersistentAsNumber("ALCOR_DockingShutter")</variable>
+			</ANIMATION_PLAYER>
+		</prop>
+		<prop>
+			<name>MAS_Switch_v1_ARRT_Mode</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MAS_ARRT_Mode")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_ARRT_Mode")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>ARRT MODE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>RNG/RNG RT</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>ALT/ALT RT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_Switch_v1_ARRT_Power</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MAS_ARRT_On")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MAS_ARRT_On")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>ARRT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_Switch_v1_AVAS_Power</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("AVAS_ON")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("AVAS_ON")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>ALTITUDE VOICE$$$ANNUNCIATION SYSTEM</text>
+				<fontSize>3.8</fontSize>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1" delete="true" />
+		</prop>
+		<prop>
 			<name>MAS_Switch_v1_Backlight</name>
 			<style>v1 on-off</style>
 			<COLLIDER_EVENT>
@@ -303,6 +465,143 @@
 			<TEXT_LABEL id="0">
 				<text>BRAKES</text>
 			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_Switch_v1_CabinLights</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("Cockpit_Light")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("Cockpit_Light")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>CABIN$$$LIGHTS</text>
+			</TEXT_LABEL>
+			<INT_LIGHT>
+				<name>Internal light</name>
+				<lightName>Main light</lightName>
+				<variable>fc.GetPersistentAsNumber("Cockpit_Light")</variable>
+			</INT_LIGHT>
+		</prop>
+		<prop>
+			<name>MAS_Switch_v1_CabinLights_LanderCan</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("Center_Light")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("Center_Light")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>CABIN$$$LIGHTS</text>
+			</TEXT_LABEL>
+			<INT_LIGHT>
+				<name>Internal light</name>
+				<lightName>light_center</lightName>
+				<variable>fc.GetPersistentAsNumber("Center_Light")</variable>
+			</INT_LIGHT>
+		</prop>
+		<prop>
+			<name>MAS_Switch_v1_CockpitLights</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("Cockpit_Light")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("Cockpit_Light")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>COCKPIT$$$LIGHTS</text>
+			</TEXT_LABEL>
+			<INT_LIGHT>
+				<name>Internal light</name>
+				<lightName>Main light</lightName>
+				<variable>fc.GetPersistentAsNumber("Cockpit_Light")</variable>
+			</INT_LIGHT>
+		</prop>
+		<prop>
+			<name>MAS_Switch_v1_CockpitLights_Kossack</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("Kossack_Light")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("Kossack_Light")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>COCKPIT$$$LIGHTS</text>
+			</TEXT_LABEL>
+			<INT_LIGHT>
+				<name>Internal light</name>
+				<lightName>lightSpott</lightName>
+				<variable>fc.GetPersistentAsNumber("Kossack_Light")</variable>
+			</INT_LIGHT>
+		</prop>
+		<prop>
+			<name>MAS_Switch_v1_ERSHUD_Compass</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("ERSHUD_Compass")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("ERSHUD_Compass")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0" delete="true" />
+			<TEXT_LABEL id="1" delete="true" />
+			<TEXT_LABEL id="2">
+				<text>COMPASS</text>
+				<variable>fc.GetPersistentAsNumber("Backlight") * fc.GetGear()</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_Switch_v1_ERSHUD_Orientation</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("ERSHUD_Orientation")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("ERSHUD_Orientation")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0" delete="true" />
+			<TEXT_LABEL id="1" delete="true" />
+			<TEXT_LABEL id="2">
+				<text>ORIENTATION</text>
+				<variable>fc.GetPersistentAsNumber("Backlight") * fc.GetGear()</variable>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_Switch_v1_GPWS_Power</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("GPWS_ON")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("GPWS_ON")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>GROUND PROXIMITY$$$WARNING SYSTEM</text>
+				<fontSize>3.8</fontSize>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1" delete="true" />
+		</prop>
+		<prop>
+			<name>MAS_Switch_v1_MainPanelLights_Mk1Cockpit</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("MainPanel_Light")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("MainPanel_Light")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>MAIN PANEL$$$LIGHTS</text>
+			</TEXT_LABEL>
+			<INT_LIGHT>
+				<name>Internal light</name>
+				<lightName>Sec light</lightName>
+				<variable>fc.GetPersistentAsNumber("MainPanel_Light")</variable>
+			</INT_LIGHT>
 		</prop>
 		<prop>
 			<name>MAS_Switch_v1_Dummy</name>
@@ -603,6 +902,19 @@
 			</TEXT_LABEL>
 		</prop>
 		<prop>
+			<name>MAS_Switch_v1_PrecisionCtrl</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePrecisionMode()</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPrecisionMode()</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>PRECISION$$$CONTROL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_Switch_v1_RCS</name>
 			<style>v1 on-off</style>
 			<COLLIDER_EVENT>
@@ -613,6 +925,25 @@
 			</ROTATION>
 			<TEXT_LABEL id="0">
 				<text>RCS</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_Switch_v1_ResourceMonitorMode</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("GAUGE_RES_MODE")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("GAUGE_RES_MODE")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>RESOURCE$$$DISPLAY</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>TOTAL</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>STAGE</text>
 			</TEXT_LABEL>
 		</prop>
 		<prop>
@@ -645,6 +976,25 @@
 			</TEXT_LABEL>
 			<TEXT_LABEL id="2">
 				<text>RETRACT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_Switch_v1_TWRIndicatorMode</name>
+			<style>v1 on-off</style>
+			<COLLIDER_EVENT>
+				<onClick>fc.TogglePersistent("TWR_MODE")</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("TWR_MODE")</variable>
+			</ROTATION>
+			<TEXT_LABEL id="0">
+				<text>TWR MODE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>MAX</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="2">
+				<text>CURRENT</text>
 			</TEXT_LABEL>
 		</prop>
 
