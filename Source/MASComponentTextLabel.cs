@@ -79,6 +79,12 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("Invalid or missing 'text' in TEXT_LABEL " + name);
             }
+            bool preserveWhitespace = false;
+            if(text[0] == '\"')
+            {
+                preserveWhitespace = true;
+                text = text.Substring(1);
+            }
 
             if (!config.TryGetValue("fontSize", ref fontSize))
             {
@@ -425,7 +431,7 @@ namespace AvionicsSystems
             }
 
             textObj.SetColor(passiveColor);
-            textObj.SetText(text, immutable, false, comp, prop);
+            textObj.SetText(text, immutable, preserveWhitespace, comp, prop);
 
             UpdateShader();
 
