@@ -103,7 +103,6 @@
 				<alignment>Center</alignment>
 				<anchor>LowerCenter</anchor>
 				<transformOffset>0.02526,-0.009</transformOffset>
-				<xtransformOffset>0.02526,-0.011</xtransformOffset>
 				<emissive>active</emissive>
 				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
 				<blend>true</blend>
@@ -138,8 +137,6 @@
 				<alignment>Center</alignment>
 				<anchor>LowerCenter</anchor>
 				<transformOffset>0.02526,0.0055</transformOffset>
-				<xtransformOffset>0.02526,0.005</xtransformOffset>
-				<xtransformOffset>0.02526,0.011</xtransformOffset>
 				<emissive>active</emissive>
 				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
 				<blend>true</blend>
