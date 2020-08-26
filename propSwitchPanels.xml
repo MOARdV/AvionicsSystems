@@ -7,13 +7,115 @@
 	without the tedious effort of copying config files and making small edits
 	while hoping you didn't overlook something.
 
-	Copyright (c) 2018 MOARdV
+	Copyright (c) 2018-2020 MOARdV
 
 	This file is licensed by MOARdV under the Creative Commons Attribution-Share Alike
 	4.0 International license (CC BY-SA) https://creativecommons.org/licenses/by-sa/4.0/
 	-->
 
 	<!-- Switch Panels -->
+	<SwitchPanelsFlatShort folder="SwitchPanelFlatShort">
+		<style name="Switch Panel Flat Short">
+			<MODEL>
+				<model>ASET/ASET_Props/Misc/SwitchFlatPanelShort/SwitchFlatPanelShort</model>
+			</MODEL>
+			<TEXT_LABEL id="0">
+				<name>Top Captions</name>
+				<transform>SwitchFlatShortPanelNameObj</transform>
+				<lineSpacing>1.1</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Normal</style>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>TOP CAPTION</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Bottom Captions</name>
+				<transform>LongPanelSwitchersNamesObj</transform>
+				<lineSpacing>1.1</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Normal</style>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>BOTTOM CAPTION</text>
+			</TEXT_LABEL>
+		</style>
+		<style name="Switch Panel Flat Short centered">
+			<MODEL>
+				<model>ASET/ASET_Props/Misc/SwitchFlatPanelShort/SwitchFlatPanelShort</model>
+			</MODEL>
+			<TEXT_LABEL id="0">
+				<name>Top Captions</name>
+				<transform>SwitchFlatShortPanelNameObj</transform>
+				<lineSpacing>0.8</lineSpacing>
+				<fontSize>3</fontSize>
+				<font>Liberation Sans</font>
+				<style>Normal</style>
+				<alignment>Center</alignment>
+				<anchor>UpperCenter</anchor>
+				<transformOffset>0.072637,0</transformOffset>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>TOP CAPTION</text>
+			</TEXT_LABEL>
+		</style>
+		<prop>
+			<name>MAS_SwitchFlatPanelShort_ASET01</name>
+			<style>Switch Panel Flat Short</style>
+			<TEXT_LABEL id="0">
+				<fontSize>2.4</fontSize>
+				<text>"              KU BAND                CONTROL          LOW DATA RATE   HIGH DATA RATE </text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<fontSize>1.8</fontSize>
+				<text>"                GPC                 AUTO              COMMAND                PL ANLG         PL INTRG    PL DIGITAL        PL MAX</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SwitchFlatPanelShort_ASET02</name>
+			<style>Switch Panel Flat Short</style>
+			<TEXT_LABEL id="0" delete="true" />
+			<TEXT_LABEL id="1">
+				<fontSize>2.4</fontSize>
+				<text>"          S-BAND PM $$$ $$$ $$$ $$$ $$$ $$$ $$$          S-BAND PL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SwitchFlatPanelShort_CommNet</name>
+			<style>Switch Panel Flat Short centered</style>
+			<TEXT_LABEL id="0">
+				<text>┌─────────────── COMMNET ───────────────┐</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SwitchFlatPanelShort_MissionTime</name>
+			<style>Switch Panel Flat Short centered</style>
+			<TEXT_LABEL id="0">
+				<text>┌────────────  MISSION TIME  ────────────┐</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SwitchFlatPanelShort_VoiceComm</name>
+			<style>Switch Panel Flat Short centered</style>
+			<TEXT_LABEL id="0">
+				<text>┌─────────────── VOICE COMM ───────────────┐$$$(CHATTERER)</text>
+			</TEXT_LABEL>
+		</prop>
+	</SwitchPanelsFlatShort>
+	
 	<SwitchPanelsLong folder="SwitchPanelsLong">
 		<style name="Switch Panel Long">
 			<MODEL>
@@ -27,12 +129,135 @@
 				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
 				<blend>true</blend>
 			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<name>Top Captions</name>
+				<transform>SwitchPanelLongNameObj</transform>
+				<fontSize>3.055</fontSize>
+				<lineSpacing>1.1</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Normal</style>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>TOP CAPTION</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Bottom Captions</name>
+				<transform>LongPanelSwitchersNamesObj</transform>
+				<fontSize>2.409</fontSize>
+				<lineSpacing>1.1</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Normal</style>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>BOTTOM CAPTION</text>
+			</TEXT_LABEL>
 		</style>
 		<prop>
 			<name>MAS_SwitchPanelLong_Clear</name>
 			<style>Switch Panel Long</style>
+			<TEXT_LABEL id="0" delete="true" />
+			<TEXT_LABEL id="1" delete="true" />
+		</prop>
+		<prop>
+			<name>MAS_SwitchPanelLong_ASET01</name>
+			<style>Switch Panel Long</style>
+			<TEXT_LABEL id="0">
+				<text>"  ------SIG CONDR----   MDM    -----RJDA 2B-----     -----RJDF 2A-----     -----RJDF 2B-----   R OMS     ------ASA------    ACCEL   RJD MANF $$$       OM3      OF 2/3     OF 3/4   L3/R3/R5- MANF          F3  MANF           F4/F5 - MANF   ENG VLV      3           4              3        L5/F5/R5 </text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>"          ON               ON               ON               ---------ON---------          ---------ON---------            ---------ON---------          ON            ---------ON---------           ON               ON $$$ $$$ $$$ $$$ $$$ $$$ $$$ $$$         OFF             OFF             OFF            ---------OFF---------        ---------OFF---------         ---------OFF---------          OFF           ---------OFF---------       OFF              OFF </text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SwitchPanelLong_ASET02</name>
+			<style>Switch Panel Long</style>
+			<TEXT_LABEL id="0">
+				<text>"               APU  FU TK                  -----HYD  CIRC  PUMP-----             -------PNEUMATICS------                  -----APU  CNTRL  PWR-----   $$$                 VLV  ENA                       1               2               3                ENG XOVR    -    He ISOL                    1                 2                 3           </text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>"               A----------1----------B                 --------------------- ON ----------------------                    OPEN                   OPEN                          --------------------- ON ----------------------  $$$ $$$ $$$ $$$ $$$ $$$ $$$             ---------OFF---------                    ----------------------OFF-----------------------                  CLOSE                 CLOSE                        ----------------------OFF---------------------- </text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SwitchPanelLong_ASET03</name>
+			<style>Switch Panel Long</style>
+			<TEXT_LABEL id="0">
+				<text>"        --GAS  GEN/FUEL  PUMP--         -------LUBE  OIL  LINE--------               ----------------TANK / FUEL  LINE / H2O  SYS ---------------  $$$                1            2            3                   1              2              3                         1A           1B           2A           2B           3A           3B  </text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>"        ---------------------------------------------- A AUTO ----------------------------------------------                ---------------------------------------- A AUTO ----------------------------------------  $$$ $$$ $$$ $$$ $$$ $$$ $$$ $$$        ---------------------------------------------- B AUTO ----------------------------------------------                  ---------------------------------------- B AUTO ---------------------------------------- </text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SwitchPanelLong_ASET04</name>
+			<style>Switch Panel Long</style>
+			<TEXT_LABEL id="0">
+				<text>"     -MDM-  -INTEGRATED DISPLAY PROCESSOR-      --------------------FLT  CRIT  AFT------------------------         ------IPL  SOURCE-----   $$$         PL1                1              2              3              4                PL2         FA1         FA2         FA3         FA4               MMU1            MMU2 </text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>"            ON             --------------------------- LOAD-----------------------------          ----------------------------------- ON -----------------------------------            --------------- LOAD --------------- $$$ $$$ $$$ $$$ $$$ $$$ $$$ $$$        ----------------------------------------------------------------------------------- OFF ----------------------------------------------------------------------------------         ------------ OFF ------------ </text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SwitchPanelLong_ASET05</name>
+			<style>Switch Panel Long</style>
+			<TEXT_LABEL id="0">
+				<text>"    -------------------- ATVC --------------------          -------------- IEU --------------              ----- SIGNAL CONDITIONER -----               MDM  $$$            1             2             3             4                    L-C          C-R         R-L                 --- FREON ---     OL 1/2     OR 1/2           OA1/2/3 </text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>"          ------------------------ ON ------------------------                   ------------------ ON ------------------                        -------- AC2 --------        ON             ON                          ON    $$$ $$$ $$$ $$$ $$$ $$$ $$$ $$$           ----------------------- OFF ------------------------                   ----------------- OFF ------------------                      -------- AC2 --------         OFF          OFF                        OFF </text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SwitchPanelLong_ASET06</name>
+			<style>Switch Panel Long</style>
+			<TEXT_LABEL id="0">
+				<text>"   ---------------------------------------- GPS  ---------------------------------------   SPKR PWR          ------- A/C -------                   ----- I COM -------$$$   PRE AMP          LC            ----- POWER ------     ------ MODE -------        MIC PWR                1            2          A/A          A             B </text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>"         MN A                  MN C                 1 ---- ON ---- 2                  1 ---- RUN ---- 2                        ON                    ---------------------------------- T/R ---------------------------------$$$ $$$ $$$ $$$ $$$ $$$ $$$ $$$         MN C                 MN A               -------- OFF --------               -------- OFF --------                     OFF                   --------------------------------- OFF ---------------------------------</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SwitchPanelLong_ASET07</name>
+			<style>Switch Panel Long</style>
+			<TEXT_LABEL id="0">
+				<text>" Action Groups</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1" delete="true" />
+		</prop>
+		<prop>
+			<name>MAS_SwitchPanelLong_ASET08</name>
+			<style>Switch Panel Long</style>
+			<TEXT_LABEL id="0">
+				<text>"      ------------- AC1 -------------   ------------- AC2 -------------   ------------- AC3 -------------     ------------------  UTILITY POWER ------------------     $$$      ------------------------------------------ LOOP   PUMP ------------------------------------------     ---- F1/MO52J ----    -------- A15/MO13Q --------- </text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>"        ----------------- 1A/2 -----------------    ------------------ 1B ------------------    ------------------  2  ------------------              AC1           AC2            AC3            AC4            AC5 $$$ $$$ $$$ $$$ $$$ $$$ $$$ $$$        (CB1)         (CB2)         (CB3)         (CB4)         (CB5)         (CB6)         (CB7)         (CB8)          (CB9)         (CB10)       (CB11)         (CB12)        (CB28)        (CB29)  </text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SwitchPanelLong_ASET09</name>
+			<style>Switch Panel Long</style>
+			<TEXT_LABEL id="0">
+				<text>"     ------ EXTERNAL  AIRLOCK  HEATER ------                                                            CONTROL                          ------- KU --------$$$     --------- LINE ---------       STRUCT      VEST           ADC        --------- MDU ---------        BUS               KU             ANT        CABLE</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>"      ZONE 1       ZONE 2      Z1/2/3         Z1/2/3        1B/2B          MFD 1         CDR 2       CA1/2/3     SIG PROC      HTR          HTR                 L5             R5            F5       </text>
+			</TEXT_LABEL>
 		</prop>
 	</SwitchPanelsLong>
+
 	<SwitchPanelsShort folder="SwitchPanelsShort">
 		<style name="Switch Panel Short">
 			<MODEL>
@@ -46,10 +271,95 @@
 				<activeColor>COLOR_ASET_SWITCHER_BORDER_POSITIVECOLOR</activeColor>
 				<blend>true</blend>
 			</COLOR_SHIFT>
+			<TEXT_LABEL id="0">
+				<name>Top Captions</name>
+				<transform>SwitchShortPanelNameObj</transform>
+				<fontSize>3</fontSize>
+				<font>Liberation Sans</font>
+				<style>Normal</style>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>TOP CAPTION</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<name>Bottom Captions</name>
+				<transform>ShortPanelSwitchersNamesObj</transform>
+				<fontSize>3</fontSize>
+				<font>InconsolataGo</font>
+				<style>Bold</style>
+				<alignment>Left</alignment>
+				<anchor>UpperLeft</anchor>
+				<emissive>active</emissive>
+				<variable>fc.Conditioned(fc.GetPersistentAsNumber("Backlight"))</variable>
+				<blend>true</blend>
+				<activeColor>COLOR_ASET_SWITCHER_NAME_POSITIVECOLOR</activeColor>
+				<passiveColor>COLOR_ASET_SWITCHER_NAME_ZEROCOLOR</passiveColor>
+				<text>BOTTOM CAPTION</text>
+			</TEXT_LABEL>
 		</style>
 		<prop>
 			<name>MAS_SwitchPanelShort_Clear</name>
 			<style>Switch Panel Short</style>
+			<TEXT_LABEL id="0" delete="true" />
+			<TEXT_LABEL id="1" delete="true" />
+		</prop>
+		<prop>
+			<name>MAS_SwitchPanelShort_ASET01</name>
+			<style>Switch Panel Short</style>
+			<TEXT_LABEL id="0">
+				<style>Bold</style>
+				<text>"                                  LIGHTS CONTROL$$$ $$$    ┌─ MAIN ─┐$$$ $$$ $$$ $$$ $$$ $$$ $$$    └─  OFF  ─┘</text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>"                 ┌───────────  AUX  ───────────┐    $$$ $$$ $$$ $$$ $$$ $$$ $$$                 └───────────────────────────┘ </text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SwitchPanelShort_ASET02</name>
+			<style>Switch Panel Short</style>
+			<TEXT_LABEL id="0">
+				<text>"[b]           CCTV  CAMERAS  TILT  CONTROL                   IMAGE[/b]$$$     AIRLOCK    LANDING       RIGHT        LEFT               [b]GAIN[/b]    </text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<text>" ┌─────────────  UP  ────────────┐    ┌ HI ┐$$$ $$$ $$$ $$$ $$$ $$$ $$$ └───────────── DOWN ────────────┘     NORMAL  </text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SwitchPanelShort_ASET03</name>
+			<style>Switch Panel Short</style>
+			<TEXT_LABEL id="0">
+				<fontSize>2.4</fontSize>
+				<lineSpacing>1.1</lineSpacing>
+				<text>"         --------- POWER ---------                -------- DATA RATE --------          UPLINK $$$       SYSTEM               SELECT                  XMIT              RCV                 DATA </text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<fontSize>2.4</fontSize>
+				<lineSpacing>1.1</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Normal</style>
+				<text>"              1                      INTRG              ------------ HIGH ------------             S-BD    $$$ $$$ $$$ $$$ $$$ $$$ $$$ $$$               2                        PSP               ------------- LOW -------------            KU</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_SwitchPanelShort_ASET04</name>
+			<style>Switch Panel Short</style>
+			<TEXT_LABEL id="0">
+				<fontSize>2.4</fontSize>
+				<lineSpacing>1.1</lineSpacing>
+				<text>"           ANT SW           ------- PWR AMPL -------                                        ANT  $$$            ELEC        PRE AMPL            STANDBY       OPERATE            POLAR </text>
+			</TEXT_LABEL>
+			<TEXT_LABEL id="1">
+				<fontSize>2.4</fontSize>
+				<lineSpacing>1.1</lineSpacing>
+				<font>Liberation Sans</font>
+				<style>Normal</style>
+				<text>"                 1                  1                            1                    1                     L CIRC      $$$ $$$ $$$ $$$ $$$ $$$ $$$ $$$                 2                  2                            2                    2                    R CIRC      </text>
+			</TEXT_LABEL>
 		</prop>
 	</SwitchPanelsShort>
 </PropConfig>
