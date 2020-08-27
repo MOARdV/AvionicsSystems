@@ -36,7 +36,7 @@
 			</TEXT_LABEL>
 			<TEXT_LABEL id="1">
 				<name>Bottom Captions</name>
-				<transform>LongPanelSwitchersNamesObj</transform>
+				<transform>ShortFlatPanelSwitchersNamesObj</transform>
 				<lineSpacing>1.1</lineSpacing>
 				<font>Liberation Sans</font>
 				<style>Normal</style>

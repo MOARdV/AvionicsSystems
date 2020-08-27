@@ -100,3 +100,20 @@ function Set4posXPtr(direction)
 
 	return 1
 end
+
+-- Used on the portable timer prop
+function GetPortableTimerValue(mode)
+	if mode == 0 then
+		return fc.MET()
+	elseif mode == 2 then
+		return fc.TimeToAp()
+	elseif mode == 3 then
+		return fc.TimeToPe()
+	elseif mode == 4 then
+		return fc.ManeuverNodeTime()
+	elseif mode == 6 then
+		return kac.TimeToAlarm()
+	else
+		return 0
+	end
+end
