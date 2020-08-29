@@ -4544,6 +4544,18 @@ namespace AvionicsSystems
             return Math.Abs(time) % 60.0;
         }
 
+        [MASProxy(Dependent = true)]
+        /// <summary>
+        /// Converts the supplied `time` into days, accounting for the number of hours per day.
+        /// Fractions are retained.
+        /// </summary>
+        /// <param name="time">Time in seconds (eg, `fc.UT()`).</param>
+        /// <returns>The number of days the time represents, accounting for Kerbin time vs. Earth time.</returns>
+        public double TimeInDays(double time)
+        {
+            return time / ((double)KSPUtil.dateTimeFormatter.Day);
+        }
+
         /// <summary>
         /// Similar to `fc.HourOfDay()`, but returning the answer in seconds instead
         /// of hours.
