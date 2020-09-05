@@ -2317,6 +2317,25 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Sets the selected camera's pan and tilt values to 0.
+        /// </summary>
+        /// <param name="index">A number between 0 and `fc.CameraCount()` - 1.</param>
+        /// <returns>1 if the camera is seeking home, 0 if an invalid camera was selected.</returns>
+        public double SeekCameraHome(double index)
+        {
+            int i = (int)index;
+            if (i >= 0 && i < vc.moduleCamera.Length)
+            {
+                vc.moduleCamera[i].SetTilt(0.0f);
+                vc.moduleCamera[i].SetPan(0.0f);
+
+                return 1.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Extends or retracts a deployable camera.  Has
         /// no effect on non-deployable cameras.
         /// </summary>
@@ -2361,15 +2380,15 @@ namespace AvionicsSystems
         /// <returns>The new field of view setting, or 0 if an invalid index was supplied.</returns>
         public double SetFoV(double index, double newFoV)
         {
-            double pan = 0.0;
+            double fov = 0.0;
 
             int i = (int)index;
             if (i >= 0 && i < vc.moduleCamera.Length)
             {
-                pan = vc.moduleCamera[i].SetFoV((float)newFoV);
+                fov = vc.moduleCamera[i].SetFoV((float)newFoV);
             }
 
-            return pan;
+            return fov;
         }
 
         /// <summary>
