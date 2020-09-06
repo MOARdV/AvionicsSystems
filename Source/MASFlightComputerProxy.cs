@@ -3297,7 +3297,11 @@ namespace AvionicsSystems
         /// 
         /// `seatNumber` is a 0-based index to select which seat is being queried.  This
         /// means that a 3-seat pod has valid seat numbers 0, 1, and 2.  A single-seat
-        /// pod has a valid seat number 0.
+        /// pod has a valid seat number 0.  If a seat is unoccupied, it will return results
+        /// just like an invalid `seatNumber`.  For example, if a 3-seat pod as two seats
+        /// occupied - the first and the last - then `seatNumber` 0 and 2 will provide information
+        /// about those crew members, but 1 (the empty seat) will return results the same
+        /// as an invalid seat.
         /// 
         /// One difference to be aware of between RPM and MAS: The full-vessel crew info
         /// (those methods starting 'VesselCrew') provide info on crew members without
@@ -3305,6 +3309,10 @@ namespace AvionicsSystems
         /// seats occupied, and a passenger pod as 1 of 4 seats occupied, VesselCrewCount
         /// will return 3, and the crew info (eg, VesselCrewName) will provide values for
         /// indices 0, 1, and 2.
+        /// 
+        /// By the same token, if a 3-seat pod has only 2 seats occupied, then the
+        /// 'VesselCrew' functions will all return info for the 0 and 1 `crewIndex`
+        /// values, even if the first or second seat of the pod is the empty seat.
         /// </summary>
         #region Crew
         /// <summary>
@@ -3322,7 +3330,8 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Returns 1 if the crew in `seatNumber` has passed out due to G-forces.
+        /// Returns 1 if the crew in `seatNumber` is conscious.  Returns 0 if the crew member has passed out due to G-forces,
+        /// or if no one is in that seat.
         /// </summary>
         /// <param name="seatNumber">The index of the seat to check.  Indices start at 0.  Use -1 to check the kerbal in the current seat.</param>
         /// <returns>1 if the crew member is conscious, 0 if the crew member is unconscious.</returns>
@@ -3337,6 +3346,22 @@ namespace AvionicsSystems
             {
                 return (seatIdx >= 0 && seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null && (!fc.localCrew[seatIdx].outDueToG)) ? 1.0 : 0.0;
             }
+        }
+
+        /// <summary>
+        /// Returns the courage rating of the selected crew member.
+        /// </summary>
+        /// <param name="seatNumber">The index of the seat to check.  Indices start at 0.</param>
+        /// <returns>A number between 0 and 1; 0 if the requested seat is invalid or empty.</returns>
+        public double CrewCourage(double seatNumber)
+        {
+            int seatIdx = (int)seatNumber;
+            if (seatIdx >= 0 && seatIdx < fc.localCrew.Length && fc.localCrew[seatIdx] != null)
+            {
+                return fc.localCrew[seatIdx].courage;
+            }
+
+            return 0.0;
         }
 
         /// <summary>
@@ -3590,9 +3615,25 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Returns the courage rating of the selected crew member.
+        /// </summary>
+        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0, and go to `fc.VesselCrewCount() - 1`.</param>
+        /// <returns>A number between 0 and 1; 0 if the requested seat is invalid or empty.</returns>
+        public double VesselCrewCourage(double crewIndex)
+        {
+            int index = (int)crewIndex;
+            if (index >= 0 && index < vessel.GetCrewCount())
+            {
+                return vessel.GetVesselCrew()[index].courage;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the number of experience points for the selected crew member.
         /// </summary>
-        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0.</param>
+        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0, and go to `fc.VesselCrewCount() - 1`.</param>
         /// <returns>A number 0 or higher; 0 if the requested seat is invalid.</returns>
         public double VesselCrewExperience(double crewIndex)
         {
@@ -3609,7 +3650,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns a number representing the gender of the selected crew member.
         /// </summary>
-        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0.</param>
+        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0, and go to `fc.VesselCrewCount() - 1`.</param>
         /// <returns>1 if the crew is male, 2 if the crew is female, 0 if the index is invalid.</returns>
         public double VesselCrewGender(double crewIndex)
         {
@@ -3626,7 +3667,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the experience level of the selected crew member.
         /// </summary>
-        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0.</param>
+        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0, and go to `fc.VesselCrewCount() - 1`.</param>
         /// <returns>A number 0-5; 0 if the requested index is invalid.</returns>
         public double VesselCrewLevel(double crewIndex)
         {
@@ -3645,7 +3686,7 @@ namespace AvionicsSystems
         /// the number is invalid, or no Kerbal is in the seat, returns an
         /// empty string.
         /// </summary>
-        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0.</param>
+        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0, and go to `fc.VesselCrewCount() - 1`.</param>
         /// <returns>The crew name, or an empty string if index is invalid.</returns>
         public string VesselCrewName(double crewIndex)
         {
@@ -3662,7 +3703,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the 'PANIC' level of the selected crew member.
         /// </summary>
-        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0.</param>
+        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0, and go to `fc.VesselCrewCount() - 1`.</param>
         /// <returns>A number between 0 and 1; 0 if the requested index is invalid.</returns>
         public double VesselCrewPanic(double crewIndex)
         {
@@ -3679,7 +3720,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the stupidity rating of the selected crew member.
         /// </summary>
-        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0.</param>
+        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0, and go to `fc.VesselCrewCount() - 1`.</param>
         /// <returns>A number between 0 and 1; 0 if the requested index is invalid.</returns>
         public double VesselCrewStupidity(double crewIndex)
         {
@@ -3696,7 +3737,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the job title of the selected crew member.
         /// </summary>
-        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0.</param>
+        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0, and go to `fc.VesselCrewCount() - 1`.</param>
         /// <returns>The name of the job title, or an empty string if `crewIndex` is invalid.</returns>
         public string VesselCrewTitle(double crewIndex)
         {
@@ -3713,7 +3754,7 @@ namespace AvionicsSystems
         /// <summary>
         /// Returns the 'WHEE' level of the selected crew member.
         /// </summary>
-        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0.</param>
+        /// <param name="crewIndex">The index of the crewmember to check.  Indices start at 0, and go to `fc.VesselCrewCount() - 1`.</param>
         /// <returns>A number between 0 and 1; 0 if the requested index is invalid.</returns>
         public double VesselCrewWhee(double crewIndex)
         {
