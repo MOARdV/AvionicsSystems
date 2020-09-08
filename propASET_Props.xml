@@ -448,7 +448,7 @@
 				<variable>fc.TargetType() == 0</variable>
 			</ANIMATION_PLAYER>
 			<TEXTURE_SHIFT id="0">
-				<startUV>0.25, 0.75</startUV>
+				<startUV>0.25, 0.50</startUV>
 			</TEXTURE_SHIFT>
 		</prop>
 		<prop>
@@ -464,7 +464,7 @@
 				<variable>fc.ManeuverNodeExists()</variable>
 			</ANIMATION_PLAYER>
 			<TEXTURE_SHIFT id="0">
-				<startUV>0.75, 0.75</startUV>
+				<startUV>0.25, 0.75</startUV>
 			</TEXTURE_SHIFT>
 		</prop>
 		<prop>
