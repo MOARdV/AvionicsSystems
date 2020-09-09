@@ -275,6 +275,7 @@ namespace AvionicsSystems
         // such transactions.  Code substantially imported from what I wrote for
         // RasterPropMonitor.
         // This concept has also been extended to the Claw / grabber units.
+        internal MASCamera dockingCamera;
         internal ModuleDockingNode dockingNode;
         internal DockingNodeState dockingNodeState = DockingNodeState.UNKNOWN;
         internal enum DockingNodeState
@@ -357,6 +358,14 @@ namespace AvionicsSystems
             }
 
             this.dockingNode = dockingNode;
+            if (this.dockingNode != null)
+            {
+                this.dockingCamera = this.dockingNode.part.FindModuleImplementing<MASCamera>();
+            }
+            else
+            {
+                this.dockingCamera = null;
+            }
             this.clawNode = clawNode;
         }
 

@@ -1886,19 +1886,16 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Returns the name of the camera (if any) attached to the current reference docking port.
-        /// If the reference transform is not a docking port, or there is no camera on the reference
-        /// docking port, an empty string is returned.
+        /// If the reference transform is not a docking port, but there is a primary docking port on
+        /// the vessel, the primary docking port's camera name is returned.
+        /// If there is no camera on the reference docking port, or no docking ports, an empty string is returned.
         /// </summary>
         /// <returns>The name of the MASCamera on the reference docking port, or an empty string.</returns>
         public string ActiveDockingPortCamera()
         {
-            if (vc.dockingNode != null && vc.dockingNode.part == vessel.GetReferenceTransformPart())
+            if (vc.dockingCamera != null)
             {
-                MASCamera cam = vc.dockingNode.part.FindModuleImplementing<MASCamera>();
-                if (cam != null)
-                {
-                    return cam.cameraName;
-                }
+                return vc.dockingCamera.cameraName;
             }
 
             return string.Empty;
@@ -1906,19 +1903,17 @@ namespace AvionicsSystems
 
         /// <summary>
         /// Returns the index of the camera (if any) attached to the current reference docking port.
-        /// If the reference transform is not a docking port, or there is no camera on the reference
-        /// docking port, -1 is returned.
+        /// If the reference transform is not a docking port, but there is a primary docking port on
+        /// the vessel, the primary docking port's camera index is returned.
+        /// If there is no camera on the reference docking port, or no docking ports, -1 is returned.
         /// </summary>
         /// <returns>The index between 0 and `fc.CameraCount()` - 1, or -1 if there is no camera on the current docking port, or a docking port camera is not active.</returns>
         public double ActiveDockingPortCameraIndex()
         {
-            if (vc.dockingNode != null && vc.dockingNode.part == vessel.GetReferenceTransformPart())
+            if (vc.dockingCamera != null)
             {
-                MASCamera cam = vc.dockingNode.part.FindModuleImplementing<MASCamera>();
-                if (cam != null)
-                {
-                    return 0.0;
-                }
+                int idx = Array.FindIndex(vc.moduleCamera, x => x == vc.dockingCamera);
+                return (double)idx;
             }
 
             return -1.0;
