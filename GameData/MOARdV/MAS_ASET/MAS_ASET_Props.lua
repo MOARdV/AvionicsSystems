@@ -118,7 +118,7 @@ function GetPortableTimerValue(mode)
 	end
 end
 
--- Initialize the overload page buttons for the ALCOR 40x20 MFD
+-- Initialize the overloaded page buttons for the ALCOR 40x20 MFD
 function MAS_Alcor_40x20_Init(propid)
 
 	fc.InitializePersistent(propid .. "-B", "ALCOR_MFD40x20_Target")
@@ -129,6 +129,13 @@ function MAS_Alcor_40x20_Init(propid)
 	fc.InitializePersistent(propid .. "-R1", "ALCOR_MFD40x20_Flight")
 	fc.InitializePersistent(propid .. "-R2", "ALCOR_MFD40x20_Orbit")
 	fc.InitializePersistent(propid .. "-R3", "ALCOR_MFD40x20_Dock")
+	
+	return 1
+end
+
+-- Initialize the overloaded page buttons for the ALCOR 60x30 MFD
+function MAS_Alcor_60x30_Init(propid)
+
 	
 	return 1
 end
