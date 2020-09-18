@@ -224,7 +224,14 @@ namespace AvionicsSystems
 
                         for (int scriptIdx = 0; scriptIdx < scripts.Length; ++scriptIdx)
                         {
-                            userScripts.Add(string.Join(Environment.NewLine, File.ReadAllLines(KSPUtil.ApplicationRootPath + "GameData/" + scripts[scriptIdx], Encoding.UTF8)));
+                            try
+                            {
+                                userScripts.Add(string.Join(Environment.NewLine, File.ReadAllLines(KSPUtil.ApplicationRootPath + "GameData/" + scripts[scriptIdx], Encoding.UTF8)));
+                            }
+                            catch (Exception e)
+                            {
+                                Utility.LogError(this, "Exception caught trying to load script \"{0}\": {1}", scripts[scriptIdx], e.ToString());
+                            }
                         }
                         yield return new WaitForEndOfFrame();
                     }
