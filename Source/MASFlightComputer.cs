@@ -485,7 +485,11 @@ namespace AvionicsSystems
         internal bool TryGetNamedColor(string namedColor, out Color32 color)
         {
             namedColor = namedColor.Trim();
-            if (namedColor.StartsWith("COLOR_"))
+            if (namedColor.StartsWith("#"))
+            {
+                return Utility.ParseHexColor(namedColor, out color);
+            }
+            else if (namedColor.StartsWith("COLOR_"))
             {
                 if (namedColors.TryGetValue(namedColor, out color))
                 {

@@ -687,6 +687,28 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Convert a hex color string (eg #ffff00) to an Color32.
+        /// 
+        /// The color string must be a leading pound character('#') followed by either 6 or 8
+        /// hexadecimal characters.
+        /// </summary>
+        /// <param name="colorString">Color String, including the leading pound ('#') character</param>
+        /// <param name="color">Parsed color, or (255, 0, 255, 255) if the color string was an invalid length.</param>
+        /// <returns>True if the string was parsed, false on error.</returns>
+        internal static bool ParseHexColor(string colorString, out UnityEngine.Color32 color)
+        {
+            if (colorString.Length == 7 || colorString.Length == 9)
+            {
+                color = XKCDColors.ColorTranslator.FromHtml(colorString);
+                return true;
+            }
+
+            color = new Color32(255, 0, 255, 255);
+            Utility.LogStaticError("Failed to parse color string \"{0}\".", colorString);
+            return false;
+        }
+
+        /// <summary>
         /// Convert a string to a Color32; supports RasterPropMonitor COLOR_
         /// names.
         /// </summary>
@@ -697,7 +719,15 @@ namespace AvionicsSystems
         {
             colorString = colorString.Trim();
 
-            if (colorString.StartsWith("COLOR_"))
+            if (colorString.StartsWith("#"))
+            {
+                Color32 c;
+
+                ParseHexColor(colorString, out c);
+
+                return c;
+            }
+            else if (colorString.StartsWith("COLOR_"))
             {
                 // Using a RasterPropMonitor named color.
                 return comp.GetNamedColor(colorString);
