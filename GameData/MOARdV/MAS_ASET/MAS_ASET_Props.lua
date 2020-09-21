@@ -136,7 +136,7 @@ end
 -- Initialize the overloaded page buttons for the ALCOR 60x30 MFD
 function MAS_Alcor_60x30_Init(propid)
 
-	fc.InitializePersistent(propid .. "-R1", "ALCOR_MFD60x30_ResourceStage")
+	fc.InitializePersistent(propid .. "-R1", "ALCOR_MFD60x30_ResourceTotal")
 	fc.InitializePersistent(propid .. "-R7", "ALCOR_MFD60x30_Orbit")
 	fc.InitializePersistent(propid .. "-R8", "ALCOR_MFD60x30_SCANsat")
 	
