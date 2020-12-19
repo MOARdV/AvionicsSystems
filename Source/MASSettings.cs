@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2017-2019 MOARdV
+ * Copyright (c) 2017-2020 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -198,11 +198,7 @@ namespace AvionicsSystems
             MASConfig.navigation.VORPropagation = VORPropagation;
             MASConfig.navigation.DMEPropagation = DMEPropagation;
 
-            int numNavAids = MASLoader.navaids.Count;
-            for (int i = 0; i < numNavAids; ++i)
-            {
-                MASLoader.navaids[i].UpdateHorizonDistance();
-            }
+            MASLoader.UpdateHorizonDistance();
         }
 
         private void onAppLauncherShow()

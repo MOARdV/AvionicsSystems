@@ -176,6 +176,19 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Convenience function to update navaid horizon distances when propagation
+        /// values change.
+        /// </summary>
+        static public void UpdateHorizonDistance()
+        {
+            int numNavAids = navaids.Count;
+            for (int i = 0; i < numNavAids; ++i)
+            {
+                navaids[i].UpdateHorizonDistance();
+            }
+        }
+
+        /// <summary>
         /// Awake() - Load components used by the mod.
         /// </summary>
         public void Awake()
