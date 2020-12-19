@@ -1371,7 +1371,7 @@ namespace AvionicsSystems
         /// Mark modules as potentially invalid to force reiterating over the
         /// part and module lists.
         /// </summary>
-        private void InvalidateModules()
+        internal void InvalidateModules()
         {
             modulesInvalidated = true;
             camerasReset = true;

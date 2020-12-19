@@ -4636,13 +4636,18 @@ namespace AvionicsSystems
         public double SetMultiModeEngineMode(bool runPrimary)
         {
             bool anyChanged = false;
-            for (int i = vc.multiModeEngines.Length; i >= 0; --i)
+            for (int i = vc.multiModeEngines.Length - 1; i >= 0; --i)
             {
                 if (vc.multiModeEngines[i].runningPrimary != runPrimary)
                 {
                     vc.multiModeEngines[i].ToggleMode();
                     anyChanged = true;
                 }
+            }
+
+            if (anyChanged)
+            {
+                vc.InvalidateModules();
             }
 
             return (anyChanged) ? 1.0 : 0.0;
@@ -4817,10 +4822,13 @@ namespace AvionicsSystems
         /// <returns>1 if any engines were toggled, 0 if no multi-mode engines are installed.</returns>
         public double ToggleMultiModeEngineMode()
         {
-            for (int i = vc.multiModeEngines.Length; i >= 0; --i)
+            for (int i = vc.multiModeEngines.Length - 1; i >= 0; --i)
             {
                 vc.multiModeEngines[i].ToggleMode();
             }
+
+            vc.InvalidateModules();
+
             return (vc.multiModeEngines.Length > 0) ? 1.0 : 0.0;
         }
         #endregion
