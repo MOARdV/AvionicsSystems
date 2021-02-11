@@ -83,6 +83,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ModifiedFilesLocal\MASITransfer.cs" />
     <Compile Include="Source\ApproachSolverBW.cs" />
     <Compile Include="Source\DynamicMethodFactory.cs" />
     <Compile Include="Source\KACWrapper.cs" />
