@@ -308,7 +308,8 @@ namespace AvionicsSystems
             InitResourceData();
 
             UpdateReferenceTransform(vessel.GetReferenceTransformPart(), true);
-            vesselCrewed = (vessel.GetCrewCount() > 0);
+            //vesselCrewed = (vessel.GetCrewCount() > 0);
+            vesselCrewed = true;
             vesselActive = ActiveVessel(vessel);
             if (vesselCrewed)
             {
@@ -626,6 +627,10 @@ namespace AvionicsSystems
 
         void UpdateAttitude()
         {
+            if (vessel.GetReferenceTransformPart() == null)
+            {
+                UpdateReferenceTransform(vessel.GetReferenceTransformPart(), true);
+            }
             navballAttitudeGimbal = vesselOrientationCorrection * Quaternion.Inverse(referenceTransform.rotation);
 
             Vector3 relativePositionVector = (referenceTransform.position - mainBody.position).normalized;
@@ -1269,9 +1274,12 @@ namespace AvionicsSystems
         {
             if (referencePart == null)
             {
-                // During staging, it's possible for referencePart to be null.  If it is, let's skip
-                // this processing.  Things will sort out later.
-                return;
+                // During staging, it's possible for referencePart to be null.  If it is, must set to
+                // root part in order to avoid failure to initialize.
+                Utility.LogMessage(this, "Null referencePart for {0}; setting to root!", vessel.id);
+                vessel.SetReferenceTransform(vessel.rootPart);
+                referencePart = vessel.GetReferenceTransformPart();
+                //return;
             }
 
             Transform newRefXform = referencePart.GetReferenceTransform();
@@ -1335,9 +1343,10 @@ namespace AvionicsSystems
         {
             if (who.id == vesselId)
             {
-                vesselCrewed = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
+                vesselCrewed = true && HighLogic.LoadedSceneIsFlight;
                 vesselActive = ActiveVessel(vessel);
                 InvalidateModules();
+                Utility.LogMessage(this, "onVesselChange for  {0}", who.id);
             }
         }
 
@@ -1354,9 +1363,10 @@ namespace AvionicsSystems
         {
             if (who.id == vesselId)
             {
-                vesselCrewed = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
+                vesselCrewed = true && HighLogic.LoadedSceneIsFlight;
                 vesselActive = ActiveVessel(vessel);
                 InvalidateModules();
+                Utility.LogMessage(this, "onVesselWasModified for  {0}", who.id);
             }
         }
 
@@ -1364,8 +1374,9 @@ namespace AvionicsSystems
         {
             if (who.id == vesselId)
             {
-                vesselCrewed = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
+                vesselCrewed = true && HighLogic.LoadedSceneIsFlight;
                 vesselActive = ActiveVessel(vessel);
+                Utility.LogMessage(this, "onVesselDestroy for  {0}", who.id);
             }
         }
 
@@ -1373,8 +1384,9 @@ namespace AvionicsSystems
         {
             if (who.id == vesselId)
             {
-                vesselCrewed = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
+                vesselCrewed = true && HighLogic.LoadedSceneIsFlight;
                 vesselActive = ActiveVessel(vessel);
+                Utility.LogMessage(this, "onVesselCreate for  {0}", who.id);
             }
         }
 
@@ -1382,8 +1394,9 @@ namespace AvionicsSystems
         {
             if (who.id == vessel.id)
             {
-                vesselCrewed = (vessel.GetCrewCount() > 0) && HighLogic.LoadedSceneIsFlight;
+                vesselCrewed = true && HighLogic.LoadedSceneIsFlight;
                 vesselActive = ActiveVessel(vessel);
+                Utility.LogMessage(this, "onVesselCrewWasModified for  {0}", who.id);
             }
         }
         #endregion
