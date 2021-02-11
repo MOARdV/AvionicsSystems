@@ -249,7 +249,7 @@ namespace AvionicsSystems
                 }
                 catch (Exception e)
                 {
-                    throw new ArgumentException("Error in UpdateNeighboringVessels due to distanceComparer: \"" + e.Source + e.TargetSite + e.Data + e.StackTrace + neighboringVessels + "\"", e);
+                    throw new ArgumentException("Error in UpdateNeighboringVessels due to distanceComparer: \""  + e.Source + e.TargetSite + e.Data + e.StackTrace + neighboringVessels +  "\"", e);
                 }
 
                 neighboringVesselsCurrent = true;
@@ -3922,6 +3922,54 @@ namespace AvionicsSystems
             {
                 return 0.0;
             }
+        }
+        /// <summary>
+        /// Set the next docking port to be the reference transform.
+        /// </summary>
+        /// <returns>1 if the reference was changed, 0 otherwise.</returns>
+        public double SetNextDockToReference()
+        {
+            /*if (vc.dockingNode != null)
+            {
+                vessel.SetReferenceTransform(vc.dockingNode.part);
+                return 1.0;
+            }
+            else
+            {
+                return 0.0;
+            }*/
+
+            if (vc.ownDockingPorts.Length == 0)
+            {
+                return 0.0;
+            }
+            else if (fc.part == vessel.GetReferenceTransformPart())
+            {
+                vessel.SetReferenceTransform(vc.ownDockingPorts[0].part);
+                return 1.0;
+            }
+            else if (vc.referenceTransformType == MASVesselComputer.ReferenceType.DockingPort)
+            {
+                if (vc.ownDockingPorts.Length == 1)
+                {
+                    // We're already referencing the only docking port.
+                    return 1.0;
+                }
+
+                ModuleDockingNode activeOwnNode = vc.dockingNode as ModuleDockingNode;
+                int currentOwnIndex = Array.FindIndex(vc.ownDockingPorts, x => x == activeOwnNode);
+                if (currentOwnIndex == -1)
+                {
+                    vessel.SetReferenceTransform(vc.ownDockingPorts[0].part);
+                }
+                else
+                {
+                    vessel.SetReferenceTransform(vc.ownDockingPorts[(currentOwnIndex + 1) % vc.ownDockingPorts.Length].part);
+                }
+                return 1.0;
+            }
+
+            return 0.0;
         }
 
         /// <summary>

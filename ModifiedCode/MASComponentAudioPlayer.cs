@@ -188,7 +188,7 @@ namespace AvionicsSystems
             }
             catch (Exception e)
             {
-                throw new ArgumentException("Error in AudioPlayer OnCameraChange: \"" + e.Source + e.TargetSite + e.Data + e.StackTrace + CameraManager.Instance.currentCameraMode + "\"", e);
+                throw new ArgumentException("Error in AudioPlayer OnCameraChange: \"" + e.Source + e.TargetSite + e.Data + e.StackTrace  + CameraManager.Instance.currentCameraMode + "\"", e);
             }
         }
 

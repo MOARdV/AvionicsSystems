@@ -198,8 +198,8 @@ namespace AvionicsSystems
         {
             if (KACWrapper.InstanceExists)
             {
-                KACWrapper.KACAPI.AlarmTypeEnum alarmType = (KACWrapper.KACAPI.AlarmTypeEnum)Enum.Parse(typeof(KACWrapper.KACAPI.AlarmTypeEnum), alarmTypeStr);
-
+                KACWrapper.KACAPI.AlarmTypeEnum alarmType = (KACWrapper.KACAPI.AlarmTypeEnum) Enum.Parse(typeof(KACWrapper.KACAPI.AlarmTypeEnum), alarmTypeStr);
+                
                 string alarmID = KACWrapper.KAC.CreateAlarm(alarmType, name, UT);
 
                 if (string.IsNullOrEmpty(alarmID))

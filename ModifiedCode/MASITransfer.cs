@@ -859,7 +859,7 @@ namespace AvionicsSystems
                 /*double deltaVPrograde = -deltaVTotal * Math.Cos(angleOffRetrograde);
                 double deltaVRadial = -deltaVTotal * Math.Sin(angleOffRetrograde);*/
 
-                double deltaVPrograde = -(vPreBurn - vNew * Math.Cos(elevationAngle));
+                double deltaVPrograde = - (vPreBurn - vNew * Math.Cos(elevationAngle));
                 double deltaVRadial = -vNew * Math.Sin(elevationAngle);
 
                 Utility.LogMessage(this, "prograde  = {0}, radial = {1}", deltaVPrograde, deltaVRadial);

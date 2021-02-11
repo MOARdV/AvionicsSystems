@@ -128,7 +128,7 @@ namespace AvionicsSystems
             {
                 UpdateAttitude();
             }
-            catch (Exception e)
+            catch(Exception e)
             {
                 throw new ArgumentException("Error in UpdateAttitude:" + e.Source + e.TargetSite + e.Data + e.StackTrace, e);
             }
@@ -378,45 +378,45 @@ namespace AvionicsSystems
             //Vessel targetVessel = (targetType == TargetType.Vessel) ? (activeTarget as Vessel) : (activeTarget as ModuleDockingNode).vessel;
             //if (!targetVessel.packed && targetVessel.loaded)
             //{
-            List<ModuleDockingNode> potentialOwnDocks = vessel.FindPartModulesImplementing<ModuleDockingNode>();
-            List<ModuleDockingNode> validOwnDocks = new List<ModuleDockingNode>();
+                List<ModuleDockingNode> potentialOwnDocks = vessel.FindPartModulesImplementing<ModuleDockingNode>();
+                List<ModuleDockingNode> validOwnDocks = new List<ModuleDockingNode>();
 
-            if (dockingNode != null)
-            {
-                for (int i = potentialOwnDocks.Count - 1; i >= 0; --i)
+                if (dockingNode != null)
                 {
-                    ModuleDockingNode checkDock = potentialOwnDocks[i];
-                    // Only lock on to an available dock of the same type that is either ungendered or the opposite gender.
-                    //if (otherDock.state == "Ready" && (string.IsNullOrEmpty(dockingNode.nodeType) || dockingNode.nodeType == otherDock.nodeType) && (dockingNode.gendered == false || dockingNode.genderFemale != otherDock.genderFemale))
-                    if (checkDock.state == "Ready")
+                    for (int i = potentialOwnDocks.Count - 1; i >= 0; --i)
                     {
-                        validOwnDocks.Add(checkDock);
+                        ModuleDockingNode checkDock = potentialOwnDocks[i];
+                    // Only lock on to an available dock of the same type that is either ungendered or the opposite gender.
+                        //if (otherDock.state == "Ready" && (string.IsNullOrEmpty(dockingNode.nodeType) || dockingNode.nodeType == otherDock.nodeType) && (dockingNode.gendered == false || dockingNode.genderFemale != otherDock.genderFemale))
+                        if (checkDock.state == "Ready")
+                        {
+                             validOwnDocks.Add(checkDock);
+                        }
                     }
                 }
-            }
-            /*                else
-                            {
-                                for (int i = potentialOwnDocks.Count - 1; i >= 0; --i)
-                                {
-                                    ModuleDockingNode otherDock = potentialOwnDocks[i];
-                                    // Only lock on to an available dock of the same type that is either ungendered or the opposite gender.
-                                    if (otherDock.state == "Ready")
-                                    {
-                                        validOwnDocks.Add(otherDock);
-                                    }
-                                }
-                            }*/
-            if (ownDockingPorts.Length != validOwnDocks.Count)
-            {
-                ownDockingPorts = validOwnDocks.ToArray();
-            }
-            else
-            {
-                for (int i = ownDockingPorts.Length - 1; i >= 0; --i)
+/*                else
                 {
-                    ownDockingPorts[i] = validOwnDocks[i];
+                    for (int i = potentialOwnDocks.Count - 1; i >= 0; --i)
+                    {
+                        ModuleDockingNode otherDock = potentialOwnDocks[i];
+                        // Only lock on to an available dock of the same type that is either ungendered or the opposite gender.
+                        if (otherDock.state == "Ready")
+                        {
+                            validOwnDocks.Add(otherDock);
+                        }
+                    }
+                }*/
+                if (ownDockingPorts.Length != validOwnDocks.Count)
+                {
+                     ownDockingPorts = validOwnDocks.ToArray();
                 }
-            }
+                else
+                {
+                    for (int i = ownDockingPorts.Length - 1; i >= 0; --i)
+                    {
+                         ownDockingPorts[i] = validOwnDocks[i];
+                    }
+                }
             //}
 
             //else if ((targetVessel.packed || !targetVessel.loaded) && targetDockingPorts.Length > 0)

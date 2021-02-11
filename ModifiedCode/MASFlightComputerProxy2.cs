@@ -981,8 +981,6 @@ namespace AvionicsSystems
             }
         }
 
-
-
         #endregion
 
         /// <summary>

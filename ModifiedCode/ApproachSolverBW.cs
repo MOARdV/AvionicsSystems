@@ -348,11 +348,11 @@ namespace AvionicsSystems
 
                 while (target1 != target2 && !Double.IsInfinity(vessel.EndUT))
                 {
-
+                    
                     Utility.LogInfo(this, "ApproachSolver first FindClosest: vessel {0}, target1 {1}, target1.StartUT {2}, target1.EndUT{3}, closestDistance{4}, closestUT{5}",
                         vessel, target1, target1.StartUT, target1.EndUT, closestDistance, closestUT);
                     FindClosest(vessel, target1, Math.Max(now, target1.StartUT), target1.EndUT, 0, ref closestDistance, ref closestUT);
-
+                    
                     target1 = target1.nextPatch;
                 }
 
@@ -382,7 +382,7 @@ namespace AvionicsSystems
                     Utility.LogInfo(this, "ApproachSolver third FindClosest: vessel {0}, target1 {1}, target1.StartUT {2}, target1.EndUT{3}, closestDistance{4}, closestUT{5}",
                         vessel, target1, target1.StartUT, target1.EndUT, closestDistance, closestUT);
                     FindClosest(vessel, target1, Math.Max(now, target1.StartUT), target1.EndUT, 0, ref closestDistance, ref closestUT);
- 
+                   
                     target1 = target1.nextPatch;
                 }
 
@@ -393,7 +393,7 @@ namespace AvionicsSystems
                     FindClosest(vessel, target1, now, then, 0, ref closestDistance, ref closestUT);
                 }
 
-                    now = then;
+                now = then;
                 then += vessel.period;
             }
 
