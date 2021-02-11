@@ -114,7 +114,6 @@
     <Compile Include="Source\MASComponentTextureShift.cs" />
     <Compile Include="Source\MASComponentTranslation.cs" />
     <Compile Include="Source\MASComponentTriggerEvent.cs" />
-    <Compile Include="Source\MASIAtmosphereAutopilot.cs" />
     <Compile Include="Source\MASIdEngineGroup.cs" />
     <Compile Include="Source\MASIKerbalEngineer.cs" />
     <Compile Include="Source\MASPageCompoundText.cs" />
