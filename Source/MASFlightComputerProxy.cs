@@ -3917,6 +3917,10 @@ namespace AvionicsSystems
             }
         }
 
+        /// <summary>
+        /// Set the next docking port to be the reference transform.
+        /// </summary>
+        /// <returns>1 if the reference was changed, 0 otherwise.</returns>
         public double SetNextDockToReference()
         {
             /*if (vc.dockingNode != null)
