@@ -134,7 +134,6 @@ namespace AvionicsSystems
             }
             UpdateAltitudes();
             UpdateManeuverNode();
-            UpdateOwnDockingPorts();
             UpdateTarget();
             UpdateMisc();
             // Last step:
@@ -368,60 +367,6 @@ namespace AvionicsSystems
             // required iterating over the cameras list to find
             // "InternalSpaceOverlay Host".  At least, in 1.1.3.
             return vessel.isActiveVessel && (CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.IVA || CameraManager.Instance.currentCameraMode == CameraManager.CameraMode.Internal);
-        }
-
-        internal ModuleDockingNode[] ownDockingPorts = new ModuleDockingNode[0];
-
-        private void UpdateOwnDockingPorts()
-        {
-            //Vessel targetVessel = (targetType == TargetType.Vessel) ? (activeTarget as Vessel) : (activeTarget as ModuleDockingNode).vessel;
-            //if (!targetVessel.packed && targetVessel.loaded)
-            //{
-            List<ModuleDockingNode> potentialOwnDocks = vessel.FindPartModulesImplementing<ModuleDockingNode>();
-            List<ModuleDockingNode> validOwnDocks = new List<ModuleDockingNode>();
-
-            if (dockingNode != null)
-            {
-                for (int i = potentialOwnDocks.Count - 1; i >= 0; --i)
-                {
-                    ModuleDockingNode checkDock = potentialOwnDocks[i];
-                    // Only lock on to an available dock of the same type that is either ungendered or the opposite gender.
-                    //if (otherDock.state == "Ready" && (string.IsNullOrEmpty(dockingNode.nodeType) || dockingNode.nodeType == otherDock.nodeType) && (dockingNode.gendered == false || dockingNode.genderFemale != otherDock.genderFemale))
-                    if (checkDock.state == "Ready")
-                    {
-                        validOwnDocks.Add(checkDock);
-                    }
-                }
-            }
-            /*                else
-                            {
-                                for (int i = potentialOwnDocks.Count - 1; i >= 0; --i)
-                                {
-                                    ModuleDockingNode otherDock = potentialOwnDocks[i];
-                                    // Only lock on to an available dock of the same type that is either ungendered or the opposite gender.
-                                    if (otherDock.state == "Ready")
-                                    {
-                                        validOwnDocks.Add(otherDock);
-                                    }
-                                }
-                            }*/
-            if (ownDockingPorts.Length != validOwnDocks.Count)
-            {
-                ownDockingPorts = validOwnDocks.ToArray();
-            }
-            else
-            {
-                for (int i = ownDockingPorts.Length - 1; i >= 0; --i)
-                {
-                    ownDockingPorts[i] = validOwnDocks[i];
-                }
-            }
-            //}
-
-            //else if ((targetVessel.packed || !targetVessel.loaded) && targetDockingPorts.Length > 0)
-            //{
-            //    targetDockingPorts = new ModuleDockingNode[0];
-            //}
         }
 
         // Time in seconds until impact.  0 if there is no impact.
