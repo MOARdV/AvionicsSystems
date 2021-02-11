@@ -153,7 +153,7 @@ namespace AvionicsSystems
             }
             variableName = variableName.Trim();
 
-            audioSource.mute = ((CameraManager.Instance.currentCameraMode != CameraManager.CameraMode.IVA) && (CameraManager.Instance.currentCameraMode != CameraManager.CameraMode.Internal));
+            audioSource.mute = (CameraManager.Instance.currentCameraMode != CameraManager.CameraMode.IVA);
 
             GameEvents.OnCameraChange.Add(OnCameraChange);
 
@@ -182,14 +182,7 @@ namespace AvionicsSystems
         /// <param name="newCameraMode"></param>
         private void OnCameraChange(CameraManager.CameraMode newCameraMode)
         {
-            try
-            {
-                audioSource.mute = ((CameraManager.Instance.currentCameraMode != CameraManager.CameraMode.IVA) && (CameraManager.Instance.currentCameraMode != CameraManager.CameraMode.Internal));
-            }
-            catch (Exception e)
-            {
-                throw new ArgumentException("Error in AudioPlayer OnCameraChange: \"" + e.Source + e.TargetSite + e.Data + e.StackTrace + CameraManager.Instance.currentCameraMode + "\"", e);
-            }
+            audioSource.mute = (newCameraMode != CameraManager.CameraMode.IVA);
         }
 
         /// <summary>

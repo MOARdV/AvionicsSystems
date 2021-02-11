@@ -314,7 +314,7 @@ namespace AvionicsSystems
                 else
                 {
                     uint shipFlightNumber = 0;
-                    if (referenceTransformType == ReferenceType.Self || referenceTransformType == ReferenceType.RemoteCommand)
+                    if (referenceTransformType == ReferenceType.Self)
                     {
                         // If the reference transform is the current IVA, we need
                         // to look for another part that has a docking node and the
