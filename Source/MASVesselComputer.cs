@@ -124,14 +124,7 @@ namespace AvionicsSystems
             PrepareResourceData();
 
             UpdateModuleData();
-            try
-            {
-                UpdateAttitude();
-            }
-            catch (Exception e)
-            {
-                throw new ArgumentException("Error in UpdateAttitude:" + e.Source + e.TargetSite + e.Data + e.StackTrace, e);
-            }
+            UpdateAttitude();
             UpdateAltitudes();
             UpdateManeuverNode();
             UpdateTarget();
@@ -636,13 +629,10 @@ namespace AvionicsSystems
             navballAttitudeGimbal = vesselOrientationCorrection * Quaternion.Inverse(referenceTransform.rotation);
 
             Vector3 relativePositionVector = (referenceTransform.position - mainBody.position).normalized;
-            //Utility.LogMessage(this, "Past gate 1");
 
             Quaternion relativeGimbal = navballAttitudeGimbal * Quaternion.LookRotation(
                 Vector3.ProjectOnPlane(relativePositionVector + mainBody.transform.up, (relativePositionVector)),
                 relativePositionVector);
-
-            //Utility.LogMessage(this, "Past gate 2");
 
             // We have to do all sorts of voodoo to get the navball
             // gimbal rotated so the rendered navball behaves the same
@@ -667,13 +657,9 @@ namespace AvionicsSystems
                 surfaceAttitude.z = -surfaceAttitude.z;
             }
 
-            //Utility.LogMessage(this, "Past gate 3");
-
             double headingChange = Utility.NormalizeLongitude(surfaceAttitude.y - lastHeading);
             lastHeading = surfaceAttitude.y;
             headingRate = 0.875 * headingRate + 0.125 * headingChange / TimeWarp.fixedDeltaTime;
-
-            //Utility.LogMessage(this, "Past gate 4");
 
             up = vessel.upAxis;
             prograde = vessel.obt_velocity.normalized;
@@ -682,13 +668,9 @@ namespace AvionicsSystems
             normal = -Vector3.Cross(radialOut, prograde).normalized;
             // TODO: does Vector3.OrthoNormalize do anything for me here?
 
-            //Utility.LogMessage(this, "Past gate 5");
-
             right = vessel.GetTransform().right;
             forward = vessel.GetTransform().up;
             top = vessel.GetTransform().forward;
-
-            //Utility.LogMessage(this, "Past gate 6");
 
             // We base our surface vector off of UP and RIGHT, unless roll is extreme.
             if (Mathf.Abs(Vector3.Dot(right, up)) > 0.995f)
@@ -702,16 +684,12 @@ namespace AvionicsSystems
                 surfaceRight = Vector3.Cross(surfaceForward, up);
             }
 
-            //Utility.LogMessage(this, "Past gate 7");
-
             Vector3 surfaceProgradeProjected = Vector3.ProjectOnPlane(surfacePrograde, up);
             progradeHeading = Vector3.Angle(surfaceProgradeProjected, vessel.north);
             if (Vector3.Dot(surfaceProgradeProjected, vessel.east) < 0.0)
             {
                 progradeHeading = 360.0f - progradeHeading;
             }
-
-            //Utility.LogMessage(this, "Past gate 8");
 
             // TODO: Am I computing normal wrong?
             // TODO: orbit.GetOrbitNormal() appears to return a vector in the opposite
