@@ -187,42 +187,6 @@ namespace AvionicsSystems
         }
 
         /// <summary>
-        /// Create an alarm of specified at the time specified by `UT`, using the name `name`.  This alarm is
-        /// assigned to the current vessel ID.
-        /// </summary>
-        /// <param name="alarmType">The type of alarm to create."</param>
-        /// <param name="name">The short name to apply to the alarm.</param>
-        /// <param name="UT">The UT when the alarm should fire.</param>
-        /// <returns>The alarm ID (a string), or an empty string if the method failed.</returns>
-        public string CreateTypeAlarm(string alarmTypeStr, string name, double UT)
-        {
-            if (KACWrapper.InstanceExists)
-            {
-                KACWrapper.KACAPI.AlarmTypeEnum alarmType = (KACWrapper.KACAPI.AlarmTypeEnum)Enum.Parse(typeof(KACWrapper.KACAPI.AlarmTypeEnum), alarmTypeStr);
-
-                string alarmID = KACWrapper.KAC.CreateAlarm(alarmType, name, UT);
-
-                if (string.IsNullOrEmpty(alarmID))
-                {
-                    return string.Empty;
-                }
-                else
-                {
-                    var newAlarm = KACWrapper.KAC.Alarms.Find(x => x.ID == alarmID);
-                    if (newAlarm != null)
-                    {
-                        newAlarm.VesselID = vessel.id.ToString();
-                    }
-
-                    return alarmID;
-                }
-
-            }
-
-            return string.Empty;
-        }
-
-        /// <summary>
         /// Attempts to remove the alarm identified by `alarmID`.  Normally, `alarmID` is the return
         /// value from `fc.CreateAlarm()`.
         /// </summary>
