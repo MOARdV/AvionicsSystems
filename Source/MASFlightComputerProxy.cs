@@ -243,14 +243,7 @@ namespace AvionicsSystems
                 localVessels.Clear();
 
                 distanceComparer.vesselPosition = vessel.GetTransform().position;
-                try
-                {
-                    Array.Sort(neighboringVessels, distanceComparer);
-                }
-                catch (Exception e)
-                {
-                    throw new ArgumentException("Error in UpdateNeighboringVessels due to distanceComparer: \"" + e.Source + e.TargetSite + e.Data + e.StackTrace + neighboringVessels + "\"", e);
-                }
+                Array.Sort(neighboringVessels, distanceComparer);
 
                 neighboringVesselsCurrent = true;
             }

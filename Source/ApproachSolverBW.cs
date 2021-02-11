@@ -346,22 +346,16 @@ namespace AvionicsSystems
                 //Utility.LogMessage(this, "target1: {0:0} to {1:0}, transitions = {3} / {2}", target1.StartUT, target1.EndUT, target1.patchEndTransition, target1.patchStartTransition);
                 //Utility.LogMessage(this, "target2: {0:0} to {1:0}, transitions = {3} / {2}", target2.StartUT, target2.EndUT, target2.patchEndTransition, target2.patchStartTransition);
 
-                while (target1 != target2 && !Double.IsInfinity(vessel.EndUT))
+                while (target1 != target2)
                 {
 
-                    Utility.LogInfo(this, "ApproachSolver first FindClosest: vessel {0}, target1 {1}, target1.StartUT {2}, target1.EndUT{3}, closestDistance{4}, closestUT{5}",
-                        vessel, target1, target1.StartUT, target1.EndUT, closestDistance, closestUT);
                     FindClosest(vessel, target1, Math.Max(now, target1.StartUT), target1.EndUT, 0, ref closestDistance, ref closestUT);
 
                     target1 = target1.nextPatch;
                 }
 
-                Utility.LogInfo(this, "ApproachSolver second FindClosest: vessel {0}, target1 {1}, now {2}, then {3}, closestDistance{4}, closestUT{5}",
-                        vessel, target1, now, then, closestDistance, closestUT);
-                if (!Double.IsInfinity(then))
-                {
-                    FindClosest(vessel, target1, now, then, 0, ref closestDistance, ref closestUT);
-                }
+                FindClosest(vessel, target1, now, then, 0, ref closestDistance, ref closestUT);
+                
                 vessel = vessel.nextPatch;
             }
 
@@ -377,23 +371,16 @@ namespace AvionicsSystems
                 target1 = FindOrbit(targetOrbit, now);
                 target2 = FindOrbit(target1, then);
 
-                while (target1 != target2 && !Double.IsInfinity(vessel.EndUT))
+                while (target1 != target2)
                 {
-                    Utility.LogInfo(this, "ApproachSolver third FindClosest: vessel {0}, target1 {1}, target1.StartUT {2}, target1.EndUT{3}, closestDistance{4}, closestUT{5}",
-                        vessel, target1, target1.StartUT, target1.EndUT, closestDistance, closestUT);
+
                     FindClosest(vessel, target1, Math.Max(now, target1.StartUT), target1.EndUT, 0, ref closestDistance, ref closestUT);
  
                     target1 = target1.nextPatch;
                 }
 
-                if (!Double.IsInfinity(then) && !Double.IsInfinity(now))
-                {
-                    Utility.LogInfo(this, "ApproachSolver fourth FindClosest: vessel {0}, target1 {1}, now {2}, then {3}, closestDistance{4}, closestUT{5}",
-                        vessel, target1, now, then, closestDistance, closestUT);
-                    FindClosest(vessel, target1, now, then, 0, ref closestDistance, ref closestUT);
-                }
-
-                    now = then;
+                FindClosest(vessel, target1, now, then, 0, ref closestDistance, ref closestUT);
+                now = then;
                 then += vessel.period;
             }
 
