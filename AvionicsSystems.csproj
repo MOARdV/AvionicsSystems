@@ -83,7 +83,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ModifiedFilesLocal\MASITransfer.cs" />
     <Compile Include="Source\ApproachSolverBW.cs" />
     <Compile Include="Source\DynamicMethodFactory.cs" />
     <Compile Include="Source\KACWrapper.cs" />
@@ -187,7 +186,9 @@
     <Compile Include="Source\Variable.cs" />
     <Compile Include="Source\VariableRegistrar.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="ModifiedFilesLocal\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetPath) "D:\Games\KSP-IVA\GameData\MOARdV\AvionicsSystems"
