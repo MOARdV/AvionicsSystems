@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>D:\KSPMod\VSOutput\IVAs\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -33,77 +33,77 @@
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\KSP_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="AtmosphereAutopilot">
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\GameData\AtmosphereAutopilot\AtmosphereAutopilot.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="AtmosphereAutopilot.UI">
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\GameData\AtmosphereAutopilot\AtmosphereAutopilot.UI.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="MoonSharp.Interpreter">
       <HintPath>..\..\..\Downloads\Games\KSP\Modding\moonsharp_release_2.0.0.0\repl\MoonSharp.Interpreter.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="UnityEngine">
       <HintPath>D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.AnimationModule">
       <HintPath>D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.AssetBundleModule">
       <HintPath>D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.AudioModule">
       <HintPath>D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
       <HintPath>D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
       <HintPath>D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
       <HintPath>D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">
       <HintPath>D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.UI.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.UIModule">
       <HintPath>D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.UIModule.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.UnityWebRequestAssetBundleModule">
       <HintPath>D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.UnityWebRequestAssetBundleModule.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine.UnityWebRequestModule">
       <HintPath>D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -211,11 +211,522 @@
     <Compile Include="Source\VariableRegistrar.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Indicators\addCryoFuel.cfg">
+      <Link>GameData\ASETCryoProps\Indicators\addCryoFuel.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Indicators\BurnTimer\ASET_ClockTimer.mu">
+      <Link>GameData\ASETCryoProps\Indicators\BurnTimer\ASET_ClockTimer.mu</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Indicators\BurnTimer\BurnTimer.cfg">
+      <Link>GameData\ASETCryoProps\Indicators\BurnTimer\BurnTimer.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Indicators\BurnTimer\BurnTimer_CUSTOMs.cfg">
+      <Link>GameData\ASETCryoProps\Indicators\BurnTimer\BurnTimer_CUSTOMs.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Indicators\ImpactTimer\ASET_ClockTimer.mu">
+      <Link>GameData\ASETCryoProps\Indicators\ImpactTimer\ASET_ClockTimer.mu</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Indicators\ImpactTimer\ImpactTimer.cfg">
+      <Link>GameData\ASETCryoProps\Indicators\ImpactTimer\ImpactTimer.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Indicators\IndicatorADV_HSTAGE.cfg">
+      <Link>GameData\ASETCryoProps\Indicators\IndicatorADV_HSTAGE.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Indicators\NodeTimer\NodeTimer.cfg">
+      <Link>GameData\ASETCryoProps\Indicators\NodeTimer\NodeTimer.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Indicators\pb_STAGE-F02-B6-C2.cfg">
+      <Link>GameData\ASETCryoProps\Indicators\pb_STAGE-F02-B6-C2.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Indicators\TempGauges\NASA_Gauge_Ext_Temp.cfg">
+      <Link>GameData\ASETCryoProps\Indicators\TempGauges\NASA_Gauge_Ext_Temp.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Labels\SmallPlate_IMPACT.cfg">
+      <Link>GameData\ASETCryoProps\Labels\SmallPlate_IMPACT.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Labels\SmallPlate_MNODE.cfg">
+      <Link>GameData\ASETCryoProps\Labels\SmallPlate_MNODE.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Labels\SmallPlate_TERMINALBURN.cfg">
+      <Link>GameData\ASETCryoProps\Labels\SmallPlate_TERMINALBURN.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\ASETCryoProps.lua">
+      <Link>GameData\ASETCryoProps\MASPatches\ASETCryoProps.lua</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\ASETCryoPropsLUA.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\ASETCryoPropsLUA.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\MASForPatchedInternals.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\MASForPatchedInternals.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\MASPropFixes.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\MASPropFixes.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\MoreASETPropsToMAS.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\MoreASETPropsToMAS.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_FI_IMPError.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_FI_IMPError.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_FI_LowCharge.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_FI_LowCharge.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_FI_LowMonoprop.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_FI_LowMonoprop.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_FI_PREC_CTRL.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_FI_PREC_CTRL.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_FI_SAS_SPEED_ORBIT.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_FI_SAS_SPEED_ORBIT.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_FI_SAS_SPEED_SURFACE.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_FI_SAS_SPEED_SURFACE.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_FI_SAS_SPEED_TARGET.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_FI_SAS_SPEED_TARGET.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_ImpactSpeedIndicator.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_ImpactSpeedIndicator.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_LandingBurnTimer.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_LandingBurnTimer.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_LandingTimer.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_LandingTimer.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_MachNumber.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_MachNumber.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Effective_Accel_Indicator.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Effective_Accel_Indicator.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_GaugeDbl_Fuel.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_GaugeDbl_Fuel.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_GaugeDbl_OXID.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_GaugeDbl_OXID.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_AmbTemp.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_AmbTemp.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_ATMDEPTH.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_ATMDEPTH.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_EngTemp.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_EngTemp.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_ExtTemp.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_ExtTemp.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_IntTemp.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_IntTemp.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_PodTemp.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_PodTemp.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_ShieldTemp.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_ShieldTemp.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_SolarPanelEfficiency.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_SolarPanelEfficiency.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_SRB.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_SRB.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_SurfTemp.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_SurfTemp.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_XENON.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Gauge_XENON.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Slope_Angle_Indicator.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Slope_Angle_Indicator.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Thrust_Limit_Indicator.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_NASA_Thrust_Limit_Indicator.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_NodeBurnTimer.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_NodeBurnTimer.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_FMS_ChangeAP.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_FMS_ChangeAP.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_FMS_ChangePE.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_FMS_ChangePE.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_FMS_Circularize.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_FMS_Circularize.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_FMS_EditNode.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_FMS_EditNode.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_FMS_MatchPlane.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_FMS_MatchPlane.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_FMS_MatchSpeed.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_FMS_MatchSpeed.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_FMS_OrbInsertion.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_FMS_OrbInsertion.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_RefNextDock.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_RefNextDock.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_ResetThrustLimit.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_ResetThrustLimit.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_TargetDock.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_TargetDock.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_ThrottleCut.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_ThrottleCut.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_ThrottleFull.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_pb_ThrottleFull.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_rheo_CP01.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_rheo_CP01.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_rheo_CP02.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_rheo_CP02.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_rheo_Utility.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_rheo_Utility.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_SignalLamp_RCS.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_SignalLamp_RCS.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_SignalLamp_SAS.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_SignalLamp_SAS.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_SmallPlate_IMPACT.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_SmallPlate_IMPACT.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_SmallPlate_MNODE.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_SmallPlate_MNODE.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_SmallPlate_TERMINALBURN.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_SmallPlate_TERMINALBURN.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_STS_EventTimer_Indicator.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_STS_EventTimer_Indicator.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_STS_EventTimer_tggl_SetReset_T1_G1_D.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_STS_EventTimer_tggl_SetReset_T1_G1_D.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_STS_FMSCompBuffer_Indicator.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_STS_FMSCompBuffer_Indicator.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_STS_FMSCompBuffer_TWs.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_STS_FMSCompBuffer_TWs.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_STS_MissionTimer_Indicator.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_STS_MissionTimer_Indicator.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_Switch_v1_EngineMode.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_Switch_v1_EngineMode.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_Switch_v1_HighG_Power.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_Switch_v1_HighG_Power.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_Switch_v1_Slope_Power.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_Switch_v1_Slope_Power.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_Switch_v1_Tumble_Power.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_Switch_v1_Tumble_Power.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_swRotary_6pos_KACModeSelA.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_swRotary_6pos_KACModeSelA.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_swRotary_6pos_KACModeSelB.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_swRotary_6pos_KACModeSelB.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_swRotary_6pos_KACThresholdSel.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_swRotary_6pos_KACThresholdSel.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_swRotary_STS_FMS_EditMode.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_swRotary_STS_FMS_EditMode.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_swRotary_STS_FMS_Scale.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_swRotary_STS_FMS_Scale.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_ARM_CHUTES_T1_G3_B15_C1G.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_ARM_CHUTES_T1_G3_B15_C1G.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_CUT_CHUTES_T1_G3_B15_C1Y.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_CUT_CHUTES_T1_G3_B15_C1Y.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_DEPLOY_CHUTES_T1_G3_B15_C1G.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_DEPLOY_CHUTES_T1_G3_B15_C1G.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_GEAR_CTRL_T5W_B14_S.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_GEAR_CTRL_T5W_B14_S.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_KAC_SetReset.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_KAC_SetReset.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_STS_FMS_Apsis.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_STS_FMS_Apsis.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_STS_FMS_OwnShip.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_STS_FMS_OwnShip.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_STS_FMS_SetReset.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_STS_FMS_SetReset.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_STS_MissionTimer_MODE.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_STS_MissionTimer_MODE.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_UNLOCK_RES_FUEL.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_UNLOCK_RES_FUEL.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_UNLOCK_RES_Monoprop.cfg">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\MAS_tggl_UNLOCK_RES_Monoprop.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\Cryo_MissionControl.cfg">
+      <Link>GameData\ASETCryoProps\Spaces\Cryo_MissionControl.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\Cryo_Mk2Pod.cfg">
+      <Link>GameData\ASETCryoProps\Spaces\Cryo_Mk2Pod.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\DarkMissionControl\MissionControl.mu">
+      <Link>GameData\ASETCryoProps\Spaces\DarkMissionControl\MissionControl.mu</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\DarkMissionControl\MissionControlTexture.mbm">
+      <Link>GameData\ASETCryoProps\Spaces\DarkMissionControl\MissionControlTexture.mbm</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\DarkMk1-3Pod\model.mu">
+      <Link>GameData\ASETCryoProps\Spaces\DarkMk1-3Pod\model.mu</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\DarkMk2LanderCan\mk2LanderCanInternal.mu">
+      <Link>GameData\ASETCryoProps\Spaces\DarkMk2LanderCan\mk2LanderCanInternal.mu</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\DarkMk2LanderCan\pilot Seat.mbm">
+      <Link>GameData\ASETCryoProps\Spaces\DarkMk2LanderCan\pilot Seat.mbm</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\MissionControlSteamGauge.cfg">
+      <Link>GameData\ASETCryoProps\Spaces\MissionControlSteamGauge.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\MissionControlSteamGaugeMAS.cfg">
+      <Link>GameData\ASETCryoProps\Spaces\MissionControlSteamGaugeMAS.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\Mk1-3PodSteamGauge.cfg">
+      <Link>GameData\ASETCryoProps\Spaces\Mk1-3PodSteamGauge.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\Mk1-3PodSteamGaugeMAS.cfg">
+      <Link>GameData\ASETCryoProps\Spaces\Mk1-3PodSteamGaugeMAS.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\Mk1CockpitInlineSteamGaugeMAS.cfg">
+      <Link>GameData\ASETCryoProps\Spaces\Mk1CockpitInlineSteamGaugeMAS.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\mk2LCanSteamGauge.cfg">
+      <Link>GameData\ASETCryoProps\Spaces\mk2LCanSteamGauge.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\mk2LCanSteamGaugeMAS.cfg">
+      <Link>GameData\ASETCryoProps\Spaces\mk2LCanSteamGaugeMAS.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\Mk2PodSteamGauge.cfg">
+      <Link>GameData\ASETCryoProps\Spaces\Mk2PodSteamGauge.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\Mk2PodSteamGaugeMAS.cfg">
+      <Link>GameData\ASETCryoProps\Spaces\Mk2PodSteamGaugeMAS.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Switches\tggl_AVAS_T1-G1-B1-S.cfg">
+      <Link>GameData\ASETCryoProps\Switches\tggl_AVAS_T1-G1-B1-S.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Switches\tggl_CUT_CHUTES_T1-G3-B15-C1Y-S.cfg">
+      <Link>GameData\ASETCryoProps\Switches\tggl_CUT_CHUTES_T1-G3-B15-C1Y-S.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Switches\tggl_DEPLOY_CHUTES_T1-G3-B15-C1G-S.cfg">
+      <Link>GameData\ASETCryoProps\Switches\tggl_DEPLOY_CHUTES_T1-G3-B15-C1G-S.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Switches\tggl_GPWS_T1-G1-B1-S.cfg">
+      <Link>GameData\ASETCryoProps\Switches\tggl_GPWS_T1-G1-B1-S.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Switches\tggl_HIGH_G_T1-G1-B1-S.cfg">
+      <Link>GameData\ASETCryoProps\Switches\tggl_HIGH_G_T1-G1-B1-S.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Switches\tggl_SLOPE_T1-G1-B1-S.cfg">
+      <Link>GameData\ASETCryoProps\Switches\tggl_SLOPE_T1-G1-B1-S.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Switches\tggl_TUMBLE_T1-G1-B1-S.cfg">
+      <Link>GameData\ASETCryoProps\Switches\tggl_TUMBLE_T1-G1-B1-S.cfg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="GameData\MOARdV\AvionicsSystems\AvionicsSystems.dll" />
+    <Content Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Indicators\BurnTimer\ClockTimerDiffuse.png">
+      <Link>GameData\ASETCryoProps\Indicators\BurnTimer\ClockTimerDiffuse.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Indicators\ImpactTimer\ClockTimerDiffuse.png">
+      <Link>GameData\ASETCryoProps\Indicators\ImpactTimer\ClockTimerDiffuse.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\MASPatches\NewProps\FMSFunctions.txt">
+      <Link>GameData\ASETCryoProps\MASPatches\NewProps\FMSFunctions.txt</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\DarkMk1-3Pod\Mk1_3_IvaProps_Diffuse.dds">
+      <Link>GameData\ASETCryoProps\Spaces\DarkMk1-3Pod\Mk1_3_IvaProps_Diffuse.dds</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\DarkMk1-3Pod\Mk1_3_IvaProps_Normal.dds">
+      <Link>GameData\ASETCryoProps\Spaces\DarkMk1-3Pod\Mk1_3_IvaProps_Normal.dds</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\DarkMk1-3Pod\Mk1_3_IvaShell_Diffuse.dds">
+      <Link>GameData\ASETCryoProps\Spaces\DarkMk1-3Pod\Mk1_3_IvaShell_Diffuse.dds</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\DarkMk1-3Pod\Mk1_3_IvaShell_Emissive.dds">
+      <Link>GameData\ASETCryoProps\Spaces\DarkMk1-3Pod\Mk1_3_IvaShell_Emissive.dds</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\DarkMk1-3Pod\Mk1_3_IvaShell_Normal.dds">
+      <Link>GameData\ASETCryoProps\Spaces\DarkMk1-3Pod\Mk1_3_IvaShell_Normal.dds</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\DarkMk1-3Pod\pilot Seat.dds">
+      <Link>GameData\ASETCryoProps\Spaces\DarkMk1-3Pod\pilot Seat.dds</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\DarkMk2LanderCan\mk2LanderCan_props_diffuse.dds">
+      <Link>GameData\ASETCryoProps\Spaces\DarkMk2LanderCan\mk2LanderCan_props_diffuse.dds</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\DarkMk2LanderCan\mk2LanderCan_props_normal.dds">
+      <Link>GameData\ASETCryoProps\Spaces\DarkMk2LanderCan\mk2LanderCan_props_normal.dds</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\DarkMk2LanderCan\mk2LanderCan_shell_diffuse.dds">
+      <Link>GameData\ASETCryoProps\Spaces\DarkMk2LanderCan\mk2LanderCan_shell_diffuse.dds</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="D:\KSPMod\IVAInstall\Minimal Mods\Kerbal Space Program\GameData\ASETCryoProps\Spaces\DarkMk2LanderCan\mk2LanderCan_shell_normal.dds">
+      <Link>GameData\ASETCryoProps\Spaces\DarkMk2LanderCan\mk2LanderCan_shell_normal.dds</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="GameData\MOARdV\AvionicsSystems\Icons\toolbar_disabled.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\MOARdV\AvionicsSystems\Icons\toolbar_enabled.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\MOARdV\AvionicsSystems\MoonSharp.Interpreter.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\MOARdV\AvionicsSystems\PluginData\digital-7-readme.txt">
@@ -550,7 +1061,19 @@
     <None Include="GameData\MOARdV\AvionicsSystems\Localization\en-us.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="GameData\MOARdV\AvionicsSystems\mas-font.assetbundle">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="GameData\MOARdV\AvionicsSystems\mas-linux.assetbundle">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="GameData\MOARdV\AvionicsSystems\MAS-NavAid.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="GameData\MOARdV\AvionicsSystems\mas-osx.assetbundle">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="GameData\MOARdV\AvionicsSystems\mas-windows.assetbundle">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="GameData\MOARdV\AvionicsSystems\MASSCANsat.cfg">
