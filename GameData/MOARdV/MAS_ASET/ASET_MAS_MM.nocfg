@@ -1,0 +1,681 @@
+@INTERNAL[*]:NEEDS[AvionicsSystems]
+{
+	// ASET_Avionics\ModernPack\ASET_B_Compass
+	@PROP[ASET_B_Compass],*
+	{
+		@name=MAS_ASET_B_Compass
+	}
+
+	// ASET_B-Knob-2pos-APU
+	@PROP[ASET_B-Knob-2pos-APU],*
+	{
+		@name=MAS_ASET_B-Knob-2pos-APU
+	}
+	
+	// ASET_B-AutoSpeedBrake
+	@PROP[ASET_B-AutoSpeedBrake],*
+	{
+		@name=MAS_ASET_B-AutoSpeedBrake
+	}
+	
+	// ASET_B-Knob-2pos-Backlight
+	@PROP[ASET_B-Knob-2pos-Backlight],*
+	{
+		@name=MAS_ASET_B-Knob-2pos-Backlight
+	}
+
+	// ASET_Avionics/ModernPack/ASET_B-Knob/ASET_B-Knob_Model
+	@PROP[ASET_B-EngineModeTggl],*
+	{
+		@name=MAS_ASET_B-EngineModeTggl
+	}
+	
+	// ASET_B-Knob-4pos-GPS_NAV_SYS
+	@PROP[ASET_B-Knob-4pos-GPS_NAV_SYS],*
+	{
+		@name=MAS_ASET_B-Knob-4pos-GPS_NAV_SYS
+	}
+	
+	// ASET_B-Knob-5pos-BrakeForce_Selector
+	@PROP[ASET_B-Knob-5pos-BrakeForce_Selector],*
+	{
+		@name=MAS_ASET_B-Knob-5pos-BrakeForce_Selector
+	}
+	
+	// ASET_B-Knob-5pos-ElecOutput_Selector
+	@PROP[ASET_B-Knob-5pos-ElecOutput_Selector],*
+	{
+		@name=MAS_ASET_B-Knob-5pos-ElecOutput_Selector
+	}
+	
+	// ASET_B-Knob-THRUST_LIMIT
+	@PROP[ASET_B-Knob-THRUST_LIMIT],*
+	{
+		@name=MAS_ASET_B-Knob-THRUST_LIMIT
+	}
+	
+	// ASET_B-ThrottleQuadrant
+	@PROP[ASET_B-ThrottleQuadrant],*
+	{
+		@name=MAS_ASET_B-ThrottleQuadrant
+	}
+	
+	// ASET_COMM_Radio
+	@PROP[ASET_COMM_Radio],*
+	{
+		@name=MAS_ASET_COMM_Radio
+	}
+	
+	// ASET_DME_Display
+	@PROP[ASET_DME_Display],*
+	{
+		@name=MAS_ASET_DME_Display
+	}
+	
+	// ASET_FlapsCtrl
+	@PROP[ASET_FlapsCtrl],*
+	{
+		@name=MAS_ASET_FlapsCtrl
+	}
+	
+	// ASET_MIP_Display
+	@PROP[ASET_MIP_Display],*
+	{
+		@name=MAS_ASET_MIP_Display
+	}
+	
+	// ASET_MIP_PFD
+	@PROP[ASET_MIP_PFD],*
+	{
+		@name=MAS_ASET_MIP_PFD
+	}
+	
+	// ASET_NAV_1_Radio
+	@PROP[ASET_NAV_1_Radio],*
+	{
+		@name=MAS_ASET_NAV_1_Radio
+	}
+	
+	// ASET_NAV_2_Radio
+	@PROP[ASET_NAV_2_Radio],*
+	{
+		@name=MAS_ASET_NAV_2_Radio
+	}
+	
+	// ASET_SpoilersLever
+	@PROP[ASET_SpoilersLever],*
+	{
+		@name=MAS_ASET_SpoilersLever
+	}
+	
+	// ASET_Yaw_Dumper
+	@PROP[ASET_Yaw_Dumper],*
+	{
+		@name=MAS_ASET_Yaw_Damper
+	}
+	
+	// ASET_Yoke_V01
+	@PROP[ASET_Yoke_V01],*
+	{
+		@name=MAS_ASET_Yoke_V01
+	}
+	
+	// ASET_Heading
+	@PROP[ASET_Heading],*
+	{
+		@name=MAS_ASET_Heading
+	}
+	
+	// ASET_HSI
+	@PROP[ASET_HSI],*
+	{
+		@name=MAS_ASET_HSI
+	}
+	
+	// ASET_LG_Lever
+	@PROP[ASET_LG_Lever],*
+	{
+		@name=MAS_ASET_LG_Lever
+	}
+	
+	// ASET_RMI_2_Needle
+	@PROP[ASET_RMI_2_Needle],*
+	{
+		@name=MAS_ASET_RMI_2_Needle
+	}
+	
+	// ASET_SpoilersLever
+	@PROP[ASET_SpoilersLever],*
+	{
+		@name=MAS_ASET_SpoilersLever
+	}
+	
+	// ASET_Thrust_Throttle
+	@PROP[ASET_Thrust_Throttle],*
+	{
+		@name=MAS_ASET_Thrust_Throttle
+	}
+	
+	// ASET_TrimIndicator
+	@PROP[ASET_TrimIndicator],*
+	{
+		@name=MAS_ASET_TrimIndicator
+	}
+	
+	// ASET_TurnCoordinator
+	@PROP[ASET_TurnCoordinator],*
+	{
+		@name=MAS_ASET_TurnCoordinator
+	}
+	
+	// ASET_VPG_SSc_ATM_DEPTH
+	@PROP[ASET_VPG_SSc_ATM_DEPTH],*
+	{
+		@name=MAS_ASET_VPG_SSc_ATM_DEPTH
+	}
+	
+	// GPS_Nav_LCD_Display
+	@PROP[GPS_Nav_LCD_Display],*
+	{
+		@name=MAS_GPS_Nav_LCD_Display
+	}
+	
+	// SeatV2
+	@PROP[SeatV2],*
+	{
+		@name=MAS_SeatV2
+	}
+	
+	// STS_EventTimer_Indicator
+	@PROP[STS_EventTimer_Indicator],*
+	{
+		@name=MAS_STS_EventTimer_Indicator
+	}
+	
+	// tggl_STS_EventTimer_MODE_T1-G1-B2-D
+	@PROP[tggl_STS_EventTimer_MODE_T1-G1-B2-D],*
+	{
+		@name=MAS_tggl_STS_EventTimer_MODE_T1-G1-B2-D
+	}
+	
+	// tggl_STS_EventTimer_SET_RESET_T1-G1-B2-D
+	@PROP[tggl_STS_EventTimer_SET_RESET_T1-G1-B2-D],*
+	{
+		@name=MAS_tggl_STS_EventTimer_SET_RESET_T1-G1-B2-D
+	}
+	
+	// tggl_STS_EventTimer_START_STOP_T1-G1-B2-D
+	@PROP[tggl_STS_EventTimer_START_STOP_T1-G1-B2-D],*
+	{
+		@name=MAS_tggl_STS_EventTimer_START_STOP_T1-G1-B2-D
+	}
+	
+	// swTumbler_ASET_NOSE_UP_TRIM_ADJ
+	@PROP[swTumbler_ASET_NOSE_UP_TRIM_ADJ],*
+	{
+		@name=MAS_swTumbler_ASET_NOSE_UP_TRIM_ADJ
+	}
+	
+	// swRotary_2pos_EngineMode
+	@PROP[swRotary_2pos_EngineMode],*
+	{
+		@name=MAS_swRotary_2pos_EngineMode
+	}
+	
+	// tggl_ABORT_T1-G3-B15-C1Y-S
+	@PROP[tggl_ABORT_T1-G3-B15-C1Y-S],*
+	{
+		@name=MAS_tggl_ABORT_T1-G3-B15-C1Y-S
+	}
+	
+	// tggl_GEAR_CTRL_T5W-B14-S
+	@PROP[tggl_GEAR_CTRL_T5W-B14-S],*
+	{
+		@name=MAS_tggl_GEAR_CTRL_T5W-B14-S
+	}
+	
+	// tggl_RESET_TRIM_T5M-B14-S
+	@PROP[tggl_RESET_TRIM_T5M-B14-S],*
+	{
+		@name=MAS_tggl_RESET_TRIM_T5M-B14-S
+	}
+	
+	// tggl_SEAT_POSITION_T4M-S
+	@PROP[tggl_SEAT_POSITION_T4M-S],*
+	{
+		@name=MAS_tggl_SEAT_POSITION_T4M-S
+	}
+	
+	// tggl_STAGE_LOCK_T4W-B14-S
+	@PROP[tggl_STAGE_LOCK_T4W-B14-S],*
+	{
+		@name=MAS_tggl_STAGE_LOCK_T4W-B14-S
+	}
+	
+	// tggl_STAGE_T1-G3-B15-S
+	@PROP[tggl_STAGE_T1-G3-B15-S],*
+	{
+		@name=MAS_tggl_STAGE_T1-G3-B15-S
+	}
+	
+	// tggl_THRUST_REVERSER_T4W-G15-S
+	@PROP[tggl_THRUST_REVERSER_T4W-G15-S],*
+	{
+		@name=MAS_tggl_THRUST_REVERSER_T4W-G15-S
+	}
+	
+	// tggl_UNDOCK_T1-G3-B4-C1Y-S
+	@PROP[tggl_UNDOCK_T1-G3-B4-C1Y-S],*
+	{
+		@name=MAS_tggl_UNDOCK_T1-G3-B4-C1Y-S
+	}
+	
+	// pb_AVAS_ON-OFF-FT-B2
+	@PROP[pb_AVAS_ON-OFF-FT-B2],*
+	{
+		@name=MAS_pb_AVAS_ON-OFF-FT-B2
+	}
+	
+	// pb_GPWS_ON-OFF-SH01-B6-C2
+	@PROP[pb_GPWS_ON-OFF-SH01-B6-C2],*
+	{
+		@name=MAS_pb_GPWS_ON-OFF-SH01-B6-C2
+	}
+	
+	// pb_WARN_HIGH_G_ON-OFF-FT-B2
+	@PROP[pb_WARN_HIGH_G_ON-OFF-FT-B2],*
+	{
+		@name=MAS_pb_WARN_HIGH_G_ON-OFF-FT-B2
+	}
+	
+	// pb_WARN_SLOPE_ON-OFF-FT-B2
+	@PROP[pb_WARN_SLOPE_ON-OFF-FT-B2],*
+	{
+		@name=MAS_pb_WARN_SLOPE_ON-OFF-FT-B2
+	}
+	
+	// pb_WARN_TUMBLE_ON-OFF-FT-B2
+	@PROP[pb_WARN_TUMBLE_ON-OFF-FT-B2],*
+	{
+		@name=MAS_pb_WARN_TUMBLE_ON-OFF-FT-B2
+	}
+	
+	// pb_Thrust_Limiter_Off
+	@PROP[pb_Thrust_Limiter_Off],*
+	{
+		@name=MAS_pb_Thrust_Limiter_Off
+	}
+	
+	// pb_PITCH_INDICATOR-SVI01
+	@PROP[pb_PITCH_INDICATOR-SVI01],*
+	{
+		@name=MAS_pb_PITCH_INDICATOR-SVI01
+	}
+	
+	// pb_ROLL_INDICATOR-SVI01
+	@PROP[pb_ROLL_INDICATOR-SVI01],*
+	{
+		@name=MAS_pb_ROLL_INDICATOR-SVI01
+	}
+	
+	// pb_YAW_INDICATOR-SVI01
+	@PROP[pb_YAW_INDICATOR-SVI01],*
+	{
+		@name=MAS_pb_YAW_INDICATOR-SVI01
+	}
+	
+	// ALCORVentilator01
+	@PROP[ALCORVentilator01],*
+	{
+		@name=MAS_ALCORVentilator01
+	}
+	
+	// ASET_B-Knob-LD_Backlight
+	@PROP[ASET_B-Knob-LD_Backlight],*
+	{
+		@name=MAS_ASET_B-Knob-LD_Backlight
+	}
+	
+	// ASET_B-Knob_LD_DOME
+	@PROP[ASET_B-Knob_LD_DOME],*
+	{
+		@name=MAS_ASET_B-Knob_LD_DOME
+	}
+	
+	// ASET_B-Knob_LD_ENGINEER
+	@PROP[ASET_B-Knob_LD_ENGINEER],*
+	{
+		@name=MAS_ASET_B-Knob_LD_ENGINEER
+	}
+	
+	// ASET_B-Knob_LD_FLOOD
+	@PROP[ASET_B-Knob_LD_FLOOD],*
+	{
+		@name=MAS_ASET_B-Knob_LD_FLOOD
+	}
+	
+	// ASET_B-Knob_LD_UTILITY
+	@PROP[ASET_B-Knob_LD_UTILITY],*
+	{
+		@name=MAS_ASET_B-Knob_LD_UTILITY
+	}
+
+	// ASET_B-Knob_LD_COCKPIT
+	@PROP[ASET_B-Knob_LD_COCKPIT],*
+	{
+		@name=MAS_ASET_B-Knob_LD_COCKPIT
+	}
+
+	// ASET_B-Knob_LD_CP-CMD
+	@PROP[ASET_B-Knob_LD_CP-CMD],*
+	{
+		@name=MAS_ASET_B-Knob_LD_CP-CMD
+	}
+	
+	// ASET_B-Knob_LD_CP-FO
+	@PROP[ASET_B-Knob_LD_CP-FO],*
+	{
+		@name=MAS_ASET_B-Knob_LD_CP-FO
+	}
+	
+	// ASET_B-Knob_LD_CP-LEFT
+	@PROP[ASET_B-Knob_LD_CP-LEFT],*
+	{
+		@name=MAS_ASET_B-Knob_LD_CP-LEFT
+	}
+
+	// ASET_B-Knob_LD_CP-PORT
+	@PROP[ASET_B-Knob_LD_CP-PORT],*
+	{
+		@name=MAS_ASET_B-Knob_LD_CP-PORT
+	}
+
+	// ASET_B-Knob_LD_CP-RIGHT
+	@PROP[ASET_B-Knob_LD_CP-RIGHT],*
+	{
+		@name=MAS_ASET_B-Knob_LD_CP-RIGHT
+	}
+
+	// ASET_B-Knob_LD_CP-STARBOARD
+	@PROP[ASET_B-Knob_LD_CP-STARBOARD],*
+	{
+		@name=MAS_ASET_B-Knob_LD_CP-STARBOARD
+	}
+
+	// ASET_B-Knob_LD-SQUAD_mk1CockpitLights
+	@PROP[ASET_B-Knob_LD-SQUAD_mk1CockpitLights],*
+	{
+		@name=MAS_ASET_B-Knob_LD-SQUAD_mk1CockpitLights
+	}
+
+	// ASET_B-Knob_LD-SQUAD_mk1CockpitPanelLights
+	@PROP[ASET_B-Knob_LD-SQUAD_mk1CockpitPanelLights],*
+	{
+		@name=MAS_ASET_B-Knob_LD-SQUAD_mk1CockpitPanelLights
+	}
+
+	@PROP[SwitcherCover_EPG],*
+	{
+		@name=MAS_SwitcherCover_EPG
+	}
+
+	@PROP[swTumbler_V2_EPG],*
+	{
+		@name=MAS_swTumbler_V2_EPG
+	}
+
+	@PROP[ASET_VPG_SSc_Xenon],*
+	{
+		@name=MAS_ASET_VPG_SSc_Xenon
+	}
+
+	@PROP[ASET_VPG_SSc_SRB],*
+	{
+		@name=MAS_ASET_VPG_SSc_SRB
+	}
+
+	@PROP[ASET_VPG_SSc_Oxid],*
+	{
+		@name=MAS_ASET_VPG_SSc_Oxid
+	}
+
+	@PROP[ASET_VPG_SSc_Mono],*
+	{
+		@name=MAS_ASET_VPG_SSc_Mono
+	}
+
+	@PROP[ASET_VPG_SSc_Fuel],*
+	{
+		@name=MAS_ASET_VPG_SSc_Fuel
+	}
+
+	@PROP[ASET_VPG_SSc_Elec],*
+	{
+		@name=MAS_ASET_VPG_SSc_Elec
+	}
+
+	@PROP[ASET_VPG_SSc_Ablative],*
+	{
+		@name=MAS_ASET_VPG_SSc_Ablative
+	}
+
+	@PROP[tggl_LIGHTS_T4M-S],*
+	{
+		@name=MAS_tggl_LIGHTS_T4M-S
+	}
+	
+	@PROP[ASET_AIRCRAFT_INT_TempGauge],*
+	{
+		@name=MAS_ASET_AIRCRAFT_INT_TempGauge
+	}
+
+	@PROP[ASET_AIRCRAFT_SKIN_TempGauge],*
+	{
+		@name=MAS_ASET_AIRCRAFT_SKIN_TempGauge
+	}
+
+	@PROP[tggl_RESERVES_LOCK_T4W-B13-S],*
+	{
+		@name=MAS_tggl_RESERVES_LOCK_T4W-B13-S
+	}
+
+	@PROP[Est_FlightTimeAndRange_Display],*
+	{
+		@name=MAS_Est_FlightTimeAndRange_Display
+	}
+
+	@PROP[ASET_Elec_Output],*
+	{
+		@name=MAS_ASET_Elec_Output
+	}
+
+	@PROP[tggl_NOSE_TRIM_T4M-D],*
+	{
+		@name=MAS_tggl_NOSE_TRIM_T4M-D
+	}
+
+	@PROP[ASET_BrakeForceGauge],*
+	{
+		@name=MAS_ASET_BrakeForceGauge
+	}
+
+	@PROP[ASET_AIRCRAFT_ENGINE_TempGauge],*
+	{
+		@name=MAS_ASET_AIRCRAFT_ENGINE_TempGauge
+	}
+
+	@PROP[ASET_MachNumber],*
+	{
+		@name=MAS_ASET_MachNumber
+	}
+
+	@PROP[tggl_BRAKES_T4R-B13-S],*
+	{
+		@name=MAS_tggl_BRAKES_T4R-B13-S
+	}
+
+	@PROP[ASET_Thrust_kN],*
+	{
+		@name=MAS_ASET_Thrust_kN
+	}
+
+	@PROP[tggl_SAS_SPD_MODE_T4W-B14-S],*
+	{
+		@name=MAS_tggl_SAS_SPD_MODE_T4W-B14-S
+	}
+
+	@PROP[tggl_AG01_T4W-S],*
+	{
+		@name=MAS_tggl_AG01_T4W-S
+	}
+
+	@PROP[tggl_AG02_T4W-S],*
+	{
+		@name=MAS_tggl_AG02_T4W-S
+	}
+
+	@PROP[tggl_AG03_T4W-S],*
+	{
+		@name=MAS_tggl_AG03_T4W-S
+	}
+
+	@PROP[tggl_AG04_T4W-S],*
+	{
+		@name=MAS_tggl_AG04_T4W-S
+	}
+
+	@PROP[tggl_AG05_T4W-S],*
+	{
+		@name=MAS_tggl_AG05_T4W-S
+	}
+
+	@PROP[tggl_AG06_T4W-S],*
+	{
+		@name=MAS_tggl_AG06_T4W-S
+	}
+
+	@PROP[tggl_AG07_T4W-S],*
+	{
+		@name=MAS_tggl_AG07_T4W-S
+	}
+
+	@PROP[tggl_AG08_T4W-S],*
+	{
+		@name=MAS_tggl_AG08_T4W-S
+	}
+
+	@PROP[tggl_AG09_T4W-S],*
+	{
+		@name=MAS_tggl_AG09_T4W-S
+	}
+
+	@PROP[tggl_AG10_T4W-S],*
+	{
+		@name=MAS_tggl_AG10_T4W-S
+	}
+
+	@PROP[pb_sas_STAB-FD2-B2],*
+	{
+		@name=MAS_pb_sas_STAB-FD2-B2
+	}
+
+	@PROP[pb_sas_TARGET-FD2-B2],*
+	{
+		@name=MAS_pb_sas_TARGET-FD2-B2
+	}
+
+	@PROP[pb_sas_RADIALOUT-FD2-B2],*
+	{
+		@name=MAS_pb_sas_RADIALOUT-FD2-B2
+	}
+
+	@PROP[pb_sas_ANTINORMAL-FD2-B2],*
+	{
+		@name=MAS_pb_sas_ANTINORMAL-FD2-B2
+	}
+
+	@PROP[pb_sas_ANTITARGET-FD2-B2],*
+	{
+		@name=MAS_pb_sas_ANTITARGET-FD2-B2
+	}
+
+	@PROP[pb_sas_RADIALIN-FD2-B2],*
+	{
+		@name=MAS_pb_sas_RADIALIN-FD2-B2
+	}
+
+	@PROP[pb_sas_PROGRADE-FD2-B2],*
+	{
+		@name=MAS_pb_sas_PROGRADE-FD2-B2
+	}
+
+	@PROP[pb_sas_NORMAL-FD2-B2],*
+	{
+		@name=MAS_pb_sas_NORMAL-FD2-B2
+	}
+
+	@PROP[pb_sas_RETROGRADE-FD2-B2],*
+	{
+		@name=MAS_pb_sas_RETROGRADE-FD2-B2
+	}
+
+	@PROP[pb_sas_MANEUVER-FD2-B2],*
+	{
+		@name=MAS_pb_sas_MANEUVER-FD2-B2
+	}
+
+	@PROP[pb_SAS_ON-FD1-B2],*
+	{
+		@name=MAS_pb_SAS_ON-FD1-B2
+	}
+
+	@PROP[pb_PRECISE_CTRL-FD2-B2],*
+	{
+		@name=MAS_pb_PRECISE_CTRL-FD2-B2
+	}
+
+	@PROP[pb_GIMBAL_LOCK-FD1-B2],*
+	{
+		@name=MAS_pb_GIMBAL_LOCK-FD1-B2
+	}
+
+	@PROP[ASET_IntakeAir],*
+	{
+		@name=MAS_ASET_IntakeAir
+	}
+
+	@PROP[ASET_SignalLamp_NAV_LOM],*
+	{
+		@name=MAS_ASET_SignalLamp_NAV_LOM
+	}
+
+	@PROP[ASET_SignalLamp_NAV_LMM],*
+	{
+		@name=MAS_ASET_SignalLamp_NAV_LMM
+	}
+
+	@PROP[ASET_SignalLamp_NAV_LIM],*
+	{
+		@name=MAS_ASET_SignalLamp_NAV_LIM
+	}
+
+	@PROP[pb_CHUTE_CUT-F02-C3R],*
+	{
+		@name=MAS_pb_CHUTE_CUT-F02-C3R
+	}
+
+	@PROP[pb_CHUTE_DEPLOY-FD2-C3R],*
+	{
+		@name=MAS_pb_CHUTE_DEPLOY-FD2-C3R
+	}
+
+	@PROP[CrewManual_FlightPlan],*
+	{
+		@name=MAS_CrewManual_FlightPlan
+	}
+
+	@PROP[CrewManual_TakeOffChecklist],*
+	{
+		@name=MAS_CrewManual_TakeOffChecklist
+	}
+}
