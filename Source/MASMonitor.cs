@@ -90,7 +90,7 @@ namespace AvionicsSystems
         /// <param name="cam"></param>
         private void EnablePage(Camera cam)
         {
-            if (cam.Equals(screenCamera))
+            if (currentPage != null && cam.Equals(screenCamera))
             {
                 currentPage.RenderPage(true);
             }
@@ -105,7 +105,7 @@ namespace AvionicsSystems
         /// <param name="cam"></param>
         private void DisablePage(Camera cam)
         {
-            if (cam.Equals(screenCamera))
+            if (currentPage != null && cam.Equals(screenCamera))
             {
                 currentPage.RenderPage(false);
             }
