@@ -1718,7 +1718,12 @@ namespace AvionicsSystems
                 Type mjFuelFlowSimulationStats_t = mjFuelFlowSimulation_t.GetNestedType("Stats");
                 if (mjFuelFlowSimulationStats_t == null)
                 {
-                    throw new NotImplementedException("mjFuelFlowSimulationStats_t");
+		    // Stats renamed to FuelStats in 2.12.3
+		    mjFuelFlowSimulationStats_t = mjFuelFlowSimulation_t.GetNestedType("FuelStats");
+		    if (mjFuelFlowSimulationStats_t == null)
+		    {
+			throw new NotImplementedException("mjFuelFlowSimulationStats_t");
+		    }
                 }
 
                 //--- MechJebCore
@@ -1992,7 +1997,12 @@ namespace AvionicsSystems
                 StatsStageDv = mjFuelFlowSimulationStats_t.GetField("deltaV", BindingFlags.Instance | BindingFlags.Public);
                 if (StatsStageDv == null)
                 {
-                    throw new NotImplementedException("mjStageDv");
+		    // Stats.deltaV renamed to FuelStats.DeltaV in 2.12.3
+		    StatsStageDv = mjFuelFlowSimulationStats_t.GetField("DeltaV", BindingFlags.Instance | BindingFlags.Public);
+		    if (StatsStageDv == null)
+		    {
+			throw new NotImplementedException("mjStageDv");
+		    }
                 }
                 //Utility.LogMessage(StatsStageDv, "mjStageDv type is {0}", StatsStageDv.FieldType.Name);
                 GetStageDv = DynamicMethodFactory.CreateGetField<object, object>(StatsStageDv);
