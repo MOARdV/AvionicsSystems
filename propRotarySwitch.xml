@@ -459,6 +459,38 @@
 			</INT_LIGHT>
 		</prop>
 		<prop>
+			<name>MAS_rheo_CP01Light</name>
+			<style>Rheostat Light</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("CP01_Light", 0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("CP01_Light", -0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("CP01_Light")</variable>
+			</ROTATION>
+			<TEXT_LABEL>
+				<text>COCKPIT$$$1</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_rheo_CP02Light</name>
+			<style>Rheostat Light</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("CP02_Light", 0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("CP02_Light", -0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("CP02_Light")</variable>
+			</ROTATION>
+			<TEXT_LABEL>
+				<text>COCKPIT$$$2</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
 			<name>MAS_rheo_LeftCabinLight</name>
 			<style>Rheostat Light</style>
 			<COLLIDER_EVENT id="0">
@@ -504,6 +536,70 @@
 			</ROTATION>
 			<TEXT_LABEL>
 				<text>UPPER$$$CABIN</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_rheo_TunnelLight</name>
+			<style>Rheostat Light</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("Tunnel_Light", 0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("Tunnel_Light", -0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("Tunnel_Light")</variable>
+			</ROTATION>
+			<TEXT_LABEL>
+				<text>TUNNEL</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_rheo_EngineerLight</name>
+			<style>Rheostat Light</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("Engineer_Light", 0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("Engineer_Light", -0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("Engineer_Light")</variable>
+			</ROTATION>
+			<TEXT_LABEL>
+				<text>ENGINEER$$$DECK</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_rheo_FloodLight</name>
+			<style>Rheostat Light</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("Flood_Light", 0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("Flood_Light", -0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("Flood_Light")</variable>
+			</ROTATION>
+			<TEXT_LABEL>
+				<text>FLOOD$$$LIGHT</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_rheo_UtilityLight</name>
+			<style>Rheostat Light</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("Utility_Light", 0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("Utility_Light", -0.05, 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<ROTATION>
+				<variable>fc.GetPersistentAsNumber("Utility_Light")</variable>
+			</ROTATION>
+			<TEXT_LABEL>
+				<text>UTILITY$$$LIGHT</text>
 			</TEXT_LABEL>
 		</prop>
 
@@ -1226,10 +1322,10 @@
 			<name>MAS_swRotary_4pos_AltitudeWarning</name>
 			<style>4pos</style>
 			<COLLIDER_EVENT id="0">
-				<onClick>fc.SetPersistentClamped("ALCOR_ALT_WARN_INPUT", -100, 0, 300)</onClick>
+				<onClick>fc.AddPersistentClamped("ALCOR_ALT_WARN_INPUT", -100, 0, 300)</onClick>
 			</COLLIDER_EVENT>
 			<COLLIDER_EVENT id="1">
-				<onClick>fc.SetPersistentClamped("ALCOR_ALT_WARN_INPUT", 100, 0, 300)</onClick>
+				<onClick>fc.AddPersistentClamped("ALCOR_ALT_WARN_INPUT", 100, 0, 300)</onClick>
 			</COLLIDER_EVENT>
 			<ROTATION>
 				<variable>fc.GetPersistentAsNumber("ALCOR_ALT_WARN_INPUT")</variable>
