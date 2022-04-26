@@ -3,7 +3,7 @@
 /*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2020 MOARdV
+ * Copyright (c) 2016-2022 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -1407,6 +1407,45 @@ namespace AvionicsSystems
 #endif
 
         /// <summary>
+        /// Iterate over the parts and find engine modules.
+        /// 
+        /// This is a stripped-down handler for multi-mode engines, since when they change modes,
+        /// the active / not-active engines change, but the array length does not, so the normal
+        /// module rebuild doesn't pick up the difference.
+        /// </summary>
+        private void RebuildMultiModeEngines()
+        {
+            for (int partIdx = vessel.parts.Count - 1; partIdx >= 0; --partIdx)
+            {
+                PartModuleList Modules = vessel.parts[partIdx].Modules;
+                for (int moduleIdx = Modules.Count - 1; moduleIdx >= 0; --moduleIdx)
+                {
+                    PartModule module = Modules[moduleIdx];
+                    if (module.isEnabled)
+                    {
+                        if (module is ModuleEngines)
+                        {
+                            ModuleEngines engine = module as ModuleEngines;
+                            enginesList.Add(engine);
+                        }
+                    }
+                }
+            }
+
+            if (enginesList.Count != moduleEngines.Length)
+            {
+                moduleEngines = new ModuleEngines[enginesList.Count];
+            }
+
+            for (int i = enginesList.Count - 1; i >= 0; --i)
+            {
+                moduleEngines[i] = enginesList[i];
+            }
+
+            enginesList.Clear();
+        }
+
+        /// <summary>
         /// Iterate over all of everything to update tracked modules.
         /// </summary>
         private void RebuildModules()
@@ -1772,6 +1811,14 @@ namespace AvionicsSystems
 
                 modulesInvalidated = false;
                 scienceInvalidated = false;
+            }
+            else if (multiModeEngines.Length > 0)
+            {
+                // Multi-mode engines are a special case, since when they switch modes, the active engines change, but the array length does not.
+                // A clever implementation would keep track of which modes are active, and detect when that changes, but I'm
+                // hoping that this isn't a common enough use that I need to spend the extra zots being smart enough to get that
+                // working cleanly.
+                RebuildMultiModeEngines();
             }
             if (scienceInvalidated)
             {
