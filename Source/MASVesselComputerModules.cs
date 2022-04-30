@@ -1389,15 +1389,10 @@ namespace AvionicsSystems
             if (sourceList.Count != destArray.Length)
             {
                 destArray = new T[sourceList.Count];
-
-                // Assume the list can't change without changing size -
-                // I shouldn't be able to add a module and remove a module
-                // of the same type in a single transaction, right?
-                // For whatever reason, this copy is faster than List.CopyTo()
-                for (int i = sourceList.Count - 1; i >= 0; --i)
-                {
-                    destArray[i] = sourceList[i];
-                }
+            }
+            for (int i = sourceList.Count - 1; i >= 0; --i)
+            {
+                destArray[i] = sourceList[i];
             }
             sourceList.Clear();
         }
@@ -1812,14 +1807,14 @@ namespace AvionicsSystems
                 modulesInvalidated = false;
                 scienceInvalidated = false;
             }
-            else if (multiModeEngines.Length > 0)
-            {
-                // Multi-mode engines are a special case, since when they switch modes, the active engines change, but the array length does not.
-                // A clever implementation would keep track of which modes are active, and detect when that changes, but I'm
-                // hoping that this isn't a common enough use that I need to spend the extra zots being smart enough to get that
-                // working cleanly.
-                RebuildMultiModeEngines();
-            }
+            //else if (multiModeEngines.Length > 0)
+            //{
+            //    // Multi-mode engines are a special case, since when they switch modes, the active engines change, but the array length does not.
+            //    // A clever implementation would keep track of which modes are active, and detect when that changes, but I'm
+            //    // hoping that this isn't a common enough use that I need to spend the extra zots being smart enough to get that
+            //    // working cleanly.
+            //    RebuildMultiModeEngines();
+            //}
             if (scienceInvalidated)
             {
                 RebuildScienceTypes();
