@@ -1,5 +1,20 @@
 ## Previous Releases of MOARdV's Avionics Systems
 
+### MAS v1.3.3
+For KSP 1.12.3, 7 May 2022.
+
+**ATTENTION PLAYERS:** MAS includes a Module Manager patch that replaces all of the stock RPM props with MAS-enabled props.  If, for some reason, you do not want your RPM IVAs upgraded, you will need to rename GameData/MOARdV/Patches/JsiToMasUpgrade.cfg to JsiToMasUpgrade.nocfg.
+
+**NOTE:** A partial ASET Avionics and ASET Props upgrade patch is included, but disabled.  To try it, please rename GameData/MOARdV/Patches/AsetToMasUpgrade.nocfg to GameData/MOARdV/Patches/AsetToMasUpgrade.cfg.  Currently, you will need RasterPropMonitor installed to enable any props that are not already updated.  There are no guarantees that partially-updated IVAs will work perfectly.
+
+Outstanding known issues are logged at the [GitHub Issues](https://github.com/MOARdV/AvionicsSystems/issues) page.
+
+#### New Features
+* The MAS MFD2 now can display maps of Dres, Duna, Eeloo, Eve, and Laythe courtesy forum user Manul.  PR #347
+* The MAS TS1 touchscreen (MAS_MFD_Touch1) MFD Flight page is close to flight-ready.  Issue #288.
+
+---
+
 ### MAS v1.3.2
 For KSP 1.12.3, 1 May 2022.
 
