@@ -3846,7 +3846,7 @@ namespace AvionicsSystems
                         return 1.0;
                     case global::VesselType.Plane:
                         return 2.0;
-                    case global:: VesselType.Probe:
+                    case global::VesselType.Probe:
                         return 3.0;
                     case global::VesselType.Lander:
                         return 4.0;
@@ -5085,7 +5085,7 @@ namespace AvionicsSystems
                     return 1.0;
                 case global::VesselType.Plane:
                     return 2.0;
-                case global:: VesselType.Probe:
+                case global::VesselType.Probe:
                     return 3.0;
                 case global::VesselType.Lander:
                     return 4.0;
