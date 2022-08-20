@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2020 MOARdV
+ * Copyright (c) 2016-2022 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -97,6 +97,11 @@ namespace AvionicsSystems
         /// the vessel to lose target track.
         /// </summary>
         private bool doubleClickDetected = false;
+
+        /// <summary>
+        /// Boolean used to determine if a vessel recovery is pending.
+        /// </summary>
+        internal bool recoverVesselPending = false;
 
         /// <summary>
         /// What world / star are we orbiting?
@@ -277,6 +282,11 @@ namespace AvionicsSystems
             else
             {
                 doubleClickDetected = false;
+            }
+            if (recoverVesselPending)
+            {
+                recoverVesselPending = false;
+                GameEvents.OnVesselRecoveryRequested.Fire(vessel);
             }
         }
 
@@ -508,7 +518,7 @@ namespace AvionicsSystems
         {
             get
             {
-                return (mainBody.atmosphere) ? Mathf.Clamp01((float)(vessel.atmDensity / mainBody.atmDensityASL)) : 0.0;                
+                return (mainBody.atmosphere) ? Mathf.Clamp01((float)(vessel.atmDensity / mainBody.atmDensityASL)) : 0.0;
             }
         }
         internal double apoapsis;
@@ -633,7 +643,7 @@ namespace AvionicsSystems
             Quaternion relativeGimbal = navballAttitudeGimbal * Quaternion.LookRotation(
                 Vector3.ProjectOnPlane(relativePositionVector + mainBody.transform.up, (relativePositionVector)),
                 relativePositionVector);
-            
+
             // We have to do all sorts of voodoo to get the navball
             // gimbal rotated so the rendered navball behaves the same
             // as navballs.
