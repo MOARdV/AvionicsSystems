@@ -1,5 +1,22 @@
 ## Previous Releases of MOARdV's Avionics Systems
 
+### MAS v1.3.4
+For KSP 1.12.3, 20 August 2022.
+
+**ATTENTION PLAYERS:** MAS includes a Module Manager patch that replaces all of the stock RPM props with MAS-enabled props.  If, for some reason, you do not want your RPM IVAs upgraded, you will need to rename GameData/MOARdV/Patches/JsiToMasUpgrade.cfg to JsiToMasUpgrade.nocfg.
+
+**NOTE:** A partial ASET Avionics and ASET Props upgrade patch is included, but disabled.  To try it, please rename GameData/MOARdV/Patches/AsetToMasUpgrade.nocfg to GameData/MOARdV/Patches/AsetToMasUpgrade.cfg.  Currently, you will need RasterPropMonitor installed to enable any props that are not already updated.  There are no guarantees that partially-updated IVAs will work perfectly.
+
+Outstanding known issues are logged at the [GitHub Issues](https://github.com/MOARdV/AvionicsSystems/issues) page.
+
+#### Fixes
+* MM patches have been updated to remove log spam when the relevant IVAs are not installed, courtesy StoneBlue.  PR #351.
+* Exceptions caused by MAS creating game objects in a constructor have been fixed, courtesy Angel-125.  PR #352.
+* Occasional soft-locks during vessel recovery have been fixed, courtesy pointers from JohnnyOThan.  Issue #214.
+* Reverted IAS computation to use the KSP-reported IAS, since the MAS equation was very wrong.  Issue #350.
+
+---
+
 ### MAS v1.3.3
 For KSP 1.12.3, 7 May 2022.
 
