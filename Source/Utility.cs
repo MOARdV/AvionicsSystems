@@ -588,18 +588,13 @@ namespace AvionicsSystems
         /// <returns>The ConfigNode, or null if it wasn't found.</returns>
         internal static ConfigNode GetPageConfigNode(string pageName)
         {
-            ConfigNode[] asPageNodes = GameDatabase.Instance.GetConfigNodes("MAS_PAGE");
-
-            for (int nodeIdx = asPageNodes.Length - 1; nodeIdx >= 0; --nodeIdx)
+            ConfigNode pageNode;
+            if (!MASLoader.pages.TryGetValue(pageName, out pageNode))
             {
-                string nodeName = string.Empty;
-                if (asPageNodes[nodeIdx].TryGetValue("name", ref nodeName) && nodeName == pageName)
-                {
-                    return asPageNodes[nodeIdx];
-                }
+                return null;
             }
 
-            return null;
+            return pageNode;
         }
 
         /// <summary>

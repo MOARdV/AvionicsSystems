@@ -67,7 +67,12 @@ namespace AvionicsSystems
         static public Dictionary<char, AudioClip> morseCode = new Dictionary<char, AudioClip>(26);
 
         /// <summary>
-        /// Dictionary of all MAS_SUBPAGE nodes.
+        /// Dictionary of all MAS_PAGE nodes.
+        /// </summary>
+        static public Dictionary<string, ConfigNode> pages = new Dictionary<string, ConfigNode>();
+
+        /// <summary>
+        /// Dictionary of all MAS_SUB_PAGE nodes.
         /// </summary>
         static public Dictionary<string, List<ConfigNode>> subPages = new Dictionary<string, List<ConfigNode>>();
 
@@ -769,6 +774,19 @@ namespace AvionicsSystems
                             morseCode[val.value[0]] = clip;
                         }
                     }
+                }
+            }
+
+            pages.Clear();
+            ConfigNode[] pageNode = GameDatabase.Instance.GetConfigNodes("MAS_PAGE");
+            for (int pageIdx = 0; pageIdx < pageNode.Length; ++pageIdx)
+            {
+                string pageName = string.Empty;
+                if (pageNode[pageIdx].TryGetValue("name", ref pageName))
+                {
+                    pageName = pageName.Trim();
+                    pages.Add(pageName, pageNode[pageIdx]);
+                    Utility.LogMessage(this, "Found MAS_PAGE \"{0}\"", pageName);
                 }
             }
 
