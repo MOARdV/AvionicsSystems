@@ -1,7 +1,8 @@
 // The ASET to MAS prop upgrade patch.  This Module Manager patch replaces
 // every ASET Avionics and ASET Props RPM-enabled prop with its equivalent
 // MAS-enabled prop. Should run very late, to leave room for every IVA mod/patch to run first?
-@INTERNAL[*]:FINAL		//<---On patch order: what happens if another mod, patches/edits/clones a prop, and MAS applies this after?
+// Run 2nd in Final pass, after JSI-to-MAS patch, but before MAS-to-MAS & MAS_SCANsat patches
+@INTERNAL[*]:FINAL
 {
 	// TODOs found in the ALCOR IVA that may or may not be supported already.
 
