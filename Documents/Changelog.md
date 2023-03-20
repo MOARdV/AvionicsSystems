@@ -1,5 +1,24 @@
 ## Previous Releases of MOARdV's Avionics Systems
 
+### MAS v1.3.6
+For KSP 1.12.5, 1 February 2023
+
+**ATTENTION PLAYERS:** MAS includes a Module Manager patch that replaces all of the stock RPM props with MAS-enabled props.  If, for some reason, you do not want your RPM IVAs upgraded, you will need to rename GameData/MOARdV/Patches/JsiToMasUpgrade.cfg to JsiToMasUpgrade.nocfg.
+
+**NOTE:** A partial ASET Avionics and ASET Props upgrade patch is included, but disabled.  To try it, please rename GameData/MOARdV/Patches/AsetToMasUpgrade.nocfg to GameData/MOARdV/Patches/AsetToMasUpgrade.cfg.  Currently, you will need RasterPropMonitor installed to enable any props that are not already updated.  There are no guarantees that partially-updated IVAs will work perfectly.
+
+Outstanding known issues are logged at the [GitHub Issues](https://github.com/MOARdV/AvionicsSystems/issues) page.
+
+#### Fixes
+* The RCS control stick has had its dorsal/ventral movement swapped to correspond to KSP inputs and the RPM version of the control.  Courtesy JonnyOThan.
+* Possible exception when sorting degenerate lists of nearby vessels should be resolved.
+
+#### New Features
+* MAS now uses the KSPAssembly feature to make it easier to develop dependencies.  Issue #354.
+* New props based on Vulkan's M2X Angler props, courtesy Stone Blue.  PR #360.
+
+---
+
 ### MAS v1.3.5
 For KSP 1.12.3, 10 September 2022.
 
@@ -12,6 +31,8 @@ Outstanding known issues are logged at the [GitHub Issues](https://github.com/MO
 #### New Features
 * MAS provides additional logging when Verbose Logging is enabled in the MAS App menu to list the MAS_PAGE and MAS_SUB_PAGE nodes found in the game database.
 * MAS_PAGE loading should be faster for IVAs using multiple MFDs.  This improvement will manifest as quicker transitions to the Flight scene.
+
+---
 
 ### MAS v1.3.4
 For KSP 1.12.3, 20 August 2022.
