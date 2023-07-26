@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2020 MOARdV
+ * Copyright (c) 2016-2022 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -67,7 +67,12 @@ namespace AvionicsSystems
         static public Dictionary<char, AudioClip> morseCode = new Dictionary<char, AudioClip>(26);
 
         /// <summary>
-        /// Dictionary of all MAS_SUBPAGE nodes.
+        /// Dictionary of all MAS_PAGE nodes.
+        /// </summary>
+        static public Dictionary<string, ConfigNode> pages = new Dictionary<string, ConfigNode>();
+
+        /// <summary>
+        /// Dictionary of all MAS_SUB_PAGE nodes.
         /// </summary>
         static public Dictionary<string, List<ConfigNode>> subPages = new Dictionary<string, List<ConfigNode>>();
 
@@ -762,13 +767,26 @@ namespace AvionicsSystems
                         AudioClip clip = GameDatabase.Instance.GetAudioClip(val.value);
                         if (clip == null)
                         {
-                            Utility.LogError(this, "Could not load audio clip {0} for morse code '{1}", val.value, val.name);
+                            Utility.LogError(this, "Could not load audio clip {0} for morse code '{1}'", val.value, val.name);
                         }
                         else
                         {
                             morseCode[val.value[0]] = clip;
                         }
                     }
+                }
+            }
+
+            pages.Clear();
+            ConfigNode[] pageNode = GameDatabase.Instance.GetConfigNodes("MAS_PAGE");
+            for (int pageIdx = 0; pageIdx < pageNode.Length; ++pageIdx)
+            {
+                string pageName = string.Empty;
+                if (pageNode[pageIdx].TryGetValue("name", ref pageName))
+                {
+                    pageName = pageName.Trim();
+                    pages.Add(pageName, pageNode[pageIdx]);
+                    Utility.LogMessage(this, "Found MAS_PAGE \"{0}\"", pageName);
                 }
             }
 
@@ -779,12 +797,15 @@ namespace AvionicsSystems
                 string subPageName = string.Empty;
                 if (subPageNode[subPageIdx].TryGetValue("name", ref subPageName))
                 {
+                    subPageName = subPageName.Trim();
+
                     List<ConfigNode> subPageNodes = new List<ConfigNode>();
                     ConfigNode[] nodes = subPageNode[subPageIdx].GetNodes();
 
                     subPageNodes.AddRange(nodes);
 
                     subPages.Add(subPageName, subPageNodes);
+                    Utility.LogMessage(this, "Found MAS_SUB_PAGE \"{0}\"", subPageName);
                 }
                 else
                 {

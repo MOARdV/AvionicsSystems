@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2020 MOARdV
+ * Copyright (c) 2016-2022 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -242,14 +242,17 @@ namespace AvionicsSystems
                 }
                 localVessels.Clear();
 
-                distanceComparer.vesselPosition = vessel.GetTransform().position;
-                try
+                if (arrayLength > 1)
                 {
-                    Array.Sort(neighboringVessels, distanceComparer);
-                }
-                catch (Exception e)
-                {
-                    throw new ArgumentException("Error in UpdateNeighboringVessels due to distanceComparer: \"" + e.Source + e.TargetSite + e.Data + e.StackTrace + neighboringVessels + "\"", e);
+                    distanceComparer.vesselPosition = vessel.GetTransform().position;
+                    try
+                    {
+                        Array.Sort(neighboringVessels, distanceComparer);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new ArgumentException("Error in UpdateNeighboringVessels due to distanceComparer: \"" + e.Source + e.TargetSite + e.Data + e.StackTrace + neighboringVessels + "\"", e);
+                    }
                 }
                 neighboringVesselsCurrent = true;
             }

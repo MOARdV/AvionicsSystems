@@ -1662,6 +1662,99 @@
 			</TEXT_LABEL>
 		</prop>
 
+		<prop>
+			<name>MAS_toggle_Utility_Dimmer</name>
+			<style>Single Pole Center Off</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("Utility_Light", fc.SetPersistent("%AUTOID%", 0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("Utility_Light", fc.SetPersistent("%AUTOID%", -0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>UTILITY$$$LAMP</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_toggle_Flood_Dimmer</name>
+			<style>Single Pole Center Off</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("Flood_Light", fc.SetPersistent("%AUTOID%", 0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("Flood_Light", fc.SetPersistent("%AUTOID%", -0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>FLOOD$$$LAMP</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_toggle_Engineer_Dimmer</name>
+			<style>Single Pole Center Off</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("Engineer_Light", fc.SetPersistent("%AUTOID%", 0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("Engineer_Light", fc.SetPersistent("%AUTOID%", -0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>ENGINEER$$$LAMP</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_toggle_CP01_Dimmer</name>
+			<style>Single Pole Center Off</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("CP01_Light", fc.SetPersistent("%AUTOID%", 0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("CP01_Light", fc.SetPersistent("%AUTOID%", -0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>COCKPIT$$$LAMP 1</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_toggle_CP02_Dimmer</name>
+			<style>Single Pole Center Off</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("CP02_Light", fc.SetPersistent("%AUTOID%", 0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("CP02_Light", fc.SetPersistent("%AUTOID%", -0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>COCKPIT$$$LAMP 2</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_toggle_Tunnel_Dimmer</name>
+			<style>Single Pole Center Off</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("Tunnel_Light", fc.SetPersistent("%AUTOID%", 0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("Tunnel_Light", fc.SetPersistent("%AUTOID%", -0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>TUNNEL$$$LAMP</text>
+			</TEXT_LABEL>
+		</prop>
+		<prop>
+			<name>MAS_toggle_UpperCabin_Dimmer</name>
+			<style>Single Pole Center Off</style>
+			<COLLIDER_EVENT id="0">
+				<onClick>fc.AddPersistentClamped("UpperCabin_Light", fc.SetPersistent("%AUTOID%", 0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<COLLIDER_EVENT id="1">
+				<onClick>fc.AddPersistentClamped("UpperCabin_Light", fc.SetPersistent("%AUTOID%", -0.05), 0, 1)</onClick>
+			</COLLIDER_EVENT>
+			<TEXT_LABEL id="0">
+				<text>UPPER CABIN$$$LAMP</text>
+			</TEXT_LABEL>
+		</prop>
+
+
 		<!-- NASA-styled toggle switch with side guards and single collider - T1-G1-S -->
 		<style name="NASA Toggle Switch">
 			<MODEL id="0">

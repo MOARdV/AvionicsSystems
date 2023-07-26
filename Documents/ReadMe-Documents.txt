@@ -1,8 +1,11 @@
-﻿This directory contains the following ASET documents:
+﻿This directory contains the following documents:
 
 * ASET- Kerbin AEROCHARTS v17-11-25.pdf - This is a Jeppesen-style aerochart for stock Kerbin.  The charts
   include detailed aerodrome charts for both KSC and the Island Runway, as well as NDB and VOR radio
   station locations and frequencies.  All radio navigation beacons are fully supported by MAS.
+  
+* Changelog.md - The comprehensive changelog for MAS.  All changelogs prior to the current release of MAS
+  are stored in this file.
 
 * IndicatorADV_1_Scale_v0.2.pdf - an updated version of the IndcatorADV prop (the illuminated vertical
   bargraph style prop with a numeric display and a caption plate below the prop).  The updated version

@@ -90,7 +90,7 @@ namespace AvionicsSystems
         /// <param name="cam"></param>
         private void EnablePage(Camera cam)
         {
-            if (cam.Equals(screenCamera))
+            if (currentPage != null && cam.Equals(screenCamera))
             {
                 currentPage.RenderPage(true);
             }
@@ -105,7 +105,7 @@ namespace AvionicsSystems
         /// <param name="cam"></param>
         private void DisablePage(Camera cam)
         {
-            if (cam.Equals(screenCamera))
+            if (currentPage != null && cam.Equals(screenCamera))
             {
                 currentPage.RenderPage(false);
             }
@@ -231,7 +231,7 @@ namespace AvionicsSystems
                     ConfigNode moduleConfig = Utility.GetPropModuleConfigNode(internalProp.propName, ClassName);
                     if (moduleConfig == null)
                     {
-                        throw new ArgumentNullException("No ConfigNode found for MASMonitor in " + internalProp.propName + "!");
+                        throw new ArgumentNullException("No ConfigNode found for MASMonitor in " + internalProp.propName);
                     }
 
                     // If an initialization script was supplied, call it.
@@ -249,7 +249,7 @@ namespace AvionicsSystems
                         ConfigNode pageConfig = Utility.GetPageConfigNode(pages[i]);
                         if (pageConfig == null)
                         {
-                            throw new ArgumentException("No ConfigNode found for page " + pages[i] + " in MASMonitor in " + internalProp.propName + "!");
+                            throw new ArgumentException("No MAS_PAGE found for '" + pages[i] + "' in MASMonitor " + internalProp.propName);
                         }
 
                         // Parse the page node

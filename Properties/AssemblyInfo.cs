@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
@@ -10,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("MOARdV")]
 [assembly: AssemblyProduct("AvionicsSystems")]
-[assembly: AssemblyCopyright("Copyright © 2016-2020 MOARdV")]
+[assembly: AssemblyCopyright("Copyright © 2016-2023 MOARdV")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -21,3 +20,7 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("0ccd351f-4a07-47b7-a09c-a9941cb18762")]
+
+[assembly: AssemblyVersion("1.3.7.*")]
+
+[assembly: KSPAssembly("MOARdVAvionicsSystems", 1, 3)]

@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
@@ -10,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("PropConfig")]
-[assembly: AssemblyCopyright("Copyright © 2018-2019 MOARdV")]
+[assembly: AssemblyCopyright("Copyright © 2018-2023 MOARdV")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -21,3 +20,5 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("824d4e8f-0cf1-4ab2-9873-2ea00af04f21")]
+
+[assembly: AssemblyVersion("1.3.7.*")]

@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2020 MOARdV
+ * Copyright (c) 2016-2022 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -2697,11 +2697,14 @@ namespace AvionicsSystems
         /// <returns>IAS in m/s.</returns>
         public double IndicatedAirspeed()
         {
-            // We compute this because this formula is basically what FAR uses; Vessel.indicatedAirSpeed
-            // gives drastically different results while in motion.
-            double densityRatio = vessel.atmDensity / 1.225;
-            double pressureRatio = Utility.StagnationPressure(vc.mainBody.atmosphereAdiabaticIndex, vessel.mach);
-            return vessel.srfSpeed * Math.Sqrt(densityRatio) * pressureRatio;
+            // Updated algorithm, which looks closer to reasonable, but it's close to KSP's computation,
+            // so let's use that.
+            // 1632.653 = convert kPa to Pa, divide by 1.225 (fluid density in kg/m^3), multiply by 2
+            //double densityRatio = vessel.staticPressurekPa * 1632.653;
+            //double pressureRatio = Utility.StagnationPressure(vc.mainBody.atmosphereAdiabaticIndex, vessel.mach) - 1.0;
+            //double newResult = Math.Sqrt(densityRatio * pressureRatio);
+            //return newResult;
+            return vessel.indicatedAirSpeed;
         }
 
         /// <summary>
@@ -3843,7 +3846,7 @@ namespace AvionicsSystems
                         return 1.0;
                     case global::VesselType.Plane:
                         return 2.0;
-                    case global:: VesselType.Probe:
+                    case global::VesselType.Probe:
                         return 3.0;
                     case global::VesselType.Lander:
                         return 4.0;
@@ -5082,7 +5085,7 @@ namespace AvionicsSystems
                     return 1.0;
                 case global::VesselType.Plane:
                     return 2.0;
-                case global:: VesselType.Probe:
+                case global::VesselType.Probe:
                     return 3.0;
                 case global::VesselType.Lander:
                     return 4.0;

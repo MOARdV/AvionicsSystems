@@ -3,7 +3,7 @@
 /*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2020 MOARdV
+ * Copyright (c) 2016-2022 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -1203,6 +1203,9 @@ namespace AvionicsSystems
         {
             if (HighLogic.LoadedSceneIsFlight)
             {
+                audioObject = new GameObject();
+                morseAudioObject = new GameObject();
+
                 additionalEC = 0.0f;
                 rate = Mathf.Max(0.0f, rate);
                 commandModule = part.FindModuleImplementing<ModuleCommand>();
@@ -1720,9 +1723,9 @@ namespace AvionicsSystems
         #endregion
 
         #region Audio Player
-        GameObject audioObject = new GameObject();
+        GameObject audioObject;
         AudioSource audioSource;
-        GameObject morseAudioObject = new GameObject();
+        GameObject morseAudioObject;
         AudioSource morseAudioSource;
         string morseSequence;
         float morseVolume;

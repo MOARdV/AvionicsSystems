@@ -879,7 +879,7 @@
 		</prop>
 		<prop>
 			<name>MAS_Tablo_Status_CommnetConnected</name>
-			<style>Other</style>
+			<style>Status</style>
 			<TEXT_LABEL>
 				<text>COMMNET$$$CONNECTED</text>
 				<variable>fc.Conditioned(fc.CommNetConnected())</variable>
@@ -890,7 +890,7 @@
 		</prop>
 		<prop>
 			<name>MAS_Tablo_Status_CommnetNoSignal</name>
-			<style>Other</style>
+			<style>Alarm</style>
 			<TEXT_LABEL>
 				<text>NO SIGNAL</text>
 				<variable>fc.Conditioned(1 - fc.CommNetConnected())</variable>
@@ -1659,7 +1659,7 @@
 		</prop>
 		<prop>
 			<name>MAS_Tablo_Status_EngineMode1</name>
-			<style>Other</style>
+			<style>Status</style>
 			<TEXT_LABEL>
 				<text>MODE 1</text>
 				<activeColor>50,255,30,255</activeColor>
@@ -1672,7 +1672,7 @@
 		</prop>
 		<prop>
 			<name>MAS_Tablo_Status_EngineMode2</name>
-			<style>Other</style>
+			<style>Status</style>
 			<TEXT_LABEL>
 				<text>MODE 2</text>
 				<variable>fc.Conditioned(fc.GetMultiModeEngineMode())</variable>
@@ -1684,7 +1684,7 @@
 		</prop>
 		<prop>
 			<name>MAS_Tablo_Status_AircraftLimitedThrust</name>
-			<style>Other</style>
+			<style>Alarm</style>
 			<TEXT_LABEL>
 				<text>LIMITED$$$THRUST</text>
 				<variable>fc.Conditioned(fc.GetThrottleLimit() &gt; 0.001 and fc.GetThrottleLimit() &lt; 0.99)</variable>

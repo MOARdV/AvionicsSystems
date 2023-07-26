@@ -2,7 +2,7 @@
 /*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2018 MOARdV
+ * Copyright (c) 2016-2022 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -338,6 +338,17 @@ namespace AvionicsSystems
             {
                 now = vessel.StartUT;
                 then = vessel.EndUT;
+                
+                if (double.IsInfinity(then))
+                {
+                    // If we get bogus values for 'then', it means we're probably not solving this -
+                    // maybe the orbit intercepts another body.
+                    targetClosestUT = vesselOrbit.StartUT;
+                    targetClosestDistance = (vesselOrbit.getPositionAtUT(targetClosestUT) - targetOrbit.getPositionAtUT(targetClosestUT)).magnitude;
+                    targetClosestSpeed = (vesselOrbit.GetFrameVelAtUT(vesselOrbit.StartUT) - targetOrbit.GetFrameVelAtUT(vesselOrbit.StartUT)).magnitude;
+
+                    return;
+                }
 
                 target1 = FindOrbit(targetOrbit, vessel.StartUT);
                 target2 = FindOrbit(targetOrbit, vessel.EndUT);
@@ -366,6 +377,16 @@ namespace AvionicsSystems
             // Final transition.
             now = vessel.StartUT;
             then = vessel.EndUT;
+            if (double.IsInfinity(then))
+            {
+                // If we get bogus values for 'then', it means we're probably not solving this -
+                // maybe the orbit intercepts another body.
+                targetClosestUT = vesselOrbit.StartUT;
+                targetClosestDistance = (vesselOrbit.getPositionAtUT(targetClosestUT) - targetOrbit.getPositionAtUT(targetClosestUT)).magnitude;
+                targetClosestSpeed = (vesselOrbit.GetFrameVelAtUT(vesselOrbit.StartUT) - targetOrbit.GetFrameVelAtUT(vesselOrbit.StartUT)).magnitude;
+
+                return;
+            }
 
             // Don't bother searching ahead with hyperbolic orbits
             int orbitsToCheck = (vessel.eccentricity < 1.0) ? NumOrbitsLookAhead : 1;

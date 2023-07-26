@@ -1,7 +1,7 @@
 ﻿/*****************************************************************************
  * The MIT License (MIT)
  * 
- * Copyright (c) 2016-2019 MOARdV
+ * Copyright (c) 2016-2022 MOARdV
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -366,6 +366,7 @@ namespace AvionicsSystems
             {
                 throw new ArgumentException("No 'name' field in SUB_PAGE found in MASPage " + name);
             }
+            subPageName = subPageName.Trim();
 
             // Test for 'variable'
             string variableString = string.Empty;
@@ -390,7 +391,7 @@ namespace AvionicsSystems
             List<ConfigNode> subPageNodes;
             if (!MASLoader.subPages.TryGetValue(subPageName, out subPageNodes))
             {
-                throw new ArgumentException("Unable to find MAS_SUB_PAGE '" + subPageName + "' for SUB_PAGE found in MASPage " + name);
+                throw new ArgumentException("Unable to find MAS_SUB_PAGE '" + subPageName + "' for a SUB_PAGE in MASPage " + name);
             }
             List<ConfigNode> newNodes = new List<ConfigNode>();
 
