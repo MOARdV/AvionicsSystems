@@ -281,7 +281,10 @@ namespace AvionicsSystems
             if (vessel.patchedConicSolver != null)
             {
                 int nodeCount = vessel.patchedConicSolver.maneuverNodes.Count;
-                vessel.patchedConicSolver.maneuverNodes[0].RemoveSelf();
+                if (nodeCount > 0)
+                {
+                    vessel.patchedConicSolver.maneuverNodes[0].RemoveSelf();
+                }
 
                 return (nodeCount > 0) ? 1.0 : 0.0;
             }
