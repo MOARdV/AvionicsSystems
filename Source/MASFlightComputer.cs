@@ -128,6 +128,8 @@ namespace AvionicsSystems
         /// </summary>
         private Script script;
 
+        private MASIAtmosphereAutopilot aaProxy;
+
         /// <summary>
         /// Instance of the flight computer proxy used in the Lua context.
         /// </summary>
@@ -963,6 +965,7 @@ namespace AvionicsSystems
                     navProxy.Update();
                     parachuteProxy.Update();
                     transferProxy.Update();
+                    aaProxy.Update();
                     UpdateRadios();
 #if MEASURE_FC_FIXEDUPDATE
                     TimeSpan updatesTime = fixedupdateTimer.Elapsed;
@@ -1158,6 +1161,7 @@ namespace AvionicsSystems
             parachuteProxy = null;
             transferProxy = null;
             vtolProxy = null;
+            aaProxy = null;
             if (initialized)
             {
                 Utility.LogMessage(this, "OnDestroy for {0}", flightComputerId);
@@ -1368,6 +1372,12 @@ namespace AvionicsSystems
                     UserData.RegisterType<MASFlightComputerProxy>();
                     script.Globals["fc"] = fcProxy;
                     registeredTables.Add("fc", new MASRegisteredTable(fcProxy));
+
+                    whichProxy = "aa";
+                    aaProxy = new MASIAtmosphereAutopilot();
+                    UserData.RegisterType<MASIAtmosphereAutopilot>();
+                    script.Globals["aa"] = aaProxy;
+                    registeredTables.Add("aa", new MASRegisteredTable(aaProxy));
                 }
                 catch (Exception e)
                 {
@@ -1446,6 +1456,8 @@ namespace AvionicsSystems
                 parachuteProxy.vc = vc;
                 transferProxy.vc = vc;
                 vtolProxy.UpdateVessel(vessel, vc);
+                aaProxy.vc = vc;
+                aaProxy.vessel = vessel;
 
                 // Add User scripts
                 try
@@ -1975,6 +1987,8 @@ namespace AvionicsSystems
                 transferProxy.vc = vc;
                 transferProxy.vessel = vessel;
                 vtolProxy.UpdateVessel(vessel, vc);
+                aaProxy.vc = vc;
+                aaProxy.vessel = vessel;
 
                 List<Part> parts = vessel.parts;
                 foreach (var pair in masActionGroup)
