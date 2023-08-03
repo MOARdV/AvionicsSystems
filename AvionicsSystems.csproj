@@ -39,14 +39,6 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
-    <Reference Include="AtmosphereAutopilot, Version=1.6.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>D:\Games\KSP-IVA\GameData\AtmosphereAutopilot\AtmosphereAutopilot.dll</HintPath>
-    </Reference>
-    <Reference Include="AtmosphereAutopilot.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>D:\Games\KSP-IVA\GameData\AtmosphereAutopilot\AtmosphereAutopilot.UI.dll</HintPath>
-    </Reference>
     <Reference Include="MoonSharp.Interpreter">
       <HintPath>GameData\MOARdV\AvionicsSystems\MoonSharp.Interpreter.dll</HintPath>
     </Reference>
@@ -96,7 +88,6 @@
     <Compile Include="Source\ApproachSolverBW.cs" />
     <Compile Include="Source\DynamicMethodFactory.cs" />
     <Compile Include="Source\KACWrapper.cs" />
-    <Compile Include="Source\MAS-AtmosphereAutopilot.cs" />
     <Compile Include="Source\MASActionGroup.cs" />
     <Compile Include="Source\MASAutoPilot.cs" />
     <Compile Include="Source\MASCamera.cs" />
@@ -119,7 +110,6 @@
     <Compile Include="Source\MASComponentTextureShift.cs" />
     <Compile Include="Source\MASComponentTranslation.cs" />
     <Compile Include="Source\MASComponentTriggerEvent.cs" />
-    <Compile Include="Source\MASDirector.cs" />
     <Compile Include="Source\MASIdEngineGroup.cs" />
     <Compile Include="Source\MASIKerbalEngineer.cs" />
     <Compile Include="Source\MASPageCompoundText.cs" />
