@@ -228,6 +228,90 @@ function AAUpdateVNAV(mode)
 	end
 end
 
+local KACThreshold = {
+	5,
+	15,
+	30,
+	60,
+	120,
+	300
+}
+
+function SetKACAlarm(modeSelA, modeSelB, threshold)
+
+	if modeSelA == 0 then
+		kac.DeleteAlarm(fc.GetPersistent("MAS_Clock_AlarmId"))
+		local newAlarmID = kac.CreateTypeAlarm("Raw", "Alarm for " .. fc.VesselName(), fc.UT() - fc.TimeOfDay(fc.UT()) + fc.GetPersistentAsNumber("STS_FMSCompBuffer") - KACThreshold[threshold])
+		fc.SetPersistent("MAS_Clock_AlarmId", newAlarmID)
+		return 1
+	elseif modeSelA == 1 and fc.TimeToSoI() then
+		kac.DeleteAlarm(fc.GetPersistent("MAS_Clock_AlarmId"))
+		local newAlarmID = kac.CreateTypeAlarm("SOIChange", "SOI Transition to " .. fc.NextBodyName() .. " for " .. fc.VesselName(), fc.UT() + fc.TimeToNextSoI() - KACThreshold[threshold])
+		fc.SetPersistent("MAS_Clock_AlarmId", newAlarmID)
+		return 1
+	elseif modeSelA == 2 and fc.TargetClosestApproachTime() then
+		kac.DeleteAlarm(fc.GetPersistent("MAS_Clock_AlarmId"))
+		local newAlarmID = kac.CreateTypeAlarm("Closest", fc.VesselName() .. " closest approach to " .. fc.TargetName(), fc.UT() + fc.TargetClosestApproachTime() - KACThreshold[threshold])
+		fc.SetPersistent("MAS_Clock_AlarmId", newAlarmID)
+		return 1
+	elseif modeSelA == 3 and fc.BodyAtmosphereTop(fc.CurrentBodyIndex()) and fc.BodyAtmosphereTop(fc.CurrentBodyIndex()) > fc.Periapsis() then
+		kac.DeleteAlarm(fc.GetPersistent("MAS_Clock_AlarmId"))
+		local newAlarmID = kac.CreateTypeAlarm("Closest", fc.VesselName() .. " altitude limit " .. fc.BodyAtmosphereTop(fc.CurrentBodyIndex()) .. " m at " .. fc.BodyName(fc.CurrentBodyIndex()), fc.UT() + fc.TimeToAtmosphere() - KACThreshold[threshold])
+		fc.SetPersistent("MAS_Clock_AlarmId", newAlarmID)
+		return 1
+	elseif modeSelA == 4 and fc.ManeuverNodeTime() < 0 then
+		kac.DeleteAlarm(fc.GetPersistent("MAS_Clock_AlarmId"))
+		local newAlarmID = kac.CreateTypeAlarm("Maneuver", fc.VesselName() .. " maneuver", fc.UT() - fc.ManeuverNodeTime() - 0.5 * fc.ManeuverNodeBurnTime() - KACThreshold[threshold])
+		fc.SetPersistent("MAS_Clock_AlarmId", newAlarmID)
+		return 1
+	elseif modeSelA == 5 then
+		if modeSelB == 0 and fc.TimeToAp() > 0 then
+			kac.DeleteAlarm(fc.GetPersistent("MAS_Clock_AlarmId"))
+			local newAlarmID = kac.CreateTypeAlarm("Apoapsis", fc.VesselName() .. " apoapsis", fc.UT() + fc.TimeToAp() - KACThreshold[threshold])
+			fc.SetPersistent("MAS_Clock_AlarmId", newAlarmID)
+			return 1
+		elseif modeSelB == 1 and fc.TimeToPe() > 0 then
+			kac.DeleteAlarm(fc.GetPersistent("MAS_Clock_AlarmId"))
+			local newAlarmID = kac.CreateTypeAlarm("Periapsis", fc.VesselName() .. " periapsis", fc.UT() + fc.TimeToPe() - KACThreshold[threshold])
+			fc.SetPersistent("MAS_Clock_AlarmId", newAlarmID)
+			return 1
+		elseif modeSelB == 2 and fc.TimeToANEq() > 0 then
+			kac.DeleteAlarm(fc.GetPersistent("MAS_Clock_AlarmId"))
+			local newAlarmID = kac.CreateTypeAlarm("AscendingNode", fc.VesselName() .. " ascending node", fc.UT() + fc.TimeToANEq() - KACThreshold[threshold])
+			fc.SetPersistent("MAS_Clock_AlarmId", newAlarmID)
+			return 1
+		elseif modeSelB == 3 and fc.TimeToDNEq() > 0 then
+			kac.DeleteAlarm(fc.GetPersistent("MAS_Clock_AlarmId"))
+			local newAlarmID = kac.CreateTypeAlarm("DescendingNode", fc.VesselName() .. " descending node", fc.UT() + fc.TimeToDNEq() - KACThreshold[threshold])
+			fc.SetPersistent("MAS_Clock_AlarmId", newAlarmID)
+			return 1
+		elseif modeSelB == 4 and transfer.TimeUntilPhaseAngle() > 0 then
+			kac.DeleteAlarm(fc.GetPersistent("MAS_Clock_AlarmId"))
+			local newAlarmID = kac.CreateTypeAlarm("Transfer", fc.VesselName() .. " transfer window from " .. fc.BodyName(fc.CurrentBodyIndex()) .. " to " .. fc.TargetBodyName(), fc.UT() + transfer.TimeUntilPhaseAngle() - KACThreshold[threshold])
+			fc.SetPersistent("MAS_Clock_AlarmId", newAlarmID)
+			return 1
+		elseif modeSelB == 5 then
+			kac.DeleteAlarm(fc.GetPersistent("MAS_Clock_AlarmId"))
+			local newAlarmID = kac.CreateTypeAlarm("Crew", fc.VesselName() .. " crew alarm", fc.UT() - fc.TimeOfDay(fc.UT()) + fc.GetPersistentAsNumber("STS_FMSCompBuffer") - KACThreshold[threshold])
+			fc.SetPersistent("MAS_Clock_AlarmId", newAlarmID)
+			return 1
+		else
+			fc.LogMessage("Invalid Mode B")
+			fc.SetPersistent("KAC_Error", 1)
+			return 0
+		end
+	else
+		fc.LogMessage("Invalid Mode A")
+		fc.SetPersistent("KAC_Error", 1)
+		return 0
+	end
+	
+	fc.LogMessage("No Conditions Satisfied")
+	fc.SetPersistent("KAC_Error", 1)
+	return 0
+	
+end
+
 function CircularizeAltitudeTest(altitude)
 	
 	if not fc.VesselFlying()	 then
