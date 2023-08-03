@@ -142,3 +142,36 @@ function MAS_Alcor_60x30_Init(propid)
 	
 	return 1
 end
+
+function FMSEditNode(mode, FMSBuffer, progradeDV, normalDV, radialDV, nodeTime)
+	-- local success
+	
+	if mode < 0 then 
+		return 0
+	elseif mode == 0 then
+		return fc.AddManeuverNode(progradeDV, normalDV, radialDV, fc.UT() + FMSBuffer - fc.TimeOfDay(fc.UT())) and fc.LogMessage("Editing Node Time")
+	elseif mode == 1 then
+		return fc.AddManeuverNode(FMSBuffer, normalDV, radialDV, fc.UT() + nodeTime) and fc.LogMessage("Editing Prograde DV")
+	elseif mode == 2 then
+		return fc.AddManeuverNode(progradeDV, FMSBuffer, radialDV, fc.UT() + nodeTime) and fc.LogMessage("Editing Normal DV")
+	elseif mode == 3 then
+		return fc.AddManeuverNode(progradeDV, normalDV, FMSBuffer, fc.UT() + nodeTime) and fc.LogMessage("Editing Radial DV")
+	else
+		return not fc.LogMessage("Invalid Mode")
+	end
+	
+	return not fc.LogMessage("No Conditions Satisfied")
+end
+
+function CircularizeAltitudeTest(altitude)
+	
+	if not fc.VesselFlying()	 then
+		return 0
+	elseif fc.Eccentricity() < 1 then
+		return transfer.CircularizeAltitude(altitude)
+	else
+		return transfer.CircularizeAltitudeHypVis(altitude)
+	end
+	
+	return not fc.LogMessage("No Conditions Satisfied")
+end
