@@ -163,6 +163,71 @@ function FMSEditNode(mode, FMSBuffer, progradeDV, normalDV, radialDV, nodeTime)
 	return not fc.LogMessage("No Conditions Satisfied")
 end
 
+function AAEditParams(mode, FMSBuffer)
+	if mode < 0 then
+		return 0
+	elseif mode == 0 then
+		return aa.SetHeadingSetPoint(FMSBuffer)
+	elseif mode == 1 then
+		return aa.SetLatitudeSetPoint(FMSBuffer)
+	elseif mode == 2 then
+		return aa.SetLongitudeSetPoint(FMSBuffer)
+	elseif mode == 3 then
+		return aa.SetAltitudeSetPoint(FMSBuffer)
+	elseif mode == 4 then
+		return aa.SetVertSpeedSetPoint(FMSBuffer)
+	elseif mode == 5 then
+		return aa.SetVertAngleSetPoint(FMSBuffer)
+	else
+		return not fc.LogMessage("Invalid Mode")
+	end
+	
+	return not fc.LogMessage("No Conditions Satisfied")
+
+end
+
+function AACopyParams(mode)
+	if mode < 0 then
+		return 0
+	elseif mode == 0 then
+		return aa.GetHeadingSetPoint()
+	elseif mode == 1 then
+		return aa.GetLatitudeSetPoint()
+	elseif mode == 2 then
+		return aa.GetLongitudeSetPoint()
+	elseif mode == 3 then
+		return aa.GetAltitudeSetPoint()
+	elseif mode == 4 then
+		return aa.GetVertSpeedSetPoint()
+	elseif mode == 5 then
+		return aa.GetVertAngleSetPoint()
+	else
+		return not fc.LogMessage("Invalid Mode")
+	end
+	
+	return not fc.LogMessage("No Conditions Satisfied")
+end
+
+function AAUpdateHNAV(mode)
+	if mode < 0 then
+		return not fc.LogMessage("Invalid Mode")
+	elseif mode >= 0 and mode <= 2 then
+		return aa.SwitchHNAVMode(mode)
+	else
+		return not fc.LogMessage("Invalid Mode")
+	end
+end
+
+function AAUpdateVNAV(mode)
+	if mode < 0 then
+		return not fc.LogMessage("Invalid Mode")
+	elseif mode >= 0 and mode <= 2 then
+		return aa.SwitchVNAVMode(mode)
+	else
+		return not fc.LogMessage("Invalid Mode")
+	end
+end
+
 function CircularizeAltitudeTest(altitude)
 	
 	if not fc.VesselFlying()	 then
