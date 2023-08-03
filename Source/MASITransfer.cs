@@ -734,7 +734,6 @@ namespace AvionicsSystems
 
         
         /// <summary>
-        /// /// <summary>
         /// Circularize the vessel's orbit at the specified altitude, in meters.  This new altitude
         /// must be between the current periapsis and the SoI limit. If the orbit is hyperbolic and the craft
         /// is past the periapsis, the altitude must also be greater than the current altitude. This method
