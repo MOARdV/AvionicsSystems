@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>D:\KSPMod\VSOutput\IVAs\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -26,7 +26,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>D:\KSPMod\VSOutput\IVAs\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -34,62 +34,62 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="AtmosphereAutopilot, Version=1.6.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Games\KSPModLoc\GameData\AtmosphereAutopilot\AtmosphereAutopilot.dll</HintPath>
+      <HintPath>D:\Games\KSP-IVA\GameData\AtmosphereAutopilot\AtmosphereAutopilot.dll</HintPath>
     </Reference>
     <Reference Include="AtmosphereAutopilot.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Games\KSPModLoc\GameData\AtmosphereAutopilot\AtmosphereAutopilot.UI.dll</HintPath>
+      <HintPath>D:\Games\KSP-IVA\GameData\AtmosphereAutopilot\AtmosphereAutopilot.UI.dll</HintPath>
     </Reference>
     <Reference Include="MoonSharp.Interpreter">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\GameData\MOARdV\AvionicsSystems\MoonSharp.Interpreter.dll</HintPath>
+      <HintPath>GameData\MOARdV\AvionicsSystems\MoonSharp.Interpreter.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="UnityEngine">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AnimationModule">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AssetBundleModule">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
+      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AudioModule">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UIModule">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.UIModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UnityWebRequestAssetBundleModule">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.UnityWebRequestAssetBundleModule.dll</HintPath>
+      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.UnityWebRequestAssetBundleModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UnityWebRequestModule">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
+      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -197,10 +197,13 @@
     <Compile Include="Source\Variable.cs" />
     <Compile Include="Source\VariableRegistrar.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetPath) "D:\KSPMod\VSOutput\IVAs\GameData\MOARdV\AvionicsSystems"
-copy $(TargetPath) $(SolutionDir)GameData\MOARdV\AvionicsSystems\</PostBuildEvent>
+    <PostBuildEvent>copy $(TargetPath) "D:\Games\KSP-IVA\GameData\MOARdV\AvionicsSystems"
+copy $(TargetPath) $(SolutionDir)GameData\MOARdV\AvionicsSystems\
+$(SolutionDir)Documentor\$(OutDir)Documentor.exe $(SolutionDir)Source\MASIFAR.cs $(SolutionDir)Source\MASIKAC.cs $(SolutionDir)Source\MASIChatterer.cs $(SolutionDir)Source\MASIEngine.cs $(SolutionDir)Source\MASIMechJeb.cs $(SolutionDir)Source\MASINavigation.cs $(SolutionDir)Source\MASIRealChute.cs $(SolutionDir)Source\MASITransfer.cs $(SolutionDir)Source\MASFlightComputerProxy.cs $(SolutionDir)Source\MASFlightComputerProxy2.cs $(SolutionDir)Source\MASFlightComputerProxy3.cs $(SolutionDir)Source\MASIVTOL.cs $(SolutionDir)Source\MASIKerbalEngineer.cs
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
