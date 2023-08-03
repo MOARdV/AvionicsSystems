@@ -359,11 +359,14 @@ namespace AvionicsSystems
 
                 while (target1 != target2)
                 {
+
                     FindClosest(vessel, target1, Math.Max(now, target1.StartUT), target1.EndUT, 0, ref closestDistance, ref closestUT);
+
                     target1 = target1.nextPatch;
                 }
 
                 FindClosest(vessel, target1, now, then, 0, ref closestDistance, ref closestUT);
+
 
                 vessel = vessel.nextPatch;
             }
@@ -392,11 +395,14 @@ namespace AvionicsSystems
 
                 while (target1 != target2)
                 {
+
                     FindClosest(vessel, target1, Math.Max(now, target1.StartUT), target1.EndUT, 0, ref closestDistance, ref closestUT);
+ 
                     target1 = target1.nextPatch;
                 }
 
                 FindClosest(vessel, target1, now, then, 0, ref closestDistance, ref closestUT);
+
                 now = then;
                 then += vessel.period;
             }

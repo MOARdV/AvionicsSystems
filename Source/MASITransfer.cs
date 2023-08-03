@@ -732,6 +732,62 @@ namespace AvionicsSystems
             return 0.0;
         }
 
+        
+        /// <summary>
+        /// Circularize the vessel's orbit at the specified altitude, in meters.  This new altitude
+        /// must be between the current periapsis and the SoI limit. If the orbit is hyperbolic and the craft
+        /// is past the periapsis, the altitude must also be greater than the current altitude. This method
+        /// uses calculations derived from first principles rather than the KSP orbit functions.
+        /// </summary>
+        /// <param name="newAltitude">The altitude at which the orbit will be circularized, in meters.</param>
+        /// <returns>1 if a node was created, 0 otherwise.</returns>
+        public double CircularizeAltitudeHypVis(double newAltitude)
+        {
+            Orbit current = vessel.orbit;
+            double newSMA = newAltitude + current.referenceBody.Radius;
+
+            if ((newSMA >= current.PeR && vc.orbit.timeToPe >= 0 || newSMA >= vessel.altitude) && newSMA <= vessel.mainBody.sphereOfInfluence && vessel.patchedConicSolver != null)
+            {
+                CelestialBody referenceBody = current.referenceBody;
+
+                // required velocity is entirely circumferential and equal to circular orbit speed
+
+                double vNew = Math.Sqrt(referenceBody.gravParameter / newSMA);
+
+                // get true anomaly when passing through altitude, and time at which that happens
+
+                double tAAtNewSMA = current.TrueAnomalyAtRadius(newSMA);
+                double maneuverUt = current.GetUTforTrueAnomaly(tAAtNewSMA, 0);
+
+                // pre-burn speed found using vis-viva equation.
+                double vPreBurn = Math.Sqrt(referenceBody.gravParameter * (2 / newSMA - 1 / current.semiMajorAxis));
+
+                // get specific angular momentum and use to find circumferential speed at the burn,
+                // and the elevation angle at the burn
+                double spAngMom = current.PeR * current.getOrbitalSpeedAtDistance(current.PeR);
+                double vPreBurnCirc = spAngMom / newSMA;
+                double elevationAngle = Math.Acos(vPreBurnCirc / vPreBurn);
+
+                // delta-V magnitude is the magnitude of the vector difference between pre- and post-burn velocities
+                double deltaVTotal = Math.Sqrt(Math.Pow(vNew, 2) + Math.Pow(vPreBurn, 2) - 2 * vNew * vPreBurn * Math.Cos(elevationAngle));
+
+                // orthogonal components of the delta-V (no normal since never going to need inclination change)
+                double deltaVPrograde = -(vPreBurn - vNew * Math.Cos(elevationAngle));
+                double deltaVRadial = -vNew * Math.Sin(elevationAngle);
+
+                // create the maneuver node
+                Vector3d maneuverdV = Utility.ManeuverNode(deltaVPrograde, 0, deltaVRadial);
+
+                vessel.patchedConicSolver.maneuverNodes.Clear();
+                ManeuverNode mn = vessel.patchedConicSolver.AddManeuverNode(maneuverUt);
+                mn.OnGizmoUpdated(maneuverdV, maneuverUt);
+
+                return 1.0;
+            }
+
+            return 0.0;
+        }
+
         /// <summary>
         /// Generate a maneuver to conduct a Hohmann transfer to the current target.  If there is no
         /// target, or the transfer is not a simple transfer to a nearly co-planar target, nothing happens.

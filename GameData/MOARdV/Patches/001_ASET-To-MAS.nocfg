@@ -890,6 +890,72 @@
 	{
 		@name=MAS_pb_GIMBAL_LOCK-FD1-B2
 	}
+	@PROP[pb_CHATTERER_PTT-F03-G1],*
+	{
+		@name=MAS_pb_Chatterer
+	}
+	@PROP[pb_sas_STAB-FD2-G1],*
+	{
+		@name=MAS_pb_SAS_StabilityAssist
+		// @name=MAS_pb_SAS_StabilityAssist_2
+	}
+	@PROP[pb_sas_MANEUVER-FD2-G1],*
+	{
+		@name=MAS_pb_SAS_ManeuverNode
+		// @name=MAS_pb_SAS_ManeuverNode_2
+	}
+	@PROP[pb_sas_PROGRADE-FD2-G1],*
+	{
+		@name=MAS_pb_SAS_Prograde
+		// @name=MAS_pb_SAS_Prograde_2
+	}
+	@PROP[pb_sas_RETROGRADE-FD2-G1],*
+	{
+		@name=MAS_pb_SAS_Retrograde
+		// @name=MAS_pb_SAS_Retrograde_2
+	}
+	
+	@PROP[pb_sas_NORMAL-FD2-G1],*
+	{
+		@name=MAS_pb_SAS_Normal
+		// @name=MAS_pb_SAS_Normal_2
+	}
+	@PROP[pb_sas_ANTINORMAL-FD2-G1],*
+	{
+		@name=MAS_pb_SAS_AntiNormal
+		// @name=MAS_pb_SAS_AntiNormal_2
+	}
+	@PROP[pb_sas_RADIALIN-FD2-G1],*
+	{
+		@name=MAS_pb_SAS_RadialIn
+		// @name=MAS_pb_SAS_RadialIn_2
+	}
+	@PROP[pb_sas_RADIALOUT-FD2-G1],*
+	{
+		@name=MAS_pb_SAS_RadialOut
+		// @name=MAS_pb_SAS_RadialOut_2
+	}
+	@PROP[pb_sas_TARGET-FD2-G1],*
+	{
+		@name=MAS_pb_SAS_Target
+		// @name=MAS_pb_SAS_Target_2
+	}
+	@PROP[pb_sas_ANTITARGET-FD2-G1],*
+	{
+		@name=MAS_pb_SAS_AntiTarget
+		// @name=MAS_pb_SAS_AntiTarget_2
+	}
+	
+	@PROP[pb_CLEAR_MNVR_NODE-F01-B1-G1],*
+	{
+		@name=MAS_pb_ClearNode
+		// @name=MAS_pb_rb_ClearNode
+	}
+	@PROP[pb_CLEAR_TARGET-F01-B1-G1],*
+	{
+		@name=MAS_pb_ClearTarget
+		// @name=MAS_pb_rb_ClearTarget
+	}
 
 	// Props/Control/StageSwitch
 	@PROP[StageSwitch],*
@@ -1103,6 +1169,74 @@
 	@PROP[tggl_AG10_T4W-S],*
 	{
 		@name=MAS_tggl_AG10_T4W-S
+	}
+	@PROP[tggl_GAUGE_RES_MON_T1-S],*
+	{
+		@name=MAS_Switch_v1_ResourceMonitorMode
+	}
+	@PROP[tggl_SOLAR_DEPLOY_T3-G4-B1-S],*
+	{
+		// direct equivalent not modelled
+		@name=MAS_tggl_SolarPanel_T1_G1_S
+	}
+	@PROP[tggl_FUEL_CELL_T3-G4-B1-S],*
+	{
+		// direct equivalent not modelled
+		@name=MAS_tggl_FuelCell_T1_G1_S
+	}
+	@PROP[tggl_TWR_MON_T1-S],*
+	{
+		// direct equivalent not modelled
+		@name=MAS_Switch_v1_TWRIndicatorMode
+	}
+	@PROP[tggl_ARRT_ON_T1-G1-B0-S],*
+	{
+		// direct equivalent not modelled
+		@name=MAS_Switch_v1_ARRT_Power
+	}
+	@PROP[tggl_ARRT_MODE_T1-S],*
+	{
+		// direct equivalent not modelled
+		@name=MAS_Switch_v1_ARRT_Mode
+	}
+	@PROP[tggl_SAS_T2-G2-B2-S],*
+	{
+		// direct equivalent not modelled
+		@name=MAS_Switch_v1_SAS
+	}
+	@PROP[tggl_PREC_CTRL_T1-G1-B2-S],*
+	{
+		// direct equivalent not modelled
+		@name=MAS_Switch_v1_PrecisionCtrl
+	}
+	@PROP[tggl_RCS_T1-G1-B3-S],*
+	{
+		// direct equivalent not modelled
+		@name=MAS_Switch_v1_RCS
+	}
+	@PROP[tggl_GIMBAL_LOCK_T3-G4-B1-S],*
+	{
+		// direct equivalent not modelled
+		@name=MAS_Switch_v1_GimbalLock
+	}
+	@PROP[tggl_ENGINE_ENABLE_T2_G3-B3-S],*
+	{
+		// direct equivalent not modelled
+		@name=MAS_tggl_EngineEnable_T1_G1_C1_S
+	}
+	@PROP[tggl_GEAR_T2-G2-B3-S],*
+	{
+		// direct equivalent not modelled
+		@name=MAS_Switch_v1_Gear
+	}
+	@PROP[tggl_AVAS-T1-G1-B1-S],*
+	{
+		// direct equivalent not modelled
+		@name=MAS_Switch_v1_AVAS_Power
+	}
+	@PROP[tggl_GPWS-T1-G1-B1-S],*
+	{
+		@name=MAS_Switch_v1_GPWS_Power
 	}
 
 	// Props/Control/Switch_Tumble
@@ -1495,6 +1629,12 @@
 		@name=MAS_ASET_ClockTimer
 	}
 
+	// Props/Instruments/ASET_CRT_Display
+	@PROP[ASET_CRT_Display],*
+	{
+		@name=MAS_ASET_CRT_Display
+	}
+
 	// Props/Instruments/ASET_DSKY
 	@PROP[ASET_DSKY],*
 	{
@@ -1755,6 +1895,16 @@
 		@name=MAS_DigitalIndicator_12char_OrbitNumInput
 	}
 
+	// Props/Instruments/FlagIndicator
+	@PROP[FI_ARRT-ERROR],*
+	{
+		@name=MAS_FI_ARRTError
+	}
+	@PROP[FI_X-Pointer01-ERROR],*
+	{
+		@name=MAS_FI_XPtrError
+	}
+
 	// Props/Instruments/FuelMonitor
 	@PROP[FuelMonitor],*
 	{
@@ -1918,6 +2068,42 @@
 		@name=MAS_IP5x3_Blank
 	}
 
+	// Props/Instruments/NASA_Elec_Output
+	@PROP[NASA_Elec_Output],*
+	{
+		@name=MAS_NASA_Elec_Output
+	}
+
+	// Props/Instruments/NASA_G_Units_Indicator
+	@PROP[NASA_CommNetSignalIndicator],*
+	{
+		@name=MAS_NASA_CommNetSignalIndicator
+	}
+	@PROP[NASA_G_Units_Indicator],*
+	{
+		@name=MAS_NASA_G_Units_Indicator
+	}
+
+	// Props/Instruments/NASA_Gauge_Temperature
+	@PROP[NASA_GaugeSngl_CHARGE],*
+	{
+		@name=MAS_NASA_Gauge_Power
+	}
+	@PROP[NASA_GaugeSngl_MONO],*
+	{
+		@name=MAS_NASA_Gauge_Monopropellant
+	}
+	@PROP[NASA_GaugeSngl_ABLATIVE],*
+	{
+		@name=MAS_NASA_Gauge_Ablator
+	}
+
+	// Props/Instruments/NASA_GaugeDblPerc
+	@PROP[NASA_Gauge_ENGINE],*
+	{
+		@name=MAS_NASA_GaugeDbl_Throttle
+	}
+
 	// Props/Instruments/PhaseAngleIndicator
 	@PROP[ASET_PhaseAngleIndicator],*
 	{
@@ -1938,6 +2124,16 @@
 	@PROP[GPS_Nav_LCD_Display],*
 	{
 		@name=MAS_GPS_Nav_LCD_Display
+	}
+	@PROP[RetroAltitudeDisplay],*
+	{
+		@name=MAS_RetroAltitudeDisplay
+	}
+
+	// Props/Instruments/RNDZ_RadarSignal Indicator
+	@PROP[NASA_ChargeRateIndicator],*
+	{
+		@name=MAS_NASA_ChargeRateIndicator
 	}
 
 	// Props/Instruments/STS_EventTimer_Indicator
@@ -2402,6 +2598,18 @@
 	@PROP[ALCORMFD40x20],*
 	{
 		@name=MAS_ALCOR_MFD40x20
+	}
+
+	// Props/MFDs/ALCORMFD60x30
+	@PROP[ALCORMFD60x30],*
+	{
+		@name=MAS_ALCOR_MFD60x30
+	}
+
+	// Props/MFDs/kOSTerminal
+	@PROP[kOSTerminal],*
+	{
+		@name=MAS_kOSTerminal
 	}
 
 	// --- Props/Misc ---

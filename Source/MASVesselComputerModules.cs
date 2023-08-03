@@ -314,11 +314,13 @@ namespace AvionicsSystems
                 else
                 {
                     uint shipFlightNumber = 0;
-                    if (referenceTransformType == ReferenceType.Self)
+                    if (referenceTransformType == ReferenceType.Self || referenceTransformType == ReferenceType.RemoteCommand)
                     {
                         // If the reference transform is the current IVA, we need
                         // to look for another part that has a docking node and the
                         // same ID as our part.
+                        // If using ProbeControlRoom, referenceTransform isn't self,
+                        // it's RemoteCommand.
                         shipFlightNumber = referencePart.launchID;
                     }
                     else
