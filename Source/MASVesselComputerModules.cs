@@ -1339,11 +1339,14 @@ namespace AvionicsSystems
                 float numWheels = 0.0f;
                 for (int i = moduleWheelDeployment.Length - 1; i >= 0; --i)
                 {
-                    if (!moduleWheelDamage[i].isDamaged)
+                    var deploymentModule = moduleWheelDeployment[i];
+                    var damageModule = deploymentModule.wheelBase?.wheelDamageSubmodule;
+
+                    if (damageModule == null || !damageModule.isDamaged)
                     {
                         numWheels += 1.0f;
 
-                        newPosition += Mathf.InverseLerp(moduleWheelDeployment[i].retractedPosition, moduleWheelDeployment[i].deployedPosition, moduleWheelDeployment[i].position);
+                        newPosition += Mathf.InverseLerp(deploymentModule.retractedPosition, deploymentModule.deployedPosition, deploymentModule.position);
                     }
                 }
 
