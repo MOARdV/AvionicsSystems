@@ -254,7 +254,6 @@ GameData/MOARdV/AvionicsSystems/AvionicsSystems.dll
 GameData/MOARdV/AvionicsSystems/avionicssystems.ksp
 Source/*.md
 *.zip
-GameData/MOARdV/AvionicsSystems/MoonSharp.Interpreter.dll
 
 # *.wav
 *.7z
