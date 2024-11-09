@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\KSPBuildTools.0.0.2\build\KSPBuildTools.props" Condition="Exists('packages\KSPBuildTools.0.0.2\build\KSPBuildTools.props')" />
+  <Import Project="packages\JsonPoke.1.2.0\build\JsonPoke.props" Condition="Exists('packages\JsonPoke.1.2.0\build\JsonPoke.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -12,6 +14,8 @@
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,56 +36,12 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <BinariesOutputRelativePath>GameData\MOARdV\AvionicsSystems</BinariesOutputRelativePath>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
-    </Reference>
     <Reference Include="MoonSharp.Interpreter">
       <HintPath>GameData\MOARdV\AvionicsSystems\MoonSharp.Interpreter.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="UnityEngine">
-      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AnimationModule">
-      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AssetBundleModule">
-      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AudioModule">
-      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UIModule">
-      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.UIModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UnityWebRequestAssetBundleModule">
-      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.UnityWebRequestAssetBundleModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UnityWebRequestModule">
-      <HintPath>D:\Games\KSP-IVA\KSP_x64_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -187,14 +147,21 @@
     <Compile Include="Source\Variable.cs" />
     <Compile Include="Source\VariableRegistrar.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>copy $(TargetPath) "D:\Games\KSP-IVA\GameData\MOARdV\AvionicsSystems"
-copy $(TargetPath) $(SolutionDir)GameData\MOARdV\AvionicsSystems\
-$(SolutionDir)Documentor\$(OutDir)Documentor.exe $(SolutionDir)Source\MASIFAR.cs $(SolutionDir)Source\MASIKAC.cs $(SolutionDir)Source\MASIChatterer.cs $(SolutionDir)Source\MASIEngine.cs $(SolutionDir)Source\MASIMechJeb.cs $(SolutionDir)Source\MASINavigation.cs $(SolutionDir)Source\MASIRealChute.cs $(SolutionDir)Source\MASITransfer.cs $(SolutionDir)Source\MASFlightComputerProxy.cs $(SolutionDir)Source\MASFlightComputerProxy2.cs $(SolutionDir)Source\MASFlightComputerProxy3.cs $(SolutionDir)Source\MASIVTOL.cs $(SolutionDir)Source\MASIKerbalEngineer.cs
-</PostBuildEvent>
-  </PropertyGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\JsonPoke.1.2.0\build\JsonPoke.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\JsonPoke.1.2.0\build\JsonPoke.props'))" />
+    <Error Condition="!Exists('packages\JsonPoke.1.2.0\build\JsonPoke.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\JsonPoke.1.2.0\build\JsonPoke.targets'))" />
+    <Error Condition="!Exists('packages\KSPBuildTools.0.0.2\build\KSPBuildTools.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\KSPBuildTools.0.0.2\build\KSPBuildTools.props'))" />
+    <Error Condition="!Exists('packages\KSPBuildTools.0.0.2\build\KSPBuildTools.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\KSPBuildTools.0.0.2\build\KSPBuildTools.targets'))" />
+  </Target>
+  <Import Project="packages\JsonPoke.1.2.0\build\JsonPoke.targets" Condition="Exists('packages\JsonPoke.1.2.0\build\JsonPoke.targets')" />
+  <Import Project="packages\KSPBuildTools.0.0.2\build\KSPBuildTools.targets" Condition="Exists('packages\KSPBuildTools.0.0.2\build\KSPBuildTools.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
