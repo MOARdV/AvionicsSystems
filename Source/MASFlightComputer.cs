@@ -1828,6 +1828,10 @@ namespace AvionicsSystems
         /// <returns></returns>
         internal Kerbal FindCurrentKerbal()
         {
+            if (vessel.GetCrewCount() == 0)
+            {
+                return null;
+            }
             Kerbal activeKerbal = CameraManager.Instance.IVACameraActiveKerbal;
             if (activeKerbal.InPart == part)
             {

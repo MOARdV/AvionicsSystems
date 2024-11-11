@@ -273,6 +273,26 @@ namespace AvionicsSystems
         }
 
         /// <summary>
+        /// Clear first scheduled maneuver node.
+        /// </summary>
+        /// <returns>1 if any nodes were cleared, 0 if no nodes were cleared.</returns>
+        public double ClearOneManeuverNode()
+        {
+            if (vessel.patchedConicSolver != null)
+            {
+                int nodeCount = vessel.patchedConicSolver.maneuverNodes.Count;
+                if (nodeCount > 0)
+                {
+                    vessel.patchedConicSolver.maneuverNodes[0].RemoveSelf();
+                }
+
+                return (nodeCount > 0) ? 1.0 : 0.0;
+            }
+
+            return 0.0;
+        }
+
+        /// <summary>
         /// Returns the apoapsis of the orbit that results from the scheduled maneuver.
         /// </summary>
         /// <returns>New Ap in meters, or 0 if no node is scheduled.</returns>
@@ -954,6 +974,8 @@ namespace AvionicsSystems
                 return 0.0;
             }
         }
+
+
 
         #endregion
 
